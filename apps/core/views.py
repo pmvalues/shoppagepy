@@ -9,16 +9,21 @@ def home_view(request):
     """
     High-performance pure Django homepage view querying the National Commerce Grid.
     """
-    featured_products = list(MasterProduct.objects.filter(status='ACTIVE').prefetch_related('offers')[:8])
-    verified_merchants = list(Merchant.objects.all().select_related('market')[:8])
-    shows = list(Show.objects.filter(status='ACTIVE')[:3])
-    shorts = list(Short.objects.filter(moderation_state='APPROVED')[:4])
-    flagship_malls = list(Market.objects.all()[:12])
+    featured_products = list(MasterProduct.objects.filter(status__in=['active', 'ACTIVE']).prefetch_related('offers')[:8])
+    if not featured_products:
+        featured_products = list(MasterProduct.objects.all().prefetch_related('offers')[:8])
 
-    # Dynamic statistics
-    total_merchants = 3100000
-    total_malls = 3296
-    total_products = 1000000
+    verified_merchants = list(Merchant.objects.all().select_related('market')[:8])
+    
+    shows = list(Show.objects.filter(status__in=['active', 'ACTIVE'])[:3])
+    if not shows:
+        shows = list(Show.objects.all()[:3])
+
+    shorts = list(Short.objects.filter(moderation_state__in=['approved', 'APPROVED'])[:4])
+    if not shorts:
+        shorts = list(Short.objects.all()[:4])
+
+    flagship_malls = list(Market.objects.all()[:12])
 
     context = {
         'featured_products': featured_products,
@@ -27,9 +32,9 @@ def home_view(request):
         'shorts': shorts,
         'flagship_malls': flagship_malls,
         'stats': {
-            'total_merchants': total_merchants,
-            'total_malls': total_malls,
-            'total_products': total_products,
+            'total_merchants': 3100000,
+            'total_malls': 3296,
+            'total_products': 1000000,
         }
     }
     return render(request, 'home.html', context)
