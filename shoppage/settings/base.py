@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'shoppage.wsgi.application'
 ASGI_APPLICATION = 'shoppage.asgi.application'
 
 # Database
-# Default: SQLite for fast zero-dependency local execution; PostgreSQL supported via DATABASE_URI
+# Default: SQLite for fast zero-dependency local execution; PostgreSQL supported via DATABASE_URL or DATABASE_URI
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -90,10 +90,10 @@ DATABASES = {
     }
 }
 
-# Check if PostgreSQL credentials or DATABASE_URI is provided
-if os.environ.get('DATABASE_URI'):
+db_url = os.environ.get('DATABASE_URL') or os.environ.get('DATABASE_URI')
+if db_url and (db_url.startswith('postgres://') or db_url.startswith('postgresql://')):
     import urllib.parse
-    url = urllib.parse.urlparse(os.environ['DATABASE_URI'])
+    url = urllib.parse.urlparse(db_url)
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': url.path[1:],
