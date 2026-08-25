@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Proof Shorts — High-Utility Video Feeds | Shoppage{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+  <div style="margin-bottom: 2rem;">
+    <span class="badge badge-green" style="margin-bottom: 0.5rem;">🎬 Proof Shorts</span>
+    <h1 style="font-size: 2.25rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">
+      Verified Product Tests &amp; Market Tours
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 1rem; max-width: 700px;">
+      60-second video teardowns, load tests under Stage 6 load-shedding, and wholesale market walks tethered directly to real store offers.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-4" style="gap: 1.5rem;">
+    {% for s in shorts %}
+    <div class="card" style="padding: 0; overflow: hidden; background: #0F172A; color: #FFFFFF; border: 1px solid #334155; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="position: relative; height: 380px; background: #000;">
+          <video poster="{{ s.thumbnail_url }}" controls style="width: 100%; height: 100%; object-fit: cover;">
+            <source src="{{ s.video_url }}" type="video/mp4">
+          </video>
+          <span style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); font-size: 0.7rem; color: #34D399; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px;">
+            ✓ {{ s.views|intcomma }} views
+          </span>
+        </div>
+        <div style="padding: 1rem;">
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: #FFFFFF; line-height: 1.3; margin-bottom: 0.4rem;">
+            {{ s.title }}
+          </h3>
+          <p style="color: #94A3B8; font-size: 0.8rem; margin-bottom: 0.5rem;">
+            {{ s.summary|truncatechars:85 }}
+          </p>
+        </div>
+      </div>
+
+      <div style="padding: 0 1rem 1rem 1rem;">
+        {% if s.merchant_whatsapp %}
+        <a href="https://wa.me/{{ s.merchant_whatsapp }}" target="_blank" class="btn btn-whatsapp" style="width: 100%; font-size: 0.8rem; padding: 0.45rem;">
+          💬 WhatsApp Seller
+        </a>
+        {% elif s.master_product %}
+        <a href="/p/{{ s.master_product.canonical_id }}" class="btn btn-outline" style="width: 100%; font-size: 0.8rem; padding: 0.45rem; background: #1E293B; color: #FFFFFF; border-color: #475569;">
+          View Product Offers
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

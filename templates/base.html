@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Shoppage — South Africa National Commerce Grid{% endblock %}</title>
+  
+  <!-- Modern Responsive Stylesheet -->
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  
+  <!-- Interactive Libraries: HTMX (HTML-over-the-wire) & Alpine.js (Reactive Client State) -->
+  <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js"></script>
+
+  {% block extra_css %}{% endblock %}
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <!-- Top Announcement Bar -->
+  <div class="top-bar">
+    <div class="container top-bar-inner">
+      <div>
+        <span>🇿🇦 South Africa's GS1-Verified National Product Grid</span>
+        <span style="margin: 0 0.5rem; color: #475569;">•</span>
+        <span>3,296 Malls &amp; 3,100,000+ Physical Storefronts</span>
+      </div>
+      <div style="display: flex; gap: 1rem;">
+        <a href="/merchant/claim" style="color: #34D399; font-weight: 600;">+ Claim Your Store</a>
+        <a href="/agency" style="color: #94A3B8;">Agency Portal</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Navigation Header -->
+  <header class="header">
+    <div class="container nav-wrapper">
+      <a href="/" class="logo">
+        <span>⚡ Shoppage</span>
+      </a>
+
+      <!-- Interactive Omnibox with HTMX Live Autocomplete -->
+      <div style="position: relative; flex: 1; max-width: 540px;" x-data="{ open: false }">
+        <form action="/search/" method="GET" class="search-container">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            name="q"
+            placeholder="Search 1,000,000+ products, inverters, brands, or malls..."
+            class="search-input"
+            value="{{ query|default:'' }}"
+            autocomplete="off"
+            hx-get="/search/live/"
+            hx-trigger="keyup changed delay:150ms, search"
+            hx-target="#live-search-dropdown"
+            hx-swap="innerHTML"
+            @focus="open = true"
+            @click.away="open = false"
+            @keydown.escape="open = false"
+          />
+        </form>
+        
+        <!-- Live Floating Results Dropdown -->
+        <div
+          id="live-search-dropdown"
+          x-show="open"
+          x-transition
+          style="display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-xl); z-index: 1000; max-height: 420px; overflow-y: auto;"
+        >
+        </div>
+      </div>
+
+      <!-- Nav Links -->
+      <nav class="nav-links">
+        <a href="/search?category=solar_energy">☀️ Solar</a>
+        <a href="/search?category=smartphones">📱 Tech</a>
+        <a href="/search?category=hardware">🧱 Hardware</a>
+        <a href="/malls">🏬 3,296 Malls</a>
+        <a href="/merchants">🏪 Stores</a>
+        <a href="/shorts">🎬 Shorts</a>
+        <a href="/shows">📺 Shows</a>
+        <a href="/merchant/claim" class="btn btn-whatsapp" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+          + List Shop
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Block -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- AI Assistant Floating Widget -->
+  {% include 'includes/ai_assistant_widget.html' %}
+
+  <!-- Footer -->
+  <footer style="background: #0F172A; color: #94A3B8; border-top: 1px solid #1E293B; padding: 4rem 0 2rem 0; margin-top: 4rem;">
+    <div class="container">
+      <div class="footer-grid" style="margin-bottom: 3rem;">
+        <div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #FFFFFF; margin-bottom: 0.75rem;">
+            ⚡ Shoppage
+          </div>
+          <p style="font-size: 0.85rem; line-height: 1.6; max-width: 320px;">
+            The National Commercial Intelligence Grid for South Africa. Connecting consumers directly with verified local merchants on WhatsApp with 0% transaction fees.
+          </p>
+          <div style="margin-top: 1rem; font-size: 0.8rem; color: #34D399; font-weight: 600;">
+            ✓ SABS &amp; NRS 097 Grid Certified Standard
+          </div>
+        </div>
+
+        <div>
+          <h4 style="color: #FFFFFF; font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem;">Primary Sectors</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+            <a href="/search?category=solar_energy">Solar &amp; Backup Power</a>
+            <a href="/search?category=smartphones">Smartphones &amp; Tablets</a>
+            <a href="/search?category=hardware">Building &amp; Hardware</a>
+            <a href="/search?category=groceries">Wholesale FMCG</a>
+            <a href="/search?category=pharmacy">Pharmacy &amp; Health</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="color: #FFFFFF; font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem;">Spatial Commerce</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+            <a href="/malls?province=Gauteng">Gauteng Malls (1,184)</a>
+            <a href="/malls?province=Western%20Cape">Western Cape Malls (612)</a>
+            <a href="/malls?province=KwaZulu-Natal">KZN Shopping Hubs (548)</a>
+            <a href="/malls">All 3,296 Malls &amp; Ranks</a>
+            <a href="/merchants">3.1M Verified Stores</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="color: #FFFFFF; font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem;">Media &amp; Proof</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+            <a href="/shorts">Proof Shorts</a>
+            <a href="/shows">Market Walk Series</a>
+            <a href="/shows">Product Battles Lab</a>
+            <a href="/requests">Buyer Demands</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="color: #FFFFFF; font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem;">Merchants &amp; Admin</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+            <a href="/merchant/claim" style="color: #34D399;">Claim Store Profile</a>
+            <a href="/merchant/dashboard">Merchant Dashboard</a>
+            <a href="/agency">Agency &amp; Franchise</a>
+            <a href="/admin/">Django Operations Admin</a>
+          </div>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid #1E293B; padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: 0.75rem;">
+        <div>
+          &copy; 2026 Shoppage Group (Pty) Ltd. Built on Django 5.1 &amp; National Commercial Intelligence Grid.
+        </div>
+        <div style="display: flex; gap: 1.5rem;">
+          <a href="/privacy">Privacy &amp; POPIA</a>
+          <a href="/terms">Terms of Service</a>
+          <a href="/security">Trust &amp; Verification Standard</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'js/assistant.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

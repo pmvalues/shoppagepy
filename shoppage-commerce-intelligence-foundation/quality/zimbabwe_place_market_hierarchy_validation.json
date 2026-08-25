@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-07-10T10:54:04.216928+00:00",
+  "node_count": 25210,
+  "edge_count": 25209,
+  "market_and_mall_nodes": 118,
+  "checks": {
+    "all_25019_geonames_features_materialized": true,
+    "node_ids_unique": true,
+    "all_edge_parents_exist": true,
+    "all_edge_children_exist": true,
+    "all_markets_have_one_parent_candidate": true,
+    "no_unsubstantiated_nested_market_edges": true,
+    "every_edge_has_review_state": true
+  },
+  "all_checks_passed": true,
+  "interpretation": "Complete GeoNames feature scaffold plus explicit OSM marketplace/mall discovery. Production administrative and nested-market containment remain evidence-gated."
+}

@@ -1,0 +1,154 @@
+{
+  "generated_at": "2026-07-10T10:49:41.055022+00:00",
+  "status": "foundation_seed_not_production_truth",
+  "counts": {
+    "isic_rows": 830,
+    "cpc_rows": 4586,
+    "geonames_rows": 25019,
+    "populated_place_rows": 2101,
+    "place_market_candidates": 2226,
+    "top_feature_codes": [
+      [
+        "S.FRM",
+        7049
+      ],
+      [
+        "T.HLL",
+        3984
+      ],
+      [
+        "H.STM",
+        3970
+      ],
+      [
+        "S.SCH",
+        1972
+      ],
+      [
+        "P.PPL",
+        1766
+      ],
+      [
+        "S.MN",
+        1423
+      ],
+      [
+        "H.RSV",
+        451
+      ],
+      [
+        "T.MT",
+        438
+      ],
+      [
+        "L.CTRB",
+        434
+      ],
+      [
+        "P.PPLX",
+        291
+      ],
+      [
+        "T.PAN",
+        271
+      ],
+      [
+        "S.TNKD",
+        232
+      ],
+      [
+        "T.HLLS",
+        228
+      ],
+      [
+        "S.RSD",
+        222
+      ],
+      [
+        "L.TRB",
+        194
+      ],
+      [
+        "S.EST",
+        181
+      ],
+      [
+        "S.MSSN",
+        159
+      ],
+      [
+        "S.SHSE",
+        137
+      ],
+      [
+        "S.AIRF",
+        119
+      ],
+      [
+        "L.AREA",
+        100
+      ]
+    ],
+    "organisation_study_records": 6101,
+    "organisation_unique_normalized_names": 5281,
+    "organisation_isic_mapped_records": 5899,
+    "organisation_specific_isic_records": 4536,
+    "global_master_products": 1000000,
+    "global_master_distinct_source_codes": 1000000,
+    "global_master_valid_gtins": 950334,
+    "global_master_family_keys": 466276,
+    "global_master_categorized_records": 427716,
+    "global_master_branded_records": 624675,
+    "global_master_named_records": 986585,
+    "global_master_feature_records": 999967,
+    "global_master_enrichment_review_queue_rows": 883674,
+    "place_market_nodes": 25210,
+    "place_market_edges": 25209,
+    "geonames_reference_feature_nodes": 25019,
+    "settlement_nodes": 2101,
+    "explicit_osm_market_and_mall_nodes": 118,
+    "market_parent_review_queue_rows": 118,
+    "merchant_offer_ingester_acceptance_rows": 3,
+    "merchant_offer_ingester_idempotent_duplicates_on_rerun": 3
+  },
+  "downloads": {
+    "geonames_zw": {
+      "url": "https://download.geonames.org/export/dump/ZW.zip",
+      "sha256": "c409d89f688c790075d3edee645a65173591d8db68fa32fdb0747a58276b9972",
+      "bytes": 650525
+    },
+    "geonames_admin1": {
+      "url": "https://download.geonames.org/export/dump/admin1CodesASCII.txt",
+      "sha256": "34784457b76b988a669dff7c3e4b104e4902c0875643cff019281ac79dfa2992",
+      "bytes": 151572
+    },
+    "geonames_admin2": {
+      "url": "https://download.geonames.org/export/dump/admin2Codes.txt",
+      "sha256": "314a76e0b02610c653947acbf4e9dceab6b20eb39a0e793e09fea55d3d1a96be",
+      "bytes": 2370419
+    },
+    "isic_rev5": {
+      "url": "https://unstats.un.org/unsd/classifications/Econ/Download/In%20Text/ISIC_Rev_5_english_structure.csv",
+      "sha256": "fc408f57bd3a4f33c35a4f384ec0010283dd72774892c8d48ae1330a8caeb57f",
+      "bytes": 45481
+    },
+    "cpc_v3": {
+      "url": "https://unstats.un.org/unsd/classifications/Econ/Download/In%20Text/CPC_Ver_3.0_Structure_30Jun2025.csv",
+      "sha256": "5cd2c1c4890dd6be16af48e9bb940fed48efff9865f39ff15edaa921da25fb7c",
+      "bytes": 329384
+    },
+    "open_food_facts_csv_gz": {
+      "url": "https://static.openfoodfacts.org/data/en.openfoodfacts.org.products.csv.gz",
+      "sha256": "f72687ee8bc6522054fe69dbfda6b91902c16af1ec2e043cde27bc6c29ad8176",
+      "bytes": 1275171186,
+      "etag": "\"8d6629ac4d18f33e1ddec4cd9856f19d-77\"",
+      "last_modified": "Thu, 09 Jul 2026 11:29:34 GMT",
+      "raw_file_in_deliverable": false
+    }
+  },
+  "production_note": "ZIMSTAT administrative boundaries must control official hierarchy; GeoNames is a discovery seed requiring reconciliation.",
+  "organisation_study_status": "candidate_study_complete_at_source_record_grain_entity_resolution_and_verification_incomplete",
+  "global_product_status": "one_million_unique_global_reference_masters_validated_local_zimbabwe_offer_observation_incomplete",
+  "place_market_status": "complete_geonames_feature_scaffold_and_explicit_osm_market_seed_validated_zimstat_and_nested_market_containment_incomplete",
+  "merchant_offer_pipeline_status": "feed_contract_and_idempotent_gtin_resolution_ingester_validated_awaiting_authorized_merchant_feeds"
+}

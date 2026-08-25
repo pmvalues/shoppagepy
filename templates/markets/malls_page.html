@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Shopping Centres &amp; Malls Directory — Shoppage South Africa{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+  <div style="margin-bottom: 2rem;">
+    <span class="badge badge-purple" style="margin-bottom: 0.5rem;">🏬 Spatial Commerce Directory</span>
+    <h1 style="font-size: 2.25rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">
+      South African Malls, Wholesale Hubs &amp; Retail Parks
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 1rem; max-width: 700px;">
+      Explore digital twin rosters for super-regional malls, wholesale centres, and township transport ranks across all 9 provinces.
+    </p>
+  </div>
+
+  <div id="malls-container">
+    <!-- Interactive Province Filter Chips with HTMX -->
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem;">
+      <a
+        href="/malls/"
+        class="badge {% if not selected_province %}badge-blue{% else %}badge-gray{% endif %}"
+        style="font-size: 0.85rem; padding: 0.4rem 0.8rem; cursor: pointer; text-decoration: none;"
+        hx-get="/malls/"
+        hx-target="#malls-container"
+        hx-select="#malls-container"
+        hx-swap="outerHTML"
+        hx-push-url="true"
+      >
+        All Provinces ({{ total_malls_count|default:3296|intcomma }})
+      </a>
+      {% for prov in provinces %}
+      <a
+        href="/malls/?province={{ prov|urlencode }}"
+        class="badge {% if selected_province == prov %}badge-blue{% else %}badge-gray{% endif %}"
+        style="font-size: 0.85rem; padding: 0.4rem 0.8rem; cursor: pointer; text-decoration: none;"
+        hx-get="/malls/?province={{ prov|urlencode }}"
+        hx-target="#malls-container"
+        hx-select="#malls-container"
+        hx-swap="outerHTML"
+        hx-push-url="true"
+      >
+        {{ prov }}
+      </a>
+      {% endfor %}
+    </div>
+
+    <!-- Markets Grid -->
+    <div class="grid grid-cols-3" style="gap: 1.25rem;">
+      {% for m in markets %}
+      <div class="card" style="background: #FFFFFF; border-left: 4px solid #3B82F6; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+            <span class="badge badge-blue">{{ m.province }}</span>
+            <span style="font-size: 0.75rem; color: #64748B;">{{ m.metro }}</span>
+          </div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0.25rem 0;">
+            <a href="/markets/{{ m.canonical_slug }}/">{{ m.name }}</a>
+          </h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+            📍 {{ m.street_address|default:"Major South African Commercial Hub" }}
+          </p>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+          <span class="badge badge-green" style="font-size: 0.7rem;">✓ Verified Store Roster</span>
+          <a href="/markets/{{ m.canonical_slug }}/" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+            View Stores &rarr;
+          </a>
+        </div>
+      </div>
+      {% empty %}
+      <div class="card" style="grid-column: span 3; text-align: center; padding: 3rem;">
+        <p style="color: #64748B;">No malls found matching your criteria. Try another province or search term.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

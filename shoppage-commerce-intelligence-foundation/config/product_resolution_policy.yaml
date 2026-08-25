@@ -1,0 +1,32 @@
+version: 0.1.0
+unit_of_work: source_offer
+target_scale:
+  source_offers_processed: 1000000
+  distinct_master_products: derived_not_predeclared
+layers:
+  - product_family
+  - master_product
+  - variant
+  - offer
+identifiers:
+  exact: [gtin, isbn, manufacturer_part_number]
+  contextual: [brand, model, category, pack, size, capacity, voltage, grade, condition]
+candidate_generation:
+  require_same_category_family: true
+  allow_brand_aliases: true
+  block_conflicting_exact_identifiers: true
+decision_bands:
+  automatic_match: category_calibrated_high_precision_threshold
+  human_review: ambiguous_or_conflicting_evidence
+  create_new_master: no_credible_candidate_after_review
+quality_gates:
+  - identifier_validity
+  - category_confidence
+  - unit_normalization
+  - required_attribute_coverage
+  - image_and_text_rights
+  - provenance_present
+  - duplicate_and_variant_checks
+evaluation:
+  report_by: [category, source, language, brand, match_method]
+  metrics: [precision, recall, f1, false_merge_rate, false_split_rate, review_rate]

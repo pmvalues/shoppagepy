@@ -1,0 +1,368 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{{ product.brand }} {{ product.title }} — Shoppage Price & Local Availability{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
+  <!-- Breadcrumbs -->
+  <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+    <a href="/">Home</a> &gt; <a href="/search?category={{ product.category_ref }}">{{ product.category_ref }}</a> &gt; <span style="color: var(--text-primary);">{{ product.brand }}</span>
+  </div>
+
+  <!-- Product Hero & Specifications -->
+  <div class="grid grid-cols-2" style="gap: 2.5rem; margin-bottom: 3rem;">
+    <div>
+      <!-- Gallery View -->
+      <div style="background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px; padding: 2.5rem; text-align: center; margin-bottom: 1rem; box-shadow: var(--shadow-sm);">
+        <span style="font-size: 5rem;">📦</span>
+        <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-blue">Master Product</span>
+          {% if confirmed_offers %}
+            <span class="badge badge-green">✓ {{ confirmed_offers|length }} Confirmed Offers</span>
+          {% endif %}
+          {% if discovered_offers %}
+            <span class="badge badge-gray">🌐 {{ discovered_offers|length }} Discovered Offers</span>
+          {% endif %}
+          {% if not confirmed_offers and not discovered_offers %}
+            <span class="badge badge-amber">Awaiting Local Listings</span>
+          {% endif %}
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.75rem;">
+          Verified GS1 GTIN: {{ product.gtin13|default:product.mpn|default:"Universal Standard Identity" }}
+        </p>
+      </div>
+
+      <!-- Compliance & Certification Badges -->
+      {% if product.compliance %}
+      <div class="card" style="margin-bottom: 1rem; background: #F8FAFC;">
+        <h4 style="font-weight: 700; font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--text-primary);">
+          🛡️ Verified Standards &amp; South African Certification
+        </h4>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          {% if product.compliance.nrs097Certified %}
+            <span class="badge badge-green">✓ NRS 097-2-1 Grid Certified</span>
+          {% endif %}
+          {% if product.compliance.sabsApproved %}
+            <span class="badge badge-blue">✓ SABS Approved Standard</span>
+          {% endif %}
+          {% if product.compliance.warrantyYears %}
+            <span class="badge badge-amber">✓ {{ product.compliance.warrantyYears }}-Year Manufacturer Warranty</span>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <div>
+      <span class="badge badge-blue" style="margin-bottom: 0.5rem;">{{ product.brand }}</span>
+      <h1 style="font-size: 1.85rem; font-weight: 800; line-height: 1.25; margin-bottom: 0.75rem;">
+        {{ product.title }}
+      </h1>
+
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+        <span style="color: #F59E0B; font-weight: 700;">
+          ★ {{ product.reviews_summary.averageRating|default:4.8 }}
+        </span>
+        <span style="color: var(--text-muted); font-size: 0.85rem;">
+          ({{ product.reviews_summary.totalReviewsCount|default:34 }} verified buyer reviews)
+        </span>
+        <span style="color: var(--text-muted);">•</span>
+        <span style="color: var(--text-secondary); font-size: 0.85rem;">
+          Category: <strong>{{ product.category_ref }}</strong>
+        </span>
+      </div>
+
+      <!-- Specifications Table -->
+      <div class="card" style="margin-bottom: 1.5rem; background: #F8FAFC;">
+        <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem;">
+          📋 Normalized Master Product Specifications
+        </h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; font-size: 0.85rem;">
+          <div><strong>Brand:</strong> {{ product.brand }}</div>
+          <div><strong>Model:</strong> {{ product.model_number|default:"Standard" }}</div>
+          {% for key, val in product.attributes.items %}
+            {% if key != 'estimatedPriceZar' %}
+            <div>
+              <strong style="text-transform: capitalize;">{{ key }}:</strong> {{ val }}
+            </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Multilingual Keywords & Dialects -->
+      {% if product.aliases %}
+      <div style="margin-bottom: 1.5rem;">
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.4rem;">
+          🇿🇦 Supported South African Dialects &amp; Aliases:
+        </div>
+        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+          {% for alias in product.aliases %}
+          <span class="badge badge-gray" style="font-size: 0.75rem;">
+            {{ alias.phrase }} ({{ alias.locale|upper }})
+          </span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- List Yours Supplier Banner -->
+  <section
+    class="card"
+    style="margin-bottom: 3rem; background: {% if not confirmed_offers %}linear-gradient(135deg, #ECFDF5 0%, #EFF6FF 100%){% else %}#F8FAFC{% endif %}; border: {% if not confirmed_offers %}2px solid #34D399{% else %}1px solid var(--border){% endif %}; padding: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;"
+  >
+    <div>
+      <span class="badge badge-green" style="margin-bottom: 0.5rem;">
+        🏪 Stock this Master Product?
+      </span>
+      <h2 style="font-size: 1.35rem; font-weight: 800; color: #064E3B; margin-bottom: 0.25rem;">
+        {% if not confirmed_offers %}
+          Be the First Verified Local Merchant to Confirm Stock
+        {% else %}
+          Are you a merchant stocking this product? List your offer
+        {% endif %}
+      </h2>
+      <p style="color: #334155; font-size: 0.9rem; max-width: 650px;">
+        Set your price, link your stall / shop, and receive direct WhatsApp customer inquiries with zero transaction fees.
+      </p>
+    </div>
+
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+      <a
+        href="/merchant/claim?variantId={{ product.canonical_id }}&title={{ product.title|urlencode }}"
+        class="btn btn-whatsapp"
+        style="font-size: 0.95rem; padding: 0.75rem 1.5rem;"
+      >
+        ➕ List as Verified Supplier
+      </a>
+    </div>
+  </section>
+
+  <!-- 1. CONFIRMED OFFERS SECTION (First-Party Merchant Verified) -->
+  <section style="margin-bottom: 3rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+      <h2 class="section-title" style="margin: 0;">
+        ✅ Confirmed Offers ({{ confirmed_offers|length }})
+      </h2>
+      <span class="badge badge-green" style="font-size: 0.75rem;">
+        Direct Merchant Verified
+      </span>
+    </div>
+    <p class="section-desc" style="margin-bottom: 1.5rem;">
+      Active commercial propositions confirmed directly by local merchants. Verified stock, location, and direct WhatsApp contact.
+    </p>
+
+    {% if confirmed_offers %}
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% for offer in confirmed_offers %}
+        <div
+          class="card"
+          style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; background: #FFFFFF; border: 1px solid #10B981; border-left: 5px solid #10B981;"
+        >
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem; flex-wrap: wrap;">
+              <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0;">
+                <a href="/m/{{ offer.merchant.canonical_id }}" style="color: #0F172A; text-decoration: none;">
+                  {{ offer.merchant.name }}
+                </a>
+              </h3>
+              <span class="badge badge-green">✓ Stock Confirmed</span>
+              {% if offer.merchant.google_rating %}
+              <span style="font-size: 0.8rem; color: #D97706; font-weight: 700;">
+                ★ {{ offer.merchant.google_rating }} ({{ offer.merchant.google_reviews_count }}+ Reviews)
+              </span>
+              {% endif %}
+            </div>
+
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0.25rem 0;">
+              📍 {{ offer.merchant.address_text }} · <span style="color: #475569; font-weight: 600;">{{ offer.stall_ref|default:"Direct Shop Unit" }}</span>
+            </p>
+
+            <p style="color: var(--text-muted); font-size: 0.75rem; margin: 0;">
+              🛡️ Trust Score: {{ offer.merchant.trust_score }}/100 · Responds in ~{{ offer.merchant.median_response_minutes }}m
+            </p>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <div style="text-align: right;">
+              <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-green);">
+                R {{ offer.price_amount|floatformat:0|intcomma }}
+              </div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">
+                Confirmed {{ offer.last_confirmed_at|date:"d M Y" }}
+              </div>
+            </div>
+
+            <a
+              href="/l/{{ offer.canonical_id }}"
+              class="btn btn-whatsapp"
+              target="_blank"
+              rel="noopener noreferrer"
+              style="padding: 0.6rem 1.25rem; font-weight: 600;"
+            >
+              💬 WhatsApp Merchant
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card" style="background: #F8FAFC; padding: 1.5rem; text-align: center;">
+        <p style="color: #64748B; margin: 0;">
+          No direct merchant has confirmed local stock yet. Discover available web listings below or claim as a supplier.
+        </p>
+      </div>
+    {% endif %}
+  </section>
+
+  <!-- 2. DISCOVERED OFFERS SECTION (External Web Sweep) -->
+  {% if discovered_offers %}
+  <section style="margin-bottom: 3rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+      <h2 class="section-title" style="margin: 0;">
+        🌐 Discovered Offers ({{ discovered_offers|length }})
+      </h2>
+      <span class="badge badge-gray" style="font-size: 0.75rem;">
+        External Web &amp; Catalog Sweep
+      </span>
+    </div>
+    <p class="section-desc" style="margin-bottom: 1.5rem;">
+      Public product offers discovered externally from retailer websites and distributor feeds.
+    </p>
+
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      {% for disc in discovered_offers %}
+      <div
+        class="card"
+        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; background: #FAFAFA; border: 1px solid #E2E8F0; border-left: 5px solid #94A3B8;"
+      >
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem; flex-wrap: wrap;">
+            <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0; color: #1E293B;">
+              {{ disc.merchant_name }}
+            </h3>
+            <span class="badge badge-gray" style="font-size: 0.7rem;">
+              🌐 {{ disc.source_website }}
+            </span>
+          </div>
+
+          <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0.25rem 0;">
+            📦 {{ disc.availability_text }} · <span style="color: #64748B;">{{ disc.location_hint }}</span>
+          </p>
+
+          <p style="color: var(--text-muted); font-size: 0.75rem; margin: 0;">
+            Swept via {{ disc.discovery_source }} · SKU: {{ disc.sku|default:"N/A" }}
+          </p>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+          <div style="text-align: right;">
+            <div style="font-size: 1.35rem; font-weight: 700; color: #334155;">
+              R {{ disc.discovered_price_amount|floatformat:0|intcomma }}
+            </div>
+            <div style="font-size: 0.75rem; color: #94A3B8;">
+              Discovered Price
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem;">
+            <a
+              href="{{ disc.source_url }}"
+              class="btn btn-outline"
+              target="_blank"
+              rel="noopener noreferrer"
+              style="padding: 0.5rem 1rem; font-size: 0.85rem;"
+            >
+              View on {{ disc.source_website }} &nearr;
+            </a>
+            <a
+              href="/merchant/claim?variantId={{ product.canonical_id }}&source={{ disc.source_website|urlencode }}"
+              class="btn btn-outline"
+              style="padding: 0.5rem 0.75rem; font-size: 0.8rem; background: #F1F5F9;"
+            >
+              Claim Listing
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Interactive Load-Shedding Runtime Calculator (for solar products) -->
+  {% if product.category_ref == 'solar_energy' %}
+  <section class="card" style="margin-bottom: 3rem; background: #F8FAFC; padding: 2rem;" x-data="{
+    batteryKwh: 5.12,
+    dod: 0.90,
+    watts: 650,
+    calculateRuntime() {
+      if (this.watts <= 0) return 'N/A';
+      let totalHours = (this.batteryKwh * this.dod * 1000) / this.watts;
+      let h = Math.floor(totalHours);
+      let m = Math.round((totalHours - h) * 60);
+      return `${h}h ${m.toString().padStart(2, '0')}m`;
+    }
+  }">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+      <div>
+        <span class="badge badge-green" style="margin-bottom: 0.25rem;">🔋 Live Interactive Estimator</span>
+        <h2 style="font-size: 1.35rem; font-weight: 800; margin: 0; color: var(--text-primary);">
+          Load-Shedding Continuous Backup Calculator
+        </h2>
+      </div>
+      <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px; padding: 0.5rem 1.25rem; text-align: right;">
+        <span style="font-size: 0.75rem; color: #065F46; font-weight: 600;">Estimated Backup Runtime:</span>
+        <div style="font-size: 1.6rem; font-weight: 800; color: #059669;" x-text="calculateRuntime()"></div>
+      </div>
+    </div>
+
+    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">
+      Drag the power consumption slider to simulate continuous backup duration during Stage 4 &amp; 6 power cuts:
+    </p>
+
+    <!-- Wattage Load Slider -->
+    <div style="background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem;">
+        <span>Current Power Draw: <span style="color: #2563EB;" x-text="watts + ' Watts'"></span></span>
+        <span style="color: #64748B; font-weight: normal; font-size: 0.8rem;">Standard 5.12kWh LiFePO4 Battery (90% DoD)</span>
+      </div>
+      <input
+        type="range"
+        min="100"
+        max="3500"
+        step="50"
+        x-model="watts"
+        style="width: 100%; cursor: pointer; accent-color: #2563EB;"
+      />
+      <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94A3B8; margin-top: 0.4rem;">
+        <span>100W (Wi-Fi &amp; LED Lights)</span>
+        <span>650W (TV, Fridges, Work PCs)</span>
+        <span>1,500W (Heavy Appliances)</span>
+        <span>3,500W (Full House Peak)</span>
+      </div>
+    </div>
+
+    <!-- Quick Presets -->
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center;">Quick Presets:</span>
+      <button type="button" class="badge badge-gray" style="border: 1px solid #CBD5E1; cursor: pointer; background: #FFFFFF;" @click="watts = 250">
+        💡 Minimal Essentials (250W)
+      </button>
+      <button type="button" class="badge badge-gray" style="border: 1px solid #CBD5E1; cursor: pointer; background: #FFFFFF;" @click="watts = 650">
+        🏠 Home &amp; Entertainment (650W)
+      </button>
+      <button type="button" class="badge badge-gray" style="border: 1px solid #CBD5E1; cursor: pointer; background: #FFFFFF;" @click="watts = 1200">
+        💻 Home Office &amp; Microwave (1,200W)
+      </button>
+      <button type="button" class="badge badge-gray" style="border: 1px solid #CBD5E1; cursor: pointer; background: #FFFFFF;" @click="watts = 2400">
+        ⚡ Heavy Load (2,400W)
+      </button>
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

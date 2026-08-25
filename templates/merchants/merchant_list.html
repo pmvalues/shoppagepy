@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Verified South African Merchant Network — Shoppage{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+  <div style="margin-bottom: 2rem;">
+    <span class="badge badge-purple" style="margin-bottom: 0.5rem;">🏪 3,100,000+ Nationwide Storefronts</span>
+    <h1 style="font-size: 2.25rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">
+      Verified Physical Merchants &amp; Distributors
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 1rem; max-width: 700px;">
+      Direct WhatsApp access to vetted South African shopkeepers, importers, and hardware distributors.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-4" style="gap: 1.25rem;">
+    {% for m in merchants %}
+    <div class="card" style="background: #FFFFFF; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          <span class="badge badge-purple">{{ m.category|default:"General" }}</span>
+          <span class="badge badge-green">✓ {{ m.trust_score }}/100 Trust</span>
+        </div>
+        <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0.3rem 0;">
+          <a href="/m/{{ m.canonical_id }}">{{ m.name }}</a>
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 0.5rem;">
+          📍 {{ m.address_text|truncatechars:45 }}
+        </p>
+        {% if m.google_rating %}
+        <p style="font-size: 0.8rem; color: #D97706; font-weight: 700; margin-bottom: 0.5rem;">
+          ★ {{ m.google_rating }} ({{ m.google_reviews_count }}+ reviews)
+        </p>
+        {% endif %}
+      </div>
+
+      <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+        <a href="/m/{{ m.canonical_id }}" class="btn btn-outline" style="flex: 1; font-size: 0.8rem; padding: 0.4rem;">
+          View Store
+        </a>
+        {% if m.whatsapp_number %}
+        <a href="/l/m_{{ m.canonical_id }}" class="btn btn-whatsapp" style="font-size: 0.8rem; padding: 0.4rem 0.75rem;">
+          💬 WhatsApp
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <div class="card" style="grid-column: span 4; text-align: center; padding: 3rem;">
+      <p style="color: #64748B;">No merchants found matching your query.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

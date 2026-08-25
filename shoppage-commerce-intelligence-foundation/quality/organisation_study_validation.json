@@ -1,0 +1,43 @@
+{
+  "generated_at": "2026-07-10T10:27:42.034788+00:00",
+  "status": "passed",
+  "checks": {
+    "at_least_5000_study_records": true,
+    "at_least_5000_unique_normalized_names": true,
+    "study_record_ids_unique": true,
+    "source_candidate_ids_unique": true,
+    "required_fields_complete": true,
+    "all_isic_codes_exist_in_reference": true,
+    "isic_mapping_rate_at_least_90_percent": true,
+    "no_candidate_is_falsely_marked_verified": true,
+    "all_rows_require_human_review": true
+  },
+  "evidence": {
+    "study_records": 6101,
+    "unique_normalized_names": 5281,
+    "isic_mapped_records": 5899,
+    "isic_mapping_rate": 0.966891,
+    "source_counts": {
+      "openstreetmap": 5318,
+      "rbz_microfinance_register": 339,
+      "zimbabwe_stock_exchange": 45,
+      "zera_petroleum_licensees": 399
+    },
+    "missing_required_fields": {
+      "study_record_id": 0,
+      "source_family": 0,
+      "source_candidate_id": 0,
+      "name": 0,
+      "normalized_name": 0,
+      "source_activity": 0,
+      "source_url": 0,
+      "source_authority": 0,
+      "verification_state": 0
+    },
+    "duplicate_study_ids": 0,
+    "duplicate_source_candidate_ids": 0,
+    "invalid_isic_codes": [],
+    "falsely_verified_records": []
+  },
+  "interpretation": "Passing proves a 5,000-plus source-backed candidate study with activity evidence. It does not prove 5,000 legally verified, currently operating companies."
+}

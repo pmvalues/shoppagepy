@@ -1,0 +1,35 @@
+{
+  "name": "shoppage-platform",
+  "version": "7.0.0",
+  "private": true,
+  "description": "Shoppage v7.0 — Global Product Intelligence, Local Commerce, Media & Platform",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build:contracts": "npm run build --workspace=@shoppage/contracts",
+    "build:kernel": "npm run build --workspace=@shoppage/kernel",
+    "build:adapters": "npm run build --workspace=@shoppage/adapters",
+    "build:eval": "npm run build --workspace=@shoppage/eval",
+    "build:packages": "npm run build:contracts && npm run build:kernel && npm run build:adapters && npm run build:eval",
+    "build:web": "npm run build --workspace=@shoppage/web",
+    "build": "npm run build:packages && npm run build:web",
+    "test": "npm run test --workspaces --if-present",
+    "test:contracts": "npm run test --workspace=@shoppage/contracts",
+    "test:kernel": "npm run test --workspace=@shoppage/kernel",
+    "test:adapters": "npm run test --workspace=@shoppage/adapters",
+    "test:eval": "npm run test --workspace=@shoppage/eval",
+    "test:web": "npm run test --workspace=@shoppage/web",
+    "dev": "npm run dev --workspace=@shoppage/web",
+    "lint": "npm run lint --workspaces --if-present",
+    "seed": "npm run seed --workspace=@shoppage/kernel"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

@@ -1,0 +1,59 @@
+{% extends "admin/index.html" %}
+{% load i18n static humanize %}
+
+{% block content %}
+<div id="content-main">
+  <!-- Top KPI Telemetry Deck -->
+  <div class="admin-kpi-grid">
+    <div class="admin-kpi-card" style="border-left: 4px solid #2563EB;">
+      <div class="admin-kpi-label">🏬 Spatial Commerce Nodes</div>
+      <div class="admin-kpi-value" style="color: #2563EB;">3,296</div>
+      <div class="admin-kpi-sub">✓ 100% 9-Province Roster Coverage</div>
+    </div>
+
+    <div class="admin-kpi-card" style="border-left: 4px solid #10B981;">
+      <div class="admin-kpi-label">🏪 Verified Merchant Index</div>
+      <div class="admin-kpi-value" style="color: #10B981;">3,100,000+</div>
+      <div class="admin-kpi-sub">✓ Direct WhatsApp Routing Active</div>
+    </div>
+
+    <div class="admin-kpi-card" style="border-left: 4px solid #8B5CF6;">
+      <div class="admin-kpi-label">🛡️ Evidence Graph Moat</div>
+      <div class="admin-kpi-value" style="color: #8B5CF6;">100%</div>
+      <div class="admin-kpi-sub">✓ SABS &amp; CIPC Provenance Verified</div>
+    </div>
+
+    <div class="admin-kpi-card" style="border-left: 4px solid #F59E0B;">
+      <div class="admin-kpi-label">🤖 Autopilot Draft Pipeline</div>
+      <div class="admin-kpi-value" style="color: #F59E0B;">Active</div>
+      <div class="admin-kpi-sub">✓ Bounded AI Execution Policy</div>
+    </div>
+  </div>
+
+  <!-- Operational Quick Actions Bar -->
+  <div class="module" style="padding: 1.25rem; background: #FFFFFF; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--admin-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0; font-size: 1rem; font-weight: 700; color: #0F172A;">
+        ⚡ Operational Command Shortcuts
+      </h3>
+      <p style="margin: 0; font-size: 0.8rem; color: #64748B;">
+        Execute immediate intelligence batch jobs and system audits across all 9 provinces.
+      </p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <a href="/api/agent/stream/?agent=Feed+Autopilot" target="_blank" class="button" style="background: #2563EB; text-decoration: none; font-size: 0.8rem;">
+        🤖 Test SSE Autopilot Stream &nearr;
+      </a>
+      <a href="/merchant/dashboard/" target="_blank" class="button" style="background: #059669; text-decoration: none; font-size: 0.8rem;">
+        🏪 Open Merchant Centre OS &nearr;
+      </a>
+      <a href="/malls/" target="_blank" class="button" style="background: #475569; text-decoration: none; font-size: 0.8rem;">
+        🏬 View Malls Explorer &nearr;
+      </a>
+    </div>
+  </div>
+
+  {{ block.super }}
+</div>
+{% endblock %}

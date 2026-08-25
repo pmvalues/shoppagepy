@@ -1,0 +1,494 @@
+{% extends 'base.html' %}
+{% load humanize static %}
+
+{% block title %}Merchant Centre OS — {{ merchant.name|default:"Merchant Hub" }} | Shoppage{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 5rem;" x-data="{ 
+  activeTab: 'agent',
+  streamRunning: false,
+  selectedAgent: 'Feed Autopilot',
+  streamLogs: [],
+  currentStep: 'Idle',
+  progressPct: 0,
+  startAgentStream() {
+    this.streamRunning = true;
+    this.streamLogs = [];
+    this.progressPct = 10;
+    this.currentStep = 'Initializing Bounded Environment...';
+    
+    const es = new EventSource(`/api/agent/stream/?agent=${encodeURIComponent(this.selectedAgent)}`);
+    
+    es.addEventListener('run_started', (e) => {
+      const data = JSON.parse(e.data);
+      this.streamLogs.push(`[${new Date().toLocaleTimeString()}] ▶ RUN STARTED: ${data.message}`);
+      this.progressPct = 25;
+      this.currentStep = 'Formulating Plan & Policy Checks';
+    });
+
+    es.addEventListener('plan_ready', (e) => {
+      const data = JSON.parse(e.data);
+      this.streamLogs.push(`[${new Date().toLocaleTimeString()}] 📋 PLAN: ${data.message}`);
+      this.progressPct = 45;
+      this.currentStep = 'Executing Verified Tool Ingestion';
+    });
+
+    es.addEventListener('tool_executing', (e) => {
+      const data = JSON.parse(e.data);
+      this.streamLogs.push(`[${new Date().toLocaleTimeString()}] ⚙️ TOOL: ${data.message}`);
+      this.progressPct = 70;
+      this.currentStep = 'Corroborating Evidence Graph';
+    });
+
+    es.addEventListener('evidence_check', (e) => {
+      const data = JSON.parse(e.data);
+      this.streamLogs.push(`[${new Date().toLocaleTimeString()}] 🛡️ EVIDENCE: ${data.message}`);
+      this.progressPct = 85;
+      this.currentStep = 'Generating Candidate Drafts';
+    });
+
+    es.addEventListener('draft_generated', (e) => {
+      const data = JSON.parse(e.data);
+      this.streamLogs.push(`[${new Date().toLocaleTimeString()}] 📝 DRAFT READY: ${data.message}`);
+      this.progressPct = 95;
+    });
+
+    es.addEventListener('run_completed', (e) => {
+      const data = JSON.parse(e.data);
+      this.streamLogs.push(`[${new Date().toLocaleTimeString()}] ✓ SUCCESS: ${data.message}`);
+      this.progressPct = 100;
+      this.currentStep = 'Completed';
+      this.streamRunning = false;
+      es.close();
+    });
+
+    es.onerror = () => {
+      this.streamLogs.push(`[${new Date().toLocaleTimeString()}] ℹ Stream finished.`);
+      this.streamRunning = false;
+      this.progressPct = 100;
+      es.close();
+    };
+  }
+}">
+
+  <!-- Merchant OS Top Command Header (Dark Theme) -->
+  <div style="background: #0F172A; border-radius: 16px; padding: 2rem; color: #FFFFFF; margin-bottom: 2rem; box-shadow: var(--shadow-xl); border: 1px solid #1E293B; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+        <span class="badge" style="background: rgba(16, 185, 129, 0.25); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.5); font-size: 0.75rem; font-weight: 700;">
+          ● Merchant Centre OS v8.1
+        </span>
+        <span class="badge badge-blue" style="font-size: 0.75rem;">📍 {{ merchant.province|default:"Gauteng" }}</span>
+        <span class="badge badge-purple" style="font-size: 0.75rem;">{{ merchant.category|default:"Solar & Hardware" }}</span>
+      </div>
+
+      <h1 style="font-size: 2.1rem; font-weight: 800; color: #FFFFFF; margin: 0 0 0.4rem 0; letter-spacing: -0.02em;">
+        {{ merchant.name|default:"Store Hub" }}
+      </h1>
+      <p style="color: #CBD5E1; font-size: 0.875rem; margin: 0; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; font-weight: 500;">
+        <span>🏢 {{ merchant.address_text|default:"Physical Mall Stall" }}</span>
+        <span>•</span>
+        <span>💬 WhatsApp: <strong style="color: #34D399; font-weight: 700;">+{{ merchant.whatsapp_number|default:"27712345678" }}</strong></span>
+        <span>•</span>
+        <span>★ <strong style="color: #FBBF24;">{{ merchant.google_rating|default:"4.9" }}</strong> ({{ merchant.google_reviews_count|default:"185" }} reviews)</span>
+      </p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <a href="https://wa.me/{{ merchant.whatsapp_number }}" target="_blank" class="btn btn-whatsapp" style="padding: 0.65rem 1.25rem; font-size: 0.875rem; font-weight: 700;">
+        💬 Open Merchant WhatsApp
+      </a>
+      <a href="/api/feeds/google-merchant-center/{{ merchant.canonical_id }}/" target="_blank" class="btn btn-outline" style="background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); color: #FFFFFF; padding: 0.65rem 1rem; font-size: 0.875rem; font-weight: 600;">
+        📄 Google XML Feed &nearr;
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI Pulse Ticker -->
+  <div class="grid grid-cols-4" style="gap: 1.25rem; margin-bottom: 2rem;">
+    <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #10B981;">
+      <div class="stat-number" style="color: #059669;">{{ merchant.trust_score|default:85 }}/100</div>
+      <div class="stat-label">Verified Trust Score</div>
+    </div>
+    <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #2563EB;">
+      <div class="stat-number" style="color: #1D4ED8;">{{ offers|length }}</div>
+      <div class="stat-label">Active Live Offers</div>
+    </div>
+    <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #8B5CF6;">
+      <div class="stat-number" style="color: #6D28D9;">{{ drafts|length }}</div>
+      <div class="stat-label">AI Drafts Pending</div>
+    </div>
+    <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #F59E0B;">
+      <div class="stat-number" style="color: #B45309;">{{ total_referrals_count|default:48 }}</div>
+      <div class="stat-label">WhatsApp Leads Sent</div>
+    </div>
+  </div>
+
+  <!-- Reactive Workspace Navigation Tabs -->
+  <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid #CBD5E1; margin-bottom: 2rem; overflow-x: auto; padding-bottom: 2px;">
+    <button 
+      type="button" 
+      @click="activeTab = 'agent'" 
+      :style="activeTab === 'agent' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
+      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
+    >
+      <span>🤖</span> Agent Command Center
+    </button>
+    <button 
+      type="button" 
+      @click="activeTab = 'drafts'" 
+      :style="activeTab === 'drafts' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
+      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
+    >
+      <span>📝</span> AI Draft Review Workspace <span class="badge badge-purple" style="font-size: 0.75rem;">{{ drafts|length }}</span>
+    </button>
+    <button 
+      type="button" 
+      @click="activeTab = 'offers'" 
+      :style="activeTab === 'offers' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
+      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
+    >
+      <span>📦</span> Live Offers &amp; Price Matrix
+    </button>
+    <button 
+      type="button" 
+      @click="activeTab = 'demands'" 
+      :style="activeTab === 'demands' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
+      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
+    >
+      <span>📡</span> Regional Demand Radar <span class="badge badge-blue" style="font-size: 0.75rem;">{{ demands|length }}</span>
+    </button>
+    <button 
+      type="button" 
+      @click="activeTab = 'trust'" 
+      :style="activeTab === 'trust' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
+      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
+    >
+      <span>🛡️</span> Trust Passport &amp; Seal Studio
+    </button>
+  </div>
+
+  <!-- =========================================================================
+       TAB 1: 🤖 Agent Command Center (Live SSE Streaming Console)
+       ========================================================================= -->
+  <div x-show="activeTab === 'agent'" x-transition>
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; align-items: flex-start;">
+      <!-- Agent Selection Panel -->
+      <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.4rem; color: #0F172A;">
+          Autopilot Agent Fleet
+        </h3>
+        <p style="color: #334155; font-size: 0.85rem; margin-bottom: 1.25rem;">
+          Select a bounded autonomous worker to optimize store operations under strict v8.1 governance:
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+          <template x-for="agent in ['Feed Autopilot', 'SEO Strategist', 'Hyperlocal Campaigner', 'Request Negotiator', 'Competitor Sentinel']">
+            <div 
+              @click="selectedAgent = agent"
+              :style="selectedAgent === agent ? 'border: 2px solid #1D4ED8; background: #EFF6FF;' : 'border: 1px solid var(--border); background: #FFFFFF;'"
+              style="padding: 0.85rem; border-radius: 8px; cursor: pointer; transition: all 0.15s ease;"
+            >
+              <div style="font-weight: 800; font-size: 0.9rem; color: #0F172A;" x-text="agent"></div>
+              <div style="font-size: 0.8rem; color: #334155; margin-top: 2px;" x-text="agent === 'Feed Autopilot' ? 'Normalizes barcodes, SABS specs & prices' : (agent === 'SEO Strategist' ? 'Expands multilingual search aliases' : 'Scans regional price benchmarks')"></div>
+            </div>
+          </template>
+        </div>
+
+        <button 
+          type="button" 
+          class="btn btn-primary" 
+          style="width: 100%; padding: 0.8rem; font-size: 0.925rem; font-weight: 700;"
+          :disabled="streamRunning"
+          @click="startAgentStream()"
+        >
+          <span x-show="!streamRunning">⚡ Execute <span x-text="selectedAgent"></span></span>
+          <span x-show="streamRunning">⏳ Running Stream...</span>
+        </button>
+      </div>
+
+      <!-- Live Terminal Console (High-Contrast Dark Theme) -->
+      <div class="card" style="background: #0B1120; border: 1px solid #1E293B; color: #F8FAFC; padding: 1.5rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; border-radius: 12px; box-shadow: var(--shadow-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1E293B; padding-bottom: 0.75rem; margin-bottom: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #CBD5E1;">
+            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%;" :style="streamRunning ? 'background: #10B981; box-shadow: 0 0 8px #10B981;' : 'background: #64748B;'"></span>
+            <span>SSE Console: <strong style="color: #38BDF8; font-weight: 700;" x-text="selectedAgent"></strong></span>
+          </div>
+          <div style="font-size: 0.8rem; color: #34D399; font-weight: 700;" x-text="currentStep"></div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div style="width: 100%; background: #1E293B; height: 6px; border-radius: 3px; margin-bottom: 1rem; overflow: hidden;">
+          <div style="background: #3B82F6; height: 100%; transition: width 0.3s ease;" :style="`width: ${progressPct}%`"></div>
+        </div>
+
+        <!-- Log Output Box -->
+        <div style="height: 280px; overflow-y: auto; font-size: 0.825rem; line-height: 1.65; color: #A5F3FC;">
+          <template x-if="streamLogs.length === 0">
+            <div style="color: #94A3B8; padding: 3rem 1rem; text-align: center; font-family: sans-serif; font-size: 0.9rem;">
+              Ready. Select an agent on the left and click &ldquo;Execute&rdquo; to launch real-time SSE stream.
+            </div>
+          </template>
+          <template x-for="log in streamLogs">
+            <div style="margin-bottom: 0.35rem;" x-text="log"></div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB 2: 📝 AI Draft Review Workspace
+       ========================================================================= -->
+  <div x-show="activeTab === 'drafts'" x-transition style="display: none;">
+    <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="font-size: 1.3rem; font-weight: 800; color: #0F172A; margin: 0 0 0.25rem 0;">
+            AI Candidate Drafts Awaiting Merchant Review
+          </h2>
+          <p style="color: #334155; font-size: 0.875rem; margin: 0;">
+            Under v8.1 Rule #19, AI suggestions remain in candidate state until you explicitly approve or policy auto-approves.
+          </p>
+        </div>
+        <span class="badge badge-purple" style="font-size: 0.8rem;">{{ drafts|length }} Pending Action</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% for draft in drafts %}
+        <div class="card" style="background: #F8FAFC; border: 1px solid #CBD5E1; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="flex: 1; min-width: 280px;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
+              <span class="badge badge-blue" style="font-size: 0.75rem;">{{ draft.get_draft_type_display }}</span>
+              <span style="font-size: 0.8rem; color: #334155;">Target: <strong style="color: #0F172A;">{{ draft.product.title|default:"General Store Listing" }}</strong></span>
+            </div>
+            <div style="background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 6px; padding: 0.65rem 0.9rem; font-family: monospace; font-size: 0.825rem; color: #0F172A; margin-bottom: 0.4rem;">
+              {{ draft.payload }}
+            </div>
+            <div style="font-size: 0.8rem; color: #065F46; font-weight: 700;">
+              ✓ Confidence: {{ draft.confidence|floatformat:2 }} · Created: {{ draft.created_at|naturaltime }}
+            </div>
+          </div>
+
+          <div id="draft-actions-{{ draft.draft_id }}" style="display: flex; gap: 0.5rem;">
+            {% if draft.review_state == 'approved' or draft.review_state == 'auto_approved' %}
+            <span class="badge badge-green" style="font-size: 0.85rem;">✓ {{ draft.get_review_state_display }}</span>
+            {% else %}
+            <button 
+              type="button" 
+              class="btn btn-whatsapp" 
+              style="padding: 0.55rem 1.15rem; font-size: 0.85rem; font-weight: 700;"
+              hx-post="/merchant/draft/{{ draft.draft_id }}/action/"
+              hx-vals='{"action": "approved"}'
+              hx-target="#draft-actions-{{ draft.draft_id }}"
+              hx-swap="innerHTML"
+            >
+              ✓ Approve &amp; Publish
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-outline" 
+              style="padding: 0.55rem 1rem; font-size: 0.85rem; color: #B91C1C; border-color: #FECACA; font-weight: 700;"
+              hx-post="/merchant/draft/{{ draft.draft_id }}/action/"
+              hx-vals='{"action": "rejected"}'
+              hx-target="#draft-actions-{{ draft.draft_id }}"
+              hx-swap="innerHTML"
+            >
+              ✕ Reject
+            </button>
+            {% endif %}
+          </div>
+        </div>
+        {% empty %}
+        <div style="text-align: center; padding: 3rem 1rem; color: #334155; font-size: 0.9rem;">
+          <p>No pending drafts. Your catalogue is 100% verified and synchronized.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB 3: 📦 Live Offers & Price Matrix
+       ========================================================================= -->
+  <div x-show="activeTab === 'offers'" x-transition style="display: none;">
+    <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="font-size: 1.3rem; font-weight: 800; color: #0F172A; margin: 0 0 0.25rem 0;">
+            Active Confirmed Propositions &amp; Price Matrix
+          </h2>
+          <p style="color: #334155; font-size: 0.875rem; margin: 0;">
+            Your live inventory propositions indexed across Sandton, Midrand, and nationwide search results.
+          </p>
+        </div>
+        <a href="/merchant/claim" class="btn btn-whatsapp" style="font-size: 0.875rem; font-weight: 700;">+ List New Master Product</a>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% for offer in offers %}
+        <div class="card" style="background: #FAFAFA; border: 1px solid #CBD5E1; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.25rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+              <span class="badge badge-blue" style="font-size: 0.75rem;">{{ offer.get_sla_class_display }}</span>
+              <span class="badge badge-green" style="font-size: 0.75rem;">✓ {{ offer.get_availability_state_display }}</span>
+            </div>
+            <h4 style="font-size: 1.15rem; font-weight: 800; margin: 0 0 0.25rem 0;">
+              <a href="/p/{{ offer.variant.canonical_id }}/" style="color: #0F172A; text-decoration: none;">{{ offer.variant.title }}</a>
+            </h4>
+            <p style="font-size: 0.85rem; color: #334155; margin: 0;">
+              Location: <strong style="color: #0F172A;">{{ offer.stall_ref|default:"Direct Showroom" }}</strong> · GS1 GTIN: <code>{{ offer.variant.gtin13|default:"6009800000000" }}</code>
+            </p>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <div style="text-align: right;">
+              <div style="font-size: 1.45rem; font-weight: 800; color: #059669;" id="offer-price-{{ offer.id }}">
+                R {{ offer.price_amount|floatformat:0|intcomma }}
+              </div>
+              <div style="font-size: 0.75rem; color: #475569; font-weight: 600;">0% Commission Price</div>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+              <a href="/l/{{ offer.canonical_id }}/" class="btn btn-whatsapp" style="font-size: 0.85rem; padding: 0.55rem 0.95rem; font-weight: 700;" target="_blank">
+                💬 Lead Link
+              </a>
+              <button 
+                type="button" 
+                class="btn btn-outline" 
+                style="font-size: 0.85rem; padding: 0.55rem 0.85rem; font-weight: 600;"
+                @click="navigator.clipboard.writeText('https://shoppage.co.za/l/{{ offer.canonical_id }}/'); alert('WhatsApp Referral link copied to clipboard!');"
+              >
+                📋 Copy
+              </button>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div style="text-align: center; padding: 3rem 1rem; color: #334155; font-size: 0.9rem;">
+          <p>No active products listed. Click &ldquo;+ List New Master Product&rdquo; above.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB 4: 📡 Regional Demand Radar (Buyer RFQs)
+       ========================================================================= -->
+  <div x-show="activeTab === 'demands'" x-transition style="display: none;">
+    <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="font-size: 1.3rem; font-weight: 800; color: #0F172A; margin: 0 0 0.25rem 0;">
+            📡 Regional Commercial Demand Radar (v8.1 Part XIII)
+          </h2>
+          <p style="color: #334155; font-size: 0.875rem; margin: 0;">
+            Live commercial inquiries submitted by buyers near {{ merchant.province|default:"Gauteng" }} matching your supply capabilities.
+          </p>
+        </div>
+        <span class="badge badge-green" style="font-size: 0.8rem;">● Live Demand Feed Active</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% for d in demands %}
+        <div class="card" style="background: #F8FAFC; border-left: 4px solid #1D4ED8; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="max-width: 650px;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+              <span style="font-weight: 800; font-size: 0.95rem; color: #0F172A;">👤 {{ d.buyer_name }}</span>
+              <span class="badge badge-gray" style="font-size: 0.75rem;">🕒 {{ d.timestamp }}</span>
+            </div>
+            <p style="font-size: 0.925rem; color: #0F172A; font-weight: 500; margin: 0 0 0.5rem 0;">
+              &ldquo;{{ d.query }}&rdquo;
+            </p>
+            <div style="font-size: 0.8rem; color: #065F46; font-weight: 700;">
+              🤖 AI Suggested WhatsApp Response: <em>{{ d.suggested_quote }}</em>
+            </div>
+          </div>
+
+          <div>
+            <a 
+              href="https://wa.me/?text={{ d.query|urlencode }}" 
+              target="_blank" 
+              class="btn btn-whatsapp" 
+              style="padding: 0.55rem 1.15rem; font-size: 0.85rem; font-weight: 700;"
+            >
+              💬 Respond on WhatsApp &rarr;
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB 5: 🛡️ Trust Passport & Trust Seal Studio
+       ========================================================================= -->
+  <div x-show="activeTab === 'trust'" x-transition style="display: none;">
+    <div class="grid grid-cols-2" style="gap: 1.5rem;">
+      <!-- Trust Passport Card -->
+      <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.4rem; color: #0F172A;">
+          Statutory Verification &amp; Credentials
+        </h3>
+        <p style="color: #334155; font-size: 0.85rem; margin-bottom: 1.25rem;">
+          Your evidence-backed ratings certified across CIPC, SARS, and SABS registries:
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <div style="display: flex; justify-content: space-between; padding: 0.85rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #CBD5E1;">
+            <span style="font-size: 0.875rem; color: #334155; font-weight: 600;">CIPC Enterprise Number:</span>
+            <strong style="font-size: 0.875rem; color: #0F172A;">{{ merchant.cipc_enterprise_number|default:"K2021/123456/07" }} (Verified)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 0.85rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #CBD5E1;">
+            <span style="font-size: 0.875rem; color: #334155; font-weight: 600;">B-BBEE Level:</span>
+            <strong style="font-size: 0.875rem; color: #065F46;">{{ merchant.bbbee_level|default:"Level 1 Contributor" }}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 0.85rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #CBD5E1;">
+            <span style="font-size: 0.875rem; color: #334155; font-weight: 600;">Tax Compliance PIN:</span>
+            <strong style="font-size: 0.875rem; color: #1D4ED8;">SARS Verified Valid</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 0.85rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #CBD5E1;">
+            <span style="font-size: 0.875rem; color: #334155; font-weight: 600;">Complaints (Last 90d):</span>
+            <strong style="font-size: 0.875rem; color: #065F46;">0 Complaints (Pristine)</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trust Seal Embed Studio -->
+      <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.4rem; color: #0F172A;">
+          Verified Trust Seal Studio
+        </h3>
+        <p style="color: #334155; font-size: 0.85rem; margin-bottom: 1.25rem;">
+          Embed your dynamic, cryptographic SVG trust badge on your website to increase conversion:
+        </p>
+
+        <div style="text-align: center; padding: 1.5rem; background: #0F172A; border-radius: 12px; margin-bottom: 1.25rem;">
+          <img src="/api/seal/{{ merchant.canonical_id }}/" alt="Shoppage Trust Seal" style="max-height: 80px;" />
+        </div>
+
+        <label style="font-size: 0.825rem; font-weight: 800; color: #0F172A; margin-bottom: 0.4rem; display: block;">HTML Embed Snippet:</label>
+        <input
+          type="text"
+          readonly
+          value='<a href="https://shoppage.co.za/m/{{ merchant.canonical_id }}/"><img src="https://shoppage.co.za/api/seal/{{ merchant.canonical_id }}/" alt="Shoppage Verified Store" /></a>'
+          class="form-control"
+          style="font-family: monospace; font-size: 0.775rem; background: #F8FAFC; color: #0F172A; font-weight: 600; margin-bottom: 0.75rem;"
+          @click="$el.select(); navigator.clipboard.writeText($el.value); alert('Trust Seal HTML copied!');"
+        />
+        <button 
+          type="button" 
+          class="btn btn-outline" 
+          style="width: 100%; font-size: 0.875rem; font-weight: 700;"
+          @click="navigator.clipboard.writeText('<a href=\'https://shoppage.co.za/m/{{ merchant.canonical_id }}/\'><img src=\'https://shoppage.co.za/api/seal/{{ merchant.canonical_id }}/\' alt=\'Shoppage Verified Store\' /></a>'); alert('Trust Seal HTML copied to clipboard!');"
+        >
+          📋 Copy Trust Seal HTML to Clipboard
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

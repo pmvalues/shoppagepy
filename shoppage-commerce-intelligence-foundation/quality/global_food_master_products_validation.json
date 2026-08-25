@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-07-10T10:54:52.526372+00:00",
+  "database": "C:\\Users\\Maga\\Documents\\Codex\\2026-07-10\\fr\\outputs\\shoppage-commerce-intelligence-foundation\\data\\study\\global_food_master_products.sqlite",
+  "counts": {
+    "stored_rows": 1000000,
+    "distinct_master_ids": 1000000,
+    "distinct_source_codes": 1000000,
+    "valid_gtin_rows": 950334,
+    "distinct_family_keys": 466276,
+    "categorized_rows": 427716,
+    "branded_rows": 624675,
+    "named_rows": 986585,
+    "feature_rows": 999967,
+    "not_observed_zimbabwe_rows": 1000000,
+    "global_reference_rows": 1000000,
+    "invalid_json_rows": 0,
+    "enrichment_review_queue_rows": 883674
+  },
+  "coverage": {
+    "valid_gtin_rate": 0.950334,
+    "categorized_rate": 0.427716,
+    "branded_rate": 0.624675,
+    "named_rate": 0.986585,
+    "feature_rate": 0.999967
+  },
+  "checks": {
+    "at_least_one_million_unique_master_products": true,
+    "master_ids_are_unique": true,
+    "source_codes_are_unique": true,
+    "profile_matches_database": true,
+    "global_features_are_valid_json": true,
+    "no_global_record_claims_zimbabwe_availability": true,
+    "all_rows_keep_global_reference_state": true,
+    "family_keys_present": true,
+    "enrichment_gaps_are_queued": true
+  },
+  "all_checks_passed": true,
+  "interpretation": "Scale-tested global food master seed. It is neither a Zimbabwe offer census nor evidence of local stock, sellers, price, or availability."
+}

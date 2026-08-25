@@ -1,0 +1,1626 @@
+﻿{
+  "companies": {
+    "file": "Shoppage_200K_Companies_Full.xlsx",
+    "sheet": "200K_Companies_Full",
+    "rows": 204800,
+    "columns": 21,
+    "headers": [
+      "ID",
+      "Legal_Name",
+      "Trading_Name",
+      "Category_L1",
+      "Category_L2",
+      "Category_L3",
+      "Tier",
+      "Employees_Range",
+      "Formal_Informal",
+      "Micro_Small_Med_Large",
+      "Location_Province",
+      "Location_District",
+      "Location_Cluster",
+      "Address",
+      "Phone_Pattern",
+      "Digital_Maturity_0_5",
+      "Primary_Brands",
+      "Payment_Accepted",
+      "Source_Type",
+      "Verification_Status",
+      "Notes"
+    ],
+    "sample": [
+      [
+        "ZIM-000001",
+        "Nongerai Energy Rusape 1",
+        "Nongerai Energy Rusape 1",
+        "Wholesale/Retail Trade",
+        "Building",
+        "Hardware",
+        "Tier1 National Chain",
+        "1-5",
+        "Informal",
+        "Micro (1-5)",
+        "Manicaland",
+        "Rusape",
+        "Rusape",
+        "Complex 1898 Rusape",
+        "0731087331",
+        1,
+        "SRNE, JA Solar 450W",
+        "USD EcoCash USD InnBucks",
+        "ZIMSTAT Census 2024-25",
+        "Sourced Candidate",
+        "Source ledger required, rights class Licensed"
+      ],
+      [
+        "ZIM-000002",
+        "Metro Wholesalers Juru 2",
+        "Metro Wholesalers Juru 2",
+        "Wholesale/Retail Trade",
+        "Building",
+        "Hardware",
+        "Tier1 National Chain",
+        "1-5",
+        "Informal",
+        "Micro (1-5)",
+        "Mashonaland East",
+        "Juru",
+        "Juru",
+        "Shop 3270 Juru",
+        "0753041229",
+        0,
+        "Lafarge, Ecoflow, Sumry",
+        "USD ZiG Swipe",
+        "Classifieds.co.zw 531 listings",
+        "Corroborated Profile",
+        "Source ledger required, rights class Purchased with warranty"
+      ]
+    ],
+    "distributions": {
+      "Category_L1": {
+        "missing": 0,
+        "top": [
+          [
+            "Wholesale/Retail Trade",
+            165772
+          ],
+          [
+            "Services",
+            20518
+          ],
+          [
+            "Manufacturing",
+            18510
+          ]
+        ]
+      },
+      "Category_L2": {
+        "missing": 0,
+        "top": [
+          [
+            "Building",
+            137102
+          ],
+          [
+            "Home",
+            41161
+          ],
+          [
+            "Power",
+            26537
+          ]
+        ]
+      },
+      "Category_L3": {
+        "missing": 0,
+        "top": [
+          [
+            "Hardware",
+            37019
+          ],
+          [
+            "Electrical",
+            28622
+          ],
+          [
+            "Plumbing",
+            18406
+          ],
+          [
+            "Solar",
+            18362
+          ],
+          [
+            "Furniture",
+            16499
+          ],
+          [
+            "Roofing/Ceiling",
+            16322
+          ],
+          [
+            "Appliances",
+            16284
+          ],
+          [
+            "Paint/Decor",
+            14258
+          ],
+          [
+            "Installation/Repair",
+            12343
+          ],
+          [
+            "Structural",
+            10132
+          ],
+          [
+            "Furniture Manufacturing",
+            8378
+          ],
+          [
+            "Solar Installation",
+            8175
+          ]
+        ]
+      },
+      "Tier": {
+        "missing": 0,
+        "top": [
+          [
+            "Tier4 Semi-formal Container",
+            155809
+          ],
+          [
+            "Tier3 Formal Independent",
+            36776
+          ],
+          [
+            "Tier2 Regional Chain",
+            12180
+          ],
+          [
+            "Tier1 National Chain",
+            35
+          ]
+        ]
+      },
+      "Employees_Range": {
+        "missing": 0,
+        "top": [
+          [
+            "1-5",
+            180305
+          ],
+          [
+            "6-20",
+            14431
+          ],
+          [
+            "21-50",
+            7017
+          ],
+          [
+            "51-200",
+            3047
+          ]
+        ]
+      },
+      "Formal_Informal": {
+        "missing": 0,
+        "top": [
+          [
+            "Informal",
+            155888
+          ],
+          [
+            "Formal",
+            48912
+          ]
+        ]
+      },
+      "Micro_Small_Med_Large": {
+        "missing": 0,
+        "top": [
+          [
+            "Micro (1-5)",
+            180305
+          ],
+          [
+            "Small (6-20)",
+            14431
+          ],
+          [
+            "Medium (21-50)",
+            7017
+          ],
+          [
+            "Large (51+)",
+            3047
+          ]
+        ]
+      },
+      "Location_Province": {
+        "missing": 0,
+        "top": [
+          [
+            "Harare",
+            56920
+          ],
+          [
+            "Bulawayo",
+            28242
+          ],
+          [
+            "Midlands",
+            22479
+          ],
+          [
+            "Masvingo",
+            18326
+          ],
+          [
+            "Manicaland",
+            18305
+          ],
+          [
+            "Mashonaland West",
+            16254
+          ],
+          [
+            "Mashonaland East",
+            14009
+          ],
+          [
+            "Mashonaland Central",
+            12175
+          ],
+          [
+            "Mat South",
+            9982
+          ],
+          [
+            "Mat North",
+            8108
+          ]
+        ]
+      },
+      "Location_District": {
+        "missing": 0,
+        "top": [
+          [
+            "Chisumbanje",
+            4695
+          ],
+          [
+            "Chipinge",
+            4568
+          ],
+          [
+            "Rusape",
+            4556
+          ],
+          [
+            "Mutare",
+            4486
+          ],
+          [
+            "Nkulumane",
+            4079
+          ],
+          [
+            "Belmont",
+            4067
+          ],
+          [
+            "Rangemore",
+            4046
+          ],
+          [
+            "Pumula",
+            4021
+          ],
+          [
+            "Ascot",
+            4019
+          ],
+          [
+            "Donnington",
+            4008
+          ],
+          [
+            "Kelvin",
+            4002
+          ],
+          [
+            "Graniteside",
+            3874
+          ],
+          [
+            "Glen View",
+            3872
+          ],
+          [
+            "Mberengwa",
+            3846
+          ],
+          [
+            "Epworth",
+            3822
+          ],
+          [
+            "Norton",
+            3819
+          ],
+          [
+            "Gazaland",
+            3813
+          ],
+          [
+            "Avondale",
+            3803
+          ],
+          [
+            "Zvishavane",
+            3800
+          ],
+          [
+            "Ruwa",
+            3796
+          ]
+        ]
+      },
+      "Location_Cluster": {
+        "missing": 0,
+        "top": [
+          [
+            "Chisumbanje",
+            4695
+          ],
+          [
+            "Chipinge",
+            4568
+          ],
+          [
+            "Rusape",
+            4556
+          ],
+          [
+            "Mutare",
+            4486
+          ],
+          [
+            "Nkulumane",
+            4079
+          ],
+          [
+            "Belmont",
+            4067
+          ],
+          [
+            "Rangemore",
+            4046
+          ],
+          [
+            "Pumula",
+            4021
+          ],
+          [
+            "Ascot",
+            4019
+          ],
+          [
+            "Donnington",
+            4008
+          ],
+          [
+            "Kelvin",
+            4002
+          ],
+          [
+            "Graniteside",
+            3874
+          ],
+          [
+            "Glen View",
+            3872
+          ],
+          [
+            "Mberengwa",
+            3846
+          ],
+          [
+            "Epworth",
+            3822
+          ],
+          [
+            "Norton",
+            3819
+          ],
+          [
+            "Gazaland",
+            3813
+          ],
+          [
+            "Avondale",
+            3803
+          ],
+          [
+            "Zvishavane",
+            3800
+          ],
+          [
+            "Ruwa",
+            3796
+          ]
+        ]
+      },
+      "Digital_Maturity_0_5": {
+        "missing": 0,
+        "top": [
+          [
+            "0",
+            105282
+          ],
+          [
+            "1",
+            71521
+          ],
+          [
+            "2",
+            23120
+          ],
+          [
+            "3",
+            3412
+          ],
+          [
+            "4",
+            1465
+          ]
+        ]
+      },
+      "Payment_Accepted": {
+        "missing": 0,
+        "top": [
+          [
+            "USD EcoCash USD InnBucks",
+            41200
+          ],
+          [
+            "USD EcoCash",
+            41055
+          ],
+          [
+            "USD Cash COD",
+            41036
+          ],
+          [
+            "USD Cash only",
+            40862
+          ],
+          [
+            "USD ZiG Swipe",
+            40647
+          ]
+        ]
+      },
+      "Source_Type": {
+        "missing": 0,
+        "top": [
+          [
+            "Classifieds.co.zw 531 listings",
+            29522
+          ],
+          [
+            "ZIMSTAT Census 2024-25",
+            29503
+          ],
+          [
+            "Facebook Page",
+            29476
+          ],
+          [
+            "Market Captain Enumeration",
+            29229
+          ],
+          [
+            "Company Registry",
+            29090
+          ],
+          [
+            "Field Observation Siyaso/Gazaland",
+            28997
+          ],
+          [
+            "Purchased Directory",
+            28983
+          ]
+        ]
+      },
+      "Verification_Status": {
+        "missing": 0,
+        "top": [
+          [
+            "Sourced Candidate",
+            102536
+          ],
+          [
+            "Corroborated Profile",
+            51420
+          ],
+          [
+            "Unclaimed Reference",
+            50801
+          ],
+          [
+            "Merchant-Claimed",
+            43
+          ]
+        ]
+      }
+    }
+  },
+  "product_xlsx": [
+    {
+      "file": "Products Zim\\Shoppage_Power_Building_Part1_100K_Panels.xlsx",
+      "rows": 100000,
+      "columns": 13,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_ZAR"
+      ],
+      "sample": [
+        "SP-PAN-000001",
+        "JinkoSolar",
+        "JinkoSolar HiKu6 580W Mono PERC Solar Panel",
+        "Power",
+        "Solar",
+        "Panels",
+        "580W / 24V / MC4",
+        120,
+        "China",
+        "Universal MC4 / All Hybrid Inverters",
+        "Field Verified",
+        "Shoppage Standard",
+        2554.86
+      ]
+    },
+    {
+      "file": "Products Zim\\Shoppage_Power_Building_Part2_100K_Inverters.xlsx",
+      "rows": 100000,
+      "columns": 13,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_ZAR"
+      ],
+      "sample": [
+        "SP-INV-000001",
+        "SAKO",
+        "SAKO 5.5kVA On-Grid Solar Inverter",
+        "Power",
+        "Inverters",
+        "On-Grid Inverters",
+        "5.5kVA / 48V / On-Grid",
+        60,
+        "China",
+        "LiFePO4 / Gel Compatible",
+        "Field Verified",
+        "Shoppage Standard",
+        21921.54
+      ]
+    },
+    {
+      "file": "Products Zim\\Shoppage_Power_Building_Part3_100K_Batteries.xlsx",
+      "rows": 100000,
+      "columns": 13,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_ZAR"
+      ],
+      "sample": [
+        "SP-BAT-000001",
+        "Felicity Solar",
+        "Felicity Solar 24.0V 100Ah LiFePO4 Battery Pack",
+        "Power",
+        "Energy Storage",
+        "Lithium Batteries",
+        "24.0V / 100Ah / LiFePO4",
+        60,
+        "China",
+        "Compatible with MUST/Deye/Sunsynk",
+        "Field Verified",
+        "Shoppage Standard",
+        33102.55
+      ]
+    },
+    {
+      "file": "Products Zim\\Shoppage_Power_Building_Part4_100K_Building_Materials.xlsx",
+      "rows": 100000,
+      "columns": 13,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_ZAR"
+      ],
+      "sample": [
+        "SP-BLD-000001",
+        "Dangote",
+        "Dangote PVC Pipe 110mm - Plumbing",
+        "Building",
+        "Plumbing",
+        "PVC Pipe 110mm",
+        "PVC Pipe 110mm / Standard Grade",
+        12,
+        "South Africa",
+        "Universal Building Use",
+        "Field Verified",
+        "Shoppage Standard",
+        436.48
+      ]
+    },
+    {
+      "file": "Products Zim\\Shoppage_Power_Building_Part5_100K_Protection_Cables.xlsx",
+      "rows": 100000,
+      "columns": 13,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_ZAR"
+      ],
+      "sample": [
+        "SP-PRT-000001",
+        "Legrand",
+        "Legrand Changeover Switch 63A",
+        "Power",
+        "Switchgear",
+        "Changeover Switch 63A",
+        "Changeover Switch 63A / 1000V DC Rated",
+        60,
+        "China",
+        "DIN Rail / Universal",
+        "Field Verified",
+        "Shoppage Standard",
+        906.65
+      ]
+    },
+    {
+      "file": "Products Zim\\Shoppage_Zimbabwe_Part10_100K_Agric_Auto_Safety.xlsx",
+      "rows": 100000,
+      "columns": 14,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_USD",
+        "Stock_City"
+      ],
+      "sample": [
+        "SP-ZW-AAS-000001",
+        "3M",
+        "3M Brake Pad Set Front - ZW Farm & Road Ready",
+        "Automotive Spares",
+        "Automotive Spares",
+        "Brake Pad Set Front",
+        "Brake Pad Set Front / SAZ / ZIMRA Compliant",
+        12,
+        "Zimbabwe / South Africa / China",
+        "Universal ZW Use",
+        "Field Verified ZW",
+        "Shoppage ZW Standard",
+        707.78,
+        "Bulawayo"
+      ]
+    },
+    {
+      "file": "Products Zim\\Shoppage_Zimbabwe_Part1_100K_Panels.xlsx",
+      "rows": 100000,
+      "columns": 14,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_USD",
+        "Stock_City"
+      ],
+      "sample": [
+        "SP-ZW-PAN-000001",
+        "SunPower",
+        "SunPower DeepBlue 4.0 410W N-Type TOPCon - Zim Approved",
+        "Power",
+        "Solar",
+        "Panels",
+        "410W / MC4 / ZETDC Compliant",
+        120,
+        "South Africa",
+        "All Hybrid Inverters / ZESA Grid-Tie Ready",
+        "Field Verified ZW",
+        "Shoppage ZW Standard",
+        166.35,
+        "Masvingo"
+      ]
+    },
+    {
+      "file": "Products Zim\\Shoppage_Zimbabwe_Part2_100K_Inverters (1).xlsx",
+      "rows": 100000,
+      "columns": 14,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_USD",
+        "Stock_City"
+      ],
+      "sample": [
+        "SP-ZW-INV-000001",
+        "Victron Energy",
+        "Victron Energy 5.0kVA Parallel Inverter - Zim Load-Shedding Kit",
+        "Power",
+        "Inverters",
+        "Parallel Inverters",
+        "5.0kVA / 48V / Parallel",
+        60,
+        "China",
+        "LiFePO4 / Lead Acid / ZESA Compatible",
+        "Field Verified ZW",
+        "Shoppage ZW Standard",
+        912,
+        "Masvingo"
+      ]
+    },
+    {
+      "file": "Products Zim\\Shoppage_Zimbabwe_Part2_100K_Inverters (2).xlsx",
+      "rows": 100000,
+      "columns": 14,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_USD",
+        "Stock_City"
+      ],
+      "sample": [
+        "SP-ZW-INV-000001",
+        "Victron Energy",
+        "Victron Energy 5.0kVA Parallel Inverter - Zim Load-Shedding Kit",
+        "Power",
+        "Inverters",
+        "Parallel Inverters",
+        "5.0kVA / 48V / Parallel",
+        60,
+        "China",
+        "LiFePO4 / Lead Acid / ZESA Compatible",
+        "Field Verified ZW",
+        "Shoppage ZW Standard",
+        912,
+        "Masvingo"
+      ]
+    },
+    {
+      "file": "Products Zim\\Shoppage_Zimbabwe_Part2_100K_Inverters.xlsx",
+      "rows": 100000,
+      "columns": 14,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_USD",
+        "Stock_City"
+      ],
+      "sample": [
+        "SP-ZW-INV-000001",
+        "Victron Energy",
+        "Victron Energy 5.0kVA Parallel Inverter - Zim Load-Shedding Kit",
+        "Power",
+        "Inverters",
+        "Parallel Inverters",
+        "5.0kVA / 48V / Parallel",
+        60,
+        "China",
+        "LiFePO4 / Lead Acid / ZESA Compatible",
+        "Field Verified ZW",
+        "Shoppage ZW Standard",
+        912,
+        "Masvingo"
+      ]
+    },
+    {
+      "file": "Products Zim\\Shoppage_Zimbabwe_Part3_100K_Batteries.xlsx",
+      "rows": 100000,
+      "columns": 14,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_USD",
+        "Stock_City"
+      ],
+      "sample": [
+        "SP-ZW-BAT-000001",
+        "Dyness",
+        "Dyness 51.2V 50Ah LiFePO4 - Long Life ZW",
+        "Power",
+        "Energy Storage",
+        "Lithium Batteries",
+        "51.2V / 50Ah / LiFePO4 / Wall Mount",
+        60,
+        "China",
+        "MUST/Deye/Sunsynk Compatible",
+        "Field Verified ZW",
+        "Shoppage ZW Standard",
+        391.93,
+        "Gweru"
+      ]
+    },
+    {
+      "file": "Products Zim\\Shoppage_Zimbabwe_Part4_100K_Building_Materials.xlsx",
+      "rows": 100000,
+      "columns": 14,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_USD",
+        "Stock_City"
+      ],
+      "sample": [
+        "SP-ZW-BLD-000001",
+        "Dulux Zimbabwe",
+        "Dulux Zimbabwe IBR Chromadek 0.53mm - Roofing ZW Spec",
+        "Building",
+        "Roofing",
+        "IBR Chromadek 0.53mm",
+        "IBR Chromadek 0.53mm / SABS / SAZ Approved",
+        12,
+        "Zimbabwe",
+        "Universal ZW Building Use",
+        "Field Verified ZW",
+        "Shoppage ZW Standard",
+        185.12,
+        "Chitungwiza"
+      ]
+    },
+    {
+      "file": "Products Zim\\Shoppage_Zimbabwe_Part5_100K_Protection_Cables.xlsx",
+      "rows": 100000,
+      "columns": 14,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_USD",
+        "Stock_City"
+      ],
+      "sample": [
+        "SP-ZW-PRT-000001",
+        "CAFCA",
+        "CAFCA Lightning Arrestor 40kA - Zim Certified",
+        "Power",
+        "Earthing & Lightning",
+        "Lightning Arrestor 40kA",
+        "Lightning Arrestor 40kA / 1000V DC / SAZ",
+        60,
+        "China / Zimbabwe",
+        "DIN Rail / ZETDC Approved",
+        "Field Verified ZW",
+        "Shoppage ZW Standard",
+        181.12,
+        "Bulawayo"
+      ]
+    },
+    {
+      "file": "Products Zim\\Shoppage_Zimbabwe_Part6_100K_Water_Sanitation.xlsx",
+      "rows": 100000,
+      "columns": 14,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_USD",
+        "Stock_City"
+      ],
+      "sample": [
+        "SP-ZW-WAT-000001",
+        "Grundfos",
+        "Grundfos Garden Hose 30m - ZW Borehole Ready",
+        "Water & Sanitation",
+        "Irrigation & Hoses",
+        "Garden Hose 30m",
+        "Garden Hose 30m / 220V / ZW Spec",
+        12,
+        "Italy / China / ZW",
+        "Universal / JoJo Compatible",
+        "Field Verified ZW",
+        "Shoppage ZW Standard",
+        166.48,
+        "Harare"
+      ]
+    },
+    {
+      "file": "Products Zim\\Shoppage_Zimbabwe_Part7_100K_Tools_Machinery.xlsx",
+      "rows": 100000,
+      "columns": 14,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_USD",
+        "Stock_City"
+      ],
+      "sample": [
+        "SP-ZW-TOL-000001",
+        "Stanley",
+        "Stanley Soldering Station Pro Series",
+        "Tools & Machinery",
+        "Welding & Soldering",
+        "Soldering Station",
+        "Soldering Station / Heavy Duty / ZW",
+        12,
+        "Germany / Japan / China",
+        "Universal",
+        "Field Verified ZW",
+        "Shoppage ZW Standard",
+        1712.73,
+        "Gweru"
+      ]
+    },
+    {
+      "file": "Products Zim\\Shoppage_Zimbabwe_Part8_100K_Home_Appliances.xlsx",
+      "rows": 100000,
+      "columns": 14,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_USD",
+        "Stock_City"
+      ],
+      "sample": [
+        "SP-ZW-HOM-000001",
+        "Midea",
+        "Midea 4 Burner Gas + Electric - ZW Energy Saver",
+        "Home & Kitchen",
+        "Cooking & Gas",
+        "4 Burner Gas + Electric",
+        "4 Burner Gas + Electric / 220V / 1yr+",
+        24,
+        "China / South Africa",
+        "ZESA / LPG Compatible",
+        "Field Verified ZW",
+        "Shoppage ZW Standard",
+        1233.77,
+        "Chitungwiza"
+      ]
+    },
+    {
+      "file": "Products Zim\\Shoppage_Zimbabwe_Part9_100K_Electronics_Security.xlsx",
+      "rows": 100000,
+      "columns": 14,
+      "headers": [
+        "Product_ID",
+        "Brand",
+        "Product_Name",
+        "L1_Category",
+        "L2_Category",
+        "L3_Category",
+        "Variant",
+        "Warranty_Months",
+        "Origin_Country",
+        "Compatibility",
+        "Source",
+        "Licence",
+        "Price_USD",
+        "Stock_City"
+      ],
+      "sample": [
+        "SP-ZW-ELC-000001",
+        "Logitech",
+        "Logitech Router 4G LTE - Smart ZW",
+        "Electronics & Security",
+        "Networking & WiFi",
+        "Router 4G LTE",
+        "Router 4G LTE / WiFi / Solar Option",
+        12,
+        "China",
+        "Universal / ZW Networks",
+        "Field Verified ZW",
+        "Shoppage ZW Standard",
+        318.36,
+        "Kwekwe"
+      ]
+    }
+  ],
+  "product_quality": {
+    "total_rows": 1700000,
+    "unique_product_ids": 1500000,
+    "duplicate_id_occurrences_after_first": 200000,
+    "duplicate_product_ids": 100000,
+    "top_duplicate_ids": [
+      [
+        "SP-ZW-INV-000001",
+        2
+      ],
+      [
+        "SP-ZW-INV-000002",
+        2
+      ],
+      [
+        "SP-ZW-INV-000003",
+        2
+      ],
+      [
+        "SP-ZW-INV-000004",
+        2
+      ],
+      [
+        "SP-ZW-INV-000005",
+        2
+      ],
+      [
+        "SP-ZW-INV-000006",
+        2
+      ],
+      [
+        "SP-ZW-INV-000007",
+        2
+      ],
+      [
+        "SP-ZW-INV-000008",
+        2
+      ],
+      [
+        "SP-ZW-INV-000009",
+        2
+      ],
+      [
+        "SP-ZW-INV-000010",
+        2
+      ]
+    ],
+    "per_file": [
+      {
+        "file": "Products Zim\\Shoppage_Power_Building_Part1_100K_Panels.xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      },
+      {
+        "file": "Products Zim\\Shoppage_Power_Building_Part2_100K_Inverters.xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      },
+      {
+        "file": "Products Zim\\Shoppage_Power_Building_Part3_100K_Batteries.xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      },
+      {
+        "file": "Products Zim\\Shoppage_Power_Building_Part4_100K_Building_Materials.xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      },
+      {
+        "file": "Products Zim\\Shoppage_Power_Building_Part5_100K_Protection_Cables.xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      },
+      {
+        "file": "Products Zim\\Shoppage_Zimbabwe_Part10_100K_Agric_Auto_Safety.xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      },
+      {
+        "file": "Products Zim\\Shoppage_Zimbabwe_Part1_100K_Panels.xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      },
+      {
+        "file": "Products Zim\\Shoppage_Zimbabwe_Part2_100K_Inverters (1).xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      },
+      {
+        "file": "Products Zim\\Shoppage_Zimbabwe_Part2_100K_Inverters (2).xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      },
+      {
+        "file": "Products Zim\\Shoppage_Zimbabwe_Part2_100K_Inverters.xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      },
+      {
+        "file": "Products Zim\\Shoppage_Zimbabwe_Part3_100K_Batteries.xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      },
+      {
+        "file": "Products Zim\\Shoppage_Zimbabwe_Part4_100K_Building_Materials.xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      },
+      {
+        "file": "Products Zim\\Shoppage_Zimbabwe_Part5_100K_Protection_Cables.xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      },
+      {
+        "file": "Products Zim\\Shoppage_Zimbabwe_Part6_100K_Water_Sanitation.xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      },
+      {
+        "file": "Products Zim\\Shoppage_Zimbabwe_Part7_100K_Tools_Machinery.xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      },
+      {
+        "file": "Products Zim\\Shoppage_Zimbabwe_Part8_100K_Home_Appliances.xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      },
+      {
+        "file": "Products Zim\\Shoppage_Zimbabwe_Part9_100K_Electronics_Security.xlsx",
+        "rows": 100000,
+        "unique_ids": 100000
+      }
+    ],
+    "sources": [
+      [
+        "Field Verified ZW",
+        1200000
+      ],
+      [
+        "Field Verified",
+        500000
+      ]
+    ],
+    "licences": [
+      [
+        "Shoppage ZW Standard",
+        1200000
+      ],
+      [
+        "Shoppage Standard",
+        500000
+      ]
+    ],
+    "categories": [
+      [
+        "Power",
+        1000000
+      ],
+      [
+        "Building",
+        200000
+      ],
+      [
+        "Water & Sanitation",
+        100000
+      ],
+      [
+        "Tools & Machinery",
+        100000
+      ],
+      [
+        "Home & Kitchen",
+        100000
+      ],
+      [
+        "Electronics & Security",
+        100000
+      ],
+      [
+        "Agriculture & Farming",
+        33426
+      ],
+      [
+        "Safety",
+        33384
+      ],
+      [
+        "Automotive Spares",
+        33190
+      ]
+    ],
+    "stock_cities": [
+      [
+        "Chitungwiza",
+        172116
+      ],
+      [
+        "Kwekwe",
+        172048
+      ],
+      [
+        "Gweru",
+        171661
+      ],
+      [
+        "Mutare",
+        171208
+      ],
+      [
+        "Masvingo",
+        171099
+      ],
+      [
+        "Harare",
+        170991
+      ],
+      [
+        "Bulawayo",
+        170877
+      ]
+    ]
+  },
+  "product_csv": [
+    {
+      "file": "Products Zim\\download (1).csv",
+      "rows": 156486,
+      "columns": 1,
+      "headers": [
+        "PK\u0003\u0004\u0014\u0000\u0000\u0000\b\u0000\u0000\u0000?\u00008���>\u0001\u0000\u0000\u0007\u0004\u0000\u0000\u0013\u0000\u0000\u0000[Content_Types].xml���n� \u0010E��"
+      ],
+      "sample": [
+        "Ķ2$]TU\u0015'�>�m\u0016�\u0007P\u0018�(\u0018\u00103I��/��H��<�n��ܹ�\u000e��d�8���6��\u000fŀ3�:\u0018��%���\u0016\u000f�!)o�\u000b\u001eJ�\u0001���h���",
+        "7{",
+        "yM\u0014\u001f�D]C�P�\b>W��\u001aE�7�eTz�� �\u0006�{��'�TP��ǣg���\u0011{Y��>H\u0002��=�Ur\u0015��ZQ�˕7�(Ŗ rg���F��\u0002.\u000f\u0012��߀m�{>�d"
+      ]
+    },
+    {
+      "file": "Products Zim\\download (2).csv",
+      "rows": 168601,
+      "columns": 1,
+      "headers": [
+        "PK\u0003\u0004\u0014\u0000\u0000\u0000\b\u0000\u0000\u0000?\u00008���>\u0001\u0000\u0000\u0007\u0004\u0000\u0000\u0013\u0000\u0000\u0000[Content_Types].xml���n� \u0010E��"
+      ],
+      "sample": [
+        "Ķ2$]TU\u0015'�>�m\u0016�\u0007P\u0018�(\u0018\u00103I��/��H��<�n��ܹ�\u000e��d�8���6��\u000fŀ3�:\u0018��%���\u0016\u000f�!)o�\u000b\u001eJ�\u0001���h���",
+        "7{",
+        "yM\u0014\u001f�D]C�P�\b>W��\u001aE�7�eTz�� �\u0006�{��'�TP��ǣg���\u0011{Y��>H\u0002��=�Ur\u0015��ZQ�˕7�(Ŗ rg���F��\u0002.\u000f\u0012��߀m�{>�d"
+      ]
+    },
+    {
+      "file": "Products Zim\\download (3).csv",
+      "rows": 149385,
+      "columns": 1,
+      "headers": [
+        "PK\u0003\u0004\u0014\u0000\u0000\u0000\b\u0000\u0000\u0000?\u00008���>\u0001\u0000\u0000\u0007\u0004\u0000\u0000\u0013\u0000\u0000\u0000[Content_Types].xml���n� \u0010E��"
+      ],
+      "sample": [
+        "Ķ2$]TU\u0015'�>�m\u0016�\u0007P\u0018�(\u0018\u00103I��/��H��<�n��ܹ�\u000e��d�8���6��\u000fŀ3�:\u0018��%���\u0016\u000f�!)o�\u000b\u001eJ�\u0001���h���",
+        "7{",
+        "yM\u0014\u001f�D]C�P�\b>W��\u001aE�7�eTz�� �\u0006�{��'�TP��ǣg���\u0011{Y��>H\u0002��=�Ur\u0015��ZQ�˕7�(Ŗ rg���F��\u0002.\u000f\u0012��߀m�{>�d"
+      ]
+    },
+    {
+      "file": "Products Zim\\download (4).csv",
+      "rows": 145501,
+      "columns": 2,
+      "headers": [
+        "PK\u0003\u0004\u0014\u0000\u0000\u0000\b\u0000\u0000\u0000?\u0000a]I:O\u0001\u0000\u0000�\u0004\u0000\u0000\u0013\u0000\u0000\u0000[Content_Types].xml���n�0\u0010E�����*1tQU\u0015�E\u001f�\u0016��\u0003\\{B",
+        "\u001c��\f\u0014����P[Q��M�d��sǎ<\u0018-\u001b�- �"
+      ],
+      "sample": [
+        "�\u0014��'2�:\u0018맥x�<�w\"CR�(\u0017<�b\u0005(Fë�d\u0015\u00013n�X��(�K���Fa\u0011\"x�T!5��5MeTz�� oz�[��'�S�!��G���Q����� \t\u001c��a-lY�P1:�\u0015q].��E�7��;;"
+      ]
+    },
+    {
+      "file": "Products Zim\\download.csv",
+      "rows": 108129,
+      "columns": 2,
+      "headers": [
+        "PK\u0003\u0004\u0014\u0000\u0000\u0000\b\u0000\u0000\u0000?\u0000a]I:O\u0001\u0000\u0000�\u0004\u0000\u0000\u0013\u0000\u0000\u0000[Content_Types].xml���n�0\u0010E�����*1tQU\u0015�E\u001f�\u0016��\u0003\\{B",
+        "\u001c��\f\u0014����P[Q��M�d��sǎ<\u0018-\u001b�- �"
+      ],
+      "sample": [
+        "�\u0014��'2�:\u0018맥x�<�w\"CR�(\u0017<�b\u0005(Fë�d\u0015\u00013n�X��(�K���Fa\u0011\"x�T!5��5MeTz�� oz�[��'�S�!��G���Q����� \t\u001c��a-lY�P1:�\u0015q].��E�7��;;"
+      ]
+    }
+  ],
+  "foundation": {
+    "generated_at": "2026-07-10T10:49:41.055022+00:00",
+    "status": "foundation_seed_not_production_truth",
+    "counts": {
+      "isic_rows": 830,
+      "cpc_rows": 4586,
+      "geonames_rows": 25019,
+      "populated_place_rows": 2101,
+      "place_market_candidates": 2226,
+      "top_feature_codes": [
+        [
+          "S.FRM",
+          7049
+        ],
+        [
+          "T.HLL",
+          3984
+        ],
+        [
+          "H.STM",
+          3970
+        ],
+        [
+          "S.SCH",
+          1972
+        ],
+        [
+          "P.PPL",
+          1766
+        ],
+        [
+          "S.MN",
+          1423
+        ],
+        [
+          "H.RSV",
+          451
+        ],
+        [
+          "T.MT",
+          438
+        ],
+        [
+          "L.CTRB",
+          434
+        ],
+        [
+          "P.PPLX",
+          291
+        ],
+        [
+          "T.PAN",
+          271
+        ],
+        [
+          "S.TNKD",
+          232
+        ],
+        [
+          "T.HLLS",
+          228
+        ],
+        [
+          "S.RSD",
+          222
+        ],
+        [
+          "L.TRB",
+          194
+        ],
+        [
+          "S.EST",
+          181
+        ],
+        [
+          "S.MSSN",
+          159
+        ],
+        [
+          "S.SHSE",
+          137
+        ],
+        [
+          "S.AIRF",
+          119
+        ],
+        [
+          "L.AREA",
+          100
+        ]
+      ],
+      "organisation_study_records": 6101,
+      "organisation_unique_normalized_names": 5281,
+      "organisation_isic_mapped_records": 5899,
+      "organisation_specific_isic_records": 4536,
+      "global_master_products": 1000000,
+      "global_master_distinct_source_codes": 1000000,
+      "global_master_valid_gtins": 950334,
+      "global_master_family_keys": 466276,
+      "global_master_categorized_records": 427716,
+      "global_master_branded_records": 624675,
+      "global_master_named_records": 986585,
+      "global_master_feature_records": 999967,
+      "global_master_enrichment_review_queue_rows": 883674,
+      "place_market_nodes": 25210,
+      "place_market_edges": 25209,
+      "geonames_reference_feature_nodes": 25019,
+      "settlement_nodes": 2101,
+      "explicit_osm_market_and_mall_nodes": 118,
+      "market_parent_review_queue_rows": 118,
+      "merchant_offer_ingester_acceptance_rows": 3,
+      "merchant_offer_ingester_idempotent_duplicates_on_rerun": 3
+    },
+    "downloads": {
+      "geonames_zw": {
+        "url": "https://download.geonames.org/export/dump/ZW.zip",
+        "sha256": "c409d89f688c790075d3edee645a65173591d8db68fa32fdb0747a58276b9972",
+        "bytes": 650525
+      },
+      "geonames_admin1": {
+        "url": "https://download.geonames.org/export/dump/admin1CodesASCII.txt",
+        "sha256": "34784457b76b988a669dff7c3e4b104e4902c0875643cff019281ac79dfa2992",
+        "bytes": 151572
+      },
+      "geonames_admin2": {
+        "url": "https://download.geonames.org/export/dump/admin2Codes.txt",
+        "sha256": "314a76e0b02610c653947acbf4e9dceab6b20eb39a0e793e09fea55d3d1a96be",
+        "bytes": 2370419
+      },
+      "isic_rev5": {
+        "url": "https://unstats.un.org/unsd/classifications/Econ/Download/In%20Text/ISIC_Rev_5_english_structure.csv",
+        "sha256": "fc408f57bd3a4f33c35a4f384ec0010283dd72774892c8d48ae1330a8caeb57f",
+        "bytes": 45481
+      },
+      "cpc_v3": {
+        "url": "https://unstats.un.org/unsd/classifications/Econ/Download/In%20Text/CPC_Ver_3.0_Structure_30Jun2025.csv",
+        "sha256": "5cd2c1c4890dd6be16af48e9bb940fed48efff9865f39ff15edaa921da25fb7c",
+        "bytes": 329384
+      },
+      "open_food_facts_csv_gz": {
+        "url": "https://static.openfoodfacts.org/data/en.openfoodfacts.org.products.csv.gz",
+        "sha256": "f72687ee8bc6522054fe69dbfda6b91902c16af1ec2e043cde27bc6c29ad8176",
+        "bytes": 1275171186,
+        "etag": "\"8d6629ac4d18f33e1ddec4cd9856f19d-77\"",
+        "last_modified": "Thu, 09 Jul 2026 11:29:34 GMT",
+        "raw_file_in_deliverable": false
+      }
+    },
+    "production_note": "ZIMSTAT administrative boundaries must control official hierarchy; GeoNames is a discovery seed requiring reconciliation.",
+    "organisation_study_status": "candidate_study_complete_at_source_record_grain_entity_resolution_and_verification_incomplete",
+    "global_product_status": "one_million_unique_global_reference_masters_validated_local_zimbabwe_offer_observation_incomplete",
+    "place_market_status": "complete_geonames_feature_scaffold_and_explicit_osm_market_seed_validated_zimstat_and_nested_market_containment_incomplete",
+    "merchant_offer_pipeline_status": "feed_contract_and_idempotent_gtin_resolution_ingester_validated_awaiting_authorized_merchant_feeds"
+  }
+}

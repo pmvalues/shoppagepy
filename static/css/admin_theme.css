@@ -1,0 +1,752 @@
+/* ==========================================================================
+   Shoppage National Commercial Intelligence Grid — Enterprise Admin Theme
+   WCAG 2.1 AAA Compliant High-Contrast Stylesheet
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --admin-bg: #F8FAFC;
+  --admin-surface: #FFFFFF;
+  --admin-sidebar: #0B1120;
+  --admin-border: #CBD5E1;
+  --admin-border-focus: #1D4ED8;
+  
+  --admin-primary: #1D4ED8;
+  --admin-primary-hover: #1E40AF;
+  --admin-accent: #059669;
+  --admin-warning: #92400E;
+  --admin-danger: #B91C1C;
+  
+  --admin-text-main: #0F172A;
+  --admin-text-secondary: #334155;
+  --admin-text-muted: #475569;
+  --admin-text-light: #F8FAFC;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  background-color: var(--admin-bg) !important;
+  color: var(--admin-text-main) !important;
+  line-height: 1.5 !important;
+}
+
+/* Global Placeholder High Contrast */
+::placeholder {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+:-ms-input-placeholder {
+  color: #475569 !important;
+}
+::-ms-input-placeholder {
+  color: #475569 !important;
+}
+
+/* ==========================================================================
+   1. Header & Navigation Bar (Dark Theme Surface)
+   ========================================================================== */
+#header {
+  background: var(--admin-sidebar) !important;
+  border-bottom: 1px solid #1E293B !important;
+  padding: 0.85rem 1.5rem !important;
+  color: #FFFFFF !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+#header #branding h1 {
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  color: #FFFFFF !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 !important;
+}
+
+#header #branding h1 a:link,
+#header #branding h1 a:visited {
+  color: #FFFFFF !important;
+  text-decoration: none !important;
+}
+
+#user-tools {
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  color: #CBD5E1 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 1.25rem !important;
+}
+
+#user-tools strong {
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+}
+
+#user-tools a:link,
+#user-tools a:visited {
+  color: #38BDF8 !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+}
+
+#user-tools a:hover {
+  color: #7DD3FC !important;
+  text-decoration: underline !important;
+}
+
+#user-tools form button {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #FCA5A5 !important;
+  border: 1px solid rgba(239, 68, 68, 0.4) !important;
+  border-radius: 6px !important;
+  padding: 3px 8px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+}
+
+/* ==========================================================================
+   2. Breadcrumbs Bar
+   ========================================================================== */
+div.breadcrumbs {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  padding: 0.75rem 1.5rem !important;
+  font-size: 0.825rem !important;
+  color: var(--admin-text-secondary) !important;
+  font-weight: 500 !important;
+}
+
+div.breadcrumbs a:link,
+div.breadcrumbs a:visited {
+  color: var(--admin-primary) !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+}
+
+div.breadcrumbs a:hover {
+  text-decoration: underline !important;
+}
+
+/* ==========================================================================
+   3. Main Layout Container & Modules
+   ========================================================================== */
+#container {
+  min-height: 100vh !important;
+  background: var(--admin-bg) !important;
+}
+
+#content {
+  padding: 2rem 1.5rem !important;
+  max-width: 1440px !important;
+  margin: 0 auto !important;
+}
+
+#content h1 {
+  font-size: 1.5rem !important;
+  font-weight: 800 !important;
+  color: var(--admin-text-main) !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* Dashboard App Tables */
+.module {
+  background: #FFFFFF !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+  margin-bottom: 2rem !important;
+  overflow: hidden !important;
+}
+
+.module h2, 
+.module caption {
+  background: #F1F5F9 !important;
+  color: var(--admin-text-main) !important;
+  font-size: 0.95rem !important;
+  font-weight: 800 !important;
+  padding: 0.85rem 1.25rem !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  text-align: left !important;
+}
+
+.module caption a:link,
+.module caption a:visited {
+  color: var(--admin-text-main) !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+}
+
+.module table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+}
+
+.module table tr {
+  border-bottom: 1px solid #F1F5F9 !important;
+}
+
+.module table tr:hover {
+  background-color: #F8FAFC !important;
+}
+
+.module table th,
+.module table td {
+  padding: 0.85rem 1.25rem !important;
+  font-size: 0.875rem !important;
+  color: var(--admin-text-main) !important;
+}
+
+.module table th a:link,
+.module table th a:visited {
+  color: var(--admin-primary) !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+.module table th a:hover {
+  text-decoration: underline !important;
+}
+
+/* Action Links in Dashboard ("Add", "Change") */
+.module table td a.addlink {
+  color: var(--admin-accent) !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+.module table td a.changelink,
+.module table td a.viewlink {
+  color: var(--admin-primary) !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+}
+
+/* ==========================================================================
+   4. Changelist Searchbar, Actions & Data Tables
+   ========================================================================== */
+#toolbar {
+  background: #FFFFFF !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 12px !important;
+  padding: 0.85rem 1.25rem !important;
+  margin-bottom: 1.5rem !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+}
+
+#changelist-search {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+}
+
+#changelist-search label {
+  display: none !important;
+}
+
+#searchbar {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 8px !important;
+  padding: 0.6rem 0.9rem !important;
+  font-size: 0.875rem !important;
+  min-width: 340px !important;
+}
+
+#searchbar:focus {
+  border-color: var(--admin-primary) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15) !important;
+}
+
+#changelist-search input[type="submit"] {
+  background: var(--admin-primary) !important;
+  color: #FFFFFF !important;
+  padding: 0.6rem 1.15rem !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+}
+
+/* Changelist Batch Actions Bar */
+.actions {
+  background: #FFFFFF !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 8px !important;
+  padding: 0.75rem 1rem !important;
+  color: var(--admin-text-main) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.actions label {
+  color: var(--admin-text-main) !important;
+  font-weight: 700 !important;
+  font-size: 0.85rem !important;
+}
+
+.actions select {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 6px !important;
+  padding: 0.45rem 0.75rem !important;
+  font-weight: 600 !important;
+}
+
+.action-counter {
+  color: var(--admin-text-secondary) !important;
+  font-size: 0.825rem !important;
+  font-weight: 600 !important;
+}
+
+#changelist {
+  display: flex !important;
+  flex-direction: row-reverse !important;
+  gap: 1.5rem !important;
+  align-items: flex-start !important;
+}
+
+#changelist #changelist-form {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+#changelist table {
+  background: #FFFFFF !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100% !important;
+}
+
+#changelist table thead th {
+  background: #F1F5F9 !important;
+  padding: 0.85rem 1rem !important;
+  font-size: 0.775rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: var(--admin-text-main) !important;
+  border-bottom: 2px solid var(--admin-border) !important;
+}
+
+#changelist table thead th a:link,
+#changelist table thead th a:visited {
+  color: var(--admin-text-main) !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+}
+
+#changelist table tbody tr {
+  background: #FFFFFF !important;
+  transition: background-color 0.15s ease !important;
+}
+
+#changelist table tbody tr:hover {
+  background-color: #EFF6FF !important;
+}
+
+#changelist table tbody td,
+#changelist table tbody th {
+  padding: 0.85rem 1rem !important;
+  font-size: 0.85rem !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+  color: var(--admin-text-main) !important;
+}
+
+#changelist table tbody td a:link,
+#changelist table tbody td a:visited,
+#changelist table tbody th a:link,
+#changelist table tbody th a:visited {
+  color: var(--admin-primary) !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+#changelist table tbody td a:hover,
+#changelist table tbody th a:hover {
+  text-decoration: underline !important;
+}
+
+/* ==========================================================================
+   5. Changelist Filter Sidebar
+   ========================================================================= */
+#changelist-filter {
+  background: #FFFFFF !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 12px !important;
+  width: 240px !important;
+  padding: 0 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+  overflow: hidden !important;
+}
+
+#changelist-filter h2 {
+  background: #F1F5F9 !important;
+  color: var(--admin-text-main) !important;
+  font-size: 0.85rem !important;
+  font-weight: 800 !important;
+  padding: 0.85rem 1rem !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  margin: 0 !important;
+}
+
+#changelist-filter h3 {
+  color: var(--admin-text-main) !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  padding: 0.75rem 1rem 0.25rem 1rem !important;
+  margin: 0 !important;
+}
+
+#changelist-filter ul {
+  padding: 0 1rem 0.75rem 1rem !important;
+  margin: 0 !important;
+  list-style: none !important;
+}
+
+#changelist-filter ul li {
+  padding: 0.25rem 0 !important;
+  font-size: 0.8rem !important;
+  color: var(--admin-text-secondary) !important;
+}
+
+#changelist-filter ul li a:link,
+#changelist-filter ul li a:visited {
+  color: var(--admin-text-secondary) !important;
+  text-decoration: none !important;
+}
+
+#changelist-filter ul li a:hover {
+  color: var(--admin-primary) !important;
+  font-weight: 600 !important;
+}
+
+#changelist-filter ul li.selected a {
+  color: var(--admin-primary) !important;
+  font-weight: 800 !important;
+}
+
+/* ==========================================================================
+   6. Action Buttons, Object Tools & Submit Rows
+   ========================================================================= */
+.object-tools {
+  display: flex !important;
+  gap: 0.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.object-tools a:link,
+.object-tools a:visited,
+.object-tools li a {
+  background: var(--admin-primary) !important;
+  color: #FFFFFF !important;
+  border-radius: 8px !important;
+  padding: 0.5rem 1rem !important;
+  font-weight: 700 !important;
+  font-size: 0.825rem !important;
+  text-decoration: none !important;
+  box-shadow: 0 1px 2px rgba(29, 78, 216, 0.25) !important;
+}
+
+.object-tools a:hover {
+  background: var(--admin-primary-hover) !important;
+}
+
+.button, 
+input[type=submit], 
+input[type=button], 
+.submit-row input, 
+a.button {
+  background: var(--admin-primary) !important;
+  color: #FFFFFF !important;
+  border-radius: 8px !important;
+  padding: 0.55rem 1.25rem !important;
+  font-weight: 700 !important;
+  font-size: 0.85rem !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 1px 2px rgba(29, 78, 216, 0.2) !important;
+}
+
+.button:hover, 
+input[type=submit]:hover, 
+.submit-row input:hover {
+  background: var(--admin-primary-hover) !important;
+}
+
+.button.default, 
+input[type=submit].default, 
+.submit-row input.default {
+  background: var(--admin-accent) !important;
+  box-shadow: 0 1px 2px rgba(5, 150, 105, 0.25) !important;
+}
+
+.button.default:hover, 
+input[type=submit].default:hover {
+  background: #047857 !important;
+}
+
+.submit-row {
+  background: #FFFFFF !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 12px !important;
+  padding: 1rem 1.25rem !important;
+  margin-top: 2rem !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+}
+
+.submit-row a.deletelink {
+  background: #FEF2F2 !important;
+  color: var(--admin-danger) !important;
+  border: 1px solid #FECACA !important;
+  border-radius: 8px !important;
+  padding: 0.5rem 1rem !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+/* ==========================================================================
+   7. Form Inputs, Readonly Fields & Fieldsets
+   ========================================================================== */
+fieldset {
+  background: #FFFFFF !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 12px !important;
+  padding: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+}
+
+fieldset h2 {
+  background: transparent !important;
+  color: var(--admin-text-main) !important;
+  font-size: 1.1rem !important;
+  font-weight: 800 !important;
+  border-bottom: 2px solid #F1F5F9 !important;
+  padding-bottom: 0.5rem !important;
+  margin-bottom: 1.25rem !important;
+}
+
+.form-row {
+  padding: 0.75rem 0 !important;
+  border-bottom: 1px solid #F8FAFC !important;
+}
+
+.aligned label {
+  color: var(--admin-text-main) !important;
+  font-weight: 700 !important;
+  font-size: 0.875rem !important;
+  width: 180px !important;
+}
+
+/* Explicit Readonly Fields in Change Views */
+.readonly, 
+.form-row .readonly, 
+div.readonly,
+.aligned .readonly {
+  background: #F1F5F9 !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 8px !important;
+  padding: 0.6rem 0.85rem !important;
+  color: #0F172A !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  display: inline-block !important;
+  min-width: 260px !important;
+}
+
+.readonly a:link,
+.readonly a:visited,
+div.readonly a:link,
+div.readonly a:visited {
+  color: var(--admin-primary) !important;
+  font-weight: 700 !important;
+  text-decoration: underline !important;
+}
+
+/* Explicit Editable Inputs & Selects */
+input[type=text], 
+input[type=password], 
+input[type=email], 
+input[type=url], 
+input[type=number], 
+textarea, 
+select {
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 8px !important;
+  padding: 0.6rem 0.85rem !important;
+  font-size: 0.875rem !important;
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+}
+
+select option {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+}
+
+input[type=text]:focus, 
+textarea:focus, 
+select:focus {
+  border-color: var(--admin-primary) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15) !important;
+}
+
+p.help, 
+span.help, 
+.help-tooltip {
+  color: var(--admin-text-secondary) !important;
+  font-size: 0.775rem !important;
+  font-weight: 600 !important;
+  margin-top: 0.35rem !important;
+}
+
+/* Date / Time Pickers */
+.vDateField, .vTimeField {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+}
+
+.datetimeshortcuts, 
+.datetimeshortcuts a {
+  color: var(--admin-primary) !important;
+  font-weight: 700 !important;
+  font-size: 0.75rem !important;
+}
+
+/* ==========================================================================
+   8. Inlines (Tabular & Stacked)
+   ========================================================================== */
+.inline-group {
+  background: #FFFFFF !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.inline-group h2 {
+  background: #F1F5F9 !important;
+  color: var(--admin-text-main) !important;
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+  padding: 0.85rem 1.25rem !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+}
+
+.tabular table {
+  background: #FFFFFF !important;
+  border-collapse: collapse !important;
+  width: 100% !important;
+}
+
+.tabular th {
+  background: #F1F5F9 !important;
+  color: var(--admin-text-main) !important;
+  font-weight: 800 !important;
+  font-size: 0.775rem !important;
+  padding: 0.65rem 0.85rem !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+}
+
+.tabular td {
+  padding: 0.65rem 0.85rem !important;
+  color: var(--admin-text-main) !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+}
+
+.tabular td input, 
+.tabular td select {
+  width: 100% !important;
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1px solid var(--admin-border) !important;
+}
+
+/* ==========================================================================
+   9. Recent Actions Sidebar (Admin Index)
+   ========================================================================== */
+#recent-actions-module {
+  background: #FFFFFF !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 12px !important;
+  padding: 1.25rem !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+}
+
+#recent-actions-module h2 {
+  background: transparent !important;
+  color: var(--admin-text-main) !important;
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+  border-bottom: 2px solid #F1F5F9 !important;
+  padding-bottom: 0.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+#recent-actions-module ul li {
+  font-size: 0.825rem !important;
+  color: var(--admin-text-secondary) !important;
+  margin-bottom: 0.5rem !important;
+}
+
+#recent-actions-module a:link,
+#recent-actions-module a:visited {
+  color: var(--admin-primary) !important;
+  font-weight: 700 !important;
+}
+
+/* ==========================================================================
+   10. Custom Admin KPI Cards
+   ========================================================================== */
+.admin-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.admin-kpi-card {
+  background: #FFFFFF;
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.admin-kpi-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--admin-text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4rem;
+}
+
+.admin-kpi-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--admin-text-main);
+  margin-bottom: 0.25rem;
+}
+
+.admin-kpi-sub {
+  font-size: 0.75rem;
+  color: var(--admin-accent);
+  font-weight: 700;
+}

@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-07-10T11:03:00+00:00",
+  "status": "passed",
+  "checks": {
+    "exact_valid_gtin_matches_master": true,
+    "valid_gtin_lookup_miss_is_preserved_for_review": true,
+    "unbarcoded_product_enters_text_resolution_review": true,
+    "second_ingestion_is_idempotent": true,
+    "no_invalid_rows_in_acceptance_fixture": true
+  },
+  "first_run": {
+    "rows_seen": 3,
+    "inserted": 3,
+    "matched": 1,
+    "valid_gtin_not_in_master": 1,
+    "pending_text_resolution": 1,
+    "review_queue_rows": 2,
+    "errors": 0
+  },
+  "second_run": {
+    "rows_seen": 3,
+    "inserted": 0,
+    "idempotent_duplicates": 3,
+    "stored_rows": 3,
+    "review_queue_rows": 2,
+    "errors": 0
+  },
+  "interpretation": "Acceptance test only. No synthetic offers are included in the production deliverable database."
+}

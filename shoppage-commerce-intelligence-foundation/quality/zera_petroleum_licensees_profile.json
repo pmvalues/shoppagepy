@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-07-10T10:26:08.997166+00:00",
+  "source_as_of": "2026-06-08",
+  "raw_html_sha256": "b2d0f451f1f0bc79f941bbb2ce4cb813639f3c11b8dba38bedcf14addcc9ebe0",
+  "table_rows_before_blank_removal": 1166,
+  "licence_rows": 1146,
+  "unique_licence_ids": 1146,
+  "organisation_candidates": 399,
+  "unique_normalized_registered_names": 399,
+  "license_type_counts": {
+    "WHOLESALE": 24,
+    "RETAIL": 1055,
+    "PROD(MANDATORY)": 1,
+    "PROD(BLENDING)": 9,
+    "PROCUREMENT": 57
+  },
+  "missing_trade_name_rows": 0,
+  "missing_location_rows": 81,
+  "missing_expiry_rows": 0,
+  "quality_status": "regulator_licensed_scope_only_entity_resolution_and_current_operation_review_required"
+}

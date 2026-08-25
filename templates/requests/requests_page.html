@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Buyer Demand Radar &amp; RFQs — Shoppage{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 3rem; padding-bottom: 5rem; max-width: 760px;">
+  <div style="text-align: center; margin-bottom: 2.5rem;">
+    <span class="badge badge-amber" style="margin-bottom: 0.5rem;">⚡ Commercial RFQ Switch</span>
+    <h1 style="font-size: 2.25rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">
+      Broadcast Product Request to Verified Merchants
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 1rem;">
+      Can't find a specific SKU or wholesale lot? Submit an anonymous RFQ and receive WhatsApp quotes directly from verified South African suppliers.
+    </p>
+  </div>
+
+  <div class="card" style="background: #FFFFFF; padding: 2.5rem; border-radius: 16px;">
+    <form>
+      <div class="form-group">
+        <label class="form-label">What product or equipment do you need? *</label>
+        <input type="text" class="form-control" placeholder="e.g. 5kW Deye Inverter + 10kWh Hubble Battery Bundle" required />
+      </div>
+
+      <div class="grid grid-cols-2" style="gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label">Quantity Needed</label>
+          <input type="text" class="form-control" placeholder="e.g. 1 Unit, 5 Units, Pallet (48 Bags)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Budget (ZAR)</label>
+          <input type="text" class="form-control" placeholder="e.g. Under R35,000" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Preferred Location / Mall Province *</label>
+        <select class="form-control">
+          <option>Gauteng (Johannesburg / Pretoria)</option>
+          <option>Western Cape (Cape Town)</option>
+          <option>KwaZulu-Natal (Durban)</option>
+          <option>Eastern Cape</option>
+          <option>Nationwide Delivery Required</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Your WhatsApp Number (to receive quotes) *</label>
+        <input type="text" class="form-control" placeholder="e.g. 082 123 4567" required />
+      </div>
+
+      <button type="button" class="btn btn-whatsapp" style="width: 100%; font-size: 1rem; padding: 0.85rem;" onclick="alert('Your RFQ has been broadcast to verified local suppliers!')">
+        📢 Broadcast Request to Verified Merchants
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

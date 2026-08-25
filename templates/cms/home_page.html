@@ -1,0 +1,524 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<!-- 1. UNIFIED HUB HERO — Google-like search + AI Overview -->
+<section style="background: linear-gradient(180deg, #FFFFFF 0%, #EEF2FF 100%); border-bottom: 1px solid var(--border); padding: 3.5rem 0 3rem 0;">
+  <div class="container" style="text-align: center;">
+    <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: #EFF6FF; border: 1px solid #BFDBFE; padding: 0.35rem 0.85rem; borderRadius: 9999px; margin-bottom: 1.25rem;">
+      <span style="font-size: 0.9rem;">🇿🇦</span>
+      <span style="font-size: 0.8rem; color: #1E40AF; font-weight: 700;">
+        {{ page.hero_badge|default:"South Africa's National Commercial Intelligence Grid" }}
+      </span>
+    </div>
+
+    <h1 style="font-size: 3rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 0.5rem; color: #0F172A;">
+      {{ page.hero_title|default:"Search. Shop. Watch." }} <br />
+      <span style="background: linear-gradient(135deg, #1D4ED8 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        {{ page.hero_gradient_subtitle|default:"All powered by commerce intelligence." }}
+      </span>
+    </h1>
+
+    <p style="color: var(--text-secondary); font-size: 1.1rem; max-width: 680px; margin: 0 auto 2rem auto; line-height: 1.5;">
+      {{ page.hero_description|default:"A Google-style search, an Amazon-style marketplace, and a YouTube-style video engine — unified with AI that understands what you actually need." }}
+    </p>
+
+    <!-- Large Live Search Input -->
+    <div style="max-width: 680px; margin: 0 auto; position: relative;">
+      <form action="/search/" method="GET">
+        <input
+          type="text"
+          name="q"
+          class="live-search-input"
+          placeholder="Search 1,000,000+ products, inverters, brands, or malls..."
+        />
+        <button type="submit" class="btn btn-primary" style="position: absolute; right: 8px; top: 8px; bottom: 8px; padding: 0 1.5rem; border-radius: 9999px;">
+          Search
+        </button>
+      </form>
+    </div>
+
+    <!-- AI Overview sample panel -->
+    {% if hero_search.overview %}
+    <div class="ai-overview" style="max-width: 700px; margin: 1.5rem auto 0 auto; text-align: left;">
+      <span class="ai-spark">✨ AI Overview</span>
+      <p style="margin: 0.5rem 0 0 0; font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5;">
+        {{ hero_search.overview }}
+      </p>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem;">
+        {% for p in hero_search.products|slice:":4" %}
+        <a href="/p/{{ p.canonical_id }}" class="badge badge-blue">
+          {{ p.brand }}: {{ p.title|truncatechars:28 }}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-size: 0.8rem; color: #64748B; margin-top: 1.5rem;">
+      <span>Try:</span>
+      <a href="/search?q=Deye+5kW" class="badge badge-gray">☀️ Deye 5kW Inverter</a>
+      <a href="/search?q=Dyness+BX51100" class="badge badge-gray">🔋 Dyness 5.12kWh</a>
+      <a href="/shorts" class="badge badge-gray">🎬 Shorts</a>
+      <a href="/shows" class="badge badge-gray">📺 Shows</a>
+      <a href="/merchants" class="badge badge-gray">🏪 Stores</a>
+    </div>
+  </div>
+</section>
+
+<!-- 2. STATS KPI TICKER BAR -->
+<section style="border-bottom: 1px solid var(--border); background: #FFFFFF; padding: 1.75rem 0;">
+  <div class="container">
+    <div class="grid grid-cols-4" style="gap: 1.5rem;">
+      <div class="stat-box">
+        <div class="stat-number" style="color: #2563EB;">
+          {{ total_merchants_count|intcomma }}
+        </div>
+        <div class="stat-label">Verified Physical Stores</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-number" style="color: #059669;">
+          {{ total_malls_count|intcomma }}
+        </div>
+        <div class="stat-label">Shopping Centres &amp; Malls</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-number" style="color: #D97706;">
+          {{ total_products_count|intcomma }}+
+        </div>
+        <div class="stat-label">Normalized Master Products</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-number" style="color: #7C3AED;">
+          9 / 9
+        </div>
+        <div class="stat-label">Provinces Covered 100%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. FOR YOU — AI Recommendations Rail -->
+<section class="container" style="padding: 3.5rem 1.5rem 1.5rem 1.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+    <div>
+      <span class="badge badge-blue" style="margin-bottom: 0.25rem;">✨ For You</span>
+      <h2 class="section-title">Personalized Commerce Radar</h2>
+      <p class="section-desc">Trending energy storage, tech gear, and hardware across your region.</p>
+    </div>
+    <a href="/search" style="color: var(--accent-blue); font-size: 0.9rem; font-weight: 600;">View All &rarr;</a>
+  </div>
+
+  <div class="grid grid-cols-4" style="gap: 1.25rem;">
+    {% for p in master_products|slice:":4" %}
+    <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; background: #FFFFFF;">
+      <div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          <span class="badge badge-blue">{{ p.brand }}</span>
+          <span class="badge badge-green">✓ GS1 Verified</span>
+        </div>
+        <h3 style="font-size: 1rem; font-weight: 700; margin: 0.4rem 0; line-height: 1.3;">
+          <a href="/p/{{ p.canonical_id }}">{{ p.title }}</a>
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 0.75rem;">
+          Category: {{ p.category_ref }}
+        </p>
+      </div>
+
+      <div>
+        <div style="font-size: 1.35rem; font-weight: 800; color: var(--accent-green); margin: 0.5rem 0;">
+          {% with first_offer=p.offers.first %}
+            {% if first_offer and first_offer.price_amount %}
+              R {{ first_offer.price_amount|floatformat:0|intcomma }}
+            {% else %}
+              R {{ p.estimated_price_zar|floatformat:0|intcomma }}
+            {% endif %}
+          {% endwith %}
+        </div>
+        <div style="display: flex; gap: 0.4rem;">
+          <a href="/p/{{ p.canonical_id }}" class="btn btn-outline" style="flex: 1; font-size: 0.8rem; padding: 0.45rem;">
+            Compare Sellers
+          </a>
+          <a href="/merchant/claim?variantId={{ p.canonical_id }}&title={{ p.title|urlencode }}" class="btn btn-whatsapp" style="font-size: 0.75rem; padding: 0.45rem 0.65rem;">
+            + List
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- 4. SHORTS — YouTube-like vertical video -->
+<section style="background: #0F172A; padding: 3.5rem 0; color: #FFFFFF;">
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+      <div>
+        <span class="badge badge-green" style="margin-bottom: 0.25rem;">🎬 Proof Shorts</span>
+        <h2 class="section-title" style="color: #FFFFFF;">Watch &amp; Verify in Seconds</h2>
+        <p style="color: #94A3B8; font-size: 0.95rem;">Teardowns and mall walks tethered to live local offers.</p>
+      </div>
+      <a href="/shorts" style="color: #7DD3FC; font-size: 0.9rem; font-weight: 600;">All Shorts &rarr;</a>
+    </div>
+
+    <div class="rail-track">
+      {% for s in shorts %}
+      <div style="min-width: 220px; max-width: 240px; background: #1E293B; border-radius: 12px; overflow: hidden; border: 1px solid #334155;">
+        <div style="position: relative; height: 320px; background: #000;">
+          <img src="{{ s.thumbnail_url }}" alt="{{ s.title }}" style="width: 100%; height: 100%; object-fit: cover;" />
+          <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fff; font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 4px;">
+            {{ s.duration }}
+          </span>
+        </div>
+        <div style="padding: 0.75rem;">
+          <h4 style="font-size: 0.85rem; font-weight: 700; color: #FFFFFF; line-height: 1.3; margin-bottom: 0.4rem;">
+            {{ s.title|truncatechars:45 }}
+          </h4>
+          <p style="color: #34D399; font-size: 0.75rem; margin-bottom: 0.5rem;">
+            {{ s.merchant_name|default:"Verified Seller" }}
+          </p>
+          <a href="/shorts" class="btn btn-whatsapp" style="width: 100%; font-size: 0.75rem; padding: 0.35rem;">
+            ▶️ Watch Short
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- 5. SHOWS — YouTube-like series -->
+<section class="container" style="padding: 3.5rem 1.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+    <div>
+      <span class="badge badge-blue" style="margin-bottom: 0.25rem;">📺 Original Series</span>
+      <h2 class="section-title">Market Walks &amp; Product Battles</h2>
+      <p class="section-desc">Structured multi-episode commerce programming.</p>
+    </div>
+    <a href="/shows" style="color: var(--accent-blue); font-size: 0.9rem; font-weight: 600;">All Shows &rarr;</a>
+  </div>
+
+  <div class="grid grid-cols-3" style="gap: 1.5rem;">
+    {% for sh in shows|slice:":3" %}
+    <div class="card" style="padding: 0; overflow: hidden; background: #FFFFFF;">
+      <div style="position: relative; height: 180px; background: #000;">
+        <img src="{{ sh.thumbnail_url }}" alt="{{ sh.title }}" style="width: 100%; height: 100%; object-fit: cover;" />
+        <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fff; font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px;">
+          {{ sh.duration }}
+        </span>
+      </div>
+      <div style="padding: 1.25rem;">
+        <span class="badge badge-purple" style="font-size: 0.7rem; margin-bottom: 0.4rem;">{{ sh.series_name }}</span>
+        <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0.3rem 0; line-height: 1.3;">
+          <a href="/shows/{{ sh.slug }}">{{ sh.title }}</a>
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.8rem; line-height: 1.4; margin-bottom: 1rem;">
+          {{ sh.description|truncatechars:90 }}
+        </p>
+        <a href="/shows/{{ sh.slug }}" class="btn btn-outline" style="width: 100%; font-size: 0.8rem;">
+          Watch Episode &rarr;
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- 6. CATEGORY CAROUSEL / BROWSER -->
+<section class="container" style="padding: 1rem 1.5rem 3.5rem 1.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+    <div>
+      <h2 class="section-title">📂 Browse by Commercial Sector</h2>
+      <p class="section-desc">Direct supplier access across primary South African industries.</p>
+    </div>
+    <a href="/search" style="color: var(--accent-blue); font-size: 0.9rem; font-weight: 600;">
+      View Full Taxonomy &rarr;
+    </a>
+  </div>
+
+  <div class="grid grid-cols-6" style="gap: 1rem;">
+    <a href="/search?category=solar_energy" class="card" style="text-align: center; padding: 1.5rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">☀️</div>
+      <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 0.25rem;">Solar &amp; Energy</h3>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">14,200+ Stores</span>
+    </a>
+
+    <a href="/search?category=smartphones" class="card" style="text-align: center; padding: 1.5rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📱</div>
+      <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 0.25rem;">Phones &amp; Tech</h3>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">28,400+ Stores</span>
+    </a>
+
+    <a href="/search?category=hardware" class="card" style="text-align: center; padding: 1.5rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🧱</div>
+      <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 0.25rem;">Building &amp; Tools</h3>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">32,100+ Stores</span>
+    </a>
+
+    <a href="/search?category=groceries" class="card" style="text-align: center; padding: 1.5rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🛒</div>
+      <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 0.25rem;">Wholesale Food</h3>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">45,800+ Stores</span>
+    </a>
+
+    <a href="/search?category=pharmacy" class="card" style="text-align: center; padding: 1.5rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">💊</div>
+      <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 0.25rem;">Pharmacy &amp; Care</h3>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">18,500+ Stores</span>
+    </a>
+
+    <a href="/search?category=automotive" class="card" style="text-align: center; padding: 1.5rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🚗</div>
+      <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 0.25rem;">Auto &amp; Spares</h3>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">24,600+ Stores</span>
+    </a>
+  </div>
+</section>
+
+<!-- 7. MASTER PRODUCT SHOWCASE & LIVE OFFERS -->
+<section style="background: #F8FAFC; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 3.5rem 0;">
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+          <span class="badge badge-green">✓ GS1 GTIN Verified</span>
+          <span class="badge badge-blue">✓ SABS &amp; NRS 097 Certified</span>
+        </div>
+        <h2 class="section-title">🔥 Trending Master Products &amp; Live Market Matrix</h2>
+        <p class="section-desc">Compare Confirmed Local Offers against external Discovered Web Offers.</p>
+      </div>
+      <a href="/search" style="color: var(--accent-blue); font-size: 0.9rem; font-weight: 600;">
+        Search all 1,000,000+ items &rarr;
+      </a>
+    </div>
+
+    <div class="grid grid-cols-4" style="gap: 1.25rem;">
+      {% for p in master_products %}
+      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; background: #FFFFFF;">
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span class="badge badge-blue">{{ p.brand }}</span>
+            <span class="badge badge-green">✓ {{ p.offers.count }} Confirmed</span>
+          </div>
+          <h3 style="font-size: 1rem; font-weight: 700; margin: 0.4rem 0; line-height: 1.3;">
+            <a href="/p/{{ p.canonical_id }}">{{ p.title }}</a>
+          </h3>
+          <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 0.75rem;">
+            GTIN: {{ p.gtin13|default:p.mpn|default:"Universal Master SKU" }}
+          </p>
+        </div>
+
+        <div>
+          <div style="font-size: 1.35rem; font-weight: 800; color: var(--accent-green); margin: 0.5rem 0;">
+            {% with first_offer=p.offers.first %}
+              {% if first_offer and first_offer.price_amount %}
+                R {{ first_offer.price_amount|floatformat:0|intcomma }}
+              {% else %}
+                R {{ p.estimated_price_zar|floatformat:0|intcomma }}
+              {% endif %}
+            {% endwith %}
+          </div>
+
+          <div style="display: flex; gap: 0.4rem;">
+            <a href="/p/{{ p.canonical_id }}" class="btn btn-outline" style="flex: 1; font-size: 0.8rem; padding: 0.45rem;">
+              Compare Sellers
+            </a>
+            <a href="/merchant/claim?variantId={{ p.canonical_id }}&title={{ p.title|urlencode }}" class="btn btn-whatsapp" style="font-size: 0.75rem; padding: 0.45rem 0.65rem;">
+              + List
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- 8. TOP VERIFIED MERCHANTS -->
+<section class="container" style="padding: 3.5rem 1.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+    <div>
+      <span class="badge badge-purple" style="margin-bottom: 0.25rem;">🏪 Verified Suppliers</span>
+      <h2 class="section-title">Top Merchants You Can Message on WhatsApp</h2>
+      <p class="section-desc">Ranked by Google rating, verification state and response time.</p>
+    </div>
+    <a href="/merchants" style="color: var(--accent-blue); font-size: 0.9rem; font-weight: 600;">
+      Browse 3.1M Stores &rarr;
+    </a>
+  </div>
+
+  <div class="grid grid-cols-4" style="gap: 1.25rem;">
+    {% for m in top_merchants %}
+    <div class="card" style="background: #FFFFFF; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          <span class="badge badge-purple">{{ m.category|default:"General" }}</span>
+          <span class="badge badge-green">✓ {{ m.trust_score }}/100 Trust</span>
+        </div>
+        <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0.3rem 0;">
+          <a href="/m/{{ m.canonical_id }}">{{ m.name }}</a>
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 0.5rem;">
+          📍 {{ m.address_text|truncatechars:50 }}
+        </p>
+        {% if m.google_rating %}
+        <p style="font-size: 0.8rem; color: #D97706; font-weight: 700; margin-bottom: 0.75rem;">
+          ★ {{ m.google_rating }} ({{ m.google_reviews_count }}+ reviews)
+        </p>
+        {% endif %}
+      </div>
+
+      <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+        <a href="/m/{{ m.canonical_id }}" class="btn btn-outline" style="flex: 1; font-size: 0.8rem; padding: 0.4rem;">
+          View Store
+        </a>
+        {% if m.whatsapp_number %}
+        <a href="/l/m_{{ m.canonical_id }}" class="btn btn-whatsapp" style="font-size: 0.8rem; padding: 0.4rem 0.75rem;">
+          💬 WhatsApp
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- 9. SHOPPING CENTRES & FLAGSHIP MALLS SPOTLIGHT -->
+<section class="container" style="padding: 1rem 1.5rem 3.5rem 1.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+    <div>
+      <span class="badge badge-purple" style="margin-bottom: 0.25rem;">
+        🏬 3,296 Nationwide Retail Hubs
+      </span>
+      <h2 class="section-title">Flagship Shopping Centres &amp; Wholesale Malls</h2>
+      <p class="section-desc">Digital store rosters for super-regional malls, value marts, and township retail plazas.</p>
+    </div>
+    <a href="/malls" style="color: var(--accent-blue); font-size: 0.9rem; font-weight: 600;">
+      Explore All 3,296 Malls &rarr;
+    </a>
+  </div>
+
+  <div class="grid grid-cols-3" style="gap: 1.25rem; margin-bottom: 2.5rem;">
+    {% for mall in flagship_markets %}
+    <div class="card" style="background: #FFFFFF; border-left: 4px solid #3B82F6;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+        <span class="badge badge-blue">{{ mall.province }}</span>
+        <span style="font-size: 0.75rem; color: #64748B;">{{ mall.metro }}</span>
+      </div>
+      <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0.25rem 0;">
+        <a href="/markets/{{ mall.canonical_slug }}">{{ mall.name }}</a>
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+        📍 {{ mall.street_address|default:"Major South African Retail Concourse" }}
+      </p>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+        <span class="badge badge-green" style="font-size: 0.7rem;">✓ Verified Tenant Roster</span>
+        <a href="/markets/{{ mall.canonical_slug }}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+          View Stores &rarr;
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- 9-Province Mall Distribution Grid -->
+  <div class="card" style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 1.5rem;">
+    <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.75rem; color: #0F172A;">
+      🇿🇦 Nationwide Shopping Centre Density by Province
+    </h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem;">
+      {% for prov, count in province_counts.items %}
+      <a
+        href="/malls?province={{ prov|urlencode }}"
+        style="background: #FFFFFF; padding: 0.75rem; border-radius: 8px; border: 1px solid #E2E8F0; text-align: center; text-decoration: none;"
+      >
+        <div style="font-size: 0.85rem; font-weight: 700; color: #1E293B;">{{ prov }}</div>
+        <div style="font-size: 1.1rem; font-weight: 800; color: #2563EB;">{{ count }}</div>
+        <div style="font-size: 0.7rem; color: #64748B;">Centres &amp; Malls</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- 10. HOW SHOPPAGE WORKS FOR MERCHANTS & BUYERS -->
+<section style="background: #0F172A; color: #FFFFFF; padding: 4rem 0;">
+  <div class="container">
+    <div style="text-align: center; margin-bottom: 3rem;">
+      <span class="badge badge-green" style="background: #064E3B; color: #34D399; border: 1px solid #059669; margin-bottom: 0.5rem;">
+        ⚡ The Shoppage Advantage
+      </span>
+      <h2 style="font-size: 2.25rem; font-weight: 800; letter-spacing: -0.02em; margin: 0.5rem 0;">
+        How Shoppage Powers South African Commerce
+      </h2>
+      <p style="color: #94A3B8; font-size: 1rem; max-width: 620px; margin: 0 auto;">
+        Connecting buyers directly to physical storefronts with full transparency, verifiable trust, and zero transaction middlemen.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-3" style="gap: 2rem;">
+      <div style="background: #1E293B; padding: 2rem; border-radius: 12px; border: 1px solid #334155;">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem;">💬</div>
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">
+          1. Direct WhatsApp Commerce
+        </h3>
+        <p style="color: #94A3B8; font-size: 0.9rem; line-height: 1.5;">
+          Buyers connect directly with verified shopkeepers on WhatsApp with prefilled product SKU, price, and warranty details. No cart abandonments, no commissions.
+        </p>
+      </div>
+
+      <div style="background: #1E293B; padding: 2rem; border-radius: 12px; border: 1px solid #334155;">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem;">🛡️</div>
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">
+          2. Trust Passport &amp; CIPC Verification
+        </h3>
+        <p style="color: #94A3B8; font-size: 0.9rem; line-height: 1.5;">
+          Every supplier is vetted against official CIPC company registrations, SARS Good Standing pins, CIDB contractor grades, and real Google Reviews.
+        </p>
+      </div>
+
+      <div style="background: #1E293B; padding: 2rem; border-radius: 12px; border: 1px solid #334155;">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem;">🚀</div>
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">
+          3. Automated Google &amp; YouTube Feeds
+        </h3>
+        <p style="color: #94A3B8; font-size: 0.9rem; line-height: 1.5;">
+          Merchants automatically broadcast their stock to Google Shopping, Local Inventory Ads in malls, Google Business Profile, and YouTube Shorts.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11. MERCHANT ONBOARDING CTA BANNER -->
+<section class="container" style="padding: 4rem 1.5rem;">
+  <div
+    class="card"
+    style="background: linear-gradient(135deg, #1E40AF 0%, #047857 100%); color: #FFFFFF; padding: 3rem; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem; box-shadow: var(--shadow-lg);"
+  >
+    <div>
+      <span class="badge badge-green" style="background: rgba(255,255,255,0.2); color: #FFFFFF; border: none; margin-bottom: 0.75rem;">
+        🏪 Are you a South African Merchant or Supplier?
+      </span>
+      <h2 style="font-size: 2rem; font-weight: 800; margin: 0.25rem 0 0.5rem 0;">
+        List Your Store &amp; Connect Your WhatsApp in 2 Minutes
+      </h2>
+      <p style="color: #E2E8F0; font-size: 1rem; max-width: 600px; line-height: 1.5;">
+        Receive direct customer inquiries from your local mall or area with 0% transaction fees and automated Google Shopping XML feeds.
+      </p>
+    </div>
+
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+      <a href="/merchant/claim" class="btn btn-whatsapp" style="font-size: 1rem; padding: 0.85rem 1.75rem;">
+        ➕ Claim &amp; List Your Shop Now
+      </a>
+      <a href="/merchant/dashboard" class="btn btn-outline" style="font-size: 1rem; padding: 0.85rem 1.5rem; background: #FFFFFF; color: #0F172A;">
+        Merchant Centre &rarr;
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

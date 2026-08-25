@@ -1,0 +1,101 @@
+version: '3.8'
+
+# ==============================================================================
+# Shoppage v7.0 Production Stack (Django 5 + Wagtail 6 CMS)
+# ==============================================================================
+
+services:
+  # 1. Main Web Application (Django 5 + Wagtail 6 + Universal Link Resolver)
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shoppage-web
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=shoppage.settings.prod
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-shoppage_super_secure_django_secret_key_50chars}
+      - ALLOWED_HOSTS=${DOMAIN:-shoppage.co.za},localhost,127.0.0.1
+      - DATABASE_URI=postgres://${POSTGRES_USER:-shoppage}:${POSTGRES_PASSWORD:-shoppage_secure_pass}@postgres:5432/${POSTGRES_DB:-shoppage_db}
+      - REDIS_URL=redis://redis:6379
+      - TYPESENSE_URL=http://typesense:8108
+      - TYPESENSE_API_KEY=${TYPESENSE_API_KEY:-shoppage_typesense_secret_key}
+      - XAI_API_KEY=${XAI_API_KEY:-}
+      - WHATSAPP_API_TOKEN=${WHATSAPP_API_TOKEN:-}
+      - WHATSAPP_PHONE_NUMBER_ID=${WHATSAPP_PHONE_NUMBER_ID:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - shoppage-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.shoppage.rule=Host(`${DOMAIN:-shoppage.co.za}`)"
+      - "traefik.http.routers.shoppage.entrypoints=websecure"
+      - "traefik.http.routers.shoppage.tls=true"
+      - "traefik.http.routers.shoppage.tls.certresolver=letsencrypt"
+      - "traefik.http.services.shoppage.loadbalancer.server.port=8000"
+
+  # 2. Primary Relational Store & Moat Tables (PostgreSQL 16 + pgvector)
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: shoppage-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-shoppage}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shoppage_secure_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-shoppage_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-shoppage} -d ${POSTGRES_DB:-shoppage_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shoppage-network
+
+  # 3. Cache & Background Queue Broker (Redis 7 Alpine)
+  redis:
+    image: redis:7-alpine
+    container_name: shoppage-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-shoppage_redis_pass}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-shoppage_redis_pass}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shoppage-network
+
+  # 4. Ultra-Fast Search Engine (Typesense 26.0)
+  typesense:
+    image: typesense/typesense:26.0
+    container_name: shoppage-typesense
+    restart: unless-stopped
+    command: '--data-dir /data --api-key=${TYPESENSE_API_KEY:-shoppage_typesense_secret_key} --enable-cors'
+    volumes:
+      - typesense_data:/data
+    ports:
+      - "8108:8108"
+    networks:
+      - shoppage-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  typesense_data:
+    driver: local
+
+networks:
+  shoppage-network:
+    driver: bridge

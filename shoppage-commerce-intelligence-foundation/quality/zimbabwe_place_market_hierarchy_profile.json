@@ -1,0 +1,45 @@
+{
+  "generated_at": "2026-07-10T10:54:03.816629+00:00",
+  "source_geonames_features": 25019,
+  "node_count": 25210,
+  "edge_count": 25209,
+  "admin1_scaffolds": 10,
+  "admin2_scaffolds": 62,
+  "settlement_nodes": 2101,
+  "explicit_osm_market_and_mall_nodes": 118,
+  "node_types": {
+    "country": 1,
+    "province_candidate": 10,
+    "district_candidate": 62,
+    "settlement": 2101,
+    "terrain_feature": 5128,
+    "hydrographic_feature": 4610,
+    "site_feature": 12138,
+    "area_feature": 887,
+    "administrative_feature": 87,
+    "route_feature": 27,
+    "vegetation_feature": 41,
+    "market": 77,
+    "mall": 41
+  },
+  "edge_evidence_methods": {
+    "geonames_admin1_code": 22647,
+    "geonames_admin2_code": 62,
+    "country_fallback": 2311,
+    "geonames_admin_codes": 71,
+    "nearest_geonames_settlement_candidate": 113,
+    "source_address_city_exact_name": 5
+  },
+  "market_parent_distance_km_max": 34.7242,
+  "market_parent_distance_km_over_25_count": 1,
+  "nested_market_edges": 0,
+  "market_parent_review_queue_rows": 118,
+  "market_parent_review_priority_counts": {
+    "critical": 1,
+    "high": 21,
+    "standard": 96
+  },
+  "nested_market_note": "The graph schema supports market-in-market edges, but none are inferred from proximity. Polygon, address, operator, or source containment evidence is required.",
+  "official_hierarchy_note": "GeoNames codes are discovery scaffolding. ZIMSTAT boundaries and official administrative registers must control production hierarchy.",
+  "quality_status": "complete_reference_feature_graph_and_explicit_market_discovery_seed_not_official_market_census"
+}

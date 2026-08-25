@@ -1,0 +1,16 @@
+{
+  "grain": "one numbered institution row in the RBZ register",
+  "rows": 339,
+  "credit_only_rows": 332,
+  "deposit_taking_rows": 7,
+  "unique_candidate_ids": 339,
+  "unique_normalized_names": 339,
+  "duplicate_normalized_names": [],
+  "missing_name_rows": 0,
+  "missing_address_rows": 0,
+  "source_pages": 20,
+  "source_as_of": "2026-03-31",
+  "source_document_sha256": "a2225d1c66ac7e82b62bb511e47cc6985df4f57c79412c37f327c53f0c1b68e0",
+  "quality_status": "regulator_listed_scope_only_not_trading_or_catalogue_verification",
+  "generated_at": "2026-07-10T10:24:15.743268+00:00"
+}

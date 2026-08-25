@@ -1,0 +1,290 @@
+{
+  "grain": "one named OpenStreetMap element carrying a selected commercial tag",
+  "source_element_rows": 5318,
+  "unique_candidate_ids": 5318,
+  "unique_normalized_names": 4520,
+  "rows_in_exact_name_coordinate_duplicate_clusters": 36,
+  "exact_name_coordinate_duplicate_clusters": 18,
+  "rows_with_repeated_normalized_names": 1071,
+  "null_rates": {
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "address_text": 0.824934,
+    "city": 0.917826,
+    "suburb": 0.981384,
+    "website": 0.955998,
+    "brand": 0.9607,
+    "operator": 0.938511
+  },
+  "top_activity_tags": [
+    [
+      "amenity=clinic",
+      769
+    ],
+    [
+      "amenity=fuel",
+      289
+    ],
+    [
+      "tourism=guest_house",
+      276
+    ],
+    [
+      "shop=supermarket",
+      266
+    ],
+    [
+      "tourism=hotel",
+      259
+    ],
+    [
+      "shop=yes",
+      242
+    ],
+    [
+      "tourism=camp_site",
+      194
+    ],
+    [
+      "office=government",
+      190
+    ],
+    [
+      "amenity=hospital",
+      188
+    ],
+    [
+      "amenity=bar",
+      178
+    ],
+    [
+      "amenity=restaurant",
+      171
+    ],
+    [
+      "amenity=bank",
+      167
+    ],
+    [
+      "shop=convenience",
+      128
+    ],
+    [
+      "office=company",
+      123
+    ],
+    [
+      "amenity=fast_food",
+      112
+    ],
+    [
+      "leisure=sports_centre",
+      83
+    ],
+    [
+      "shop=clothes",
+      81
+    ],
+    [
+      "amenity=pharmacy",
+      80
+    ],
+    [
+      "amenity=marketplace",
+      77
+    ],
+    [
+      "office=educational_institution",
+      66
+    ],
+    [
+      "amenity=post_office",
+      53
+    ],
+    [
+      "shop=hardware",
+      53
+    ],
+    [
+      "amenity=cafe",
+      52
+    ],
+    [
+      "amenity=doctors",
+      50
+    ],
+    [
+      "shop=butcher",
+      42
+    ],
+    [
+      "shop=mall",
+      41
+    ],
+    [
+      "shop=car_repair",
+      35
+    ],
+    [
+      "man_made=works",
+      33
+    ],
+    [
+      "office=diplomatic",
+      29
+    ],
+    [
+      "shop=car",
+      29
+    ],
+    [
+      "shop=alcohol",
+      29
+    ],
+    [
+      "shop=beverages",
+      28
+    ],
+    [
+      "office=ngo",
+      27
+    ],
+    [
+      "office=yes",
+      26
+    ],
+    [
+      "shop=furniture",
+      26
+    ],
+    [
+      "office=lawyer",
+      26
+    ],
+    [
+      "leisure=golf_course",
+      25
+    ],
+    [
+      "shop=electronics",
+      24
+    ],
+    [
+      "shop=department_store",
+      23
+    ],
+    [
+      "shop=hairdresser",
+      22
+    ],
+    [
+      "tourism=motel",
+      20
+    ],
+    [
+      "shop=mobile_phone",
+      19
+    ],
+    [
+      "shop=bakery",
+      19
+    ],
+    [
+      "shop=greengrocer",
+      18
+    ],
+    [
+      "shop=variety_store",
+      16
+    ],
+    [
+      "office=telecommunication",
+      15
+    ],
+    [
+      "shop=shoes",
+      15
+    ],
+    [
+      "leisure=fitness_centre",
+      15
+    ],
+    [
+      "amenity=pub",
+      14
+    ],
+    [
+      "man_made=water_works",
+      14
+    ]
+  ],
+  "entity_kind_counts": [
+    [
+      "retailer_or_wholesaler",
+      1454
+    ],
+    [
+      "health_service_business_or_institution",
+      1056
+    ],
+    [
+      "hospitality_business",
+      749
+    ],
+    [
+      "service_or_trade_business",
+      594
+    ],
+    [
+      "fuel_retailer",
+      289
+    ],
+    [
+      "food_service_business",
+      283
+    ],
+    [
+      "food_or_beverage_service_business",
+      258
+    ],
+    [
+      "financial_or_business_service",
+      231
+    ],
+    [
+      "sports_or_recreation_business_or_club",
+      137
+    ],
+    [
+      "market_operator_or_commercial_cluster",
+      77
+    ],
+    [
+      "health_or_veterinary_service_business",
+      70
+    ],
+    [
+      "industrial_or_manufacturing_site",
+      70
+    ],
+    [
+      "commercial_entity_candidate",
+      28
+    ],
+    [
+      "arts_or_media_business",
+      22
+    ]
+  ],
+  "quality_status": "discovery_only_not_verified_company_register",
+  "quality_findings": [
+    "OSM elements mix businesses, branches, institutions, facilities and market nodes; entity resolution is required.",
+    "Repeated names may be legitimate branches or duplicate map features and must not be merged on name alone.",
+    "Address completeness is expected to be low; coordinate-to-place reconciliation is required.",
+    "OSM activity tags are discovery signals, not authoritative ISIC classifications."
+  ],
+  "generated_at": "2026-07-10T10:18:57.762579+00:00",
+  "overpass_endpoint": "https://overpass-api.de/api/interpreter",
+  "query_sha256": "b8c9d9789097606f62a8b58040512d6e701b6a1c6a4059234dcea323a7f0d878",
+  "raw_sha256": "695d566bf5712772ce23d5856af71128093a2bbdc575780091661b719a1109d8"
+}

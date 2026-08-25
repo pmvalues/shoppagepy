@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{{ merchant.name }} — Verified Storefront &amp; Stock Offers | Shoppage{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
+  <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+    <a href="/">Home</a> &gt; <a href="/merchants">Stores</a> &gt; <span>{{ merchant.name }}</span>
+  </div>
+
+  <!-- Store Header Card -->
+  <div class="card" style="background: #FFFFFF; padding: 2rem; margin-bottom: 2.5rem; border-left: 5px solid #10B981;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem;">
+      <div>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">{{ merchant.category|default:"Commercial Supplier" }}</span>
+          <span class="badge badge-green">✓ {{ merchant.get_verification_state_display }}</span>
+          <span class="badge badge-blue">Trust Score: {{ merchant.trust_score }}/100</span>
+        </div>
+
+        <h1 style="font-size: 2.25rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">
+          {{ merchant.name }}
+        </h1>
+
+        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 0.5rem;">
+          📍 {{ merchant.address_text }}
+          {% if merchant.stall_identifier %}
+            · <strong>Stall/Unit:</strong> {{ merchant.stall_identifier }}
+          {% endif %}
+        </p>
+
+        {% if merchant.google_rating %}
+        <p style="color: #D97706; font-size: 0.9rem; font-weight: 700;">
+          ★ {{ merchant.google_rating }} Google Rating ({{ merchant.google_reviews_count }}+ verified reviews)
+        </p>
+        {% endif %}
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        {% if merchant.whatsapp_number %}
+        <a href="/l/m_{{ merchant.canonical_id }}" class="btn btn-whatsapp" style="font-size: 1rem; padding: 0.75rem 1.5rem;">
+          💬 Message on WhatsApp
+        </a>
+        {% endif %}
+        {% if merchant.website_url %}
+        <a href="{{ merchant.website_url }}" target="_blank" class="btn btn-outline" style="font-size: 0.85rem;">
+          🌐 Official Website &nearr;
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Statutory Compliance Meta -->
+    <div style="border-top: 1px solid var(--border); margin-top: 1.5rem; padding-top: 1.25rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; font-size: 0.85rem;">
+      {% if merchant.cipc_enterprise_number %}
+      <div><strong>CIPC Registration:</strong> {{ merchant.cipc_enterprise_number }}</div>
+      {% endif %}
+      {% if merchant.bbbee_level %}
+      <div><strong>B-BBEE Status:</strong> {{ merchant.bbbee_level }}</div>
+      {% endif %}
+      {% if merchant.tax_compliance_pin %}
+      <div><strong>SARS Good Standing:</strong> {{ merchant.tax_compliance_pin }}</div>
+      {% endif %}
+      {% if merchant.cidb_grade %}
+      <div><strong>CIDB Grade:</strong> {{ merchant.cidb_grade }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Store Live Confirmed Offers -->
+  <section>
+    <h2 class="section-title">📦 Confirmed Live Products &amp; Prices</h2>
+    <p class="section-desc">Real-time inventory available for direct WhatsApp order or local collection.</p>
+
+    <div class="grid grid-cols-3" style="gap: 1.25rem;">
+      {% for offer in offers %}
+      <div class="card" style="background: #FFFFFF; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <span class="badge badge-green" style="margin-bottom: 0.4rem;">✓ In Stock</span>
+          <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0.3rem 0;">
+            <a href="/p/{{ offer.variant.canonical_id }}">{{ offer.variant.title }}</a>
+          </h3>
+          <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.75rem;">
+            Brand: {{ offer.variant.brand }} · {{ offer.variant.category_ref }}
+          </p>
+        </div>
+
+        <div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: var(--accent-green); margin: 0.5rem 0;">
+            R {{ offer.price_amount|floatformat:0|intcomma }}
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <a href="/p/{{ offer.variant.canonical_id }}" class="btn btn-outline" style="flex: 1; font-size: 0.8rem; padding: 0.4rem;">
+              Compare
+            </a>
+            <a href="/l/{{ offer.canonical_id }}" class="btn btn-whatsapp" style="font-size: 0.8rem; padding: 0.4rem 0.75rem;">
+              💬 Order
+            </a>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="card" style="grid-column: span 3; text-align: center; padding: 2rem;">
+        <p style="color: #64748B;">This store has not published product prices yet. Message them directly on WhatsApp for a quick quote.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

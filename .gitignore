@@ -1,0 +1,59 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite Databases & Large Data Dumps
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite3-wal
+*.sqlite-shm
+*.sqlite3-shm
+*.sqlite-journal
+*.sqlite3-journal
+db.sqlite3
+*.db
+
+# Large Archives & Spreadsheets
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.xlsx
+*.xls
+*.csv
+
+# Build caches & Next.js / Node
+.next/
+apps/web/.next/
+node_modules/
+dist/
+build/
+.turbo/
+.tsbuildinfo
+
+# Working directories & studies
+Products Zim/
+shoppage-commerce-intelligence-foundation/data/study/
+.codex_work/
+.omo/
+tmp/
+scratch/
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Logs and test artifacts
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS metadata
+.DS_Store
+Thumbs.db

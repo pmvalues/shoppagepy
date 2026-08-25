@@ -1,0 +1,57 @@
+{% load humanize %}
+{% if results.products or results.merchants %}
+<div style="padding: 0.75rem;">
+  {% if results.overview %}
+  <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 0.6rem 0.85rem; margin-bottom: 0.75rem; font-size: 0.8rem; color: #166534; display: flex; align-items: flex-start; gap: 0.4rem;">
+    <span>✨</span>
+    <div>{{ results.overview|truncatechars:140 }}</div>
+  </div>
+  {% endif %}
+
+  {% if results.products %}
+  <div style="font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 0.4rem; padding-left: 0.25rem;">
+    📦 Products ({{ results.products|length }})
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.75rem;">
+    {% for p in results.products|slice:":4" %}
+    <a href="/p/{{ p.canonical_id }}/" style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.75rem; border-radius: 6px; text-decoration: none; color: #0F172A; transition: background 0.15s ease;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='transparent'">
+      <div>
+        <div style="font-weight: 600; font-size: 0.85rem;">{{ p.title }}</div>
+        <div style="font-size: 0.75rem; color: #64748B;">{{ p.brand }} · {{ p.category_ref }}</div>
+      </div>
+      <div style="font-weight: 700; font-size: 0.9rem; color: #059669; white-space: nowrap; margin-left: 0.75rem;">
+        R {{ p.estimated_price_zar|floatformat:0|intcomma }}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if results.merchants %}
+  <div style="font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 0.4rem; padding-left: 0.25rem; border-top: 1px solid var(--border); padding-top: 0.5rem;">
+    🏪 Verified Stores
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+    {% for m in results.merchants|slice:":3" %}
+    <a href="/m/{{ m.canonical_id }}/" style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.75rem; border-radius: 6px; text-decoration: none; color: #0F172A; transition: background 0.15s ease;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='transparent'">
+      <div>
+        <div style="font-weight: 600; font-size: 0.85rem;">{{ m.name }}</div>
+        <div style="font-size: 0.75rem; color: #64748B;">📍 {{ m.address_text|truncatechars:35 }}</div>
+      </div>
+      <span class="badge badge-green" style="font-size: 0.7rem;">✓ {{ m.trust_score }}/100</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div style="border-top: 1px solid var(--border); margin-top: 0.5rem; padding-top: 0.5rem; text-align: center;">
+    <a href="/search/?q={{ query|urlencode }}" style="font-size: 0.8rem; color: #2563EB; font-weight: 600; text-decoration: none;">
+      View all results for &ldquo;{{ query }}&rdquo; &rarr;
+    </a>
+  </div>
+</div>
+{% else %}
+<div style="padding: 1.25rem; text-align: center; color: #64748B; font-size: 0.85rem;">
+  No matching products or stores found. Press Enter to search full catalog.
+</div>
+{% endif %}

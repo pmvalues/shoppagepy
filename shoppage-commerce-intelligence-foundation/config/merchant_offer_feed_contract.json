@@ -1,0 +1,48 @@
+{
+  "contract_version": "1.0.0",
+  "grain": "one seller-branch product offer observed at one timestamp",
+  "required_columns": [
+    "source_offer_id",
+    "seller_external_id",
+    "seller_branch_external_id",
+    "observed_at",
+    "source_url",
+    "product_name",
+    "currency",
+    "price",
+    "availability"
+  ],
+  "optional_columns": [
+    "gtin",
+    "seller_sku",
+    "brand",
+    "quantity",
+    "category",
+    "market_external_id",
+    "description",
+    "image_url",
+    "attributes_json"
+  ],
+  "allowed_availability": [
+    "in_stock",
+    "out_of_stock",
+    "preorder",
+    "backorder",
+    "limited",
+    "unknown"
+  ],
+  "currency_format": "ISO 4217 three-letter code; Zimbabwe multi-currency offers retain the currency actually displayed",
+  "price_format": "non-negative decimal in major currency units",
+  "timestamp_format": "ISO 8601 with timezone",
+  "identity_priority": [
+    "valid GTIN exact match",
+    "supplier or manufacturer identifier under an agreement",
+    "reviewed brand plus name plus quantity plus packaging match"
+  ],
+  "evidence_rules": [
+    "Every observation retains seller, branch, source URL and observed_at.",
+    "Stock and price are time-varying observations, not master-product attributes.",
+    "Descriptions and images are ingested only when the feed agreement grants reuse rights.",
+    "Ambiguous text matches enter review and never become silent merges."
+  ]
+}

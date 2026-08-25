@@ -1,0 +1,21 @@
+# Core Framework & Routing
+django==5.1.15
+djangorestframework==3.17.2
+django-cors-headers==4.7.0
+
+# Database & Cache
+psycopg==3.3.4
+psycopg-binary==3.3.4
+redis==8.1.0
+
+# Media & Images
+pillow==10.4.0
+
+# Server & HTTP
+gunicorn==26.2.0
+whitenoise==6.8.2
+requests==2.34.2
+
+# Testing & Quality
+pytest==9.0.3
+pytest-django==4.14.0

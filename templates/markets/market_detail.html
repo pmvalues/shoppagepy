@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{{ market.name }} — Stores, Offers &amp; Stalls | Shoppage{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
+  <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+    <a href="/">Home</a> &gt; <a href="/malls">Malls</a> &gt; <a href="/malls?province={{ market.province|urlencode }}">{{ market.province }}</a> &gt; <span>{{ market.name }}</span>
+  </div>
+
+  <div class="card" style="background: #FFFFFF; padding: 2rem; margin-bottom: 2.5rem; border-left: 5px solid #2563EB;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <span class="badge badge-blue">{{ market.get_market_type_display }}</span>
+          <span class="badge badge-green">✓ {{ market.get_verification_state_display }}</span>
+        </div>
+        <h1 style="font-size: 2rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">
+          {{ market.name }}
+        </h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 0.75rem;">
+          📍 {{ market.street_address|default:"South Africa" }} · {{ market.metro }}, {{ market.province }}
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem;">
+        {% if market.google_maps_url %}
+        <a href="{{ market.google_maps_url }}" target="_blank" class="btn btn-outline" style="font-size: 0.85rem;">
+          🗺️ Google Maps &nearr;
+        </a>
+        {% endif %}
+        <a href="/merchant/claim?market_id={{ market.id }}" class="btn btn-whatsapp" style="font-size: 0.85rem;">
+          + List Shop in this Mall
+        </a>
+      </div>
+    </div>
+
+    {% if market.landmarks %}
+    <div style="margin-top: 1.25rem; font-size: 0.85rem; color: var(--text-muted);">
+      <strong>Landmarks:</strong> {{ market.landmarks|join:", " }}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Verified Stores in this Market -->
+  <section>
+    <h2 class="section-title">🏪 Verified Stores &amp; Stalls in {{ market.name }}</h2>
+    <p class="section-desc">Connect directly with shopkeepers via WhatsApp for real-time stock and quotes.</p>
+
+    <div class="grid grid-cols-3" style="gap: 1.25rem;">
+      {% for m in merchants %}
+      <div class="card" style="background: #FFFFFF;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          <span class="badge badge-purple">{{ m.category|default:"General" }}</span>
+          <span class="badge badge-green">✓ {{ m.trust_score }}/100 Trust</span>
+        </div>
+        <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0.3rem 0;">
+          <a href="/m/{{ m.canonical_id }}">{{ m.name }}</a>
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 0.4rem;">
+          🏬 Stall / Shop: <strong>{{ m.stall_identifier|default:"Main Concourse" }}</strong>
+        </p>
+        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+          <a href="/m/{{ m.canonical_id }}" class="btn btn-outline" style="flex: 1; font-size: 0.8rem; padding: 0.4rem;">
+            View Offers
+          </a>
+          {% if m.whatsapp_number %}
+          <a href="/l/m_{{ m.canonical_id }}" class="btn btn-whatsapp" style="font-size: 0.8rem; padding: 0.4rem 0.75rem;">
+            💬 WhatsApp
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="card" style="grid-column: span 3; text-align: center; padding: 2rem;">
+        <p style="color: #64748B;">No direct store profiles have been linked to this mall yet. Be the first to claim a stall.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

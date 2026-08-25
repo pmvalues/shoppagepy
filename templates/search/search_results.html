@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Search: {{ query }} — Shoppage Intelligence{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
+  <!-- Search header & AI Overview -->
+  <div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 1.85rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">
+      Results for &ldquo;{{ results.query }}&rdquo;
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">
+      Found {{ results.total_products }} master product{{ results.total_products|pluralize }} and {{ results.total_merchants }} supplier{{ results.total_merchants|pluralize }} in the South African national grid.
+    </p>
+
+    <!-- AI Overview Box -->
+    <div class="ai-overview" style="margin-top: 1.25rem;">
+      <span class="ai-spark">✨ AI Overview</span>
+      <p style="margin: 0.5rem 0 0 0; font-size: 0.95rem; color: #1E293B; line-height: 1.5;">
+        {{ results.overview }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Products Section -->
+  {% if results.products %}
+  <section style="margin-bottom: 3rem;">
+    <h2 class="section-title">📦 Master Products &amp; Matrix Pricing</h2>
+    <div class="grid grid-cols-4" style="gap: 1.25rem; margin-top: 1rem;">
+      {% for p in results.products %}
+      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; background: #FFFFFF;">
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span class="badge badge-blue">{{ p.brand }}</span>
+            <span class="badge badge-green">✓ GS1 Verified</span>
+          </div>
+          <h3 style="font-size: 1rem; font-weight: 700; margin: 0.4rem 0; line-height: 1.3;">
+            <a href="/p/{{ p.canonical_id }}">{{ p.title }}</a>
+          </h3>
+          <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 0.5rem;">
+            Category: {{ p.category_ref }}
+          </p>
+        </div>
+
+        <div>
+          <div style="font-size: 1.35rem; font-weight: 800; color: var(--accent-green); margin: 0.5rem 0;">
+            R {{ p.estimated_price_zar|floatformat:0|intcomma }}
+          </div>
+          <div style="display: flex; gap: 0.4rem;">
+            <a href="/p/{{ p.canonical_id }}" class="btn btn-outline" style="flex: 1; font-size: 0.8rem; padding: 0.45rem;">
+              Compare Sellers
+            </a>
+            <a href="/merchant/claim?variantId={{ p.canonical_id }}&title={{ p.title|urlencode }}" class="btn btn-whatsapp" style="font-size: 0.75rem; padding: 0.45rem 0.65rem;">
+              + List
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Merchants Section -->
+  {% if results.merchants %}
+  <section>
+    <h2 class="section-title">🏪 Verified Suppliers Matching Your Search</h2>
+    <div class="grid grid-cols-3" style="gap: 1.25rem; margin-top: 1rem;">
+      {% for m in results.merchants %}
+      <div class="card" style="background: #FFFFFF;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          <span class="badge badge-purple">{{ m.category|default:"General" }}</span>
+          <span class="badge badge-green">✓ {{ m.trust_score }}/100 Trust</span>
+        </div>
+        <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0.3rem 0;">
+          <a href="/m/{{ m.canonical_id }}">{{ m.name }}</a>
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem;">
+          📍 {{ m.address_text|truncatechars:50 }}
+        </p>
+        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+          <a href="/m/{{ m.canonical_id }}" class="btn btn-outline" style="flex: 1; font-size: 0.8rem; padding: 0.4rem;">
+            View Store
+          </a>
+          {% if m.whatsapp_number %}
+          <a href="/l/m_{{ m.canonical_id }}" class="btn btn-whatsapp" style="font-size: 0.8rem; padding: 0.4rem 0.75rem;">
+            💬 WhatsApp
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

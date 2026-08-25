@@ -1,0 +1,429 @@
+{
+  "source_url": "https://static.openfoodfacts.org/data/en.openfoodfacts.org.products.csv.gz",
+  "source_file": "en.openfoodfacts.org.products.csv.gz",
+  "source_file_bytes": 1275171186,
+  "build_limit": 1000000,
+  "rows_scanned": 1037266,
+  "usable_rows_seen": 1000000,
+  "stored_master_products": 1000000,
+  "distinct_family_keys": 466276,
+  "gtin_valid_records": 950334,
+  "gtin_valid_rate": 0.950334,
+  "missing_counts": {
+    "brand": 373219,
+    "categories": 572284,
+    "quantity": 793800,
+    "unusable_row": 37261,
+    "product_name": 13415,
+    "duplicate_source_code": 5
+  },
+  "top_category_leafs": [
+    [
+      "unclassified",
+      572284
+    ],
+    [
+      "en:undefined",
+      35028
+    ],
+    [
+      "en:snacks",
+      26060
+    ],
+    [
+      "en:groceries",
+      25079
+    ],
+    [
+      "en:confectioneries",
+      12212
+    ],
+    [
+      "en:cheeses",
+      10150
+    ],
+    [
+      "en:biscuits",
+      9110
+    ],
+    [
+      "en:frozen-desserts",
+      7792
+    ],
+    [
+      "en:breads",
+      7537
+    ],
+    [
+      "en:frozen-foods",
+      5556
+    ],
+    [
+      "en:salted-snacks",
+      5351
+    ],
+    [
+      "en:cereals-and-their-products",
+      5187
+    ],
+    [
+      "en:cakes",
+      5017
+    ],
+    [
+      "en:plant-based-beverages",
+      4849
+    ],
+    [
+      "en:chocolate-candies",
+      4763
+    ],
+    [
+      "en:sodas",
+      4688
+    ],
+    [
+      "en:yogurts",
+      4253
+    ],
+    [
+      "en:beverages",
+      4015
+    ],
+    [
+      "en:pastas",
+      4003
+    ],
+    [
+      "en:waters",
+      3614
+    ],
+    [
+      "en:prepared-meats",
+      3552
+    ],
+    [
+      "en:dietary-supplements",
+      2898
+    ],
+    [
+      "en:fruits-and-vegetables-based-foods",
+      2846
+    ],
+    [
+      "en:sausages",
+      2737
+    ],
+    [
+      "en:candies",
+      2705
+    ],
+    [
+      "en:honeys",
+      2519
+    ],
+    [
+      "en:milks",
+      2500
+    ],
+    [
+      "en:frozen-vegetables",
+      2457
+    ],
+    [
+      "en:chicken-breasts",
+      2422
+    ],
+    [
+      "en:pizzas",
+      2359
+    ],
+    [
+      "en:canned-vegetables",
+      2332
+    ],
+    [
+      "en:baking-decorations",
+      2244
+    ],
+    [
+      "en:soups",
+      2238
+    ],
+    [
+      "en:canned-soups",
+      2095
+    ],
+    [
+      "en:meals",
+      2047
+    ],
+    [
+      "en:dehydrated-beverages",
+      2014
+    ],
+    [
+      "en:biscuits-and-cakes",
+      1935
+    ],
+    [
+      "en:cake-mixes",
+      1793
+    ],
+    [
+      "en:canned-fruits",
+      1785
+    ],
+    [
+      "en:tomatoes",
+      1782
+    ],
+    [
+      "en:pastries",
+      1771
+    ],
+    [
+      "en:fruit-and-vegetable-preserves",
+      1711
+    ],
+    [
+      "en:breakfast-cereals",
+      1699
+    ],
+    [
+      "en:corn-chips",
+      1682
+    ],
+    [
+      "en:crackers-appetizers",
+      1679
+    ],
+    [
+      "en:potato-crisps",
+      1670
+    ],
+    [
+      "en:vegetable-oils",
+      1636
+    ],
+    [
+      "en:canned-common-beans",
+      1636
+    ],
+    [
+      "en:meats",
+      1573
+    ],
+    [
+      "en:frozen-seafood",
+      1528
+    ]
+  ],
+  "top_brands": [
+    [
+      "unbranded",
+      375326
+    ],
+    [
+      "great value",
+      6690
+    ],
+    [
+      "trader joe s",
+      6652
+    ],
+    [
+      "kroger",
+      5596
+    ],
+    [
+      "wegmans",
+      4336
+    ],
+    [
+      "sainsbury s",
+      4171
+    ],
+    [
+      "meijer",
+      4138
+    ],
+    [
+      "h e b",
+      3730
+    ],
+    [
+      "kirkland",
+      3114
+    ],
+    [
+      "aldi",
+      2875
+    ],
+    [
+      "marks spencer",
+      2692
+    ],
+    [
+      "leclerc",
+      2336
+    ],
+    [
+      "sprouts",
+      2266
+    ],
+    [
+      "publix",
+      2147
+    ],
+    [
+      "member s mark",
+      2112
+    ],
+    [
+      "kirkland signature",
+      2034
+    ],
+    [
+      "food lion",
+      2023
+    ],
+    [
+      "compliments",
+      2021
+    ],
+    [
+      "shoprite",
+      1842
+    ],
+    [
+      "harris teeter",
+      1836
+    ],
+    [
+      "e leclerc",
+      1823
+    ],
+    [
+      "tesco",
+      1800
+    ],
+    [
+      "carrefour",
+      1738
+    ],
+    [
+      "good gather",
+      1724
+    ],
+    [
+      "marketside",
+      1623
+    ],
+    [
+      "giant eagle",
+      1617
+    ],
+    [
+      "western family",
+      1581
+    ],
+    [
+      "walmart",
+      1568
+    ],
+    [
+      "private selection",
+      1528
+    ],
+    [
+      "heb",
+      1523
+    ],
+    [
+      "food club",
+      1518
+    ],
+    [
+      "market basket",
+      1423
+    ],
+    [
+      "president s choice",
+      1418
+    ],
+    [
+      "signature select",
+      1396
+    ],
+    [
+      "weis",
+      1382
+    ],
+    [
+      "ahold",
+      1368
+    ],
+    [
+      "maitre coq",
+      1354
+    ],
+    [
+      "simple truth",
+      1341
+    ],
+    [
+      "nestle",
+      1340
+    ],
+    [
+      "spartan",
+      1340
+    ],
+    [
+      "roundy s",
+      1335
+    ],
+    [
+      "la nouvelle agriculture",
+      1309
+    ],
+    [
+      "le gaulois",
+      1228
+    ],
+    [
+      "kellogg s",
+      1226
+    ],
+    [
+      "giant",
+      1222
+    ],
+    [
+      "hannaford",
+      1220
+    ],
+    [
+      "selection",
+      1215
+    ],
+    [
+      "kraft",
+      1184
+    ],
+    [
+      "goya",
+      1171
+    ],
+    [
+      "essential everyday",
+      1122
+    ]
+  ],
+  "source_modified_t_min": 1415652766,
+  "source_modified_t_max": 1779784413,
+  "generated_at": "2026-07-10T10:49:29.617920+00:00",
+  "quality_status": "global_reference_master_seed_not_zimbabwe_offer_or_availability_evidence",
+  "sampling_note": "Deterministic first usable rows in the daily export; suitable for scale testing, not a representative market sample."
+}
