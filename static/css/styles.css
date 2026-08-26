@@ -701,8 +701,9 @@ kbd {
   .grid-cols-3 { grid-template-columns: 1fr !important; }
   .grid-cols-4 { grid-template-columns: 1fr 1fr !important; }
   
-  /* Search Results 2-Column Desktop Grid */
-  div[style*="grid-template-columns: 1fr 360px"] {
+  /* Search Results & Merchant Detail 2-Column Desktop Grids */
+  div[style*="grid-template-columns: 1fr 360px"],
+  div[style*="grid-template-columns: 1fr 340px"] {
     grid-template-columns: 1fr !important;
   }
 

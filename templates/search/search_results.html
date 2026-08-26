@@ -167,6 +167,25 @@
     color: #0F172A;
     border-color: #CBD5E1;
   }
+
+  @media (max-width: 768px) {
+    .related-grid {
+      grid-template-columns: 1fr;
+    }
+    .place-card {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .place-card > div:last-child {
+      flex-direction: row;
+      align-items: center;
+      width: 100%;
+      justify-content: space-between;
+    }
+    .ai-overview-card {
+      padding: 1rem;
+    }
+  }
 </style>
 {% endblock %}
 
