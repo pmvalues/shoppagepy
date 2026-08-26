@@ -407,17 +407,21 @@ def ranked_search(
         )
 
     if len(merchants) < 6 and tokens:
-        mq = Q()
-        for t in tokens[:2]:
-            mq |= Q(name__istartswith=t) | Q(category__istartswith=t)
-        extra_qs = Merchant.objects.filter(mq).select_related('market')
-        if category:
-            extra_qs = extra_qs.filter(category=category)
-        if province:
-            extra_qs = extra_qs.filter(province=province)
-        if merchants:
-            extra_qs = extra_qs.exclude(id__in=[m.id for m in merchants])
-        merchants.extend(list(extra_qs.order_by('-trust_score')[:6 - len(merchants)]))
+        t = tokens[0].strip()
+        try:
+            with connection.cursor() as cur:
+                cur.execute(
+                    "SELECT id FROM merchants_merchant "
+                    "WHERE name LIKE %s OR name LIKE %s OR category = %s "
+                    "LIMIT %s",
+                    [f'{t.capitalize()}%', f'{t.lower()}%', t, 6 - len(merchants)]
+                )
+                extra_ids = [r[0] for r in cur.fetchall()]
+            if extra_ids:
+                extra_merchants = list(Merchant.objects.filter(id__in=extra_ids).select_related('market'))
+                merchants.extend(extra_merchants)
+        except Exception:
+            pass
 
     elapsed_ms = round((time.perf_counter() - t0) * 1000, 1)
     return {
