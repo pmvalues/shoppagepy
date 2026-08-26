@@ -288,19 +288,17 @@ def _candidate_ids_postgres(tokens: List[str], expanded: List[str], limit: int) 
     ids: List[Any] = []
     try:
         with connection.cursor() as cur:
-            # 1. Exact Brand / Model match (Instant 0.2ms B-Tree index scan)
-            brand_variants = []
-            for t in all_terms:
-                s = t.strip()
-                brand_variants.extend([s, s.capitalize(), s.upper(), s.lower()])
-            
-            cur.execute(
-                "SELECT id FROM catalog_masterproduct "
-                "WHERE (status = 'active' OR status = 'ACTIVE') "
-                "AND brand = ANY(%s) LIMIT %s",
-                [list(set(brand_variants)), limit],
-            )
-            ids.extend(r[0] for r in cur.fetchall())
+            # 1. Exact Brand match (Instant 0.2ms B-Tree index scan via IN)
+            brand_variants = list(set([t.capitalize() for t in all_terms] + [t.upper() for t in all_terms] + [t.lower() for t in all_terms]))[:10]
+            if brand_variants:
+                placeholders = ', '.join(['%s'] * len(brand_variants))
+                cur.execute(
+                    f"SELECT id FROM catalog_masterproduct "
+                    f"WHERE (status = 'active' OR status = 'ACTIVE') "
+                    f"AND brand IN ({placeholders}) LIMIT %s",
+                    [*brand_variants, limit],
+                )
+                ids.extend(r[0] for r in cur.fetchall())
 
             # 2. Title prefix match using varchar_pattern_ops index
             if len(ids) < limit:
