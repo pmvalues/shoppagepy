@@ -98,7 +98,10 @@ def home_view(request):
 
         shows = list(Show.objects.filter(status__in=['active', 'ACTIVE'])[:3]) or list(Show.objects.all()[:3])
         shorts = list(Short.objects.filter(moderation_state__in=['approved', 'APPROVED'])[:4]) or list(Short.objects.all()[:4])
-        flagship_malls = list(Market.objects.all()[:12])
+        flagship_malls = list(
+            Market.objects.exclude(name__contains='#')
+            .order_by('-stall_capacity', 'name')[:12]
+        ) or list(Market.objects.order_by('-stall_capacity')[:12])
 
         context = {
             'featured_products': featured_products,

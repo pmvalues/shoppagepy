@@ -30,7 +30,32 @@ def malls_directory_view(request):
     if query:
         markets_qs = markets_qs.filter(name__icontains=query)
 
-    markets_list = list(markets_qs.select_related('parent_market')[:100])
+    # 1. Prioritize iconic flagship malls first
+    flagship_malls = list(
+        markets_qs.exclude(name__contains='#')
+        .select_related('parent_market')
+        .order_by('-stall_capacity', 'name')[:60]
+    )
+    seen_names = {m.name.split('#')[0].strip().lower() for m in flagship_malls}
+    unique_malls = list(flagship_malls)
+
+    # 2. Add diverse regional commercial hubs deduplicated by name
+    remaining = 100 - len(unique_malls)
+    if remaining > 0:
+        candidates = list(
+            markets_qs.filter(name__contains='#')
+            .select_related('parent_market')
+            .order_by('-stall_capacity', 'id')[:300]
+        )
+        for m in candidates:
+            base_name = m.name.split('#')[0].strip().lower()
+            if base_name not in seen_names:
+                seen_names.add(base_name)
+                unique_malls.append(m)
+            if len(unique_malls) >= 100:
+                break
+
+    markets_list = unique_malls
 
     # Build Map Points JSON
     map_points = []
@@ -90,12 +115,23 @@ def market_detail_view(request, slug_or_id):
     if not market:
         raise Http404("Market not found")
 
-    merchants = list(market.merchants.all()[:50])
+    # Fetch merchants and deduplicate by storefront name
+    m_candidates = list(market.merchants.select_related('market').order_by('-trust_score', 'id')[:100])
+    unique_merchants = []
+    seen_stores = set()
+    for m in m_candidates:
+        store_name = m.name.split('#')[0].strip().lower()
+        if store_name not in seen_stores:
+            seen_stores.add(store_name)
+            unique_merchants.append(m)
+        if len(unique_merchants) >= 30:
+            break
+
     sub_markets = list(market.sub_markets.all()[:20])
 
     context = {
         'market': market,
-        'merchants': merchants,
+        'merchants': unique_merchants,
         'sub_markets': sub_markets,
         'jsonld': jsonld_script(market_jsonld(market)),
     }
