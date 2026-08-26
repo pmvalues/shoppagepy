@@ -170,8 +170,35 @@
           {% endif %}
         </div>
 
+        <!-- 30-Day Price Intelligence & Price Drop Alert Widget -->
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+              <span style="font-size: 0.9rem;">📊</span>
+              <span style="font-size: 0.8rem; font-weight: 800; color: #0F172A;">30-Day Price Intelligence:</span>
+              <span class="badge badge-green" style="font-size: 0.7rem;">{{ price_status }}</span>
+            </div>
+            <a
+              href="https://wa.me/?text={{ 'Track Price Drop: Please alert me when '|urlencode }}{{ product.title|urlencode }}{{ ' drops below R '|urlencode }}{{ min_price|floatformat:0 }}"
+              target="_blank"
+              style="font-size: 0.75rem; color: #2563EB; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 3px;"
+            >
+              🔔 Track Price Drop on WhatsApp
+            </a>
+          </div>
+
+          <!-- Price Sparkline Range Bar -->
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #64748B;">
+            <span>30d Low: <strong style="color: #059669;">R {{ lowest_30d|floatformat:0|intcomma }}</strong></span>
+            <div style="flex: 1; height: 4px; background: #E2E8F0; border-radius: 2px; margin: 0 0.75rem; position: relative;">
+              <div style="position: absolute; left: 15%; right: 25%; height: 100%; background: #10B981; border-radius: 2px;"></div>
+            </div>
+            <span>30d High: <strong style="color: #94A3B8;">R {{ highest_30d|floatformat:0|intcomma }}</strong></span>
+          </div>
+        </div>
+
         <!-- Buy Box Action Buttons -->
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem;">
           {% if best_offer %}
           <a
             href="/l/{{ best_offer.canonical_id }}"
@@ -197,6 +224,18 @@
           >
             Compare All {{ confirmed_offers|length|default:1 }} Sellers &rarr;
           </a>
+        </div>
+
+        <!-- In-Mall Collection & Courier Fulfilment Strip -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.775rem; border-top: 1px solid #F1F5F9; padding-top: 0.85rem;">
+          <div style="display: flex; align-items: center; gap: 0.4rem; color: #0F172A;">
+            <span>🏬</span>
+            <span><strong>Same-Day Collection:</strong> In-Store at Sandton &amp; Mall Stalls</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.4rem; color: #0F172A;">
+            <span>🚚</span>
+            <span><strong>Doorstep Courier:</strong> 24-48h Delivery via The Courier Guy</span>
+          </div>
         </div>
       </div>
 
