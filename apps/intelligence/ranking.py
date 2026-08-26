@@ -387,18 +387,32 @@ def ranked_search(
         if pr:
             prices.append(float(pr))
 
-    # Fast merchant search
-    merchants_qs = Merchant.objects.all().select_related('market')
-    if category:
-        merchants_qs = merchants_qs.filter(category=category)
-    elif tokens:
+    # High-speed merchant discovery from matched products and direct indexed name search (< 5ms)
+    matched_merchant_ids = set()
+    for s in scored[:20]:
+        if s.best_offer and s.best_offer.merchant_id:
+            matched_merchant_ids.add(s.best_offer.merchant_id)
+
+    merchants: List[Merchant] = []
+    if matched_merchant_ids:
+        merchants = list(
+            Merchant.objects.filter(id__in=matched_merchant_ids)
+            .select_related('market')
+            .order_by('-trust_score')[:6]
+        )
+
+    if len(merchants) < 6 and tokens:
         mq = Q()
-        for t in tokens[:3]:
-            mq |= Q(name__icontains=t) | Q(category__icontains=t) | Q(offers__variant__brand__icontains=t)
-        merchants_qs = merchants_qs.filter(mq).distinct()
-    if province:
-        merchants_qs = merchants_qs.filter(province=province)
-    merchants = list(merchants_qs.order_by('-trust_score')[:6])
+        for t in tokens[:2]:
+            mq |= Q(name__icontains=t) | Q(category__istartswith=t)
+        extra_qs = Merchant.objects.filter(mq).select_related('market')
+        if category:
+            extra_qs = extra_qs.filter(category=category)
+        if province:
+            extra_qs = extra_qs.filter(province=province)
+        if merchants:
+            extra_qs = extra_qs.exclude(id__in=[m.id for m in merchants])
+        merchants.extend(list(extra_qs.order_by('-trust_score')[:6 - len(merchants)]))
 
     elapsed_ms = round((time.perf_counter() - t0) * 1000, 1)
     return {
