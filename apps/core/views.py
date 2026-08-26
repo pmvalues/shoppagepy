@@ -19,7 +19,12 @@ def home_view(request):
     High-performance pure Django homepage view querying the National Commerce Grid.
     """
     key = _cache_key('home', request)
-    context = cache.get(key)
+    context = None
+    try:
+        context = cache.get(key)
+    except Exception:
+        context = None
+
     if context is None:
         featured_products = list(
             MasterProduct.objects.filter(status__in=['active', 'ACTIVE'])
@@ -42,7 +47,11 @@ def home_view(request):
                 'total_products': MasterProduct.objects.filter(status__in=['active', 'ACTIVE']).count(),
             },
         }
-        cache.set(key, context, 60)
+        try:
+            cache.set(key, context, 60)
+        except Exception:
+            pass
+
     return render(request, 'home.html', context)
 
 def search_view(request):

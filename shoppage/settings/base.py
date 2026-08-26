@@ -167,22 +167,17 @@ REST_FRAMEWORK = {
 }
 
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # Caching (v8.2 Performance Layer)
 # Redis when REDIS_URL is present (prod), LocMem fallback for dev.
 # ---------------------------------------------------------------------------
 redis_url = os.environ.get('REDIS_URL') or os.environ.get('REDISCLOUD_URL')
 if redis_url:
-    import urllib.parse as _urlparse
-    _u = _urlparse.urlparse(redis_url)
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-            'LOCATION': f'{_u.scheme}://{_u.hostname}:{_u.port or 6379}',
+            'LOCATION': redis_url,
             'KEY_PREFIX': 'shoppage',
-            'OPTIONS': {
-                'password': _u.password or '',
-                'db': int((_u.path or '/0').lstrip('/')) or 0,
-            },
         }
     }
 else:
