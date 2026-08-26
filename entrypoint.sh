@@ -20,13 +20,8 @@ python manage.py seed_shoppage_flagships || true
 echo "==> Seeding all 3,296 Shopping Centres, Wholesale Hubs & Taxi Ranks..."
 python manage.py seed_all_malls_and_markets || true
 
-echo "==> Triggering National Scale Grid Seeding (1,000,000 Products & 3,100,000 Merchants)..."
-(
-  python manage.py seed_national_scale_grid --products 1000000 --merchants 3100000 || true
-  python manage.py rebuild_catalog_fts || true
-  echo "==> National Scale Grid (1M Products, 3.1M Merchants, 3,296 Malls) & FTS5 Indexing Ready!"
-) &
+echo "==> Rebuilding FTS5 Search Index..."
+python manage.py rebuild_catalog_fts || true
 
 echo "==> Launching Gunicorn Production Server on Port 8000..."
 exec gunicorn --bind 0.0.0.0:8000 --workers 4 --threads 2 --timeout 120 shoppage.wsgi:application
-

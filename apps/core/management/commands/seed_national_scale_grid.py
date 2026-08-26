@@ -79,9 +79,10 @@ class Command(BaseCommand):
         conn = sqlite3.connect(db_path)
         cur = conn.cursor()
 
-        # Ultra-fast bulk write tuning
-        cur.execute("PRAGMA synchronous = OFF;")
-        cur.execute("PRAGMA journal_mode = MEMORY;")
+        # Ultra-fast bulk write tuning preserving WAL mode for concurrent readers
+        cur.execute("PRAGMA journal_mode = WAL;")
+        cur.execute("PRAGMA synchronous = NORMAL;")
+        cur.execute("PRAGMA busy_timeout = 60000;")
         cur.execute("PRAGMA cache_size = 100000;")
         cur.execute("PRAGMA temp_store = MEMORY;")
 

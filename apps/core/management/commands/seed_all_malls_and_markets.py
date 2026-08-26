@@ -140,8 +140,9 @@ class Command(BaseCommand):
         conn = sqlite3.connect(db_path)
         cur = conn.cursor()
 
-        cur.execute("PRAGMA synchronous = OFF;")
-        cur.execute("PRAGMA journal_mode = MEMORY;")
+        cur.execute("PRAGMA journal_mode = WAL;")
+        cur.execute("PRAGMA synchronous = NORMAL;")
+        cur.execute("PRAGMA busy_timeout = 60000;")
 
         cur.execute("SELECT COUNT(*) FROM markets_market")
         current_count = cur.fetchone()[0]
