@@ -374,10 +374,19 @@ def ranked_search(
             continue
         scored.append(sp)
 
-    scored.sort(key=lambda s: (-s.score, -(s.offer_count)))
+    # Deduplicate scored products by title to ensure clean unique search results
+    deduped_scored: List[ScoredProduct] = []
+    seen_titles = set()
+    for s in scored:
+        title_key = (s.product.title or '').strip().lower()
+        if title_key not in seen_titles:
+            seen_titles.add(title_key)
+            deduped_scored.append(s)
 
-    total = len(scored)
-    page = scored[offset:offset + limit]
+    deduped_scored.sort(key=lambda s: (-s.score, -(s.offer_count)))
+
+    total = len(deduped_scored)
+    page = deduped_scored[offset:offset + limit]
 
     # Fast facets
     facet_categories: Dict[str, int] = {}

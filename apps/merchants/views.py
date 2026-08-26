@@ -19,9 +19,18 @@ def merchant_list_view(request):
     if province_filter:
         merchants_qs = merchants_qs.filter(province=province_filter)
     if query:
-        merchants_qs = merchants_qs.filter(name__icontains=query)
+        merchants_qs = merchants_qs.filter(name__istartswith=query)
 
-    merchants = list(merchants_qs.select_related('market')[:48])
+    # Prefer verified stores with physical shopping centres/markets attached first
+    flagship_stores = list(merchants_qs.filter(market__isnull=False).select_related('market').order_by('-trust_score', 'name')[:24])
+    seen_ids = {m.id for m in flagship_stores}
+    
+    remaining_count = 48 - len(flagship_stores)
+    if remaining_count > 0:
+        extra_stores = list(merchants_qs.exclude(id__in=seen_ids).select_related('market').order_by('-trust_score', 'name')[:remaining_count])
+        flagship_stores.extend(extra_stores)
+
+    merchants = flagship_stores
 
     context = {
         'merchants': merchants,

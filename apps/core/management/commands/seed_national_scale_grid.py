@@ -116,17 +116,17 @@ class Command(BaseCommand):
                     for i in range(batch_count):
                         sku_idx = start_id + batch_start + i
                         uid = f"00000000-0000-0000-0002-{sku_idx:012x}"
-                        cat = cat_keys[sku_idx % len(cat_keys)]
+                        cat = cat_keys[(sku_idx * 13) % len(cat_keys)]
                         cat_spec = PRODUCT_CATEGORIES[cat]
-                        brand = cat_spec['brands'][sku_idx % len(cat_spec['brands'])]
-                        item_type = cat_spec['types'][(sku_idx // len(cat_spec['brands'])) % len(cat_spec['types'])]
+                        brand = cat_spec['brands'][(sku_idx * 29) % len(cat_spec['brands'])]
+                        item_type = cat_spec['types'][(sku_idx * 47) % len(cat_spec['types'])]
 
-                        model_num = f"{brand[:3].upper()}-{100 + (sku_idx % 899)}-{(sku_idx % 99):02d}"
+                        model_num = f"{brand[:3].upper()}-{100 + ((sku_idx * 71) % 899)}-{((sku_idx * 97) % 99):02d}"
                         title = f"{brand} {model_num} {item_type}"
                         canonical_id = f"var_{cat[:4]}_{sku_idx:07d}"
                         gtin13 = f"600{(sku_idx * 7919) % 9000000000 + 1000000000:010d}"
 
-                        attrs_json = json.dumps({'estimatedPriceZar': (sku_idx % 250) * 100 + 499, 'skuIndex': sku_idx})
+                        attrs_json = json.dumps({'estimatedPriceZar': ((sku_idx * 37) % 250) * 100 + 499, 'skuIndex': sku_idx})
                         comp_json = json.dumps({'sabsApproved': (sku_idx % 3 != 0), 'nrs097Certified': (cat == 'solar_energy')})
                         alias_json = json.dumps([{'phrase': title.lower(), 'locale': 'en', 'confidence': 1.0}])
                         rev_json = json.dumps({'averageRating': round(4.0 + (sku_idx % 10) * 0.1, 1), 'totalReviewsCount': (sku_idx % 80) + 5})
@@ -186,22 +186,22 @@ class Command(BaseCommand):
                     for i in range(batch_count):
                         m_idx = start_id + batch_start + i
                         uid = f"00000000-0000-0000-0003-{m_idx:012x}"
-                        prov_idx = m_idx % len(PROVINCES_DATA)
+                        prov_idx = (m_idx * 17) % len(PROVINCES_DATA)
                         province_name, metros = PROVINCES_DATA[prov_idx]
-                        metro_name = metros[m_idx % len(metros)]
+                        metro_name = metros[(m_idx * 31) % len(metros)]
 
-                        prefix = MERCHANT_NAMES_PREFIX[m_idx % len(MERCHANT_NAMES_PREFIX)]
-                        suffix = MERCHANT_NAMES_SUFFIX[(m_idx // len(MERCHANT_NAMES_PREFIX)) % len(MERCHANT_NAMES_SUFFIX)]
-                        name = f"{prefix} {suffix} {metro_name} #{m_idx}"
+                        prefix = MERCHANT_NAMES_PREFIX[(m_idx * 53) % len(MERCHANT_NAMES_PREFIX)]
+                        suffix = MERCHANT_NAMES_SUFFIX[(m_idx * 79) % len(MERCHANT_NAMES_SUFFIX)]
+                        name = f"{prefix} {suffix} ({metro_name}) #{m_idx}"
                         canonical_id = f"m_za_{m_idx:07d}"
 
                         whatsapp = f"277{(m_idx * 104729) % 90000000 + 10000000:08d}"
                         email = f"contact_{m_idx}@shoppage.co.za"
-                        market_id = market_ids[m_idx % len(market_ids)] if market_ids else None
+                        market_id = market_ids[(m_idx * 11) % len(market_ids)] if market_ids else None
                         stall_id = f"Stall {(m_idx % 400) + 1}"
-                        cat = list(PRODUCT_CATEGORIES.keys())[m_idx % len(PRODUCT_CATEGORIES)]
+                        cat = list(PRODUCT_CATEGORIES.keys())[(m_idx * 23) % len(PRODUCT_CATEGORIES)]
                         cipc = f"K202{(m_idx % 5)}/{((m_idx * 31) % 899999 + 100000)}/07"
-                        score = 75 + (m_idx % 25)
+                        score = 65 + ((m_idx * 101) % 35)
 
                         rows.append((
                             uid, now_iso, now_iso, canonical_id, name, 'ZA', 'claimed',

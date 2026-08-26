@@ -45,7 +45,7 @@ def home_view(request):
     """
     High-performance pure Django homepage view querying the National Commerce Grid.
     """
-    key = _cache_key('home', request)
+    key = _cache_key('home_v4', request)
     context = None
     try:
         context = cache.get(key)
@@ -53,15 +53,41 @@ def home_view(request):
         context = None
 
     if context is None:
+        # Fetch diverse flagship products with real verified offers first
         featured_products = list(
             MasterProduct.objects.filter(status__in=['active', 'ACTIVE'])
-            .prefetch_related('offers', 'offers__merchant')[:8]
-        ) or list(MasterProduct.objects.prefetch_related('offers')[:8])
+            .filter(offers__isnull=False)
+            .prefetch_related('offers', 'offers__merchant')
+            .order_by('-created_at')[:8]
+        )
+        if len(featured_products) < 8:
+            seen_ids = {p.id for p in featured_products}
+            extra_prods = list(
+                MasterProduct.objects.filter(status__in=['active', 'ACTIVE'])
+                .exclude(id__in=seen_ids)
+                .prefetch_related('offers', 'offers__merchant')[:8 - len(featured_products)]
+            )
+            featured_products.extend(extra_prods)
+
+        # Fetch diverse verified merchants across flagship markets
         verified_merchants = list(
-            Merchant.objects.select_related('market').order_by('-trust_score')[:8])
+            Merchant.objects.filter(market__isnull=False)
+            .select_related('market')
+            .order_by('-trust_score', 'name')[:8]
+        )
+        if len(verified_merchants) < 8:
+            seen_m_ids = {m.id for m in verified_merchants}
+            extra_m = list(
+                Merchant.objects.exclude(id__in=seen_m_ids)
+                .select_related('market')
+                .order_by('-trust_score', 'name')[:8 - len(verified_merchants)]
+            )
+            verified_merchants.extend(extra_m)
+
         shows = list(Show.objects.filter(status__in=['active', 'ACTIVE'])[:3]) or list(Show.objects.all()[:3])
         shorts = list(Short.objects.filter(moderation_state__in=['approved', 'APPROVED'])[:4]) or list(Short.objects.all()[:4])
         flagship_malls = list(Market.objects.all()[:12])
+
         context = {
             'featured_products': featured_products,
             'verified_merchants': verified_merchants,
