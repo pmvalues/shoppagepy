@@ -217,7 +217,7 @@
 
       <div>
         <div style="font-size: 1.4rem; font-weight: 800; color: var(--accent-green); margin: 0.4rem 0;">
-          {% with first_offer=p.offers.first %}
+          {% with first_offer=p.offers.all|first %}
             {% if first_offer and first_offer.price_amount %}
               R {{ first_offer.price_amount|floatformat:0|intcomma }}
             {% else %}
