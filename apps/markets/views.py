@@ -47,13 +47,13 @@ def malls_directory_view(request):
         map_points.append({
             'name': m.name,
             'slug': m.canonical_slug,
-            'province': m.province,
-            'metro': m.metro,
-            'type': m.get_market_type_display(),
+            'province': m.province or 'Gauteng',
+            'metro': m.metro or 'South Africa',
+            'type': str(m.get_market_type_display() if hasattr(m, 'get_market_type_display') else m.market_type),
             'lat': lat,
             'lng': lng,
-            'stall_capacity': m.stall_capacity,
-            'address': m.street_address or f"{m.name}, {m.province}",
+            'stall_capacity': m.stall_capacity or 50,
+            'address': m.street_address or f"{m.name}, {m.province or 'South Africa'}",
         })
 
     # Fast province distribution
