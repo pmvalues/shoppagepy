@@ -21,9 +21,53 @@
 {% endblock %}
 
 {% block content %}
-<div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
+<div class="container" style="padding-top: 2rem; padding-bottom: 4rem;" x-data="{
+  showMap: false,
+  locating: false,
+  userLocation: null,
+  toggleMap() {
+    this.showMap = !this.showMap;
+    if (this.showMap) {
+      setTimeout(() => {
+        if (window.shoppageMap) {
+          window.shoppageMap.invalidateSize();
+        }
+      }, 150);
+    }
+  },
+  findNearMe() {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
+    }
+    this.showMap = true;
+    setTimeout(() => {
+      if (window.shoppageMap) {
+        window.shoppageMap.invalidateSize();
+      }
+    }, 150);
+    this.locating = true;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        this.locating = false;
+        this.userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        if (window.shoppageMap) {
+          window.shoppageMap.flyTo([pos.coords.latitude, pos.coords.longitude], 13);
+          L.marker([pos.coords.latitude, pos.coords.longitude])
+            .addTo(window.shoppageMap)
+            .bindPopup('<strong>📍 You are here</strong>')
+            .openPopup();
+        }
+      },
+      (err) => {
+        this.locating = false;
+        alert('Unable to retrieve your location: ' + err.message);
+      }
+    );
+  }
+}">
   
-  <!-- Header & GPS Locator Bar -->
+  <!-- Header & Action Buttons -->
   <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
     <div>
       <span class="badge badge-purple" style="margin-bottom: 0.4rem;">🗺️ Google My Business Spatial Grid</span>
@@ -35,51 +79,51 @@
       </p>
     </div>
 
-    <!-- GPS Near Me Button -->
-    <div style="display: flex; gap: 0.5rem; align-items: center;" x-data="{
-      locating: false,
-      userLocation: null,
-      findNearMe() {
-        if (!navigator.geolocation) {
-          alert('Geolocation is not supported by your browser.');
-          return;
-        }
-        this.locating = true;
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            this.locating = false;
-            this.userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-            if (window.shoppageMap) {
-              window.shoppageMap.flyTo([pos.coords.latitude, pos.coords.longitude], 13);
-              L.marker([pos.coords.latitude, pos.coords.longitude])
-                .addTo(window.shoppageMap)
-                .bindPopup('<strong>📍 You are here</strong>')
-                .openPopup();
-            }
-          },
-          (err) => {
-            this.locating = false;
-            alert('Unable to retrieve your location: ' + err.message);
-          }
-        );
-      }
-    }">
+    <!-- Map Toggle & GPS Buttons -->
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <button
+        type="button"
+        @click="toggleMap()"
+        class="btn btn-outline"
+        style="font-size: 0.85rem; padding: 0.6rem 1.1rem; display: flex; align-items: center; gap: 0.4rem;"
+      >
+        <span x-text="showMap ? '✕ Close Map' : '🗺️ Open Spatial Map'"></span>
+      </button>
+
       <button
         type="button"
         @click="findNearMe()"
         class="btn btn-whatsapp"
-        style="font-size: 0.85rem; padding: 0.6rem 1.2rem; display: flex; align-items: center; gap: 0.4rem;"
+        style="font-size: 0.85rem; padding: 0.6rem 1.1rem; display: flex; align-items: center; gap: 0.4rem;"
       >
         <span x-text="locating ? '📡 Locating...' : '📍 Near Me (GPS)'"></span>
       </button>
+
       <a href="/merchant/claim" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.6rem 1rem;">
         + Claim Mall Stall
       </a>
     </div>
   </div>
 
-  <!-- Interactive Leaflet Map Container -->
-  <div style="margin-bottom: 2rem; position: relative;">
+  <!-- Collapsed Map Placeholder Bar (Visible when map is closed) -->
+  <div
+    x-show="!showMap"
+    style="margin-bottom: 1.75rem; background: #FFFFFF; border: 1px dashed #CBD5E1; border-radius: 12px; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;"
+  >
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <span style="font-size: 1.5rem;">🗺️</span>
+      <div>
+        <strong style="color: #0F172A; font-size: 0.95rem; display: block;">Interactive Spatial Map of South Africa</strong>
+        <span style="color: #64748B; font-size: 0.8rem;">Explore {{ markets|length }} commercial hubs, taxi ranks &amp; shopping centres geographically</span>
+      </div>
+    </div>
+    <button type="button" @click="toggleMap()" class="btn btn-outline" style="font-size: 0.825rem; padding: 0.45rem 1rem; border-radius: 8px;">
+      🗺️ Click to Open Map &rarr;
+    </button>
+  </div>
+
+  <!-- Interactive Leaflet Map Container (Opens on click) -->
+  <div x-show="showMap" x-transition style="margin-bottom: 2rem; position: relative;">
     <div id="spatial-map-container"></div>
     <div style="position: absolute; bottom: 12px; left: 12px; z-index: 400; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); color: #FFFFFF; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600;">
       ⚡ Showing {{ markets|length }} Active Commercial Hubs
