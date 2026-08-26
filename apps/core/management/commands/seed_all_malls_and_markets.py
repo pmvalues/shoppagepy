@@ -179,7 +179,7 @@ class Command(BaseCommand):
                     name = f"{suburb} {suffix} #{m_num}"
                     slug = f"{suburb.lower().replace(' ', '-')}-{suffix.lower().replace(' ', '-')}-{m_num}"
                     
-                    uid = f"mall_{m_num:027x}"
+                    uid = f"00000000-0000-0000-0001-{m_num:012x}"
                     base_lat, base_lng = p_data['coords']
                     lat = base_lat + ((m_num % 100) - 50) * 0.008
                     lng = base_lng + (((m_num * 7) % 100) - 50) * 0.008

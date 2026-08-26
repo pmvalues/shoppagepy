@@ -115,7 +115,7 @@ class Command(BaseCommand):
 
                     for i in range(batch_count):
                         sku_idx = start_id + batch_start + i
-                        uid = f"prod_{sku_idx:027x}"
+                        uid = f"00000000-0000-0000-0002-{sku_idx:012x}"
                         cat = cat_keys[sku_idx % len(cat_keys)]
                         cat_spec = PRODUCT_CATEGORIES[cat]
                         brand = cat_spec['brands'][sku_idx % len(cat_spec['brands'])]
@@ -185,7 +185,7 @@ class Command(BaseCommand):
 
                     for i in range(batch_count):
                         m_idx = start_id + batch_start + i
-                        uid = f"merc_{m_idx:027x}"
+                        uid = f"00000000-0000-0000-0003-{m_idx:012x}"
                         prov_idx = m_idx % len(PROVINCES_DATA)
                         province_name, metros = PROVINCES_DATA[prov_idx]
                         metro_name = metros[m_idx % len(metros)]
