@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
 
 from apps.core.views import (
     home_view, search_view, search_live_view, requests_view, agency_view,
@@ -74,7 +75,8 @@ urlpatterns = [
     # 9. Homepage
     path('', home_view, name='home'),
 
-    # 10. SEO & Crawler Surface (v8.2)
+    # 10. SEO & Browser Favicon Surface
+    path('favicon.ico', RedirectView.as_view(url='/static/icons/favicon.svg', permanent=True)),
     path('robots.txt', robots_txt_view, name='robots'),
     path('sitemap.xml', sitemap_index_view, name='sitemap-index'),
     path('sitemap-static.xml', static_sitemap_view, name='sitemap-static'),
