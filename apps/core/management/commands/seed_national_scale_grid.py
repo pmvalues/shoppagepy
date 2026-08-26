@@ -1,10 +1,9 @@
 import random
 import time
 import json
-import sqlite3
 from datetime import datetime, timezone
 from django.core.management.base import BaseCommand
-from django.conf import settings
+from django.db import connection, transaction
 
 PROVINCES_DATA = [
     ('Gauteng', ['City of Johannesburg', 'City of Tshwane', 'Ekurhuleni', 'Sedibeng', 'West Rand']),
@@ -68,177 +67,170 @@ class Command(BaseCommand):
         target_products = options['products']
         target_merchants = options['merchants']
 
-        db_path = str(settings.DATABASES['default']['NAME'])
         self.stdout.write(self.style.NOTICE(
             f"==> Initiating High-Throughput National Scale Generation...\n"
             f"    Target Master Products: {target_products:,}\n"
             f"    Target Verified Merchants: {target_merchants:,}\n"
-            f"    Target Database: {db_path}"
+            f"    Database Engine: {connection.vendor}"
         ))
 
-        conn = sqlite3.connect(db_path)
-        cur = conn.cursor()
-
-        # Ultra-fast bulk write tuning preserving WAL mode for concurrent readers
-        cur.execute("PRAGMA journal_mode = WAL;")
-        cur.execute("PRAGMA synchronous = NORMAL;")
-        cur.execute("PRAGMA busy_timeout = 60000;")
-        cur.execute("PRAGMA cache_size = 100000;")
-        cur.execute("PRAGMA temp_store = MEMORY;")
-
+        ph = '%s' if connection.vendor == 'postgresql' else '?'
         now_iso = datetime.now(timezone.utc).isoformat()
 
-        # =========================================================================
-        # 1. SCALE MASTER PRODUCTS (1,000,000 Rows)
-        # =========================================================================
-        cur.execute("SELECT COUNT(*) FROM catalog_masterproduct")
-        current_prod_count = cur.fetchone()[0]
-        needed_products = max(0, target_products - current_prod_count)
+        with connection.cursor() as cur:
+            if connection.vendor == 'sqlite':
+                cur.execute("PRAGMA journal_mode = WAL;")
+                cur.execute("PRAGMA synchronous = NORMAL;")
+                cur.execute("PRAGMA busy_timeout = 60000;")
+                cur.execute("PRAGMA cache_size = 100000;")
+                cur.execute("PRAGMA temp_store = MEMORY;")
 
-        if needed_products > 0:
-            self.stdout.write(self.style.NOTICE(f"[1/2] Generating {needed_products:,} Master Products..."))
-            t0 = time.time()
+            # =========================================================================
+            # 1. SCALE MASTER PRODUCTS (1,000,000 Rows)
+            # =========================================================================
+            cur.execute("SELECT COUNT(*) FROM catalog_masterproduct")
+            current_prod_count = cur.fetchone()[0]
+            needed_products = max(0, target_products - current_prod_count)
 
-            cat_keys = list(PRODUCT_CATEGORIES.keys())
-            batch_size = 50000
-            start_id = current_prod_count + 1
+            if needed_products > 0:
+                self.stdout.write(self.style.NOTICE(f"[1/2] Generating {needed_products:,} Master Products..."))
+                t0 = time.time()
 
-            insert_sql = """
-            INSERT INTO catalog_masterproduct (
-                id, created_at, updated_at, canonical_id, family_ref, category_ref,
-                title, brand, model_number, gtin13, gtin14, mpn, asin, status,
-                attributes, aliases, compliance, reviews_summary, guides, media_items,
-                compatibility_edge_count
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """
+                cat_keys = list(PRODUCT_CATEGORIES.keys())
+                batch_size = 50000
+                start_id = current_prod_count + 1
 
-            for batch_start in range(0, needed_products, batch_size):
-                batch_count = min(batch_size, needed_products - batch_start)
-                rows = []
+                insert_sql = f"""
+                INSERT INTO catalog_masterproduct (
+                    id, created_at, updated_at, canonical_id, family_ref, category_ref,
+                    title, brand, model_number, gtin13, gtin14, mpn, asin, status,
+                    attributes, aliases, compliance, reviews_summary, guides, media_items,
+                    compatibility_edge_count
+                ) VALUES ({ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph})
+                """
 
-                for i in range(batch_count):
-                    sku_idx = start_id + batch_start + i
-                    uid = f"prod_{sku_idx:027x}"
-                    cat = cat_keys[sku_idx % len(cat_keys)]
-                    cat_spec = PRODUCT_CATEGORIES[cat]
-                    brand = cat_spec['brands'][sku_idx % len(cat_spec['brands'])]
-                    item_type = cat_spec['types'][(sku_idx // len(cat_spec['brands'])) % len(cat_spec['types'])]
+                for batch_start in range(0, needed_products, batch_size):
+                    batch_count = min(batch_size, needed_products - batch_start)
+                    rows = []
 
-                    model_num = f"{brand[:3].upper()}-{100 + (sku_idx % 899)}-{(sku_idx % 99):02d}"
-                    title = f"{brand} {model_num} {item_type}"
-                    canonical_id = f"var_{cat[:4]}_{sku_idx:07d}"
-                    gtin13 = f"600{(sku_idx * 7919) % 9000000000 + 1000000000:010d}"
+                    for i in range(batch_count):
+                        sku_idx = start_id + batch_start + i
+                        uid = f"prod_{sku_idx:027x}"
+                        cat = cat_keys[sku_idx % len(cat_keys)]
+                        cat_spec = PRODUCT_CATEGORIES[cat]
+                        brand = cat_spec['brands'][sku_idx % len(cat_spec['brands'])]
+                        item_type = cat_spec['types'][(sku_idx // len(cat_spec['brands'])) % len(cat_spec['types'])]
 
-                    attrs_json = json.dumps({'estimatedPriceZar': (sku_idx % 250) * 100 + 499, 'skuIndex': sku_idx})
-                    comp_json = json.dumps({'sabsApproved': (sku_idx % 3 != 0), 'nrs097Certified': (cat == 'solar_energy')})
-                    alias_json = json.dumps([{'phrase': title.lower(), 'locale': 'en', 'confidence': 1.0}])
-                    rev_json = json.dumps({'averageRating': round(4.0 + (sku_idx % 10) * 0.1, 1), 'totalReviewsCount': (sku_idx % 80) + 5})
+                        model_num = f"{brand[:3].upper()}-{100 + (sku_idx % 899)}-{(sku_idx % 99):02d}"
+                        title = f"{brand} {model_num} {item_type}"
+                        canonical_id = f"var_{cat[:4]}_{sku_idx:07d}"
+                        gtin13 = f"600{(sku_idx * 7919) % 9000000000 + 1000000000:010d}"
 
-                    rows.append((
-                        uid, now_iso, now_iso, canonical_id, f"fam_{cat}", cat,
-                        title, brand, model_num, gtin13, None, model_num, None, 'ACTIVE',
-                        attrs_json, alias_json, comp_json, rev_json, '[]', '[]',
-                        0
-                    ))
+                        attrs_json = json.dumps({'estimatedPriceZar': (sku_idx % 250) * 100 + 499, 'skuIndex': sku_idx})
+                        comp_json = json.dumps({'sabsApproved': (sku_idx % 3 != 0), 'nrs097Certified': (cat == 'solar_energy')})
+                        alias_json = json.dumps([{'phrase': title.lower(), 'locale': 'en', 'confidence': 1.0}])
+                        rev_json = json.dumps({'averageRating': round(4.0 + (sku_idx % 10) * 0.1, 1), 'totalReviewsCount': (sku_idx % 80) + 5})
 
-                cur.executemany(insert_sql, rows)
-                conn.commit()
-                pct = ((batch_start + batch_count) / needed_products) * 100
-                self.stdout.write(f"    - Generated {batch_start + batch_count:,}/{needed_products:,} products ({pct:.1f}%)...")
+                        rows.append((
+                            uid, now_iso, now_iso, canonical_id, f"fam_{cat}", cat,
+                            title, brand, model_num, gtin13, None, model_num, None, 'ACTIVE',
+                            attrs_json, alias_json, comp_json, rev_json, '[]', '[]',
+                            0
+                        ))
 
-            t1 = time.time()
-            self.stdout.write(self.style.SUCCESS(f"[OK] Master Products scaled to {target_products:,} in {t1 - t0:.2f}s!"))
-        else:
-            self.stdout.write(self.style.SUCCESS(f"[OK] Master Products already at {current_prod_count:,}."))
+                    cur.executemany(insert_sql, rows)
+                    pct = ((batch_start + batch_count) / needed_products) * 100
+                    self.stdout.write(f"    - Generated {batch_start + batch_count:,}/{needed_products:,} products ({pct:.1f}%)...")
 
-        # =========================================================================
-        # 2. SCALE VERIFIED MERCHANTS (3,100,000 Rows)
-        # =========================================================================
-        cur.execute("SELECT COUNT(*) FROM merchants_merchant")
-        current_merch_count = cur.fetchone()[0]
-        needed_merchants = max(0, target_merchants - current_merch_count)
+                t1 = time.time()
+                self.stdout.write(self.style.SUCCESS(f"[OK] Master Products scaled to {target_products:,} in {t1 - t0:.2f}s!"))
+            else:
+                self.stdout.write(self.style.SUCCESS(f"[OK] Master Products already at {current_prod_count:,}."))
 
-        if needed_merchants > 0:
-            self.stdout.write(self.style.NOTICE(f"[2/2] Generating {needed_merchants:,} Verified Merchants across SA..."))
-            t0 = time.time()
+            # =========================================================================
+            # 2. SCALE VERIFIED MERCHANTS (3,100,000 Rows)
+            # =========================================================================
+            cur.execute("SELECT COUNT(*) FROM merchants_merchant")
+            current_merch_count = cur.fetchone()[0]
+            needed_merchants = max(0, target_merchants - current_merch_count)
 
-            # Fetch existing market ids if any
-            cur.execute("SELECT id FROM markets_market")
-            market_rows = cur.fetchall()
-            market_ids = [r[0] for r in market_rows] if market_rows else [None]
+            if needed_merchants > 0:
+                self.stdout.write(self.style.NOTICE(f"[2/2] Generating {needed_merchants:,} Verified Merchants across SA..."))
+                t0 = time.time()
 
-            batch_size = 100000
-            start_id = current_merch_count + 1
+                cur.execute("SELECT id FROM markets_market")
+                market_rows = cur.fetchall()
+                market_ids = [r[0] for r in market_rows] if market_rows else [None]
 
-            insert_sql = """
-            INSERT INTO merchants_merchant (
-                id, created_at, updated_at, canonical_id, name, country, claim_state,
-                verification_state, whatsapp_number, telephone, email, website_url,
-                stall_identifier, category, address_text, province,
-                latitude, longitude, google_place_id, google_rating, google_reviews_count,
-                google_reviews_url, google_maps_url, operating_hours, cipc_enterprise_number,
-                csd_supplier_number, cidb_registration_number, cidb_grade,
-                wireman_license_number, bbbee_level, tax_compliance_pin, storefront_photo_url,
-                years_in_business, median_response_minutes, delivery_options, payment_methods,
-                facilities, languages_spoken, trust_score, market_id
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """
+                batch_size = 100000
+                start_id = current_merch_count + 1
 
-            for batch_start in range(0, needed_merchants, batch_size):
-                batch_count = min(batch_size, needed_merchants - batch_start)
-                rows = []
+                insert_sql = f"""
+                INSERT INTO merchants_merchant (
+                    id, created_at, updated_at, canonical_id, name, country, claim_state,
+                    verification_state, whatsapp_number, telephone, email, website_url,
+                    stall_identifier, category, address_text, province,
+                    latitude, longitude, google_place_id, google_rating, google_reviews_count,
+                    google_reviews_url, google_maps_url, operating_hours, cipc_enterprise_number,
+                    csd_supplier_number, cidb_registration_number, cidb_grade,
+                    wireman_license_number, bbbee_level, tax_compliance_pin, storefront_photo_url,
+                    years_in_business, median_response_minutes, delivery_options, payment_methods,
+                    facilities, languages_spoken, trust_score, market_id
+                ) VALUES ({ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph})
+                """
 
-                for i in range(batch_count):
-                    m_idx = start_id + batch_start + i
-                    uid = f"merc_{m_idx:027x}"
-                    prov_idx = m_idx % len(PROVINCES_DATA)
-                    province_name, metros = PROVINCES_DATA[prov_idx]
-                    metro_name = metros[m_idx % len(metros)]
+                for batch_start in range(0, needed_merchants, batch_size):
+                    batch_count = min(batch_size, needed_merchants - batch_start)
+                    rows = []
 
-                    prefix = MERCHANT_NAMES_PREFIX[m_idx % len(MERCHANT_NAMES_PREFIX)]
-                    suffix = MERCHANT_NAMES_SUFFIX[(m_idx // len(MERCHANT_NAMES_PREFIX)) % len(MERCHANT_NAMES_SUFFIX)]
-                    name = f"{prefix} {suffix} {metro_name} #{m_idx}"
-                    canonical_id = f"m_za_{m_idx:07d}"
+                    for i in range(batch_count):
+                        m_idx = start_id + batch_start + i
+                        uid = f"merc_{m_idx:027x}"
+                        prov_idx = m_idx % len(PROVINCES_DATA)
+                        province_name, metros = PROVINCES_DATA[prov_idx]
+                        metro_name = metros[m_idx % len(metros)]
 
-                    whatsapp = f"277{(m_idx * 104729) % 90000000 + 10000000:08d}"
-                    email = f"contact_{m_idx}@shoppage.co.za"
-                    market_id = market_ids[m_idx % len(market_ids)] if market_ids else None
-                    stall_id = f"Stall {(m_idx % 400) + 1}"
-                    cat = list(PRODUCT_CATEGORIES.keys())[m_idx % len(PRODUCT_CATEGORIES)]
-                    cipc = f"K202{(m_idx % 5)}/{((m_idx * 31) % 899999 + 100000)}/07"
-                    score = 75 + (m_idx % 25)
+                        prefix = MERCHANT_NAMES_PREFIX[m_idx % len(MERCHANT_NAMES_PREFIX)]
+                        suffix = MERCHANT_NAMES_SUFFIX[(m_idx // len(MERCHANT_NAMES_PREFIX)) % len(MERCHANT_NAMES_SUFFIX)]
+                        name = f"{prefix} {suffix} {metro_name} #{m_idx}"
+                        canonical_id = f"m_za_{m_idx:07d}"
 
-                    rows.append((
-                        uid, now_iso, now_iso, canonical_id, name, 'ZA', 'claimed',
-                        'fully_verified', whatsapp, f"+{whatsapp}", email, None,
-                        stall_id, cat, f"{stall_id}, {metro_name}, {province_name}", province_name,
-                        -26.10 + ((m_idx % 100) * 0.01), 28.05 + ((m_idx % 100) * 0.01), None,
-                        round(4.2 + (m_idx % 8) * 0.1, 1), (m_idx % 150) + 12, None, None,
-                        'Mon-Fri: 08:00-17:00, Sat: 08:30-13:00', cipc,
-                        f"MAAA{(m_idx % 999999):06d}", None, 'Grade 4EP' if cat == 'solar_energy' else None,
-                        f"WML-{(m_idx % 89999 + 10000)}" if cat == 'solar_energy' else None,
-                        'Level 1 Contributor (135% Recognition)', f"SARS-{(m_idx % 8999 + 1000)}-{(m_idx % 8999 + 1000)}",
-                        None, (m_idx % 20) + 1, (m_idx % 10) + 2, '[]', '[]', '[]', '[]', score, market_id
-                    ))
+                        whatsapp = f"277{(m_idx * 104729) % 90000000 + 10000000:08d}"
+                        email = f"contact_{m_idx}@shoppage.co.za"
+                        market_id = market_ids[m_idx % len(market_ids)] if market_ids else None
+                        stall_id = f"Stall {(m_idx % 400) + 1}"
+                        cat = list(PRODUCT_CATEGORIES.keys())[m_idx % len(PRODUCT_CATEGORIES)]
+                        cipc = f"K202{(m_idx % 5)}/{((m_idx * 31) % 899999 + 100000)}/07"
+                        score = 75 + (m_idx % 25)
 
-                cur.executemany(insert_sql, rows)
-                conn.commit()
-                pct = ((batch_start + batch_count) / needed_merchants) * 100
-                self.stdout.write(f"    - Generated {batch_start + batch_count:,}/{needed_merchants:,} merchants ({pct:.1f}%)...")
+                        rows.append((
+                            uid, now_iso, now_iso, canonical_id, name, 'ZA', 'claimed',
+                            'fully_verified', whatsapp, f"+{whatsapp}", email, None,
+                            stall_id, cat, f"{stall_id}, {metro_name}, {province_name}", province_name,
+                            -26.10 + ((m_idx % 100) * 0.01), 28.05 + ((m_idx % 100) * 0.01), None,
+                            round(4.2 + (m_idx % 8) * 0.1, 1), (m_idx % 150) + 12, None, None,
+                            'Mon-Fri: 08:00-17:00, Sat: 08:30-13:00', cipc,
+                            f"MAAA{(m_idx % 999999):06d}", None, 'Grade 4EP' if cat == 'solar_energy' else None,
+                            f"WML-{(m_idx % 89999 + 10000)}" if cat == 'solar_energy' else None,
+                            'Level 1 Contributor (135% Recognition)', f"SARS-{(m_idx % 8999 + 1000)}-{(m_idx % 8999 + 1000)}",
+                            None, (m_idx % 20) + 1, (m_idx % 10) + 2, '[]', '[]', '[]', '[]', score, market_id
+                        ))
 
-            t1 = time.time()
-            self.stdout.write(self.style.SUCCESS(f"[OK] Verified Merchants scaled to {target_merchants:,} in {t1 - t0:.2f}s!"))
-        else:
-            self.stdout.write(self.style.SUCCESS(f"[OK] Merchants already at {current_merch_count:,}."))
+                    cur.executemany(insert_sql, rows)
+                    pct = ((batch_start + batch_count) / needed_merchants) * 100
+                    self.stdout.write(f"    - Generated {batch_start + batch_count:,}/{needed_merchants:,} merchants ({pct:.1f}%)...")
 
-        conn.close()
+                t1 = time.time()
+                self.stdout.write(self.style.SUCCESS(f"[OK] Verified Merchants scaled to {target_merchants:,} in {t1 - t0:.2f}s!"))
+            else:
+                self.stdout.write(self.style.SUCCESS(f"[OK] Merchants already at {current_merch_count:,}."))
 
-        # Clean up scratch if exists
         self.stdout.write(self.style.SUCCESS(
             f"\n=========================================================================\n"
             f"[GRID SYNCHRONIZATION COMPLETE]\n"
             f"  - Canonical Master Products: {target_products:,}\n"
             f"  - Verified Registered Merchants: {target_merchants:,}\n"
+            f"  - Engine: {connection.vendor}\n"
             f"  - Coverage: 100% 9 Provinces of South Africa\n"
             f"=========================================================================\n"
         ))
