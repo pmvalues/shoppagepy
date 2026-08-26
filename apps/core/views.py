@@ -45,7 +45,7 @@ def home_view(request):
     """
     High-performance pure Django homepage view querying the National Commerce Grid.
     """
-    key = _cache_key('home_v5', request)
+    key = _cache_key('home_v6', request)
     context = None
     try:
         context = cache.get(key)
