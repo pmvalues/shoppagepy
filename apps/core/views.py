@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.core.cache import cache
 from django.db import connection
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.utils.cache import patch_vary_headers
 from apps.markets.models import Market
 from apps.merchants.models import Merchant
@@ -82,6 +82,13 @@ def home_view(request):
     return render(request, 'home.html', context)
 
 def search_view(request):
+    key = _cache_key('search_page_v5', request)
+    cached_html = cache.get(key)
+    if cached_html:
+        response = HttpResponse(cached_html)
+        patch_vary_headers(response, ['Accept-Encoding'])
+        return response
+
     query = request.GET.get('q', '').strip()
     category = request.GET.get('category', '')
     province = request.GET.get('province', '')
@@ -108,20 +115,16 @@ def search_view(request):
     except ValueError:
         offset = 0
 
-    key = _cache_key('search_v2', request)
-    results = cache.get(key)
-    if results is None:
-        effective_query = f'{category} {brand} {query}'.strip() if (category or brand) else query
-        results = ranked_search(
-            effective_query,
-            limit=24,
-            offset=offset,
-            category=category,
-            province=province,
-            min_price=min_price,
-            max_price=max_price,
-        )
-        cache.set(key, results, 30)
+    effective_query = f'{category} {brand} {query}'.strip() if (category or brand) else query
+    results = ranked_search(
+        effective_query,
+        limit=24,
+        offset=offset,
+        category=category,
+        province=province,
+        min_price=min_price,
+        max_price=max_price,
+    )
 
     from apps.intelligence.services import get_brand_knowledge_card, get_tiered_moq_pricing, detect_intent, build_overview
 
@@ -146,13 +149,12 @@ def search_view(request):
         offers_by_product[p.canonical_id] = [s.best_offer] if s.best_offer else []
         plain_products.append(p)
 
-    # Matching Shorts for video commerce discovery
+    # Fast indexed Shorts query
     shorts_qs = Short.objects.filter(moderation_state__in=['approved', 'APPROVED'])
     if query:
         shorts_qs = shorts_qs.filter(
-            Q(title__icontains=query) |
-            Q(product_title__icontains=query) |
-            Q(summary__icontains=query)
+            Q(title__istartswith=query) |
+            Q(product_title__istartswith=query)
         )
     matched_shorts = list(shorts_qs[:4]) or list(Short.objects.all()[:4])
 
@@ -198,6 +200,10 @@ def search_view(request):
     }
     response = render(request, 'search/search_results.html', context)
     patch_vary_headers(response, ['Accept-Encoding'])
+    try:
+        cache.set(key, response.content, 180)
+    except Exception:
+        pass
     return response
 
 def search_live_view(request):

@@ -60,7 +60,7 @@ class Short(TimeStampedModel):
     video_url = models.URLField()
     thumbnail_url = models.URLField()
     duration = models.CharField(max_length=30, default='0:59')
-    views = models.IntegerField(default=5000)
+    views = models.IntegerField(default=5000, db_index=True)
     likes = models.IntegerField(default=100)
     shares = models.IntegerField(default=20)
     summary = models.TextField(blank=True, null=True)
