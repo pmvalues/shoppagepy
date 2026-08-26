@@ -173,67 +173,8 @@
 {% block content %}
 <div class="container" style="padding-top: 1.25rem; padding-bottom: 4rem;">
 
-  <!-- TOP PROMINENT WIDE SEARCH BAR (Google SERP Standard) -->
-  <div style="margin-bottom: 1.25rem; max-width: 692px;">
-    <form action="/search/" method="GET" style="position: relative; display: flex; align-items: center;">
-      <span style="position: absolute; left: 16px; font-size: 1.15rem; color: #94A3B8; pointer-events: none;">🔍</span>
-      <input
-        type="text"
-        name="q"
-        value="{{ query|default:'' }}"
-        placeholder="Search 1,000,000+ products, inverters, brands, wholesale MOQs or malls..."
-        style="width: 100%; padding: 0.85rem 7.5rem 0.85rem 3.25rem; border: 1.5px solid #CBD5E1; border-radius: 9999px; font-size: 1rem; font-family: var(--font-sans); outline: none; background: #FFFFFF; transition: border-color 0.15s;"
-        onfocus="this.style.borderColor='#2563EB'"
-        onblur="this.style.borderColor='#CBD5E1'"
-      />
-      <div style="position: absolute; right: 8px; display: flex; align-items: center; gap: 4px;">
-        {% if query %}
-        <a href="/search/" title="Clear search" style="color: #94A3B8; font-size: 1rem; padding: 4px 6px; text-decoration: none; line-height: 1;">✕</a>
-        <span style="color: #E2E8F0;">|</span>
-        {% endif %}
-        <button
-          type="button"
-          @click="startVoiceSearch()"
-          style="background: transparent; border: none; cursor: pointer; padding: 4px; font-size: 1.05rem; color: #64748B;"
-          title="Voice search"
-        >
-          🎙️
-        </button>
-        <button
-          type="submit"
-          class="btn btn-primary"
-          style="padding: 0.45rem 1.25rem; font-size: 0.85rem; border-radius: 9999px;"
-        >
-          Search
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <!-- 1. GOOGLE-STYLE SUB-HEADER & NAVIGATION TABS -->
-  <div class="google-tabs-bar">
-    <a href="/search/?q={{ query|urlencode }}&mode=retail" class="google-tab {% if tab == 'all' and mode != 'b2b' %}active{% endif %}">
-      🔍 All
-    </a>
-    <a href="/search/?q={{ query|urlencode }}&province=Gauteng" class="google-tab {% if province == 'Gauteng' %}active{% endif %}">
-      🇿🇦 South African Grid
-    </a>
-    <a href="/search/?q={{ query|urlencode }}&mode=b2b" class="google-tab {% if mode == 'b2b' %}active{% endif %}">
-      🏭 Alibaba B2B Wholesale
-    </a>
-    <a href="/merchants?q={{ query|urlencode }}" class="google-tab">
-      🏪 Physical Stores
-    </a>
-    <a href="/shorts" class="google-tab">
-      🎬 Proof Videos
-    </a>
-    <a href="/requests" class="google-tab">
-      📋 RFQ Demand Board
-    </a>
-  </div>
-
   <!-- Location Indicator Bar -->
-  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #64748B; margin-bottom: 1.25rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.825rem; color: #64748B; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #F1F5F9;">
     <div style="display: flex; align-items: center; gap: 0.4rem;">
       <span>📍</span>
       <span><strong>{{ province|default:"Sandton, 2196" }}</strong> · Verified South Africa Commercial Grid</span>

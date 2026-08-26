@@ -437,36 +437,26 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--slate-100);
 }
 
-/* Multi-Modal Subnav Tabs (Google / Alibaba / YouTube) */
-.subnav-bar {
-  display: flex;
-  gap: 0.4rem;
-  overflow-x: auto;
-  padding: 0.5rem 0;
-  scrollbar-width: none;
-}
-.subnav-bar::-webkit-scrollbar {
-  display: none;
-}
-
-.subnav-tab {
+/* Google-Style Navigation Tabs Under Header */
+.google-nav-tab {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.85rem;
-  border-radius: var(--radius-full);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--slate-600);
-  background: #FFFFFF;
-  border: 1px solid var(--border);
-  white-space: nowrap;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
+  text-decoration: none;
+  padding: 0.75rem 0.1rem;
+  border-bottom: 3px solid transparent;
   transition: all 0.15s ease;
 }
-.subnav-tab:hover {
-  background: var(--slate-100);
-  color: var(--slate-900);
-  border-color: var(--slate-300);
+.google-nav-tab:hover {
+  color: #1E293B;
+}
+.google-nav-tab.active-tab {
+  color: #2563EB;
+  font-weight: 700;
+  border-bottom: 3px solid #2563EB;
 }
 .subnav-tab.active-tab {
   background: var(--slate-900);
