@@ -249,7 +249,7 @@ def readyz_view(request):
             cur.execute('SELECT 1')
         checks['database'] = 'ok'
     except Exception as exc:
-        checks['database'] = f'error: {exc.__class__.__name__}'
+        checks['database'] = f'error: {exc.__class__.__name__}: {str(exc)}'
         ok = False
     try:
         cache.set('sp:readyz', '1', 5)

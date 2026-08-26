@@ -102,13 +102,17 @@ db_url = os.environ.get('DATABASE_URL') or os.environ.get('DATABASE_URI')
 if db_url and (db_url.startswith('postgres://') or db_url.startswith('postgresql://')):
     import urllib.parse
     url = urllib.parse.urlparse(db_url)
+    db_name = url.path[1:]
+    if '?' in db_name:
+        db_name = db_name.split('?')[0]
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': url.path[1:],
-        'USER': url.username,
-        'PASSWORD': url.password,
+        'NAME': urllib.parse.unquote(db_name),
+        'USER': urllib.parse.unquote(url.username or 'postgres'),
+        'PASSWORD': urllib.parse.unquote(url.password or ''),
         'HOST': url.hostname,
-        'PORT': url.port or '5432',
+        'PORT': str(url.port or '5432'),
+        'CONN_MAX_AGE': 60,
     }
 
 # Password validation
