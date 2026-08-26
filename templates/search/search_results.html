@@ -185,44 +185,94 @@
     </div>
   </div>
 
-  <!-- 2. SPONSORED PRODUCTS HORIZONTAL CAROUSEL (Google Shopping Top PLAs) -->
+  <!-- 2. TOP / SPONSORED PRODUCTS HORIZONTAL CAROUSEL (Google Shopping Top PLAs) -->
   {% if sponsored_products %}
   <section style="margin-bottom: 2rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
-      <span style="font-size: 0.8rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em;">
-        Sponsored Products &amp; Verified Stock
-      </span>
-      <span style="font-size: 0.75rem; color: #94A3B8;">Commercial Price Matrix</span>
+    <div style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.75rem;">
+      <span style="font-size: 1rem; font-weight: 700; color: #202124;">Sponsored Products</span>
+      <span style="font-size: 0.9rem; color: #70757A; cursor: pointer; line-height: 1;" title="About these results">⋮</span>
     </div>
 
-    <div class="sponsored-carousel">
-      {% for sp in sponsored_products %}
-      <a href="/p/{{ sp.product.canonical_id }}" class="sponsored-card">
-        <div>
-          <div style="background: #F8FAFC; border-radius: 6px; height: 110px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
-            <span style="font-size: 2.5rem;">
-              {% if 'battery' in sp.product.title|lower %}🔋
-              {% elif 'inverter' in sp.product.title|lower or 'solar' in sp.product.title|lower %}☀️
+    <!-- Relative Carousel Container with Smooth Scroll Navigation -->
+    <div style="position: relative;" x-data="{
+      scrollRight() {
+        $refs.topProductsCarousel.scrollBy({ left: 340, behavior: 'smooth' });
+      },
+      scrollLeft() {
+        $refs.topProductsCarousel.scrollBy({ left: -340, behavior: 'smooth' });
+      }
+    }">
+      <!-- Horizontal Scroll Track -->
+      <div
+        x-ref="topProductsCarousel"
+        style="display: flex; gap: 0.85rem; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 2px 2px 8px 2px; scroll-behavior: smooth;"
+      >
+        {% for sp in sponsored_products %}
+        <a
+          href="/p/{{ sp.product.canonical_id }}"
+          style="flex: 0 0 160px; width: 160px; background: #FFFFFF; border: 1px solid #DADCE0; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; text-decoration: none; color: inherit; transition: border-color 0.15s;"
+          onmouseover="this.style.borderColor='#70757A'"
+          onmouseout="this.style.borderColor='#DADCE0'"
+        >
+          <!-- Product Visual / Thumbnail Box (135px height, pure white background) -->
+          <div style="height: 135px; width: 100%; border-bottom: 1px solid #F1F3F4; display: flex; align-items: center; justify-content: center; position: relative; background: #FFFFFF; padding: 0.5rem;">
+            {% if forloop.counter == 3 or forloop.counter == 7 %}
+            <span style="position: absolute; top: 6px; left: 6px; background: #202124; color: #FFFFFF; font-size: 0.65rem; font-weight: 700; padding: 2px 4px; border-radius: 3px; line-height: 1;">
+              SALE
+            </span>
+            {% elif forloop.counter == 2 or forloop.counter == 5 %}
+            <span style="position: absolute; top: 6px; left: 6px; font-size: 0.75rem;">
+              🇿🇦
+            </span>
+            {% endif %}
+
+            <span style="font-size: 3.5rem; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));">
+              {% if 'battery' in sp.product.title|lower or 'power' in sp.product.title|lower or 'station' in sp.product.title|lower %}🔋
+              {% elif 'inverter' in sp.product.title|lower or 'solar' in sp.product.title|lower or 'panel' in sp.product.title|lower %}☀️
               {% elif 'phone' in sp.product.title|lower or 'samsung' in sp.product.title|lower or 'apple' in sp.product.title|lower %}📱
+              {% elif 'draw' in sp.product.title|lower or 'soft' in sp.product.title|lower or 'app' in sp.product.title|lower %}🎨
+              {% elif 'car' in sp.product.title|lower or 'jump' in sp.product.title|lower or 'inflator' in sp.product.title|lower %}⚡
               {% elif 'cement' in sp.product.title|lower or 'drill' in sp.product.title|lower %}🧱
               {% else %}📦{% endif %}
             </span>
           </div>
-          <div style="font-size: 0.8rem; font-weight: 700; color: #1E293B; line-height: 1.25; margin-bottom: 0.35rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2rem;">
-            {{ sp.product.title }}
-          </div>
-        </div>
 
-        <div>
-          <div style="font-size: 1.05rem; font-weight: 800; color: #059669; margin-bottom: 0.2rem;">
-            R {{ sp.price|floatformat:0|intcomma }}
+          <!-- Product Details: Google Blue Title, Price, Merchant Name -->
+          <div style="padding: 0.65rem 0.75rem; display: flex; flex-direction: column; justify-content: space-between; flex: 1;">
+            <div style="color: #1A0DAB; font-size: 0.85rem; font-weight: 500; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.3rem;">
+              {{ sp.product.title }}
+            </div>
+
+            <div style="margin-top: 0.4rem;">
+              <div style="display: flex; align-items: baseline; gap: 0.35rem; flex-wrap: wrap;">
+                <span style="font-size: 0.95rem; font-weight: 700; color: #202124;">
+                  R {{ sp.price|floatformat:2|intcomma }}
+                </span>
+                {% if forloop.counter == 3 or forloop.counter == 7 %}
+                <span style="font-size: 0.75rem; color: #70757A; text-decoration: line-through;">
+                  R {{ sp.price|floatformat:0|intcomma }}
+                </span>
+                {% endif %}
+              </div>
+
+              <div style="font-size: 0.75rem; color: #4D5156; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                {{ sp.merchant_name }}
+              </div>
+            </div>
           </div>
-          <div style="font-size: 0.7rem; color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-            {{ sp.merchant_name }}
-          </div>
-        </div>
-      </a>
-      {% endfor %}
+        </a>
+        {% endfor %}
+      </div>
+
+      <!-- Right Scroll Navigation Arrow Button (Google Style) -->
+      <button
+        type="button"
+        @click="scrollRight()"
+        style="position: absolute; right: -14px; top: 45%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; background: #FFFFFF; border: 1px solid #DADCE0; box-shadow: 0 1px 3px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #1A73E8; font-size: 1.25rem; font-weight: 700; z-index: 10;"
+        aria-label="Scroll right"
+      >
+        ›
+      </button>
     </div>
   </section>
   {% endif %}

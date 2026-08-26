@@ -210,6 +210,30 @@ def search_view(request):
                 'offer_count': s.offer_count or 1,
             })
 
+    # Ensure Top & Featured Products always has 6-8 items
+    if len(sponsored_products) < 6:
+        extra_products = list(
+            MasterProduct.objects.filter(status__in=['active', 'ACTIVE'])
+            .exclude(canonical_id__in=[sp['product'].canonical_id for sp in sponsored_products])
+            .prefetch_related('offers', 'offers__merchant')[:8]
+        )
+        for ep in extra_products:
+            ep_price = float(ep.estimated_price_zar or 2800.0)
+            ep_merchant = ep.brand + " South Africa"
+            first_o = ep.offers.all().first()
+            if first_o and first_o.merchant:
+                ep_merchant = first_o.merchant.name.split('#')[0].strip()
+                if first_o.price_amount:
+                    ep_price = float(first_o.price_amount)
+            sponsored_products.append({
+                'product': ep,
+                'price': ep_price,
+                'merchant_name': ep_merchant,
+                'offer_count': 1,
+            })
+            if len(sponsored_products) >= 8:
+                break
+
     # Places / Local 3-Pack Storefronts (Google GMB Pack without heavy map)
     raw_merchants = results.get('merchants', [])
     if not raw_merchants:
