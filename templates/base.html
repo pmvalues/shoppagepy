@@ -147,17 +147,14 @@
         <a href="/search?q={{ query|default:'' }}" class="google-nav-tab {% if not request.GET.mode and not request.GET.tab and '/shorts' not in request.path and '/malls' not in request.path and '/merchants' not in request.path and '/requests' not in request.path %}active-tab{% endif %}">
           🔍 All
         </a>
+        <a href="/search?q={{ query|default:'' }}&tab=shopping" class="google-nav-tab {% if request.GET.tab == 'shopping' %}active-tab{% endif %}">
+          🛍️ Price Matrix
+        </a>
         <a href="/search?q={{ query|default:'' }}&province=Gauteng" class="google-nav-tab {% if request.GET.province == 'Gauteng' %}active-tab{% endif %}">
           🇿🇦 South African Grid
         </a>
-        <a href="/search?q={{ query|default:'' }}&tab=shopping" class="google-nav-tab {% if request.GET.tab == 'shopping' %}active-tab{% endif %}">
-          🛍️ Google Shopping Matrix
-        </a>
-        <a href="/search?q={{ query|default:'' }}&tab=wholesale&mode=b2b" class="google-nav-tab {% if request.GET.tab == 'wholesale' or request.GET.mode == 'b2b' %}active-tab{% endif %}">
-          🏭 Alibaba B2B Wholesale &amp; MOQs
-        </a>
         <a href="/merchants" class="google-nav-tab {% if '/merchants' in request.path %}active-tab{% endif %}">
-          🏪 Physical Stores
+          🏪 Detailed Merchant Shops
         </a>
         <a href="/malls" class="google-nav-tab {% if '/malls' in request.path %}active-tab{% endif %}">
           🗺️ 3,296 Malls
@@ -166,7 +163,7 @@
           🎬 Proof Shorts
         </a>
         <a href="/requests" class="google-nav-tab {% if '/requests' in request.path %}active-tab{% endif %}">
-          📋 RFQ Demand Board
+          📋 Buyer RFQs
         </a>
       </div>
     </div>

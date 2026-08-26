@@ -115,11 +115,11 @@ class CompetitorFeaturesTestCase(TestCase):
         self.assertLess(tiers[1]['unit_price'], 15500.0)
         self.assertGreater(tiers[1]['discount_pct'], 0)
 
-        # 2. Search in B2B Wholesale Mode
-        res = self.client.get('/search/?q=deye&mode=b2b')
+        # 2. Search in Price Comparison Mode
+        res = self.client.get('/search/?q=deye')
         self.assertEqual(res.status_code, 200)
-        self.assertContains(res, "Alibaba B2B Wholesale Engine")
-        self.assertContains(res, "Tiered B2B Volume Pricing")
+        self.assertContains(res, "Products &amp; Verified Price Matrix")
+        self.assertContains(res, "Compare Sellers")
 
         # 3. RFQ Tender Board page
         res = self.client.get('/requests/')
