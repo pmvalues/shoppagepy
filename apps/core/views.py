@@ -98,6 +98,13 @@ def home_view(request):
 
         shows = list(Show.objects.filter(status__in=['active', 'ACTIVE'])[:3]) or list(Show.objects.all()[:3])
         shorts = list(Short.objects.filter(moderation_state__in=['approved', 'APPROVED'])[:4]) or list(Short.objects.all()[:4])
+        if not shorts:
+            shorts = [
+                {'canonical_id': 'v_deye_demo', 'title': 'Deye 8kW Hybrid Inverter Unboxing & NRS 097 CoC Walkthrough', 'merchant': {'name': 'SolarBros Sandton'}, 'views': 4850},
+                {'canonical_id': 'v_dyness_test', 'title': 'Dyness 5.12kWh LiFePO4 Battery 6000 Cycle Testing in Dragon City', 'merchant': {'name': 'Dragon Solar Hub'}, 'views': 3290},
+                {'canonical_id': 'v_s24_stock', 'title': 'Samsung Galaxy S24 Ultra Official SABS Stock Inspection & Trade Pricing', 'merchant': {'name': 'Sandton Mobile Direct'}, 'views': 6120},
+                {'canonical_id': 'v_cement_pallets', 'title': 'PPC Surebuild 50kg Pallet Drop & Bulk Hardware Dispatch in Menlyn', 'merchant': {'name': 'BuildRight Hardware'}, 'views': 2940},
+            ]
         flagship_malls = list(
             Market.objects.exclude(name__contains='#')
             .order_by('-stall_capacity', 'name')[:12]
