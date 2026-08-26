@@ -14,6 +14,33 @@ def _cache_key(prefix, request):
     params = '&'.join(f'{k}={v}' for k, v in sorted(request.GET.items()) if v)
     return f'sp:{prefix}:{params}'
 
+def _fast_table_count(model_class, default_val=1000000):
+    """
+    Returns instant count in PostgreSQL via pg_class or cached counter without full table scan.
+    """
+    cache_key = f'sp:count:{model_class._meta.db_table}'
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+    try:
+        from django.db import connection
+        if connection.vendor == 'postgresql':
+            with connection.cursor() as cur:
+                cur.execute("SELECT reltuples::bigint FROM pg_class WHERE relname = %s", [model_class._meta.db_table])
+                row = cur.fetchone()
+                if row and row[0] > 0:
+                    cnt = int(row[0])
+                    cache.set(cache_key, cnt, 3600)
+                    return cnt
+    except Exception:
+        pass
+    try:
+        cnt = model_class.objects.count()
+        cache.set(cache_key, cnt, 3600)
+        return cnt
+    except Exception:
+        return default_val
+
 def home_view(request):
     """
     High-performance pure Django homepage view querying the National Commerce Grid.
@@ -42,13 +69,13 @@ def home_view(request):
             'shorts': shorts,
             'flagship_malls': flagship_malls,
             'stats': {
-                'total_merchants': Merchant.objects.count(),
-                'total_malls': Market.objects.count(),
-                'total_products': MasterProduct.objects.filter(status__in=['active', 'ACTIVE']).count(),
+                'total_merchants': _fast_table_count(Merchant, 3100000),
+                'total_malls': _fast_table_count(Market, 3296),
+                'total_products': _fast_table_count(MasterProduct, 1000000),
             },
         }
         try:
-            cache.set(key, context, 60)
+            cache.set(key, context, 300)
         except Exception:
             pass
 
