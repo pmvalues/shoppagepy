@@ -277,7 +277,7 @@ def _candidate_ids_sqlite(tokens: List[str], expanded: List[str], limit: int) ->
 def _candidate_ids_postgres(tokens: List[str], expanded: List[str], limit: int) -> Optional[List[Any]]:
     """
     Ultra-fast indexed candidate retrieval on PostgreSQL (sub-10ms).
-    Uses indexed prefix scans across brand, title, and model_number.
+    Uses B-Tree indexed prefix scans across brand, title, and model_number.
     """
     if connection.vendor != 'postgresql':
         return None
@@ -293,12 +293,11 @@ def _candidate_ids_postgres(tokens: List[str], expanded: List[str], limit: int) 
                     break
                 esc = t.replace('\\', '\\\\').replace('%', r'\%').replace('_', r'\_')
                 pat_prefix = f'{esc}%'
-                pat_contain = f'%{esc}%'
                 cur.execute(
                     "SELECT id FROM catalog_masterproduct "
                     "WHERE (status = 'active' OR status = 'ACTIVE') AND ("
-                    "brand ILIKE %s OR title ILIKE %s OR model_number ILIKE %s) LIMIT %s",
-                    [pat_prefix, pat_contain, pat_prefix, limit],
+                    "brand ILIKE %s OR model_number ILIKE %s OR title ILIKE %s) LIMIT %s",
+                    [pat_prefix, pat_prefix, pat_prefix, limit],
                 )
                 ids.extend(r[0] for r in cur.fetchall())
         return list(dict.fromkeys(ids))[:limit * 3]
