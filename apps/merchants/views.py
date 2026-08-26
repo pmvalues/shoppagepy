@@ -21,19 +21,24 @@ def merchant_list_view(request):
     if query:
         merchants_qs = merchants_qs.filter(name__istartswith=query)
 
-    # Prefer verified stores with physical shopping centres/markets attached first
-    flagship_stores = list(merchants_qs.filter(market__isnull=False).select_related('market').order_by('-trust_score', 'name')[:24])
-    seen_ids = {m.id for m in flagship_stores}
-    
-    remaining_count = 48 - len(flagship_stores)
-    if remaining_count > 0:
-        extra_stores = list(merchants_qs.exclude(id__in=seen_ids).select_related('market').order_by('-trust_score', 'name')[:remaining_count])
-        flagship_stores.extend(extra_stores)
+    # Fetch top-rated candidate merchants and deduplicate by storefront brand
+    candidates = list(
+        merchants_qs.select_related('market')
+        .order_by('-trust_score', 'id')[:200]
+    )
 
-    merchants = flagship_stores
+    unique_merchants = []
+    seen_prefixes = set()
+    for m in candidates:
+        name_key = m.name.split('#')[0].strip().lower()
+        if name_key not in seen_prefixes:
+            seen_prefixes.add(name_key)
+            unique_merchants.append(m)
+        if len(unique_merchants) >= 48:
+            break
 
     context = {
-        'merchants': merchants,
+        'merchants': unique_merchants,
         'selected_category': category_filter,
         'selected_province': province_filter,
         'query': query,

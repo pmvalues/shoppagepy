@@ -45,7 +45,7 @@ def home_view(request):
     """
     High-performance pure Django homepage view querying the National Commerce Grid.
     """
-    key = _cache_key('home_v4', request)
+    key = _cache_key('home_v5', request)
     context = None
     try:
         context = cache.get(key)
@@ -53,36 +53,48 @@ def home_view(request):
         context = None
 
     if context is None:
-        # Fetch diverse flagship products with real verified offers first
-        featured_products = list(
+        # Fetch diverse flagship products with real verified offers and distinct titles
+        all_candidates = list(
             MasterProduct.objects.filter(status__in=['active', 'ACTIVE'])
             .filter(offers__isnull=False)
             .prefetch_related('offers', 'offers__merchant')
-            .order_by('-created_at')[:8]
+            .order_by('-created_at')[:40]
         )
-        if len(featured_products) < 8:
-            seen_ids = {p.id for p in featured_products}
-            extra_prods = list(
+        if len(all_candidates) < 8:
+            extra = list(
                 MasterProduct.objects.filter(status__in=['active', 'ACTIVE'])
-                .exclude(id__in=seen_ids)
-                .prefetch_related('offers', 'offers__merchant')[:8 - len(featured_products)]
+                .prefetch_related('offers', 'offers__merchant')[:40]
             )
-            featured_products.extend(extra_prods)
+            all_candidates.extend(extra)
 
-        # Fetch diverse verified merchants across flagship markets
-        verified_merchants = list(
+        featured_products = []
+        seen_titles = set()
+        for p in all_candidates:
+            clean_title = p.title.strip().lower()
+            if clean_title not in seen_titles:
+                seen_titles.add(clean_title)
+                featured_products.append(p)
+            if len(featured_products) >= 8:
+                break
+
+        # Fetch diverse verified merchants with unique storefront names
+        m_candidates = list(
             Merchant.objects.filter(market__isnull=False)
             .select_related('market')
-            .order_by('-trust_score', 'name')[:8]
+            .order_by('-trust_score', 'id')[:80]
         )
-        if len(verified_merchants) < 8:
-            seen_m_ids = {m.id for m in verified_merchants}
-            extra_m = list(
-                Merchant.objects.exclude(id__in=seen_m_ids)
-                .select_related('market')
-                .order_by('-trust_score', 'name')[:8 - len(verified_merchants)]
-            )
-            verified_merchants.extend(extra_m)
+        if len(m_candidates) < 8:
+            m_candidates.extend(list(Merchant.objects.select_related('market').order_by('-trust_score', 'id')[:80]))
+
+        verified_merchants = []
+        seen_store_names = set()
+        for m in m_candidates:
+            store_key = m.name.split('#')[0].strip().lower()
+            if store_key not in seen_store_names:
+                seen_store_names.add(store_key)
+                verified_merchants.append(m)
+            if len(verified_merchants) >= 8:
+                break
 
         shows = list(Show.objects.filter(status__in=['active', 'ACTIVE'])[:3]) or list(Show.objects.all()[:3])
         shorts = list(Short.objects.filter(moderation_state__in=['approved', 'APPROVED'])[:4]) or list(Short.objects.all()[:4])
