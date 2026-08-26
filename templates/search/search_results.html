@@ -226,15 +226,9 @@
             </span>
             {% endif %}
 
-            <span style="font-size: 3.5rem; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));">
-              {% if 'battery' in sp.product.title|lower or 'power' in sp.product.title|lower or 'station' in sp.product.title|lower %}🔋
-              {% elif 'inverter' in sp.product.title|lower or 'solar' in sp.product.title|lower or 'panel' in sp.product.title|lower %}☀️
-              {% elif 'phone' in sp.product.title|lower or 'samsung' in sp.product.title|lower or 'apple' in sp.product.title|lower %}📱
-              {% elif 'draw' in sp.product.title|lower or 'soft' in sp.product.title|lower or 'app' in sp.product.title|lower %}🎨
-              {% elif 'car' in sp.product.title|lower or 'jump' in sp.product.title|lower or 'inflator' in sp.product.title|lower %}⚡
-              {% elif 'cement' in sp.product.title|lower or 'drill' in sp.product.title|lower %}🧱
-              {% else %}📦{% endif %}
-            </span>
+            <div style="width: 110px; height: 110px; display: flex; align-items: center; justify-content: center;">
+              {{ sp.product|product_svg:"small" }}
+            </div>
           </div>
 
           <!-- Product Details: Google Blue Title, Price, Merchant Name -->
@@ -420,8 +414,8 @@
                 {% endif %}
               </div>
 
-              <div style="font-size: 2rem; margin-bottom: 0.25rem;">
-                {% if 'solar' in p.category_ref %}☀️{% elif 'phone' in p.category_ref or 'smart' in p.category_ref %}📱{% elif 'hard' in p.category_ref %}🧱{% else %}📦{% endif %}
+              <div style="height: 100px; display: flex; align-items: center; justify-content: center; margin: 0.5rem 0; background: #F8FAFC; border-radius: 8px; border: 1px solid #F1F5F9;">
+                {{ p|product_svg:"small" }}
               </div>
 
               <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin: 0.2rem 0 0.3rem 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.7rem;">

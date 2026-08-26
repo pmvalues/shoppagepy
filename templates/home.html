@@ -54,8 +54,8 @@
                 <span class="badge badge-green">✓ In Stock</span>
               </div>
 
-              <div style="font-size: 2rem; margin-bottom: 0.25rem;">
-                {% if 'solar' in p.category_ref %}☀️{% elif 'phone' in p.category_ref or 'smart' in p.category_ref %}📱{% elif 'hard' in p.category_ref %}🧱{% else %}📦{% endif %}
+              <div style="height: 100px; display: flex; align-items: center; justify-content: center; margin: 0.5rem 0; background: #F8FAFC; border-radius: 8px; border: 1px solid #F1F5F9;">
+                {{ p|product_svg:"small" }}
               </div>
 
               <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin: 0.2rem 0 0.4rem 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.7rem;">
@@ -259,7 +259,9 @@
     <!-- Sector 1: Solar -->
     <a href="/search?category=solar_energy" class="card card-hover" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.5rem; text-decoration: none;">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-        <span style="font-size: 2.25rem;">☀️</span>
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: #FEF3C7; display: flex; align-items: center; justify-content: center; color: #D97706; font-size: 1.25rem;">
+          ⚡
+        </div>
         <span class="badge badge-amber">NRS 097 Certified</span>
       </div>
       <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin-bottom: 0.4rem;">
@@ -276,7 +278,9 @@
     <!-- Sector 2: Tech & Smartphones -->
     <a href="/search?category=smartphones" class="card card-hover" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.5rem; text-decoration: none;">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-        <span style="font-size: 2.25rem;">📱</span>
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: #DBEAFE; display: flex; align-items: center; justify-content: center; color: #2563EB; font-size: 1.25rem;">
+          📱
+        </div>
         <span class="badge badge-blue">ICASA Approved</span>
       </div>
       <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin-bottom: 0.4rem;">
@@ -293,7 +297,9 @@
     <!-- Sector 3: Building & Hardware -->
     <a href="/search?category=hardware" class="card card-hover" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.5rem; text-decoration: none;">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-        <span style="font-size: 2.25rem;">🧱</span>
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: #D1FAE5; display: flex; align-items: center; justify-content: center; color: #059669; font-size: 1.25rem;">
+          🏗️
+        </div>
         <span class="badge badge-green">SABS Standards</span>
       </div>
       <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin-bottom: 0.4rem;">

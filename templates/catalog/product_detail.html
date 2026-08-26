@@ -48,12 +48,9 @@
 
         <!-- Dynamic Visual Display -->
         <div style="height: 260px; display: flex; align-items: center; justify-content: center; margin-top: 1rem; margin-bottom: 1.5rem;">
-          <span style="font-size: 7.5rem; line-height: 1; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.06));" x-show="activeTab === 'photo'">
-            {% if 'solar' in product.category_ref %}☀️
-            {% elif 'phone' in product.category_ref or 'smart' in product.category_ref %}📱
-            {% elif 'hard' in product.category_ref %}🧱
-            {% else %}📦{% endif %}
-          </span>
+          <div x-show="activeTab === 'photo'" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+            {{ product|product_svg:"large" }}
+          </div>
           <div x-show="activeTab === 'specs'" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.5rem; width: 100%; text-align: left; font-size: 0.825rem;">
             <div style="font-weight: 800; color: #0F172A; margin-bottom: 0.5rem; font-size: 0.9rem;">📋 Manufacturer Datasheet</div>
             <div style="color: #475569; line-height: 1.6;">
@@ -251,9 +248,9 @@
       <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
         <!-- Primary Item -->
         <div style="background: #F8FAFC; border: 1.5px solid #2563EB; border-radius: 12px; padding: 1rem; width: 200px; text-align: center;">
-          <span style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;">
-            {% if 'solar' in product.category_ref %}☀️{% elif 'phone' in product.category_ref %}📱{% else %}📦{% endif %}
-          </span>
+          <div style="height: 90px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
+            {{ product|product_svg:"small" }}
+          </div>
           <div style="font-size: 0.825rem; font-weight: 700; color: #0F172A; line-height: 1.3; margin-bottom: 0.35rem;">{{ product.title|truncatechars:35 }}</div>
           <div style="font-size: 0.95rem; font-weight: 800; color: #059669;">R {{ min_price|floatformat:0|intcomma }}</div>
           <span class="badge badge-blue" style="font-size: 0.65rem; margin-top: 0.35rem;">This Item</span>
@@ -264,9 +261,9 @@
         <!-- Complementary Item 1 -->
         {% for bi in bundle_items %}
         <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1rem; width: 200px; text-align: center;">
-          <span style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;">
-            {% if 'solar' in bi.category_ref %}🔋{% elif 'phone' in bi.category_ref %}🎧{% else %}🧱{% endif %}
-          </span>
+          <div style="height: 90px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
+            {{ bi|product_svg:"small" }}
+          </div>
           <div style="font-size: 0.825rem; font-weight: 700; color: #0F172A; line-height: 1.3; margin-bottom: 0.35rem;">
             <a href="/p/{{ bi.canonical_id }}" style="color: #0F172A; text-decoration: none;">{{ bi.title|truncatechars:35 }}</a>
           </div>
