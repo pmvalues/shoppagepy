@@ -139,3 +139,41 @@ def product_svg(product_or_title, size="medium"):
   <text x="80" y="122" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="7" font-weight="600" fill="#059669" text-anchor="middle">● IN STOCK</text>
 </svg>''')
 
+@register.filter(is_safe=True)
+def merchant_svg(merchant, size="medium"):
+    """
+    Renders professional store vector artwork.
+    """
+    dim = "90" if size == "small" else "110"
+    return mark_safe(f'''<svg width="{dim}" height="{dim}" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="120" rx="12" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5"/>
+  <path d="M25 45L60 25L95 45V95H25V45Z" fill="#FFFFFF" stroke="#334155" stroke-width="2"/>
+  <rect x="48" y="60" width="24" height="35" rx="3" fill="#10B981"/>
+  <circle cx="66" cy="78" r="2" fill="#FFFFFF"/>
+  <rect x="32" y="55" width="12" height="18" rx="2" fill="#3B82F6"/>
+  <rect x="76" y="55" width="12" height="18" rx="2" fill="#3B82F6"/>
+  <path d="M20 45L60 22L100 45" stroke="#2563EB" stroke-width="3" stroke-linecap="round"/>
+</svg>''')
+
+@register.filter(is_safe=True)
+def mall_svg(market, size="medium"):
+    """
+    Renders professional shopping centre / commercial hub vector artwork.
+    """
+    dim = "90" if size == "small" else "110"
+    return mark_safe(f'''<svg width="{dim}" height="{dim}" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="120" rx="12" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5"/>
+  <rect x="24" y="36" width="32" height="60" rx="3" fill="#FFFFFF" stroke="#334155" stroke-width="1.5"/>
+  <rect x="56" y="24" width="40" height="72" rx="3" fill="#FFFFFF" stroke="#2563EB" stroke-width="2"/>
+  <rect x="30" y="44" width="6" height="8" rx="1" fill="#94A3B8"/>
+  <rect x="42" y="44" width="6" height="8" rx="1" fill="#94A3B8"/>
+  <rect x="30" y="58" width="6" height="8" rx="1" fill="#94A3B8"/>
+  <rect x="42" y="58" width="6" height="8" rx="1" fill="#94A3B8"/>
+  <rect x="64" y="34" width="8" height="10" rx="1" fill="#60A5FA"/>
+  <rect x="80" y="34" width="8" height="10" rx="1" fill="#60A5FA"/>
+  <rect x="64" y="50" width="8" height="10" rx="1" fill="#60A5FA"/>
+  <rect x="80" y="50" width="8" height="10" rx="1" fill="#60A5FA"/>
+  <rect x="68" y="76" width="16" height="20" rx="2" fill="#10B981"/>
+</svg>''')
+
+
