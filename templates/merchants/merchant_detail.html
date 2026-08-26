@@ -137,74 +137,147 @@
     </div>
   </div>
 
-  <!-- Store Live Confirmed Inventory with Live In-Store Search -->
+  <!-- Store Live Confirmed Inventory with Category Aisle Tabs & In-Store Search -->
   <section x-data="{
     storeSearch: '',
+    selectedCategory: 'all',
     matchOffer(title, category) {
-      if (!this.storeSearch) return true;
-      const q = this.storeSearch.toLowerCase();
-      return title.toLowerCase().includes(q) || category.toLowerCase().includes(q);
+      const matchQ = !this.storeSearch || title.toLowerCase().includes(this.storeSearch.toLowerCase()) || category.toLowerCase().includes(this.storeSearch.toLowerCase());
+      const matchC = this.selectedCategory === 'all' || category === this.selectedCategory;
+      return matchQ && matchC;
     }
   }">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
       <div>
-        <h2 class="section-title" style="margin: 0;">📦 Live Store Inventory &amp; Stock Offers</h2>
-        <p class="section-desc">Confirmed direct stock available for same-day WhatsApp dispatch or collection.</p>
+        <span class="badge badge-green" style="margin-bottom: 0.25rem;">📦 Verified In-Store Inventory ({{ offers|length }} Items)</span>
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0F172A; margin: 0;">
+          Direct Available Stock from {{ merchant.name }}
+        </h2>
+        <p style="color: #64748B; font-size: 0.875rem; margin: 0.25rem 0 0 0;">
+          Confirmed stock ready for same-day collection at {{ merchant.stall_identifier|default:merchant.address_text }} or courier dispatch.
+        </p>
       </div>
 
       <!-- In-Store Search Bar -->
-      <div style="position: relative; width: 280px;">
+      <div style="position: relative; width: 300px;">
         <input
           type="text"
           x-model="storeSearch"
-          placeholder="Search this store's inventory..."
+          placeholder="🔍 Search this store's stock..."
           class="search-input"
-          style="padding: 0.45rem 0.75rem; font-size: 0.85rem;"
+          style="padding: 0.55rem 0.85rem; font-size: 0.85rem; border-radius: 9999px;"
         />
       </div>
     </div>
 
-    <div class="grid grid-cols-3" style="gap: 1.25rem;">
+    <!-- Category Aisle Filter Tabs -->
+    {% if store_categories %}
+    <div style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 1rem; margin-bottom: 1.25rem; scrollbar-width: none;">
+      <button
+        type="button"
+        @click="selectedCategory = 'all'"
+        :style="selectedCategory === 'all' ? 'background: #0F172A; color: #FFFFFF;' : 'background: #F1F5F9; color: #475569;'"
+        style="border: none; padding: 0.45rem 1rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap;"
+      >
+        🔥 All Stock ({{ offers|length }})
+      </button>
+      {% for cat in store_categories %}
+      <button
+        type="button"
+        @click="selectedCategory = '{{ cat|escapejs }}'"
+        :style="selectedCategory === '{{ cat|escapejs }}' ? 'background: #0F172A; color: #FFFFFF;' : 'background: #F1F5F9; color: #475569;'"
+        style="border: none; padding: 0.45rem 1rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; text-transform: capitalize;"
+      >
+        {{ cat|title }}
+      </button>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Inventory Product Grid -->
+    <div class="grid grid-cols-3" style="gap: 1.25rem; margin-bottom: 3rem;">
       {% for offer in offers %}
       <div
-        class="card"
-        style="background: #FFFFFF; display: flex; flex-direction: column; justify-content: space-between;"
+        class="card card-hover"
+        style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;"
         x-show="matchOffer('{{ offer.variant.title|escapejs }}', '{{ offer.variant.category_ref|escapejs }}')"
       >
         <div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-            <span class="badge badge-green">✓ Fresh Stock Confirmed</span>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span class="badge badge-green">✓ In Stock</span>
             <span class="badge badge-blue">{{ offer.variant.brand }}</span>
           </div>
-          <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0.25rem 0;">
-            <a href="/p/{{ offer.variant.canonical_id }}">{{ offer.variant.title }}</a>
+
+          <h3 style="font-size: 1rem; font-weight: 700; color: #0F172A; margin: 0.3rem 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.8rem;">
+            <a href="/p/{{ offer.variant.canonical_id }}" style="color: #0F172A; text-decoration: none;">
+              {{ offer.variant.title }}
+            </a>
           </h3>
-          <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.75rem;">
-            Category: {{ offer.variant.category_ref }} · Stall: {{ offer.stall_ref|default:"Store Unit" }}
+
+          <p style="color: #64748B; font-size: 0.775rem; margin-bottom: 0.75rem;">
+            Model: {{ offer.variant.model_number|default:"Standard" }} · Stall: <strong>{{ offer.stall_ref|default:"Direct Counter" }}</strong>
           </p>
         </div>
 
-        <div>
-          <div style="font-size: 1.4rem; font-weight: 800; color: var(--accent-green); margin: 0.5rem 0;">
-            R {{ offer.price_amount|floatformat:0|intcomma }}
+        <div style="border-top: 1px solid #F1F5F9; padding-top: 0.75rem; margin-top: 0.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.6rem;">
+            <div>
+              <span style="font-size: 0.725rem; color: #64748B;">Direct Store Price:</span>
+              <div style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; color: #059669;">
+                R {{ offer.price_amount|floatformat:0|intcomma }}
+              </div>
+            </div>
+            <span style="font-size: 0.7rem; color: #059669; font-weight: 600;">● Confirmed Stock</span>
           </div>
+
           <div style="display: flex; gap: 0.4rem;">
-            <a href="/p/{{ offer.variant.canonical_id }}" class="btn btn-outline" style="flex: 1; font-size: 0.8rem; padding: 0.4rem;">
-              Compare Sellers
+            <a href="/p/{{ offer.variant.canonical_id }}" class="btn btn-outline" style="flex: 1; font-size: 0.8rem; padding: 0.45rem; border-radius: 8px;">
+              View Item
             </a>
-            <a href="/l/{{ offer.canonical_id }}" class="btn btn-whatsapp" style="font-size: 0.8rem; padding: 0.4rem 0.75rem;">
+            <a href="/l/{{ offer.canonical_id }}" class="btn btn-whatsapp" style="font-size: 0.8rem; padding: 0.45rem 0.85rem; border-radius: 8px; font-weight: 700;">
               💬 Buy on WhatsApp
             </a>
           </div>
         </div>
       </div>
       {% empty %}
-      <div class="card" style="grid-column: span 3; text-align: center; padding: 3rem;">
-        <p style="color: #64748B;">No products currently listed for this store. Check back shortly.</p>
+      <div class="card" style="grid-column: span 3; text-align: center; padding: 3rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px;">
+        <p style="color: #64748B; font-size: 0.95rem;">No products currently listed for this store. Check back shortly or contact the store directly.</p>
       </div>
       {% endfor %}
     </div>
   </section>
+
+  <!-- Store Proof Video Shorts Showcase -->
+  {% if store_shorts %}
+  <section style="background: #0F172A; border-radius: 16px; padding: 2rem; color: #FFFFFF; margin-bottom: 3rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+      <div>
+        <span class="badge badge-red" style="font-size: 0.75rem; margin-bottom: 0.25rem;">🎬 Storefront Video Feed</span>
+        <h2 style="font-size: 1.35rem; font-weight: 800; color: #FFFFFF; margin: 0;">
+          Live Proof Shorts &amp; In-Store Demonstrations
+        </h2>
+      </div>
+      <a href="/shorts" style="color: #7DD3FC; font-size: 0.85rem; font-weight: 600;">View All Shorts &rarr;</a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem;">
+      {% for s in store_shorts %}
+      <div style="background: #1E293B; border: 1px solid #334155; border-radius: 12px; overflow: hidden;">
+        <div style="height: 240px; background: #000; position: relative;">
+          <video poster="{{ s.thumbnail_url }}" controls style="width: 100%; height: 100%; object-fit: cover;">
+            <source src="{{ s.video_url }}" type="video/mp4">
+          </video>
+        </div>
+        <div style="padding: 1rem;">
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: #FFFFFF; margin-bottom: 0.35rem;">{{ s.title }}</h4>
+          <p style="font-size: 0.775rem; color: #94A3B8; margin: 0;">{{ s.summary|truncatechars:85 }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
 
 </div>
 

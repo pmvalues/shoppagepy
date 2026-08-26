@@ -55,11 +55,33 @@ def merchant_detail_view(request, canonical_id):
     if not merchant:
         raise Http404("Merchant not found")
 
-    offers = list(merchant.offers.select_related('variant').all())
+    offers = list(merchant.offers.select_related('variant').order_by('-price_amount'))
+    
+    # Store proof video shorts
+    from apps.media_hub.models import Short
+    store_shorts = list(Short.objects.filter(
+        merchant=merchant, moderation_state__in=['approved', 'APPROVED']
+    ))
+    if not store_shorts:
+        store_shorts = list(Short.objects.filter(
+            Q(title__icontains=merchant.name.split()[0]) |
+            Q(merchant_name__icontains=merchant.name.split()[0])
+        )[:2])
+
+    # Store inventory categories for navigation
+    categories = set()
+    for o in offers:
+        if o.variant and o.variant.category_ref:
+            categories.add(o.variant.category_ref)
+    
+    featured_offers = offers[:4]
 
     context = {
         'merchant': merchant,
         'offers': offers,
+        'featured_offers': featured_offers,
+        'store_categories': sorted(list(categories)),
+        'store_shorts': store_shorts,
         'jsonld': jsonld_script(merchant_jsonld(merchant)),
     }
     return render(request, 'merchants/merchant_detail.html', context)

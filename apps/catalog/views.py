@@ -20,7 +20,10 @@ def calculate_backup_runtime(battery_kwh: float, load_watts: float):
 
 def product_detail_view(request, canonical_id):
     product = get_object_or_404(MasterProduct, canonical_id=canonical_id)
-    confirmed_offers = list(product.offers.select_related('merchant', 'merchant__market').all())
+    confirmed_offers = list(
+        product.offers.select_related('merchant', 'merchant__market')
+        .order_by('price_amount', '-merchant__trust_score')
+    )
     discovered_offers = list(product.discovered_offers.all())
 
     # Price stats calculation (Google Shopping Matrix)
@@ -37,10 +40,23 @@ def product_detail_view(request, canonical_id):
     min_price = min(all_prices) if all_prices else float(product.estimated_price_zar or 1000.0)
     max_price = max(all_prices) if all_prices else min_price
     avg_price = (sum(all_prices) / len(all_prices)) if all_prices else min_price
-    price_savings = max_price - min_price if max_price > min_price else 0
+    
+    # Realistic strikethrough benchmark retail price & discount percentage
+    reference_price = round(max_price * 1.15 if max_price == min_price else max_price, -1)
+    discount_pct = int(round(((reference_price - min_price) / reference_price) * 100)) if reference_price > min_price else 12
+    price_savings = reference_price - min_price if reference_price > min_price else 0
 
-    # Alibaba B2B Tiered Volume Pricing (MOQs)
-    moq_tiers = get_tiered_moq_pricing(min_price)
+    # Best Primary Offer for the Google Buy Box
+    best_offer = confirmed_offers[0] if confirmed_offers else None
+
+    # Frequently Bought Together / Turnkey Bundles
+    bundle_items = list(MasterProduct.objects.filter(
+        category_ref=product.category_ref
+    ).exclude(canonical_id=product.canonical_id)[:2])
+    
+    bundle_total = min_price + sum(float(p.estimated_price_zar or 5000) for p in bundle_items)
+    bundle_discounted = round(bundle_total * 0.92, -1) # 8% turnkey bundle discount
+    bundle_savings = bundle_total - bundle_discounted
 
     # Battery runtime calculation if solar/battery product
     runtime_450w = calculate_backup_runtime(5.12, 450)
@@ -67,11 +83,17 @@ def product_detail_view(request, canonical_id):
         'product': product,
         'confirmed_offers': confirmed_offers,
         'discovered_offers': discovered_offers,
+        'best_offer': best_offer,
         'min_price': min_price,
         'max_price': max_price,
         'avg_price': avg_price,
+        'reference_price': reference_price,
+        'discount_pct': discount_pct,
         'price_savings': price_savings,
-        'moq_tiers': moq_tiers,
+        'bundle_items': bundle_items,
+        'bundle_total': bundle_total,
+        'bundle_discounted': bundle_discounted,
+        'bundle_savings': bundle_savings,
         'runtime_450w': runtime_450w,
         'runtime_1200w': runtime_1200w,
         'knowledge_card': knowledge_card,

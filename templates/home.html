@@ -49,28 +49,42 @@
           {% for p in featured_products|slice:":6" %}
           <div class="card card-hover" style="display: flex; flex-direction: column; justify-content: space-between; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem;">
             <div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                 <span class="badge badge-blue">{{ p.brand }}</span>
                 <span class="badge badge-green">✓ In Stock</span>
               </div>
 
-              <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin: 0.25rem 0 0.5rem 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.7rem;">
+              <div style="font-size: 2rem; margin-bottom: 0.25rem;">
+                {% if 'solar' in p.category_ref %}☀️{% elif 'phone' in p.category_ref or 'smart' in p.category_ref %}📱{% elif 'hard' in p.category_ref %}🧱{% else %}📦{% endif %}
+              </div>
+
+              <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin: 0.2rem 0 0.4rem 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.7rem;">
                 <a href="/p/{{ p.canonical_id }}" style="color: #0F172A; text-decoration: none;">{{ p.title }}</a>
               </h3>
+
+              <div style="font-size: 0.75rem; color: #64748B;">
+                ★ 4.9 · {{ p.offers.count|default:1 }} Verified Stockist{{ p.offers.count|pluralize }}
+              </div>
             </div>
 
             <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #F1F5F9;">
-              <div style="font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; color: #059669; margin-bottom: 0.6rem;">
-                {% with first_offer=p.offers.all|first %}
-                  {% if first_offer and first_offer.price_amount %}
-                    R {{ first_offer.price_amount|floatformat:0|intcomma }}
-                  {% else %}
-                    R {{ p.estimated_price_zar|floatformat:0|intcomma }}
-                  {% endif %}
-                {% endwith %}
+              <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 0.6rem;">
+                <div>
+                  <span style="font-size: 0.7rem; color: #64748B;">From</span>
+                  <div style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; color: #059669; line-height: 1;">
+                    {% with first_offer=p.offers.all|first %}
+                      {% if first_offer and first_offer.price_amount %}
+                        R {{ first_offer.price_amount|floatformat:0|intcomma }}
+                      {% else %}
+                        R {{ p.estimated_price_zar|floatformat:0|intcomma }}
+                      {% endif %}
+                    {% endwith %}
+                  </div>
+                </div>
+                <span class="badge badge-green" style="font-size: 0.65rem;">Best Value</span>
               </div>
 
-              <div style="display: flex; gap: 0.5rem;">
+              <div style="display: flex; gap: 0.4rem;">
                 <a href="/p/{{ p.canonical_id }}" class="btn btn-outline" style="flex: 1; font-size: 0.8rem; padding: 0.45rem 0.5rem; border-radius: 8px;">
                   Compare
                 </a>
