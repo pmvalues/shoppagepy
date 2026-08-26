@@ -71,17 +71,34 @@
           </div>
         </div>
 
-        <!-- Thumbnail Selector Tabs -->
-        <div style="display: flex; gap: 0.5rem; justify-content: center; border-top: 1px solid #F1F5F9; padding-top: 1rem;">
-          <button type="button" @click="activeTab = 'photo'" :style="activeTab === 'photo' ? 'border-color: #2563EB; background: #EFF6FF;' : 'border-color: #E2E8F0; background: #FFFFFF;'" style="border: 1.5px solid; border-radius: 8px; padding: 0.4rem 0.75rem; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
-            📸 Product
-          </button>
-          <button type="button" @click="activeTab = 'specs'" :style="activeTab === 'specs' ? 'border-color: #2563EB; background: #EFF6FF;' : 'border-color: #E2E8F0; background: #FFFFFF;'" style="border: 1.5px solid; border-radius: 8px; padding: 0.4rem 0.75rem; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
-            ⚙️ Specs
-          </button>
-          <button type="button" @click="activeTab = 'compliance'" :style="activeTab === 'compliance' ? 'border-color: #2563EB; background: #EFF6FF;' : 'border-color: #E2E8F0; background: #FFFFFF;'" style="border: 1.5px solid; border-radius: 8px; padding: 0.4rem 0.75rem; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
-            🛡️ Certificate
-          </button>
+        <!-- Segmented Tab Selector Pills -->
+        <div style="display: flex; justify-content: center; border-top: 1px solid #F1F5F9; padding-top: 1rem;">
+          <div style="display: inline-flex; background: #F1F5F9; border-radius: 9999px; padding: 3px; gap: 3px; border: 1px solid #E2E8F0;">
+            <button
+              type="button"
+              @click="activeTab = 'photo'"
+              :style="activeTab === 'photo' ? 'background: #FFFFFF; color: #1D4ED8; font-weight: 700; border: 1px solid #CBD5E1;' : 'background: transparent; color: #64748B; font-weight: 600; border: 1px solid transparent;'"
+              style="border-radius: 9999px; padding: 0.35rem 0.85rem; font-size: 0.775rem; cursor: pointer; transition: all 0.15s ease; outline: none; box-shadow: none !important;"
+            >
+              📸 Product
+            </button>
+            <button
+              type="button"
+              @click="activeTab = 'specs'"
+              :style="activeTab === 'specs' ? 'background: #FFFFFF; color: #1D4ED8; font-weight: 700; border: 1px solid #CBD5E1;' : 'background: transparent; color: #64748B; font-weight: 600; border: 1px solid transparent;'"
+              style="border-radius: 9999px; padding: 0.35rem 0.85rem; font-size: 0.775rem; cursor: pointer; transition: all 0.15s ease; outline: none; box-shadow: none !important;"
+            >
+              ⚙️ Specs
+            </button>
+            <button
+              type="button"
+              @click="activeTab = 'compliance'"
+              :style="activeTab === 'compliance' ? 'background: #FFFFFF; color: #1D4ED8; font-weight: 700; border: 1px solid #CBD5E1;' : 'background: transparent; color: #64748B; font-weight: 600; border: 1px solid transparent;'"
+              style="border-radius: 9999px; padding: 0.35rem 0.85rem; font-size: 0.775rem; cursor: pointer; transition: all 0.15s ease; outline: none; box-shadow: none !important;"
+            >
+              🛡️ Certificate
+            </button>
+          </div>
         </div>
 
         {% if price_savings > 0 %}
