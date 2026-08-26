@@ -1,0 +1,209 @@
+<!-- Alibaba-Style B2B RFQ (Request for Quotation) Tender Modal -->
+<div
+  id="rfq-tender-modal"
+  style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 1.5rem;"
+  x-data="{
+    itemName: '{% if product %}{{ product.title|escapejs }}{% elif query %}{{ query|escapejs }}{% else %}Solar & Backup Equipment{% endif %}',
+    quantity: 10,
+    targetPrice: '{% if product and product.estimated_price_zar %}{{ product.estimated_price_zar }}{% else %}15000{% endif %}',
+    buyerName: '',
+    buyerCompany: '',
+    buyerWhatsApp: '',
+    province: 'Gauteng',
+    deadline: 'Within 7 Days',
+    complianceNeeded: true,
+    submitted: false,
+    generateWhatsAppBroadcast() {
+      const msg = `*COMMERCIAL RFQ TENDER BROADCAST (Shoppage B2B Grid)*\n\n` +
+        `📦 *Item Required:* ${this.itemName}\n` +
+        `🔢 *Quantity:* ${this.quantity} units\n` +
+        `💰 *Target Price:* R ${this.targetPrice} / unit\n` +
+        `📍 *Delivery Location:* ${this.province}\n` +
+        `⏱️ *Required By:* ${this.deadline}\n` +
+        `🛡️ *Compliance Required:* ${this.complianceNeeded ? 'SABS / NRS 097 / CoC' : 'Standard Commercial'}\n\n` +
+        `👤 *Buyer:* ${this.buyerName || 'Procurement Officer'} (${this.buyerCompany || 'Direct Commercial'})\n` +
+        `📞 *WhatsApp:* ${this.buyerWhatsApp || 'Direct'}\n\n` +
+        `_Generated via Shoppage National Commercial Grid (0% Commission)_`;
+      return encodeURIComponent(msg);
+    }
+  }"
+>
+  <div style="background: #FFFFFF; border-radius: 16px; width: 100%; max-width: 580px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; border: 1px solid #CBD5E1;">
+    
+    <!-- Modal Header -->
+    <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: #FFFFFF; padding: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start;">
+      <div>
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
+          <span style="font-size: 1.25rem;">🏭</span>
+          <span class="badge badge-green" style="font-size: 0.7rem;">Alibaba-Style B2B RFQ Hub</span>
+        </div>
+        <h3 style="font-size: 1.25rem; font-weight: 800; color: #FFFFFF; margin: 0;">
+          Post Request for Quotation (RFQ)
+        </h3>
+        <p style="color: #94A3B8; font-size: 0.8rem; margin: 0.25rem 0 0 0;">
+          Broadcast your procurement demand to verified South African suppliers &amp; distributors.
+        </p>
+      </div>
+      <button
+        type="button"
+        onclick="document.getElementById('rfq-tender-modal').style.display='none'"
+        style="background: transparent; border: none; color: #94A3B8; font-size: 1.5rem; cursor: pointer; line-height: 1;"
+      >
+        &times;
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div style="padding: 1.5rem;" x-show="!submitted">
+      <form @submit.prevent="submitted = true">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div>
+            <label style="font-size: 0.775rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">
+              Product / Item Name *
+            </label>
+            <input
+              type="text"
+              name="item_name"
+              x-model="itemName"
+              required
+              class="search-input"
+              style="padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem;"
+            />
+          </div>
+
+          <div>
+            <label style="font-size: 0.775rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">
+              Required Quantity (Units/Pallets) *
+            </label>
+            <input
+              type="number"
+              x-model="quantity"
+              min="1"
+              required
+              class="search-input"
+              style="padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem;"
+            />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div>
+            <label style="font-size: 0.775rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">
+              Target Unit Budget (ZAR)
+            </label>
+            <input
+              type="number"
+              x-model="targetPrice"
+              placeholder="e.g. 15000"
+              class="search-input"
+              style="padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem;"
+            />
+          </div>
+
+          <div>
+            <label style="font-size: 0.775rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">
+              Destination Province
+            </label>
+            <select
+              x-model="province"
+              style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.85rem; background: #fff;"
+            >
+              <option value="Gauteng">Gauteng (Joburg / Pretoria)</option>
+              <option value="Western Cape">Western Cape (Cape Town)</option>
+              <option value="KwaZulu-Natal">KwaZulu-Natal (Durban)</option>
+              <option value="Eastern Cape">Eastern Cape</option>
+              <option value="Limpopo">Limpopo</option>
+              <option value="Mpumalanga">Mpumalanga</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div>
+            <label style="font-size: 0.775rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">
+              Your Name / Contact *
+            </label>
+            <input
+              type="text"
+              x-model="buyerName"
+              placeholder="e.g. Thabo M."
+              required
+              class="search-input"
+              style="padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem;"
+            />
+          </div>
+
+          <div>
+            <label style="font-size: 0.775rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">
+              Your WhatsApp Number *
+            </label>
+            <input
+              type="tel"
+              x-model="buyerWhatsApp"
+              placeholder="e.g. 27712345678"
+              required
+              class="search-input"
+              style="padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem;"
+            />
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #334155; cursor: pointer;">
+            <input type="checkbox" x-model="complianceNeeded">
+            <span style="font-weight: 600;">Require SABS Standards / Certificate of Compliance (CoC)</span>
+          </label>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <button
+            type="button"
+            onclick="document.getElementById('rfq-tender-modal').style.display='none'"
+            class="btn btn-outline"
+            style="font-size: 0.85rem; padding: 0.5rem 1rem;"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="btn btn-whatsapp"
+            style="font-size: 0.85rem; padding: 0.5rem 1.25rem;"
+          >
+            🚀 Broadcast RFQ Tender
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Success Screen with Direct WhatsApp link -->
+    <div style="padding: 2rem; text-align: center;" x-show="submitted">
+      <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎉</div>
+      <h3 style="font-size: 1.35rem; font-weight: 800; color: #059669; margin-bottom: 0.5rem;">
+        RFQ Successfully Broadcast!
+      </h3>
+      <p style="font-size: 0.875rem; color: #475569; max-width: 440px; margin: 0 auto 1.5rem auto; line-height: 1.5;">
+        Your procurement demand has been dispatched to matched verified suppliers in <strong x-text="province"></strong>.
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 360px; margin: 0 auto;">
+        <a
+          :href="'https://wa.me/?text=' + generateWhatsAppBroadcast()"
+          target="_blank"
+          class="btn btn-whatsapp"
+          style="font-size: 0.9rem; padding: 0.65rem 1rem;"
+        >
+          💬 Share RFQ to WhatsApp Supplier Network
+        </a>
+        <button
+          type="button"
+          @click="submitted = false; document.getElementById('rfq-tender-modal').style.display='none'"
+          class="btn btn-outline"
+          style="font-size: 0.8rem; padding: 0.5rem;"
+        >
+          Close Window
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

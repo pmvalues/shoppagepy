@@ -147,7 +147,54 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
+    # v8.2 Governance: public-surface throttling (Constitution Rule 9)
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '120/min',
+        'search': '60/min',
+        'assistant': '20/min',
+    },
 }
+
+# ---------------------------------------------------------------------------
+# Caching (v8.2 Performance Layer)
+# Redis when REDIS_URL is present (prod), LocMem fallback for dev.
+# ---------------------------------------------------------------------------
+redis_url = os.environ.get('REDIS_URL') or os.environ.get('REDISCLOUD_URL')
+if redis_url:
+    import urllib.parse as _urlparse
+    _u = _urlparse.urlparse(redis_url)
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': f'{_u.scheme}://{_u.hostname}:{_u.port or 6379}',
+            'KEY_PREFIX': 'shoppage',
+            'OPTIONS': {
+                'password': _u.password or '',
+                'db': int((_u.path or '/0').lstrip('/')) or 0,
+            },
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'shoppage-default',
+            'KEY_PREFIX': 'shoppage',
+        }
+    }
+
+CACHE_TTL = {
+    'home': 60,
+    'search': 30,
+    'directory': 300,
+    'fragment': 60,
+}
+
+# Canonical site URL used by SEO layer (sitemaps, JSON-LD, canonical tags)
+SHOPPAGE_SITE_URL = os.environ.get('SHOPPAGE_SITE_URL', 'https://shoppage.co.za')
 
 # CORS
 CORS_ALLOW_ALL_ORIGINS = True

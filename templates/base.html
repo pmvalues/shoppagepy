@@ -5,6 +5,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Shoppage — South Africa National Commerce Grid{% endblock %}</title>
+
+  <!-- SEO (v8.2) -->
+  <meta name="description" content="{% block meta_description %}Search millions of verified products and storefronts across South Africa. Compare real local offers, prices and availability — evidence-backed commerce intelligence.{% endblock %}">
+  <link rel="canonical" href="{% block canonical_url %}https://shoppage.co.za{{ request.path }}{% endblock %}">
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:site_name" content="Shoppage">
+  <meta property="og:title" content="{% block og_title %}Shoppage — South Africa Commerce Grid{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}South Africa's evidence-backed national commerce grid.{% endblock %}">
+  <meta property="og:url" content="{% block og_url %}https://shoppage.co.za{{ request.path }}{% endblock %}">
+  <meta property="og:image" content="https://shoppage.co.za/static/icons/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% block twitter_title %}Shoppage — South Africa Commerce Grid{% endblock %}">
+  <meta name="twitter:description" content="{% block twitter_description %}South Africa's evidence-backed national commerce grid.{% endblock %}">
+  <meta name="twitter:image" content="https://shoppage.co.za/static/icons/og-image.png">
+  <meta name="theme-color" content="#0F172A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+  <link rel="icon" href="{% static 'icons/icon-192.png' %}" sizes="192x192">
+  {% block structured_data %}{% endblock %}
   
   <!-- Modern Responsive Stylesheet -->
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
@@ -15,7 +35,34 @@
 
   {% block extra_css %}{% endblock %}
 </head>
-<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' x-data="{
+  searchQuery: '{{ query|default:''|escapejs }}',
+  isListening: false,
+  startVoiceSearch() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Voice search is not supported by your browser. Please type your query.');
+      return;
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-ZA';
+    recognition.interimResults = false;
+    this.isListening = true;
+    recognition.onstart = () => { this.isListening = true; };
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      const input = document.getElementById('global-omnibox-input');
+      if (input) {
+        input.value = transcript;
+        input.form.submit();
+      }
+      this.isListening = false;
+    };
+    recognition.onerror = () => { this.isListening = false; };
+    recognition.onend = () => { this.isListening = false; };
+    recognition.start();
+  }
+}" @keydown.window="if ($event.key === '/' && !['INPUT', 'TEXTAREA'].includes($event.target.tagName)) { $event.preventDefault(); document.getElementById('global-omnibox-input')?.focus(); }">
   <!-- Top Announcement Bar -->
   <div class="top-bar">
     <div class="container top-bar-inner">
@@ -24,7 +71,9 @@
         <span style="margin: 0 0.5rem; color: #475569;">•</span>
         <span>3,296 Malls &amp; 3,100,000+ Physical Storefronts</span>
       </div>
-      <div style="display: flex; gap: 1rem;">
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <span style="font-size: 0.75rem; color: #94A3B8;">Press <kbd style="background:#1E293B; color:#F8FAFC; padding:1px 5px; border-radius:3px; border:1px solid #334155;">/</kbd> to search</span>
+        <a href="/requests" style="color: #F59E0B; font-weight: 600;">📋 RFQ Tender Board</a>
         <a href="/merchant/claim" style="color: #34D399; font-weight: 600;">+ Claim Your Store</a>
         <a href="/agency" style="color: #94A3B8;">Agency Portal</a>
       </div>
@@ -38,25 +87,42 @@
         <span>⚡ Shoppage</span>
       </a>
 
-      <!-- Interactive Omnibox with HTMX Live Autocomplete -->
-      <div style="position: relative; flex: 1; max-width: 540px;" x-data="{ open: false }">
-        <form action="/search/" method="GET" class="search-container">
+      <!-- Interactive Omnibox with HTMX Live Autocomplete + Voice Search -->
+      <div style="position: relative; flex: 1; max-width: 580px;" x-data="{ open: false }">
+        <form action="/search/" method="GET" class="search-container" style="position: relative; display: flex; align-items: center;">
           <span class="search-icon">🔍</span>
           <input
+            id="global-omnibox-input"
             type="text"
             name="q"
-            placeholder="Search 1,000,000+ products, inverters, brands, or malls..."
+            placeholder="Search 1,000,000+ products, inverters, brands, wholesale MOQs or malls..."
             class="search-input"
             value="{{ query|default:'' }}"
             autocomplete="off"
             hx-get="/search/live/"
-            hx-trigger="keyup changed delay:150ms, search"
+            hx-trigger="keyup changed delay:120ms, search"
             hx-target="#live-search-dropdown"
             hx-swap="innerHTML"
             @focus="open = true"
             @click.away="open = false"
             @keydown.escape="open = false"
+            style="padding-right: 4.5rem;"
           />
+          <div style="position: absolute; right: 8px; display: flex; align-items: center; gap: 4px;">
+            <!-- Voice Search Button (Google-style) -->
+            <button
+              type="button"
+              @click="startVoiceSearch()"
+              :class="{ 'voice-listening': isListening }"
+              title="Voice Search"
+              style="background: transparent; border: none; cursor: pointer; padding: 4px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #64748B;"
+            >
+              <span x-text="isListening ? '🔴' : '🎙️'"></span>
+            </button>
+            <button type="submit" style="background: var(--accent-blue); color: #fff; border: none; border-radius: 9999px; padding: 4px 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+              Go
+            </button>
+          </div>
         </form>
         
         <!-- Live Floating Results Dropdown -->
@@ -64,7 +130,7 @@
           id="live-search-dropdown"
           x-show="open"
           x-transition
-          style="display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-xl); z-index: 1000; max-height: 420px; overflow-y: auto;"
+          style="display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-xl); z-index: 1000; max-height: 440px; overflow-y: auto;"
         >
         </div>
       </div>
@@ -76,12 +142,39 @@
         <a href="/search?category=hardware">🧱 Hardware</a>
         <a href="/malls">🏬 3,296 Malls</a>
         <a href="/merchants">🏪 Stores</a>
-        <a href="/shorts">🎬 Shorts</a>
-        <a href="/shows">📺 Shows</a>
+        <a href="/shorts" style="color: #EF4444; font-weight: 700;">🎬 Shorts</a>
+        <a href="/requests" style="color: #D97706; font-weight: 700;">📋 B2B RFQs</a>
         <a href="/merchant/claim" class="btn btn-whatsapp" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
           + List Shop
         </a>
       </nav>
+    </div>
+
+    <!-- Multi-Modal Competitive Platform Tabs -->
+    <div style="background: #F8FAFC; border-top: 1px solid #E2E8F0; padding: 0.35rem 0;">
+      <div class="container" style="display: flex; gap: 1rem; overflow-x: auto; font-size: 0.825rem; font-weight: 600; color: #475569; align-items: center;">
+        <a href="/search?q={{ query|default:'' }}" class="subnav-tab {% if not request.GET.mode and not request.GET.tab and '/shorts' not in request.path and '/malls' not in request.path and '/merchants' not in request.path and '/requests' not in request.path %}active-tab{% endif %}">
+          🌐 All Results
+        </a>
+        <a href="/search?q={{ query|default:'' }}&tab=shopping" class="subnav-tab {% if request.GET.tab == 'shopping' %}active-tab{% endif %}">
+          🛍️ Google Shopping Matrix
+        </a>
+        <a href="/search?q={{ query|default:'' }}&tab=wholesale&mode=b2b" class="subnav-tab {% if request.GET.tab == 'wholesale' or request.GET.mode == 'b2b' %}active-tab{% endif %}">
+          🏭 Alibaba B2B Wholesale &amp; MOQs
+        </a>
+        <a href="/malls" class="subnav-tab {% if '/malls' in request.path %}active-tab{% endif %}">
+          🗺️ GMB Spatial Map (3,296 Malls)
+        </a>
+        <a href="/merchants" class="subnav-tab {% if '/merchants' in request.path %}active-tab{% endif %}">
+          🏪 Verified Storefronts
+        </a>
+        <a href="/shorts" class="subnav-tab {% if '/shorts' in request.path %}active-tab{% endif %}">
+          🎬 YouTube Shorts (Shoppable Videos)
+        </a>
+        <a href="/requests" class="subnav-tab {% if '/requests' in request.path %}active-tab{% endif %}">
+          📋 Active Buyer RFQ Tenders
+        </a>
+      </div>
     </div>
   </header>
 

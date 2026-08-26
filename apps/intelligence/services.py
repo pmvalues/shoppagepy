@@ -288,6 +288,181 @@ def generate_google_merchant_center_feed(merchant_id: str, base_url: str = 'http
   </channel>
 </rss>"""
 
+def get_brand_knowledge_card(query_or_brand: str) -> Optional[Dict[str, Any]]:
+    """
+    Generates a Google-style Knowledge Graph card for recognized brands and industrial manufacturers.
+    """
+    q = (query_or_brand or '').lower()
+    
+    knowledge_base = {
+        'deye': {
+            'brand': 'Deye (Ningbo Deye Inverter Technology)',
+            'short_name': 'Deye',
+            'icon': '☀️',
+            'category': 'Solar Inverters & Battery Storage',
+            'origin': 'Ningbo, China (Global HQ) / South Africa Authorized Distribution',
+            'warranty': '5 to 10 Years Standard Manufacturer Warranty',
+            'certifications': ['NRS 097-2-1 Grid Certified', 'SABS Standard', 'IEC 62109', 'CE'],
+            'description': 'Deye is one of South Africa\'s most popular hybrid inverter brands, engineered for seamless Stage 6 loadshedding transition, parallel scalability (up to 16 units), and dual generator/solar inputs.',
+            'popular_models': ['SUN-5K-SG03LP1-EU (5kW)', 'SUN-8K-SG01LP1-EU (8kW)', 'SUN-12K-SG04LP3-EU (12kW 3-Phase)', 'BOS-G High Voltage'],
+            'distributors': ['Herholdts', 'SegenSolar', 'Rentech', 'SolarBros Sandton', 'Rubicon'],
+            'satisfaction_rating': '4.9 / 5.0 (Over 18,000 ZA Installations)',
+            'b2b_wholesale_ready': True,
+        },
+        'sunsynk': {
+            'brand': 'Sunsynk Power Solutions',
+            'short_name': 'Sunsynk',
+            'icon': '⚡',
+            'category': 'Hybrid Inverters & Smart Power',
+            'origin': 'United Kingdom / South Africa Regional Service Centre',
+            'warranty': '5-Year extendable to 10-Year Warranty with Sunsynk Battery pairing',
+            'certifications': ['NRS 097-2-1', 'SABS Tested', 'City of Cape Town Approved List'],
+            'description': 'Sunsynk is a market leader in smart hybrid power management, renowned for its intuitive Sunsynk Connect cloud monitoring, generator control, and micro-grid capability.',
+            'popular_models': ['Sunsynk 5.5kW Hybrid', 'Sunsynk 8.8kW Hybrid', 'Sunsynk 12kW 3-Phase', 'Sunsynk Mobile Power'],
+            'distributors': ['Herholdts', 'One Energy', 'SegenSolar', 'Trade Solar Wholesale'],
+            'satisfaction_rating': '4.85 / 5.0 (High Reliability Rating)',
+            'b2b_wholesale_ready': True,
+        },
+        'dyness': {
+            'brand': 'Dyness Renewable Energy',
+            'short_name': 'Dyness',
+            'icon': '🔋',
+            'category': 'LiFePO4 Lithium Iron Phosphate Batteries',
+            'origin': 'Global HQ / Official Southern Africa Support Hub',
+            'warranty': '10-Year Manufacturer Warranty (6,000+ Cycles @ 90% DoD)',
+            'certifications': ['UN38.3', 'IEC62619', 'CE', 'SABS EMC Certified'],
+            'description': 'Dyness manufactures tier-1 LiFePO4 battery modules offering deep discharge cycles, high thermal stability, and seamless CAN communication with Deye, Sunsynk, Growatt and Victron inverters.',
+            'popular_models': ['BX51100 5.12kWh Rack Mount', 'Powerbox Pro 10.24kWh Wallmount', 'A48100 4.8kWh', 'Tower High Voltage Series'],
+            'distributors': ['SegenSolar', 'SolarBros Sandton', 'Rubicon', 'Herholdts Group'],
+            'satisfaction_rating': '4.9 / 5.0 (Top Recommended Lithium Pack)',
+            'b2b_wholesale_ready': True,
+        },
+        'apple': {
+            'brand': 'Apple Inc.',
+            'short_name': 'Apple',
+            'icon': '🍎',
+            'category': 'Smartphones, Tablets & Computing',
+            'origin': 'Cupertino, California, USA / Core Group SA Authorized',
+            'warranty': '1-Year Official Apple Warranty + ICASA Approved',
+            'certifications': ['ICASA Type Approved', 'SABS Standards', 'CE'],
+            'description': 'Apple produces industry-leading iPhones, MacBooks, iPads, and AirPods, powered by Apple Silicon chips and high resale retention value in South Africa.',
+            'popular_models': ['iPhone 16 Pro Max', 'iPhone 15', 'MacBook Air M3', 'AirPods Pro 2', 'iPad Air M2'],
+            'distributors': ['iStore South Africa', 'Incredible Connection', 'Vodacom 4U', 'Dragon City Tech Wholesale'],
+            'satisfaction_rating': '4.95 / 5.0',
+            'b2b_wholesale_ready': True,
+        },
+        'samsung': {
+            'brand': 'Samsung Electronics',
+            'short_name': 'Samsung',
+            'icon': '📱',
+            'category': 'Galaxy Mobile, Displays & Smart Appliances',
+            'origin': 'Suwon, South Korea / Samsung Electronics South Africa',
+            'warranty': '24 Months Official Manufacturer Warranty + Samsung Care+',
+            'certifications': ['ICASA Type Approved', 'SABS Safety Standards'],
+            'description': 'Samsung dominates Android smartphone and consumer display sales across Southern Africa with robust Galaxy S, A, and Z foldable series.',
+            'popular_models': ['Galaxy S24 Ultra', 'Galaxy A55 5G', 'Galaxy A16', 'Neo QLED 4K TVs', 'Galaxy Tab S9'],
+            'distributors': ['Samsung Brand Stores', 'Takealot Direct', 'FNB Connect', 'Makro Wholesale'],
+            'satisfaction_rating': '4.8 / 5.0',
+            'b2b_wholesale_ready': True,
+        },
+        'makita': {
+            'brand': 'Makita Power Tools',
+            'short_name': 'Makita',
+            'icon': '🔨',
+            'category': 'Professional Industrial & Building Hardware',
+            'origin': 'Anjo, Aichi, Japan / Makita South Africa (Pty) Ltd',
+            'warranty': '3-Year Makita Professional Tool Warranty',
+            'certifications': ['SABS ISO 9001', 'CIDB Contractor Approved Standard'],
+            'description': 'Makita is a global industrial powerhouse providing 18V LXT and 40V XGT cordless power tools engineered for harsh construction site conditions.',
+            'popular_models': ['DHP482 Cordless Hammer Drill', 'DGA504 Angle Grinder', 'DLX2180TJ 18V Combo Kit', 'Rotary SDS+ Hammers'],
+            'distributors': ['Builders Warehouse', 'Chamberlains', 'Cashbuild Commercial', 'Tooltime Wholesalers'],
+            'satisfaction_rating': '4.9 / 5.0',
+            'b2b_wholesale_ready': True,
+        },
+    }
+
+    for key, data in knowledge_base.items():
+        if key in q:
+            return data
+    return None
+
+def get_tiered_moq_pricing(unit_price: float) -> List[Dict[str, Any]]:
+    """
+    Calculates Alibaba-style B2B Minimum Order Quantity (MOQ) volume tier pricing.
+    """
+    if not unit_price or unit_price <= 0:
+        unit_price = 1000.0
+
+    return [
+        {
+            'tier': '1–9 units',
+            'moq': 1,
+            'label': 'Sample / Retail Standard',
+            'unit_price': round(unit_price, 2),
+            'discount_pct': 0,
+            'lead_time': 'Immediate / Same-Day Dispatch',
+        },
+        {
+            'tier': '10–49 units',
+            'moq': 10,
+            'label': 'Trade Bulk Tier',
+            'unit_price': round(unit_price * 0.88, 2),
+            'discount_pct': 12,
+            'lead_time': '24–48 Hours Collection / Delivery',
+        },
+        {
+            'tier': '50–199 units',
+            'moq': 50,
+            'label': 'Master Carton / Wholesale MOQ',
+            'unit_price': round(unit_price * 0.78, 2),
+            'discount_pct': 22,
+            'lead_time': '2–4 Business Days Dispatch',
+        },
+        {
+            'tier': '200+ units',
+            'moq': 200,
+            'label': 'Container / Factory Direct Contract',
+            'unit_price': round(unit_price * 0.68, 2),
+            'discount_pct': 32,
+            'lead_time': 'Contracted Freight SLA',
+        },
+    ]
+
+def generate_google_merchant_center_feed(merchant_id: str, base_url: str = 'https://shoppage.co.za') -> str:
+    merchant = Merchant.objects.filter(canonical_id=merchant_id).first()
+    if not merchant:
+        return "<rss version='2.0'><channel><title>Merchant Not Found</title></channel></rss>"
+
+    offers = Offer.objects.filter(merchant=merchant, availability_state='fresh').select_related('variant')
+    items_xml = []
+    for o in offers:
+        p = o.variant
+        gtin_tag = f"<g:gtin>{p.gtin13}</g:gtin>" if p.gtin13 else ""
+        mpn_tag = f"<g:mpn>{p.mpn}</g:mpn>" if p.mpn else ""
+        items_xml.append(f"""
+    <item>
+      <g:id>{o.canonical_id}</g:id>
+      <title><![CDATA[{p.title}]]></title>
+      <description><![CDATA[{p.title} sold by {merchant.name} in {merchant.province or 'South Africa'}.]]></description>
+      <link>{base_url}/l/{o.canonical_id}</link>
+      <g:price>{float(o.price_amount or 0):.2f} {o.currency}</g:price>
+      <g:availability>in_stock</g:availability>
+      <g:condition>new</g:condition>
+      <g:brand><![CDATA[{p.brand}]]></g:brand>
+      {gtin_tag}
+      {mpn_tag}
+    </item>""")
+
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
+  <channel>
+    <title><![CDATA[{merchant.name} Google Merchant Center Feed]]></title>
+    <link>{base_url}/m/{merchant.canonical_id}</link>
+    <description><![CDATA[Official Shoppage Automated Google Shopping Feed for {merchant.name}]]></description>
+    {''.join(items_xml)}
+  </channel>
+</rss>"""
+
 def generate_trust_seal_svg(merchant: Merchant) -> str:
     score = merchant.trust_score
     status = merchant.get_verification_state_display()

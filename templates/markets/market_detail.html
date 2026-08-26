@@ -3,6 +3,10 @@
 
 {% block title %}{{ market.name }} — Stores, Offers &amp; Stalls | Shoppage{% endblock %}
 
+{% block structured_data %}
+<script type="application/ld+json">{{ jsonld|safe }}</script>
+{% endblock %}
+
 {% block content %}
 <div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
   <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">

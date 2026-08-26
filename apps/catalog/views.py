@@ -1,5 +1,9 @@
 from django.shortcuts import render, get_object_or_404
+from django.db.models import Q
 from .models import MasterProduct
+from apps.media_hub.models import Short
+from apps.core.seo import product_jsonld, jsonld_script
+from apps.intelligence.services import get_tiered_moq_pricing, get_brand_knowledge_card
 
 def calculate_backup_runtime(battery_kwh: float, load_watts: float):
     if load_watts <= 0:
@@ -19,15 +23,61 @@ def product_detail_view(request, canonical_id):
     confirmed_offers = list(product.offers.select_related('merchant', 'merchant__market').all())
     discovered_offers = list(product.discovered_offers.all())
 
-    # Battery runtime calculation if solar product
+    # Price stats calculation (Google Shopping Matrix)
+    all_prices = []
+    for o in confirmed_offers:
+        if o.price_amount:
+            all_prices.append(float(o.price_amount))
+    for do in discovered_offers:
+        if do.discovered_price_amount:
+            all_prices.append(float(do.discovered_price_amount))
+    if not all_prices and product.estimated_price_zar:
+        all_prices.append(float(product.estimated_price_zar))
+
+    min_price = min(all_prices) if all_prices else float(product.estimated_price_zar or 1000.0)
+    max_price = max(all_prices) if all_prices else min_price
+    avg_price = (sum(all_prices) / len(all_prices)) if all_prices else min_price
+    price_savings = max_price - min_price if max_price > min_price else 0
+
+    # Alibaba B2B Tiered Volume Pricing (MOQs)
+    moq_tiers = get_tiered_moq_pricing(min_price)
+
+    # Battery runtime calculation if solar/battery product
     runtime_450w = calculate_backup_runtime(5.12, 450)
     runtime_1200w = calculate_backup_runtime(5.12, 1200)
+
+    # Brand Knowledge Card
+    knowledge_card = get_brand_knowledge_card(product.brand or product.title)
+
+    # Linked YouTube Proof Shorts
+    linked_shorts = list(product.shorts.filter(moderation_state__in=['approved', 'APPROVED']))
+    if not linked_shorts:
+        linked_shorts = list(Short.objects.filter(
+            Q(title__icontains=product.brand) |
+            Q(product_title__icontains=product.brand) |
+            Q(summary__icontains=product.brand)
+        )[:3])
+
+    # Related / Competitive substitute products (Google Shopping Compare)
+    related_products = list(MasterProduct.objects.filter(
+        category_ref=product.category_ref
+    ).exclude(canonical_id=product.canonical_id).prefetch_related('offers')[:3])
 
     context = {
         'product': product,
         'confirmed_offers': confirmed_offers,
         'discovered_offers': discovered_offers,
+        'min_price': min_price,
+        'max_price': max_price,
+        'avg_price': avg_price,
+        'price_savings': price_savings,
+        'moq_tiers': moq_tiers,
         'runtime_450w': runtime_450w,
         'runtime_1200w': runtime_1200w,
+        'knowledge_card': knowledge_card,
+        'linked_shorts': linked_shorts,
+        'related_products': related_products,
+        'jsonld': jsonld_script(product_jsonld(product, confirmed_offers)),
     }
     return render(request, 'catalog/product_detail.html', context)
+

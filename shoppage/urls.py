@@ -7,7 +7,16 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-from apps.core.views import home_view, search_view, search_live_view, requests_view, agency_view
+from apps.core.views import (
+    home_view, search_view, search_live_view, requests_view, agency_view,
+    healthz_view, readyz_view,
+)
+from apps.core.seo import (
+    robots_txt_view,
+    sitemap_index_view,
+    static_sitemap_view,
+    _paged_sitemap,
+)
 from apps.referrals.views import universal_link_resolver
 from apps.catalog.views import product_detail_view
 from apps.markets.views import malls_directory_view, market_detail_view
@@ -64,6 +73,18 @@ urlpatterns = [
 
     # 9. Homepage
     path('', home_view, name='home'),
+
+    # 10. SEO & Crawler Surface (v8.2)
+    path('robots.txt', robots_txt_view, name='robots'),
+    path('sitemap.xml', sitemap_index_view, name='sitemap-index'),
+    path('sitemap-static.xml', static_sitemap_view, name='sitemap-static'),
+    path('sitemap-products-<int:page>.xml', _paged_sitemap('products', 0), name='sitemap-products'),
+    path('sitemap-merchants-<int:page>.xml', _paged_sitemap('merchants', 0), name='sitemap-merchants'),
+    path('sitemap-markets-<int:page>.xml', _paged_sitemap('markets', 0), name='sitemap-markets'),
+
+    # 11. Orchestration Probes (v8.2)
+    path('healthz/', healthz_view, name='healthz'),
+    path('readyz/', readyz_view, name='readyz'),
 ]
 
 if settings.DEBUG:

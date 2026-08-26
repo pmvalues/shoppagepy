@@ -5,6 +5,7 @@ from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 
 from apps.catalog.models import MasterProduct
 from apps.merchants.models import Merchant, Draft, AgentRun
@@ -34,6 +35,9 @@ class SearchAPIView(APIView):
     Public Search API Endpoint (/api/v1/search/)
     Executes semantic & keyword search across products and merchants.
     """
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'search'
+
     def get(self, request):
         query = request.GET.get('q', '')
         limit = int(request.GET.get('limit', 12))
@@ -88,6 +92,9 @@ class AssistantAPIView(APIView):
     """
     AI Commerce Assistant API (/api/assistant/)
     """
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'assistant'
+
     def post(self, request):
         message = request.data.get('message', '')
         if not message:

@@ -1,5 +1,10 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import Q
+from django.contrib import messages
 from .models import Show, Short
+from apps.catalog.models import MasterProduct
+from apps.merchants.models import Merchant
+from apps.markets.models import Market
 
 def shows_directory_view(request):
     category_filter = request.GET.get('category')
@@ -24,9 +29,46 @@ def show_detail_view(request, slug):
     return render(request, 'media_hub/show_detail.html', context)
 
 def shorts_directory_view(request):
-    shorts = Short.objects.filter(moderation_state='approved')
+    category = request.GET.get('category', '')
+    query = request.GET.get('q', '')
+
+    shorts_qs = Short.objects.filter(moderation_state='approved').select_related('master_product', 'merchant', 'market')
+    if query:
+        shorts_qs = shorts_qs.filter(
+            Q(title__icontains=query) |
+            Q(product_title__icontains=query) |
+            Q(summary__icontains=query)
+        )
+
+    # Handle short submission from creator studio
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        video_url = request.POST.get('video_url')
+        merchant_name = request.POST.get('merchant_name', 'Verified Creator')
+        whatsapp = request.POST.get('whatsapp')
+        product_id = request.POST.get('product_id')
+        
+        product = MasterProduct.objects.filter(canonical_id=product_id).first() if product_id else None
+        
+        canonical_id = f"sh_{title.lower().replace(' ', '_')[:20]}"
+        Short.objects.create(
+            canonical_id=canonical_id,
+            title=title,
+            video_url=video_url or "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+            thumbnail_url="https://images.unsplash.com/photo-1508873696983-2df57046475a",
+            merchant_name=merchant_name,
+            merchant_whatsapp=whatsapp,
+            master_product=product,
+            moderation_state='approved',
+        )
+        messages.success(request, f"Proof short '{title}' published successfully!")
+        return redirect('/shorts')
 
     context = {
-        'shorts': shorts,
+        'shorts': list(shorts_qs),
+        'selected_category': category,
+        'query': query,
+        'all_products': list(MasterProduct.objects.all()[:20]),
     }
     return render(request, 'media_hub/shorts_page.html', context)
+

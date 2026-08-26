@@ -530,3 +530,51 @@ a {
   font-size: 0.85rem;
   outline: none;
 }
+
+/* Competitive Multi-Modal Navigation Tabs (Google / Alibaba / YouTube) */
+.subnav-tab {
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  color: #475569;
+}
+.subnav-tab:hover {
+  background: #E2E8F0;
+  color: #0F172A;
+}
+.subnav-tab.active-tab {
+  background: #0F172A;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+/* Mode Switchers (Retail Matrix vs Alibaba B2B Wholesale) */
+.mode-active {
+  background: #FFFFFF;
+  color: #0F172A;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.mode-active-b2b {
+  background: #D97706;
+  color: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.mode-inactive {
+  background: transparent;
+  color: #64748B;
+}
+
+/* Voice Search Animation */
+@keyframes voice-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { transform: scale(1.15); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+.voice-listening {
+  animation: voice-pulse 1.2s infinite;
+  background: #FEE2E2 !important;
+  border-radius: 50%;
+}
+

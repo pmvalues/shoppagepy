@@ -1,0 +1,29 @@
+{
+  "name": "Shoppage — South Africa Commerce Grid",
+  "short_name": "Shoppage",
+  "description": "Evidence-backed product discovery and local commerce intelligence across South Africa.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#0F172A",
+  "lang": "en-ZA",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Search", "url": "/search/" },
+    { "name": "Malls", "url": "/malls/" },
+    { "name": "Stores", "url": "/merchants/" }
+  ]
+}

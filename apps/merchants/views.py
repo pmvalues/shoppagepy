@@ -5,6 +5,7 @@ from .models import Merchant, Draft, AgentRun
 from apps.markets.models import Market
 from apps.catalog.models import MasterProduct
 from apps.offers.models import Offer
+from apps.core.seo import merchant_jsonld, jsonld_script
 from apps.referrals.models import ReferralEvent
 
 def merchant_list_view(request):
@@ -45,6 +46,7 @@ def merchant_detail_view(request, canonical_id):
     context = {
         'merchant': merchant,
         'offers': offers,
+        'jsonld': jsonld_script(merchant_jsonld(merchant)),
     }
     return render(request, 'merchants/merchant_detail.html', context)
 
