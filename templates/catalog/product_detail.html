@@ -335,12 +335,14 @@
   </section>
   {% endif %}
 
-  <!-- 1. GOOGLE SHOPPING MULTI-SELLER COMPARISON MATRIX -->
+  <!-- GOOGLE SHOPPING MULTI-SELLER COMPARISON MATRIX (Confirmed + Discovered) -->
   <section id="confirmed-offers-section" style="margin-bottom: 3rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
       <div>
-        <span class="badge badge-green">🛍️ Multi-Seller Comparison Matrix</span>
-        <h2 class="section-title" style="margin-top: 0.25rem;">Verified South African Merchants Stocking This Item</h2>
+        <span class="badge badge-green">🛍️ Multi-Store Comparison Matrix</span>
+        <h2 class="section-title" style="margin-top: 0.25rem;">
+          Verified South African Stockists &amp; Discovered Retailers
+        </h2>
       </div>
       <a
         href="/merchant/claim?variantId={{ product.canonical_id }}&title={{ product.title|urlencode }}"
@@ -351,60 +353,107 @@
       </a>
     </div>
 
-    {% if confirmed_offers %}
-    <div style="display: flex; flex-direction: column; gap: 1rem;">
+    <!-- Offers List -->
+    <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+      <!-- 1. Confirmed Offers (WhatsApp Direct) -->
       {% for offer in confirmed_offers %}
-      <div class="card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; background: #FFFFFF; border: 1px solid #10B981; border-left: 5px solid #10B981;">
+      <div class="card card-hover" style="display: grid; grid-template-columns: 1fr 180px 170px; gap: 1rem; align-items: center; background: #FFFFFF; border: 1px solid #10B981; border-left: 5px solid #10B981; border-radius: 12px; padding: 1.25rem;">
         <div>
-          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
-            <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0;">
-              <a href="/m/{{ offer.merchant.canonical_id }}">{{ offer.merchant.name }}</a>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; flex-wrap: wrap;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: #0F172A; margin: 0;">
+              <a href="/m/{{ offer.merchant.canonical_id }}" style="color: #0F172A; text-decoration: none;">{{ offer.merchant.name }}</a>
             </h3>
             <span class="badge badge-green">✓ Stock Confirmed</span>
             <span class="badge badge-blue">Trust: {{ offer.merchant.trust_score }}/100</span>
           </div>
-
-          <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0.25rem 0;">
-            📍 {{ offer.merchant.address_text }} · <strong>{{ offer.stall_ref|default:"Direct Storefront" }}</strong>
+          <p style="color: #64748B; font-size: 0.825rem; margin: 0.2rem 0;">
+            📍 {{ offer.merchant.address_text|default:"Major South African Commercial Corridor" }} · <strong>{{ offer.stall_ref|default:"Direct Storefront" }}</strong>
           </p>
-
-          <p style="color: var(--text-muted); font-size: 0.75rem; margin: 0;">
-            ⚡ Fast SLA: Responds in ~{{ offer.merchant.median_response_minutes }}m · In-store collection or courier delivery available
+          <p style="color: #059669; font-size: 0.75rem; font-weight: 600; margin: 0;">
+            ⚡ Fast SLA: Responds in ~{{ offer.merchant.median_response_minutes|default:5 }}m · Same-day walk-in collection or courier delivery
           </p>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
-          <div style="text-align: right;">
-            <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-green);">
-              R {{ offer.price_amount|floatformat:0|intcomma }}
-            </div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">
-              Confirmed Live
-            </div>
+        <div style="text-align: right;">
+          <div style="font-family: var(--font-display); font-size: 1.45rem; font-weight: 900; color: #059669;">
+            R {{ offer.price_amount|floatformat:0|intcomma }}
           </div>
+          <div style="font-size: 0.725rem; color: #10B981; font-weight: 700;">
+            ● Confirmed Live Price
+          </div>
+        </div>
 
+        <div>
           <a
             href="/l/{{ offer.canonical_id }}"
             class="btn btn-whatsapp"
             target="_blank"
-            style="padding: 0.6rem 1.25rem; font-weight: 700; font-size: 0.9rem;"
+            style="width: 100%; padding: 0.55rem 0.85rem; font-weight: 700; font-size: 0.85rem; text-align: center; border-radius: 8px; justify-content: center;"
           >
-            💬 WhatsApp Merchant
+            💬 WhatsApp
           </a>
         </div>
       </div>
       {% endfor %}
+
+      <!-- 2. Discovered Offers (Major Retailers: Takealot, Solar Advice, Builders, etc.) -->
+      {% for disc in discovered_offers %}
+      <div class="card card-hover" style="display: grid; grid-template-columns: 1fr 180px 170px; gap: 1rem; align-items: center; background: #FFFFFF; border: 1px solid #E2E8F0; border-left: 5px solid #2563EB; border-radius: 12px; padding: 1.25rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; flex-wrap: wrap;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: #0F172A; margin: 0;">
+              {% if disc.merchant %}
+              <a href="/m/{{ disc.merchant.canonical_id }}" style="color: #0F172A; text-decoration: none;">{{ disc.merchant_name }}</a>
+              {% else %}
+              {{ disc.merchant_name }}
+              {% endif %}
+            </h3>
+            <span class="badge badge-blue">🌐 Discovered Web Feed</span>
+            <span class="badge badge-purple">{{ disc.source_website }}</span>
+          </div>
+          <p style="color: #64748B; font-size: 0.825rem; margin: 0.2rem 0;">
+            📍 {{ disc.location_hint|default:"Online Store & Nationwide Delivery" }}
+            {% if disc.sku %} · SKU: <code style="font-size: 0.75rem; background: #F1F5F9; padding: 1px 4px; border-radius: 3px;">{{ disc.sku }}</code>{% endif %}
+          </p>
+          <p style="color: #475569; font-size: 0.75rem; margin: 0;">
+            📦 {{ disc.availability_text|default:"In Stock" }} · Discovered via automated retailer sweep
+          </p>
+        </div>
+
+        <div style="text-align: right;">
+          <div style="font-family: var(--font-display); font-size: 1.45rem; font-weight: 900; color: #0F172A;">
+            R {{ disc.discovered_price_amount|floatformat:0|intcomma }}
+          </div>
+          <div style="font-size: 0.725rem; color: #64748B;">
+            Web Discovered Rate
+          </div>
+        </div>
+
+        <div>
+          <a
+            href="{{ disc.source_url }}"
+            class="btn btn-outline"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="width: 100%; padding: 0.55rem 0.85rem; font-weight: 700; font-size: 0.85rem; text-align: center; border-radius: 8px; justify-content: center;"
+          >
+            View on {{ disc.source_website|truncatechars:14 }} &nearr;
+          </a>
+        </div>
+      </div>
+      {% empty %}
+        {% if not confirmed_offers %}
+        <div class="card" style="background: #F8FAFC; padding: 1.5rem; text-align: center;">
+          <p style="color: #64748B; margin-bottom: 0.75rem;">
+            No local store has confirmed direct stock on WhatsApp yet. Claim this listing or explore discovered external web feeds.
+          </p>
+          <a href="/merchant/claim?variantId={{ product.canonical_id }}&title={{ product.title|urlencode }}" class="btn btn-whatsapp" style="font-size: 0.85rem;">
+            + List as First Verified Stockist
+          </a>
+        </div>
+        {% endif %}
+      {% endfor %}
     </div>
-    {% else %}
-    <div class="card" style="background: #F8FAFC; padding: 1.5rem; text-align: center;">
-      <p style="color: #64748B; margin-bottom: 0.75rem;">
-        No local store has confirmed direct stock on WhatsApp yet. Claim this listing or explore discovered external web feeds.
-      </p>
-      <a href="/merchant/claim?variantId={{ product.canonical_id }}&title={{ product.title|urlencode }}" class="btn btn-whatsapp" style="font-size: 0.85rem;">
-        + List as First Verified Stockist
-      </a>
-    </div>
-    {% endif %}
   </section>
 
   <!-- 3. YOUTUBE SHORTS LINKED PROOF TEARDOWNS -->

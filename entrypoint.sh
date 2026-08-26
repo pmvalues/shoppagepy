@@ -38,6 +38,12 @@ python manage.py seed_shoppage_flagships || true
 echo "==> Seeding all 3,296 Shopping Centres, Wholesale Hubs & Taxi Ranks..."
 python manage.py seed_all_malls_and_markets || true
 
+echo "==> Sweeping Major South African Retailers (Takealot, Makro, Builders, etc.)..."
+python manage.py sweep_major_retailers || true
+
+echo "==> Sweeping Live Registered Merchants & Discovered Products..."
+python manage.py sweep_live_merchants --limit 5000 || true
+
 echo "==> Rebuilding FTS Index if supported..."
 python manage.py rebuild_catalog_fts || true
 
