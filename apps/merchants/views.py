@@ -59,14 +59,20 @@ def merchant_detail_view(request, canonical_id):
     
     # Store proof video shorts
     from apps.media_hub.models import Short
-    store_shorts = list(Short.objects.filter(
-        merchant=merchant, moderation_state__in=['approved', 'APPROVED']
-    ))
-    if not store_shorts:
+    store_shorts = []
+    try:
         store_shorts = list(Short.objects.filter(
-            Q(title__icontains=merchant.name.split()[0]) |
-            Q(merchant_name__icontains=merchant.name.split()[0])
-        )[:2])
+            merchant=merchant, moderation_state__in=['approved', 'APPROVED']
+        ))
+        if not store_shorts and merchant.name:
+            first_word = merchant.name.split()[0].strip()
+            if len(first_word) > 2:
+                store_shorts = list(Short.objects.filter(
+                    Q(title__icontains=first_word) |
+                    Q(merchant_name__icontains=first_word)
+                )[:2])
+    except Exception:
+        store_shorts = []
 
     # Store inventory categories for navigation
     categories = set()
