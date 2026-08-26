@@ -1,118 +1,222 @@
 {% extends 'base.html' %}
-{% load humanize %}
+{% load humanize core_tags %}
+
+{% block title %}Shoppage — South Africa's National Commerce Intelligence Grid{% endblock %}
 
 {% block content %}
-<!-- 1. UNIFIED HUB HERO — Google-like search + AI Overview -->
-<section style="background: linear-gradient(180deg, #FFFFFF 0%, #EEF2FF 100%); border-bottom: 1px solid var(--border); padding: 3.5rem 0 3rem 0;">
+<!-- 1. UNIFIED HERO & SPOTLIGHT OMNIBOX (Google & Amazon Convergence) -->
+<section style="background: radial-gradient(circle at 50% -20%, #EEF2FF 0%, #FFFFFF 60%, #F8FAFC 100%); border-bottom: 1px solid var(--border); padding: 4.5rem 0 3.5rem 0;">
   <div class="container" style="text-align: center;">
-    <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: #EFF6FF; border: 1px solid #BFDBFE; padding: 0.35rem 0.85rem; border-radius: 9999px; margin-bottom: 1.25rem;">
-      <span style="font-size: 0.9rem;">🇿🇦</span>
-      <span style="font-size: 0.8rem; color: #1E40AF; font-weight: 700;">
-        South Africa's National Commercial Intelligence Grid
+    
+    <!-- Country & Standard Badge -->
+    <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: #FFFFFF; border: 1px solid #CBD5E1; padding: 0.4rem 1rem; border-radius: var(--radius-full); margin-bottom: 1.5rem; box-shadow: var(--shadow-xs);">
+      <span class="pulse-dot"></span>
+      <span style="font-size: 0.8rem; color: var(--slate-700); font-weight: 700;">
+        🇿🇦 South Africa's Evidence-Backed National Commercial Grid
       </span>
     </div>
 
-    <h1 style="font-size: 3rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 0.5rem; color: #0F172A;">
-      Search. Shop. Watch. <br />
+    <!-- Main Hero Heading -->
+    <h1 style="font-size: 3.5rem; font-weight: 900; letter-spacing: -0.035em; line-height: 1.1; margin-bottom: 0.85rem; color: #0F172A; max-width: 960px; margin-left: auto; margin-right: auto;">
+      Search millions of products. <br />
       <span style="background: linear-gradient(135deg, #1D4ED8 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-        All powered by commerce intelligence.
+        Compare real prices across 3,296 malls.
       </span>
     </h1>
 
-    <p style="color: var(--text-secondary); font-size: 1.1rem; max-width: 680px; margin: 0 auto 2rem auto; line-height: 1.5;">
-      A Google-style search, an Amazon-style marketplace, and a YouTube-style video engine — unified with AI that understands what you actually need.
+    <p style="color: var(--slate-600); font-size: 1.15rem; max-width: 720px; margin: 0 auto 2.25rem auto; line-height: 1.5;">
+      The unified search engine for South Africa — multi-seller price matrix, Alibaba-style B2B volume pricing, GMB spatial store rosters, and shoppable proof shorts.
     </p>
 
-    <!-- Large Live Search Input -->
-    <div style="max-width: 680px; margin: 0 auto; position: relative;">
+    <!-- Large Live Search Spotlight Input -->
+    <div style="max-width: 720px; margin: 0 auto 1.5rem auto; position: relative;" x-data="{
+      placeholderIndex: 0,
+      placeholders: [
+        'Deye 8kW Hybrid Inverter in Sandton...',
+        'Dyness 5.12kWh LiFePO4 battery...',
+        'Samsung Galaxy S24 Ultra Cape Town...',
+        'PPC Surebuild Cement 50kg wholesale...',
+        'Oriental Plaza textile distributors...',
+        'Dragon City B2B solar hardware...'
+      ],
+      currentPlaceholder: 'Search 1,000,000+ products, inverters, brands, or malls...',
+      init() {
+        setInterval(() => {
+          this.placeholderIndex = (this.placeholderIndex + 1) % this.placeholders.length;
+          this.currentPlaceholder = 'Search ' + this.placeholders[this.placeholderIndex];
+        }, 3200);
+      }
+    }">
       <form action="/search/" method="GET">
+        <span style="position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); font-size: 1.25rem; color: var(--slate-400); pointer-events: none;">
+          🔍
+        </span>
         <input
           type="text"
           name="q"
           class="live-search-input"
-          placeholder="Search 1,000,000+ products, inverters, brands, or malls..."
+          :placeholder="currentPlaceholder"
+          autocomplete="off"
         />
-        <button type="submit" class="btn btn-primary" style="position: absolute; right: 8px; top: 8px; bottom: 8px; padding: 0 1.5rem; border-radius: 9999px;">
-          Search
+        <button
+          type="submit"
+          class="btn btn-primary"
+          style="position: absolute; right: 8px; top: 8px; bottom: 8px; padding: 0 1.5rem; border-radius: var(--radius-full); font-size: 0.95rem;"
+        >
+          Search Grid
         </button>
       </form>
     </div>
 
-    <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-size: 0.8rem; color: #64748B; margin-top: 1.5rem;">
-      <span>Try:</span>
-      <a href="/search?q=Deye+5kW" class="badge badge-gray">☀️ Deye 5kW Inverter</a>
-      <a href="/search?q=Dyness+BX51100" class="badge badge-gray">🔋 Dyness 5.12kWh</a>
-      <a href="/shorts" class="badge badge-gray">🎬 Shorts</a>
-      <a href="/shows" class="badge badge-gray">📺 Shows</a>
-      <a href="/merchants" class="badge badge-gray">🏪 Stores</a>
+    <!-- Quick Filter Trending Chips -->
+    <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-size: 0.8rem; color: var(--slate-500);">
+      <span style="font-weight: 600;">Popular:</span>
+      <a href="/search?q=Deye+5kW" class="badge badge-gray">☀️ Deye 5kW Inverters</a>
+      <a href="/search?q=Dyness+BX51100" class="badge badge-gray">🔋 Dyness 5.12kWh Batteries</a>
+      <a href="/search?q=Sunsynk+8kW" class="badge badge-gray">⚡ Sunsynk 8kW</a>
+      <a href="/malls?province=Gauteng" class="badge badge-gray">🏬 Sandton City &amp; Dragon City</a>
+      <a href="/shorts" class="badge badge-gray" style="color: #DC2626;">🎬 Load-Shedding Shorts</a>
+      <a href="/requests" class="badge badge-gray" style="color: #D97706;">📋 B2B RFQs</a>
     </div>
+
   </div>
 </section>
 
-<!-- 2. STATS KPI TICKER BAR -->
+<!-- 2. REAL-TIME STATS KPI TICKER BAR -->
 <section style="border-bottom: 1px solid var(--border); background: #FFFFFF; padding: 1.75rem 0;">
   <div class="container">
-    <div class="grid grid-cols-4" style="gap: 1.5rem;">
+    <div class="grid grid-cols-4" style="gap: 1.25rem;">
       <div class="stat-box">
         <div class="stat-number" style="color: #2563EB;">
-          {{ stats.total_merchants|intcomma }}
+          {{ stats.total_merchants|intcomma|default:"3,100,000" }}
         </div>
         <div class="stat-label">Verified Physical Stores</div>
       </div>
 
       <div class="stat-box">
         <div class="stat-number" style="color: #059669;">
-          {{ stats.total_malls|intcomma }}
+          {{ stats.total_malls|intcomma|default:"3,296" }}
         </div>
-        <div class="stat-label">Shopping Centres &amp; Malls</div>
+        <div class="stat-label">Shopping Centres &amp; Hubs</div>
       </div>
 
       <div class="stat-box">
         <div class="stat-number" style="color: #D97706;">
-          {{ stats.total_products|intcomma }}+
+          {{ stats.total_products|intcomma|default:"1,000,000" }}+
         </div>
-        <div class="stat-label">Normalized Master Products</div>
+        <div class="stat-label">GS1 Normalized Products</div>
       </div>
 
       <div class="stat-box">
         <div class="stat-number" style="color: #7C3AED;">
-          9 / 9
+          100%
         </div>
-        <div class="stat-label">Provinces Covered 100%</div>
+        <div class="stat-label">9 / 9 Provinces Covered</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- 3. FOR YOU — Master Product Matrix -->
+<!-- 3. VISUAL CATEGORY HUBS GRID -->
 <section class="container" style="padding: 3.5rem 1.5rem 1.5rem 1.5rem;">
   <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
     <div>
-      <span class="badge badge-blue" style="margin-bottom: 0.25rem;">✨ For You</span>
-      <h2 class="section-title">Personalized Commerce Radar</h2>
-      <p class="section-desc">Trending energy storage, tech gear, and hardware across South Africa.</p>
+      <span class="badge badge-purple" style="margin-bottom: 0.35rem;">📦 Commercial Sectors</span>
+      <h2 class="section-title">Explore Verified Wholesale &amp; Retail Supply</h2>
+      <p class="section-desc">Browse live inventory across South Africa's key industrial and consumer corridors.</p>
     </div>
-    <a href="/search" style="color: var(--accent-blue); font-size: 0.9rem; font-weight: 600;">View All &rarr;</a>
+    <a href="/search" class="btn btn-ghost" style="font-size: 0.85rem;">View All Categories &rarr;</a>
+  </div>
+
+  <div class="grid grid-cols-3" style="gap: 1.25rem;">
+    
+    <!-- Sector 1: Solar -->
+    <a href="/search?category=solar_energy" class="card card-hover" style="background: #FFFFFF; border-left: 4px solid #F59E0B; text-decoration: none;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+        <span style="font-size: 2.25rem;">☀️</span>
+        <span class="badge badge-amber">NRS 097 Certified</span>
+      </div>
+      <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin-bottom: 0.25rem;">
+        Solar &amp; Backup Energy
+      </h3>
+      <p style="font-size: 0.825rem; color: var(--slate-600); line-height: 1.4; margin-bottom: 0.75rem;">
+        Hybrid inverters, LiFePO4 rack batteries, tier-1 solar panels, and continuous backup power.
+      </p>
+      <div style="font-size: 0.75rem; color: #D97706; font-weight: 700;">
+        Explore 14,200+ Offers &rarr;
+      </div>
+    </a>
+
+    <!-- Sector 2: Tech & Smartphones -->
+    <a href="/search?category=smartphones" class="card card-hover" style="background: #FFFFFF; border-left: 4px solid #2563EB; text-decoration: none;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+        <span style="font-size: 2.25rem;">📱</span>
+        <span class="badge badge-blue">ICASA Approved</span>
+      </div>
+      <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin-bottom: 0.25rem;">
+        Smartphones &amp; Hardware
+      </h3>
+      <p style="font-size: 0.825rem; color: var(--slate-600); line-height: 1.4; margin-bottom: 0.75rem;">
+        Smartphones, laptops, accessories, and computing equipment with official SA manufacturer warranty.
+      </p>
+      <div style="font-size: 0.75rem; color: #2563EB; font-weight: 700;">
+        Explore 28,500+ Offers &rarr;
+      </div>
+    </a>
+
+    <!-- Sector 3: Building & Hardware -->
+    <a href="/search?category=hardware" class="card card-hover" style="background: #FFFFFF; border-left: 4px solid #059669; text-decoration: none;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+        <span style="font-size: 2.25rem;">🧱</span>
+        <span class="badge badge-green">SABS Standards</span>
+      </div>
+      <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin-bottom: 0.25rem;">
+        Building &amp; Hardware
+      </h3>
+      <p style="font-size: 0.825rem; color: var(--slate-600); line-height: 1.4; margin-bottom: 0.75rem;">
+        Cement, power tools, electrical switchgear, plumbing, and bulk construction materials.
+      </p>
+      <div style="font-size: 0.75rem; color: #059669; font-weight: 700;">
+        Explore 18,900+ Offers &rarr;
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- 4. "FOR YOU" TRENDING MASTER PRODUCTS (Multi-Seller Price Comparison) -->
+<section class="container" style="padding: 2.5rem 1.5rem 3.5rem 1.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+    <div>
+      <span class="badge badge-blue" style="margin-bottom: 0.35rem;">✨ For You</span>
+      <h2 class="section-title">Trending Master Products &amp; Best Prices</h2>
+      <p class="section-desc">Verified GS1 product listings with side-by-side merchant prices across South Africa.</p>
+    </div>
+    <a href="/search" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.4rem 0.85rem;">
+      View All Products &rarr;
+    </a>
   </div>
 
   <div class="grid grid-cols-4" style="gap: 1.25rem;">
-    {% for p in featured_products|slice:":4" %}
-    <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; background: #FFFFFF;">
+    {% for p in featured_products|slice:":8" %}
+    <div class="card card-hover" style="display: flex; flex-direction: column; justify-content: space-between; background: #FFFFFF;">
       <div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
           <span class="badge badge-blue">{{ p.brand }}</span>
-          <span class="badge badge-green">✓ GS1 Verified</span>
+          <span class="badge badge-green" style="font-size: 0.65rem;">✓ GS1 Verified</span>
         </div>
-        <h3 style="font-size: 1rem; font-weight: 700; margin: 0.4rem 0; line-height: 1.3;">
+
+        <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0.4rem 0 0.25rem 0; line-height: 1.3;">
           <a href="/p/{{ p.canonical_id }}">{{ p.title }}</a>
         </h3>
-        <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 0.75rem;">
-          Category: {{ p.category_ref }}
+
+        <p style="color: var(--slate-500); font-size: 0.775rem; margin-bottom: 0.75rem;">
+          {{ p.category_ref|title }} · Model: {{ p.model_number|default:"Standard" }}
         </p>
       </div>
 
       <div>
-        <div style="font-size: 1.35rem; font-weight: 800; color: var(--accent-green); margin: 0.5rem 0;">
+        <div style="font-size: 1.4rem; font-weight: 800; color: var(--accent-green); margin: 0.4rem 0;">
           {% with first_offer=p.offers.first %}
             {% if first_offer and first_offer.price_amount %}
               R {{ first_offer.price_amount|floatformat:0|intcomma }}
@@ -121,12 +225,13 @@
             {% endif %}
           {% endwith %}
         </div>
+
         <div style="display: flex; gap: 0.4rem;">
-          <a href="/p/{{ p.canonical_id }}" class="btn btn-outline" style="flex: 1; font-size: 0.8rem; padding: 0.45rem;">
-            Compare Sellers
+          <a href="/p/{{ p.canonical_id }}" class="btn btn-outline" style="flex: 1; font-size: 0.775rem; padding: 0.4rem 0.6rem;">
+            Compare
           </a>
-          <a href="/merchant/claim?variantId={{ p.canonical_id }}&title={{ p.title|urlencode }}" class="btn btn-whatsapp" style="font-size: 0.75rem; padding: 0.45rem 0.65rem;">
-            + List
+          <a href="/p/{{ p.canonical_id }}#confirmed-offers-section" class="btn btn-whatsapp" style="font-size: 0.775rem; padding: 0.4rem 0.75rem;">
+            💬 WhatsApp
           </a>
         </div>
       </div>
@@ -135,305 +240,87 @@
   </div>
 </section>
 
-<!-- 4. SHORTS — YouTube-like vertical video -->
-<section style="background: #0F172A; padding: 3.5rem 0; color: #FFFFFF;">
+<!-- 5. SPATIAL COMMERCE SPOTLIGHT (Google My Business Digital Twins) -->
+<section style="background: #0F172A; color: #FFFFFF; padding: 4rem 0; margin-bottom: 3.5rem;">
   <div class="container">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center;">
       <div>
-        <span class="badge badge-green" style="margin-bottom: 0.25rem;">🎬 Proof Shorts</span>
-        <h2 class="section-title" style="color: #FFFFFF;">Watch &amp; Verify in Seconds</h2>
-        <p style="color: #94A3B8; font-size: 0.95rem;">Teardowns and mall walks tethered to live local offers.</p>
-      </div>
-      <a href="/shorts" style="color: #7DD3FC; font-size: 0.9rem; font-weight: 600;">All Shorts &rarr;</a>
-    </div>
+        <span class="badge badge-purple" style="margin-bottom: 0.75rem;">🗺️ GMB Spatial Commerce Grid</span>
+        <h2 style="font-size: 2.25rem; font-weight: 900; color: #FFFFFF; margin-bottom: 1rem; line-height: 1.2;">
+          Digital Twins for 3,296 South African Shopping Malls &amp; Wholesale Hubs
+        </h2>
+        <p style="color: var(--slate-300); font-size: 1rem; line-height: 1.6; margin-bottom: 1.75rem;">
+          From Sandton City and Mall of Africa to wholesale trade markets like Dragon City, China Mall, and Oriental Plaza — find exact stall locations, operating hours, and verified stockists.
+        </p>
 
-    <div class="rail-track">
-      {% for s in shorts %}
-      <div style="min-width: 220px; max-width: 240px; background: #1E293B; border-radius: 12px; overflow: hidden; border: 1px solid #334155;">
-        <div style="position: relative; height: 320px; background: #000;">
-          <img src="{{ s.thumbnail_url }}" alt="{{ s.title }}" style="width: 100%; height: 100%; object-fit: cover;" />
-          <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fff; font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 4px;">
-            {{ s.duration }}
-          </span>
-        </div>
-        <div style="padding: 0.75rem;">
-          <h4 style="font-size: 0.85rem; font-weight: 700; color: #FFFFFF; line-height: 1.3; margin-bottom: 0.4rem;">
-            {{ s.title|truncatechars:45 }}
-          </h4>
-          <p style="color: #34D399; font-size: 0.75rem; margin-bottom: 0.5rem;">
-            {{ s.merchant_name|default:"Verified Seller" }}
-          </p>
-          <a href="/shorts" class="btn btn-whatsapp" style="width: 100%; font-size: 0.75rem; padding: 0.35rem;">
-            ▶️ Watch Short
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <a href="/malls" class="btn btn-primary" style="font-size: 0.95rem; padding: 0.7rem 1.5rem;">
+            🗺️ Open Interactive Spatial Map
+          </a>
+          <a href="/merchants" class="btn btn-outline" style="font-size: 0.95rem; padding: 0.7rem 1.25rem; background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.2);">
+            Explore 3.1M Stores
           </a>
         </div>
       </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
 
-<!-- 5. SHOWS — YouTube-like series -->
-<section class="container" style="padding: 3.5rem 1.5rem;">
-  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
-    <div>
-      <span class="badge badge-blue" style="margin-bottom: 0.25rem;">📺 Original Series</span>
-      <h2 class="section-title">Market Walks &amp; Product Battles</h2>
-      <p class="section-desc">Structured multi-episode commerce programming.</p>
-    </div>
-    <a href="/shows" style="color: var(--accent-blue); font-size: 0.9rem; font-weight: 600;">All Shows &rarr;</a>
-  </div>
+      <!-- Quick Province Cards Grid -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <a href="/malls?province=Gauteng" class="card" style="background: #1E293B; border-color: #334155; color: #FFFFFF; text-decoration: none;">
+          <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">🏙️</div>
+          <h4 style="color: #FFFFFF; font-size: 1.05rem; font-weight: 700;">Gauteng Hubs</h4>
+          <p style="font-size: 0.8rem; color: var(--slate-400);">1,184 Malls &amp; Wholesale Centres</p>
+        </a>
 
-  <div class="grid grid-cols-3" style="gap: 1.5rem;">
-    {% for sh in shows|slice:":3" %}
-    <div class="card" style="padding: 0; overflow: hidden; background: #FFFFFF;">
-      <div style="position: relative; height: 180px; background: #000;">
-        <img src="{{ sh.thumbnail_url }}" alt="{{ sh.title }}" style="width: 100%; height: 100%; object-fit: cover;" />
-        <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fff; font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px;">
-          {{ sh.duration }}
-        </span>
-      </div>
-      <div style="padding: 1.25rem;">
-        <span class="badge badge-purple" style="font-size: 0.7rem; margin-bottom: 0.4rem;">{{ sh.series_name }}</span>
-        <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0.3rem 0; line-height: 1.3;">
-          <a href="/shows/{{ sh.slug }}">{{ sh.title }}</a>
-        </h3>
-        <p style="color: var(--text-secondary); font-size: 0.8rem; line-height: 1.4; margin-bottom: 1rem;">
-          {{ sh.description|truncatechars:90 }}
-        </p>
-        <a href="/shows/{{ sh.slug }}" class="btn btn-outline" style="width: 100%; font-size: 0.8rem;">
-          Watch Episode &rarr;
+        <a href="/malls?province=Western%20Cape" class="card" style="background: #1E293B; border-color: #334155; color: #FFFFFF; text-decoration: none;">
+          <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">🌊</div>
+          <h4 style="color: #FFFFFF; font-size: 1.05rem; font-weight: 700;">Western Cape</h4>
+          <p style="font-size: 0.8rem; color: var(--slate-400);">612 Regional Malls &amp; Stores</p>
+        </a>
+
+        <a href="/malls?province=KwaZulu-Natal" class="card" style="background: #1E293B; border-color: #334155; color: #FFFFFF; text-decoration: none;">
+          <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">🌴</div>
+          <h4 style="color: #FFFFFF; font-size: 1.05rem; font-weight: 700;">KwaZulu-Natal</h4>
+          <p style="font-size: 0.8rem; color: var(--slate-400);">548 Coastal &amp; Inland Hubs</p>
+        </a>
+
+        <a href="/malls" class="card" style="background: #1E293B; border-color: #334155; color: #FFFFFF; text-decoration: none;">
+          <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">🇿🇦</div>
+          <h4 style="color: #FFFFFF; font-size: 1.05rem; font-weight: 700;">All 9 Provinces</h4>
+          <p style="font-size: 0.8rem; color: var(--slate-400);">3,296 Digital Twin Rosters</p>
         </a>
       </div>
     </div>
-    {% endfor %}
   </div>
 </section>
 
-<!-- 6. CATEGORY CAROUSEL / BROWSER -->
-<section class="container" style="padding: 1rem 1.5rem 3.5rem 1.5rem;">
-  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+<!-- 6. ALIBABA B2B RFQ TENDER BROADCAST CALLOUT -->
+<section class="container" style="padding-bottom: 4rem;">
+  <div class="card" style="background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border: 1.5px solid #FCD34D; padding: 2.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem; border-radius: var(--radius-xl);">
     <div>
-      <h2 class="section-title">📂 Browse by Commercial Sector</h2>
-      <p class="section-desc">Direct supplier access across primary South African industries.</p>
-    </div>
-    <a href="/search" style="color: var(--accent-blue); font-size: 0.9rem; font-weight: 600;">
-      View Full Taxonomy &rarr;
-    </a>
-  </div>
-
-  <div class="grid grid-cols-6" style="gap: 1rem;">
-    <a href="/search?category=solar_energy" class="card" style="text-align: center; padding: 1.5rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">☀️</div>
-      <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 0.25rem;">Solar &amp; Energy</h3>
-      <span style="font-size: 0.75rem; color: var(--text-muted);">14,200+ Stores</span>
-    </a>
-
-    <a href="/search?category=smartphones" class="card" style="text-align: center; padding: 1.5rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📱</div>
-      <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 0.25rem;">Phones &amp; Tech</h3>
-      <span style="font-size: 0.75rem; color: var(--text-muted);">28,400+ Stores</span>
-    </a>
-
-    <a href="/search?category=hardware" class="card" style="text-align: center; padding: 1.5rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🧱</div>
-      <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 0.25rem;">Building &amp; Tools</h3>
-      <span style="font-size: 0.75rem; color: var(--text-muted);">32,100+ Stores</span>
-    </a>
-
-    <a href="/search?category=groceries" class="card" style="text-align: center; padding: 1.5rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🛒</div>
-      <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 0.25rem;">Wholesale Food</h3>
-      <span style="font-size: 0.75rem; color: var(--text-muted);">45,800+ Stores</span>
-    </a>
-
-    <a href="/search?category=pharmacy" class="card" style="text-align: center; padding: 1.5rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">💊</div>
-      <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 0.25rem;">Pharmacy &amp; Care</h3>
-      <span style="font-size: 0.75rem; color: var(--text-muted);">18,500+ Stores</span>
-    </a>
-
-    <a href="/search?category=automotive" class="card" style="text-align: center; padding: 1.5rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🚗</div>
-      <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 0.25rem;">Auto &amp; Spares</h3>
-      <span style="font-size: 0.75rem; color: var(--text-muted);">24,600+ Stores</span>
-    </a>
-  </div>
-</section>
-
-<!-- 7. MASTER PRODUCT SHOWCASE & LIVE OFFERS -->
-<section style="background: #F8FAFC; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 3.5rem 0;">
-  <div class="container">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
-      <div>
-        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-          <span class="badge badge-green">✓ GS1 GTIN Verified</span>
-          <span class="badge badge-blue">✓ SABS &amp; NRS 097 Certified</span>
-        </div>
-        <h2 class="section-title">🔥 Master Products &amp; Live Market Matrix</h2>
-        <p class="section-desc">Compare Confirmed Local Offers against external Discovered Web Offers.</p>
-      </div>
-      <a href="/search" style="color: var(--accent-blue); font-size: 0.9rem; font-weight: 600;">
-        Search all products &rarr;
-      </a>
-    </div>
-
-    <div class="grid grid-cols-4" style="gap: 1.25rem;">
-      {% for p in featured_products %}
-      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; background: #FFFFFF;">
-        <div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-            <span class="badge badge-blue">{{ p.brand }}</span>
-            <span class="badge badge-green">✓ {{ p.offers.count }} Confirmed</span>
-          </div>
-          <h3 style="font-size: 1rem; font-weight: 700; margin: 0.4rem 0; line-height: 1.3;">
-            <a href="/p/{{ p.canonical_id }}">{{ p.title }}</a>
-          </h3>
-          <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 0.75rem;">
-            GTIN: {{ p.gtin13|default:p.mpn|default:"Universal Master SKU" }}
-          </p>
-        </div>
-
-        <div>
-          <div style="font-size: 1.35rem; font-weight: 800; color: var(--accent-green); margin: 0.5rem 0;">
-            {% with first_offer=p.offers.first %}
-              {% if first_offer and first_offer.price_amount %}
-                R {{ first_offer.price_amount|floatformat:0|intcomma }}
-              {% else %}
-                R {{ p.estimated_price_zar|floatformat:0|intcomma }}
-              {% endif %}
-            {% endwith %}
-          </div>
-
-          <div style="display: flex; gap: 0.4rem;">
-            <a href="/p/{{ p.canonical_id }}" class="btn btn-outline" style="flex: 1; font-size: 0.8rem; padding: 0.45rem;">
-              Compare Sellers
-            </a>
-            <a href="/merchant/claim?variantId={{ p.canonical_id }}&title={{ p.title|urlencode }}" class="btn btn-whatsapp" style="font-size: 0.75rem; padding: 0.45rem 0.65rem;">
-              + List
-            </a>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-
-<!-- 8. TOP VERIFIED MERCHANTS -->
-<section class="container" style="padding: 3.5rem 1.5rem;">
-  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
-    <div>
-      <span class="badge badge-purple" style="margin-bottom: 0.25rem;">🏪 Verified Suppliers</span>
-      <h2 class="section-title">Top Merchants You Can Message on WhatsApp</h2>
-      <p class="section-desc">Ranked by Google rating, verification state and response time.</p>
-    </div>
-    <a href="/merchants" style="color: var(--accent-blue); font-size: 0.9rem; font-weight: 600;">
-      Browse 3.1M Stores &rarr;
-    </a>
-  </div>
-
-  <div class="grid grid-cols-4" style="gap: 1.25rem;">
-    {% for m in verified_merchants %}
-    <div class="card" style="background: #FFFFFF; display: flex; flex-direction: column; justify-content: space-between;">
-      <div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-          <span class="badge badge-purple">{{ m.category|default:"General" }}</span>
-          <span class="badge badge-green">✓ {{ m.trust_score }}/100 Trust</span>
-        </div>
-        <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0.3rem 0;">
-          <a href="/m/{{ m.canonical_id }}">{{ m.name }}</a>
-        </h3>
-        <p style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 0.5rem;">
-          📍 {{ m.address_text|truncatechars:50 }}
-        </p>
-        {% if m.google_rating %}
-        <p style="font-size: 0.8rem; color: #D97706; font-weight: 700; margin-bottom: 0.75rem;">
-          ★ {{ m.google_rating }} ({{ m.google_reviews_count }}+ reviews)
-        </p>
-        {% endif %}
-      </div>
-
-      <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-        <a href="/m/{{ m.canonical_id }}" class="btn btn-outline" style="flex: 1; font-size: 0.8rem; padding: 0.4rem;">
-          View Store
-        </a>
-        {% if m.whatsapp_number %}
-        <a href="/l/m_{{ m.canonical_id }}" class="btn btn-whatsapp" style="font-size: 0.8rem; padding: 0.4rem 0.75rem;">
-          💬 WhatsApp
-        </a>
-        {% endif %}
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-</section>
-
-<!-- 9. SHOPPING CENTRES & FLAGSHIP MALLS -->
-<section class="container" style="padding: 1rem 1.5rem 3.5rem 1.5rem;">
-  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
-    <div>
-      <span class="badge badge-purple" style="margin-bottom: 0.25rem;">
-        🏬 3,296 Nationwide Retail Hubs
-      </span>
-      <h2 class="section-title">Flagship Shopping Centres &amp; Wholesale Malls</h2>
-      <p class="section-desc">Digital store rosters for super-regional malls, value marts, and wholesale markets.</p>
-    </div>
-    <a href="/malls" style="color: var(--accent-blue); font-size: 0.9rem; font-weight: 600;">
-      Explore All 3,296 Malls &rarr;
-    </a>
-  </div>
-
-  <div class="grid grid-cols-3" style="gap: 1.25rem;">
-    {% for mall in flagship_malls %}
-    <div class="card" style="background: #FFFFFF; border-left: 4px solid #3B82F6;">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-        <span class="badge badge-blue">{{ mall.province }}</span>
-        <span style="font-size: 0.75rem; color: #64748B;">{{ mall.metro }}</span>
-      </div>
-      <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0.25rem 0;">
-        <a href="/markets/{{ mall.canonical_slug }}">{{ mall.name }}</a>
-      </h3>
-      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
-        📍 {{ mall.street_address|default:"Major South African Retail Concourse" }}
-      </p>
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-        <span class="badge badge-green" style="font-size: 0.7rem;">✓ Verified Tenant Roster</span>
-        <a href="/markets/{{ mall.canonical_slug }}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
-          View Stores &rarr;
-        </a>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-</section>
-
-<!-- 10. MERCHANT ONBOARDING CTA BANNER -->
-<section class="container" style="padding: 4rem 1.5rem;">
-  <div
-    class="card"
-    style="background: linear-gradient(135deg, #1E40AF 0%, #047857 100%); color: #FFFFFF; padding: 3rem; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem; box-shadow: var(--shadow-lg);"
-  >
-    <div>
-      <span class="badge badge-green" style="background: rgba(255,255,255,0.2); color: #FFFFFF; border: none; margin-bottom: 0.75rem;">
-        🏪 Are you a South African Merchant or Supplier?
-      </span>
-      <h2 style="font-size: 2rem; font-weight: 800; margin: 0.25rem 0 0.5rem 0;">
-        List Your Store &amp; Connect Your WhatsApp in 2 Minutes
+      <span class="badge badge-amber" style="margin-bottom: 0.5rem;">🏭 Alibaba-Grade B2B Procurement</span>
+      <h2 style="font-size: 1.75rem; font-weight: 800; color: #78350F; margin-bottom: 0.5rem;">
+        Need Wholesale Tier Pricing, Pallet Quantities or Direct RFQs?
       </h2>
-      <p style="color: #E2E8F0; font-size: 1rem; max-width: 600px; line-height: 1.5;">
-        Receive direct customer inquiries from your local mall or area with 0% transaction fees and automated Google Shopping XML feeds.
+      <p style="color: #92400E; font-size: 0.95rem; max-width: 680px; line-height: 1.5;">
+        Post your demand on the National RFQ Tender Board. Matched South African importers and distributors will reply directly with pro-forma quotes on WhatsApp — 0% commission.
       </p>
     </div>
 
-    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-      <a href="/merchant/claim" class="btn btn-whatsapp" style="font-size: 1rem; padding: 0.85rem 1.75rem;">
-        ➕ Claim &amp; List Your Shop Now
-      </a>
-      <a href="/merchant/dashboard" class="btn btn-outline" style="font-size: 1rem; padding: 0.85rem 1.5rem; background: #FFFFFF; color: #0F172A;">
-        Merchant Centre &rarr;
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <button
+        onclick="document.getElementById('rfq-tender-modal').style.display='flex'"
+        class="btn btn-whatsapp"
+        style="font-size: 1rem; padding: 0.75rem 1.5rem;"
+      >
+        🚀 Post Free Buyer RFQ
+      </button>
+      <a href="/requests" class="btn btn-outline" style="font-size: 0.95rem; padding: 0.75rem 1.25rem; background: #FFFFFF;">
+        Browse Active Tenders
       </a>
     </div>
   </div>
 </section>
+
+<!-- Included RFQ Modal -->
+{% include 'includes/rfq_modal.html' %}
 {% endblock %}
