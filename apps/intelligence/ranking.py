@@ -418,7 +418,7 @@ def ranked_search(
     if len(merchants) < 6 and tokens:
         mq = Q()
         for t in tokens[:2]:
-            mq |= Q(name__icontains=t) | Q(category__istartswith=t)
+            mq |= Q(name__istartswith=t) | Q(category__istartswith=t)
         extra_qs = Merchant.objects.filter(mq).select_related('market')
         if category:
             extra_qs = extra_qs.filter(category=category)
