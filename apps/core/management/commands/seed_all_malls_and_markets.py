@@ -131,7 +131,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         target_count = options['count']
-        db_path = settings.DATABASES['default']['NAME']
+        db_path = str(settings.DATABASES['default']['NAME'])
         
         self.stdout.write(self.style.NOTICE(
             f"==> Initiating Spatial Grid Synchronization to {target_count:,} Malls & Commercial Hubs..."

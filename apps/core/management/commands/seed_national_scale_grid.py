@@ -68,7 +68,7 @@ class Command(BaseCommand):
         target_products = options['products']
         target_merchants = options['merchants']
 
-        db_path = settings.DATABASES['default']['NAME']
+        db_path = str(settings.DATABASES['default']['NAME'])
         self.stdout.write(self.style.NOTICE(
             f"==> Initiating High-Throughput National Scale Generation...\n"
             f"    Target Master Products: {target_products:,}\n"

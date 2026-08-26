@@ -79,10 +79,18 @@ ASGI_APPLICATION = 'shoppage.asgi.application'
 
 # Database
 # Default: SQLite for fast zero-dependency local execution; PostgreSQL supported via DATABASE_URL or DATABASE_URI
+sqlite_env_path = os.environ.get('SQLITE_DB_PATH')
+if sqlite_env_path:
+    sqlite_db_name = Path(sqlite_env_path)
+elif (BASE_DIR / 'data' / 'db.sqlite3').exists():
+    sqlite_db_name = BASE_DIR / 'data' / 'db.sqlite3'
+else:
+    sqlite_db_name = BASE_DIR / 'db.sqlite3'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': sqlite_db_name,
         'OPTIONS': {
             'timeout': 60,
             'init_command': 'PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA busy_timeout = 60000;',

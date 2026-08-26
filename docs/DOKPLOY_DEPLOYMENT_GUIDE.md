@@ -57,6 +57,35 @@ CSRF_COOKIE_SECURE=True
 
 # Cache & Redis (Optional)
 # REDIS_URL=redis://shoppage-redis:6379
+```
+
+---
+
+### Step 4: Configure Persistent Volume (Preserves 3.9GB Database Across Deployments)
+In Dokploy &rarr; Application &rarr; **Volumes** tab:
+- **Mount Path**: `/app/data`
+- **Volume Type**: Persistent Volume / Named Volume (e.g. `shoppage_db_data`)
+
+This ensures the SQLite database (`/app/data/db.sqlite3`) and FTS5 search index are preserved permanently across new deployments and container restarts.
+
+---
+
+### Step 5: Automatic & Manual Data Scaling (3.1M Stores & 1M Products)
+
+When you deploy, `entrypoint.sh` automatically runs:
+1. `python manage.py migrate --noinput`
+2. `python manage.py seed_shoppage_flagships`
+3. `python manage.py seed_all_malls_and_markets` (Seeds all 3,296 malls)
+4. Starts the background scale grid generator (`seed_national_scale_grid`) to scale up to 1,000,000 products and 3,100,000 merchants.
+
+#### Running On-Demand via Dokploy Web Terminal
+You can also open the **Terminal** tab in Dokploy and run the seeding manually at any time:
+```bash
+python manage.py seed_all_malls_and_markets
+python manage.py seed_national_scale_grid --products 1000000 --merchants 3100000
+python manage.py rebuild_catalog_fts
+```
+
 
 # Commerce WhatsApp & AI Keys (Optional)
 XAI_API_KEY=
