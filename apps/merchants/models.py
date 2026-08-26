@@ -71,7 +71,7 @@ class Merchant(TimeStampedModel):
     languages_spoken = models.JSONField(default=list, blank=True)
     
     # Trust Score
-    trust_score = models.IntegerField(default=80, help_text="0 to 100 calculated trust metric")
+    trust_score = models.IntegerField(default=80, db_index=True, help_text="0 to 100 calculated trust metric")
 
     class Meta:
         ordering = ['-trust_score', 'name']

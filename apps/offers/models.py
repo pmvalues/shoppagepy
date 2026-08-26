@@ -42,7 +42,7 @@ class Offer(TimeStampedModel):
     destination_url = models.URLField(blank=True, null=True)
     stall_ref = models.CharField(max_length=150, blank=True, null=True)
     
-    price_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    price_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, db_index=True)
     currency = models.CharField(max_length=3, choices=CurrencyChoices.choices, default=CurrencyChoices.ZAR)
     price_source_timestamp = models.DateTimeField(auto_now_add=True)
     
