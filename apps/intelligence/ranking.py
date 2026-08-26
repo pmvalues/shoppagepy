@@ -284,27 +284,37 @@ def _candidate_ids_postgres(tokens: List[str], expanded: List[str], limit: int) 
     if not tokens:
         return []
 
-    t = tokens[0].strip()
-    brand_variants = [t.capitalize(), t.upper(), t.lower(), t]
+    # Include search tokens and synonym brand expansions
+    candidate_terms = tokens[:2] + [e for e in (expanded or [])[:6] if ' ' not in e]
+    brand_variants = []
+    for term in candidate_terms:
+        t = term.strip()
+        brand_variants.extend([t.capitalize(), t.upper(), t.lower(), t])
+    
+    brand_variants = list(dict.fromkeys(brand_variants))[:20]
+
     ids: List[Any] = []
     try:
         with connection.cursor() as cur:
-            # 1. Exact Brand match (Instant 0.2ms B-Tree index scan)
-            cur.execute(
-                "SELECT id FROM catalog_masterproduct "
-                "WHERE (status = 'active' OR status = 'ACTIVE') "
-                "AND brand IN (%s, %s, %s, %s) LIMIT %s",
-                [*brand_variants, limit],
-            )
-            ids.extend(r[0] for r in cur.fetchall())
+            # 1. Exact Brand match including synonym brands (Instant 0.2ms B-Tree index scan via IN)
+            if brand_variants:
+                placeholders = ', '.join(['%s'] * len(brand_variants))
+                cur.execute(
+                    f"SELECT id FROM catalog_masterproduct "
+                    f"WHERE (status = 'active' OR status = 'ACTIVE') "
+                    f"AND brand IN ({placeholders}) LIMIT %s",
+                    [*brand_variants, limit],
+                )
+                ids.extend(r[0] for r in cur.fetchall())
 
             # 2. Title prefix match (Instant 1ms index scan)
             if len(ids) < limit:
+                t0 = tokens[0].strip()
                 cur.execute(
                     "SELECT id FROM catalog_masterproduct "
                     "WHERE (status = 'active' OR status = 'ACTIVE') "
                     "AND (title LIKE %s OR title LIKE %s) LIMIT %s",
-                    [f'{t.capitalize()}%', f'{t.lower()}%', limit - len(ids)],
+                    [f'{t0.capitalize()}%', f'{t0.lower()}%', limit - len(ids)],
                 )
                 ids.extend(r[0] for r in cur.fetchall())
         return list(dict.fromkeys(ids))[:limit]
