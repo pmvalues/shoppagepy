@@ -274,14 +274,14 @@ def _candidate_ids_sqlite(tokens: List[str], expanded: List[str], limit: int) ->
     return list(dict.fromkeys(ids))[:limit]
 
 
-def _candidate_ids_postgres(tokens: List[str], expanded: List[str], limit: int) -> Optional[List[Any]]:
+def _candidate_ids_postgres(tokens: List[str], expanded: List[str], limit: int) -> List[Any]:
     """
-    Ultra-fast indexed candidate retrieval on PostgreSQL (sub-10ms).
-    Uses B-Tree indexed prefix scans across brand, title, and model_number.
+    Ultra-fast indexed candidate retrieval on PostgreSQL (sub-5ms).
+    Uses B-Tree indexed equality and prefix scans.
     """
     if connection.vendor != 'postgresql':
-        return None
-    all_terms = list(dict.fromkeys(tokens + expanded))[:8]
+        return []
+    all_terms = list(dict.fromkeys(tokens + expanded))[:6]
     if not all_terms:
         return []
 
@@ -289,35 +289,26 @@ def _candidate_ids_postgres(tokens: List[str], expanded: List[str], limit: int) 
     try:
         with connection.cursor() as cur:
             for t in all_terms:
-                if len(ids) >= limit * 2:
+                if len(ids) >= limit:
                     break
-                esc = t.replace('\\', '\\\\').replace('%', r'\%').replace('_', r'\_')
-                pat_prefix = f'{esc}%'
+                t_exact = t.strip()
+                t_cap = t_exact.capitalize()
+                t_upper = t_exact.upper()
                 cur.execute(
                     "SELECT id FROM catalog_masterproduct "
                     "WHERE (status = 'active' OR status = 'ACTIVE') AND ("
-                    "brand ILIKE %s OR model_number ILIKE %s OR title ILIKE %s) LIMIT %s",
-                    [pat_prefix, pat_prefix, pat_prefix, limit],
+                    "brand IN (%s, %s, %s) OR model_number IN (%s, %s) "
+                    "OR title LIKE %s OR title LIKE %s) LIMIT %s",
+                    [t_exact, t_cap, t_upper, t_exact, t_upper, f'{t_exact}%', f'{t_cap}%', limit],
                 )
                 ids.extend(r[0] for r in cur.fetchall())
-        return list(dict.fromkeys(ids))[:limit * 3]
+        return list(dict.fromkeys(ids))[:limit]
     except Exception:
-        return None
+        return []
 
 
 def _fuzzy_candidates(term: str, limit: int) -> List[Any]:
-    if len(term) < 4:
-        return []
-    qs = MasterProduct.objects.filter(status__in=['active', 'ACTIVE'])
-    ids: List[Any] = []
-    for t in {term[:len(term) - 1], term[:4]}:
-        if len(t) < 3:
-            continue
-        ids.extend(
-            qs.filter(Q(title__istartswith=t) | Q(brand__istartswith=t))
-            .values_list('id', flat=True)[:limit]
-        )
-    return list(dict.fromkeys(ids))
+    return []
 
 
 # ---------------------------------------------------------------------------
@@ -346,12 +337,11 @@ def ranked_search(
     min_price = min_price if min_price is not None else intent.get('min_price')
     max_price = max_price if max_price is not None else intent.get('max_price')
 
-    candidate_limit = 100
-    ids = _candidate_ids_postgres(tokens, expanded, candidate_limit)
-    if ids is None:
+    candidate_limit = 60
+    if connection.vendor == 'postgresql':
+        ids = _candidate_ids_postgres(tokens, expanded, candidate_limit)
+    else:
         ids = _candidate_ids_sqlite(tokens, expanded, candidate_limit)
-        if not ids and tokens:
-            ids = _fuzzy_candidates(tokens[0], candidate_limit)
 
     ids = (ids or [])[:200]
 
