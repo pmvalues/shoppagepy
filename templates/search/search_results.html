@@ -54,24 +54,24 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: transform 0.15s, box-shadow 0.15s;
+    transition: transform 0.15s, border-color 0.15s;
     text-decoration: none;
     color: inherit;
+    box-shadow: none !important;
   }
   .sponsored-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    border-color: #CBD5E1;
+    border-color: #2563EB;
   }
 
   /* AI Overview Card */
   .ai-overview-card {
-    background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+    background: #F8FAFC;
     border: 1px solid #BFDBFE;
-    border-radius: 16px;
+    border-radius: 14px;
     padding: 1.5rem;
     margin-bottom: 2rem;
-    box-shadow: 0 2px 8px rgba(37,99,235,0.05);
+    box-shadow: none !important;
   }
   .ai-sparkle-badge {
     display: inline-flex;
@@ -172,6 +172,43 @@
 
 {% block content %}
 <div class="container" style="padding-top: 1.25rem; padding-bottom: 4rem;">
+
+  <!-- TOP PROMINENT WIDE SEARCH BAR (Google SERP Standard) -->
+  <div style="margin-bottom: 1.25rem; max-width: 692px;">
+    <form action="/search/" method="GET" style="position: relative; display: flex; align-items: center;">
+      <span style="position: absolute; left: 16px; font-size: 1.15rem; color: #94A3B8; pointer-events: none;">🔍</span>
+      <input
+        type="text"
+        name="q"
+        value="{{ query|default:'' }}"
+        placeholder="Search 1,000,000+ products, inverters, brands, wholesale MOQs or malls..."
+        style="width: 100%; padding: 0.85rem 7.5rem 0.85rem 3.25rem; border: 1.5px solid #CBD5E1; border-radius: 9999px; font-size: 1rem; font-family: var(--font-sans); outline: none; background: #FFFFFF; transition: border-color 0.15s;"
+        onfocus="this.style.borderColor='#2563EB'"
+        onblur="this.style.borderColor='#CBD5E1'"
+      />
+      <div style="position: absolute; right: 8px; display: flex; align-items: center; gap: 4px;">
+        {% if query %}
+        <a href="/search/" title="Clear search" style="color: #94A3B8; font-size: 1rem; padding: 4px 6px; text-decoration: none; line-height: 1;">✕</a>
+        <span style="color: #E2E8F0;">|</span>
+        {% endif %}
+        <button
+          type="button"
+          @click="startVoiceSearch()"
+          style="background: transparent; border: none; cursor: pointer; padding: 4px; font-size: 1.05rem; color: #64748B;"
+          title="Voice search"
+        >
+          🎙️
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          style="padding: 0.45rem 1.25rem; font-size: 0.85rem; border-radius: 9999px;"
+        >
+          Search
+        </button>
+      </div>
+    </form>
+  </div>
 
   <!-- 1. GOOGLE-STYLE SUB-HEADER & NAVIGATION TABS -->
   <div class="google-tabs-bar">
@@ -303,7 +340,7 @@
 
       <!-- SECTION A: Places / Local 3-Pack Physical Storefronts -->
       {% if places_stores %}
-      <section style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-xs);">
+      <section style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; margin-bottom: 2.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #F1F5F9;">
           <div>
             <h2 style="font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0;">
@@ -510,7 +547,7 @@
 
       <!-- SECTION C: People Also Ask (PAA Accordion) -->
       {% if people_also_ask %}
-      <section style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-xs);">
+      <section style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; margin-bottom: 2.5rem;">
         <h2 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin: 0 0 1rem 0;">
           People also ask
         </h2>
@@ -572,7 +609,7 @@
 
     <!-- RIGHT COLUMN: Google-Style Knowledge Graph Card (Sticky) -->
     {% if knowledge_card %}
-    <aside style="background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; box-shadow: var(--shadow-sm); position: sticky; top: 90px;">
+    <aside style="background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; position: sticky; top: 90px;">
       
       <!-- 4-Photo Curated Collage Grid -->
       <div class="kg-collage">
