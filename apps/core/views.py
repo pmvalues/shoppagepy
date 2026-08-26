@@ -210,6 +210,9 @@ def search_view(request):
                 'offer_count': s.offer_count or 1,
             })
 
+    if not plain_products:
+        plain_products = list(MasterProduct.objects.filter(status__in=['active', 'ACTIVE']).prefetch_related('offers')[:6])
+
     # Ensure Top & Featured Products always has 6-8 items
     if len(sponsored_products) < 6:
         extra_products = list(
