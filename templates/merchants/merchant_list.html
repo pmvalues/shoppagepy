@@ -51,13 +51,13 @@
       </div>
 
       <!-- Column 3: Instant Action Buttons -->
-      <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-end; text-align: right; border-left: 1px solid #F1F5F9; padding-left: 1.25rem; height: 100%; gap: 0.5rem;">
-        <a href="/m/{{ m.canonical_id }}" class="btn btn-outline" style="width: 100%; font-size: 0.85rem; padding: 0.5rem; text-align: center; border-radius: 8px;">
-          View Storefront
+      <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: flex-end; text-align: right; border-left: 1px solid #F1F5F9; padding-left: 1.25rem; flex-wrap: wrap;">
+        <a href="/m/{{ m.canonical_id }}" class="btn btn-outline" style="font-size: 0.825rem; padding: 0.45rem 0.85rem; text-align: center; border-radius: 8px;">
+          View Store
         </a>
         {% if m.whatsapp_number %}
-        <a href="/l/m_{{ m.canonical_id }}" class="btn btn-whatsapp" style="width: 100%; font-size: 0.85rem; padding: 0.5rem; text-align: center; border-radius: 8px; font-weight: 700;">
-          💬 WhatsApp Direct
+        <a href="/l/m_{{ m.canonical_id }}" class="btn btn-whatsapp" style="font-size: 0.825rem; padding: 0.45rem 0.95rem; text-align: center; border-radius: 8px; font-weight: 700;">
+          💬 WhatsApp
         </a>
         {% endif %}
       </div>

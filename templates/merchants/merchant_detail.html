@@ -227,18 +227,20 @@
         </div>
 
         <!-- Column 3: Price & Actions -->
-        <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-end; text-align: right; border-left: 1px solid #F1F5F9; padding-left: 1.25rem; height: 100%;">
-          <span style="font-size: 0.725rem; color: #64748B;">Direct Store Price:</span>
-          <div style="font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: #059669; margin: 0.15rem 0 0.6rem 0;">
-            R {{ offer.price_amount|floatformat:0|intcomma }}
+        <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-end; text-align: right; border-left: 1px solid #F1F5F9; padding-left: 1.25rem;">
+          <div>
+            <span style="font-size: 0.725rem; color: #64748B;">Direct Store Price:</span>
+            <div style="font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: #059669; margin: 0.1rem 0 0.5rem 0;">
+              R {{ offer.price_amount|floatformat:0|intcomma }}
+            </div>
           </div>
 
-          <div style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%;">
-            <a href="/p/{{ offer.variant.canonical_id }}" class="btn btn-outline" style="width: 100%; font-size: 0.8rem; padding: 0.45rem; text-align: center; border-radius: 8px;">
+          <div style="display: flex; gap: 0.4rem; align-items: center; justify-content: flex-end; flex-wrap: wrap;">
+            <a href="/p/{{ offer.variant.canonical_id }}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.45rem 0.85rem; text-align: center; border-radius: 8px;">
               View Item
             </a>
-            <a href="/l/{{ offer.canonical_id }}" class="btn btn-whatsapp" style="width: 100%; font-size: 0.8rem; padding: 0.45rem; text-align: center; border-radius: 8px; font-weight: 700;">
-              💬 Buy on WhatsApp
+            <a href="/l/{{ offer.canonical_id }}" class="btn btn-whatsapp" style="font-size: 0.8rem; padding: 0.45rem 0.95rem; text-align: center; border-radius: 8px; font-weight: 700;">
+              💬 WhatsApp
             </a>
           </div>
         </div>
