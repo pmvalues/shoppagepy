@@ -293,8 +293,28 @@ def get_brand_knowledge_card(query_or_brand: str) -> Optional[Dict[str, Any]]:
     Generates a Google-style Knowledge Graph card for recognized brands and industrial manufacturers.
     """
     q = (query_or_brand or '').lower()
-    
+
     knowledge_base = {
+        'battery': {
+            'brand': 'Electric Battery & Energy Storage',
+            'short_name': 'Battery',
+            'icon': '🔋',
+            'category': 'Electrochemical Energy Storage & Power Cells',
+            'origin': 'Invention: 1800 (Alessandro Volta) · South African Standards: SABS / NRCS / SANS 10142',
+            'warranty': '10 Years (LiFePO4 Lithium) / 24–36 Months (Automotive Calcium-Lead)',
+            'certifications': ['SABS SANS 10142', 'NRS 097-2-1', 'UN 38.3', 'IEC 62619'],
+            'description': 'An electric battery is a source of electric power consisting of one or more electrochemical cells with external connections for powering electrical devices. Modern rechargeable chemistry in South Africa spans LiFePO4 rack batteries for load-shedding backup, starter lead-acid car batteries, and high-density consumer cells.',
+            'popular_models': ['Dyness BX51100 5.12kWh LiFePO4', 'Hubble AM-2 5.5kWh Lithium', 'Willard 652 Car Battery', 'SABAT 652 Calcium', 'Duracell Ultra AA/AAA'],
+            'distributors': ['First Battery Centre', 'Battery Centre SA', 'Midrand Midas', 'AutoZone SA', 'Dragon City Solar Tech'],
+            'satisfaction_rating': '4.9 / 5.0 (Essential South Africa Power Infrastructure)',
+            'b2b_wholesale_ready': True,
+            'attributes_table': {
+                'Key Chemistries': 'Lithium Iron Phosphate (LiFePO4), Lead-Acid, AGM, Gel, Alkaline',
+                'Nominal Voltages': '1.5V (AA), 12V (Auto), 48V / 51.2V (Solar Rack), 100V–400V (High Voltage)',
+                'Cycle Life': '6,000+ Cycles (LiFePO4 @ 80% DoD) vs 500–800 Cycles (Lead Acid)',
+                'Primary Applications': 'Stage 6 Load-Shedding Backup, Automotive Starting, Commercial Solar Micro-Grids',
+            },
+        },
         'deye': {
             'brand': 'Deye (Ningbo Deye Inverter Technology)',
             'short_name': 'Deye',
@@ -308,6 +328,12 @@ def get_brand_knowledge_card(query_or_brand: str) -> Optional[Dict[str, Any]]:
             'distributors': ['Herholdts', 'SegenSolar', 'Rentech', 'SolarBros Sandton', 'Rubicon'],
             'satisfaction_rating': '4.9 / 5.0 (Over 18,000 ZA Installations)',
             'b2b_wholesale_ready': True,
+            'attributes_table': {
+                'Efficiency Rating': '97.6% (Euro Efficiency 96.5%)',
+                'Parallel Capability': 'Up to 16 Units in Parallel (Single/Three Phase)',
+                'Protection Degree': 'IP65 Water & Dust Ingress Rating',
+                'Switchover Time': '< 4ms Seamless UPS Transfer',
+            },
         },
         'sunsynk': {
             'brand': 'Sunsynk Power Solutions',
@@ -322,6 +348,11 @@ def get_brand_knowledge_card(query_or_brand: str) -> Optional[Dict[str, Any]]:
             'distributors': ['Herholdts', 'One Energy', 'SegenSolar', 'Trade Solar Wholesale'],
             'satisfaction_rating': '4.85 / 5.0 (High Reliability Rating)',
             'b2b_wholesale_ready': True,
+            'attributes_table': {
+                'Max Solar Input': '6500W (5kW model) / 10400W (8kW model)',
+                'Cloud Connectivity': 'Wi-Fi / Ethernet Dongle with Sunsynk App',
+                'Certifications': 'NRS 097-2-1 / SABS Compliant',
+            },
         },
         'dyness': {
             'brand': 'Dyness Renewable Energy',
@@ -336,6 +367,12 @@ def get_brand_knowledge_card(query_or_brand: str) -> Optional[Dict[str, Any]]:
             'distributors': ['SegenSolar', 'SolarBros Sandton', 'Rubicon', 'Herholdts Group'],
             'satisfaction_rating': '4.9 / 5.0 (Top Recommended Lithium Pack)',
             'b2b_wholesale_ready': True,
+            'attributes_table': {
+                'Battery Chemistry': 'LiFePO4 (Lithium Iron Phosphate)',
+                'Nominal Voltage': '51.2V (Usable Capacity 4.6kWh / 100Ah)',
+                'Cycle Life': '6,000 Cycles @ 90% DoD, 25°C',
+                'Communication': 'CAN / RS485 for Deye, Sunsynk, Victron, Growatt',
+            },
         },
         'apple': {
             'brand': 'Apple Inc.',
@@ -350,6 +387,11 @@ def get_brand_knowledge_card(query_or_brand: str) -> Optional[Dict[str, Any]]:
             'distributors': ['iStore South Africa', 'Incredible Connection', 'Vodacom 4U', 'Dragon City Tech Wholesale'],
             'satisfaction_rating': '4.95 / 5.0',
             'b2b_wholesale_ready': True,
+            'attributes_table': {
+                'Operating System': 'iOS / macOS / iPadOS',
+                'Network Standards': '5G Sub-6GHz, Wi-Fi 7 / 6E, ICASA Certified',
+                'Trade-In Support': 'Official Certified Trade-In Supported in ZA',
+            },
         },
         'samsung': {
             'brand': 'Samsung Electronics',
@@ -364,6 +406,11 @@ def get_brand_knowledge_card(query_or_brand: str) -> Optional[Dict[str, Any]]:
             'distributors': ['Samsung Brand Stores', 'Takealot Direct', 'FNB Connect', 'Makro Wholesale'],
             'satisfaction_rating': '4.8 / 5.0',
             'b2b_wholesale_ready': True,
+            'attributes_table': {
+                'Display Tech': 'Dynamic AMOLED 2X 120Hz',
+                'Processor': 'Snapdragon 8 Gen 3 / Exynos Octa-Core',
+                'Warranty': '24 Months Official Manufacturer SA Warranty',
+            },
         },
         'makita': {
             'brand': 'Makita Power Tools',
@@ -378,6 +425,11 @@ def get_brand_knowledge_card(query_or_brand: str) -> Optional[Dict[str, Any]]:
             'distributors': ['Builders Warehouse', 'Chamberlains', 'Cashbuild Commercial', 'Tooltime Wholesalers'],
             'satisfaction_rating': '4.9 / 5.0',
             'b2b_wholesale_ready': True,
+            'attributes_table': {
+                'Battery Platform': '18V LXT / 40V Max XGT Lithium-Ion',
+                'Motor Type': 'Brushless Heavy-Duty Motor',
+                'Standards': 'SABS Compliant Electrical Safety',
+            },
         },
     }
 
@@ -385,6 +437,121 @@ def get_brand_knowledge_card(query_or_brand: str) -> Optional[Dict[str, Any]]:
         if key in q:
             return data
     return None
+
+def get_people_also_ask(query: str) -> List[Dict[str, str]]:
+    """
+    Generates contextual 'People Also Ask' accordions tailored for South African buyers.
+    """
+    q = (query or '').lower()
+    
+    if any(k in q for k in ['battery', 'batteries', 'lifepo4', 'lithium', 'dyness', 'pylontech', 'hubble', 'willard', 'sabat']):
+        return [
+            {
+                'question': 'What is the difference between LiFePO4 and AGM/Lead-Acid batteries?',
+                'answer': 'Lithium Iron Phosphate (LiFePO4) batteries offer 6,000+ cycles at 90% Depth of Discharge (DoD) lasting 10–15 years, compared to Lead-Acid/Gel batteries which typically yield 500–800 cycles and last 2–3 years under daily Stage 6 load-shedding in South Africa.'
+            },
+            {
+                'question': 'What size battery do I need for 4-hour Stage 6 load-shedding?',
+                'answer': 'For a typical South African home powering lights, Wi-Fi router, TV, fridge, and security systems (averaging 800W–1.2kW continuous load), a 5.12kWh 100Ah 48V/51.2V LiFePO4 battery (such as Dyness BX51100 or Hubble AM-2) provides 4.5 to 5.5 hours of continuous backup.'
+            },
+            {
+                'question': 'Which car battery lasts the longest in South Africa?',
+                'answer': 'Willard and SABAT silver-calcium maintenance-free batteries are specifically engineered for high-ambient South African road conditions, providing 36 to 48 months of reliable service life.'
+            },
+            {
+                'question': 'What does a battery replacement cost in South Africa?',
+                'answer': 'Standard 12V automotive batteries (size 618, 628, 652) range from R950 to R1,850 with scrap battery trade-in. 5.12kWh lithium solar rack batteries range from R16,500 to R24,900 from verified Shoppage distributors.'
+            }
+        ]
+    elif any(k in q for k in ['inverter', 'solar', 'deye', 'sunsynk', 'growatt', 'victron', 'panel']):
+        return [
+            {
+                'question': 'Which hybrid inverter is best for home backup in South Africa?',
+                'answer': 'Deye 5kW/8kW and Sunsynk 5.5kW/8.8kW are the leading NRS 097 grid-certified hybrid inverters in SA due to their dual MPPT trackers, rapid <4ms UPS switchover time, and extensive local technician support.'
+            },
+            {
+                'question': 'Do I need an electrical Certificate of Compliance (CoC) for solar/inverter installations?',
+                'answer': 'Yes. Under South African law (SANS 10142-1), any fixed grid-tied or hybrid inverter installation must be inspected and certified by a Department of Labour registered Wireman\'s License electrician with a supplementary CoC.'
+            },
+            {
+                'question': 'Can I expand my solar inverter system with more batteries later?',
+                'answer': 'Yes. Modern 48V LiFePO4 batteries communicate via CAN/RS485 and can be expanded in parallel up to 15–30 modules (e.g. from 5.12kWh up to 80kWh+) as your household energy demand grows.'
+            }
+        ]
+    elif any(k in q for k in ['phone', 'smartphone', 'samsung', 'apple', 'iphone', 'huawei', 'xiaomi']):
+        return [
+            {
+                'question': 'Are devices sold through Shoppage verified suppliers ICASA approved?',
+                'answer': 'Yes. All smartphones and wireless equipment listed on the Shoppage grid are verified against ICASA type-approval registers and include official South African manufacturer warranties.'
+            },
+            {
+                'question': 'What warranty is included on new smartphones in South Africa?',
+                'answer': 'Brand-new Samsung, Apple, Xiaomi, and Honor devices include an official 12 to 24-month manufacturer warranty serviceable at authorized repair centres across Sandton, Pretoria, Cape Town, and Durban.'
+            }
+        ]
+    else:
+        return [
+            {
+                'question': f'How do I compare verified supplier prices for {query.title() if query else "products"}?',
+                'answer': 'Shoppage indexes physical trade counters, shopping centres, and wholesale importers across South Africa with side-by-side price comparison, stock availability, and direct WhatsApp trade channels.'
+            },
+            {
+                'question': 'Can I request wholesale / bulk container quotes?',
+                'answer': 'Yes. You can click "Post Bulk RFQ Tender" on any search result to broadcast your procurement requirements directly to verified stockists and commercial distributors.'
+            }
+        ]
+
+def get_related_searches(query: str, category: str = '') -> List[str]:
+    """
+    Generates high-intent localized search suggestions (Google 'People also search for' style).
+    """
+    q = (query or '').lower().strip()
+    
+    if any(k in q for k in ['battery', 'batteries', 'lifepo4', 'lithium']):
+        return [
+            'Battery price',
+            'Battery replacement',
+            'Battery near me',
+            'Battery afrikaans',
+            'Battery lithium 5.12kWh',
+            'Battery price south africa',
+            'Battery SABAT 652',
+            'Battery Willard 652',
+            'Battery charger 12V',
+            'LiFePO4 vs Gel battery'
+        ]
+    elif any(k in q for k in ['inverter', 'solar', 'deye', 'sunsynk']):
+        return [
+            'Deye 5kW inverter price',
+            'Sunsynk 8.8kW hybrid inverter',
+            'Solar panels price south africa',
+            'Dyness 5.12kWh battery price',
+            'Inverter with battery specials',
+            'Solar installer near me Sandton',
+            'NRS 097 certified inverter list',
+            'Off-grid solar kit wholesale'
+        ]
+    elif any(k in q for k in ['samsung', 'phone', 'apple', 'iphone']):
+        return [
+            'Samsung Galaxy S24 Ultra price',
+            'Samsung A16 5G specials',
+            'iPhone 16 Pro Max price south africa',
+            'Samsung brand store near me',
+            'Refurbished smartphones Sandton',
+            'Wholesale phones Dragon City'
+        ]
+    else:
+        q_clean = query.title() if query else "Products"
+        return [
+            f'{q_clean} price south africa',
+            f'{q_clean} near me',
+            f'{q_clean} wholesale distributors',
+            f'{q_clean} Johannesburg',
+            f'{q_clean} Cape Town',
+            f'{q_clean} specials & discounts',
+            f'{q_clean} suppliers Sandton',
+            f'{q_clean} reviews'
+        ]
 
 def get_tiered_moq_pricing(unit_price: float) -> List[Dict[str, Any]]:
     """
