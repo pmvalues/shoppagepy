@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-{% load humanize static %}
+{% load humanize static core_tags %}
 
 {% block title %}Merchant Centre OS — {{ merchant.name|default:"Merchant Hub" }} | Shoppage{% endblock %}
 
 {% block content %}
 <div class="container" style="padding-top: 2rem; padding-bottom: 5rem;" x-data="{ 
-  activeTab: 'agent',
+  activeTab: 'products',
   streamRunning: false,
   selectedAgent: 'Feed Autopilot',
   streamLogs: [],
@@ -105,7 +105,7 @@
   </div>
 
   <!-- KPI Pulse Ticker -->
-  <div class="grid grid-cols-4" style="gap: 1.25rem; margin-bottom: 2rem;">
+  <div class="grid grid-cols-6" style="gap: 1.25rem; margin-bottom: 2rem;">
     <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #10B981;">
       <div class="stat-number" style="color: #059669;">{{ merchant.trust_score|default:85 }}/100</div>
       <div class="stat-label">Verified Trust Score</div>
@@ -114,9 +114,17 @@
       <div class="stat-number" style="color: #1D4ED8;">{{ offers|length }}</div>
       <div class="stat-label">Active Live Offers</div>
     </div>
-    <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #8B5CF6;">
-      <div class="stat-number" style="color: #6D28D9;">{{ drafts|length }}</div>
-      <div class="stat-label">AI Drafts Pending</div>
+    <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #F97316;">
+      <div class="stat-number" style="color: #C2410C;">{{ orders|length }}</div>
+      <div class="stat-label">Orders</div>
+    </div>
+    <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #EC4899;">
+      <div class="stat-number" style="color: #BE185D;">{{ promotions|length }}</div>
+      <div class="stat-label">Promotions</div>
+    </div>
+    <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #14B8A6;">
+      <div class="stat-number" style="color: #0F766E;">{{ feed_counts.approved|default:0 }}/{{ offers|length }}</div>
+      <div class="stat-label">Feed Eligible</div>
     </div>
     <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #F59E0B;">
       <div class="stat-number" style="color: #B45309;">{{ total_referrals_count|default:48 }}</div>
@@ -191,6 +199,54 @@
   <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid #CBD5E1; margin-bottom: 2rem; overflow-x: auto; padding-bottom: 2px;">
     <button 
       type="button" 
+      @click="activeTab = 'products'" 
+      :style="activeTab === 'products' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
+      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
+    >
+      <span>📦</span> Products &amp; Feed
+    </button>
+    <button 
+      type="button" 
+      @click="activeTab = 'orders'" 
+      :style="activeTab === 'orders' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
+      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
+    >
+      <span>🧾</span> Orders <span class="badge badge-orange" style="font-size: 0.75rem;">{{ orders|length }}</span>
+    </button>
+    <button 
+      type="button" 
+      @click="activeTab = 'promotions'" 
+      :style="activeTab === 'promotions' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
+      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
+    >
+      <span>🏷️</span> Promotions <span class="badge badge-pink" style="font-size: 0.75rem;">{{ promotions|length }}</span>
+    </button>
+    <button 
+      type="button" 
+      @click="activeTab = 'reviews'" 
+      :style="activeTab === 'reviews' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
+      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
+    >
+      <span>⭐</span> Reviews <span class="badge badge-yellow" style="font-size: 0.75rem;">{{ reviews_pending|length }}</span>
+    </button>
+    <button 
+      type="button" 
+      @click="activeTab = 'performance'" 
+      :style="activeTab === 'performance' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
+      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
+    >
+      <span>📈</span> Performance
+    </button>
+    <button 
+      type="button" 
+      @click="activeTab = 'settings'" 
+      :style="activeTab === 'settings' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
+      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
+    >
+      <span>⚙️</span> Settings
+    </button>
+    <button 
+      type="button" 
       @click="activeTab = 'agent'" 
       :style="activeTab === 'agent' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
       style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
@@ -203,15 +259,7 @@
       :style="activeTab === 'drafts' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
       style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
     >
-      <span>📝</span> AI Draft Review Workspace <span class="badge badge-purple" style="font-size: 0.75rem;">{{ drafts|length }}</span>
-    </button>
-    <button 
-      type="button" 
-      @click="activeTab = 'offers'" 
-      :style="activeTab === 'offers' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
-      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
-    >
-      <span>📦</span> Live Offers &amp; Price Matrix
+      <span>📝</span> AI Draft Review <span class="badge badge-purple" style="font-size: 0.75rem;">{{ drafts|length }}</span>
     </button>
     <button 
       type="button" 
@@ -219,7 +267,7 @@
       :style="activeTab === 'demands' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
       style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
     >
-      <span>📡</span> Regional Demand Radar <span class="badge badge-blue" style="font-size: 0.75rem;">{{ demands|length }}</span>
+      <span>📡</span> Demand Radar <span class="badge badge-blue" style="font-size: 0.75rem;">{{ demands|length }}</span>
     </button>
     <button 
       type="button" 
@@ -227,7 +275,7 @@
       :style="activeTab === 'trust' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
       style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
     >
-      <span>🛡️</span> Trust Passport &amp; Seal Studio
+      <span>🛡️</span> Trust Passport
     </button>
   </div>
 
@@ -372,17 +420,37 @@
   </div>
 
   <!-- =========================================================================
-       TAB 3: 📦 Live Offers & Price Matrix
+       TAB: 📦 Products & Feed Diagnostics (Google Merchant Centre product status)
        ========================================================================= -->
-  <div x-show="activeTab === 'offers'" x-transition style="display: none;">
+  <div x-show="activeTab === 'products'" x-transition style="display: none;">
+    <!-- Feed health summary -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #10B981;">
+        <div class="stat-number" style="color: #059669;">{{ feed_counts.approved|default:0 }}</div>
+        <div class="stat-label">Approved (serving)</div>
+      </div>
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #F59E0B;">
+        <div class="stat-number" style="color: #B45309;">{{ feed_counts.limited|default:0 }}</div>
+        <div class="stat-label">Limited (warnings)</div>
+      </div>
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #EF4444;">
+        <div class="stat-number" style="color: #B91C1C;">{{ feed_counts.disapproved|default:0 }}</div>
+        <div class="stat-label">Disapproved</div>
+      </div>
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #8B5CF6;">
+        <div class="stat-number" style="color: #6D28D9;">{{ feed_counts.pending|default:0 }}</div>
+        <div class="stat-label">Pending review</div>
+      </div>
+    </div>
+
     <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
         <div>
           <h2 style="font-size: 1.3rem; font-weight: 800; color: #0F172A; margin: 0 0 0.25rem 0;">
-            Active Confirmed Propositions &amp; Price Matrix
+            Products, Price Matrix &amp; Feed Diagnostics
           </h2>
           <p style="color: #334155; font-size: 0.875rem; margin: 0;">
-            Your live inventory propositions indexed across Sandton, Midrand, and nationwide search results.
+            Live propositions indexed across search + shopping surfaces, with Google Merchant Centre&ndash;style eligibility status.
           </p>
         </div>
         <a href="/merchant/claim" class="btn btn-whatsapp" style="font-size: 0.875rem; font-weight: 700;">+ List New Master Product</a>
@@ -392,9 +460,20 @@
         {% for offer in offers %}
         <div class="card" style="background: #FAFAFA; border: 1px solid #CBD5E1; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.25rem;">
           <div>
-            <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem; flex-wrap: wrap;">
               <span class="badge badge-blue" style="font-size: 0.75rem;">{{ offer.get_sla_class_display }}</span>
               <span class="badge badge-green" style="font-size: 0.75rem;">✓ {{ offer.get_availability_state_display }}</span>
+              {% for diag in feed_diagnostics %}{% if diag.offer.id == offer.id %}
+                {% if diag.status == 'approved' %}
+                  <span class="badge badge-green" style="font-size: 0.75rem;">● Feed Approved</span>
+                {% elif diag.status == 'limited' %}
+                  <span class="badge badge-yellow" style="font-size: 0.75rem;">▲ Feed Limited</span>
+                {% elif diag.status == 'disapproved' %}
+                  <span class="badge badge-red" style="font-size: 0.75rem;">✕ Feed Disapproved</span>
+                {% else %}
+                  <span class="badge badge-purple" style="font-size: 0.75rem;">◷ Feed Pending</span>
+                {% endif %}
+              {% endif %}{% endfor %}
             </div>
             <h4 style="font-size: 1.15rem; font-weight: 800; margin: 0 0 0.25rem 0;">
               <a href="/p/{{ offer.variant.canonical_id }}/" style="color: #0F172A; text-decoration: none;">{{ offer.variant.title }}</a>
@@ -432,6 +511,417 @@
           <p>No active products listed. Click &ldquo;+ List New Master Product&rdquo; above.</p>
         </div>
         {% endfor %}
+      </div>
+
+      <!-- Feed diagnostics detail -->
+      {% if feed_diagnostics %}
+      <div style="margin-top: 2rem; border-top: 1px solid #E2E8F0; padding-top: 1.5rem;">
+        <h3 style="font-size: 1.1rem; font-weight: 800; color: #0F172A; margin: 0 0 1rem 0;">🔍 Feed Diagnostics &amp; Item Issues</h3>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          {% for diag in feed_diagnostics %}
+          {% if diag.issues %}
+          <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 10px; padding: 1rem;">
+            <div style="font-weight: 800; color: #0F172A; font-size: 0.9rem; margin-bottom: 0.5rem;">
+              {{ diag.offer.variant.title }} 
+              <span style="font-weight: 600; color: #64748B;">· {{ diag.offer.canonical_id }}</span>
+            </div>
+            <ul style="margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.3rem;">
+              {% for issue in diag.issues %}
+              <li style="font-size: 0.825rem; color: #7F1D1D;">
+                <strong style="text-transform: uppercase;">[{{ issue.severity }}]</strong> {{ issue.message }}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+          {% endfor %}
+          {% if offers|length > 0 and feed_counts.approved == offers|length %}
+            <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 10px; padding: 1rem; font-size: 0.875rem; color: #065F46; font-weight: 600;">
+              ✓ All {{ offers|length }} products are approved and eligible to serve across shopping surfaces.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB: 🧾 Orders (Amazon Seller Central / Shopify Admin parity)
+       ========================================================================= -->
+  <div x-show="activeTab === 'orders'" x-transition style="display: none;">
+    <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="font-size: 1.3rem; font-weight: 800; color: #0F172A; margin: 0 0 0.25rem 0;">🧾 Orders &amp; Fulfilment</h2>
+          <p style="color: #334155; font-size: 0.875rem; margin: 0;">Track and update buyer orders placed against your store.</p>
+        </div>
+        <span class="badge badge-orange" style="font-size: 0.8rem;">{{ orders|length }} Total</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% for order in orders %}
+        <div class="card" style="background: #FAFAFA; border: 1px solid #CBD5E1; padding: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.75rem;">
+            <div>
+              <strong style="font-size: 1rem; color: #0F172A;">{{ order.reference }}</strong>
+              <span style="font-size: 0.8rem; color: #64748B; margin-left: 0.5rem;">{{ order.buyer_name }} · {{ order.buyer_contact|default:order.buyer_email|default:"—" }}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <form method="post" style="display: flex; gap: 0.5rem; align-items: center; margin: 0;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_order_status" />
+                <input type="hidden" name="order_id" value="{{ order.id }}" />
+                <select name="status" class="form-control" style="font-size: 0.8rem; padding: 0.4rem 0.6rem; width: auto;">
+                  {% for val, label in order_status_choices %}
+                  <option value="{{ val }}" {% if val == order.status %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; font-weight: 700;">Update</button>
+              </form>
+            </div>
+          </div>
+          <div style="font-size: 0.85rem; color: #334155;">
+            {% for item in order.items.all %}
+              <div style="display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px dashed #E2E8F0;">
+                <span>{{ item.quantity }} × {{ item.title }} {% if item.sku %}<code style="font-size: 0.75rem; color: #64748B;">{{ item.sku }}</code>{% endif %}</span>
+                <strong style="color: #059669;">R {{ item.line_total|floatformat:2|intcomma }}</strong>
+              </div>
+            {% endfor %}
+            <div style="display: flex; justify-content: space-between; padding-top: 0.5rem; font-weight: 800; color: #0F172A;">
+              <span>Total (incl. shipping R {{ order.shipping_fee|floatformat:2 }})</span>
+              <span>R {{ order.total|floatformat:2|intcomma }}</span>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div style="text-align: center; padding: 3rem 1rem; color: #334155; font-size: 0.9rem;">
+          <p>No orders yet. Orders placed by buyers will appear here with fulfilment controls.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB: 🏷️ Promotions (GMC Promotions + Amazon + Shopify parity)
+       ========================================================================= -->
+  <div x-show="activeTab === 'promotions'" x-transition style="display: none;">
+    <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="font-size: 1.3rem; font-weight: 800; color: #0F172A; margin: 0 0 0.25rem 0;">🏷️ Promotions &amp; Coupons</h2>
+          <p style="color: #334155; font-size: 0.875rem; margin: 0;">Create storewide or targeted discounts that surface across shopping results.</p>
+        </div>
+      </div>
+
+      <!-- Create form -->
+      <form method="post" style="background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.85rem; align-items: end;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create_promotion" />
+        <div>
+          <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">Title</label>
+          <input type="text" name="title" class="form-control" placeholder="Winter Solar Sale" required style="width: 100%;" />
+        </div>
+        <div>
+          <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">Type</label>
+          <select name="promo_type" class="form-control" style="width: 100%;">
+            {% for val, label in promotion_type_choices %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">Value</label>
+          <input type="number" step="0.01" name="value" class="form-control" placeholder="10" style="width: 100%;" />
+        </div>
+        <div>
+          <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">Scope</label>
+          <select name="scope" class="form-control" style="width: 100%;">
+            {% for val, label in promotion_scope_choices %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">Coupon Code</label>
+          <input type="text" name="code" class="form-control" placeholder="SAVE10" style="width: 100%;" />
+        </div>
+        <div>
+          <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">Min Order (ZAR)</label>
+          <input type="number" step="0.01" name="min_order_amount" class="form-control" placeholder="0" style="width: 100%;" />
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <label style="font-size: 0.8rem; color: #334155; display: flex; align-items: center; gap: 0.3rem;">
+            <input type="checkbox" name="active" checked /> Active
+          </label>
+          <button type="submit" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.55rem 1rem; font-weight: 700;">+ Create</button>
+        </div>
+      </form>
+
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        {% for promo in promotions %}
+        <div style="background: #FAFAFA; border: 1px solid #CBD5E1; border-radius: 10px; padding: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="font-weight: 800; color: #0F172A; font-size: 0.95rem;">
+              {{ promo.title }}
+              {% if promo.code %}<code style="font-size: 0.75rem; background: #EDE9FE; color: #6D28D9; padding: 0.1rem 0.4rem; border-radius: 4px; margin-left: 0.4rem;">{{ promo.code }}</code>{% endif %}
+            </div>
+            <div style="font-size: 0.8rem; color: #334155; margin-top: 0.25rem;">
+              {{ promo.get_promo_type_display }} · {{ promo.get_scope_display }}
+              {% if promo.value %}· {{ promo.value }}{% if promo.promo_type == 'percentage' %}%{% else %} ZAR{% endif %}{% endif %}
+              · used {{ promo.usage_count }}×
+              <span style="font-weight: 700; color: {% if promo.is_live %}#059669{% else %}#B45309{% endif %};">
+                {% if promo.is_live %}● Live{% else %}⏸ Paused / Expired{% endif %}
+              </span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <form method="post" style="margin: 0;">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="toggle_promotion" />
+              <input type="hidden" name="promo_id" value="{{ promo.id }}" />
+              <button type="submit" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.45rem 0.8rem; font-weight: 700;">{{ promo.active|yesno:"Pause,Enable" }}</button>
+            </form>
+            <form method="post" style="margin: 0;" onsubmit="return confirm('Delete this promotion?');">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="delete_promotion" />
+              <input type="hidden" name="promo_id" value="{{ promo.id }}" />
+              <button type="submit" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.45rem 0.8rem; font-weight: 700; color: #B91C1C; border-color: #FCA5A5;">Delete</button>
+            </form>
+          </div>
+        </div>
+        {% empty %}
+        <div style="text-align: center; padding: 2rem 1rem; color: #334155; font-size: 0.9rem;">
+          <p>No promotions yet. Create one above to boost conversion.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB: ⭐ Reviews Moderation (GMC / Amazon parity)
+       ========================================================================= -->
+  <div x-show="activeTab === 'reviews'" x-transition style="display: none;">
+    <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="font-size: 1.3rem; font-weight: 800; color: #0F172A; margin: 0 0 0.25rem 0;">⭐ Reviews &amp; Moderation</h2>
+          <p style="color: #334155; font-size: 0.875rem; margin: 0;">Approve or reject incoming reviews before they count toward your rating.</p>
+        </div>
+        <span class="badge badge-yellow" style="font-size: 0.8rem;">{{ reviews_pending|length }} Awaiting Review</span>
+      </div>
+
+      <h3 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 0 0 0.75rem 0;">Pending Moderation</h3>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+        {% for review in reviews_pending %}
+        <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 10px; padding: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="font-weight: 800; color: #0F172A; font-size: 0.9rem;">
+              {{ review.rating }}★ {{ review.author_name }}
+              <span style="font-weight: 600; color: #64748B;">· {{ review.title|default:"—" }}</span>
+            </div>
+            <p style="font-size: 0.825rem; color: #334155; margin: 0.3rem 0 0 0;">{{ review.body|default:"No comment" }}</p>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <form method="post" style="margin: 0;">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="moderate_review" />
+              <input type="hidden" name="review_id" value="{{ review.id }}" />
+              <input type="hidden" name="decision" value="approve" />
+              <button type="submit" class="btn btn-primary" style="font-size: 0.8rem; padding: 0.45rem 0.85rem; font-weight: 700;">✓ Approve</button>
+            </form>
+            <form method="post" style="margin: 0;">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="moderate_review" />
+              <input type="hidden" name="review_id" value="{{ review.id }}" />
+              <input type="hidden" name="decision" value="reject" />
+              <button type="submit" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.45rem 0.85rem; font-weight: 700; color: #B91C1C; border-color: #FCA5A5;">✕ Reject</button>
+            </form>
+          </div>
+        </div>
+        {% empty %}
+        <div style="text-align: center; padding: 1.5rem 1rem; color: #334155; font-size: 0.875rem;">
+          <p>No reviews awaiting moderation. 🎉</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <h3 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 0 0 0.75rem 0;">Approved Reviews</h3>
+      <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+        {% for review in reviews_approved %}
+        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 0.85rem;">
+          <div style="font-weight: 800; color: #0F172A; font-size: 0.875rem;">
+            {{ review.rating }}★ {{ review.author_name }} <span style="font-weight: 600; color: #64748B;">· {{ review.title|default:"—" }}</span>
+          </div>
+          <p style="font-size: 0.8rem; color: #334155; margin: 0.25rem 0 0 0;">{{ review.body|default:"No comment" }}</p>
+        </div>
+        {% empty %}
+        <div style="text-align: center; padding: 1.5rem 1rem; color: #334155; font-size: 0.875rem;">
+          <p>No approved reviews yet.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB: 📈 Performance (GMC Reports / Shopify Analytics parity)
+       ========================================================================= -->
+  <div x-show="activeTab === 'performance'" x-transition style="display: none;">
+    <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
+      <h2 style="font-size: 1.3rem; font-weight: 800; color: #0F172A; margin: 0 0 1.25rem 0;">📈 Performance &amp; Reports</h2>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem;">
+          <div style="font-weight: 800; color: #0F172A; margin-bottom: 0.75rem;">Top performing offers (clicks)</div>
+          {% if insights.top_offers %}
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            {% for o in insights.top_offers %}
+            <div style="display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.825rem; color: #334155;">
+              <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ o.title|default:o.offer }}</span>
+              <strong style="color: #059669;">{{ o.clicks }}</strong>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p style="font-size: 0.825rem; color: #64748B; margin: 0;">No referral clicks recorded yet.</p>
+          {% endif %}
+        </div>
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem;">
+          <div style="font-weight: 800; color: #0F172A; margin-bottom: 0.75rem;">Feed eligibility</div>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.825rem; color: #334155;">
+            <div style="display: flex; justify-content: space-between;"><span>Approved</span><strong style="color: #059669;">{{ feed_counts.approved|default:0 }}</strong></div>
+            <div style="display: flex; justify-content: space-between;"><span>Limited</span><strong style="color: #B45309;">{{ feed_counts.limited|default:0 }}</strong></div>
+            <div style="display: flex; justify-content: space-between;"><span>Disapproved</span><strong style="color: #B91C1C;">{{ feed_counts.disapproved|default:0 }}</strong></div>
+            <div style="display: flex; justify-content: space-between;"><span>Pending</span><strong style="color: #6D28D9;">{{ feed_counts.pending|default:0 }}</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 1.5rem 0 0.75rem 0;">Recent Referral Events</h3>
+      <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+        {% for ev in referral_events %}
+        <div style="display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.825rem; color: #334155; padding: 0.5rem 0; border-bottom: 1px dashed #E2E8F0;">
+          <span>{{ ev.get_action_display|default:ev.action }}{% if ev.offer %} · {{ ev.offer.variant.title|default:ev.offer.canonical_id }}{% endif %}</span>
+          <span style="color: #64748B;">{{ ev.occurred_at|date:"M d, H:i" }}</span>
+        </div>
+        {% empty %}
+        <p style="font-size: 0.825rem; color: #64748B; margin: 0;">No referral events recorded yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB: ⚙️ Settings (Business profile, shipping, storefront — GMC business info parity)
+       ========================================================================= -->
+  <div x-show="activeTab === 'settings'" x-transition style="display: none;">
+    <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+      <!-- Business profile -->
+      <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
+        <h2 style="font-size: 1.2rem; font-weight: 800; color: #0F172A; margin: 0 0 1rem 0;">⚙️ Business Profile</h2>
+        <form method="post" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem; align-items: end;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="update_profile" />
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">Telephone</label>
+            <input type="text" name="telephone" class="form-control" value="{{ merchant.telephone|default:'' }}" style="width: 100%;" />
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">WhatsApp</label>
+            <input type="text" name="whatsapp_number" class="form-control" value="{{ merchant.whatsapp_number|default:'' }}" style="width: 100%;" />
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">Email</label>
+            <input type="email" name="email" class="form-control" value="{{ merchant.email|default:'' }}" style="width: 100%;" />
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">Website</label>
+            <input type="url" name="website_url" class="form-control" value="{{ merchant.website_url|default:'' }}" style="width: 100%;" />
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">Address</label>
+            <input type="text" name="address_text" class="form-control" value="{{ merchant.address_text|default:'' }}" style="width: 100%;" />
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">Delivery Options (comma-separated)</label>
+            <input type="text" name="delivery_options" class="form-control" value="{{ merchant.delivery_options|join:"," }}" style="width: 100%;" />
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">Payment Methods (comma-separated)</label>
+            <input type="text" name="payment_methods" class="form-control" value="{{ merchant.payment_methods|join:"," }}" style="width: 100%;" />
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">About / Store Description</label>
+            <textarea name="about_text" class="form-control" rows="2" style="width: 100%;">{{ centre_settings.about_text|default:'' }}</textarea>
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">Return Policy</label>
+            <textarea name="return_policy" class="form-control" rows="2" style="width: 100%;">{{ centre_settings.return_policy|default:'' }}</textarea>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">Banner URL</label>
+            <input type="url" name="banner_url" class="form-control" value="{{ centre_settings.banner_url|default:'' }}" style="width: 100%;" />
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.3rem;">VAT %</label>
+            <input type="number" step="0.01" name="tax_rate" class="form-control" value="{{ centre_settings.tax_rate|default:0 }}" style="width: 100%;" />
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <strong style="font-size: 0.8rem; color: #0F172A; display: block; margin-bottom: 0.4rem;">Opening Hours (leave blank = closed)</strong>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
+              {% for day, label in weekday_choices %}
+              <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; color: #334155;">
+                <span style="width: 32px; font-weight: 700;">{{ label }}</span>
+                <input type="time" name="hours_{{ day }}_open" class="form-control" value="{{ merchant.operating_hours_json|get_item:day|default_if_none:''|first }}" style="width: 90px; padding: 0.3rem;" />
+                <input type="time" name="hours_{{ day }}_close" class="form-control" value="{{ merchant.operating_hours_json|get_item:day|default_if_none:''|last }}" style="width: 90px; padding: 0.3rem;" />
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <button type="submit" class="btn btn-primary" style="font-size: 0.875rem; padding: 0.6rem 1.25rem; font-weight: 700;">Save Profile</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Shipping rates -->
+      <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
+        <h2 style="font-size: 1.2rem; font-weight: 800; color: #0F172A; margin: 0 0 1rem 0;">🚚 Shipping Methods</h2>
+        <form method="post" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.7rem; align-items: end; margin-bottom: 1.25rem; background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 12px; padding: 1rem;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="add_shipping_rate" />
+          <div>
+            <label style="font-size: 0.72rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.25rem;">Method</label>
+            <input type="text" name="method" class="form-control" placeholder="Standard Courier" required style="width: 100%;" />
+          </div>
+          <div>
+            <label style="font-size: 0.72rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.25rem;">Zone</label>
+            <input type="text" name="zone" class="form-control" placeholder="national" style="width: 100%;" />
+          </div>
+          <div>
+            <label style="font-size: 0.72rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.25rem;">Rate (ZAR)</label>
+            <input type="number" step="0.01" name="rate" class="form-control" placeholder="0" style="width: 100%;" />
+          </div>
+          <div>
+            <label style="font-size: 0.72rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.25rem;">Free above</label>
+            <input type="number" step="0.01" name="free_above" class="form-control" placeholder="500" style="width: 100%;" />
+          </div>
+          <div>
+            <label style="font-size: 0.72rem; font-weight: 800; color: #0F172A; display: block; margin-bottom: 0.25rem;">ETA (days)</label>
+            <input type="number" name="eta_days" class="form-control" placeholder="3" style="width: 100%;" />
+          </div>
+          <div>
+            <button type="submit" class="btn btn-primary" style="font-size: 0.82rem; padding: 0.5rem 0.9rem; font-weight: 700;">+ Add</button>
+          </div>
+        </form>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          {% for rate in shipping_rates %}
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0.85rem; background: #FAFAFA; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.85rem; color: #334155;">
+            <span><strong style="color: #0F172A;">{{ rate.method }}</strong> · {{ rate.zone|default:"national" }} · R {{ rate.rate|floatformat:2 }} · {{ rate.eta_days }}d{% if rate.free_above %} · free &gt; R {{ rate.free_above|floatformat:0 }}{% endif %}</span>
+            <span style="font-weight: 700; color: {% if rate.active %}#059669{% else %}#B45309{% endif %};">{% if rate.active %}● Active{% else %}⏸{% endif %}</span>
+          </div>
+          {% empty %}
+          <p style="font-size: 0.85rem; color: #64748B; margin: 0;">No shipping methods configured.</p>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>
