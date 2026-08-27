@@ -12,7 +12,7 @@
   <!-- Breadcrumbs & GS1 Compliance Strip -->
   <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
     <div>
-      <a href="/">Home</a> &gt; <a href="/search?category={{ product.category_ref }}">{{ product.category_ref|title }}</a> &gt; <span style="color: var(--text-primary); font-weight: 600;">{{ product.brand }}</span>
+      <a href="/">Home</a> &gt; <a href="/category/{{ product.category_ref }}/">{{ product.category_ref|title }}</a> &gt; <a href="/brand/{{ product.brand|slugify }}/">{{ product.brand }}</a>
     </div>
     <div style="display: flex; gap: 0.5rem; align-items: center;">
       <span class="badge badge-green" style="font-size: 0.7rem;">✓ Checksum GTIN: {{ product.gtin13|default:product.canonical_id }}</span>
@@ -126,7 +126,11 @@
       <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.4rem;">
         <span class="badge badge-blue">{{ product.brand }} Official Spec</span>
         <span class="badge badge-green">✓ GS1 Standard Registered</span>
-        <span style="font-size: 0.8rem; color: #F59E0B; font-weight: 700;">★ 4.9 (48 verified store reviews)</span>
+        {% with rs=product.reviews_summary %}
+        {% if rs.average_rating and rs.review_count %}
+        <span style="font-size: 0.8rem; color: #F59E0B; font-weight: 700;">★ {{ rs.average_rating }} ({{ rs.review_count }} verified store reviews)</span>
+        {% endif %}
+        {% endwith %}
       </div>
 
       <h1 style="font-size: 2.15rem; font-weight: 900; color: #0F172A; margin-bottom: 0.5rem; letter-spacing: -0.025em; line-height: 1.25;">
@@ -462,7 +466,7 @@
         {% if not confirmed_offers %}
         <div class="card" style="background: #F8FAFC; padding: 1.5rem; text-align: center;">
           <p style="color: #64748B; margin-bottom: 0.75rem;">
-            No local store has confirmed direct stock on WhatsApp yet. Claim this listing or explore discovered external web feeds.
+            No local store has confirmed direct stock yet. Claim this listing or explore discovered external web feeds.
           </p>
           <a href="/merchant/claim?variantId={{ product.canonical_id }}&title={{ product.title|urlencode }}" class="btn btn-whatsapp" style="font-size: 0.85rem;">
             + List as First Verified Stockist

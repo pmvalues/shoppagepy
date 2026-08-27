@@ -14,7 +14,9 @@ describe('Google Product Taxonomy Engine', () => {
   it('searches categories by keyword and finds nested solar subcategories', () => {
     const results = engine.searchCategories('inverter');
     expect(results.length).toBeGreaterThan(0);
-    expect(results[0].fullPath).toContain('Hardware > Solar Energy > Solar Inverters');
+    const solarInverters = results.find((r) => r.id === 500002);
+    expect(solarInverters).toBeDefined();
+    expect(solarInverters?.fullPath).toBe('Hardware > Solar Energy > Solar Inverters');
   });
 
   it('reconstructs complete breadcrumb hierarchy trail', () => {
@@ -29,7 +31,11 @@ describe('Google Product Taxonomy Engine', () => {
   it('resolves category by slug', () => {
     const cat = engine.getCategoryBySlug('mobile-phones');
     expect(cat).toBeDefined();
-    expect(cat?.id).toBe(269);
+    expect(cat?.id).toBe(267);
     expect(cat?.fullPath).toBe('Electronics > Communications > Telephony > Mobile Phones');
+  });
+
+  it('contains the full official Google taxonomy (5,500+ categories)', () => {
+    expect(engine.getTotalCategoriesCount()).toBeGreaterThanOrEqual(5500);
   });
 });

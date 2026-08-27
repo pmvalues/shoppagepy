@@ -330,6 +330,26 @@ def _fuzzy_candidates(term: str, limit: int) -> List[Any]:
 # Public Ranked Search API
 # ---------------------------------------------------------------------------
 
+def _effective_price(s: 'ScoredProduct') -> float:
+    if s.best_offer is not None and s.best_offer.price_amount:
+        return float(s.best_offer.price_amount)
+    if s.product.estimated_price_zar:
+        return float(s.product.estimated_price_zar)
+    return float('inf')
+
+
+def _rating_value(product: MasterProduct) -> float:
+    rs = product.reviews_summary if isinstance(product.reviews_summary, dict) else {}
+    for key in ('average_rating', 'rating', 'avg_rating'):
+        val = rs.get(key)
+        if isinstance(val, (int, float)):
+            return float(val)
+    return 0.0
+
+
+SORT_CHOICES = ('relevance', 'price_asc', 'price_desc', 'newest', 'rating')
+
+
 def ranked_search(
     raw_query: str,
     limit: int = 24,
@@ -338,6 +358,7 @@ def ranked_search(
     province: str = '',
     min_price: Optional[float] = None,
     max_price: Optional[float] = None,
+    sort: str = 'relevance',
 ) -> Dict[str, Any]:
     """
     Deterministic ranked product+merchant search (< 30ms).
@@ -367,6 +388,18 @@ def ranked_search(
     if category:
         products_qs = products_qs.filter(category_ref=category)
 
+    if province:
+        matched = [
+            p for p in products_qs
+            if any(
+                (o.merchant and (o.merchant.province or '').strip().lower() == province.strip().lower())
+                or (o.merchant and o.merchant.market and (o.merchant.market.province or '').strip().lower() == province.strip().lower())
+                for o in p.offers.all()
+            )
+        ]
+        if matched:
+            products_qs = matched
+
     scored: List[ScoredProduct] = []
     for p in products_qs:
         offers = [o for o in p.offers.all()
@@ -393,7 +426,19 @@ def ranked_search(
             seen_titles.add(title_key)
             deduped_scored.append(s)
 
-    deduped_scored.sort(key=lambda s: (-s.score, -(s.offer_count)))
+    if sort not in SORT_CHOICES:
+        sort = 'relevance'
+
+    if sort == 'price_asc':
+        deduped_scored.sort(key=lambda s: (_effective_price(s), -s.score))
+    elif sort == 'price_desc':
+        deduped_scored.sort(key=lambda s: (-_effective_price(s) if _effective_price(s) != float('inf') else float('-inf'), -s.score))
+    elif sort == 'newest':
+        deduped_scored.sort(key=lambda s: ((s.product.created_at or s.product.updated_at), s.score), reverse=True)
+    elif sort == 'rating':
+        deduped_scored.sort(key=lambda s: (_rating_value(s.product), -s.score), reverse=True)
+    else:
+        deduped_scored.sort(key=lambda s: (-s.score, -(s.offer_count)))
 
     total = len(deduped_scored)
     page = deduped_scored[offset:offset + limit]

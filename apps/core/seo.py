@@ -138,6 +138,26 @@ def static_sitemap_view(request) -> HttpResponse:
     return HttpResponse(xml, content_type='application/xml')
 
 
+def itemlist_jsonld(name: str, items: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """ItemList for category/brand browse pages. Only evidence-backed fields."""
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        'name': name,
+        'numberOfItems': len(items),
+        'itemListElement': [
+            {
+                '@type': 'ListItem',
+                'position': idx + 1,
+                'url': item['url'],
+                'name': item['name'],
+            }
+            for idx, item in enumerate(items)
+        ],
+    }
+
+
+
 # ---------------------------------------------------------------------------
 # JSON-LD structured data builders
 # ---------------------------------------------------------------------------
