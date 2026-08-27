@@ -36,6 +36,8 @@ export function getSqliteDatabase(filename: string, options: { readOnly?: boolea
       for (const p of possiblePaths) {
         if (fs.existsSync(p)) {
           const db = new DatabaseSync(p, { open: true, readOnly: options.readOnly ?? true });
+          // Wait for concurrent readers (parallel test workers / web workers) instead of failing with SQLITE_BUSY
+          db.exec('PRAGMA busy_timeout = 10000;');
           dbCache.set(cacheKey, db);
           return db;
         }
