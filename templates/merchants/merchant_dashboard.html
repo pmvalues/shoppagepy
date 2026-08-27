@@ -4,7 +4,8 @@
 {% block title %}Merchant Centre OS — {{ merchant.name|default:"Merchant Hub" }} | Shoppage{% endblock %}
 
 {% block content %}
-<div class="container" style="padding-top: 2rem; padding-bottom: 5rem;" x-data="{ 
+<div class="mc-shell" x-data="{ 
+  sidebarOpen: false,
   activeTab: 'products',
   streamRunning: false,
   selectedAgent: 'Feed Autopilot',
@@ -71,6 +72,131 @@
   }
 }">
 
+  <style>
+    .mc-shell { display: flex; min-height: 100vh; background: #F1F5F9; }
+    .mc-sidebar {
+      width: 260px; flex-shrink: 0; background: #0F172A; color: #CBD5E1;
+      display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
+      padding: 1.25rem 0.85rem; overflow-y: auto;
+    }
+    .mc-sidebar__brand { display: flex; align-items: center; gap: 0.65rem; padding: 0.25rem 0.5rem 1.25rem; }
+    .mc-sidebar__logo {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      background: linear-gradient(135deg, #10B981, #1D4ED8); color: #fff;
+      display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.05rem;
+    }
+    .mc-sidebar__name { font-weight: 800; color: #fff; font-size: 0.95rem; line-height: 1.15; }
+    .mc-sidebar__sub { font-size: 0.68rem; color: #64748B; letter-spacing: 0.03em; text-transform: uppercase; }
+    .mc-nav { display: flex; flex-direction: column; gap: 0.15rem; flex: 1; }
+    .mc-nav__label { font-size: 0.66rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.08em; padding: 1rem 0.75rem 0.4rem; }
+    .mc-nav__item {
+      display: flex; align-items: center; gap: 0.7rem; width: 100%; text-align: left;
+      padding: 0.62rem 0.75rem; border-radius: 9px; border: none; background: transparent;
+      color: #CBD5E1; font-size: 0.875rem; font-weight: 600; cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .mc-nav__item:hover { background: #1E293B; color: #fff; }
+    .mc-nav__item.is-active { background: #1D4ED8; color: #fff; }
+    .mc-nav__icon { font-size: 1.05rem; width: 22px; text-align: center; flex-shrink: 0; }
+    .mc-nav__badge { margin-left: auto; background: rgba(255,255,255,0.14); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 0.05rem 0.45rem; border-radius: 999px; }
+    .mc-sidebar__profile { margin-top: 1rem; padding: 0.8rem; background: #1E293B; border-radius: 12px; display: flex; align-items: center; gap: 0.65rem; }
+    .mc-sidebar__avatar { width: 38px; height: 38px; border-radius: 50%; background: #334155; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+    .mc-sidebar__pname { color: #fff; font-weight: 700; font-size: 0.85rem; line-height: 1.1; }
+    .mc-sidebar__pmeta { color: #94A3B8; font-size: 0.72rem; }
+    .mc-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .mc-topbar {
+      position: sticky; top: 0; z-index: 30; background: #fff; border-bottom: 1px solid #E2E8F0;
+      display: flex; align-items: center; gap: 1rem; padding: 0.7rem 1.5rem;
+    }
+    .mc-menu-btn { display: none; background: transparent; border: none; font-size: 1.4rem; cursor: pointer; color: #0F172A; line-height: 1; }
+    .mc-page-title { font-size: 1.05rem; font-weight: 800; color: #0F172A; margin: 0; }
+    .mc-search { margin-left: auto; }
+    .mc-search .form-control { width: 300px; max-width: 38vw; }
+    .mc-avatar {
+      width: 36px; height: 36px; border-radius: 50%; background: #1D4ED8; color: #fff;
+      display: flex; align-items: center; justify-content: center; font-weight: 800; text-decoration: none; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .mc-content { padding: 1.75rem 1.75rem 4rem; flex: 1; }
+    .mc-overlay { display: none; }
+    @media (max-width: 1024px) {
+      .mc-sidebar { position: fixed; left: 0; top: 0; z-index: 50; transform: translateX(-100%); transition: transform 0.25s ease; box-shadow: 4px 0 24px rgba(0,0,0,0.25); }
+      .mc-sidebar.is-open { transform: translateX(0); }
+      .mc-menu-btn { display: block; }
+      .mc-overlay.is-open { display: block; position: fixed; inset: 0; background: rgba(15,23,42,0.45); z-index: 40; }
+    }
+  </style>
+
+  <!-- ===== LEFT SIDEBAR ===== -->
+  <aside class="mc-sidebar" :class="sidebarOpen ? 'is-open' : ''">
+    <div class="mc-sidebar__brand">
+      <div class="mc-sidebar__logo">S</div>
+      <div>
+        <div class="mc-sidebar__name">Shoppage</div>
+        <div class="mc-sidebar__sub">Merchant Centre</div>
+      </div>
+    </div>
+
+    <nav class="mc-nav">
+      <div class="mc-nav__label">Store</div>
+      <button type="button" class="mc-nav__item" :class="activeTab === 'products' ? 'is-active' : ''" @click="activeTab = 'products'; sidebarOpen = false;">
+        <span class="mc-nav__icon">📦</span><span>Products &amp; Feed</span>
+      </button>
+      <button type="button" class="mc-nav__item" :class="activeTab === 'orders' ? 'is-active' : ''" @click="activeTab = 'orders'; sidebarOpen = false;">
+        <span class="mc-nav__icon">🧾</span><span>Orders</span><span class="mc-nav__badge">{{ orders|length }}</span>
+      </button>
+      <button type="button" class="mc-nav__item" :class="activeTab === 'promotions' ? 'is-active' : ''" @click="activeTab = 'promotions'; sidebarOpen = false;">
+        <span class="mc-nav__icon">🏷️</span><span>Promotions</span><span class="mc-nav__badge">{{ promotions|length }}</span>
+      </button>
+      <button type="button" class="mc-nav__item" :class="activeTab === 'reviews' ? 'is-active' : ''" @click="activeTab = 'reviews'; sidebarOpen = false;">
+        <span class="mc-nav__icon">⭐</span><span>Reviews</span><span class="mc-nav__badge">{{ reviews_pending|length }}</span>
+      </button>
+      <button type="button" class="mc-nav__item" :class="activeTab === 'performance' ? 'is-active' : ''" @click="activeTab = 'performance'; sidebarOpen = false;">
+        <span class="mc-nav__icon">📈</span><span>Performance</span>
+      </button>
+      <button type="button" class="mc-nav__item" :class="activeTab === 'settings' ? 'is-active' : ''" @click="activeTab = 'settings'; sidebarOpen = false;">
+        <span class="mc-nav__icon">⚙️</span><span>Settings</span>
+      </button>
+
+      <div class="mc-nav__label">Intelligence</div>
+      <button type="button" class="mc-nav__item" :class="activeTab === 'demands' ? 'is-active' : ''" @click="activeTab = 'demands'; sidebarOpen = false;">
+        <span class="mc-nav__icon">📡</span><span>Demand Radar</span><span class="mc-nav__badge">{{ demands|length }}</span>
+      </button>
+      <button type="button" class="mc-nav__item" :class="activeTab === 'drafts' ? 'is-active' : ''" @click="activeTab = 'drafts'; sidebarOpen = false;">
+        <span class="mc-nav__icon">📝</span><span>AI Draft Review</span><span class="mc-nav__badge">{{ drafts|length }}</span>
+      </button>
+      <button type="button" class="mc-nav__item" :class="activeTab === 'agent' ? 'is-active' : ''" @click="activeTab = 'agent'; sidebarOpen = false;">
+        <span class="mc-nav__icon">🤖</span><span>Agent Command</span>
+      </button>
+      <button type="button" class="mc-nav__item" :class="activeTab === 'trust' ? 'is-active' : ''" @click="activeTab = 'trust'; sidebarOpen = false;">
+        <span class="mc-nav__icon">🛡️</span><span>Trust Passport</span>
+      </button>
+    </nav>
+
+    <div class="mc-sidebar__profile">
+      <div class="mc-sidebar__avatar">{{ merchant.name|default:"M"|first|upper }}</div>
+      <div>
+        <div class="mc-sidebar__pname">{{ merchant.name|default:"Merchant" }}</div>
+        <div class="mc-sidebar__pmeta">Trust {{ merchant.trust_score|default:"—" }} · {{ merchant.province|default:"" }}</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- mobile overlay -->
+  <div class="mc-overlay" x-show="sidebarOpen" @click="sidebarOpen = false" :class="sidebarOpen ? 'is-open' : ''"></div>
+
+  <!-- ===== MAIN COLUMN ===== -->
+  <div class="mc-main">
+    <header class="mc-topbar">
+      <button type="button" class="mc-menu-btn" @click="sidebarOpen = !sidebarOpen" aria-label="Toggle navigation">☰</button>
+      <h1 class="mc-page-title" x-text="{ 'products': 'Products &amp; Feed', 'orders': 'Orders', 'promotions': 'Promotions', 'reviews': 'Reviews', 'performance': 'Performance', 'settings': 'Settings', 'demands': 'Demand Radar', 'drafts': 'AI Draft Review', 'agent': 'Agent Command Center', 'trust': 'Trust Passport' }[activeTab]">Products &amp; Feed</h1>
+      <div class="mc-search">
+        <input type="search" class="form-control" placeholder="Search products, orders, buyers…" aria-label="Search" />
+      </div>
+      <a href="#" @click.prevent="activeTab = 'settings'; sidebarOpen = false" class="mc-avatar" title="Account settings">{{ merchant.name|default:"M"|first|upper }}</a>
+    </header>
+
+    <main class="mc-content">
+
   <!-- Merchant OS Top Command Header (Dark Theme) -->
   <div style="background: #0F172A; border-radius: 16px; padding: 2rem; color: #FFFFFF; margin-bottom: 2rem; border: 1px solid #1E293B; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
     <div>
@@ -105,7 +231,7 @@
   </div>
 
   <!-- KPI Pulse Ticker -->
-  <div class="grid grid-cols-6" style="gap: 1.25rem; margin-bottom: 2rem;">
+  <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6" style="gap: 1.25rem; margin-bottom: 2rem;">
     <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #10B981;">
       <div class="stat-number" style="color: #059669;">{{ merchant.trust_score|default:85 }}/100</div>
       <div class="stat-label">Verified Trust Score</div>
@@ -194,90 +320,6 @@
     </div>
   </section>
   {% endif %}
-
-  <!-- Reactive Workspace Navigation Tabs -->
-  <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid #CBD5E1; margin-bottom: 2rem; overflow-x: auto; padding-bottom: 2px;">
-    <button 
-      type="button" 
-      @click="activeTab = 'products'" 
-      :style="activeTab === 'products' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
-      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
-    >
-      <span>📦</span> Products &amp; Feed
-    </button>
-    <button 
-      type="button" 
-      @click="activeTab = 'orders'" 
-      :style="activeTab === 'orders' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
-      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
-    >
-      <span>🧾</span> Orders <span class="badge badge-orange" style="font-size: 0.75rem;">{{ orders|length }}</span>
-    </button>
-    <button 
-      type="button" 
-      @click="activeTab = 'promotions'" 
-      :style="activeTab === 'promotions' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
-      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
-    >
-      <span>🏷️</span> Promotions <span class="badge badge-pink" style="font-size: 0.75rem;">{{ promotions|length }}</span>
-    </button>
-    <button 
-      type="button" 
-      @click="activeTab = 'reviews'" 
-      :style="activeTab === 'reviews' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
-      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
-    >
-      <span>⭐</span> Reviews <span class="badge badge-yellow" style="font-size: 0.75rem;">{{ reviews_pending|length }}</span>
-    </button>
-    <button 
-      type="button" 
-      @click="activeTab = 'performance'" 
-      :style="activeTab === 'performance' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
-      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
-    >
-      <span>📈</span> Performance
-    </button>
-    <button 
-      type="button" 
-      @click="activeTab = 'settings'" 
-      :style="activeTab === 'settings' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
-      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
-    >
-      <span>⚙️</span> Settings
-    </button>
-    <button 
-      type="button" 
-      @click="activeTab = 'agent'" 
-      :style="activeTab === 'agent' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
-      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
-    >
-      <span>🤖</span> Agent Command Center
-    </button>
-    <button 
-      type="button" 
-      @click="activeTab = 'drafts'" 
-      :style="activeTab === 'drafts' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
-      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
-    >
-      <span>📝</span> AI Draft Review <span class="badge badge-purple" style="font-size: 0.75rem;">{{ drafts|length }}</span>
-    </button>
-    <button 
-      type="button" 
-      @click="activeTab = 'demands'" 
-      :style="activeTab === 'demands' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
-      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
-    >
-      <span>📡</span> Demand Radar <span class="badge badge-blue" style="font-size: 0.75rem;">{{ demands|length }}</span>
-    </button>
-    <button 
-      type="button" 
-      @click="activeTab = 'trust'" 
-      :style="activeTab === 'trust' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
-      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
-    >
-      <span>🛡️</span> Trust Passport
-    </button>
-  </div>
 
   <!-- =========================================================================
        TAB 1: 🤖 Agent Command Center (Live SSE Streaming Console)
@@ -1042,6 +1084,7 @@
       </div>
     </div>
   </div>
-
+    </main>
+  </div>
 </div>
 {% endblock %}
