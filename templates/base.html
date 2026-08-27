@@ -70,22 +70,26 @@
     recognition.start();
   }
 }" @keydown.window="if ($event.key === '/' && !['INPUT', 'TEXTAREA'].includes($event.target.tagName)) { $event.preventDefault(); document.getElementById('global-omnibox-input')?.focus(); }">
-  <!-- Main Google-Style Header -->
-  <header class="header">
-    <div class="container nav-wrapper" style="height: 70px; gap: 1.5rem;">
+  <!-- Main Header -->
+  <header class="header" id="site-header">
+    <div class="container nav-wrapper">
       <!-- Logo -->
-      <a href="/" class="logo" style="flex-shrink: 0;">
-        <span class="logo-badge">⚡</span>
+      <a href="/" class="logo">
+        <span class="logo-badge">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+        </span>
         <div style="display: flex; flex-direction: column;">
-          <span style="font-family: var(--font-display); font-size: 1.45rem; font-weight: 900; letter-spacing: -0.03em; color: #0F172A; line-height: 1.1;">Shoppage</span>
-          <span style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #2563EB;">National Grid</span>
+          <span class="logo-text">Shoppage</span>
+          <span style="font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary-600); line-height: 1.2;">National Grid</span>
         </div>
       </a>
 
-      <!-- Wide Omnibox Search Bar (Google Style) -->
+      <!-- Wide Omnibox Search Bar -->
       <div style="position: relative; flex: 1; max-width: 692px;" x-data="{ open: false }">
         <form action="/search/" method="GET" class="search-container" style="position: relative; display: flex; align-items: center; width: 100%;">
-          <span class="search-icon" style="position: absolute; left: 16px; font-size: 1.15rem; color: #94A3B8; pointer-events: none;">🔍</span>
+          <span class="search-icon">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          </span>
           <input
             id="global-omnibox-input"
             type="text"
@@ -101,25 +105,25 @@
             @focus="open = true"
             @click.away="open = false"
             @keydown.escape="open = false"
-            style="width: 100%; padding: 0.8rem 7.5rem 0.8rem 3.25rem; border: 1.5px solid #CBD5E1; border-radius: 9999px; font-size: 0.95rem; font-family: var(--font-sans); outline: none; background: #FFFFFF; transition: border-color 0.15s; box-shadow: none;"
-            onfocus="this.style.borderColor='#2563EB'"
-            onblur="this.style.borderColor='#CBD5E1'"
+            style="padding-right: 7.5rem;"
           />
           <div style="position: absolute; right: 8px; display: flex; align-items: center; gap: 4px;">
             {% if query %}
-            <a href="/search/" title="Clear search" style="color: #94A3B8; font-size: 1rem; padding: 4px 6px; text-decoration: none; line-height: 1;">✕</a>
-            <span style="color: #E2E8F0;">|</span>
+            <a href="/search/" title="Clear search" style="color: var(--slate-400); font-size: 1rem; padding: 4px 6px; text-decoration: none; line-height: 1;">✕</a>
+            <span style="color: var(--slate-200);">|</span>
             {% endif %}
             <button
               type="button"
               @click="startVoiceSearch()"
               :class="{ 'voice-listening': isListening }"
               title="Voice Search"
-              style="background: transparent; border: none; cursor: pointer; padding: 4px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; color: #64748B;"
+              style="background: transparent; border: none; cursor: pointer; padding: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--slate-500); transition: background 0.15s;"
+              onmouseover="this.style.background='var(--slate-100)'"
+              onmouseout="this.style.background='transparent'"
             >
-              <span x-text="isListening ? '🔴' : '🎙️'"></span>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v4"/></svg>
             </button>
-            <button type="submit" class="btn btn-primary" style="padding: 0.45rem 1.25rem; font-size: 0.85rem; border-radius: 9999px;">
+            <button type="submit" class="btn btn-primary btn-sm" style="border-radius: 9999px;">
               Search
             </button>
           </div>
@@ -130,42 +134,49 @@
           id="live-search-dropdown"
           x-show="open"
           x-transition
-          style="display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px; z-index: 1000; max-height: 440px; overflow-y: auto;"
+          style="display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: #FFFFFF; border: 1px solid var(--border); border-radius: 14px; z-index: 1000; max-height: 440px; overflow-y: auto; box-shadow: var(--shadow-xl);"
         >
         </div>
       </div>
 
       <!-- Right Action Button: + List Shop -->
       <div style="flex-shrink: 0; display: flex; align-items: center; gap: 0.75rem;">
-        <a href="/merchant/claim" class="btn btn-whatsapp" style="padding: 0.55rem 1.25rem; font-size: 0.875rem; font-weight: 700; border-radius: 9999px;">
+        <a href="/merchant/claim" class="btn btn-whatsapp btn-sm" style="border-radius: 9999px;">
           + List Shop
         </a>
       </div>
     </div>
 
-    <!-- Second Row Elements Under Header: Google-Style Navigation Tabs -->
-    <div style="background: #FFFFFF; border-top: 1px solid #E2E8F0; padding: 0;">
-      <div class="container" style="display: flex; gap: 1.75rem; overflow-x: auto; font-size: 0.875rem; font-weight: 600; color: #475569; align-items: center; white-space: nowrap; scrollbar-width: none;">
+    <!-- Second Row: Navigation Tabs -->
+    <div style="background: rgba(255, 255, 255, 0.92); border-top: 1px solid var(--border);">
+      <div class="container" style="display: flex; gap: 0.5rem; overflow-x: auto; align-items: center; white-space: nowrap; scrollbar-width: none;">
         <a href="/search?q={{ query|default:'' }}" class="google-nav-tab {% if not request.GET.mode and not request.GET.tab and '/shorts' not in request.path and '/malls' not in request.path and '/merchants' not in request.path and '/requests' not in request.path %}active-tab{% endif %}">
-          🔍 All
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          All
         </a>
         <a href="/search?q={{ query|default:'' }}&tab=shopping" class="google-nav-tab {% if request.GET.tab == 'shopping' %}active-tab{% endif %}">
-          🛍️ Price Matrix
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          Price Matrix
         </a>
         <a href="/search?q={{ query|default:'' }}&province=Gauteng" class="google-nav-tab {% if request.GET.province == 'Gauteng' %}active-tab{% endif %}">
-          🇿🇦 South African Grid
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg>
+          SA Grid
         </a>
         <a href="/merchants" class="google-nav-tab {% if '/merchants' in request.path %}active-tab{% endif %}">
-          🏪 Detailed Merchant Shops
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9 5 3h14l2 6"/><path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"/><path d="M3 9h18"/><path d="M9 21v-6h6v6"/></svg>
+          Merchant Shops
         </a>
         <a href="/malls" class="google-nav-tab {% if '/malls' in request.path %}active-tab{% endif %}">
-          🗺️ 3,296 Malls
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 6 9-3 9 3"/><path d="M4.5 6.5 6 21h12l1.5-14.5"/><path d="M7 21v-7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v7"/></svg>
+          3,296 Malls
         </a>
         <a href="/shorts" class="google-nav-tab {% if '/shorts' in request.path %}active-tab{% endif %}">
-          🎬 Proof Shorts
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="m10 9 5 3-5 3V9Z"/></svg>
+          Proof Shorts
         </a>
         <a href="/requests" class="google-nav-tab {% if '/requests' in request.path %}active-tab{% endif %}">
-          📋 Buyer RFQs
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+          Buyer RFQs
         </a>
       </div>
     </div>
@@ -180,24 +191,28 @@
   {% include 'includes/ai_assistant_widget.html' %}
 
   <!-- Footer -->
-  <footer style="background: #0F172A; color: #94A3B8; border-top: 1px solid #1E293B; padding: 4rem 0 2rem 0; margin-top: 4rem;">
+  <footer class="footer">
     <div class="container">
       <div class="footer-grid" style="margin-bottom: 3rem;">
         <div>
-          <div style="font-size: 1.4rem; font-weight: 800; color: #FFFFFF; margin-bottom: 0.75rem;">
-            ⚡ Shoppage
+          <div style="display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; color: #FFFFFF; margin-bottom: 0.85rem;">
+            <span style="width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, #3B82F6, #7C3AED); display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+            </span>
+            Shoppage
           </div>
-          <p style="font-size: 0.85rem; line-height: 1.6; max-width: 320px;">
+          <p style="font-size: 0.85rem; line-height: 1.65; max-width: 320px;">
             The National Commercial Intelligence Grid for South Africa. Connecting consumers directly with verified local merchants on WhatsApp with 0% transaction fees.
           </p>
-          <div style="margin-top: 1rem; font-size: 0.8rem; color: #34D399; font-weight: 600;">
-            ✓ SABS &amp; NRS 097 Grid Certified Standard
+          <div style="margin-top: 1.1rem; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: #34D399; font-weight: 600; background: rgba(52, 211, 153, 0.08); border: 1px solid rgba(52, 211, 153, 0.2); padding: 0.35rem 0.75rem; border-radius: 9999px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            SABS &amp; NRS 097 Grid Certified
           </div>
         </div>
 
         <div>
-          <h4 style="color: #FFFFFF; font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem;">Primary Sectors</h4>
-          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+          <h4>Primary Sectors</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.55rem; font-size: 0.85rem;">
             <a href="/search?category=solar_energy">Solar &amp; Backup Power</a>
             <a href="/search?category=smartphones">Smartphones &amp; Tablets</a>
             <a href="/search?category=hardware">Building &amp; Hardware</a>
@@ -207,8 +222,8 @@
         </div>
 
         <div>
-          <h4 style="color: #FFFFFF; font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem;">Spatial Commerce</h4>
-          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+          <h4>Spatial Commerce</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.55rem; font-size: 0.85rem;">
             <a href="/malls?province=Gauteng">Gauteng Malls (1,184)</a>
             <a href="/malls?province=Western%20Cape">Western Cape Malls (612)</a>
             <a href="/malls?province=KwaZulu-Natal">KZN Shopping Hubs (548)</a>
@@ -218,8 +233,8 @@
         </div>
 
         <div>
-          <h4 style="color: #FFFFFF; font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem;">Media &amp; Proof</h4>
-          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+          <h4>Media &amp; Proof</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.55rem; font-size: 0.85rem;">
             <a href="/shorts">Proof Shorts</a>
             <a href="/shows">Market Walk Series</a>
             <a href="/shows">Product Battles Lab</a>
@@ -228,8 +243,8 @@
         </div>
 
         <div>
-          <h4 style="color: #FFFFFF; font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem;">Merchants &amp; Admin</h4>
-          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+          <h4>Merchants &amp; Admin</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.55rem; font-size: 0.85rem;">
             <a href="/merchant/claim" style="color: #34D399;">Claim Store Profile</a>
             <a href="/merchant/dashboard">Merchant Dashboard</a>
             <a href="/agency">Agency &amp; Franchise</a>
@@ -238,9 +253,9 @@
         </div>
       </div>
 
-      <div style="border-top: 1px solid #1E293B; padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: 0.75rem;">
+      <div class="footer-bottom">
         <div>
-          &copy; 2026 Shoppage Group (Pty) Ltd. Built on Django 5.1 &amp; National Commercial Intelligence Grid.
+          &copy; 2026 Shoppage Group (Pty) Ltd. Built on Django 6.1 &amp; National Commercial Intelligence Grid.
         </div>
         <div style="display: flex; gap: 1.5rem;">
           <a href="/privacy">Privacy &amp; POPIA</a>
@@ -252,6 +267,16 @@
   </footer>
 
   <script src="{% static 'js/assistant.js' %}"></script>
+  <script>
+    // Elevated header shadow on scroll
+    (function () {
+      var header = document.getElementById('site-header');
+      if (!header) return;
+      var update = function () { header.classList.toggle('is-scrolled', window.scrollY > 8); };
+      window.addEventListener('scroll', update, { passive: true });
+      update();
+    })();
+  </script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>
