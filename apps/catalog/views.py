@@ -4,8 +4,177 @@ from django.utils.text import slugify
 from .models import MasterProduct
 from apps.offers.models import DiscoveredOffer
 from apps.media_hub.models import Short
-from apps.core.seo import product_jsonld, jsonld_script
+from apps.core.seo import product_jsonld, jsonld_script, itemlist_jsonld
 from apps.intelligence.services import get_tiered_moq_pricing, get_brand_knowledge_card
+
+BROWSE_SORTS = ('relevance', 'price_asc', 'price_desc', 'newest', 'rating')
+BROWSE_PER_PAGE = 24
+
+
+def _best_offer_price(product):
+    prices = [
+        float(o.price_amount) for o in product.offers.all()
+        if o.price_amount and o.availability_state not in ('out_of_stock', 'hidden', 'expired')
+    ]
+    return min(prices) if prices else None
+
+
+def _rating_value(product):
+    rs = product.reviews_summary if isinstance(product.reviews_summary, dict) else {}
+    for key in ('average_rating', 'rating', 'avg_rating'):
+        val = rs.get(key)
+        if isinstance(val, (int, float)):
+            return float(val)
+    return 0.0
+
+
+def _sort_browse_products(products, sort):
+    if sort not in BROWSE_SORTS:
+        sort = 'relevance'
+    if sort == 'price_asc':
+        return sorted(products, key=lambda p: (_best_offer_price(p) if _best_offer_price(p) is not None else float('inf'), p.title))
+    if sort == 'price_desc':
+        return sorted(products, key=lambda p: (_best_offer_price(p) or 0, p.title), reverse=True)
+    if sort == 'newest':
+        return sorted(products, key=lambda p: (p.created_at or p.updated_at), reverse=True)
+    if sort == 'rating':
+        return sorted(products, key=lambda p: (_rating_value(p), p.offers.count()), reverse=True)
+    return sorted(products, key=lambda p: (-min(p.offers.count(), 5), -(1 if _best_offer_price(p) else 0), p.title))
+
+
+def _browse_context(request, products, kind, title, subtitle, facet_kind):
+    sort = request.GET.get('sort', 'relevance')
+    if sort not in BROWSE_SORTS:
+        sort = 'relevance'
+
+    def parse_price(name):
+        try:
+            return float(request.GET.get(name))
+        except (TypeError, ValueError):
+            return None
+
+    min_price = parse_price('min_price')
+    max_price = parse_price('max_price')
+
+    def price_of(p):
+        return _best_offer_price(p) if _best_offer_price(p) is not None else (
+            float(p.estimated_price_zar) if p.estimated_price_zar else None)
+
+    if min_price is not None:
+        products = [p for p in products if (pr := price_of(p)) is not None and pr >= min_price]
+    if max_price is not None:
+        products = [p for p in products if (pr := price_of(p)) is not None and pr <= max_price]
+
+    products = _sort_browse_products(products, sort)
+
+    facet_counts = {}
+    for p in products:
+        key = p.brand if facet_kind == 'brand' else (p.category_ref or 'other')
+        facet_counts[key] = facet_counts.get(key, 0) + 1
+    facets = [
+        {'name': name, 'slug': slugify(name), 'count': count}
+        for name, count in sorted(facet_counts.items(), key=lambda kv: -kv[1])[:12]
+    ]
+
+    try:
+        page_num = max(int(request.GET.get('page', 1)), 1)
+    except ValueError:
+        page_num = 1
+    total = len(products)
+    total_pages = max(-(-total // BROWSE_PER_PAGE), 1)
+    page_products = products[(page_num - 1) * BROWSE_PER_PAGE: page_num * BROWSE_PER_PAGE]
+    for p in page_products:
+        p.best_price = _best_offer_price(p)
+
+    def page_url(n):
+        params = request.GET.copy()
+        params['page'] = n
+        return f'{request.path}?{params.urlencode()}'
+
+    page_links = [{'n': n, 'url': page_url(n), 'current': n == page_num}
+                  for n in range(1, total_pages + 1)]
+
+    hidden_params = [
+        {'name': k, 'value': v}
+        for k, v in request.GET.items()
+        if k not in ('sort', 'page') and v
+    ]
+
+    jsonld_items = [
+        {'url': f'/p/{p.canonical_id}/', 'name': p.title}
+        for p in page_products
+    ]
+
+    return {
+        'browse_kind': kind,
+        'browse_title': title,
+        'browse_subtitle': subtitle,
+        'products': page_products,
+        'facets': facets,
+        'facet_kind': facet_kind,
+        'sort': sort,
+        'total_products': total,
+        'page_num': page_num,
+        'total_pages': total_pages,
+        'page_links': page_links,
+        'hidden_params': hidden_params,
+        'jsonld': jsonld_script(itemlist_jsonld(f'{kind}: {title}', jsonld_items)),
+    }
+
+
+def category_view(request, slug):
+    ref = slug.strip().lower().replace('-', '_')
+    products = list(
+        MasterProduct.objects.filter(category_ref__iexact=ref, status__in=['active', 'ACTIVE'])
+        .prefetch_related('offers', 'offers__merchant')
+    )
+    if not products:
+        products = list(
+            MasterProduct.objects.filter(category_ref__icontains=ref, status__in=['active', 'ACTIVE'])
+            .prefetch_related('offers', 'offers__merchant')[:120]
+        )
+    title = ref.replace('_', ' ').title()
+    context = _browse_context(
+        request, products, 'Category', title,
+        f'Compare verified offers from South African merchants — 0% commission, direct contact.',
+        'brand',
+    )
+    context['breadcrumbs'] = [
+        {'label': 'Home', 'url': '/'},
+        {'label': 'Categories', 'url': '/search/'},
+        {'label': title, 'url': None},
+    ]
+    return render(request, 'catalog/browse_page.html', context)
+
+
+def brand_view(request, slug):
+    brand_name = slug.replace('-', ' ').title()
+    products = []
+    for candidate in (slug, slug.replace('-', ' '), slug.replace('-', '')):
+        products = list(
+            MasterProduct.objects.filter(brand__iexact=candidate, status__in=['active', 'ACTIVE'])
+            .prefetch_related('offers', 'offers__merchant')
+        )
+        if products:
+            brand_name = products[0].brand
+            break
+    if not products:
+        products = list(
+            MasterProduct.objects.filter(brand__icontains=slug.replace('-', ' '), status__in=['active', 'ACTIVE'])
+            .prefetch_related('offers', 'offers__merchant')[:120]
+        )
+    context = _browse_context(
+        request, products, 'Brand', brand_name,
+        f'Every verified {brand_name} listing on the Shoppage grid — compare prices, stock and merchants.',
+        'category',
+    )
+    context['breadcrumbs'] = [
+        {'label': 'Home', 'url': '/'},
+        {'label': 'Brands', 'url': '/search/'},
+        {'label': brand_name, 'url': None},
+    ]
+    return render(request, 'catalog/browse_page.html', context)
+
 
 def calculate_backup_runtime(battery_kwh: float, load_watts: float):
     if load_watts <= 0:

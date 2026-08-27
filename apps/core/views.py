@@ -129,6 +129,28 @@ def home_view(request):
 
     return render(request, 'home.html', context)
 
+SA_PROVINCES = [
+    'Gauteng', 'Western Cape', 'KwaZulu-Natal', 'Eastern Cape', 'Free State',
+    'Limpopo', 'Mpumalanga', 'North West', 'Northern Cape',
+]
+
+SORT_LABELS = {
+    'relevance': 'Best match',
+    'price_asc': 'Price: low to high',
+    'price_desc': 'Price: high to low',
+    'newest': 'Newest arrivals',
+    'rating': 'Top rated',
+}
+
+
+def _filter_remove_url(request, *keys):
+    params = request.GET.copy()
+    for k in keys:
+        params.pop(k, None)
+    qs = params.urlencode()
+    return f'/search/?{qs}' if qs else '/search/'
+
+
 def search_view(request):
     key = _cache_key('search_page_v5', request)
     cached_html = cache.get(key)
@@ -143,6 +165,7 @@ def search_view(request):
     brand = request.GET.get('brand', '')
     tab = request.GET.get('tab', 'all')
     mode = request.GET.get('mode', 'retail')
+    sort = request.GET.get('sort', 'relevance')
     min_price_param = request.GET.get('min_price')
     max_price_param = request.GET.get('max_price')
     in_stock_only = request.GET.get('in_stock') == '1'
@@ -172,6 +195,7 @@ def search_view(request):
         province=province,
         min_price=min_price,
         max_price=max_price,
+        sort=sort,
     )
 
     from apps.intelligence.services import (
@@ -292,6 +316,22 @@ def search_view(request):
     people_also_ask = get_people_also_ask(query)
     related_searches = get_related_searches(query, category)
 
+    active_filters = []
+    if category:
+        active_filters.append({'label': category.replace('_', ' ').title(), 'url': _filter_remove_url(request, 'category')})
+    if brand:
+        active_filters.append({'label': brand, 'url': _filter_remove_url(request, 'brand')})
+    if province:
+        active_filters.append({'label': province, 'url': _filter_remove_url(request, 'province')})
+    if min_price is not None or max_price is not None:
+        lo = f"R{min_price:,.0f}" if min_price is not None else 'R0'
+        hi = f"R{max_price:,.0f}" if max_price is not None else 'any'
+        active_filters.append({'label': f'{lo} – {hi}', 'url': _filter_remove_url(request, 'min_price', 'max_price')})
+    if in_stock_only:
+        active_filters.append({'label': 'In stock', 'url': _filter_remove_url(request, 'in_stock')})
+    if sabs_only:
+        active_filters.append({'label': 'SABS / NRS certified', 'url': _filter_remove_url(request, 'sabs')})
+
     context = {
         'query': query,
         'category': category,
@@ -299,6 +339,7 @@ def search_view(request):
         'brand': brand,
         'tab': tab,
         'mode': mode,
+        'sort': sort,
         'min_price': min_price,
         'max_price': max_price,
         'in_stock_only': in_stock_only,
@@ -319,6 +360,9 @@ def search_view(request):
         'matched_shorts': matched_shorts,
         'facets': results['facets'],
         'price_stats': results['price_stats'],
+        'sa_provinces': SA_PROVINCES,
+        'active_filters': active_filters,
+        'sort_label': SORT_LABELS.get(sort, SORT_LABELS['relevance']),
         'elapsed_ms': results['elapsed_ms'],
         'next_offset': results['next_offset'],
         'page': results['page'],

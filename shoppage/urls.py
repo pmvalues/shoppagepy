@@ -19,7 +19,7 @@ from apps.core.seo import (
     _paged_sitemap,
 )
 from apps.referrals.views import universal_link_resolver
-from apps.catalog.views import product_detail_view
+from apps.catalog.views import product_detail_view, category_view, brand_view
 from apps.markets.views import malls_directory_view, market_detail_view
 from apps.merchants.views import (
     merchant_list_view,
@@ -48,6 +48,8 @@ urlpatterns = [
 
     # 4. Catalog Product Detail & Matrix Pricing
     path('p/<str:canonical_id>/', product_detail_view, name='product_detail'),
+    path('category/<slug:slug>/', category_view, name='category_browse'),
+    path('brand/<slug:slug>/', brand_view, name='brand_browse'),
 
     # 5. Spatial Markets & Shopping Centres
     path('malls/', malls_directory_view, name='malls_directory'),
