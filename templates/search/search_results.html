@@ -284,6 +284,13 @@
     </form>
   </div>
 
+  <!-- DID YOU MEAN (Google spell correction) -->
+  {% if did_you_mean and did_you_mean != query %}
+  <div style="margin-bottom: 1.25rem; padding: 0.6rem 0.9rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; font-size: 0.9rem; color: #202124;">
+    Did you mean <a href="/search/?q={{ did_you_mean|urlencode }}" style="color: #1A0DAB; font-weight: 700; text-decoration: underline;">{{ did_you_mean }}</a>?
+  </div>
+  {% endif %}
+
   <!-- 2. TOP / SPONSORED PRODUCTS HORIZONTAL CAROUSEL (Google Shopping Top PLAs) -->
   {% if sponsored_products %}
   <section style="margin-bottom: 2rem;">
@@ -326,7 +333,14 @@
             {% endif %}
 
             <div style="width: 110px; height: 110px; display: flex; align-items: center; justify-content: center;">
+              {% if sp.product.image_url %}
+              <img src="{{ sp.product.image_url }}" alt="{{ sp.product.title }}" loading="lazy"
+                   style="width:100%;height:100%;object-fit:cover;border-radius:8px;"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+              <div style="display:none;">{{ sp.product|product_svg:"small" }}</div>
+              {% else %}
               {{ sp.product|product_svg:"small" }}
+              {% endif %}
             </div>
           </div>
 
@@ -522,7 +536,14 @@
             
             <!-- Column 1: Image / Vector Thumbnail -->
             <a href="/p/{{ p.canonical_id }}" style="height: 120px; width: 140px; background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; overflow: hidden;">
+              {% if p.image_url %}
+              <img src="{{ p.image_url }}" alt="{{ p.title }}" loading="lazy"
+                   style="width:100%;height:100%;object-fit:cover;"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+              <div style="display:none;">{{ p|product_svg:"small" }}</div>
+              {% else %}
               {{ p|product_svg:"small" }}
+              {% endif %}
             </a>
 
             <!-- Column 2: Rich Metadata & Row Information -->

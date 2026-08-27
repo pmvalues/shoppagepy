@@ -200,7 +200,7 @@ def search_view(request):
 
     from apps.intelligence.services import (
         get_brand_knowledge_card, get_tiered_moq_pricing, detect_intent,
-        build_overview, get_people_also_ask, get_related_searches
+        build_overview, get_people_also_ask, get_related_searches, suggest_query
     )
 
     # Knowledge Graph Card
@@ -316,6 +316,11 @@ def search_view(request):
     people_also_ask = get_people_also_ask(query)
     related_searches = get_related_searches(query, category)
 
+    # Spell correction / "did you mean" when the query yields no products
+    did_you_mean = None
+    if query and not category and not brand and len(plain_products) == 0:
+        did_you_mean = suggest_query(query)
+
     active_filters = []
     if category:
         active_filters.append({'label': category.replace('_', ' ').title(), 'url': _filter_remove_url(request, 'category')})
@@ -350,6 +355,7 @@ def search_view(request):
         'places_stores': places_stores,
         'people_also_ask': people_also_ask,
         'related_searches': related_searches,
+        'did_you_mean': did_you_mean,
         'results': {
             **results,
             'products': plain_products,

@@ -1,9 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse, Http404
-from .models import Merchant, Draft, AgentRun
+from .models import (
+    Merchant, Draft, AgentRun, Order, OrderItem, Promotion,
+    ShippingRate, MerchantCentreSettings, diagnose_offer_feed_status,
+    OrderStatusChoices, PromotionTypeChoices, PromotionScopeChoices,
+)
 from apps.markets.models import Market
-from apps.catalog.models import MasterProduct
+from apps.catalog.models import MasterProduct, Review, ReviewModerationChoices
 from apps.offers.models import Offer
 from apps.core.seo import merchant_jsonld, jsonld_script
 from apps.referrals.models import ReferralEvent
@@ -55,6 +59,11 @@ def merchant_detail_view(request, canonical_id):
     if not merchant:
         raise Http404("Merchant not found")
 
+    if request.method == 'POST' and 'review_submit' in request.POST:
+        from apps.catalog.views import _handle_merchant_review
+        _handle_merchant_review(request, merchant)
+        return redirect(request.path)
+
     offers = list(merchant.offers.select_related('variant').order_by('-price_amount'))
     
     # Store proof video shorts
@@ -82,12 +91,16 @@ def merchant_detail_view(request, canonical_id):
     
     featured_offers = offers[:4]
 
+    open_now, open_label = merchant.is_open_now()
     context = {
         'merchant': merchant,
         'offers': offers,
         'featured_offers': featured_offers,
         'store_categories': sorted(list(categories)),
         'store_shorts': store_shorts,
+        'open_now': open_now,
+        'open_label': open_label,
+        'reviews': list(merchant.reviews.filter(moderation_state=ReviewModerationChoices.APPROVED)),
         'jsonld': jsonld_script(merchant_jsonld(merchant)),
     }
     return render(request, 'merchants/merchant_detail.html', context)
@@ -151,16 +164,41 @@ def merchant_claim_view(request):
 
 def merchant_dashboard_view(request):
     """
-    Modern Merchant Centre OS (v8.1 Part XII)
-    5-Tab Workspace: Agent Console, Draft Review, Offers Matrix, Demand Radar, Trust Passport.
+    Fully-fledged Merchant Centre (Google Merchant Centre + Amazon Seller Central + Shopify Admin parity).
+    Tabs: Overview, Products (+ feed diagnostics), Orders, Promotions, Reviews, Performance, Settings.
+    POST actions drive order status, promotions, review moderation, profile + shipping settings.
     """
     merchant_id = request.GET.get('merchantId', 'm_solar_bros')
     merchant = Merchant.objects.filter(canonical_id=merchant_id).first() or Merchant.objects.first()
-    
+
+    if request.method == 'POST' and merchant:
+        _handle_merchant_centre_post(request, merchant)
+        return redirect(f"{request.path}?merchantId={merchant.canonical_id}")
+
     offers = list(merchant.offers.select_related('variant').all()) if merchant else []
     drafts = list(merchant.drafts.select_related('product').all()) if merchant else []
     agent_runs = list(merchant.agent_runs.all()[:6]) if merchant else []
     referral_events = list(merchant.referral_events.all()[:12]) if merchant else []
+
+    orders = list(merchant.orders.prefetch_related('items').all()[:50]) if merchant else []
+    promotions = list(merchant.promotions.all()[:50]) if merchant else []
+    shipping_rates = list(merchant.shipping_rates.all()) if merchant else []
+    centre_settings, _ = (MerchantCentreSettings.objects.get_or_create(merchant=merchant) if merchant else (None, None))
+
+    reviews_pending = list(merchant.reviews.filter(moderation_state=ReviewModerationChoices.PENDING).all()[:50]) if merchant else []
+    reviews_approved = list(merchant.reviews.filter(moderation_state=ReviewModerationChoices.APPROVED).all()[:50]) if merchant else []
+
+    # GMC-style feed diagnostics per offer
+    feed_diagnostics = _merchant_feed_diagnostics(merchant) if merchant else []
+    feed_counts = {
+        'approved': sum(1 for d in feed_diagnostics if d['status'] == 'approved'),
+        'limited': sum(1 for d in feed_diagnostics if d['status'] == 'limited'),
+        'disapproved': sum(1 for d in feed_diagnostics if d['status'] == 'disapproved'),
+        'pending': sum(1 for d in feed_diagnostics if d['status'] == 'pending'),
+    }
+
+    # Merchant insights: referral action aggregates (7d / 30d / all-time) + top offers
+    insights = _merchant_insights(merchant) if merchant else {}
 
     demands = [
         {
@@ -196,9 +234,188 @@ def merchant_dashboard_view(request):
         'agent_runs': agent_runs,
         'referral_events': referral_events,
         'demands': demands,
-        'total_referrals_count': len(referral_events) if merchant else 48,
+        'insights': insights,
+        'total_referrals_count': insights.get('total', len(referral_events)) if merchant else 48,
+        'orders': orders,
+        'promotions': promotions,
+        'shipping_rates': shipping_rates,
+        'centre_settings': centre_settings,
+        'reviews_pending': reviews_pending,
+        'reviews_approved': reviews_approved,
+        'feed_diagnostics': feed_diagnostics,
+        'feed_counts': feed_counts,
+        'order_status_choices': OrderStatusChoices.choices,
+        'promotion_type_choices': PromotionTypeChoices.choices,
+        'promotion_scope_choices': PromotionScopeChoices.choices,
+        'weekday_choices': [
+            ('mon', 'Mon'), ('tue', 'Tue'), ('wed', 'Wed'),
+            ('thu', 'Thu'), ('fri', 'Fri'), ('sat', 'Sat'), ('sun', 'Sun'),
+        ],
     }
     return render(request, 'merchants/merchant_dashboard.html', context)
+
+
+def _merchant_feed_diagnostics(merchant):
+    """Return GMC-style diagnostics list for a merchant's offers."""
+    rows = []
+    for offer in merchant.offers.select_related('variant').all():
+        diag = diagnose_offer_feed_status(offer)
+        rows.append({
+            'offer': offer,
+            'status': diag['status'],
+            'issues': diag['issues'],
+        })
+    return rows
+
+
+def _handle_merchant_centre_post(request, merchant):
+    """Dispatch Merchant Centre POST actions (orders, promotions, reviews, profile, shipping)."""
+    from decimal import Decimal
+    from django.utils import timezone
+    action = request.POST.get('action')
+
+    if action == 'update_order_status':
+        order = merchant.orders.filter(id=request.POST.get('order_id')).first()
+        if order and request.POST.get('status') in OrderStatusChoices.values:
+            order.status = request.POST['status']
+            order.save(update_fields=['status', 'updated_at'])
+            messages.success(request, f"Order {order.reference} → {order.get_status_display()}")
+
+    elif action == 'create_promotion':
+        promo = Promotion(merchant=merchant)
+        promo.title = request.POST.get('title', 'Untitled Promotion')[:255]
+        if request.POST.get('promo_type') in PromotionTypeChoices.values:
+            promo.promo_type = request.POST['promo_type']
+        try:
+            promo.value = Decimal(request.POST.get('value') or '0')
+        except Exception:
+            promo.value = 0
+        promo.code = request.POST.get('code') or None
+        if request.POST.get('scope') in PromotionScopeChoices.values:
+            promo.scope = request.POST['scope']
+        promo.target_ref = request.POST.get('target_ref') or None
+        try:
+            promo.min_order_amount = Decimal(request.POST.get('min_order_amount') or '0')
+        except Exception:
+            promo.min_order_amount = 0
+        promo.active = request.POST.get('active', 'on') == 'on'
+        promo.save()
+        messages.success(request, f"Promotion '{promo.title}' created")
+
+    elif action == 'toggle_promotion':
+        promo = merchant.promotions.filter(id=request.POST.get('promo_id')).first()
+        if promo:
+            promo.active = not promo.active
+            promo.save(update_fields=['active', 'updated_at'])
+            messages.success(request, f"Promotion '{promo.title}' {'enabled' if promo.active else 'paused'}")
+
+    elif action == 'delete_promotion':
+        promo = merchant.promotions.filter(id=request.POST.get('promo_id')).first()
+        if promo:
+            promo.delete()
+            messages.success(request, "Promotion removed")
+
+    elif action == 'moderate_review':
+        review = merchant.reviews.filter(id=request.POST.get('review_id')).first()
+        decision = request.POST.get('decision')
+        if review and decision in ('approve', 'reject'):
+            review.moderation_state = ReviewModerationChoices.APPROVED if decision == 'approve' else ReviewModerationChoices.REJECTED
+            review.save(update_fields=['moderation_state'])
+            merchant.refresh_reviews_summary()
+            messages.success(request, f"Review {'approved' if decision == 'approve' else 'rejected'}")
+
+    elif action == 'add_shipping_rate':
+        rate = ShippingRate(merchant=merchant)
+        rate.method = request.POST.get('method', 'Standard')[:120]
+        rate.zone = request.POST.get('zone') or None
+        try:
+            rate.rate = Decimal(request.POST.get('rate') or '0')
+        except Exception:
+            rate.rate = 0
+        try:
+            rate.free_above = Decimal(request.POST.get('free_above')) if request.POST.get('free_above') else None
+        except Exception:
+            rate.free_above = None
+        try:
+            rate.eta_days = int(request.POST.get('eta_days') or '3')
+        except Exception:
+            rate.eta_days = 3
+        rate.active = request.POST.get('active', 'on') == 'on'
+        rate.save()
+        messages.success(request, f"Shipping method '{rate.method}' added")
+
+    elif action == 'update_profile':
+        merchant.telephone = request.POST.get('telephone', merchant.telephone)
+        merchant.email = request.POST.get('email', merchant.email) or None
+        merchant.whatsapp_number = request.POST.get('whatsapp_number', merchant.whatsapp_number) or None
+        merchant.website_url = request.POST.get('website_url', merchant.website_url) or None
+        merchant.address_text = request.POST.get('address_text', merchant.address_text) or None
+        # Structured opening hours: one [open, close] pair per weekday
+        hours = {}
+        for day in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'):
+            o = request.POST.get(f'hours_{day}_open')
+            c = request.POST.get(f'hours_{day}_close')
+            if o and c:
+                hours[day] = [o, c]
+        if hours:
+            merchant.operating_hours_json = hours
+        delivery = [d.strip() for d in (request.POST.get('delivery_options') or '').split(',') if d.strip()]
+        if request.POST.get('delivery_options') is not None:
+            merchant.delivery_options = delivery
+        payments = [p.strip() for p in (request.POST.get('payment_methods') or '').split(',') if p.strip()]
+        if request.POST.get('payment_methods') is not None:
+            merchant.payment_methods = payments
+        merchant.save(update_fields=[
+            'telephone', 'email', 'whatsapp_number', 'website_url', 'address_text',
+            'operating_hours_json', 'delivery_options', 'payment_methods', 'updated_at',
+        ])
+        settings, _ = MerchantCentreSettings.objects.get_or_create(merchant=merchant)
+        settings.about_text = request.POST.get('about_text', settings.about_text) or None
+        settings.return_policy = request.POST.get('return_policy', settings.return_policy) or None
+        settings.banner_url = request.POST.get('banner_url', settings.banner_url) or None
+        try:
+            settings.tax_rate = Decimal(request.POST.get('tax_rate') or '0')
+        except Exception:
+            pass
+        settings.save()
+        messages.success(request, "Business profile updated")
+
+
+def _merchant_insights(merchant):
+    """Aggregate referral events into actionable merchant insights."""
+    from django.db.models import Count
+    from datetime import timedelta
+    from django.utils import timezone
+    from apps.referrals.models import ReferralEvent, ReferralActionChoices
+
+    qs = merchant.referral_events.all()
+    now = timezone.now()
+    since_7 = now - timedelta(days=7)
+    since_30 = now - timedelta(days=30)
+
+    def counts(since=None):
+        base = qs.filter(occurred_at__gte=since) if since else qs
+        rows = base.values('action').annotate(c=Count('id')).order_by('-c')
+        return {ReferralActionChoices(r['action']).label if r['action'] in ReferralActionChoices.values else r['action']: r['c'] for r in rows}
+
+    top_offers = (
+        qs.filter(offer__isnull=False)
+        .values('offer__canonical_id', 'offer__variant__title')
+        .annotate(c=Count('id')).order_by('-c')[:5]
+    )
+    top_offers_list = [
+        {'offer': o['offer__canonical_id'], 'title': o['offer__variant__title'], 'clicks': o['c']}
+        for o in top_offers
+    ]
+
+    return {
+        'total': qs.count(),
+        'last_7': counts(since_7),
+        'last_30': counts(since_30),
+        'all_time': counts(),
+        'top_offers': top_offers_list,
+        'profile_views_7d': sum(v for k, v in counts(since_7).items() if 'Profile' in k or 'View' in k),
+    }
 
 def merchant_draft_action_view(request, draft_id):
     action = request.POST.get('action') or request.GET.get('action', 'approved')

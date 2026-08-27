@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from django.utils.text import slugify
-from .models import MasterProduct
+from .models import MasterProduct, Review, ReviewModerationChoices
 from apps.offers.models import DiscoveredOffer
 from apps.media_hub.models import Short
 from apps.core.seo import product_jsonld, jsonld_script, itemlist_jsonld
@@ -191,6 +191,12 @@ def calculate_backup_runtime(battery_kwh: float, load_watts: float):
 
 def product_detail_view(request, canonical_id):
     product = get_object_or_404(MasterProduct, canonical_id=canonical_id)
+
+    if request.method == 'POST' and 'review_submit' in request.POST:
+        _handle_product_review(request, product)
+        from django.shortcuts import redirect
+        return redirect(request.path)
+
     confirmed_offers = list(
         product.offers.select_related('merchant', 'merchant__market')
         .order_by('price_amount', '-merchant__trust_score')
@@ -307,7 +313,48 @@ def product_detail_view(request, canonical_id):
         'knowledge_card': knowledge_card,
         'linked_shorts': linked_shorts,
         'related_products': related_products,
+        'reviews': list(product.reviews.filter(moderation_state=ReviewModerationChoices.APPROVED)),
         'jsonld': jsonld_script(product_jsonld(product, confirmed_offers)),
     }
     return render(request, 'catalog/product_detail.html', context)
+
+
+def _handle_product_review(request, product):
+    """Validate and persist a product review (honeypot spam trap, no login required)."""
+    if request.POST.get('website'):  # honeypot
+        return
+    try:
+        rating = int(request.POST.get('rating', 0))
+    except (TypeError, ValueError):
+        return
+    if not (1 <= rating <= 5):
+        return
+    Review.objects.create(
+        product=product,
+        author_name=(request.POST.get('author_name') or 'Verified Buyer')[:120],
+        rating=rating,
+        title=(request.POST.get('title') or '')[:200],
+        body=(request.POST.get('body') or '')[:2000],
+        is_verified_buyer=request.POST.get('is_verified_buyer') == 'on',
+    )
+
+
+def _handle_merchant_review(request, merchant):
+    """Validate and persist a merchant review (honeypot spam trap, no login required)."""
+    if request.POST.get('website'):  # honeypot
+        return
+    try:
+        rating = int(request.POST.get('rating', 0))
+    except (TypeError, ValueError):
+        return
+    if not (1 <= rating <= 5):
+        return
+    Review.objects.create(
+        merchant=merchant,
+        author_name=(request.POST.get('author_name') or 'Verified Buyer')[:120],
+        rating=rating,
+        title=(request.POST.get('title') or '')[:200],
+        body=(request.POST.get('body') or '')[:2000],
+        is_verified_buyer=request.POST.get('is_verified_buyer') == 'on',
+    )
 
