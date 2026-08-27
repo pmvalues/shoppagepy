@@ -1,6 +1,17 @@
 import os
 from .base import *
 
+# Surface the active database engine in logs — a silent SQLite fallback in a
+# container means ephemeral data loss on every redeploy.
+_active_engine = DATABASES['default']['ENGINE']
+print(f"[shoppage] database engine: {_active_engine}")
+if 'sqlite' in _active_engine:
+    print(
+        "[shoppage] WARNING: DATABASE_URL/DATABASE_URI is not set — falling back to "
+        "SQLite inside the container. Data will be LOST on redeploy. "
+        "Set DATABASE_URI to a PostgreSQL URL for production."
+    )
+
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'shoppage-prod-secret-key-change-me-in-dokploy')
 

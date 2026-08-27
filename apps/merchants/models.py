@@ -64,6 +64,9 @@ class Merchant(TimeStampedModel):
     years_in_business = models.IntegerField(default=1)
     median_response_minutes = models.IntegerField(default=15)
 
+    # Structured opening hours: {"mon": ["08:00","17:00"], "tue": null, ...}
+    operating_hours_json = models.JSONField(default=dict, blank=True, help_text="Per-weekday [open, close] pairs; null/omitted = closed")
+
     # Rich JSON attributes
     delivery_options = models.JSONField(default=list, blank=True)
     payment_methods = models.JSONField(default=list, blank=True)
@@ -73,6 +76,9 @@ class Merchant(TimeStampedModel):
     # Trust Score
     trust_score = models.IntegerField(default=80, db_index=True, help_text="0 to 100 calculated trust metric")
 
+    # Verified Reviews summary (aggregated from catalog.Review)
+    reviews_summary = models.JSONField(default=dict, blank=True, help_text="Rating distribution, avg, count")
+
     class Meta:
         ordering = ['-trust_score', 'name']
         verbose_name = 'Merchant'
@@ -80,6 +86,38 @@ class Merchant(TimeStampedModel):
 
     def __str__(self):
         return f"{self.name} ({self.country}) - {self.get_verification_state_display()}"
+
+    def is_open_now(self):
+        """Return (is_open, label) for the current Africa/Johannesburg time, or (None, legacy)."""
+        import datetime
+        try:
+            from zoneinfo import ZoneInfo
+        except Exception:
+            ZoneInfo = None
+        hours = self.operating_hours_json
+        if not isinstance(hours, dict) or not hours:
+            return None, self.operating_hours or ''
+        now = datetime.datetime.now(ZoneInfo('Africa/Johannesburg')) if ZoneInfo else datetime.datetime.now()
+        day = now.strftime('%a').lower()[:3]  # mon, tue, ...
+        pairs = hours.get(day)
+        if not pairs:
+            return False, 'Closed'
+        try:
+            open_t = datetime.datetime.strptime(pairs[0], '%H:%M').time()
+            close_t = datetime.datetime.strptime(pairs[1], '%H:%M').time()
+        except (ValueError, IndexError, TypeError):
+            return None, self.operating_hours or ''
+        current = now.time()
+        if open_t <= current <= close_t:
+            return True, f'Open now · Closes {pairs[1]}'
+        return False, f'Closed · Opens {pairs[0]}'
+
+    def refresh_reviews_summary(self):
+        """Recompute reviews_summary from approved reviews and persist it."""
+        from apps.catalog.models import aggregate_reviews
+        summary = aggregate_reviews(self.reviews.all())
+        self.reviews_summary = summary
+        type(self).objects.filter(pk=self.pk).update(reviews_summary=summary)
 
 
 class TrustPassport(TimeStampedModel):

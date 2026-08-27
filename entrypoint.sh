@@ -32,20 +32,27 @@ python manage.py collectstatic --noinput || true
 echo "==> Ensuring Admin Superuser..."
 python manage.py create_admin_user || true
 
-echo "==> Auto-seeding Flagship Products, Malls, Merchants, Shows & Shorts..."
-python manage.py seed_shoppage_flagships || true
-
-echo "==> Seeding all 3,296 Shopping Centres, Wholesale Hubs & Taxi Ranks..."
-python manage.py seed_all_malls_and_markets || true
-
-echo "==> Sweeping Major South African Retailers (Takealot, Makro, Builders, etc.)..."
-python manage.py sweep_major_retailers || true
-
-echo "==> Sweeping Live Registered Merchants & Discovered Products..."
-python manage.py sweep_live_merchants --limit 5000 || true
-
-echo "==> Rebuilding FTS Index if supported..."
-python manage.py rebuild_catalog_fts || true
+# ---------------------------------------------------------------------------
+# Bootstrap seeding & sweeping (flagships, malls, retailer/merchant sweeps,
+# FTS rebuild) runs in the BACKGROUND after gunicorn is already serving.
+# Running it inline used to block the container for many minutes on every
+# deploy/restart, which the reverse proxy reported as 502 Bad Gateway.
+# Set RUN_BOOTSTRAP_SEED=false to skip it entirely.
+# ---------------------------------------------------------------------------
+if [ "${RUN_BOOTSTRAP_SEED:-true}" = "true" ]; then
+  echo "==> Launching background bootstrap (seeds + sweeps + FTS rebuild)..."
+  (
+    echo "[$(date -u +%FT%TZ)] bootstrap started"
+    python manage.py seed_shoppage_flagships
+    python manage.py seed_all_malls_and_markets
+    python manage.py sweep_major_retailers
+    python manage.py sweep_live_merchants --limit 5000
+    python manage.py rebuild_catalog_fts
+    echo "[$(date -u +%FT%TZ)] bootstrap finished"
+  ) > /app/data/bootstrap.log 2>&1 &
+else
+  echo "==> RUN_BOOTSTRAP_SEED=false — skipping background bootstrap."
+fi
 
 echo "==> Launching Gunicorn Production Server on Port 8000..."
 exec gunicorn --bind 0.0.0.0:8000 --workers 4 --threads 2 --timeout 120 shoppage.wsgi:application

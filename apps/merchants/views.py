@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.http import HttpResponse, JsonResponse, Http404
 from .models import Merchant, Draft, AgentRun
 from apps.markets.models import Market
-from apps.catalog.models import MasterProduct
+from apps.catalog.models import MasterProduct, Review, ReviewModerationChoices
 from apps.offers.models import Offer
 from apps.core.seo import merchant_jsonld, jsonld_script
 from apps.referrals.models import ReferralEvent
@@ -55,6 +55,11 @@ def merchant_detail_view(request, canonical_id):
     if not merchant:
         raise Http404("Merchant not found")
 
+    if request.method == 'POST' and 'review_submit' in request.POST:
+        from apps.catalog.views import _handle_merchant_review
+        _handle_merchant_review(request, merchant)
+        return redirect(request.path)
+
     offers = list(merchant.offers.select_related('variant').order_by('-price_amount'))
     
     # Store proof video shorts
@@ -82,12 +87,16 @@ def merchant_detail_view(request, canonical_id):
     
     featured_offers = offers[:4]
 
+    open_now, open_label = merchant.is_open_now()
     context = {
         'merchant': merchant,
         'offers': offers,
         'featured_offers': featured_offers,
         'store_categories': sorted(list(categories)),
         'store_shorts': store_shorts,
+        'open_now': open_now,
+        'open_label': open_label,
+        'reviews': list(merchant.reviews.filter(moderation_state=ReviewModerationChoices.APPROVED)),
         'jsonld': jsonld_script(merchant_jsonld(merchant)),
     }
     return render(request, 'merchants/merchant_detail.html', context)
@@ -162,6 +171,9 @@ def merchant_dashboard_view(request):
     agent_runs = list(merchant.agent_runs.all()[:6]) if merchant else []
     referral_events = list(merchant.referral_events.all()[:12]) if merchant else []
 
+    # Merchant insights: referral action aggregates (7d / 30d / all-time) + top offers
+    insights = _merchant_insights(merchant) if merchant else {}
+
     demands = [
         {
             'id': 'rfq_01',
@@ -196,9 +208,47 @@ def merchant_dashboard_view(request):
         'agent_runs': agent_runs,
         'referral_events': referral_events,
         'demands': demands,
-        'total_referrals_count': len(referral_events) if merchant else 48,
+        'insights': insights,
+        'total_referrals_count': insights.get('total', len(referral_events)) if merchant else 48,
     }
     return render(request, 'merchants/merchant_dashboard.html', context)
+
+
+def _merchant_insights(merchant):
+    """Aggregate referral events into actionable merchant insights."""
+    from django.db.models import Count
+    from datetime import timedelta
+    from django.utils import timezone
+    from apps.referrals.models import ReferralEvent, ReferralActionChoices
+
+    qs = merchant.referral_events.all()
+    now = timezone.now()
+    since_7 = now - timedelta(days=7)
+    since_30 = now - timedelta(days=30)
+
+    def counts(since=None):
+        base = qs.filter(occurred_at__gte=since) if since else qs
+        rows = base.values('action').annotate(c=Count('id')).order_by('-c')
+        return {ReferralActionChoices(r['action']).label if r['action'] in ReferralActionChoices.values else r['action']: r['c'] for r in rows}
+
+    top_offers = (
+        qs.filter(offer__isnull=False)
+        .values('offer__canonical_id', 'offer__variant__title')
+        .annotate(c=Count('id')).order_by('-c')[:5]
+    )
+    top_offers_list = [
+        {'offer': o['offer__canonical_id'], 'title': o['offer__variant__title'], 'clicks': o['c']}
+        for o in top_offers
+    ]
+
+    return {
+        'total': qs.count(),
+        'last_7': counts(since_7),
+        'last_30': counts(since_30),
+        'all_time': counts(),
+        'top_offers': top_offers_list,
+        'profile_views_7d': sum(v for k, v in counts(since_7).items() if 'Profile' in k or 'View' in k),
+    }
 
 def merchant_draft_action_view(request, draft_id):
     action = request.POST.get('action') or request.GET.get('action', 'approved')

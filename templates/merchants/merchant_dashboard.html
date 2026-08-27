@@ -124,6 +124,69 @@
     </div>
   </div>
 
+  <!-- Merchant Insights (Google Merchant Centre performance) -->
+  {% if insights %}
+  <section style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 class="section-title" style="margin: 0;">📊 Merchant Insights</h2>
+      <span style="font-size: 0.8rem; color: #64748B;">{{ insights.profile_views_7d|default:0 }} profile views · last 7 days</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #10B981;">
+        <div class="stat-number" style="color: #059669;">{{ insights.last_7|length }}</div>
+        <div class="stat-label">Actions · Last 7 days</div>
+      </div>
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #2563EB;">
+        <div class="stat-number" style="color: #1D4ED8;">{{ insights.last_30|length }}</div>
+        <div class="stat-label">Actions · Last 30 days</div>
+      </div>
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #8B5CF6;">
+        <div class="stat-number" style="color: #6D28D9;">{{ insights.all_time|length }}</div>
+        <div class="stat-label">Actions · All time</div>
+      </div>
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #F59E0B;">
+        <div class="stat-number" style="color: #B45309;">{{ insights.total }}</div>
+        <div class="stat-label">Total Referral Events</div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+      <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem;">
+        <div style="font-weight: 800; color: #0F172A; margin-bottom: 0.75rem;">Top performing offers (clicks)</div>
+        {% if insights.top_offers %}
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          {% for o in insights.top_offers %}
+          <div style="display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.825rem; color: #334155;">
+            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ o.title|default:o.offer }}</span>
+            <strong style="color: #059669;">{{ o.clicks }}</strong>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p style="font-size: 0.825rem; color: #64748B; margin: 0;">No referral clicks recorded yet.</p>
+        {% endif %}
+      </div>
+
+      <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem;">
+        <div style="font-weight: 800; color: #0F172A; margin-bottom: 0.75rem;">Last 7 days breakdown</div>
+        {% if insights.last_7 %}
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          {% for action, count in insights.last_7.items %}
+          <div style="display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.825rem; color: #334155;">
+            <span>{{ action }}</span>
+            <strong style="color: #1D4ED8;">{{ count }}</strong>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p style="font-size: 0.825rem; color: #64748B; margin: 0;">No activity in the last 7 days.</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
   <!-- Reactive Workspace Navigation Tabs -->
   <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid #CBD5E1; margin-bottom: 2rem; overflow-x: auto; padding-bottom: 2px;">
     <button 

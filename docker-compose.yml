@@ -25,6 +25,8 @@ services:
       - XAI_API_KEY=${XAI_API_KEY:-}
       - WHATSAPP_API_TOKEN=${WHATSAPP_API_TOKEN:-}
       - WHATSAPP_PHONE_NUMBER_ID=${WHATSAPP_PHONE_NUMBER_ID:-}
+      # Background bootstrap (seeds + sweeps + FTS) after gunicorn is up. Set false to skip.
+      - RUN_BOOTSTRAP_SEED=${RUN_BOOTSTRAP_SEED:-true}
     depends_on:
       postgres:
         condition: service_healthy

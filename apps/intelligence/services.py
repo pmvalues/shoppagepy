@@ -2,8 +2,9 @@ import re
 from typing import Dict, Any, List, Optional
 from django.db.models import Q
 from apps.catalog.models import MasterProduct
+from apps.catalog.taxonomy import resolve_google_category
 from apps.merchants.models import Merchant
-from apps.offers.models import Offer
+from apps.offers.models import Offer, AvailabilityStateChoices
 from apps.markets.models import Market
 
 CATEGORY_KEYWORDS: Dict[str, List[str]] = {
@@ -253,37 +254,107 @@ def ask_assistant(message: str) -> Dict[str, Any]:
         'intent': intent,
     }
 
-def generate_google_merchant_center_feed(merchant_id: str, base_url: str = 'https://shoppage.co.za') -> str:
-    merchant = Merchant.objects.filter(canonical_id=merchant_id).first()
-    if not merchant:
-        return "<rss version='2.0'><channel><title>Merchant Not Found</title></channel></rss>"
+def _feed_availability(availability_state: str) -> Optional[str]:
+    """Map Shoppage availability to Google Shopping availability values."""
+    return {
+        AvailabilityStateChoices.FRESH: 'in_stock',
+        AvailabilityStateChoices.CONFIRM_REQUIRED: 'preorder',
+        AvailabilityStateChoices.QUOTE_REQUIRED: None,  # no fixed price -> excluded
+        AvailabilityStateChoices.OUT_OF_STOCK: 'out_of_stock',
+        AvailabilityStateChoices.EXPIRED: 'out_of_stock',
+        AvailabilityStateChoices.HIDDEN: None,          # suspended -> excluded
+    }.get(availability_state)
 
-    offers = Offer.objects.filter(merchant=merchant, availability_state='fresh').select_related('variant')
-    items_xml = []
-    for o in offers:
-        p = o.variant
-        gtin_tag = f"<g:gtin>{p.gtin13}</g:gtin>" if p.gtin13 else ""
-        mpn_tag = f"<g:mpn>{p.mpn}</g:mpn>" if p.mpn else ""
-        items_xml.append(f"""
+
+def _feed_description(product: MasterProduct, merchant: Merchant) -> str:
+    """Build a spec-rich, policy-friendly product description."""
+    parts = [f"{product.brand} {product.title}".strip()]
+    attrs = product.attributes if isinstance(product.attributes, dict) else {}
+    spec_bits = []
+    for key in ('ratedPowerW', 'nominalCapacityKwh', 'storageGb', 'ramGb', 'batteryMah',
+                'dcBusVoltage', 'warrantyYears', 'screenSizeInches', 'torqueNm', 'elementKw'):
+        if key in attrs and attrs[key] not in (None, ''):
+            spec_bits.append(f"{key}={attrs[key]}")
+    if spec_bits:
+        parts.append('Specs: ' + ', '.join(spec_bits[:4]))
+    parts.append(f"Supplied by {merchant.name} in {merchant.province or 'South Africa'}.")
+    return ' '.join(parts)
+
+
+def _build_feed_item(o: Offer, merchant: Merchant, base_url: str) -> Optional[str]:
+    p = o.variant
+    if not p:
+        return None
+    availability = _feed_availability(o.availability_state)
+    if availability is None or o.price_amount is None:
+        return None  # Google rejects items without price/valid availability
+
+    google_cat = p.google_category()
+    cat_tag = f"<g:google_product_category><![CDATA[{google_cat[2]}]]></g:google_product_category>" if google_cat else ""
+    product_type = p.category_ref.replace('_', ' ').title()
+    gtin_tag = f"<g:gtin>{p.gtin13}</g:gtin>" if p.gtin13 else ""
+    mpn_tag = f"<g:mpn>{p.mpn}</g:mpn>" if p.mpn else ""
+    identifier_tag = "<g:identifier_exists>false</g:identifier_exists>" if not (p.gtin13 or p.mpn) else ""
+    image_tag = f"<g:image_link>{p.image_url}</g:image_link>" if p.image_url else ""
+    shipping_tag = (
+        "<g:shipping><g:country>ZA</g:country><g:service>Standard</g:service>"
+        f"<g:price>0.00 ZAR</g:price></g:shipping>"
+        if merchant.delivery_options else ""
+    )
+
+    return f"""
     <item>
       <g:id>{o.canonical_id}</g:id>
       <title><![CDATA[{p.title}]]></title>
-      <description><![CDATA[{p.title} sold by {merchant.name} in {merchant.province or 'South Africa'}.]]></description>
+      <description><![CDATA[{_feed_description(p, merchant)}]]></description>
       <link>{base_url}/l/{o.canonical_id}</link>
-      <g:price>{float(o.price_amount or 0):.2f} {o.currency}</g:price>
-      <g:availability>in_stock</g:availability>
+      <g:price>{float(o.price_amount):.2f} {o.currency}</g:price>
+      <g:availability>{availability}</g:availability>
       <g:condition>new</g:condition>
       <g:brand><![CDATA[{p.brand}]]></g:brand>
+      <g:item_group_id>{p.canonical_id}</g:item_group_id>
+      <g:product_type><![CDATA[{product_type}]]></g:product_type>
+      {cat_tag}
+      {image_tag}
       {gtin_tag}
       {mpn_tag}
-    </item>""")
+      {identifier_tag}
+      {shipping_tag}
+    </item>"""
+
+
+def generate_google_merchant_center_feed(merchant_id: str, base_url: str = 'https://shoppage.co.za') -> str:
+    """Generate an approval-grade Google Merchant Center RSS feed for one merchant or 'all'."""
+    if merchant_id == 'all':
+        merchant = None
+        offers = Offer.objects.filter(
+            availability_state__in=[AvailabilityStateChoices.FRESH, AvailabilityStateChoices.CONFIRM_REQUIRED]
+        ).exclude(price_amount__isnull=True).select_related('variant', 'merchant')
+        channel_title = 'Shoppage South Africa — All Merchants'
+        channel_link = f"{base_url}/merchants/"
+    else:
+        merchant = Merchant.objects.filter(canonical_id=merchant_id).first()
+        if not merchant:
+            return "<rss version='2.0'><channel><title>Merchant Not Found</title></channel></rss>"
+        offers = Offer.objects.filter(
+            merchant=merchant,
+            availability_state__in=[AvailabilityStateChoices.FRESH, AvailabilityStateChoices.CONFIRM_REQUIRED],
+        ).exclude(price_amount__isnull=True).select_related('variant', 'merchant')
+        channel_title = f"{merchant.name} Google Merchant Center Feed"
+        channel_link = f"{base_url}/m/{merchant.canonical_id}"
+
+    items_xml = []
+    for o in offers:
+        item = _build_feed_item(o, o.merchant or merchant, base_url)
+        if item:
+            items_xml.append(item)
 
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
   <channel>
-    <title><![CDATA[{merchant.name} Google Merchant Center Feed]]></title>
-    <link>{base_url}/m/{merchant.canonical_id}</link>
-    <description><![CDATA[Official Shoppage Automated Google Shopping Feed for {merchant.name}]]></description>
+    <title><![CDATA[{channel_title}]]></title>
+    <link>{channel_link}</link>
+    <description><![CDATA[Official Shoppage Automated Google Shopping Feed]]></description>
     {''.join(items_xml)}
   </channel>
 </rss>"""
@@ -595,40 +666,50 @@ def get_tiered_moq_pricing(unit_price: float) -> List[Dict[str, Any]]:
         },
     ]
 
-def generate_google_merchant_center_feed(merchant_id: str, base_url: str = 'https://shoppage.co.za') -> str:
-    merchant = Merchant.objects.filter(canonical_id=merchant_id).first()
-    if not merchant:
-        return "<rss version='2.0'><channel><title>Merchant Not Found</title></channel></rss>"
+def suggest_query(query: str, limit: int = 1):
+    """Portable 'did you mean' suggestion (works on SQLite and Postgres).
 
-    offers = Offer.objects.filter(merchant=merchant, availability_state='fresh').select_related('variant')
-    items_xml = []
-    for o in offers:
-        p = o.variant
-        gtin_tag = f"<g:gtin>{p.gtin13}</g:gtin>" if p.gtin13 else ""
-        mpn_tag = f"<g:mpn>{p.mpn}</g:mpn>" if p.mpn else ""
-        items_xml.append(f"""
-    <item>
-      <g:id>{o.canonical_id}</g:id>
-      <title><![CDATA[{p.title}]]></title>
-      <description><![CDATA[{p.title} sold by {merchant.name} in {merchant.province or 'South Africa'}.]]></description>
-      <link>{base_url}/l/{o.canonical_id}</link>
-      <g:price>{float(o.price_amount or 0):.2f} {o.currency}</g:price>
-      <g:availability>in_stock</g:availability>
-      <g:condition>new</g:condition>
-      <g:brand><![CDATA[{p.brand}]]></g:brand>
-      {gtin_tag}
-      {mpn_tag}
-    </item>""")
+    Returns the best corrected query string, or None. Uses difflib over the
+    product titles, brands and aliases already in the catalogue.
+    """
+    import difflib
+    q = (query or '').strip().lower()
+    if len(q) < 3:
+        return None
+    tokens = q.split()
+    # Candidate vocabulary: distinct brands + title words + alias phrases.
+    candidates = set()
+    for brand in MasterProduct.objects.values_list('brand', flat=True).distinct()[:400]:
+        if brand:
+            candidates.add(brand.lower())
+    for title in MasterProduct.objects.values_list('title', flat=True).distinct()[:400]:
+        if title:
+            candidates.update(w for w in title.lower().split() if len(w) > 2)
+    for alias in MasterProduct.objects.exclude(aliases=[]).values_list('aliases', flat=True)[:200]:
+        if isinstance(alias, list):
+            for a in alias:
+                phrase = (a.get('phrase') if isinstance(a, dict) else str(a)) or ''
+                if phrase:
+                    candidates.add(phrase.lower())
+    if not candidates:
+        return None
 
-    return f"""<?xml version="1.0" encoding="UTF-8"?>
-<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
-  <channel>
-    <title><![CDATA[{merchant.name} Google Merchant Center Feed]]></title>
-    <link>{base_url}/m/{merchant.canonical_id}</link>
-    <description><![CDATA[Official Shoppage Automated Google Shopping Feed for {merchant.name}]]></description>
-    {''.join(items_xml)}
-  </channel>
-</rss>"""
+    corrected_tokens = []
+    changed = False
+    for tok in tokens:
+        if tok in candidates:
+            corrected_tokens.append(tok)
+            continue
+        close = difflib.get_close_matches(tok, candidates, n=1, cutoff=0.82)
+        if close:
+            corrected_tokens.append(close[0])
+            changed = True
+        else:
+            corrected_tokens.append(tok)
+    if not changed:
+        return None
+    return ' '.join(corrected_tokens)
+
 
 def generate_trust_seal_svg(merchant: Merchant) -> str:
     score = merchant.trust_score

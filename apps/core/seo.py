@@ -234,6 +234,23 @@ def merchant_jsonld(merchant) -> Dict[str, Any]:
             'ratingValue': float(merchant.google_rating),
             'reviewCount': max(merchant.google_reviews_count, 1),
         }
+    hours = getattr(merchant, 'operating_hours_json', None)
+    if hours:
+        day_map = {
+            'mon': 'Mo', 'tue': 'Tu', 'wed': 'We', 'thu': 'Th',
+            'fri': 'Fr', 'sat': 'Sa', 'sun': 'Su',
+        }
+        opening_hours = []
+        for day, slots in hours.items():
+            code = day_map.get(str(day).lower())
+            if not code or not slots:
+                continue
+            if isinstance(slots, (list, tuple)) and len(slots) == 2:
+                opening_hours.append(f"{code} {slots[0]}-{slots[1]}")
+            elif isinstance(slots, str) and '-' in slots:
+                opening_hours.append(f"{code} {slots}")
+        if opening_hours:
+            data['openingHours'] = opening_hours
     return data
 
 
