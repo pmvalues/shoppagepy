@@ -61,17 +61,18 @@ def home_view(request):
         context = None
 
     if context is None:
-        # Fetch diverse flagship products with real verified offers and distinct titles
-        all_candidates = list(
-            MasterProduct.objects.filter(status__in=['active', 'ACTIVE'])
-            .filter(offers__isnull=False)
-            .prefetch_related('offers', 'offers__merchant')
-            .order_by('-created_at')[:40]
+        from apps.offers.models import Offer
+
+        # Fetch diverse flagship products with real verified offers
+        offers_candidates = list(
+            Offer.objects.select_related('variant', 'merchant')
+            .filter(variant__isnull=False)[:40]
         )
+        all_candidates = [o.variant for o in offers_candidates if o.variant]
         if len(all_candidates) < 8:
             extra = list(
                 MasterProduct.objects.filter(status__in=['active', 'ACTIVE'])
-                .prefetch_related('offers', 'offers__merchant')[:40]
+                .prefetch_related('offers', 'offers__merchant')[:20]
             )
             all_candidates.extend(extra)
 
@@ -87,12 +88,11 @@ def home_view(request):
 
         # Fetch diverse verified merchants with unique storefront names
         m_candidates = list(
-            Merchant.objects.filter(market__isnull=False)
-            .select_related('market')
-            .order_by('-trust_score', 'id')[:80]
+            Merchant.objects.filter(claim_state='claimed')
+            .select_related('market')[:40]
         )
         if len(m_candidates) < 8:
-            m_candidates.extend(list(Merchant.objects.select_related('market').order_by('-trust_score', 'id')[:80]))
+            m_candidates.extend(list(Merchant.objects.select_related('market')[:40]))
 
         verified_merchants = []
         seen_store_names = set()
@@ -246,7 +246,7 @@ def search_view(request):
     # Places / Local 3-Pack Storefronts (Google GMB Pack without heavy map)
     raw_merchants = results.get('merchants', [])
     if not raw_merchants:
-        raw_merchants = list(Merchant.objects.filter(market__isnull=False).select_related('market').order_by('-trust_score')[:4])
+        raw_merchants = list(Merchant.objects.order_by('-trust_score').select_related('market')[:4])
 
     places_stores = []
     seen_store_keys = set()

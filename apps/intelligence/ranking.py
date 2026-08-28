@@ -264,14 +264,22 @@ def _candidate_ids_sqlite(tokens: list[str], expanded: list[str], limit: int) ->
                 break
             esc = t.replace('\\', '\\\\').replace('%', r'\%').replace('_', r'\_')
             pat = f'{esc}%'
+            # 1. Fast brand indexed match
             cur.execute(
                 "SELECT id FROM catalog_masterproduct "
-                "WHERE (status = 'active' OR status = 'ACTIVE') AND ("
-                "title LIKE %s ESCAPE '\\' OR brand LIKE %s ESCAPE '\\' "
-                "OR model_number LIKE %s ESCAPE '\\') LIMIT %s",
-                [pat, pat, pat, limit],
+                "WHERE (status = 'active' OR status = 'ACTIVE') AND brand LIKE %s ESCAPE '\\' LIMIT %s",
+                [pat, limit],
             )
             ids.extend(r[0] for r in cur.fetchall())
+            # 2. Title prefix match if needed
+            if len(ids) < limit:
+                cur.execute(
+                    "SELECT id FROM catalog_masterproduct "
+                    "WHERE (status = 'active' OR status = 'ACTIVE') AND ("
+                    "title LIKE %s ESCAPE '\\' OR model_number LIKE %s ESCAPE '\\') LIMIT %s",
+                    [pat, pat, limit - len(ids)],
+                )
+                ids.extend(r[0] for r in cur.fetchall())
     return list(dict.fromkeys(ids))[:limit]
 
 
@@ -514,9 +522,9 @@ def ranked_search(
             with connection.cursor() as cur:
                 cur.execute(
                     "SELECT id FROM merchants_merchant "
-                    "WHERE name LIKE %s OR name LIKE %s OR category = %s "
+                    "WHERE name LIKE %s OR name LIKE %s "
                     "LIMIT %s",
-                    [f'{t.capitalize()}%', f'{t.lower()}%', t, 6 - len(merchants)]
+                    [f'{t.capitalize()}%', f'{t.lower()}%', 6 - len(merchants)]
                 )
                 extra_ids = [r[0] for r in cur.fetchall()]
             if extra_ids:
