@@ -1,5 +1,6 @@
-from django.db import models
 from apps.core.models import TimeStampedModel
+from django.db import models
+
 
 class RightsClassChoices(models.TextChoices):
     PUBLIC_RECORD = 'PUBLIC_RECORD', 'Public Official Record'

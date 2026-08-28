@@ -4,21 +4,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Shoppage — South Africa National Commerce Grid{% endblock %}</title>
+  <title>{% block title %}{{ page_title }}{% endblock %}</title>
 
-  <!-- SEO (v8.2) -->
-  <meta name="description" content="{% block meta_description %}Search millions of verified products and storefronts across South Africa. Compare real local offers, prices and availability — evidence-backed commerce intelligence.{% endblock %}">
-  <link rel="canonical" href="{% block canonical_url %}https://shoppage.co.za{{ request.path }}{% endblock %}">
-  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <!-- SEO: values come from the view context; the processor supplies site defaults. -->
+  <meta name="description" content="{% block meta_description %}{{ meta_description }}{% endblock %}">
+  <meta name="robots" content="{% block robots %}{{ robots_meta }}{% endblock %}">
+  <link rel="canonical" href="{{ site_url }}{% block canonical %}{{ canonical_path }}{% endblock %}">
+  <meta property="og:type" content="{% block og_type %}{{ og_type }}{% endblock %}">
   <meta property="og:site_name" content="Shoppage">
-  <meta property="og:title" content="{% block og_title %}Shoppage — South Africa Commerce Grid{% endblock %}">
-  <meta property="og:description" content="{% block og_description %}South Africa's evidence-backed national commerce grid.{% endblock %}">
-  <meta property="og:url" content="{% block og_url %}https://shoppage.co.za{{ request.path }}{% endblock %}">
-  <meta property="og:image" content="https://shoppage.co.za/static/icons/og-image.png">
+  <meta property="og:locale" content="{{ og_locale }}">
+  <meta property="og:title" content="{% block og_title %}{{ page_title }}{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}{{ meta_description }}{% endblock %}">
+  <meta property="og:url" content="{{ site_url }}{% block og_path %}{{ canonical_path }}{% endblock %}">
+  <meta property="og:image" content="{% block og_image %}{% if og_image_url %}{{ og_image_url }}{% else %}{{ default_og_image }}{% endif %}{% endblock %}">
+  <meta property="og:image:alt" content="{{ og_image_alt }}">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="{% block twitter_title %}Shoppage — South Africa Commerce Grid{% endblock %}">
-  <meta name="twitter:description" content="{% block twitter_description %}South Africa's evidence-backed national commerce grid.{% endblock %}">
-  <meta name="twitter:image" content="https://shoppage.co.za/static/icons/og-image.png">
+  <meta name="twitter:site" content="{{ twitter_handle }}">
+  <meta name="twitter:title" content="{% block twitter_title %}{{ page_title }}{% endblock %}">
+  <meta name="twitter:description" content="{% block twitter_description %}{{ meta_description }}{% endblock %}">
+  <meta name="twitter:image" content="{% block twitter_image %}{% if og_image_url %}{{ og_image_url }}{% else %}{{ default_og_image }}{% endif %}{% endblock %}">
+  {% if google_site_verification %}<meta name="google-site-verification" content="{{ google_site_verification }}">{% endif %}
+  {% if bing_site_verification %}<meta name="msvalidate.01" content="{{ bing_site_verification }}">{% endif %}
   <meta name="theme-color" content="#0F172A">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
@@ -90,7 +96,7 @@
             id="global-omnibox-input"
             type="text"
             name="q"
-            placeholder="Search 1,000,000+ products, inverters, brands, wholesale MOQs or malls..."
+            placeholder="Search {{ total_products_count|default:0 }} products, inverters, brands, wholesale MOQs or malls..."
             class="search-input"
             value="{{ query|default:'' }}"
             autocomplete="off"
@@ -159,7 +165,7 @@
           🏪 Detailed Merchant Shops
         </a>
         <a href="/malls" class="google-nav-tab {% if '/malls' in request.path %}active-tab{% endif %}">
-          🗺️ 3,296 Malls
+          🗺️ {{ total_malls_count|default:0 }} Malls
         </a>
         <a href="/shorts" class="google-nav-tab {% if '/shorts' in request.path %}active-tab{% endif %}">
           🎬 Proof Shorts
@@ -212,7 +218,7 @@
             <a href="/malls?province=Gauteng">Gauteng Malls (1,184)</a>
             <a href="/malls?province=Western%20Cape">Western Cape Malls (612)</a>
             <a href="/malls?province=KwaZulu-Natal">KZN Shopping Hubs (548)</a>
-            <a href="/malls">All 3,296 Malls &amp; Ranks</a>
+            <a href="/malls">All {{ total_malls_count|default:0 }} Malls &amp; Ranks</a>
             <a href="/merchants">3.1M Verified Stores</a>
           </div>
         </div>

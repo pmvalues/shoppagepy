@@ -1,10 +1,17 @@
 import random
 from decimal import Decimal
-from django.core.management.base import BaseCommand
-from django.db import transaction
-from apps.merchants.models import Merchant, TrustPassport
+
 from apps.catalog.models import MasterProduct
-from apps.offers.models import Offer, DiscoveredOffer, DestinationTypeChoices, AvailabilityStateChoices, SlaClassChoices
+from apps.merchants.models import Merchant
+from apps.offers.models import (
+    AvailabilityStateChoices,
+    DestinationTypeChoices,
+    DiscoveredOffer,
+    Offer,
+    SlaClassChoices,
+)
+from django.core.management.base import BaseCommand
+
 
 class Command(BaseCommand):
     help = 'Sweeps through live registered merchants to discover, price-match, and index product offers'
@@ -43,7 +50,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.NOTICE(f" -> Found {total_merchants} total merchants. Sweeping top {limit}..."))
 
         merchants = list(merchant_qs.select_related('market')[:limit])
-        
+
         discovered_to_create = []
         offers_to_create = []
         swept_count = 0

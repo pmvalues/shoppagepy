@@ -24,6 +24,9 @@ db.sqlite3
 *.xlsx
 *.xls
 *.csv
+*.pdf
+tmp_*.py
+
 
 # Build caches & Next.js / Node
 .next/

@@ -1,28 +1,32 @@
+from apps.core.paginator import LargeTablePaginator
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Offer, DiscoveredOffer
-from apps.core.paginator import LargeTablePaginator
+
+from .models import AvailabilityStateChoices, DiscoveredOffer, Offer, PriceObservation
+
 
 @admin.register(Offer)
 class OfferAdmin(admin.ModelAdmin):
     paginator = LargeTablePaginator
     show_full_result_count = False
     list_per_page = 50
+    actions = ('confirm_selected',)
 
     list_display = (
         'canonical_id',
         'variant_link',
         'merchant_link',
         'price_display',
-        'destination_type',
         'availability_badge',
         'sla_badge',
+        'confirmed_display',
+        'expires_display',
         'test_resolver'
     )
     list_filter = ('availability_state', 'sla_class', 'destination_type', 'currency')
     search_fields = ('canonical_id', 'variant__title', 'merchant__name', 'stall_ref')
     autocomplete_fields = ('variant', 'merchant')
-    readonly_fields = ('canonical_id', 'created_at', 'updated_at')
+    readonly_fields = ('canonical_id', 'last_confirmed_at', 'expires_at', 'created_at', 'updated_at')
 
     def variant_link(self, obj):
         if obj.variant:
@@ -42,7 +46,12 @@ class OfferAdmin(admin.ModelAdmin):
     price_display.short_description = "Price"
 
     def availability_badge(self, obj):
-        color = '#059669' if obj.availability_state == 'FRESH' else '#D97706'
+        live = obj.availability_state in (
+            AvailabilityStateChoices.FRESH,
+            AvailabilityStateChoices.CONFIRM_REQUIRED,
+            AvailabilityStateChoices.QUOTE_REQUIRED,
+        )
+        color = '#059669' if live else '#D97706'
         return format_html('<span style="color: {}; font-weight: 600;">{}</span>', color, obj.get_availability_state_display())
     availability_badge.short_description = "Availability"
 
@@ -50,9 +59,29 @@ class OfferAdmin(admin.ModelAdmin):
         return format_html('<span style="background: #F1F5F9; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">{}</span>', obj.get_sla_class_display())
     sla_badge.short_description = "SLA"
 
+    def confirmed_display(self, obj):
+        if not obj.last_confirmed_at:
+            return format_html('<span style="color:#94A3B8;">never</span>')
+        return format_html('{}', obj.last_confirmed_at.strftime('%d %b %Y %H:%M'))
+    confirmed_display.short_description = "Confirmed"
+
+    def expires_display(self, obj):
+        if not obj.expires_at:
+            return format_html('<span style="color:#94A3B8;">—</span>')
+        if obj.is_expired:
+            return format_html('<span style="color:#B45309;font-weight:700;">lapsed {}</span>', obj.expires_at.strftime('%d %b %Y'))
+        return format_html('{}', obj.expires_at.strftime('%d %b %Y'))
+    expires_display.short_description = "Valid until"
+
     def test_resolver(self, obj):
         return format_html('<a href="/l/{}/" target="_blank" style="color: #059669; font-weight: bold;">💬 Test /l/ Link &nearr;</a>', obj.canonical_id)
     test_resolver.short_description = "Universal Link"
+
+    @admin.action(description='Re-confirm selected offers (refresh price validity)')
+    def confirm_selected(self, request, queryset):
+        for offer in queryset.select_related('merchant')[:500]:
+            offer.confirm()
+        self.message_user(request, 'Re-confirmed the selected offers and rolled their validity windows forward.')
 
 @admin.register(DiscoveredOffer)
 class DiscoveredOfferAdmin(admin.ModelAdmin):
@@ -90,3 +119,19 @@ class DiscoveredOfferAdmin(admin.ModelAdmin):
             return format_html('<a href="{}" target="_blank">View External &nearr;</a>', obj.source_url)
         return "-"
     view_source.short_description = "Source"
+
+
+@admin.register(PriceObservation)
+class PriceObservationAdmin(admin.ModelAdmin):
+    """Append-only history: recorded by the platform, never hand-edited."""
+    list_display = ('offer', 'price_amount', 'currency', 'source', 'recorded_at')
+    list_filter = ('source', 'currency')
+    date_hierarchy = 'recorded_at'
+    search_fields = ('offer__canonical_id',)
+    readonly_fields = [f.name for f in PriceObservation._meta.fields]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False

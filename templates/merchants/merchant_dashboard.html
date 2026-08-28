@@ -90,7 +90,7 @@
         <span>•</span>
         <span>💬 WhatsApp: <strong style="color: #34D399; font-weight: 700;">+{{ merchant.whatsapp_number|default:"27712345678" }}</strong></span>
         <span>•</span>
-        <span>★ <strong style="color: #FBBF24;">{{ merchant.google_rating|default:"4.9" }}</strong> ({{ merchant.google_reviews_count|default:"185" }} reviews)</span>
+        <span>★ <strong style="color: #FBBF24;">{% if merchant.google_rating %}{{ merchant.google_rating }}{% else %}&mdash;{% endif %}</strong> ({% if merchant.google_reviews_count %}{{ merchant.google_reviews_count }} review{{ merchant.google_reviews_count|pluralize }}{% else %}no reviews yet{% endif %})</span>
       </p>
     </div>
 
@@ -337,16 +337,36 @@
               <a href="/p/{{ offer.variant.canonical_id }}/" style="color: #0F172A; text-decoration: none;">{{ offer.variant.title }}</a>
             </h4>
             <p style="font-size: 0.85rem; color: #334155; margin: 0;">
-              Location: <strong style="color: #0F172A;">{{ offer.stall_ref|default:"Direct Showroom" }}</strong> · GS1 GTIN: <code>{{ offer.variant.gtin13|default:"6009800000000" }}</code>
+              Location: <strong style="color: #0F172A;">{{ offer.stall_ref|default:"Direct Showroom" }}</strong> ·
+              {% with gtin=offer.variant.gtin_pairs.0 %}
+                {% if gtin %}GS1 {{ gtin.0|upper }}: <code>{{ gtin.1 }}</code>{% else %}<span style="color:#B45309;">no GS1 barcode that passes its check digit</span>{% endif %}
+              {% endwith %}
+            </p>
+            <p style="font-size: 0.75rem; color: #64748B; margin: 0.3rem 0 0 0;">
+              Confirmed {{ offer.last_confirmed_at|date:'d M Y H:i' }} · valid until {{ offer.expires_at|date:'d M Y H:i' }}
+              {% if offer.is_expired %} · <span style="color:#B45309;font-weight:700;">lapsed — re-confirm to keep publishing</span>{% endif %}
             </p>
           </div>
 
           <div style="display: flex; align-items: center; gap: 1.5rem;">
             <div style="text-align: right;">
-              <div style="font-size: 1.45rem; font-weight: 800; color: #059669;" id="offer-price-{{ offer.id }}">
+              <form
+                hx-post="{% url 'merchant_quick_price' offer.id %}"
+                hx-target="#offer-price-{{ offer.id }}"
+                hx-swap="innerHTML"
+                style="display: flex; align-items: center; gap: 0.4rem; justify-content: flex-end;"
+              >
+                {% csrf_token %}
+                <span style="font-size: 0.9rem; color: #64748B; font-weight: 700;">R</span>
+                <input type="number" name="price" step="0.01" min="1" required
+                       value="{{ offer.price_amount|floatformat:2 }}"
+                       style="width: 128px; padding: 0.4rem 0.5rem; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.95rem; font-weight: 800; text-align: right;" />
+                <button type="submit" class="btn btn-primary" style="font-size: 0.75rem; padding: 0.42rem 0.7rem;">Save</button>
+              </form>
+              <div style="font-size: 1.45rem; font-weight: 800; color: #059669; margin-top: 0.3rem;" id="offer-price-{{ offer.id }}">
                 R {{ offer.price_amount|floatformat:0|intcomma }}
               </div>
-              <div style="font-size: 0.75rem; color: #475569; font-weight: 600;">0% Commission Price</div>
+              <div style="font-size: 0.725rem; color: #475569; font-weight: 600;">Saving re-confirms the price and refreshes its validity window</div>
             </div>
 
             <div style="display: flex; gap: 0.5rem;">
@@ -357,7 +377,7 @@
                 type="button" 
                 class="btn btn-outline" 
                 style="font-size: 0.85rem; padding: 0.55rem 0.85rem; font-weight: 600;"
-                @click="navigator.clipboard.writeText('https://shoppage.co.za/l/{{ offer.canonical_id }}/'); alert('WhatsApp Referral link copied to clipboard!');"
+                @click="navigator.clipboard.writeText('{{ site_url }}/l/{{ offer.canonical_id }}/'); alert('WhatsApp Referral link copied to clipboard!');"
               >
                 📋 Copy
               </button>

@@ -1,6 +1,6 @@
-import sqlite3
 import os
 import random
+import sqlite3
 import time
 
 DATABASE_PATH = "shoppage-commerce-intelligence-foundation/data/study/sa_nationwide_merchants.sqlite"
@@ -158,7 +158,7 @@ def run_large_scale_ingestion(total_target=500000):
     print(f"[Ingester] Starting High-Speed Statutory & Open POI Ingestion: Target {total_target:,} Records")
     print("           Registries: Overture Maps, CIPC, CSD, CIDB, ECA(SA), OpenStreetMap, SAPC")
     print("================================================================================")
-    
+
     conn = sqlite3.connect(DATABASE_PATH)
     cur = conn.cursor()
 
@@ -221,7 +221,7 @@ def run_large_scale_ingestion(total_target=500000):
                 cat_slug, suffixes = random.choice(CATEGORIES_EXPANDED)
                 suffix = random.choice(suffixes)
                 prefix = random.choice(prefixes)
-                
+
                 clean_metro_suburb = metro_name.split('/')[0].split('&')[0].strip()
                 store_name = f"{prefix} {suffix} ({clean_metro_suburb})"
 

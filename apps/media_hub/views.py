@@ -1,10 +1,10 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import Q
-from django.contrib import messages
-from .models import Show, Short
 from apps.catalog.models import MasterProduct
-from apps.merchants.models import Merchant
-from apps.markets.models import Market
+from django.contrib import messages
+from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect, render
+
+from .models import Short, Show
+
 
 def shows_directory_view(request):
     category_filter = request.GET.get('category')
@@ -47,9 +47,9 @@ def shorts_directory_view(request):
         merchant_name = request.POST.get('merchant_name', 'Verified Creator')
         whatsapp = request.POST.get('whatsapp')
         product_id = request.POST.get('product_id')
-        
+
         product = MasterProduct.objects.filter(canonical_id=product_id).first() if product_id else None
-        
+
         canonical_id = f"sh_{title.lower().replace(' ', '_')[:20]}"
         Short.objects.create(
             canonical_id=canonical_id,

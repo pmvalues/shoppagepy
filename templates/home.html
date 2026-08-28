@@ -15,7 +15,7 @@
         <span style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; color: #0F172A;">
           Live Commercial Feed
         </span>
-        <span class="badge badge-green" style="font-size: 0.7rem;">● 3.1M Stores Active</span>
+        <span class="badge badge-green" style="font-size: 0.7rem;">● {{ total_merchants_count|intcomma }} Stores Active</span>
       </div>
 
       <!-- Quick Launch Sector Pills -->
@@ -40,7 +40,7 @@
             🔥 Trending In-Stock Deals across South African Malls
           </h2>
           <a href="/search" style="font-size: 0.8rem; color: #2563EB; font-weight: 700; text-decoration: none;">
-            View all 1,000,000+ &rarr;
+            View all {{ total_products_count|intcomma }} &rarr;
           </a>
         </div>
 
@@ -190,7 +190,7 @@
               </h3>
             </div>
             <a href="/malls" style="font-size: 0.8rem; color: #2563EB; font-weight: 700; text-decoration: none;">
-              All 3,296 &rarr;
+              All {{ total_malls_count|intcomma }} &rarr;
             </a>
           </div>
 
@@ -220,21 +220,21 @@
     <div class="grid grid-cols-4" style="gap: 1.5rem;">
       <div class="stat-box">
         <div class="stat-number" style="color: #2563EB;">
-          {{ stats.total_merchants|intcomma|default:"3,100,000" }}
+          {{ stats.total_merchants|intcomma }}
         </div>
         <div class="stat-label">Verified Physical Stores</div>
       </div>
 
       <div class="stat-box">
         <div class="stat-number" style="color: #059669;">
-          {{ stats.total_malls|intcomma|default:"3,296" }}
+          {{ stats.total_malls|intcomma }}
         </div>
         <div class="stat-label">Shopping Centres &amp; Hubs</div>
       </div>
 
       <div class="stat-box">
         <div class="stat-number" style="color: #D97706;">
-          {{ stats.total_products|intcomma|default:"1,000,000" }}+
+          {{ stats.total_products|intcomma }}
         </div>
         <div class="stat-label">GS1 Normalized Products</div>
       </div>
@@ -329,7 +329,7 @@
       <div>
         <span class="badge badge-purple" style="margin-bottom: 0.85rem;">🗺️ GMB Spatial Commerce Grid</span>
         <h2 style="font-size: 2.4rem; font-weight: 900; color: #FFFFFF; margin-bottom: 1.15rem; line-height: 1.2;">
-          Digital Twins for 3,296 South African Shopping Malls &amp; Wholesale Hubs
+          Digital Twins for {{ total_malls_count|intcomma }} South African Shopping Malls &amp; Wholesale Hubs
         </h2>
         <p style="color: var(--slate-300); font-size: 1.05rem; line-height: 1.65; margin-bottom: 2rem;">
           From Sandton City and Mall of Africa to wholesale trade markets like Dragon City, China Mall, and Oriental Plaza — find exact stall locations, operating hours, and verified stockists.
@@ -340,7 +340,7 @@
             🗺️ Open Interactive Spatial Map
           </a>
           <a href="/merchants" class="btn btn-outline" style="font-size: 0.95rem; padding: 0.75rem 1.35rem; background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2);">
-            Explore 3.1M Stores
+            Explore {{ total_merchants_count|intcomma }} Stores
           </a>
         </div>
       </div>
@@ -368,7 +368,7 @@
         <a href="/malls" class="card card-hover" style="background: #1E293B; border-color: #334155; color: #FFFFFF; text-decoration: none;">
           <div style="font-size: 1.75rem; margin-bottom: 0.35rem;">🇿🇦</div>
           <h4 style="color: #FFFFFF; font-size: 1.1rem; font-weight: 800;">All 9 Provinces</h4>
-          <p style="font-size: 0.8rem; color: var(--slate-400); margin-top: 0.2rem;">3,296 Digital Twin Rosters</p>
+          <p style="font-size: 0.8rem; color: var(--slate-400); margin-top: 0.2rem;">{{ total_malls_count|intcomma }} Digital Twin Rosters</p>
         </a>
       </div>
     </div>

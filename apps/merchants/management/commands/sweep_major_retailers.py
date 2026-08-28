@@ -1,10 +1,21 @@
 from decimal import Decimal
-from django.core.management.base import BaseCommand
-from django.utils.text import slugify
-from apps.merchants.models import Merchant, CountryChoices, ClaimStateChoices, VerificationStateChoices, TrustPassport
+
 from apps.catalog.models import MasterProduct
-from apps.offers.models import Offer, DiscoveredOffer, DestinationTypeChoices, AvailabilityStateChoices, SlaClassChoices
-from apps.markets.models import Market
+from apps.merchants.models import (
+    ClaimStateChoices,
+    CountryChoices,
+    Merchant,
+    TrustPassport,
+    VerificationStateChoices,
+)
+from apps.offers.models import (
+    AvailabilityStateChoices,
+    DestinationTypeChoices,
+    DiscoveredOffer,
+    Offer,
+    SlaClassChoices,
+)
+from django.core.management.base import BaseCommand
 
 MAJOR_RETAILERS = [
     {
@@ -306,7 +317,7 @@ class Command(BaseCommand):
                 }
             )
             created_merchants[c_id] = m
-            
+
             # Upsert TrustPassport
             TrustPassport.objects.update_or_create(
                 merchant=m,
@@ -333,7 +344,7 @@ class Command(BaseCommand):
             prod_qs = MasterProduct.objects.all()
             for kw in sweep['product_keywords']:
                 prod_qs = prod_qs.filter(title__icontains=kw)
-            
+
             target_prod = prod_qs.first()
             if not target_prod:
                 # Fallback to category first

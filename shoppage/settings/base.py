@@ -51,6 +51,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
+    'django.middleware.http.ConditionalGetMiddleware',
 ]
 
 ROOT_URLCONF = 'shoppage.urls'
@@ -200,11 +202,27 @@ CACHE_TTL = {
     'fragment': 60,
 }
 
-# Canonical site URL used by SEO layer (sitemaps, JSON-LD, canonical tags)
-SHOPPAGE_SITE_URL = os.environ.get('SHOPPAGE_SITE_URL', 'https://shoppage.co.za')
+# Canonical public origin. Left empty, the SEO layer derives it from the request
+# host so preview/staging URLs stay self-consistent; set it in production.
+SHOPPAGE_SITE_URL = os.environ.get('SHOPPAGE_SITE_URL', '').rstrip('/')
+SHOPPAGE_PUBLIC_ORIGIN = os.environ.get('SHOPPAGE_PUBLIC_ORIGIN', 'https://shoppage.co.za')
 
-# CORS
-CORS_ALLOW_ALL_ORIGINS = True
+# Search-engine ownership verification (base template head emits these when set)
+GOOGLE_SITE_VERIFICATION = os.environ.get('GOOGLE_SITE_VERIFICATION', '')
+BING_SITE_VERIFICATION = os.environ.get('BING_SITE_VERIFICATION', '')
+
+# CORS — restrict to known first-party origins (constitution: no open public surface)
+CORS_ALLOWED_ORIGINS = [
+    SHOPPAGE_PUBLIC_ORIGIN,
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
+CORS_ALLOW_ALL_ORIGINS = False
+
+# Authentication
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = '/merchant/dashboard/'
+LOGOUT_REDIRECT_URL = '/'
 
 # Custom domain settings
 SHOPPAGE_COUNTRY_DEFAULT = 'ZA'

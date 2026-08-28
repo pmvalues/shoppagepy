@@ -1,6 +1,6 @@
+import json
 import os
 import sqlite3
-import json
 import time
 
 DATABASE_PATH = os.path.join(
@@ -20,154 +20,154 @@ os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
 PROVINCE_METROS = {
     "Gauteng": [
         ("City of Johannesburg", [
-            "Sandton", "Rosebank", "Midrand", "Fourways", "Cresta", "Soweto", "Roodepoort", "Bruma", "Bedfordview", 
-            "Randburg", "Melrose", "Killarney", "Parkhurst", "Bryanston", "Dainfern", "Northcliff", "Auckland Park", 
+            "Sandton", "Rosebank", "Midrand", "Fourways", "Cresta", "Soweto", "Roodepoort", "Bruma", "Bedfordview",
+            "Randburg", "Melrose", "Killarney", "Parkhurst", "Bryanston", "Dainfern", "Northcliff", "Auckland Park",
             "Ormonde", "Fordsburg", "Lenasia", "Orange Farm", "Alexandra", "Diepsloot", "Cosmo City", "Hyde Park",
             "Norwood", "Balfour Park", "Rivonia", "Lonehill", "Broadacres", "Douglasdale", "Northriding", "Fairland",
             "Parktown", "Illovo", "Greenstone", "Glenvista", "Mondeor", "Southdale", "Ennerdale", "Eldorado Park"
         ]),
         ("City of Tshwane", [
-            "Menlyn", "Centurion", "Brooklyn", "Hatfield", "Pretoria CBD", "Wonderboom", "Montana", "Silver Lakes", 
-            "Pretoria East", "Mamelodi", "Soshanguve", "Ga-Rankuwa", "Mabopane", "Hammanskraal", "Irene", "Eldoraigne", 
+            "Menlyn", "Centurion", "Brooklyn", "Hatfield", "Pretoria CBD", "Wonderboom", "Montana", "Silver Lakes",
+            "Pretoria East", "Mamelodi", "Soshanguve", "Ga-Rankuwa", "Mabopane", "Hammanskraal", "Irene", "Eldoraigne",
             "Gezina", "Waverley", "Lynnwood", "Faerie Glen", "Akasia", "Moreleta Park", "Waterkloof", "Queenswood",
             "Silverton", "Equestria", "Hazeldean", "The Willows", "Raslouw", "Doringkloof", "Lyttelton", "Clubview"
         ]),
         ("Ekurhuleni", [
-            "Boksburg", "Benoni", "Kempton Park", "Springs", "Brakpan", "Alberton", "Bedfordview", "Edenvale", 
+            "Boksburg", "Benoni", "Kempton Park", "Springs", "Brakpan", "Alberton", "Bedfordview", "Edenvale",
             "Germiston", "Vosloorus", "Katlehong", "Tembisa", "Daveyton", "Tsakane", "Nigel", "Duduza",
             "Farrarmere", "Northmead", "Rynfield", "Sunward Park", "Meyersdal", "Brackenhurst", "Dawn Park"
         ]),
         ("West Rand", [
-            "Krugersdorp", "Roodepoort West", "Randfontein", "Westonaria", "Carletonville", "Mohlakeng", 
+            "Krugersdorp", "Roodepoort West", "Randfontein", "Westonaria", "Carletonville", "Mohlakeng",
             "Bekkersdal", "Magaliesburg", "Noordheuwel", "Featherbrooke", "Constantia Kloof", "Wilgeheuwel"
         ]),
         ("Sedibeng", [
-            "Vanderbijlpark", "Vereeniging", "Meyerton", "Heidelberg", "Sebokeng", "Evaton", "Sharpeville", 
+            "Vanderbijlpark", "Vereeniging", "Meyerton", "Heidelberg", "Sebokeng", "Evaton", "Sharpeville",
             "Ratanda", "Three Rivers", "Bedworth Park", "Walkerville"
         ])
     ],
     "Western Cape": [
         ("City of Cape Town", [
-            "Cape Town CBD", "Century City", "V&A Waterfront", "Green Point", "Sea Point", "Camps Bay", "Claremont", 
-            "Newlands", "Rondebosch", "Kenilworth", "Constantia", "Tokai", "Fish Hoek", "Noordhoek", "Wynberg", 
-            "Mitchells Plain", "Khayelitsha", "Gugulethu", "Nyanga", "Athlone", "Bellville", "Tyger Valley", 
-            "Durbanville", "Brackenfell", "Parow", "Goodwood", "Table View", "Sunningdale", "Parklands", "Big Bay", 
+            "Cape Town CBD", "Century City", "V&A Waterfront", "Green Point", "Sea Point", "Camps Bay", "Claremont",
+            "Newlands", "Rondebosch", "Kenilworth", "Constantia", "Tokai", "Fish Hoek", "Noordhoek", "Wynberg",
+            "Mitchells Plain", "Khayelitsha", "Gugulethu", "Nyanga", "Athlone", "Bellville", "Tyger Valley",
+            "Durbanville", "Brackenfell", "Parow", "Goodwood", "Table View", "Sunningdale", "Parklands", "Big Bay",
             "Melkbosstrand", "Somerset West", "Strand", "Gordons Bay", "Kuils River", "Kraaifontein", "Eerste River",
             "Hout Bay", "Meadowridge", "Steenberg", "Ottery", "Lansdowne", "Bothasig", "Edgemead", "Welgemoed",
             "Pinehurst", "Vangate", "Gatesville", "Philippi", "Langa", "Grassy Park", "Plumstead", "Muizenberg"
         ]),
         ("Cape Winelands", [
-            "Stellenbosch", "Paarl", "Franschhoek", "Wellington", "Worcester", "Robertson", "Montagu", "Ceres", 
+            "Stellenbosch", "Paarl", "Franschhoek", "Wellington", "Worcester", "Robertson", "Montagu", "Ceres",
             "Tulbagh", "Wolseley", "De Doorns", "Bonnievale", "McGregor"
         ]),
         ("Overberg", [
-            "Hermanus", "Caledon", "Gansbaai", "Swellendam", "Bredasdorp", "Kleinmond", "Stanford", "Napier", 
+            "Hermanus", "Caledon", "Gansbaai", "Swellendam", "Bredasdorp", "Kleinmond", "Stanford", "Napier",
             "Barrydale", "Struisbaai", "Riviersonderend", "Villiersdorp", "Grabouw"
         ]),
         ("Garden Route", [
-            "George", "Mossel Bay", "Knysna", "Plettenberg Bay", "Oudtshoorn", "Wilderness", "Sedgefield", 
+            "George", "Mossel Bay", "Knysna", "Plettenberg Bay", "Oudtshoorn", "Wilderness", "Sedgefield",
             "Riversdale", "Albertinia", "Heidelberg (WC)", "Calitzdorp", "Ladismith", "Uniondale"
         ]),
         ("West Coast", [
-            "Vredenburg", "Langebaan", "Saldanha", "Malmesbury", "Piketberg", "Clanwilliam", "Vredendal", 
+            "Vredenburg", "Langebaan", "Saldanha", "Malmesbury", "Piketberg", "Clanwilliam", "Vredendal",
             "Lambert's Bay", "Darling", "Citrusdal", "St Helena Bay", "Velddrif", "Porterville", "Moorreesburg"
         ]),
         ("Central Karoo", ["Beaufort West", "Prince Albert", "Laingsburg", "Murraysburg", "Matjiesfontein"])
     ],
     "KwaZulu-Natal": [
         ("eThekwini", [
-            "Durban CBD", "Umhlanga", "Umhlanga Ridge", "Durban North", "Westville", "Berea", "Musgrave", 
-            "Morningside", "Overport", "Glenwood", "Bluff", "Chatsworth", "Phoenix", "KwaMashu", "Ntuzuma", 
-            "Inanda", "Pinetown", "Kloof", "Hillcrest", "Waterfall", "Amanzimtoti", "Kingsburgh", "Queensburgh", 
+            "Durban CBD", "Umhlanga", "Umhlanga Ridge", "Durban North", "Westville", "Berea", "Musgrave",
+            "Morningside", "Overport", "Glenwood", "Bluff", "Chatsworth", "Phoenix", "KwaMashu", "Ntuzuma",
+            "Inanda", "Pinetown", "Kloof", "Hillcrest", "Waterfall", "Amanzimtoti", "Kingsburgh", "Queensburgh",
             "Umbilo", "Umlazi", "Mount Edgecombe", "Cornubia", "Flanders", "Sunningdale (KZN)", "La Lucia",
             "New Germany", "Gillitts", "Shallcross", "Montclair", "Isipingo", "Cato Manor", "Clermont"
         ]),
         ("iLembe", [
-            "Ballito", "Salt Rock", "KwaDukuza (Stanger)", "Mandeni", "Sundumbili", "Shakaskraal", "Sheffield Beach", 
+            "Ballito", "Salt Rock", "KwaDukuza (Stanger)", "Mandeni", "Sundumbili", "Shakaskraal", "Sheffield Beach",
             "Tinley Manor", "Blythedale", "Zinkwazi"
         ]),
         ("King Cetshwayo", [
-            "Richards Bay", "Empangeni", "eSikhawini", "Ngwelezane", "Mtubatuba", "Hluhluwe", "St Lucia", "Jozini", 
+            "Richards Bay", "Empangeni", "eSikhawini", "Ngwelezane", "Mtubatuba", "Hluhluwe", "St Lucia", "Jozini",
             "Pongola", "Meerensee", "KwaMbonambi", "Melmoth", "Mkuze"
         ]),
         ("uMgungundlovu", [
-            "Pietermaritzburg", "Scottsville", "Cascades", "Edendale", "Hilton", "Howick", "Mooi River", 
+            "Pietermaritzburg", "Scottsville", "Cascades", "Edendale", "Hilton", "Howick", "Mooi River",
             "Nottingham Road", "Hayfields", "Northway", "Athlone (PMB)", "Wembley", "Richmond"
         ]),
         ("Ugu", [
-            "Port Shepstone", "Margate", "Shelly Beach", "Ramsgate", "Southbroom", "Port Edward", "Hibberdene", 
+            "Port Shepstone", "Margate", "Shelly Beach", "Ramsgate", "Southbroom", "Port Edward", "Hibberdene",
             "Harding", "Kokstad", "Umtentweni", "Marina Beach", "San Lameer", "Scottburgh", "Park Rynie"
         ]),
         ("Amajuba & Zululand", [
-            "Newcastle", "Madadeni", "Osizweni", "Dundee", "Vryheid", "Ulundi", "Nongoma", "Eshowe", "Estcourt", 
+            "Newcastle", "Madadeni", "Osizweni", "Dundee", "Vryheid", "Ulundi", "Nongoma", "Eshowe", "Estcourt",
             "Ladysmith", "Paulpietersburg", "Glencoe", "Dannhauser", "Hlobane"
         ])
     ],
     "Eastern Cape": [
         ("Nelson Mandela Bay", [
-            "Gqeberha (Port Elizabeth)", "Walmer", "Summerstrand", "Greenacres", "Newton Park", "Sunridge Park", 
-            "Kabega", "North End", "Cleary Park", "Kariega (Uitenhage)", "Despatch", "Humewood", "Mill Park", 
+            "Gqeberha (Port Elizabeth)", "Walmer", "Summerstrand", "Greenacres", "Newton Park", "Sunridge Park",
+            "Kabega", "North End", "Cleary Park", "Kariega (Uitenhage)", "Despatch", "Humewood", "Mill Park",
             "Charlo", "Linton Grange", "Lorraine", "Kwanobuhle", "Motherwell", "New Brighton", "Zwide"
         ]),
         ("Buffalo City", [
-            "East London", "Beacon Bay", "Vincent", "Nahoon", "Berea (EL)", "Mdantsane", "Qonce (King William's Town)", 
+            "East London", "Beacon Bay", "Vincent", "Nahoon", "Berea (EL)", "Mdantsane", "Qonce (King William's Town)",
             "Bhisho", "Dimbaza", "Abbotsford", "Stirling", "Southernwood", "Selborne", "Quigney", "Gonubie"
         ]),
         ("Sarah Baartman", [
-            "Jeffreys Bay", "St Francis Bay", "Humansdorp", "Graaff-Reinet", "Cradock", "Port Alfred", 
+            "Jeffreys Bay", "St Francis Bay", "Humansdorp", "Graaff-Reinet", "Cradock", "Port Alfred",
             "Makhanda (Grahamstown)", "Somerset East", "Kenton-on-Sea", "Alexandria", "Kirkwood", "Patensie"
         ]),
         ("OR Tambo", [
             "Mthatha", "Port St Johns", "Lusikisiki", "Flagstaff", "Bizana", "Libode", "Ngqeleni", "Tsolo", "Qumbu"
         ]),
         ("Chris Hani", [
-            "Komani (Queenstown)", "Cofimvaba", "Lady Frere", "Middelburg (EC)", "Elliot (Khowa)", "Cala", 
+            "Komani (Queenstown)", "Cofimvaba", "Lady Frere", "Middelburg (EC)", "Elliot (Khowa)", "Cala",
             "Engcobo", "Tarkastad", "Sterkstroom"
         ]),
         ("Joe Gqabi & Amathole", [
-            "Aliwal North", "Mount Fletcher", "Mount Frere", "Butterworth", "Dutywa", "Stutterheim", "Fort Beaufort", 
+            "Aliwal North", "Mount Fletcher", "Mount Frere", "Butterworth", "Dutywa", "Stutterheim", "Fort Beaufort",
             "Alice (Dikeni)", "Adelaide", "Bedford (EC)", "Willowvale", "Centane", "Peddie"
         ])
     ],
     "Limpopo": [
         ("Capricorn", [
-            "Polokwane", "Savannah", "Thornhill", "Seshego", "Mankweng (Turfloop)", "Lebowakgomo", "Bochum", 
+            "Polokwane", "Savannah", "Thornhill", "Seshego", "Mankweng (Turfloop)", "Lebowakgomo", "Bochum",
             "Dendron", "Moletjie", "Cycad", "Platinum Park", "Moria", "Aganang", "Zebediela"
         ]),
         ("Vhembe", [
-            "Thohoyandou", "Sibasa", "Makhado (Louis Trichardt)", "Elim", "Musina", "Malamulele", "Dzanani", 
+            "Thohoyandou", "Sibasa", "Makhado (Louis Trichardt)", "Elim", "Musina", "Malamulele", "Dzanani",
             "Mutale", "Biaba", "Nzhelele", "Hubyeni", "Tshilamba"
         ]),
         ("Mopani", [
-            "Tzaneen", "Nkowankowa", "Giyani", "Phalaborwa", "Lenyenye", "Modjadjiskloof", "Letsitele", 
+            "Tzaneen", "Nkowankowa", "Giyani", "Phalaborwa", "Lenyenye", "Modjadjiskloof", "Letsitele",
             "Duiwelskloof", "Ga-Kgapane", "Namakgale"
         ]),
         ("Sekhukhune", [
-            "Burgersfort", "Steelpoort", "Groblersdal", "Marble Hall", "Jane Furse", "Moratiwa", "Schoonoord", 
+            "Burgersfort", "Steelpoort", "Groblersdal", "Marble Hall", "Jane Furse", "Moratiwa", "Schoonoord",
             "Praktiseer", "Motetema", "Tubatse", "Eensaam"
         ]),
         ("Waterberg", [
-            "Bela-Bela", "Modimolle", "Mokopane", "Mahwelereng", "Lephalale (Ellisras)", "Thabazimbi", 
+            "Bela-Bela", "Modimolle", "Mokopane", "Mahwelereng", "Lephalale (Ellisras)", "Thabazimbi",
             "Northam", "Vaalwater", "Roedtan", "Pienaarsrivier"
         ])
     ],
     "Mpumalanga": [
         ("Ehlanzeni", [
-            "Mbombela (Nelspruit)", "White River", "Hazyview", "Bushbuckridge", "Thulamahashe", "Acornhoek", 
+            "Mbombela (Nelspruit)", "White River", "Hazyview", "Bushbuckridge", "Thulamahashe", "Acornhoek",
             "Malelane", "Komatipoort", "Barberton", "Lydenburg", "Sabie", "Graskop", "Dwarsloop", "Matsulu", "Kanyamazane"
         ]),
         ("Nkangala", [
-            "eMalahleni (Witbank)", "Middelburg", "Delmas", "KwaMhlanga", "Siyabuswa", "Tweefontein", "Moutse", 
+            "eMalahleni (Witbank)", "Middelburg", "Delmas", "KwaMhlanga", "Siyabuswa", "Tweefontein", "Moutse",
             "Klipfontein", "Reyno Ridge", "Phola", "Morwe"
         ]),
         ("Gert Sibande", [
-            "Secunda", "Bethal", "Standerton", "Ermelo", "Piet Retief (eMkhondo)", "Volksrust", "Carolina", 
+            "Secunda", "Bethal", "Standerton", "Ermelo", "Piet Retief (eMkhondo)", "Volksrust", "Carolina",
             "Balfour", "Kriel", "Evander", "Amersfoort"
         ])
     ],
     "Free State": [
         ("Mangaung", [
-            "Bloemfontein CBD", "Brandwag", "Westdene", "Preller", "Northridge", "Fleurdal", "Heidedal", 
+            "Bloemfontein CBD", "Brandwag", "Westdene", "Preller", "Northridge", "Fleurdal", "Heidedal",
             "Botshabelo", "Thaba Nchu", "Bayswater", "Universitas", "Langenhovenpark", "Pellissier"
         ]),
         ("Lejweleputswa", [
@@ -177,7 +177,7 @@ PROVINCE_METROS = {
             "Sasolburg", "Kroonstad", "Parys", "Frankfort", "Heilbron", "Koppies", "Viljoenskroon", "Vredefort"
         ]),
         ("Thabo Mofutsanyana", [
-            "Bethlehem", "Phuthaditjhaba (QwaQwa)", "Harrismith", "Ficksburg", "Ladybrand", "Senekal", 
+            "Bethlehem", "Phuthaditjhaba (QwaQwa)", "Harrismith", "Ficksburg", "Ladybrand", "Senekal",
             "Reitz", "Vrede", "Clarens", "Marquard"
         ]),
         ("Xhariep", [
@@ -186,11 +186,11 @@ PROVINCE_METROS = {
     ],
     "North West": [
         ("Bojanala Platinum", [
-            "Rustenburg", "Brits", "Hartbeespoort", "Phokeng", "Boitekong", "Mogwase", "Sun City", 
+            "Rustenburg", "Brits", "Hartbeespoort", "Phokeng", "Boitekong", "Mogwase", "Sun City",
             "Swartruggens", "Koster", "Tlhabane", "Schoemansville", "Marikana", "Broederstroom"
         ]),
         ("Dr Kenneth Kaunda", [
-            "Potchefstroom", "Klerksdorp", "Flamwood", "Wilkoppies", "Orkney", "Stilfontein", "Wolmaransstad", 
+            "Potchefstroom", "Klerksdorp", "Flamwood", "Wilkoppies", "Orkney", "Stilfontein", "Wolmaransstad",
             "Baillie Park", "Doringkruin", "Hartbeesfontein"
         ]),
         ("Ngaka Modiri Molema", [
@@ -202,7 +202,7 @@ PROVINCE_METROS = {
     ],
     "Northern Cape": [
         ("Frances Baard", [
-            "Kimberley", "New Park", "Royldene", "Hadison Park", "Barkly West", "Hartswater", "Jan Kempdorp", 
+            "Kimberley", "New Park", "Royldene", "Hadison Park", "Barkly West", "Hartswater", "Jan Kempdorp",
             "Warrenton", "Windsorton"
         ]),
         ("ZF Mgcawu", [
@@ -258,14 +258,14 @@ PROVINCE_COORDS = {
 
 def generate_all_malls():
     print("[Malls Generator] Assembling nationwide registry of 2,400+ South African Malls & Shopping Centres...")
-    
+
     malls = []
     seen_ids = set()
     idx = 1
 
     for province, metros in PROVINCE_METROS.items():
         base_lat, base_lng = PROVINCE_COORDS[province]
-        
+
         for metro, suburbs in metros:
             for suburb in suburbs:
                 centre_templates = [
@@ -278,32 +278,32 @@ def generate_all_malls():
                     (f"{suburb} Promenade & Junction", "lifestyle_centre"),
                     (f"{suburb} Village Shopping Centre", "community_shopping_centre")
                 ]
-                
+
                 # Pick 4-6 per suburb to ensure all neighborhood commercial pockets are captured
                 count = 6 if len(suburbs) < 15 else 4
                 chosen = centre_templates[:count]
-                
+
                 for title, m_type in chosen:
                     slug = title.lower().replace(" ", "-").replace("&", "and").replace("(", "").replace(")", "").replace("/", "-")
                     m_id = f"mkt_{slug.replace('-', '_')}"
-                    
+
                     if m_id in seen_ids:
                         m_id = f"{m_id}_{idx}"
                     seen_ids.add(m_id)
-                    
+
                     lat = base_lat + ((idx * 37) % 1000 - 500) * 0.0008
                     lng = base_lng + ((idx * 53) % 1000 - 500) * 0.0008
-                    
+
                     type_info = next((t for t in MALL_TYPES if t[0] == m_type), MALL_TYPES[2])
                     gla = type_info[2] + ((idx * 47) % 5000)
                     stores = type_info[3] + ((idx * 13) % 30)
                     anchors = ANCHORS_POOL[idx % len(ANCHORS_POOL)]
-                    
+
                     zones = [
                         {"id": f"{m_id}_ground", "name": "Ground Level Retail Concourse", "categoryFocus": "anchor_grocery", "stallCount": stores // 2},
                         {"id": f"{m_id}_upper", "name": "Upper Fashion & Tech Promenade", "categoryFocus": "electronics_fashion", "stallCount": stores // 2}
                     ]
-                    
+
                     malls.append({
                         "id": m_id,
                         "name": title,

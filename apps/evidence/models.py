@@ -1,6 +1,10 @@
 import uuid
+from decimal import Decimal
+
 from django.db import models
+
 from apps.core.models import TimeStampedModel
+
 
 class SourceTypeChoices(models.TextChoices):
     OFFICIAL_REGISTRY = 'official_registry', 'Official Public Registry (CIPC/SARS/CIDB)'
@@ -58,13 +62,13 @@ class EvidenceClaim(TimeStampedModel):
     claim_type = models.CharField(max_length=40, choices=ClaimTypeChoices.choices, db_index=True)
     subject_entity_type = models.CharField(max_length=50, help_text="e.g. MasterProduct, Offer, Merchant, Market")
     subject_entity_id = models.CharField(max_length=120, db_index=True)
-    
+
     claim_key = models.CharField(max_length=100, help_text="e.g. priceZar, nrs097Certified, stallNumber")
     claim_value = models.JSONField(default=dict)
-    
+
     state = models.CharField(max_length=30, choices=ClaimStateChoices.choices, default=ClaimStateChoices.CANDIDATE, db_index=True)
-    confidence_score = models.DecimalField(max_digits=5, decimal_places=4, default=0.8500)
-    
+    confidence_score = models.DecimalField(max_digits=5, decimal_places=4, default=Decimal('0.8500'))
+
     primary_artifact = models.ForeignKey(EvidenceArtifact, on_delete=models.SET_NULL, null=True, blank=True, related_name='claims')
     verified_by = models.CharField(max_length=150, blank=True, null=True, help_text="Field Auditor, System Rule, or Merchant ID")
     verified_at = models.DateTimeField(null=True, blank=True)

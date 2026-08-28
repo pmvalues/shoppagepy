@@ -1,10 +1,10 @@
-import random
-import time
 import json
-from datetime import datetime, timezone
+import time
+from datetime import UTC, datetime
+
+from apps.markets.models import MarketTypeChoices
 from django.core.management.base import BaseCommand
-from django.db import connection, transaction
-from apps.markets.models import Market, MarketTypeChoices, MarketVerificationChoices
+from django.db import connection
 
 SA_PROVINCE_METROS = {
     'Gauteng': {
@@ -130,7 +130,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         target_count = options['count']
-        
+
         self.stdout.write(self.style.NOTICE(
             f"==> Initiating Spatial Grid Synchronization to {target_count:,} Malls & Commercial Hubs...\n"
             f"    Database Engine: {connection.vendor}"
@@ -143,10 +143,11 @@ class Command(BaseCommand):
                 cur.execute("PRAGMA busy_timeout = 60000;")
 
             cur.execute("SELECT COUNT(*) FROM markets_market")
-            current_count = cur.fetchone()[0]
+            count_row = cur.fetchone()
+            current_count = int(count_row[0]) if count_row else 0
             needed_count = max(0, target_count - current_count)
 
-            now_iso = datetime.now(timezone.utc).isoformat()
+            now_iso = datetime.now(UTC).isoformat()
 
             if needed_count > 0:
                 self.stdout.write(self.style.NOTICE(f"Generating {needed_count:,} Spatial Markets & Shopping Centres across all 9 Provinces..."))
@@ -171,21 +172,21 @@ class Command(BaseCommand):
                     m_num = start_id + i
                     prov_name = provinces_list[m_num % len(provinces_list)]
                     p_data = SA_PROVINCE_METROS[prov_name]
-                    
+
                     suburb = p_data['suburbs'][(m_num // len(provinces_list)) % len(p_data['suburbs'])]
                     metro = p_data['metros'][m_num % len(p_data['metros'])]
                     suffix, m_type, capacity = MARKET_SUFFIXES[m_num % len(MARKET_SUFFIXES)]
 
                     name = f"{suburb} {suffix} #{m_num}"
                     slug = f"{suburb.lower().replace(' ', '-')}-{suffix.lower().replace(' ', '-')}-{m_num}"
-                    
+
                     uid = f"00000000-0000-0000-0001-{m_num:012x}"
                     base_lat, base_lng = p_data['coords']
                     lat = base_lat + ((m_num % 100) - 50) * 0.008
                     lng = base_lng + (((m_num * 7) % 100) - 50) * 0.008
 
                     address = f"{m_num} Main Commercial Rd, {suburb}, {metro}, {prov_name}"
-                    landmarks_json = json.dumps([f"{suburb} Station", f"{suburb} Civic Centre", f"Regional Taxi Rank"])
+                    landmarks_json = json.dumps([f"{suburb} Station", f"{suburb} Civic Centre", "Regional Taxi Rank"])
                     safety_json = json.dumps(["24/7 Security Patrols", "CCTV Surveillance Active", "Covered Visitor Parking"])
 
                     rows.append((
@@ -203,7 +204,8 @@ class Command(BaseCommand):
             # Summary
             self.stdout.write(self.style.NOTICE("==> Spatial Grid Nodes Status..."))
             cur.execute("SELECT COUNT(*) FROM markets_market")
-            total_malls = cur.fetchone()[0]
+            total_malls_row = cur.fetchone()
+            total_malls = int(total_malls_row[0]) if total_malls_row else 0
 
             self.stdout.write(self.style.SUCCESS(f"[OK] Total Indexed Spatial Commerce Nodes in Grid: {total_malls:,}"))
 

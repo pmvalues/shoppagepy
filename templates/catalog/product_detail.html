@@ -5,6 +5,7 @@
 
 {% block structured_data %}
 <script type="application/ld+json">{{ jsonld|safe }}</script>
+<script type="application/ld+json">{{ breadcrumb_jsonld|safe }}</script>
 {% endblock %}
 
 {% block content %}
@@ -12,10 +13,14 @@
   <!-- Breadcrumbs & GS1 Compliance Strip -->
   <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
     <div>
-      <a href="/">Home</a> &gt; <a href="/search?category={{ product.category_ref }}">{{ product.category_ref|title }}</a> &gt; <span style="color: var(--text-primary); font-weight: 600;">{{ product.brand }}</span>
+      {% for crumb_name, crumb_path in breadcrumbs %}{% if not forloop.last %}<a href="{{ crumb_path }}">{{ crumb_name }}</a> &gt; {% else %}<span style="color: var(--text-primary); font-weight: 600;">{{ crumb_name }}</span>{% endif %}{% endfor %}
     </div>
     <div style="display: flex; gap: 0.5rem; align-items: center;">
-      <span class="badge badge-green" style="font-size: 0.7rem;">✓ Checksum GTIN: {{ product.gtin13|default:product.canonical_id }}</span>
+      {% if valid_gtin %}
+      <span class="badge badge-green" style="font-size: 0.7rem;">✓ {{ valid_gtin }}</span>
+      {% else %}
+      <span class="badge" style="font-size: 0.7rem; background: #F1F5F9; color: #64748B;">No GS1 barcode on record</span>
+      {% endif %}
       <span class="badge badge-blue" style="font-size: 0.7rem;">🇿🇦 South Africa National Grid</span>
     </div>
   </div>
@@ -23,7 +28,8 @@
   <!-- Product Merchandising Hero, Buy Box & Multi-Seller Matrix Summary -->
   <div style="display: grid; grid-template-columns: 420px 1fr; gap: 2.5rem; margin-bottom: 3rem; align-items: start;" x-data="{
     activeTab: 'photo',
-    selectedImage: 'main'
+    selectedImage: 0,
+    gallerySources: {{ gallery_json|safe }}
   }">
     
     <!-- Left Column: Visual Merchandising Gallery -->
@@ -34,12 +40,14 @@
         <div style="position: absolute; top: 1rem; left: 1rem; display: flex; flex-direction: column; gap: 0.35rem; align-items: flex-start; z-index: 2;">
           {% if discount_pct > 0 %}
           <span style="background: #EF4444; color: #FFFFFF; font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.6rem; border-radius: 6px;">
-            🔥 {{ discount_pct }}% OFF
+            🔥 {{ discount_pct }}% below listed retail
           </span>
           {% endif %}
+          {% if best_offer %}
           <span style="background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px;">
-            ● Ready for In-Store Pickup
+            ● Collect at {{ best_offer.merchant.name }}{% if best_offer.stall_ref %} · {{ best_offer.stall_ref }}{% endif %}
           </span>
+          {% endif %}
         </div>
 
         <div style="position: absolute; top: 1rem; right: 1rem; z-index: 2;">
@@ -48,25 +56,48 @@
 
         <!-- Dynamic Visual Display -->
         <div style="height: 260px; display: flex; align-items: center; justify-content: center; margin-top: 1rem; margin-bottom: 1.5rem;">
-          <div x-show="activeTab === 'photo'" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
-            {{ product|product_svg:"large" }}
+          <div x-show="activeTab === 'photo'" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; width: 100%; height: 100%;">
+            {% if product_images %}
+              <template x-for="(img, idx) in gallerySources" :key="idx">
+                <img x-show="selectedImage === idx" :src="img.url" :alt="img.alt" width="320" height="220"
+                     loading="eager" decoding="async"
+                     style="max-width: 100%; max-height: 210px; object-fit: contain; border-radius: 8px;" />
+              </template>
+              {% if product_images|length > 1 %}
+              <div style="display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap;">
+                {% for img in product_images %}
+                <button type="button" @click="selectedImage = {{ forloop.counter0 }}"
+                        :style="selectedImage === {{ forloop.counter0 }} ? 'border: 2px solid #2563EB;' : 'border: 2px solid #E2E8F0;'"
+                        style="padding: 2px; border-radius: 6px; background: #FFFFFF; cursor: pointer;">
+                  <img src="{{ img.url }}" alt="{{ img.effective_alt }}" width="44" height="34" loading="lazy" style="object-fit: cover; border-radius: 4px;" />
+                </button>
+                {% endfor %}
+              </div>
+              {% endif %}
+            {% else %}
+              {{ product|product_svg:"large" }}
+              <div style="font-size: 0.725rem; color: #94A3B8;">No verified product image on record yet</div>
+            {% endif %}
           </div>
           <div x-show="activeTab === 'specs'" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.5rem; width: 100%; text-align: left; font-size: 0.825rem;">
             <div style="font-weight: 800; color: #0F172A; margin-bottom: 0.5rem; font-size: 0.9rem;">📋 Manufacturer Datasheet</div>
             <div style="color: #475569; line-height: 1.6;">
               <div>• <strong>Brand:</strong> {{ product.brand }}</div>
-              <div>• <strong>Model:</strong> {{ product.model_number|default:"Standard" }}</div>
-              <div>• <strong>Category:</strong> {{ product.category_ref|title }}</div>
-              <div>• <strong>GS1 GTIN:</strong> {{ product.gtin13|default:product.canonical_id }}</div>
-              <div>• <strong>Warranty:</strong> {{ product.compliance.warrantyYears|default:5 }} Years</div>
+              {% if product.model_number %}<div>• <strong>Model:</strong> {{ product.model_number }}</div>{% endif %}
+              <div>• <strong>Category:</strong> {{ category_label }}</div>
+              {% if valid_gtin %}<div>• <strong>{{ valid_gtin }}</strong></div>{% endif %}
+              {% if product.mpn %}<div>• <strong>Part No:</strong> {{ product.mpn }}</div>{% endif %}
+              {% if product.compliance.warrantyYears %}<div>• <strong>Warranty:</strong> {{ product.compliance.warrantyYears }} Years</div>{% endif %}
             </div>
           </div>
           <div x-show="activeTab === 'compliance'" style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 1.5rem; width: 100%; text-align: left; font-size: 0.825rem;">
-            <div style="font-weight: 800; color: #1E3A8A; margin-bottom: 0.5rem; font-size: 0.9rem;">🛡️ SABS &amp; NRS Grid Compliance</div>
+            <div style="font-weight: 800; color: #1E3A8A; margin-bottom: 0.5rem; font-size: 0.9rem;">🛡️ Recorded Certifications</div>
             <div style="color: #1E40AF; line-height: 1.6;">
-              <div>✓ NRS 097-2-1 Grid Interconnection Approved</div>
-              <div>✓ SABS Safety Standard Certified</div>
-              <div>✓ Valid for Insurance Electrical CoC</div>
+              {% for label, value in compliance_items %}
+              <div>✓ {{ label }}{% if value %}: {{ value }}{% endif %}</div>
+              {% empty %}
+              <div style="color: #64748B;">No certification has been recorded for this product yet.</div>
+              {% endfor %}
             </div>
           </div>
         </div>
@@ -103,7 +134,7 @@
 
         {% if price_savings > 0 %}
         <div style="margin-top: 1rem; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px; padding: 0.6rem; font-size: 0.8rem; color: #065F46; font-weight: 700;">
-          💰 Best Price Guarantee: Save up to R {{ price_savings|floatformat:0|intcomma }} vs standard retail
+          💰 R {{ price_savings|floatformat:0|intcomma }} below the recorded list price
         </div>
         {% endif %}
       </div>
@@ -125,8 +156,12 @@
     <div>
       <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.4rem;">
         <span class="badge badge-blue">{{ product.brand }} Official Spec</span>
-        <span class="badge badge-green">✓ GS1 Standard Registered</span>
-        <span style="font-size: 0.8rem; color: #F59E0B; font-weight: 700;">★ 4.9 (48 verified store reviews)</span>
+        {% if valid_gtin %}<span class="badge badge-green">✓ GS1 Registered</span>{% endif %}
+        {% if product_rating and product_rating_count %}
+        <span style="font-size: 0.8rem; color: #F59E0B; font-weight: 700;">★ {{ product_rating }} ({{ product_rating_count }} reviews)</span>
+        {% else %}
+        <span style="font-size: 0.8rem; color: #94A3B8; font-weight: 600;">Not yet rated</span>
+        {% endif %}
       </div>
 
       <h1 style="font-size: 2.15rem; font-weight: 900; color: #0F172A; margin-bottom: 0.5rem; letter-spacing: -0.025em; line-height: 1.25;">
@@ -151,18 +186,30 @@
             </div>
 
             <div style="display: flex; align-items: baseline; gap: 0.75rem; margin-top: 0.35rem;">
+              {% if confirmed_min %}
               <div style="font-family: var(--font-display); font-size: 2.4rem; font-weight: 900; color: #059669; line-height: 1;">
-                R {{ min_price|floatformat:0|intcomma }}
+                R {{ confirmed_min|floatformat:0|intcomma }}
               </div>
-              {% if reference_price > min_price %}
+              {% else %}
+              <div style="font-family: var(--font-display); font-size: 1.9rem; font-weight: 900; color: #0F172A; line-height: 1;">
+                Price on request
+              </div>
+              {% endif %}
+              {% if reference_price and reference_price > confirmed_min %}
               <div style="font-size: 1.15rem; color: #94A3B8; text-decoration: line-through; font-weight: 600;">
                 R {{ reference_price|floatformat:0|intcomma }}
               </div>
               {% endif %}
             </div>
-            
+
             <div style="font-size: 0.8rem; color: #64748B; margin-top: 0.25rem;">
-              Includes VAT · Confirmed in-stock across {{ confirmed_offers|length|default:1 }} verified South African stockists
+              {% if confirmed_offers %}
+                Lowest merchant-confirmed price across {{ confirmed_offers|length }} verified stockist{{ confirmed_offers|length|pluralize }}
+              {% elif discovered_offers %}
+                Web-observed price only — not yet confirmed by a merchant
+              {% else %}
+                No published price — confirm directly with a verified stockist
+              {% endif %}
             </div>
           </div>
 
@@ -177,12 +224,16 @@
                 {{ best_offer.merchant.name }}
               </a>
             </div>
+            {% if best_offer.merchant.address_text or best_offer.merchant.locality %}
             <div style="font-size: 0.775rem; color: #475569; margin-top: 2px;">
-              📍 {{ best_offer.merchant.address_text|default:"Sandton City Mall, Gauteng" }}
+              📍 {{ best_offer.merchant.address_text|default:best_offer.merchant.locality }}
             </div>
+            {% endif %}
+            {% if best_offer.merchant.measured_response_minutes %}
             <div style="font-size: 0.75rem; color: #059669; font-weight: 700; margin-top: 4px;">
-              ⚡ Responds in ~{{ best_offer.merchant.median_response_minutes|default:4 }}m
+              ⚡ Median reply ~{{ best_offer.merchant.measured_response_minutes }}m
             </div>
+            {% endif %}
           </div>
           {% endif %}
         </div>
@@ -193,25 +244,38 @@
             <div style="display: flex; align-items: center; gap: 0.4rem;">
               <span style="font-size: 0.9rem;">📊</span>
               <span style="font-size: 0.8rem; font-weight: 800; color: #0F172A;">30-Day Price Intelligence:</span>
+              {% if price_status %}
               <span class="badge badge-green" style="font-size: 0.7rem;">{{ price_status }}</span>
+              {% endif %}
             </div>
+            {% if confirmed_min %}
             <a
-              href="https://wa.me/?text={{ 'Track Price Drop: Please alert me when '|urlencode }}{{ product.title|urlencode }}{{ ' drops below R '|urlencode }}{{ min_price|floatformat:0 }}"
+              href="https://wa.me/?text={{ 'Track Price Drop: Please alert me when '|urlencode }}{{ product.title|urlencode }}{{ ' drops below R '|urlencode }}{{ confirmed_min|floatformat:0 }}"
               target="_blank"
               style="font-size: 0.75rem; color: #2563EB; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 3px;"
             >
               🔔 Track Price Drop on WhatsApp
             </a>
+            {% endif %}
           </div>
 
-          <!-- Price Sparkline Range Bar -->
+          {% if price_history and price_history.meaningful %}
+          <!-- Measured range from recorded merchant confirmations -->
           <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #64748B;">
-            <span>30d Low: <strong style="color: #059669;">R {{ lowest_30d|floatformat:0|intcomma }}</strong></span>
+            <span>30d Low: <strong style="color: #059669;">R {{ price_history.low|floatformat:0|intcomma }}</strong></span>
             <div style="flex: 1; height: 4px; background: #E2E8F0; border-radius: 2px; margin: 0 0.75rem; position: relative;">
-              <div style="position: absolute; left: 15%; right: 25%; height: 100%; background: #10B981; border-radius: 2px;"></div>
+              <div style="position: absolute; left: {{ history_marker_pct }}%; width: 4px; height: 10px; top: -3px; background: #2563EB; border-radius: 2px;"></div>
             </div>
-            <span>30d High: <strong style="color: #94A3B8;">R {{ highest_30d|floatformat:0|intcomma }}</strong></span>
+            <span>30d High: <strong style="color: #94A3B8;">R {{ price_history.high|floatformat:0|intcomma }}</strong></span>
           </div>
+          <div style="font-size: 0.7rem; color: #94A3B8; margin-top: 0.4rem;">
+            {{ price_history.observations }} price observation{{ price_history.observations|pluralize }} recorded in the last 30 days
+          </div>
+          {% else %}
+          <div style="font-size: 0.75rem; color: #64748B;">
+            No measured price history yet — the 30-day band is built from each merchant confirmation.
+          </div>
+          {% endif %}
         </div>
 
         <!-- Buy Box Action Buttons -->
@@ -243,17 +307,21 @@
           </a>
         </div>
 
-        <!-- In-Mall Collection & Courier Fulfilment Strip -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.775rem; border-top: 1px solid #F1F5F9; padding-top: 0.85rem;">
-          <div style="display: flex; align-items: center; gap: 0.4rem; color: #0F172A;">
-            <span>🏬</span>
-            <span><strong>Same-Day Collection:</strong> In-Store at Sandton &amp; Mall Stalls</span>
-          </div>
+        <!-- Fulfilment terms published by the stocking merchant -->
+        {% if fulfilment_options %}
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.775rem; border-top: 1px solid #F1F5F9; padding-top: 0.85rem;">
+          {% for option in fulfilment_options %}
           <div style="display: flex; align-items: center; gap: 0.4rem; color: #0F172A;">
             <span>🚚</span>
-            <span><strong>Doorstep Courier:</strong> 24-48h Delivery via The Courier Guy</span>
+            <span><strong>{{ option }}</strong></span>
           </div>
+          {% endfor %}
         </div>
+        {% else %}
+        <div style="font-size: 0.75rem; color: #64748B; border-top: 1px solid #F1F5F9; padding-top: 0.85rem;">
+          Collection and delivery terms are agreed directly with the merchant; none are published on this listing.
+        </div>
+        {% endif %}
       </div>
 
       <!-- Verified Specifications & Compliance Pills -->
@@ -282,6 +350,48 @@
           {% endfor %}
         </div>
       </div>
+
+      {% if description %}
+      <!-- Product Description -->
+      <div style="margin-top: 1.25rem;">
+        <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 0.4rem;">About this product</h3>
+        <p style="font-size: 0.9rem; color: #334155; line-height: 1.65; margin: 0;">{{ description|linebreaksbr }}</p>
+      </div>
+      {% endif %}
+
+      {% if bullet_points %}
+      <!-- Key Features -->
+      <div style="margin-top: 1.25rem;">
+        <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 0.4rem;">Key features</h3>
+        <ul style="margin: 0; padding-left: 1.1rem; font-size: 0.875rem; color: #334155; line-height: 1.7;">
+          {% for point in bullet_points %}<li>{{ point }}</li>{% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% if product.tags %}
+      <div style="margin-top: 1.25rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
+        {% for tag in product.tags %}<a href="/search/?q={{ tag|urlencode }}" class="badge badge-gray" style="text-decoration: none;">{{ tag }}</a>{% endfor %}
+      </div>
+      {% endif %}
+
+      {% if variation_group %}
+      <!-- Variation Family: sibling models of this product -->
+      <div style="margin-top: 1.5rem; border-top: 1px solid #F1F5F9; padding-top: 1rem;">
+        <h3 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem;">
+          Other models in the {{ product.family_ref }} family
+        </h3>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          {% for sibling in variation_group %}
+          <a href="/p/{{ sibling.seo_handle }}/"
+             style="display: block; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 0.5rem 0.75rem; text-decoration: none; color: #0F172A;">
+            <div style="font-size: 0.825rem; font-weight: 700;">{{ sibling.title }}</div>
+            <div style="font-size: 0.725rem; color: #64748B;">{{ sibling.model_number|default:sibling.brand }}</div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
 
     </div>
   </div>
@@ -384,10 +494,11 @@
             <span class="badge badge-blue">Trust: {{ offer.merchant.trust_score }}/100</span>
           </div>
           <p style="color: #64748B; font-size: 0.825rem; margin: 0.2rem 0;">
-            📍 {{ offer.merchant.address_text|default:"Major South African Commercial Corridor" }} · <strong>{{ offer.stall_ref|default:"Direct Storefront" }}</strong>
+            📍 {{ offer.merchant.address_text|default:offer.merchant.province|default:"Address not published" }} · <strong>{{ offer.stall_ref|default:"Direct Storefront" }}</strong>
           </p>
           <p style="color: #059669; font-size: 0.75rem; font-weight: 600; margin: 0;">
-            ⚡ Fast SLA: Responds in ~{{ offer.merchant.median_response_minutes|default:5 }}m · Same-day walk-in collection or courier delivery
+            🕒 {{ offer.get_sla_class_display }} · valid until {{ offer.expires_at|date:'d M Y H:i' }}
+            {% if offer.merchant.measured_response_minutes %}· median reply ~{{ offer.merchant.measured_response_minutes }}m{% endif %}
           </p>
         </div>
 
@@ -396,7 +507,7 @@
             R {{ offer.price_amount|floatformat:0|intcomma }}
           </div>
           <div style="font-size: 0.725rem; color: #10B981; font-weight: 700;">
-            ● Confirmed Live Price
+            ● Confirmed {{ offer.last_confirmed_at|date:'d M Y H:i' }}{% if offer.expires_at %} · expires {{ offer.expires_at|date:'d M Y' }}{% endif %}
           </div>
         </div>
 

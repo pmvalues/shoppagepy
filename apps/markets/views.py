@@ -1,9 +1,12 @@
+import contextlib
 import json
-from django.shortcuts import render, get_object_or_404
-from django.db.models import Count
-from django.http import Http404
+
+from apps.core.seo import breadcrumb_jsonld, jsonld_script, market_jsonld
+from django.core.exceptions import ValidationError
+from django.http import Http404, HttpResponsePermanentRedirect
+from django.shortcuts import render
+
 from .models import Market
-from apps.core.seo import market_jsonld, jsonld_script
 
 PROVINCE_GEO = {
     'Gauteng': {'lat': -26.2041, 'lng': 28.0473},
@@ -62,7 +65,7 @@ def malls_directory_view(request):
     for idx, m in enumerate(markets_list):
         lat = float(m.latitude) if m.latitude else None
         lng = float(m.longitude) if m.longitude else None
-        
+
         if not lat or not lng:
             base_geo = PROVINCE_GEO.get(m.province, {'lat': -26.2041, 'lng': 28.0473})
             # Small deterministic offset so markers spread out nicely
@@ -86,7 +89,7 @@ def malls_directory_view(request):
         'Gauteng', 'Western Cape', 'KwaZulu-Natal', 'Eastern Cape',
         'Mpumalanga', 'Limpopo', 'Free State', 'North West', 'Northern Cape'
     ]
-    province_counts = {p: 366 for p in provinces}
+    province_counts = dict.fromkeys(provinces, 366)
     province_counts['Gauteng'] = 371
     province_counts['Western Cape'] = 367
 
@@ -98,22 +101,27 @@ def malls_directory_view(request):
         'province_counts': province_counts,
         'provinces': provinces,
         'query': query,
-        'total_malls_count': Market.objects.count() or 3296,
+        'total_malls_count': Market.objects.count(),
     }
     return render(request, 'markets/malls_page.html', context)
 
 
 def market_detail_view(request, slug_or_id):
     market = Market.objects.filter(canonical_slug=slug_or_id).first()
+    resolved_other_way = False
     if not market:
         try:
             market = Market.objects.filter(id=slug_or_id).first()
-        except Exception:
-            pass
+        except ValidationError:
+            market = None
+        resolved_other_way = market is not None
     if not market:
         market = Market.objects.filter(name__icontains=slug_or_id.replace('-', ' ')).first()
+        resolved_other_way = market is not None
     if not market:
         raise Http404("Market not found")
+    if resolved_other_way:
+        return HttpResponsePermanentRedirect(f'/markets/{market.canonical_slug}/')
 
     # Fetch merchants and deduplicate by storefront name
     m_candidates = list(market.merchants.select_related('market').order_by('-trust_score', 'id')[:100])
@@ -128,11 +136,30 @@ def market_detail_view(request, slug_or_id):
             break
 
     sub_markets = list(market.sub_markets.all()[:20])
+    crumbs = [
+        ('Home', '/'),
+        ('Malls', '/malls/'),
+        (market.province, f'/malls/?province={market.province}'),
+        (market.name, None),
+    ]
+    default_description = (
+        f'{market.get_market_type_display()} in {market.locality or market.metro or market.province}, '
+        f'{market.name} lists {market.active_merchants_count or len(unique_merchants)} tracked trader'
+        f'{"s" if (market.active_merchants_count or len(unique_merchants)) != 1 else ""} on the Shoppage grid.'
+    )
 
     context = {
         'market': market,
         'merchants': unique_merchants,
         'sub_markets': sub_markets,
-        'jsonld': jsonld_script(market_jsonld(market)),
+        'jsonld': jsonld_script(market_jsonld(market, request)),
+        'breadcrumb_jsonld': jsonld_script(breadcrumb_jsonld(crumbs, request)),
+        'breadcrumbs': crumbs,
+        'page_title': market.meta_title or f'{market.name} — Stores, Hours & Directory | Shoppage',
+        'meta_description': market.meta_description or default_description[:155],
+        'canonical_path': f'/markets/{market.canonical_slug}/',
+        'og_image_url': market.public_image_url or '',
+        'og_image_alt': market.name,
+        'og_type': 'place',
     }
     return render(request, 'markets/market_detail.html', context)

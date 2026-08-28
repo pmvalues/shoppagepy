@@ -1,29 +1,37 @@
-from django.shortcuts import render
+import contextlib
+import hashlib
+
+from apps.catalog.models import MasterProduct
+from apps.intelligence.ranking import ranked_search
+from apps.markets.models import Market
+from apps.media_hub.models import Short, Show
+from apps.merchants.models import Merchant
 from django.core.cache import cache
 from django.db import connection
 from django.db.models import Q
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
+from django.shortcuts import render
 from django.utils.cache import patch_vary_headers
-from apps.markets.models import Market
-from apps.merchants.models import Merchant
-from apps.catalog.models import MasterProduct
-from apps.media_hub.models import Show, Short
-from apps.intelligence.ranking import ranked_search
+
 
 def _cache_key(prefix, request):
-    params = '&'.join(f'{k}={v}' for k, v in sorted(request.GET.items()) if v)
-    return f'sp:{prefix}:{params}'
+    from apps.core.signals import data_version
 
-def _fast_table_count(model_class, default_val=1000000):
+    params = '&'.join(f'{k}={v}' for k, v in sorted(request.GET.items()) if v)
+    # Hash to bound key length and prevent pathological/unbounded cache keys.
+    # The data version makes any commerce write invalidate cached context.
+    return f'sp:{prefix}:v{data_version()}:{hashlib.md5(params.encode()).hexdigest()}'
+
+def _fast_table_count(model_class):
     """
-    Returns instant count in PostgreSQL via pg_class or cached counter without full table scan.
+    Measured row count (Postgres uses pg_class); None when it cannot be measured,
+    so a page renders no figure rather than an invented one.
     """
     cache_key = f'sp:count:{model_class._meta.db_table}'
     cached = cache.get(cache_key)
     if cached is not None:
         return cached
     try:
-        from django.db import connection
         if connection.vendor == 'postgresql':
             with connection.cursor() as cur:
                 cur.execute("SELECT reltuples::bigint FROM pg_class WHERE relname = %s", [model_class._meta.db_table])
@@ -39,7 +47,7 @@ def _fast_table_count(model_class, default_val=1000000):
         cache.set(cache_key, cnt, 3600)
         return cnt
     except Exception:
-        return default_val
+        return None
 
 def home_view(request):
     """
@@ -98,13 +106,6 @@ def home_view(request):
 
         shows = list(Show.objects.filter(status__in=['active', 'ACTIVE'])[:3]) or list(Show.objects.all()[:3])
         shorts = list(Short.objects.filter(moderation_state__in=['approved', 'APPROVED'])[:4]) or list(Short.objects.all()[:4])
-        if not shorts:
-            shorts = [
-                {'canonical_id': 'v_deye_demo', 'title': 'Deye 8kW Hybrid Inverter Unboxing & NRS 097 CoC Walkthrough', 'merchant': {'name': 'SolarBros Sandton'}, 'views': 4850},
-                {'canonical_id': 'v_dyness_test', 'title': 'Dyness 5.12kWh LiFePO4 Battery 6000 Cycle Testing in Dragon City', 'merchant': {'name': 'Dragon Solar Hub'}, 'views': 3290},
-                {'canonical_id': 'v_s24_stock', 'title': 'Samsung Galaxy S24 Ultra Official SABS Stock Inspection & Trade Pricing', 'merchant': {'name': 'Sandton Mobile Direct'}, 'views': 6120},
-                {'canonical_id': 'v_cement_pallets', 'title': 'PPC Surebuild 50kg Pallet Drop & Bulk Hardware Dispatch in Menlyn', 'merchant': {'name': 'BuildRight Hardware'}, 'views': 2940},
-            ]
         flagship_malls = list(
             Market.objects.exclude(name__contains='#')
             .order_by('-stall_capacity', 'name')[:12]
@@ -117,24 +118,24 @@ def home_view(request):
             'shorts': shorts,
             'flagship_malls': flagship_malls,
             'stats': {
-                'total_merchants': _fast_table_count(Merchant, 3100000),
-                'total_malls': _fast_table_count(Market, 3296),
-                'total_products': _fast_table_count(MasterProduct, 1000000),
+                'total_merchants': _fast_table_count(Merchant),
+                'total_malls': _fast_table_count(Market),
+                'total_products': _fast_table_count(MasterProduct),
             },
         }
-        try:
+        with contextlib.suppress(Exception):
             cache.set(key, context, 300)
-        except Exception:
-            pass
 
     return render(request, 'home.html', context)
 
 def search_view(request):
     key = _cache_key('search_page_v5', request)
-    cached_html = cache.get(key)
-    if cached_html:
-        response = HttpResponse(cached_html)
-        patch_vary_headers(response, ['Accept-Encoding'])
+    cached = cache.get(key)
+    if cached is not None:
+        # Serve cached context (data only — never cached rendered HTML, which
+        # would embed a stale per-user CSRF token).
+        response = render(request, 'search/search_results.html', cached)
+        patch_vary_headers(response, ('Accept-Encoding',))
         return response
 
     query = request.GET.get('q', '').strip()
@@ -163,20 +164,25 @@ def search_view(request):
     except ValueError:
         offset = 0
 
-    effective_query = f'{category} {brand} {query}'.strip() if (category or brand) else query
+    effective_query = query or f'{category} {brand}'.strip()
     results = ranked_search(
         effective_query,
         limit=24,
         offset=offset,
         category=category,
         province=province,
+        brand=brand,
         min_price=min_price,
         max_price=max_price,
     )
 
     from apps.intelligence.services import (
-        get_brand_knowledge_card, get_tiered_moq_pricing, detect_intent,
-        build_overview, get_people_also_ask, get_related_searches
+        build_overview,
+        detect_intent,
+        get_brand_knowledge_card,
+        get_people_also_ask,
+        get_related_searches,
+        get_tiered_moq_pricing,
     )
 
     # Knowledge Graph Card
@@ -193,10 +199,10 @@ def search_view(request):
         # SABS / Compliance filter
         if sabs_only and not (p.compliance and (p.compliance.get('sabsApproved') or p.compliance.get('nrs097Certified'))):
             continue
-        
+
         best_price = float(s.best_offer.price_amount) if s.best_offer and s.best_offer.price_amount else (p.estimated_price_zar or 1000.0)
         merchant_name = s.best_offer.merchant.name.split('#')[0].strip() if (s.best_offer and s.best_offer.merchant) else "Verified Supplier"
-        
+
         # B2B MOQ calculations
         product_moq_tables[p.canonical_id] = get_tiered_moq_pricing(best_price)
         offers_by_product[p.canonical_id] = [s.best_offer] if s.best_offer else []
@@ -253,13 +259,13 @@ def search_view(request):
         places_stores.append({
             'merchant': m,
             'clean_name': m.name.split('#')[0].strip(),
-            'rating': m.google_rating or 4.8,
-            'reviews_count': m.google_reviews_count or 120,
+            'rating': m.google_rating,
+            'reviews_count': m.google_reviews_count,
             'category_name': m.get_category_display() if hasattr(m, 'get_category_display') else (m.category or 'Commercial Supplier').replace('_', ' ').title(),
             'address': m.address_text.split(',')[0] if m.address_text else f"{m.province or 'Gauteng'}, South Africa",
             'phone': m.telephone or m.whatsapp_number or '011 440 2529',
             'operating_hours': m.operating_hours or 'Open · Closes 5 pm',
-            'review_snippet': f"On time and sorted with verified {query or 'product'} supply at competitive wholesale rates.",
+            'review_snippet': '',
             'canonical_id': m.canonical_id,
             'whatsapp_number': m.whatsapp_number,
         })
@@ -292,6 +298,13 @@ def search_view(request):
     people_also_ask = get_people_also_ask(query)
     related_searches = get_related_searches(query, category)
 
+    from apps.core.seo import jsonld_script, search_results_jsonld, site_url
+
+    result_base = site_url(request)
+    search_items = [
+        (product.title, f'{result_base}/p/{product.seo_handle}/')
+        for product in plain_products[:20]
+    ]
     context = {
         'query': query,
         'category': category,
@@ -309,6 +322,14 @@ def search_view(request):
         'places_stores': places_stores,
         'people_also_ask': people_also_ask,
         'related_searches': related_searches,
+        'page_title': (
+            f'{query} — prices, local stock & verified sellers | Shoppage' if query
+            else 'Search products, prices and verified sellers | Shoppage'
+        ),
+        'meta_description': (ai_overview[:155] if query and ai_overview else ''),
+        'robots_meta': 'noindex,follow' if query else 'index,follow',
+        'canonical_path': '/search/',
+        'search_jsonld': jsonld_script(search_results_jsonld(query, search_items, request)),
         'results': {
             **results,
             'products': plain_products,
@@ -323,12 +344,12 @@ def search_view(request):
         'next_offset': results['next_offset'],
         'page': results['page'],
     }
+    with contextlib.suppress(Exception):
+        # Cache the context data (not rendered HTML) to avoid stale CSRF tokens.
+        cache.set(key, context, 60)
+
     response = render(request, 'search/search_results.html', context)
-    patch_vary_headers(response, ['Accept-Encoding'])
-    try:
-        cache.set(key, response.content, 180)
-    except Exception:
-        pass
+    patch_vary_headers(response, ('Accept-Encoding',))
     return response
 
 def search_live_view(request):
@@ -343,7 +364,7 @@ def search_live_view(request):
     ctx = cache.get(key)
     if ctx is None:
         res = ranked_search(query, limit=5)
-        
+
         products_list = []
         for s in res['products']:
             p = s.product
@@ -407,7 +428,7 @@ def readyz_view(request):
             cur.execute('SELECT 1')
         checks['database'] = 'ok'
     except Exception as exc:
-        checks['database'] = f'error: {exc.__class__.__name__}: {str(exc)}'
+        checks['database'] = f'error: {exc.__class__.__name__}: {exc!s}'
         ok = False
     try:
         cache.set('sp:readyz', '1', 5)

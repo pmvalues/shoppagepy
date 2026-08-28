@@ -5,11 +5,11 @@ Sweeps public retailers, distributor websites, and open marketplace feeds across
 and indexes them into SQLite with verified direct canonical PRODUCT page URLs.
 """
 
+import hashlib
 import os
 import re
 import sqlite3
-import hashlib
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 DB_DIR = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -25,7 +25,7 @@ def slugify(text: str) -> str:
     return s
 
 def get_deterministic_sku(product_id: str, retailer: str) -> str:
-    h = int(hashlib.md5(f"{product_id}:{retailer}".encode("utf-8")).hexdigest()[:8], 16)
+    h = int(hashlib.md5(f"{product_id}:{retailer}".encode()).hexdigest()[:8], 16)
     return str(h)
 
 def build_direct_product_url(website: str, product_title: str, product_id: str) -> str:
@@ -247,7 +247,7 @@ def build_discovered_offers_db():
     cur.execute("CREATE INDEX IF NOT EXISTS idx_disc_prod ON discovered_offers(master_product_ref)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_disc_site ON discovered_offers(source_website)")
 
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     total_offers = 0
 
     for prod in CANONICAL_PRODUCTS:
@@ -264,7 +264,7 @@ def build_discovered_offers_db():
             multiplier = 0.93 + (idx * 0.035)
             price = round(base_price * multiplier, 2)
             raw_text = f"R {price:,.2f}" if price % 1 != 0 else f"R {int(price):,}"
-            
+
             # Generate DIRECT product page URL (never search query)
             direct_url = build_direct_product_url(ret["website"], p_title, p_id)
             sku = f"ZA-{prod['brand'][:3].upper()}-{idx+101}"

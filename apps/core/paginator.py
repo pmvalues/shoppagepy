@@ -1,6 +1,7 @@
 from django.core.paginator import Paginator
-from django.utils.functional import cached_property
 from django.db import connection
+from django.utils.functional import cached_property
+
 
 class LargeTablePaginator(Paginator):
     """
@@ -17,7 +18,7 @@ class LargeTablePaginator(Paginator):
 
         # For unfiltered tables, use fast cached count
         table_name = self.object_list.model._meta.db_table
-        
+
         if self._cached_count is not None:
             return self._cached_count
 

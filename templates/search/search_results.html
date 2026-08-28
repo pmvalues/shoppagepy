@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 {% load humanize core_tags %}
 
-{% block title %}{{ query|default:"Search" }} — Shoppage National Commerce Intelligence{% endblock %}
+{% block structured_data %}
+{% if search_jsonld %}<script type="application/ld+json">{{ search_jsonld|safe }}</script>{% endif %}
+{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -196,11 +198,11 @@
   <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.825rem; color: #64748B; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #F1F5F9;">
     <div style="display: flex; align-items: center; gap: 0.4rem;">
       <span>📍</span>
-      <span><strong>{{ province|default:"Sandton, 2196" }}</strong> · Verified South Africa Commercial Grid</span>
+      <span><strong>{{ province|default:"South Africa" }}</strong> · Verified South Africa Commercial Grid</span>
       <a href="/malls" style="color: #2563EB; font-weight: 600; text-decoration: none; margin-left: 0.25rem;">Change location</a>
     </div>
     <div>
-      Retrieved in <strong>{{ elapsed_ms }}ms</strong> · {{ results.total_products }} GS1 products · {{ results.total_merchants }} verified suppliers
+      Retrieved in <strong>{{ elapsed_ms }}ms</strong> · {{ results.total_products }} matching product{{ results.total_products|pluralize }}{% if results.is_capped %} <span style="color:#B45309;">(top {{ results.result_cap }} matches shown)</span>{% endif %} · {{ results.total_merchants }} supplier{{ results.total_merchants|pluralize }}
     </div>
   </div>
 
@@ -368,8 +370,8 @@
               </h3>
 
               <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; margin-bottom: 0.25rem;">
-                <span style="color: #D97706; font-weight: 700;">★ {{ store.rating }}</span>
-                <span style="color: #64748B;">({{ store.reviews_count }})</span>
+                {% if store.rating %}<span style="color: #D97706; font-weight: 700;">★ {{ store.rating }}</span>{% endif %}
+                {% if store.reviews_count %}<span style="color: #64748B;">({{ store.reviews_count }})</span>{% endif %}
                 <span style="color: #94A3B8;">·</span>
                 <span style="color: #475569;">{{ store.category_name }}</span>
               </div>
@@ -382,9 +384,11 @@
                 <span style="color: #059669; font-weight: 600;">● {{ store.operating_hours }}</span>
               </div>
 
+              {% if store.review_snippet %}
               <div style="font-size: 0.775rem; color: #64748B; font-style: italic; background: #F8FAFC; padding: 0.35rem 0.6rem; border-radius: 6px; margin-top: 0.35rem; display: inline-block;">
                 &ldquo;{{ store.review_snippet }}&rdquo;
               </div>
+              {% endif %}
             </div>
 
             <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">

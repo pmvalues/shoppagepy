@@ -1,7 +1,7 @@
-import sqlite3
-import os
 import json
+import os
 import random
+import sqlite3
 import time
 
 DATABASE_PATH = "shoppage-commerce-intelligence-foundation/data/study/global_food_master_products.sqlite"
@@ -490,10 +490,10 @@ SA_CORE_MASTER_PRODUCTS = [
 
 def run_sa_product_catalog_injection():
     print("================================================================================")
-    print(f"[Master Product Ingester] Injecting Authoritative South African National Catalog")
-    print(f"                          GS1 Barcodes (600...), SABS, NRS 097, SAHPRA Certified")
+    print("[Master Product Ingester] Injecting Authoritative South African National Catalog")
+    print("                          GS1 Barcodes (600...), SABS, NRS 097, SAHPRA Certified")
     print("================================================================================")
-    
+
     conn = sqlite3.connect(DATABASE_PATH, timeout=60.0)
     cur = conn.cursor()
 
@@ -518,7 +518,7 @@ def run_sa_product_catalog_injection():
 
             sku_id = f"{item['id']}_v{var_idx:03d}" if var_idx > 1 else item['id']
             prod_name = item['name'] if var_idx == 1 else f"{item['name']} (Pack #{var_idx})"
-            
+
             features = dict(item["features"])
             features["ean13"] = ean13
             features["gs1_country"] = "South Africa"

@@ -1,8 +1,17 @@
+from apps.core.paginator import LargeTablePaginator
+from apps.offers.models import Offer
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Merchant, TrustPassport, Draft, AgentRun, ClaimStateChoices, VerificationStateChoices
-from apps.offers.models import Offer
-from apps.core.paginator import LargeTablePaginator
+
+from .models import (
+    AgentRun,
+    ClaimStateChoices,
+    Draft,
+    Merchant,
+    TrustPassport,
+    VerificationStateChoices,
+)
+
 
 class ProvinceFilter(admin.SimpleListFilter):
     title = 'Province'
@@ -110,19 +119,28 @@ class MerchantAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Store Identity', {
-            'fields': ('canonical_id', 'name', 'category', 'claim_state', 'verification_state')
+            'fields': ('canonical_id', 'name', 'category', 'profile_categories', 'claim_state', 'verification_state')
         }),
         ('Contact & Direct Channels', {
-            'fields': ('whatsapp_number', 'telephone', 'email', 'website_url')
+            'fields': ('whatsapp_number', 'telephone', 'email', 'website_url', 'appointment_url')
         }),
         ('Spatial Location', {
-            'fields': ('market', 'stall_identifier', 'address_text', 'province', 'country')
+            'fields': ('market', 'stall_identifier', 'address_text', 'locality', 'postal_code', 'province', 'country', 'latitude', 'longitude')
+        }),
+        ('Hours & Maps', {
+            'fields': ('opening_hours', 'operating_hours', 'timezone', 'google_place_id', 'google_maps_url')
         }),
         ('Statutory Compliance & Registrations', {
-            'fields': ('cipc_enterprise_number', 'bbbee_level', 'tax_compliance_pin', 'cidb_grade', 'years_in_business')
+            'fields': ('cipc_enterprise_number', 'csd_supplier_number', 'bbbee_level', 'tax_compliance_pin', 'cidb_registration_number', 'cidb_grade', 'wireman_license_number', 'years_in_business')
+        }),
+        ('Operations & Facilities', {
+            'fields': ('delivery_options', 'payment_methods', 'facilities', 'languages_spoken')
         }),
         ('Reputation & Intelligence', {
-            'fields': ('trust_score', 'google_rating', 'google_reviews_count', 'median_response_minutes')
+            'fields': ('trust_score', 'google_rating', 'google_reviews_count', 'google_reviews_url', 'median_response_minutes')
+        }),
+        ('Profile Media & Search Snippets', {
+            'fields': ('storefront_photo_url', 'meta_title', 'meta_description')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),

@@ -47,7 +47,7 @@ def product_svg(product_or_title, size="medium"):
         cat = getattr(product_or_title, 'category_ref', '').lower()
     elif isinstance(product_or_title, str):
         title = product_or_title.lower()
-    
+
     dim = "120" if size == "small" else ("160" if size == "medium" else "220")
 
     # 1. LiFePO4 Lithium Battery / Power Storage

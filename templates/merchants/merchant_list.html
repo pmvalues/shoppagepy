@@ -41,7 +41,7 @@
         <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.8rem; color: #4B5563; margin-bottom: 0.4rem; flex-wrap: wrap;">
           <span style="color: #D97706; font-weight: 700;">★ {{ m.google_rating|default:"4.8" }} <span style="color: #6B7280; font-weight: normal;">({{ m.google_reviews_count|default:42 }}+ Google reviews)</span></span>
           <span>•</span>
-          <span style="color: #059669; font-weight: 600;">⚡ Responds in ~{{ m.median_response_minutes|default:15 }} mins on WhatsApp</span>
+          {% if m.measured_response_minutes %}<span style="color: #059669; font-weight: 600;">⚡ Responds in ~{{ m.measured_response_minutes }} mins on WhatsApp</span>{% endif %}
         </div>
 
         <p style="color: #64748B; font-size: 0.825rem; margin: 0;">

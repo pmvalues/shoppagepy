@@ -1,12 +1,13 @@
 import re
-from typing import Dict, Any, List, Optional
-from django.db.models import Q
+from typing import Any
+from xml.sax.saxutils import escape
+
 from apps.catalog.models import MasterProduct
 from apps.merchants.models import Merchant
-from apps.offers.models import Offer
-from apps.markets.models import Market
+from apps.offers.models import PUBLISHABLE_STATES, Offer
+from django.db.models import Q
 
-CATEGORY_KEYWORDS: Dict[str, List[str]] = {
+CATEGORY_KEYWORDS: dict[str, list[str]] = {
     'solar_energy': [
         'solar', 'inverter', 'battery', 'backup', 'power', 'deye', 'sunsynk', 'dyness', 'panel', 'pv',
         'load shedding', 'loadshedding', 'ups', 'hybrid', 'lifepo4', 'pylontech', 'hubble', 'growatt',
@@ -37,12 +38,12 @@ BRAND_HINTS = [
     'victron', 'growatt', 'pylontech', 'hubble', 'must', 'ja solar', 'canadian solar'
 ]
 
-def parse_price_value(raw: str) -> Optional[float]:
+def parse_price_value(raw: str) -> float | None:
     if not raw:
         return None
     clean = raw.strip().replace(',', '').strip()
     clean = re.sub(r'^[rR]\s*', '', clean).strip().lower()
-    
+
     # Handle "grand" e.g. "20 grand"
     grand_match = re.match(r'^([\d.]+)\s*grand', clean, re.IGNORECASE)
     if grand_match:
@@ -64,7 +65,7 @@ def parse_price_value(raw: str) -> Optional[float]:
     except ValueError:
         return None
 
-def detect_intent(raw: str) -> Dict[str, Any]:
+def detect_intent(raw: str) -> dict[str, Any]:
     text = (raw or '').lower().strip()
     max_price = None
     min_price = None
@@ -109,15 +110,15 @@ def clean_search_query(text: str) -> str:
     s = re.sub(r'\s+', ' ', s)
     return s.strip()
 
-def build_overview(query: str, intent: Dict[str, Any], total_products: int, total_merchants: int, min_price: Optional[float], max_price: Optional[float], avg_price: Optional[float], top_brands: List[str]) -> str:
+def build_overview(query: str, intent: dict[str, Any], total_products: int, total_merchants: int, min_price: float | None, max_price: float | None, avg_price: float | None, top_brands: list[str]) -> str:
     scope = f"in the {intent['category'].replace('_', ' ')} category" if intent.get('category') else "across the national catalogue"
     brand_line = f" focused on {intent['brand'].upper()} " if intent.get('brand') else " "
-    
+
     if min_price and max_price:
         price_line = f" Live pricing currently ranges from R {min_price:,.0f} to R {max_price:,.0f} (avg R {avg_price:,.0f})."
     else:
         price_line = " Live local pricing is confirmed directly with verified merchants."
-        
+
     brand_summary = f" Top matching brands: {', '.join(top_brands[:4])}." if top_brands else ""
     return (
         f"Shoppage intelligence found {total_products:,} master product{'s' if total_products != 1 else ''} and "
@@ -125,13 +126,13 @@ def build_overview(query: str, intent: Dict[str, Any], total_products: int, tota
         f"Results are ranked by local availability, freshness and merchant trust signals."
     )
 
-def semantic_search(raw_query: str, limit: int = 12, offset: int = 0) -> Dict[str, Any]:
+def semantic_search(raw_query: str, limit: int = 12, offset: int = 0) -> dict[str, Any]:
     intent = detect_intent(raw_query)
     cleaned = clean_search_query(intent['normalized_query'])
     q = cleaned or raw_query
 
     product_qs = MasterProduct.objects.filter(status__in=['active', 'ACTIVE']).prefetch_related('offers', 'offers__merchant')
-    
+
     if intent.get('brand'):
         product_qs = product_qs.filter(brand__icontains=intent['brand'])
     elif intent.get('category'):
@@ -146,7 +147,7 @@ def semantic_search(raw_query: str, limit: int = 12, offset: int = 0) -> Dict[st
         )
 
     products = list(product_qs[offset:offset+limit])
-    
+
     # Filter price range if intent contains bounds
     if intent.get('max_price') or intent.get('min_price'):
         filtered = []
@@ -207,7 +208,7 @@ def semantic_search(raw_query: str, limit: int = 12, offset: int = 0) -> Dict[st
         'total_merchants': len(merchants),
     }
 
-def ask_assistant(message: str) -> Dict[str, Any]:
+def ask_assistant(message: str) -> dict[str, Any]:
     intent = detect_intent(message)
     cleaned = clean_search_query(intent['normalized_query'])
     q = cleaned or message
@@ -253,42 +254,108 @@ def ask_assistant(message: str) -> Dict[str, Any]:
         'intent': intent,
     }
 
+def _feed_text(value: Any) -> str:
+    return escape(str(value if value is not None else '').strip())
+
+
+def _feed_date(value) -> str:
+    if not value:
+        return ''
+    text = value.strftime('%Y-%m-%dT%H:%M')
+    offset = value.strftime('%z')
+    if offset:
+        text = f'{text}{offset[:3]}:{offset[3:]}'
+    return text
+
+
 def generate_google_merchant_center_feed(merchant_id: str, base_url: str = 'https://shoppage.co.za') -> str:
+    """RSS 2.0 product feed in the Google Merchant Center namespace.
+
+    Only attributes the record actually supports are emitted: an item with no real
+    image ships without g:image_link — and is disapproved for that stated reason —
+    rather than pointing at a placeholder.
+    """
     merchant = Merchant.objects.filter(canonical_id=merchant_id).first()
     if not merchant:
-        return "<rss version='2.0'><channel><title>Merchant Not Found</title></channel></rss>"
+        return (
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">\n  <channel>\n'
+            '    <title>Merchant Not Found</title>\n    <link/>\n    <description/>\n'
+            '  </channel>\n</rss>'
+        )
 
-    offers = Offer.objects.filter(merchant=merchant, availability_state='fresh').select_related('variant')
+    base_url = (base_url or '').rstrip('/')
+    offers = (
+        Offer.objects.filter(
+            merchant=merchant,
+            availability_state__in=PUBLISHABLE_STATES,
+            price_amount__isnull=False,
+        )
+        .select_related('variant', 'merchant')
+        .prefetch_related('variant__images')
+        .order_by('canonical_id')
+    )
+
     items_xml = []
     for o in offers:
         p = o.variant
-        gtin_tag = f"<g:gtin>{p.gtin13}</g:gtin>" if p.gtin13 else ""
-        mpn_tag = f"<g:mpn>{p.mpn}</g:mpn>" if p.mpn else ""
-        items_xml.append(f"""
-    <item>
-      <g:id>{o.canonical_id}</g:id>
-      <title><![CDATA[{p.title}]]></title>
-      <description><![CDATA[{p.title} sold by {merchant.name} in {merchant.province or 'South Africa'}.]]></description>
-      <link>{base_url}/l/{o.canonical_id}</link>
-      <g:price>{float(o.price_amount or 0):.2f} {o.currency}</g:price>
-      <g:availability>in_stock</g:availability>
-      <g:condition>new</g:condition>
-      <g:brand><![CDATA[{p.brand}]]></g:brand>
-      {gtin_tag}
-      {mpn_tag}
-    </item>""")
+        attributes = p.attributes if isinstance(p.attributes, dict) else {}
+        tags = [
+            f'      <g:id>{_feed_text(o.canonical_id)}</g:id>',
+            f'      <g:title>{_feed_text(p.title[:150])}</g:title>',
+            f'      <g:description>{_feed_text((p.listing_description or p.title)[:1000])}</g:description>',
+            f'      <g:link>{_feed_text(f"{base_url}/p/{p.seo_handle}/")}</g:link>',
+            f'      <g:mobile_link>{_feed_text(f"{base_url}/l/{o.canonical_id}")}</g:mobile_link>',
+            f'      <g:product_type>{_feed_text(p.category_ref.replace("_", " "))}</g:product_type>',
+            f'      <g:availability>{_feed_text(o.feed_availability)}</g:availability>',
+            f'      <g:price>{o.price_amount:.2f} {_feed_text(o.currency)}</g:price>',
+            f'      <g:condition>{_feed_text(p.condition_type or "new")}</g:condition>',
+            f'      <g:country>{_feed_text(merchant.country or "ZA")}</g:country>',
+            '      <g:excluded_destination>ShoppingAds</g:excluded_destination>',
+        ]
+        image = p.primary_image
+        if image:
+            tags.append(f'      <g:image_link>{_feed_text(image.url)}</g:image_link>')
+        if p.brand:
+            tags.append(f'      <g:brand>{_feed_text(p.brand[:70])}</g:brand>')
+        gtin_pairs = p.gtin_pairs
+        for field, digits in gtin_pairs:
+            tags.append(f'      <g:{field}>{_feed_text(digits)}</g:{field}>')
+        if p.mpn:
+            tags.append(f'      <g:mpn>{_feed_text(p.mpn)}</g:mpn>')
+        if not gtin_pairs and not (p.brand and p.mpn):
+            tags.append('      <g:identifier_exists>false</g:identifier_exists>')
+        if p.family_ref:
+            tags.append(f'      <g:item_group_id>{_feed_text(p.family_ref)}</g:item_group_id>')
+        if o.expires_at:
+            tags.append(f'      <g:expiration_date>{_feed_text(_feed_date(o.expires_at))}</g:expiration_date>')
+        for tag, keys in (
+            ('size', ('size', 'capacityLitres', 'capacityAh')),
+            ('color', ('color', 'colour')),
+            ('material', ('material',)),
+            ('age_group', ('ageGroup',)),
+            ('gender', ('gender',)),
+        ):
+            for key in keys:
+                if attributes.get(key):
+                    tags.append(f'      <g:{tag}>{_feed_text(attributes[key])}</g:{tag}>')
+                    break
+        items_xml.append('    <item>\n' + '\n'.join(tags) + '\n    </item>')
 
-    return f"""<?xml version="1.0" encoding="UTF-8"?>
-<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
-  <channel>
-    <title><![CDATA[{merchant.name} Google Merchant Center Feed]]></title>
-    <link>{base_url}/m/{merchant.canonical_id}</link>
-    <description><![CDATA[Official Shoppage Automated Google Shopping Feed for {merchant.name}]]></description>
-    {''.join(items_xml)}
-  </channel>
-</rss>"""
+    return (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">\n'
+        '  <channel>\n'
+        f'    <title>{_feed_text(f"{merchant.name} Google Shopping Feed")}</title>\n'
+        f'    <link>{_feed_text(f"{base_url}/m/{merchant.canonical_id}/")}</link>\n'
+        f'    <description>{_feed_text(f"Shoppage product feed for {merchant.name}")}</description>\n'
+        '    <g:language>en</g:language>\n'
+        + '\n'.join(items_xml) + '\n'
+        '  </channel>\n'
+        '</rss>'
+    )
 
-def get_brand_knowledge_card(query_or_brand: str) -> Optional[Dict[str, Any]]:
+def get_brand_knowledge_card(query_or_brand: str) -> dict[str, Any] | None:
     """
     Generates a Google-style Knowledge Graph card for recognized brands and industrial manufacturers.
     """
@@ -438,12 +505,12 @@ def get_brand_knowledge_card(query_or_brand: str) -> Optional[Dict[str, Any]]:
             return data
     return None
 
-def get_people_also_ask(query: str) -> List[Dict[str, str]]:
+def get_people_also_ask(query: str) -> list[dict[str, str]]:
     """
     Generates contextual 'People Also Ask' accordions tailored for South African buyers.
     """
     q = (query or '').lower()
-    
+
     if any(k in q for k in ['battery', 'batteries', 'lifepo4', 'lithium', 'dyness', 'pylontech', 'hubble', 'willard', 'sabat']):
         return [
             {
@@ -501,12 +568,12 @@ def get_people_also_ask(query: str) -> List[Dict[str, str]]:
             }
         ]
 
-def get_related_searches(query: str, category: str = '') -> List[str]:
+def get_related_searches(query: str, category: str = '') -> list[str]:
     """
     Generates high-intent localized search suggestions (Google 'People also search for' style).
     """
     q = (query or '').lower().strip()
-    
+
     if any(k in q for k in ['battery', 'batteries', 'lifepo4', 'lithium']):
         return [
             'Battery price',
@@ -553,7 +620,7 @@ def get_related_searches(query: str, category: str = '') -> List[str]:
             f'{q_clean} reviews'
         ]
 
-def get_tiered_moq_pricing(unit_price: float) -> List[Dict[str, Any]]:
+def get_tiered_moq_pricing(unit_price: float) -> list[dict[str, Any]]:
     """
     Calculates Alibaba-style B2B Minimum Order Quantity (MOQ) volume tier pricing.
     """
@@ -594,41 +661,6 @@ def get_tiered_moq_pricing(unit_price: float) -> List[Dict[str, Any]]:
             'lead_time': 'Contracted Freight SLA',
         },
     ]
-
-def generate_google_merchant_center_feed(merchant_id: str, base_url: str = 'https://shoppage.co.za') -> str:
-    merchant = Merchant.objects.filter(canonical_id=merchant_id).first()
-    if not merchant:
-        return "<rss version='2.0'><channel><title>Merchant Not Found</title></channel></rss>"
-
-    offers = Offer.objects.filter(merchant=merchant, availability_state='fresh').select_related('variant')
-    items_xml = []
-    for o in offers:
-        p = o.variant
-        gtin_tag = f"<g:gtin>{p.gtin13}</g:gtin>" if p.gtin13 else ""
-        mpn_tag = f"<g:mpn>{p.mpn}</g:mpn>" if p.mpn else ""
-        items_xml.append(f"""
-    <item>
-      <g:id>{o.canonical_id}</g:id>
-      <title><![CDATA[{p.title}]]></title>
-      <description><![CDATA[{p.title} sold by {merchant.name} in {merchant.province or 'South Africa'}.]]></description>
-      <link>{base_url}/l/{o.canonical_id}</link>
-      <g:price>{float(o.price_amount or 0):.2f} {o.currency}</g:price>
-      <g:availability>in_stock</g:availability>
-      <g:condition>new</g:condition>
-      <g:brand><![CDATA[{p.brand}]]></g:brand>
-      {gtin_tag}
-      {mpn_tag}
-    </item>""")
-
-    return f"""<?xml version="1.0" encoding="UTF-8"?>
-<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
-  <channel>
-    <title><![CDATA[{merchant.name} Google Merchant Center Feed]]></title>
-    <link>{base_url}/m/{merchant.canonical_id}</link>
-    <description><![CDATA[Official Shoppage Automated Google Shopping Feed for {merchant.name}]]></description>
-    {''.join(items_xml)}
-  </channel>
-</rss>"""
 
 def generate_trust_seal_svg(merchant: Merchant) -> str:
     score = merchant.trust_score

@@ -1,7 +1,6 @@
-import sqlite3
 import os
-import json
 import random
+import sqlite3
 import time
 
 DATABASE_PATH = "shoppage-commerce-intelligence-foundation/data/study/sa_nationwide_merchants.sqlite"
@@ -161,7 +160,7 @@ def run_large_scale_ingestion():
     print("[Ingester] Starting Public Statutory & Open Geospatial Ingestion for South Africa")
     print("           Sources: Overture Maps (1.2M+), CIPC (2.5M+), CSD (850k+), CIDB, ECA(SA), OSM")
     print("================================================================================")
-    
+
     conn = sqlite3.connect(DATABASE_PATH)
     cur = conn.cursor()
 
@@ -223,7 +222,7 @@ def run_large_scale_ingestion():
                 cat_slug, suffixes = random.choice(CATEGORIES_EXPANDED)
                 suffix = random.choice(suffixes)
                 prefix = random.choice(prefixes)
-                
+
                 clean_metro_suburb = metro_name.split('/')[0].split('&')[0].strip()
                 store_name = f"{prefix} {suffix} ({clean_metro_suburb})"
 
@@ -290,9 +289,9 @@ def run_large_scale_ingestion():
         conn.commit()
 
     total_final = cur.execute("SELECT count(*) FROM swept_merchants").fetchone()[0]
-    print(f"================================================================================")
+    print("================================================================================")
     print(f"[Ingester] Ingestion Complete: {total_final:,} South African Companies Fully Indexed!")
-    print(f"================================================================================")
+    print("================================================================================")
     conn.close()
 
 if __name__ == "__main__":

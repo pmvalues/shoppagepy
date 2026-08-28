@@ -1,10 +1,16 @@
 import random
-import uuid
-from django.core.management.base import BaseCommand
-from django.db import transaction
+
 from apps.catalog.models import MasterProduct, ProductStatusChoices
 from apps.merchants.models import Merchant
-from apps.offers.models import Offer, DiscoveredOffer, DestinationTypeChoices, AvailabilityStateChoices, SlaClassChoices
+from apps.offers.models import (
+    AvailabilityStateChoices,
+    DestinationTypeChoices,
+    DiscoveredOffer,
+    Offer,
+    SlaClassChoices,
+)
+from django.core.management.base import BaseCommand
+from django.db import transaction
 
 CATEGORIES_DATA = {
     'solar_energy': {
@@ -86,10 +92,10 @@ class Command(BaseCommand):
 
         existing_gtins = set(MasterProduct.objects.values_list('gtin13', flat=True))
         products_to_create = []
-        
+
         sku_counter = MasterProduct.objects.count() + 1
 
-        for i in range(target_count):
+        for _i in range(target_count):
             cat_key = random.choice(list(CATEGORIES_DATA.keys()))
             cat_info = CATEGORIES_DATA[cat_key]
             brand = random.choice(cat_info['brands'])
@@ -112,7 +118,7 @@ class Command(BaseCommand):
 
             compliance = {
                 'sabsApproved': random.choice([True, True, True, False]),
-                'nrs097Certified': True if cat_key == 'solar_energy' else False,
+                'nrs097Certified': cat_key == 'solar_energy',
                 'warrantyYears': specs.get('warrantyYears', random.choice([1, 2, 3, 5])),
             }
 
@@ -159,13 +165,13 @@ class Command(BaseCommand):
 
         for prod in all_created_products:
             base_p = prod.attributes.get('estimatedPriceZar', 2500)
-            
+
             # Create 1 to 3 live merchant offers per product
             assigned_merchants = random.sample(merchants, k=min(len(merchants), random.randint(1, 3)))
             for idx, merch in enumerate(assigned_merchants):
                 price_variance = random.uniform(0.88, 1.12)
                 offer_price = round(base_p * price_variance, 2)
-                
+
                 offers_to_create.append(Offer(
                     canonical_id=f"ofr_{merch.canonical_id[:8]}_{prod.canonical_id[:12]}_{idx}",
                     variant=prod,

@@ -1,7 +1,7 @@
-import sqlite3
-import os
 import json
+import os
 import random
+import sqlite3
 import time
 
 DATABASE_PATH = "shoppage-commerce-intelligence-foundation/data/study/sa_nationwide_merchants.sqlite"
@@ -93,7 +93,7 @@ def enrich_all_merchants():
     print("[Enricher] Starting Massive Public Information & Statutory Profile Enrichment")
     print("           B-BBEE, SARS Tax Compliance, CIDB Grades, Payments, Facilities, Media")
     print("================================================================================")
-    
+
     conn = sqlite3.connect(DATABASE_PATH, timeout=60.0)
     cur = conn.cursor()
 
@@ -137,7 +137,7 @@ def enrich_all_merchants():
         payments = json.dumps(random.choice(PAYMENT_METHODS_PRESETS))
         facilities = json.dumps(random.choice(FACILITIES_PRESETS))
         languages = json.dumps(PROVINCE_LANGUAGES.get(province, ["English", "isiZulu", "Afrikaans"]))
-        
+
         images = CATEGORY_STOREFRONT_IMAGES.get(category, CATEGORY_STOREFRONT_IMAGES["supermarket"])
         storefront_img = random.choice(images)
         years = random.randint(3, 26)

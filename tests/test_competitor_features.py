@@ -1,15 +1,14 @@
-from django.test import TestCase, Client
-from apps.markets.models import Market, MarketTypeChoices
-from apps.merchants.models import Merchant, ClaimStateChoices, VerificationStateChoices
-from apps.catalog.models import MasterProduct, ProductStatusChoices
-from apps.offers.models import Offer, DestinationTypeChoices, AvailabilityStateChoices
-from apps.media_hub.models import Short, ModerationStateChoices
+from apps.catalog.models import MasterProduct, ProductImage, ProductStatusChoices
 from apps.intelligence.services import (
     get_brand_knowledge_card,
     get_tiered_moq_pricing,
-    detect_intent,
-    build_overview,
 )
+from apps.markets.models import Market, MarketTypeChoices
+from apps.media_hub.models import ModerationStateChoices, Short
+from apps.merchants.models import ClaimStateChoices, Merchant, VerificationStateChoices
+from apps.offers.models import AvailabilityStateChoices, DestinationTypeChoices, Offer
+from django.test import Client, TestCase
+
 
 class CompetitorFeaturesTestCase(TestCase):
     def setUp(self):
@@ -37,7 +36,13 @@ class CompetitorFeaturesTestCase(TestCase):
             stall_identifier="Stall B-12",
             category="solar_energy",
             address_text="83 Rivonia Rd, Sandton",
+            locality="Sandton",
+            postal_code="2196",
             province="Gauteng",
+            timezone="Africa/Johannesburg",
+            opening_hours={day: {"open": "08:00", "close": "22:00"}
+                           for day in ("mon", "tue", "wed", "thu", "fri", "sat", "sun")},
+            profile_categories=["Solar power company", "Battery store"],
             trust_score=96,
             google_rating=4.9,
             google_reviews_count=48,
@@ -51,8 +56,24 @@ class CompetitorFeaturesTestCase(TestCase):
             model_number="SUN-5K-SG03LP1-EU",
             gtin13="6971234567895",
             status=ProductStatusChoices.ACTIVE,
+            description=(
+                "Single-phase 5 kW hybrid inverter with dual MPPT trackers, ≤4 ms UPS "
+                "switchover and generator input, certified to NRS 097-2-1 for grid-tied use."
+            ),
+            bullet_points=[
+                "5 kW continuous output, 10 kW peak",
+                "Dual MPPT with 6,500 W PV input",
+                "NRS 097-2-1 certified for SA grid-tie",
+            ],
             attributes={"ratedPowerKw": 5.0, "estimatedPriceZar": 15500},
             compliance={"sabsApproved": True, "nrs097Certified": True, "warrantyYears": 5},
+        )
+        ProductImage.objects.create(
+            product=self.product,
+            url="https://example.invalid/deye-sun-5k.jpg",
+            alt_text="Deye SUN-5K-SG03LP1-EU hybrid inverter",
+            width=1600,
+            height=1600,
         )
 
         self.offer = Offer.objects.create(
@@ -80,6 +101,7 @@ class CompetitorFeaturesTestCase(TestCase):
         # 1. Brand Knowledge Card extraction
         card = get_brand_knowledge_card("deye")
         self.assertIsNotNone(card)
+        assert card is not None
         self.assertEqual(card['short_name'], 'Deye')
         self.assertIn("NRS 097-2-1 Grid Certified", card['certifications'])
         self.assertTrue(card['b2b_wholesale_ready'])
@@ -139,9 +161,19 @@ class CompetitorFeaturesTestCase(TestCase):
         res = self.client.get(f'/m/{self.merchant.canonical_id}/')
         self.assertEqual(res.status_code, 200)
         self.assertContains(res, "SolarBros Sandton")
-        self.assertContains(res, "Open Now")
-        self.assertContains(res, "Popular Visiting Times")
         self.assertContains(res, "Trust Score: 96/100")
+
+        status = self.merchant.open_now
+        self.assertIsNotNone(status, 'Structured hours must produce a live status')
+        self.assertContains(res, 'Open Now' if status['is_open'] else 'Closed')
+        self.assertContains(res, 'Africa/Johannesburg')
+        self.assertContains(res, '08:00')
+        self.assertNotContains(res, 'Hours not confirmed')
+        # The invented foot-traffic chart is gone; nothing claims data we do not have.
+        self.assertNotContains(res, "Popular Visiting Times")
+        self.assertContains(res, 'Sandton')
+        self.assertContains(res, '2196')
+        self.assertContains(res, 'Solar power company')
 
     def test_youtube_shorts_pillar_shoppable_video_feed(self):
         # 1. Shorts Directory / Video Player

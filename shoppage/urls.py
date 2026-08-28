@@ -2,34 +2,40 @@
 Shoppage Platform URL Configuration (Pure Django Architecture)
 """
 
-from django.contrib import admin
-from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
-from django.views.generic import RedirectView
-
-from apps.core.views import (
-    home_view, search_view, search_live_view, requests_view, agency_view,
-    healthz_view, readyz_view,
-)
+from apps.catalog.views import product_detail_view
+from apps.core.legal import legal_page_view
 from apps.core.seo import (
+    _paged_sitemap,
     robots_txt_view,
     sitemap_index_view,
     static_sitemap_view,
-    _paged_sitemap,
 )
-from apps.referrals.views import universal_link_resolver
-from apps.catalog.views import product_detail_view
+from apps.core.views import (
+    agency_view,
+    healthz_view,
+    home_view,
+    readyz_view,
+    requests_view,
+    search_live_view,
+    search_view,
+)
 from apps.markets.views import malls_directory_view, market_detail_view
+from apps.media_hub.views import shorts_directory_view, show_detail_view, shows_directory_view
 from apps.merchants.views import (
-    merchant_list_view,
-    merchant_detail_view,
     merchant_claim_view,
     merchant_dashboard_view,
+    merchant_detail_view,
     merchant_draft_action_view,
+    merchant_list_view,
     merchant_quick_price_view,
 )
-from apps.media_hub.views import shows_directory_view, show_detail_view, shorts_directory_view
+from apps.referrals.views import universal_link_resolver
+from django.conf import settings
+from django.conf.urls.static import static
+from django.contrib import admin
+from django.contrib.auth import views as auth_views
+from django.urls import include, path
+from django.views.generic import RedirectView
 
 # Custom Django Admin Header & Branding
 admin.site.site_header = "Shoppage National Commercial Intelligence Grid"
@@ -37,6 +43,10 @@ admin.site.site_title = "Shoppage Admin"
 admin.site.index_title = "South Africa Commercial Operations & Registry Control"
 
 urlpatterns = [
+    # 0. Authentication (Merchant Centre OS)
+    path('accounts/login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
+    path('accounts/logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+
     # 1. Native Django Admin
     path('admin/', admin.site.urls),
 
@@ -59,7 +69,7 @@ urlpatterns = [
     path('merchant/claim/', merchant_claim_view, name='merchant_claim'),
     path('merchant/dashboard/', merchant_dashboard_view, name='merchant_dashboard'),
     path('merchant/draft/<str:draft_id>/action/', merchant_draft_action_view, name='merchant_draft_action'),
-    path('merchant/offer/<int:offer_id>/price/', merchant_quick_price_view, name='merchant_quick_price'),
+    path('merchant/offer/<uuid:offer_id>/price/', merchant_quick_price_view, name='merchant_quick_price'),
 
     # 7. Media Hub: Shows & Proof Shorts
     path('shows/', shows_directory_view, name='shows_directory'),
@@ -75,14 +85,19 @@ urlpatterns = [
     # 9. Homepage
     path('', home_view, name='home'),
 
+    # 9b. Policy pages linked from the footer
+    path('privacy/', legal_page_view, {'slug': 'privacy'}, name='privacy'),
+    path('terms/', legal_page_view, {'slug': 'terms'}, name='terms'),
+    path('security/', legal_page_view, {'slug': 'security'}, name='security'),
+
     # 10. SEO & Browser Favicon Surface
     path('favicon.ico', RedirectView.as_view(url='/static/icons/favicon.svg', permanent=True)),
     path('robots.txt', robots_txt_view, name='robots'),
     path('sitemap.xml', sitemap_index_view, name='sitemap-index'),
     path('sitemap-static.xml', static_sitemap_view, name='sitemap-static'),
-    path('sitemap-products-<int:page>.xml', _paged_sitemap('products', 0), name='sitemap-products'),
-    path('sitemap-merchants-<int:page>.xml', _paged_sitemap('merchants', 0), name='sitemap-merchants'),
-    path('sitemap-markets-<int:page>.xml', _paged_sitemap('markets', 0), name='sitemap-markets'),
+    path('sitemap-products-<int:page>.xml', _paged_sitemap('products'), name='sitemap-products'),
+    path('sitemap-merchants-<int:page>.xml', _paged_sitemap('merchants'), name='sitemap-merchants'),
+    path('sitemap-markets-<int:page>.xml', _paged_sitemap('markets'), name='sitemap-markets'),
 
     # 11. Orchestration Probes (v8.2)
     path('healthz/', healthz_view, name='healthz'),

@@ -1,7 +1,7 @@
-import sqlite3
-import os
 import json
+import os
 import random
+import sqlite3
 import time
 
 DATABASE_PATH = "shoppage-commerce-intelligence-foundation/data/study/sa_nationwide_merchants.sqlite"
@@ -274,7 +274,7 @@ def run_all_sa_2_5m_ingestion(total_target=2500000):
     print(f"[Ingester 2.5M] Starting Comprehensive South African Ingestion: Target {total_target:,} Companies")
     print("                All 9 Provinces, 52 Districts, CIPC, CSD, CIDB, DoEL, Spazas, Wholesalers")
     print("================================================================================")
-    
+
     conn = sqlite3.connect(DATABASE_PATH, timeout=120.0)
     cur = conn.cursor()
 
@@ -363,7 +363,7 @@ def run_all_sa_2_5m_ingestion(total_target=2500000):
                 cat_slug, suffixes = random.choice(CATEGORIES_EXPANDED)
                 suffix = random.choice(suffixes)
                 prefix = random.choice(prefixes)
-                
+
                 clean_metro_suburb = metro_name.split('/')[0].split('&')[0].strip()
                 store_name = f"{prefix} {suffix} ({clean_metro_suburb})"
 
@@ -387,7 +387,7 @@ def run_all_sa_2_5m_ingestion(total_target=2500000):
 
                 source_id, source_prefix, source_conf = random.choice(PUBLIC_SOURCES)
                 cipc_num, csd_num, cidb_num, wireman_num, gers_id, osm_node = generate_enterprise_numbers()
-                
+
                 bbbee = random.choice(BBBEE_LEVELS)
                 tax_pin = f"SARS-{random.randint(1000,9999)}-{random.randint(1000,9999)}"
                 cidb_grade = random.choice(CIDB_GRADES) if cat_slug in ["solar_energy", "building_materials"] else None
@@ -395,7 +395,7 @@ def run_all_sa_2_5m_ingestion(total_target=2500000):
                 payments = json.dumps(random.choice(PAYMENT_METHODS_PRESETS))
                 facilities = json.dumps(random.choice(FACILITIES_PRESETS))
                 languages = json.dumps(PROVINCE_LANGUAGES.get(province, ["English", "isiZulu", "Afrikaans"]))
-                
+
                 images = CATEGORY_STOREFRONT_IMAGES.get(cat_slug, CATEGORY_STOREFRONT_IMAGES["supermarket"])
                 storefront_img = random.choice(images)
                 years = random.randint(3, 28)

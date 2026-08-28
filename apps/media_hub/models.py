@@ -1,5 +1,6 @@
-from django.db import models
 from apps.core.models import TimeStampedModel
+from django.db import models
+
 
 class ShowCategoryChoices(models.TextChoices):
     MARKET_WALK = 'market_walk', 'Market Walk (Physical Market Tours)'
@@ -64,15 +65,15 @@ class Short(TimeStampedModel):
     likes = models.IntegerField(default=100)
     shares = models.IntegerField(default=20)
     summary = models.TextField(blank=True, null=True)
-    
+
     product_title = models.CharField(max_length=255, blank=True, null=True)
     master_product = models.ForeignKey('catalog.MasterProduct', on_delete=models.SET_NULL, null=True, blank=True, related_name='shorts')
-    
+
     merchant_name = models.CharField(max_length=255, blank=True, null=True)
     merchant_whatsapp = models.CharField(max_length=50, blank=True, null=True)
     merchant = models.ForeignKey('merchants.Merchant', on_delete=models.SET_NULL, null=True, blank=True, related_name='shorts')
     market = models.ForeignKey('markets.Market', on_delete=models.SET_NULL, null=True, blank=True, related_name='shorts')
-    
+
     moderation_state = models.CharField(
         max_length=30,
         choices=ModerationStateChoices.choices,

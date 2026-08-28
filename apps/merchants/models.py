@@ -1,5 +1,8 @@
-from django.db import models
+from apps.core.hours import has_structured_hours, open_status, resolve_timezone, schedule_label
 from apps.core.models import TimeStampedModel
+from django.conf import settings
+from django.db import models
+
 
 class CountryChoices(models.TextChoices):
     ZA = 'ZA', 'South Africa (ZA)'
@@ -26,11 +29,19 @@ class Merchant(TimeStampedModel):
     and enterprise suppliers across South Africa & Southern Africa.
     """
     canonical_id = models.CharField(max_length=120, unique=True, db_index=True, help_text="Unique canonical ID (e.g. m_01, mkt_01_s01)")
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='owned_merchants',
+        help_text="Authenticated user who manages this merchant record",
+    )
     name = models.CharField(max_length=255, db_index=True, help_text="Public operating trading name")
     country = models.CharField(max_length=2, choices=CountryChoices.choices, default=CountryChoices.ZA, db_index=True)
     claim_state = models.CharField(max_length=30, choices=ClaimStateChoices.choices, default=ClaimStateChoices.CANDIDATE, db_index=True)
     verification_state = models.CharField(max_length=30, choices=VerificationStateChoices.choices, default=VerificationStateChoices.UNVERIFIED, db_index=True)
-    
+
     # Primary Contacts
     whatsapp_number = models.CharField(max_length=40, blank=True, null=True, help_text="WhatsApp format e.g. 27712345678")
     telephone = models.CharField(max_length=40, blank=True, null=True)
@@ -43,6 +54,8 @@ class Merchant(TimeStampedModel):
     category = models.CharField(max_length=100, blank=True, null=True, db_index=True, help_text="solar_energy, smartphones, hardware, groceries, etc.")
     address_text = models.TextField(blank=True, null=True)
     province = models.CharField(max_length=100, blank=True, null=True, db_index=True)
+    locality = models.CharField(max_length=100, blank=True, null=True, db_index=True, help_text="City or town, e.g. Johannesburg")
+    postal_code = models.CharField(max_length=20, blank=True, null=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     google_place_id = models.CharField(max_length=255, blank=True, null=True)
@@ -51,6 +64,12 @@ class Merchant(TimeStampedModel):
     google_reviews_url = models.URLField(blank=True, null=True)
     google_maps_url = models.URLField(blank=True, null=True)
     operating_hours = models.CharField(max_length=255, blank=True, null=True)
+    opening_hours = models.JSONField(default=dict, blank=True, null=True, help_text='{"mon": {"open": "08:30", "close": "17:30"}, ...}')
+    timezone = models.CharField(max_length=64, blank=True, null=True, help_text="IANA zone, e.g. Africa/Johannesburg")
+    profile_categories = models.JSONField(default=list, blank=True, null=True, help_text="Primary category first, then secondary categories")
+    appointment_url = models.URLField(blank=True, null=True)
+    meta_title = models.CharField(max_length=255, blank=True, null=True)
+    meta_description = models.CharField(max_length=320, blank=True, null=True)
 
     # Statutory & Compliance Identity
     cipc_enterprise_number = models.CharField(max_length=100, blank=True, null=True, help_text="CIPC e.g. K2021/123456/07")
@@ -69,7 +88,7 @@ class Merchant(TimeStampedModel):
     payment_methods = models.JSONField(default=list, blank=True)
     facilities = models.JSONField(default=list, blank=True)
     languages_spoken = models.JSONField(default=list, blank=True)
-    
+
     # Trust Score
     trust_score = models.IntegerField(default=80, db_index=True, help_text="0 to 100 calculated trust metric")
 
@@ -80,6 +99,55 @@ class Merchant(TimeStampedModel):
 
     def __str__(self):
         return f"{self.name} ({self.country}) - {self.get_verification_state_display()}"
+
+    @property
+    def resolved_timezone(self) -> str:
+        return resolve_timezone(self.timezone, self.country)
+
+    @property
+    def has_confirmed_hours(self) -> bool:
+        return has_structured_hours(self.opening_hours)
+
+    @property
+    def open_now(self):
+        """Live status dict, or None when hours were never confirmed."""
+        return open_status(self.opening_hours, self.resolved_timezone)
+
+    @property
+    def hours_label(self) -> str:
+        return schedule_label(self.opening_hours) or (self.operating_hours or '').strip()
+
+    @property
+    def primary_category(self) -> str:
+        if self.profile_categories:
+            return str(self.profile_categories[0])
+        return (self.category or '').replace('_', ' ').strip().title()
+
+    @property
+    def public_image_url(self) -> str | None:
+        return self.storefront_photo_url or None
+
+    @property
+    def rating_count(self) -> int:
+        return self.google_reviews_count or 0
+
+    @property
+    def is_claimed(self) -> bool:
+        return self.claim_state == ClaimStateChoices.CLAIMED
+
+    @property
+    def measured_response_minutes(self):
+        """Reply speed is attributable only after the operator claims the profile."""
+        return self.median_response_minutes if self.is_claimed else None
+
+    @property
+    def reported_years_in_business(self):
+        return self.years_in_business if self.is_claimed else None
+
+    @property
+    def is_syndication_eligible(self) -> bool:
+        """Catalogue syndication requires an opted-in (claimed) profile."""
+        return self.is_claimed and self.verification_state != VerificationStateChoices.UNVERIFIED
 
 
 class TrustPassport(TimeStampedModel):

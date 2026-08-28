@@ -4,10 +4,10 @@ Shoppage v7.0 - 1,000,000+ Master Product Real-Time Streaming Ingestion
 Streams 1,000,000 canonical master products from SQLite into the Shoppage v7.0 Commerce Graph.
 """
 
-import sqlite3
-import time
-import sys
 import io
+import sqlite3
+import sys
+import time
 
 # Ensure UTF-8 output encoding on Windows console
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
@@ -70,7 +70,7 @@ def stream_master_products(limit=1000000, batch_size=50000):
 
         for row in rows:
             master_id, gtin, name, brand, cat_path, features = row
-            
+
             # 1. GS1 GTIN Modulo-10 Checksum Validation
             has_valid_gtin = validate_gtin(gtin) if gtin else False
             if has_valid_gtin:

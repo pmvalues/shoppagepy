@@ -7,7 +7,6 @@ from collections import Counter
 
 import openpyxl
 
-
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -40,7 +39,7 @@ def inspect_companies():
     ]
     positions = {name: header.index(name) for name in targets if name in header}
     counters = {name: Counter() for name in positions}
-    missing = {name: 0 for name in positions}
+    missing = dict.fromkeys(positions, 0)
     data_rows = len(sample)
     for row in sample:
         for name, pos in positions.items():
@@ -147,7 +146,7 @@ def inspect_product_files():
 def inspect_csv_files():
     results = []
     for path in sorted(glob.glob(os.path.join(ROOT, "Products Zim", "*.csv"))):
-        with open(path, "r", encoding="utf-8-sig", newline="", errors="replace") as handle:
+        with open(path, encoding="utf-8-sig", newline="", errors="replace") as handle:
             reader = csv.reader(handle)
             try:
                 header = next(reader)
@@ -173,7 +172,7 @@ def inspect_foundation_metrics():
         "shoppage-commerce-intelligence-foundation",
         "foundation_metrics.json",
     )
-    with open(path, "r", encoding="utf-8") as handle:
+    with open(path, encoding="utf-8") as handle:
         return json.load(handle)
 
 

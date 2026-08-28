@@ -21,7 +21,7 @@ conn = sqlite3.connect("shoppage-commerce-intelligence-foundation/data/study/sa_
 cur = conn.cursor()
 
 for m_id, m_name, zone, prov, mod_rem in FLAGSHIPS:
-    cur.execute(f"""
+    cur.execute("""
         UPDATE swept_merchants
         SET 
             market_id = ?,

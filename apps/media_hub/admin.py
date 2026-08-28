@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Show, Short
+
+from .models import Short, Show
+
 
 @admin.register(Show)
 class ShowAdmin(admin.ModelAdmin):

@@ -1,19 +1,22 @@
-import urllib.parse
+import contextlib
 import hashlib
+import urllib.parse
 import uuid
-from django.shortcuts import redirect
-from django.http import HttpResponseRedirect
-from django.utils import timezone
-from apps.offers.models import Offer
-from apps.catalog.models import MasterProduct
-from apps.merchants.models import Merchant
-from .models import ReferralEvent, ReferralActionChoices
 
-def build_whatsapp_action_link(whatsapp_number: str, product_title: str, price: float, currency: str, merchant_name: str, referral_id: str, stall_ref: str = None) -> str:
+from apps.catalog.models import MasterProduct
+from apps.offers.models import Offer
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
+from django.utils import timezone
+
+from .models import ReferralActionChoices, ReferralEvent
+
+
+def build_whatsapp_action_link(whatsapp_number: str, product_title: str, price: float, currency: str, merchant_name: str, referral_id: str, stall_ref: str | None = None) -> str:
     clean_phone = "".join(ch for ch in whatsapp_number if ch.isdigit())
     if clean_phone.startswith('0'):
         clean_phone = '27' + clean_phone[1:]
-    
+
     stall_part = f" at {stall_ref}" if stall_ref else ""
     message = (
         f"Hi {merchant_name}! I saw {product_title} on Shoppage for {currency} {price:,.2f}{stall_part}. "
@@ -32,7 +35,7 @@ def universal_link_resolver(request, universal_id):
     source_qr_id = request.GET.get('qr_id')
     user_agent = request.META.get('HTTP_USER_AGENT', 'unknown_client')
     ip_address = request.META.get('REMOTE_ADDR', '127.0.0.1')
-    
+
     # 1. Try to find Offer
     offer = Offer.objects.filter(canonical_id=universal_id).select_related('variant', 'merchant', 'merchant__market').first()
     variant = None
@@ -61,7 +64,7 @@ def universal_link_resolver(request, universal_id):
     event_id = uuid.uuid4()
     action = ReferralActionChoices.WHATSAPP_START if offer and offer.destination_type == 'merchant_whatsapp' else ReferralActionChoices.OUTBOUND_CLICK
 
-    try:
+    with contextlib.suppress(Exception):
         ReferralEvent.objects.create(
             event_id=event_id,
             country_code='ZA',
@@ -80,8 +83,6 @@ def universal_link_resolver(request, universal_id):
                 'ip': ip_address,
             }
         )
-    except Exception:
-        pass
 
     # WhatsApp redirect
     if offer and offer.destination_type == 'merchant_whatsapp' and merchant and merchant.whatsapp_number:

@@ -1,8 +1,13 @@
-from django.contrib import admin
-from django.utils.html import format_html
-from .models import MasterProduct, ProductStatusChoices
-from apps.offers.models import Offer, DiscoveredOffer
+import csv
+
 from apps.core.paginator import LargeTablePaginator
+from apps.offers.models import DiscoveredOffer, Offer
+from django.contrib import admin
+from django.http import HttpResponse
+from django.utils.html import format_html
+
+from .models import MasterProduct, ProductImage, ProductStatusChoices
+
 
 class ProductCategoryFilter(admin.SimpleListFilter):
     title = 'Category'
@@ -35,10 +40,28 @@ class ProductStatusFilter(admin.SimpleListFilter):
             return queryset.filter(status=self.value())
         return queryset
 
+class ProductPublishableFilter(admin.SimpleListFilter):
+    title = 'Feed eligibility'
+    parameter_name = 'publishable'
+
+    def lookups(self, request, model_admin):
+        return [('yes', 'Publishable (image + description)'), ('no', 'Missing image or description')]
+
+    def queryset(self, request, queryset):
+        from django.db.models import Q
+
+        incomplete = Q(description='') | Q(images__isnull=True)
+        if self.value() == 'yes':
+            return queryset.filter(images__isnull=False).exclude(description='').distinct()
+        if self.value() == 'no':
+            return queryset.filter(incomplete).distinct()
+        return queryset
+
 class OfferInline(admin.TabularInline):
     model = Offer
     extra = 0
-    fields = ('merchant', 'price_amount', 'currency', 'stall_ref', 'availability_state', 'sla_class')
+    fields = ('merchant', 'price_amount', 'currency', 'stall_ref', 'availability_state', 'sla_class', 'expires_at')
+    readonly_fields = ('last_confirmed_at',)
     autocomplete_fields = ('merchant',)
 
 class DiscoveredOfferInline(admin.TabularInline):
@@ -46,6 +69,13 @@ class DiscoveredOfferInline(admin.TabularInline):
     extra = 0
     fields = ('merchant_name', 'source_website', 'discovered_price_amount', 'confidence_score', 'location_hint')
     readonly_fields = ('source_url',)
+
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 1
+    fields = ('url', 'alt_text', 'width', 'height', 'source', 'sort_order')
+    ordering = ('sort_order', 'id')
+
 
 @admin.register(MasterProduct)
 class MasterProductAdmin(admin.ModelAdmin):
@@ -57,24 +87,35 @@ class MasterProductAdmin(admin.ModelAdmin):
         'title',
         'brand_badge',
         'category_ref',
-        'gtin13',
+        'gtin_state',
+        'publishable_state',
         'status_badge',
         'view_on_site'
     )
-    list_filter = (ProductCategoryFilter, ProductStatusFilter)
+    list_filter = (ProductCategoryFilter, ProductStatusFilter, ProductPublishableFilter)
     search_fields = ('title', 'canonical_id', 'gtin13', 'mpn', 'model_number', 'brand')
     readonly_fields = ('canonical_id', 'created_at', 'updated_at')
-    inlines = [OfferInline, DiscoveredOfferInline]
+    inlines = [ProductImageInline, OfferInline, DiscoveredOfferInline]
+    actions = ('activate_selected', 'unpublish_selected', 'export_csv')
 
     fieldsets = (
         ('Product Identification', {
-            'fields': ('canonical_id', 'title', 'brand', 'model_number', 'family_ref', 'category_ref', 'status')
+            'fields': ('canonical_id', 'handle', 'title', 'brand', 'model_number', 'family_ref', 'category_ref', 'status', 'condition_type')
+        }),
+        ('Description', {
+            'fields': ('description', 'bullet_points', 'tags')
         }),
         ('Standard Codes & Barcodes', {
-            'fields': ('gtin13', 'gtin14', 'mpn')
+            'fields': ('gtin8', 'gtin12', 'gtin13', 'gtin14', 'mpn', 'asin')
+        }),
+        ('Logistics', {
+            'fields': ('unit_weight_grams', 'unit_dimensions_mm', 'country_of_origin')
         }),
         ('Specifications & Compliance (JSON)', {
-            'fields': ('attributes', 'compliance', 'aliases', 'reviews_summary')
+            'fields': ('attributes', 'compliance', 'aliases', 'reviews_summary', 'guides', 'media_items')
+        }),
+        ('Search & Social Snippets', {
+            'fields': ('search_terms', 'meta_title', 'meta_description')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
@@ -87,10 +128,76 @@ class MasterProductAdmin(admin.ModelAdmin):
     brand_badge.short_description = "Brand"
 
     def status_badge(self, obj):
-        color = '#059669' if obj.status == 'ACTIVE' else '#64748B'
-        return format_html('<span style="color: {}; font-weight: 800;">{}</span>', color, obj.status)
+        color = '#059669' if obj.status == ProductStatusChoices.ACTIVE else '#64748B'
+        return format_html('<span style="color: {}; font-weight: 800;">{}</span>', color, obj.get_status_display())
     status_badge.short_description = "Status"
 
+    def gtin_state(self, obj):
+        """Which barcode will actually be published — an invalid one never is."""
+        pairs = obj.gtin_pairs
+        held = [obj.gtin8, obj.gtin12, obj.gtin13, obj.gtin14]
+        if pairs:
+            return format_html('<span style="color:#059669;font-weight:700;">✓ {}</span>', pairs[0][1])
+        if any(held):
+            return format_html('<span style="color:#B45309;font-weight:700;">check digit fails</span>')
+        return format_html('<span style="color:#94A3B8;">none</span>')
+    gtin_state.short_description = 'GTIN'
+
+    def publishable_state(self, obj):
+        has_image = obj.images.exists()
+        has_copy = bool((obj.description or '').strip())
+        if has_image and has_copy:
+            return format_html('<span style="color:#059669;font-weight:700;">feed-ready</span>')
+        missing = []
+        if not has_image:
+            missing.append('image')
+        if not has_copy:
+            missing.append('description')
+        return format_html('<span style="color:#B45309;">needs {}</span>', ' + '.join(missing))
+    publishable_state.short_description = 'Publishing'
+
     def view_on_site(self, obj):
-        return format_html('<a href="/p/{}/" target="_blank" style="color: #1D4ED8; font-weight: 600;">View Page &nearr;</a>', obj.canonical_id)
+        return format_html('<a href="/p/{}/" target="_blank" style="color: #1D4ED8; font-weight: 600;">View Page &nearr;</a>', obj.seo_handle)
     view_on_site.short_description = "Storefront"
+
+    @admin.action(description='Publish selected products (status → active)')
+    def activate_selected(self, request, queryset):
+        updated = queryset.update(status=ProductStatusChoices.ACTIVE)
+        self.message_user(request, f'{updated} product(s) set to active.')
+
+    @admin.action(description='Unpublish selected products (status → draft)')
+    def unpublish_selected(self, request, queryset):
+        updated = queryset.update(status=ProductStatusChoices.DRAFT)
+        self.message_user(request, f'{updated} product(s) set to draft.')
+
+    @admin.action(description='Export selected products as CSV (max 5,000 rows)')
+    def export_csv(self, request, queryset):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="shoppage-products.csv"'
+        writer = csv.writer(response)
+        writer.writerow([
+            'canonical_id', 'handle', 'title', 'brand', 'model_number', 'category_ref',
+            'gtin_valid', 'mpn', 'status', 'price_min', 'currency', 'offer_count',
+            'has_image', 'description',
+        ])
+        for product in queryset.select_related().prefetch_related('images', 'offers')[:5000]:
+            priced_offers = [o for o in product.offers.all() if o.price_amount]
+            prices = [float(o.price_amount) for o in priced_offers]
+            pairs = product.gtin_pairs
+            writer.writerow([
+                product.canonical_id, product.seo_handle, product.title, product.brand,
+                product.model_number or '', product.category_ref,
+                pairs[0][1] if pairs else '', product.mpn or '', product.status,
+                min(prices) if prices else '',
+                priced_offers[0].currency if priced_offers else '',
+                len(priced_offers), product.images.exists(), (product.description or '')[:300],
+            ])
+        return response
+
+
+@admin.register(ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    list_display = ('product', 'url', 'alt_text', 'source', 'sort_order')
+    list_filter = ('source',)
+    search_fields = ('url', 'alt_text', 'product__title', 'product__canonical_id')
+    autocomplete_fields = ('product',)

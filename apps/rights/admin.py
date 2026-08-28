@@ -1,5 +1,7 @@
 from django.contrib import admin
+
 from .models import RightsSource
+
 
 @admin.register(RightsSource)
 class RightsSourceAdmin(admin.ModelAdmin):

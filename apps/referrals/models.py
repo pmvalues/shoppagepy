@@ -1,6 +1,9 @@
 import uuid
-from django.db import models
+from decimal import Decimal
+
 from apps.core.models import TimeStampedModel
+from django.db import models
+
 
 class ReferralActionChoices(models.TextChoices):
     WHATSAPP_START = 'whatsapp_start', 'WhatsApp Chat Initiated'
@@ -28,15 +31,15 @@ class ReferralEvent(TimeStampedModel):
     session_fingerprint = models.CharField(max_length=255)
     source_campaign = models.CharField(max_length=150, blank=True, null=True)
     source_asset_qr_id = models.CharField(max_length=150, blank=True, null=True)
-    
+
     offer = models.ForeignKey('offers.Offer', on_delete=models.SET_NULL, null=True, blank=True, related_name='referral_events')
     variant = models.ForeignKey('catalog.MasterProduct', on_delete=models.SET_NULL, null=True, blank=True, related_name='referral_events')
     merchant = models.ForeignKey('merchants.Merchant', on_delete=models.SET_NULL, null=True, blank=True, related_name='referral_events')
     market = models.ForeignKey('markets.Market', on_delete=models.SET_NULL, null=True, blank=True, related_name='referral_events')
     stall_ref = models.CharField(max_length=150, blank=True, null=True)
-    
+
     action = models.CharField(max_length=50, choices=ReferralActionChoices.choices, default=ReferralActionChoices.WHATSAPP_START, db_index=True)
-    confidence_score = models.DecimalField(max_digits=5, decimal_places=4, default=1.0000)
+    confidence_score = models.DecimalField(max_digits=5, decimal_places=4, default=Decimal('1.0000'))
     dedupe_key = models.CharField(max_length=255, db_index=True)
     payload = models.JSONField(default=dict, blank=True)
 

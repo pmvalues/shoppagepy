@@ -1,8 +1,6 @@
-import sqlite3
-import os
-import math
-import time
 import json
+import sqlite3
+import time
 
 DATABASE_PATH = "shoppage-commerce-intelligence-foundation/data/study/sa_nationwide_merchants.sqlite"
 MALLS_DB_PATH = "shoppage-commerce-intelligence-foundation/data/study/sa_malls_and_shopping_centres.sqlite"
@@ -13,7 +11,7 @@ def run_merchant_market_linking():
     print("================================================================================")
 
     t0 = time.time()
-    
+
     # Load all 3,296 shopping centres
     malls_conn = sqlite3.connect(MALLS_DB_PATH)
     malls_cur = malls_conn.cursor()
@@ -31,7 +29,7 @@ def run_merchant_market_linking():
         m_id, m_name, prov, metro, suburb, m_type, zones_json, store_count = r
         if prov not in malls_by_province:
             malls_by_province[prov] = []
-        
+
         zones = ["Ground Level Promenade", "Upper Retail Concourse"]
         if zones_json:
             try:
@@ -61,7 +59,7 @@ def run_merchant_market_linking():
 
     # Ensure columns exist
     existing_cols = [c[1] for c in cur.execute("PRAGMA table_info(swept_merchants)").fetchall()]
-    
+
     if "market_id" not in existing_cols:
         print("[Schema Update] Adding 'market_id' column...")
         cur.execute("ALTER TABLE swept_merchants ADD COLUMN market_id TEXT;")
@@ -74,7 +72,7 @@ def run_merchant_market_linking():
     if "stall_identifier" not in existing_cols:
         print("[Schema Update] Adding 'stall_identifier' column...")
         cur.execute("ALTER TABLE swept_merchants ADD COLUMN stall_identifier TEXT;")
-    
+
     conn.commit()
 
     print("[Processing] Distributing 3,109,299 merchants across 3,296 malls and commercial centres...")
@@ -83,7 +81,7 @@ def run_merchant_market_linking():
     for prov, p_malls in malls_by_province.items():
         num_m = len(p_malls)
         print(f" -> Linking province '{prov}' across {num_m} malls, community centres and retail plazas...")
-        
+
         for i, m in enumerate(p_malls):
             zone_choice = m["zones"][i % len(m["zones"])]
             max_units = m["store_count"]
@@ -96,7 +94,7 @@ def run_merchant_market_linking():
                     stall_identifier = 'Shop ' || (ABS(RANDOM()) % {max_units} + 1) || ' (' || ? || ')'
                 WHERE province = ? AND (rowid % {num_m}) = ?;
             """, (m["id"], m["name"], zone_choice, zone_choice, prov, i))
-        
+
         conn.commit()
 
     print("[Indexing] Refreshing compound index 'idx_merchant_market'...")

@@ -1,9 +1,9 @@
-import random
-import time
 import json
-from datetime import datetime, timezone
+import time
+from datetime import UTC, datetime
+
 from django.core.management.base import BaseCommand
-from django.db import connection, transaction
+from django.db import connection
 
 PROVINCES_DATA = [
     ('Gauteng', ['City of Johannesburg', 'City of Tshwane', 'Ekurhuleni', 'Sedibeng', 'West Rand']),
@@ -75,7 +75,7 @@ class Command(BaseCommand):
         ))
 
         ph = '%s' if connection.vendor == 'postgresql' else '?'
-        now_iso = datetime.now(timezone.utc).isoformat()
+        now_iso = datetime.now(UTC).isoformat()
 
         with connection.cursor() as cur:
             if connection.vendor == 'sqlite':
@@ -89,7 +89,8 @@ class Command(BaseCommand):
             # 1. SCALE MASTER PRODUCTS (1,000,000 Rows)
             # =========================================================================
             cur.execute("SELECT COUNT(*) FROM catalog_masterproduct")
-            current_prod_count = cur.fetchone()[0]
+            prod_count_row = cur.fetchone()
+            current_prod_count = int(prod_count_row[0]) if prod_count_row else 0
             needed_products = max(0, target_products - current_prod_count)
 
             if needed_products > 0:
@@ -133,7 +134,7 @@ class Command(BaseCommand):
 
                         rows.append((
                             uid, now_iso, now_iso, canonical_id, f"fam_{cat}", cat,
-                            title, brand, model_num, gtin13, None, model_num, None, 'ACTIVE',
+                            title, brand, model_num, gtin13, None, model_num, None, 'active',
                             attrs_json, alias_json, comp_json, rev_json, '[]', '[]',
                             0
                         ))
@@ -151,7 +152,8 @@ class Command(BaseCommand):
             # 2. SCALE VERIFIED MERCHANTS (3,100,000 Rows)
             # =========================================================================
             cur.execute("SELECT COUNT(*) FROM merchants_merchant")
-            current_merch_count = cur.fetchone()[0]
+            merch_count_row = cur.fetchone()
+            current_merch_count = int(merch_count_row[0]) if merch_count_row else 0
             needed_merchants = max(0, target_merchants - current_merch_count)
 
             if needed_merchants > 0:

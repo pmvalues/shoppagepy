@@ -1,7 +1,9 @@
+from apps.core.paginator import LargeTablePaginator
 from django.contrib import admin
 from django.utils.html import format_html
+
 from .models import Market
-from apps.core.paginator import LargeTablePaginator
+
 
 @admin.register(Market)
 class MarketAdmin(admin.ModelAdmin):
@@ -27,10 +29,16 @@ class MarketAdmin(admin.ModelAdmin):
             'fields': ('name', 'canonical_slug', 'market_type', 'parent_market', 'verification_state')
         }),
         ('Geographic Location', {
-            'fields': ('province', 'metro', 'street_address', 'country', 'latitude', 'longitude', 'google_maps_url')
+            'fields': ('province', 'metro', 'locality', 'street_address', 'postal_code', 'country', 'latitude', 'longitude', 'google_maps_url', 'google_place_id')
+        }),
+        ('Hours & Media', {
+            'fields': ('opening_hours', 'operating_hours', 'timezone', 'image_url')
         }),
         ('Capacity & Local Features', {
-            'fields': ('stall_capacity', 'landmarks', 'safety_notices')
+            'fields': ('stall_capacity', 'active_merchants_count', 'landmarks', 'safety_notices')
+        }),
+        ('Search Snippets', {
+            'fields': ('meta_title', 'meta_description')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),

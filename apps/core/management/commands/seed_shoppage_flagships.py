@@ -1,11 +1,35 @@
-from django.core.management.base import BaseCommand
-from apps.markets.models import Market, MarketTypeChoices, MarketVerificationChoices
-from apps.merchants.models import Merchant, TrustPassport, ClaimStateChoices, VerificationStateChoices, Draft, AgentRun, DraftTypeChoices, ReviewStateChoices
 from apps.catalog.models import MasterProduct, ProductStatusChoices
-from apps.offers.models import Offer, DiscoveredOffer, DestinationTypeChoices, AvailabilityStateChoices, SlaClassChoices
-from apps.rights.models import RightsSource, RightsClassChoices, RightsStatusChoices
-from apps.evidence.models import EvidenceArtifact, EvidenceClaim, SourceTypeChoices as EvidenceSourceTypeChoices, ClaimTypeChoices as EvidenceClaimTypeChoices, ClaimStateChoices as EvidenceClaimStateChoices
-from apps.media_hub.models import Show, Short, ShowCategoryChoices, ShowStatusChoices, ModerationStateChoices
+from apps.evidence.models import ClaimStateChoices as EvidenceClaimStateChoices
+from apps.evidence.models import ClaimTypeChoices as EvidenceClaimTypeChoices
+from apps.evidence.models import EvidenceArtifact, EvidenceClaim
+from apps.evidence.models import SourceTypeChoices as EvidenceSourceTypeChoices
+from apps.markets.models import Market, MarketTypeChoices, MarketVerificationChoices
+from apps.media_hub.models import (
+    ModerationStateChoices,
+    Short,
+    Show,
+    ShowCategoryChoices,
+    ShowStatusChoices,
+)
+from apps.merchants.models import (
+    AgentRun,
+    ClaimStateChoices,
+    Draft,
+    DraftTypeChoices,
+    Merchant,
+    ReviewStateChoices,
+    TrustPassport,
+    VerificationStateChoices,
+)
+from apps.offers.models import (
+    AvailabilityStateChoices,
+    DestinationTypeChoices,
+    DiscoveredOffer,
+    Offer,
+    SlaClassChoices,
+)
+from apps.rights.models import RightsClassChoices, RightsSource, RightsStatusChoices
+from django.core.management.base import BaseCommand
 
 SAMPLE_VIDEOS = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/'
 
@@ -744,7 +768,7 @@ class Command(BaseCommand):
                 'permitted_fields': ['enterprise_name', 'registration_number', 'status'],
             }
         )
-        merchant_rights, _ = RightsSource.objects.update_or_create(
+        _merchant_rights, _ = RightsSource.objects.update_or_create(
             name='Direct Verified Merchant Feeds',
             defaults={
                 'rights_class': RightsClassChoices.DIRECT_MERCHANT_AUTHORISED,

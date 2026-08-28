@@ -1,7 +1,6 @@
-import sqlite3
 import os
-import json
 import random
+import sqlite3
 import time
 
 DATABASE_PATH = "shoppage-commerce-intelligence-foundation/data/study/sa_nationwide_merchants.sqlite"
@@ -143,7 +142,7 @@ def sweep_and_index():
             for _ in range(stores_per_node):
                 cat_slug, suffixes = random.choice(CATEGORIES)
                 suffix = random.choice(suffixes)
-                
+
                 # Brand/Store naming prefixes
                 prefixes = ["Alpha", "Apex", "Premier", "National", "Metro", "United", "Precision", "Delta", "Central", "City", "Eagle", "Royal", "Swift", "Crown", "Protea", "Vaal", "Highveld", "Lowveld", "Kalahari", "Cape", "Natal", "Karoo", "Bara", "Sandton", "Midrand", "Coast"]
                 prefix = random.choice(prefixes)

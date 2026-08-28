@@ -1,26 +1,23 @@
-import pytest
-from django.test import TestCase, Client
-from django.urls import reverse
-from apps.markets.models import Market, MarketTypeChoices
-from apps.merchants.models import Merchant, ClaimStateChoices, VerificationStateChoices
 from apps.catalog.models import MasterProduct, ProductStatusChoices
-from apps.offers.models import Offer, DiscoveredOffer, DestinationTypeChoices, AvailabilityStateChoices
-from apps.rights.models import RightsSource
-from apps.media_hub.models import Show, Short
-from apps.referrals.models import ReferralEvent
 from apps.intelligence.services import (
-    detect_intent,
-    parse_price_value,
-    semantic_search,
     ask_assistant,
+    detect_intent,
     generate_google_merchant_center_feed,
     generate_trust_seal_svg,
+    parse_price_value,
+    semantic_search,
 )
+from apps.markets.models import Market, MarketTypeChoices
+from apps.merchants.models import ClaimStateChoices, Merchant, VerificationStateChoices
+from apps.offers.models import AvailabilityStateChoices, DestinationTypeChoices, Offer
+from apps.referrals.models import ReferralEvent
+from django.test import Client, TestCase
+
 
 class ShoppagePlatformTestCase(TestCase):
     def setUp(self):
         self.client = Client()
-        
+
         # 1. Market
         self.market = Market.objects.create(
             name="Sandton City Mall",
@@ -97,7 +94,7 @@ class ShoppagePlatformTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn("https://wa.me/27712345678", response.url)
         self.assertIn("Deye", response.url)
-        
+
         # Verify referral event was logged in ledger
         event = ReferralEvent.objects.filter(offer=self.offer).first()
         self.assertIsNotNone(event)
@@ -137,3 +134,58 @@ class ShoppagePlatformTestCase(TestCase):
         res = self.client.get(f"/api/seal/{self.merchant.canonical_id}/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res['Content-Type'], 'image/svg+xml; charset=utf-8')
+
+    def test_all_pages_open_successfully(self):
+        pages = [
+            # Main pages
+            ('/', 200),
+            ('/search/', 200),
+            ('/search/?q=solar', 200),
+            ('/search/live/?q=deye', 200),
+            ('/malls/', 200),
+            ('/merchants/', 200),
+            ('/shows/', 200),
+            ('/shorts/', 200),
+            ('/requests/', 200),
+            ('/agency/', 200),
+            ('/merchant/claim/', 302),  # Redirects to login when unauthenticated
+            ('/accounts/login/', 200),
+
+            # Detail views
+            (f'/p/{self.product.canonical_id}/', 200),
+            (f'/p/{self.product.id}/', 301),
+            (f'/m/{self.merchant.canonical_id}/', 200),
+            (f'/m/{self.merchant.id}/', 301),
+            (f'/markets/{self.market.canonical_slug}/', 200),
+            (f'/markets/{self.market.id}/', 301),
+
+            # SEO & Probes
+            ('/robots.txt', 200),
+            ('/sitemap.xml', 200),
+            ('/sitemap-static.xml', 200),
+            ('/sitemap-products-1.xml', 200),
+            ('/sitemap-merchants-1.xml', 200),
+            ('/sitemap-markets-1.xml', 200),
+            ('/healthz/', 200),
+            ('/readyz/', 200),
+
+            # API routes
+            ('/api/v1/search/?q=deye', 200),
+            ('/api/v1/markets/', 200),
+            ('/api/v1/merchants/', 200),
+            ('/api/v1/products/', 200),
+            (f'/api/v1/products/{self.product.canonical_id}/', 200),
+            (f'/api/seal/{self.merchant.id}/', 200),
+            (f'/api/feeds/google-merchant-center/{self.merchant.canonical_id}/', 200),
+            (f'/api/feeds/google-merchant-center/{self.merchant.id}/', 301),
+        ]
+
+        for url, expected_status in pages:
+            with self.subTest(url=url):
+                res = self.client.get(url)
+                self.assertEqual(
+                    res.status_code,
+                    expected_status,
+                    f"Page {url} failed with status {res.status_code} (expected {expected_status})",
+                )
+

@@ -1,10 +1,9 @@
 {% extends 'base.html' %}
 {% load humanize core_tags %}
 
-{% block title %}{{ merchant.name }} — Google My Business Verified Storefront | Shoppage{% endblock %}
-
 {% block structured_data %}
 <script type="application/ld+json">{{ jsonld|safe }}</script>
+<script type="application/ld+json">{{ breadcrumb_jsonld|safe }}</script>
 {% endblock %}
 
 {% block content %}
@@ -13,11 +12,11 @@
   <!-- Breadcrumbs & Trust Badge -->
   <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
     <div>
-      <a href="/">Home</a> &gt; <a href="/merchants">Stores</a> &gt; <span style="color: var(--text-primary); font-weight: 600;">{{ merchant.name }}</span>
+      {% for crumb_name, crumb_path in breadcrumbs %}{% if not forloop.last %}<a href="{{ crumb_path }}">{{ crumb_name }}</a> &gt; {% else %}<span style="color: var(--text-primary); font-weight: 600;">{{ crumb_name }}</span>{% endif %}{% endfor %}
     </div>
     <div style="display: flex; gap: 0.5rem;">
       <span class="badge badge-green">✓ Trust Score: {{ merchant.trust_score }}/100</span>
-      <span class="badge badge-blue">🇿🇦 Verified Business</span>
+      {% if merchant.is_claimed %}<span class="badge badge-blue">🇿🇦 Claimed by operator</span>{% else %}<span class="badge badge-gray">Preloaded profile · unclaimed</span>{% endif %}
     </div>
   </div>
 
@@ -28,9 +27,17 @@
       <!-- Left: Business Info, Hours, Ratings -->
       <div>
         <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap; align-items: center;">
-          <span class="badge badge-purple" style="font-size: 0.8rem;">{{ merchant.category|default:"Commercial Supplier" }}</span>
+          <span class="badge badge-purple" style="font-size: 0.8rem;">{{ merchant.primary_category|default:"Commercial Supplier" }}</span>
           <span class="badge badge-green" style="font-size: 0.8rem;">✓ {{ merchant.get_verification_state_display }}</span>
-          <span style="font-size: 0.8rem; color: #059669; font-weight: 700;">● Open Now · Closes 17:30</span>
+          {% if merchant.open_now %}
+            {% if merchant.open_now.is_open %}
+            <span style="font-size: 0.8rem; color: #059669; font-weight: 700;">● Open Now · Closes {{ merchant.open_now.closes_at }}</span>
+            {% else %}
+            <span style="font-size: 0.8rem; color: #B45309; font-weight: 700;">● Closed · {{ merchant.open_now.reopens_label|default:"opens later this week" }}</span>
+            {% endif %}
+          {% else %}
+            <span style="font-size: 0.8rem; color: #94A3B8; font-weight: 600;">● Hours not confirmed</span>
+          {% endif %}
         </div>
 
         <h1 style="font-size: 2.25rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">
@@ -38,54 +45,72 @@
         </h1>
 
         <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 0.75rem;">
-          📍 {{ merchant.address_text }}
+          {% if merchant.address_text or merchant.locality %}
+          📍 {{ merchant.address_text|default:merchant.locality }}{% if merchant.postal_code %}, {{ merchant.postal_code }}{% endif %}{% if merchant.province %} · {{ merchant.province }}{% endif %}
+          {% else %}
+          📍 Address not yet published for this profile
+          {% endif %}
           {% if merchant.stall_identifier %}
             · <strong>{{ merchant.stall_identifier }}</strong>
           {% endif %}
         </p>
 
-        <!-- Google Ratings & Response Times -->
+        <!-- Ratings & Response Times (only what is actually on record) -->
         <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
+          {% if merchant.google_rating and rating_count %}
           <div style="display: flex; align-items: center; gap: 0.3rem;">
-            <span style="color: #F59E0B; font-weight: 800; font-size: 1.1rem;">★ {{ merchant.google_rating|default:"4.9" }}</span>
-            <span style="font-size: 0.85rem; color: #64748B;">({{ merchant.google_reviews_count|default:"42" }} verified reviews)</span>
+            <span style="color: #F59E0B; font-weight: 800; font-size: 1.1rem;">★ {{ merchant.google_rating }}</span>
+            <span style="font-size: 0.85rem; color: #64748B;">({{ rating_count }} review{{ rating_count|pluralize }}){% if merchant.google_reviews_url %} <a href="{{ merchant.google_reviews_url }}" rel="nofollow noopener" target="_blank">source</a>{% endif %}</span>
           </div>
+          {% else %}
+          <div style="font-size: 0.85rem; color: #94A3B8; font-weight: 600;">No review score on record yet</div>
+          {% endif %}
+          {% if merchant.reported_years_in_business %}
           <span style="color: #CBD5E1;">•</span>
-          <div style="font-size: 0.85rem; color: #059669; font-weight: 600;">
-            ⚡ Responds in ~{{ merchant.median_response_minutes|default:15 }} mins on WhatsApp
-          </div>
-        </div>
-
-        <!-- Live Foot-Traffic / Busy Hours Chart (GMB Feature) -->
-        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.85rem; margin-bottom: 1.25rem;">
-          <div style="font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
-            <span>📊 Popular Visiting Times (Live Traffic)</span>
-            <span style="color: #059669; font-weight: 600;">Currently: Usual Foot-Traffic</span>
-          </div>
-          <div style="display: flex; align-items: flex-end; gap: 6px; height: 36px;">
-            <div style="flex: 1; background: #CBD5E1; height: 30%; border-radius: 2px;" title="08:00 (30%)"></div>
-            <div style="flex: 1; background: #CBD5E1; height: 50%; border-radius: 2px;" title="10:00 (50%)"></div>
-            <div style="flex: 1; background: #3B82F6; height: 85%; border-radius: 2px;" title="12:00 (85% Busy)"></div>
-            <div style="flex: 1; background: #10B981; height: 100%; border-radius: 2px;" title="14:00 (Peak)"></div>
-            <div style="flex: 1; background: #3B82F6; height: 75%; border-radius: 2px;" title="16:00 (75%)"></div>
-            <div style="flex: 1; background: #CBD5E1; height: 40%; border-radius: 2px;" title="17:00 (40%)"></div>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #94A3B8; margin-top: 3px;">
-            <span>08:00</span>
-            <span>12:00</span>
-            <span>14:00 (Peak)</span>
-            <span>17:30</span>
-          </div>
-        </div>
-
-        <!-- Verified Store Badges -->
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
-          <span class="badge badge-green">✓ Verified Business</span>
-          <span class="badge badge-blue">✓ Official Distributor</span>
-          {% if merchant.market %}
-          <span class="badge badge-gray">🏬 {{ merchant.market.name }}</span>
+          <div style="font-size: 0.85rem; color: #475569;">{{ merchant.reported_years_in_business }} year{{ merchant.reported_years_in_business|pluralize }} trading (operator stated)</div>
           {% endif %}
         </div>
+
+        <!-- Opening Hours (structured, timezone-aware) -->
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.85rem; margin-bottom: 1.25rem;">
+          <div style="font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+            <span>🕘 Opening hours</span>
+            <span style="color: #94A3B8; font-weight: 600;">{{ merchant.resolved_timezone }}</span>
+          </div>
+          {% if merchant.has_confirmed_hours %}
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; color: #334155;">
+            {% for day, value in hours_rows %}
+            <tr>
+              <td style="padding: 2px 0; color: #64748B;">{{ day }}</td>
+              <td style="padding: 2px 0; text-align: right; font-weight: 600;">{{ value }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+          {% if merchant.hours_label %}
+          <div style="margin-top: 0.4rem; font-size: 0.725rem; color: #059669; font-weight: 600;">{{ merchant.hours_label }}</div>
+          {% endif %}
+          {% else %}
+          <div style="font-size: 0.8rem; color: #64748B;">
+            {% if merchant.operating_hours %}Reported: {{ merchant.operating_hours }} — structured hours pending operator confirmation.{% else %}Hours have not been confirmed by the operator yet.{% endif %}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Registration & Trust Badges -->
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+          {% if merchant.cipc_enterprise_number %}<span class="badge badge-gray">CIPC {{ merchant.cipc_enterprise_number }}</span>{% endif %}
+          {% if merchant.cidb_grade %}<span class="badge badge-gray">CIDB {{ merchant.cidb_grade }}</span>{% endif %}
+          {% if merchant.bbbee_level %}<span class="badge badge-gray">{{ merchant.bbbee_level }}</span>{% endif %}
+          {% if merchant.wireman_license_number %}<span class="badge badge-gray">Wireman {{ merchant.wireman_license_number }}</span>{% endif %}
+          {% if merchant.market %}
+          <span class="badge badge-gray">🏬 <a href="/markets/{{ merchant.market.canonical_slug }}/">{{ merchant.market.name }}</a></span>
+          {% endif %}
+        </div>
+
+        {% if merchant.public_image_url %}
+        <img src="{{ merchant.public_image_url }}" alt="{{ merchant.name }} storefront" loading="lazy"
+             style="margin-top: 0.75rem; width: 100%; max-height: 240px; object-fit: cover; border-radius: 10px; border: 1px solid #E2E8F0;" />
+        {% endif %}
       </div>
 
       <!-- Right: Action Buttons & Trust Seal -->
@@ -276,7 +301,7 @@
         </div>
         <div style="padding: 1rem;">
           <h4 style="font-size: 0.95rem; font-weight: 700; color: #FFFFFF; margin-bottom: 0.35rem;">{{ s.title }}</h4>
-          <p style="font-size: 0.775rem; color: #94A3B8; margin: 0;">{{ s.summary|truncatechars:85 }}</p>
+          {% if s.summary %}<p style="font-size: 0.775rem; color: #94A3B8; margin: 0;">{{ s.summary|truncatechars:85 }}</p>{% endif %}
         </div>
       </div>
       {% endfor %}

@@ -1,9 +1,16 @@
-from django.test import TestCase, Client
-from apps.markets.models import Market, MarketTypeChoices
-from apps.merchants.models import Merchant, ClaimStateChoices, VerificationStateChoices
 from apps.catalog.models import MasterProduct, ProductStatusChoices
-from apps.offers.models import Offer, DestinationTypeChoices, AvailabilityStateChoices
-from apps.media_hub.models import Show, Short, ShowCategoryChoices, ShowStatusChoices, ModerationStateChoices
+from apps.markets.models import Market, MarketTypeChoices
+from apps.media_hub.models import (
+    ModerationStateChoices,
+    Short,
+    Show,
+    ShowCategoryChoices,
+    ShowStatusChoices,
+)
+from apps.merchants.models import ClaimStateChoices, Merchant, VerificationStateChoices
+from apps.offers.models import AvailabilityStateChoices, DestinationTypeChoices, Offer
+from django.test import Client, TestCase
+
 
 class AllViewsE2ETestCase(TestCase):
     def setUp(self):
@@ -90,6 +97,15 @@ class AllViewsE2ETestCase(TestCase):
         )
 
     def test_all_routes(self):
+        # Protected merchant routes now require authentication; log in as the
+        # merchant owner so dashboard/claim/draft-action resolve to 200.
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        owner = User.objects.create_user('routeowner', 'routeowner@shoppage.co.za', 'pw')
+        self.merchant.owner = owner
+        self.merchant.save(update_fields=['owner_id'])
+        self.client.force_login(owner)
+
         urls = [
             ('/', 200),
             ('/search/?q=deye', 200),

@@ -1,7 +1,7 @@
 """Django management command: rebuild the SQLite FTS5 catalog search index."""
 
+from apps.catalog.fts import fts_row_count, rebuild_fts
 from django.core.management.base import BaseCommand
-from apps.catalog.fts import rebuild_fts, fts_row_count
 
 
 class Command(BaseCommand):
