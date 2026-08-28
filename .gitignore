@@ -45,6 +45,9 @@ shoppage-commerce-intelligence-foundation/data/study/
 tmp/
 scratch/
 
+# Machine-local settings (DB credentials)
+shoppage/settings/local.py
+
 # Virtual Environments
 .venv/
 venv/

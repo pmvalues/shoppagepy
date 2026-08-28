@@ -212,9 +212,20 @@ class PublishingConformanceTestCase(TestCase):
             title='Zebralink Quantum Charge Controller', brand='Zebralink',
             status=ProductStatusChoices.ACTIVE,
         )
-        from apps.catalog.fts import fts_search_ids
+        from django.db import connection
 
-        self.assertIn(str(fresh.pk), fts_search_ids('zebralink', 50))
+        if connection.vendor == 'sqlite':
+            # Dev path: the SQLite FTS5 index is kept in step by signals.
+            from apps.catalog.fts import fts_search_ids
+
+            self.assertIn(str(fresh.pk), fts_search_ids('zebralink', 50))
+        else:
+            # Production path: ranked_search reads indexed base-table columns,
+            # so a new row is searchable immediately with no rebuild.
+            from apps.intelligence.ranking import ranked_search
+
+            results = ranked_search('zebralink', limit=50)
+            self.assertIn(fresh.pk, {sp.product.pk for sp in results['products']})
 
     def test_search_reflects_a_price_change_immediately(self):
         first = self.client.get('/search/?q=conformance')
