@@ -143,7 +143,7 @@
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem;">
         <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.75rem; font-size: 0.775rem; color: #475569;">
           <div style="font-weight: 800; color: #0F172A; margin-bottom: 2px;">⚡ 0% Middleman Fees</div>
-          <div>Direct WhatsApp trade with verified shop</div>
+          <div>Direct trade with the verified shop — chat, visit or buy online</div>
         </div>
         <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.75rem; font-size: 0.775rem; color: #475569;">
           <div style="font-weight: 800; color: #0F172A; margin-bottom: 2px;">🏬 Collect in Mall</div>
@@ -310,7 +310,13 @@
             target="_blank"
             style="flex: 1; padding: 0.75rem 1.5rem; font-size: 0.95rem; border-radius: 10px; font-weight: 800; justify-content: center;"
           >
-            💬 WhatsApp {{ best_offer.merchant.name }} Directly
+            {% if best_offer.destination_type == 'retailer_website' or best_offer.destination_type == 'marketplace_listing' %}
+            🛒 Visit {{ best_offer.merchant.name }}
+            {% elif best_offer.destination_type == 'physical_stall' %}
+            📍 Collect at {{ best_offer.merchant.name }}
+            {% else %}
+            💬 WhatsApp {{ best_offer.merchant.name }}
+            {% endif %}
           </a>
           {% else %}
           <a
@@ -579,7 +585,7 @@
             target="_blank"
             style="width: 100%; padding: 0.55rem 0.85rem; font-weight: 700; font-size: 0.85rem; text-align: center; border-radius: 8px; justify-content: center;"
           >
-            💬 WhatsApp
+            {% if offer.destination_type == 'merchant_whatsapp' %}💬 WhatsApp{% elif offer.destination_type == 'physical_stall' %}📍 Collect{% else %}🌐 Visit Store{% endif %}
           </a>
         </div>
       </div>
@@ -634,7 +640,7 @@
         {% if not confirmed_offers %}
         <div class="card" style="background: #F8FAFC; padding: 1.5rem; text-align: center;">
           <p style="color: #64748B; margin-bottom: 0.75rem;">
-            No local store has confirmed direct stock on WhatsApp yet. Claim this listing or explore discovered external web feeds.
+            No local store has confirmed direct stock yet. Claim this listing or explore discovered external web feeds.
           </p>
           <a href="/merchant/claim?variantId={{ product.canonical_id }}&title={{ product.title|urlencode }}" class="btn btn-whatsapp" style="font-size: 0.85rem;">
             + List as First Verified Stockist

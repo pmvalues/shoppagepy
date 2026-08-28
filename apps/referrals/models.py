@@ -37,6 +37,8 @@ class ReferralEvent(TimeStampedModel):
     merchant = models.ForeignKey('merchants.Merchant', on_delete=models.SET_NULL, null=True, blank=True, related_name='referral_events')
     market = models.ForeignKey('markets.Market', on_delete=models.SET_NULL, null=True, blank=True, related_name='referral_events')
     stall_ref = models.CharField(max_length=150, blank=True, null=True)
+    affiliate = models.ForeignKey('referrals.Affiliate', on_delete=models.SET_NULL, null=True, blank=True, related_name='events')
+    commission_earned = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
 
     action = models.CharField(max_length=50, choices=ReferralActionChoices.choices, default=ReferralActionChoices.WHATSAPP_START, db_index=True)
     confidence_score = models.DecimalField(max_digits=5, decimal_places=4, default=Decimal('1.0000'))
@@ -50,3 +52,33 @@ class ReferralEvent(TimeStampedModel):
 
     def __str__(self):
         return f"Event {self.event_id}: {self.action} -> {self.merchant} at {self.occurred_at}"
+
+
+class Affiliate(TimeStampedModel):
+    """TikTok-Shop-style creator affiliate: tags products, earns commission per attributed handoff."""
+
+    canonical_id = models.CharField(max_length=120, unique=True, db_index=True)
+    handle = models.SlugField(max_length=60, unique=True, db_index=True, help_text="Public handle shown on their links")
+    name = models.CharField(max_length=150)
+    contact = models.CharField(max_length=255, blank=True, default='', help_text='WhatsApp number, email or social handle')
+    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('5.00'), help_text='Percent of the offer price earned per attributed handoff')
+    active = models.BooleanField(default=True, db_index=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Affiliate'
+        verbose_name_plural = 'Affiliates'
+
+    def __str__(self):
+        return f"@{self.handle} ({self.name})"
+
+    def earnings(self, days: int = 30):
+        from datetime import timedelta
+
+        from django.db.models import Sum
+
+        since = timezone.now() - timedelta(days=days)
+        return (
+            self.events.filter(occurred_at__gte=since, commission_earned__isnull=False)
+            .aggregate(total=Sum('commission_earned'))['total']
+        ) or Decimal('0.00')

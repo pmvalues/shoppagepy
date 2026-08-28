@@ -8,6 +8,7 @@ from .models import (
     Campaign,
     ClaimStateChoices,
     Draft,
+    Follow,
     Merchant,
     MerchantPhoto,
     MerchantPost,
@@ -278,3 +279,14 @@ class CampaignAdmin(admin.ModelAdmin):
     search_fields = ('name', 'canonical_id', 'merchant__name', 'headline')
     autocomplete_fields = ('merchant',)
     readonly_fields = ('canonical_id', 'created_at', 'updated_at')
+
+
+@admin.register(Follow)
+class FollowAdmin(admin.ModelAdmin):
+    paginator = LargeTablePaginator
+    show_full_result_count = False
+    list_per_page = 50
+    list_display = ('merchant', 'follower_key', 'created_at')
+    search_fields = ('merchant__name', 'follower_key')
+    autocomplete_fields = ('merchant',)
+    readonly_fields = ('created_at', 'updated_at')

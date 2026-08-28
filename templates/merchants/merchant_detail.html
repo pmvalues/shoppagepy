@@ -176,6 +176,14 @@ document.addEventListener('DOMContentLoaded', function () {
         </a>
         {% endif %}
 
+        <form method="post" action="/m/{{ merchant.canonical_id }}/follow/">
+          {% csrf_token %}
+          <button type="submit" class="btn {% if is_following %}btn-whatsapp{% else %}btn-outline{% endif %}" style="font-size: 0.85rem; padding: 0.5rem; text-align: center; width: 100%;">
+            {% if is_following %}✓ Following{% else %}+ Follow Store{% endif %}
+          </button>
+          <div style="font-size: 0.7rem; color: #94A3B8; margin-top: 0.25rem; text-align: center;">{{ followers_count }} follower{{ followers_count|pluralize }}</div>
+        </form>
+
         <!-- Trust Seal Badge -->
         <div style="margin-top: 0.5rem; text-align: center;">
           <img

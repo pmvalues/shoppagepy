@@ -367,6 +367,7 @@
             <span style="font-weight: 800; font-size: 0.95rem; color: #FFFFFF;">
               @{{ s.merchant_name|default:"Shoppage Lab" }}
             </span>
+            {% if s.affiliate %}<span class="badge" style="background: rgba(236,72,153,0.25); color: #F9A8D4; font-size: 0.65rem; padding: 2px 6px;">🎬 by @{{ s.affiliate.handle }}</span>{% endif %}
             <span class="badge badge-green" style="font-size: 0.65rem; padding: 2px 6px;">✓ Verified Merchant</span>
           </div>
 
@@ -403,12 +404,12 @@
               </a>
               {% if s.merchant_whatsapp %}
               <a
-                href="https://wa.me/{{ s.merchant_whatsapp }}?text=I%20want%20to%20order%20{{ s.master_product.title|urlencode }}%20from%20your%20short"
+                href="/l/{{ s.master_product.canonical_id }}{% if s.affiliate %}?aff={{ s.affiliate.handle }}{% endif %}"
                 target="_blank"
                 class="btn btn-whatsapp"
                 style="font-size: 0.7rem; padding: 0.3rem 0.65rem;"
               >
-                💬 Buy
+                🛒 Buy
               </a>
               {% endif %}
             </div>

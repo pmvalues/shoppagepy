@@ -1,6 +1,14 @@
 from django.contrib import admin
 
-from .models import ReferralEvent
+from .models import Affiliate, ReferralEvent
+
+
+@admin.register(Affiliate)
+class AffiliateAdmin(admin.ModelAdmin):
+    list_display = ('handle', 'name', 'contact', 'commission_rate', 'active', 'created_at')
+    list_filter = ('active',)
+    search_fields = ('handle', 'name', 'contact')
+    readonly_fields = ('canonical_id', 'created_at', 'updated_at')
 
 
 @admin.register(ReferralEvent)

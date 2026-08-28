@@ -32,6 +32,7 @@ from apps.media_hub.views import (
 from apps.merchants.views import (
     campaign_center_view,
     campaign_toggle_view,
+    following_feed_view,
     merchant_claim_view,
     merchant_dashboard_view,
     merchant_detail_view,
@@ -47,7 +48,13 @@ from apps.merchants.views import (
     merchant_review_reply_view,
     merchant_settings_view,
 )
-from apps.referrals.views import universal_link_resolver
+from apps.referrals.views import (
+    affiliate_landing_view,
+    affiliate_profile_view,
+    affiliate_register_view,
+    merchant_follow_toggle_view,
+    universal_link_resolver,
+)
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -70,6 +77,11 @@ urlpatterns = [
 
     # 2. Universal Link Resolver (Sub-50ms WhatsApp & Outbound Tracker)
     path('l/<str:universal_id>/', universal_link_resolver, name='universal_link_resolver'),
+    path('affiliate/', affiliate_landing_view, name='affiliate_landing'),
+    path('affiliate/register/', affiliate_register_view, name='affiliate_register'),
+    path('affiliate/<slug:handle>/', affiliate_profile_view, name='affiliate_profile'),
+    path('following/', following_feed_view, name='following_feed'),
+    path('m/<str:canonical_id>/follow/', merchant_follow_toggle_view, name='merchant_follow_toggle'),
 
     # 3. REST API Endpoints
     path('api/', include('apps.api.urls')),

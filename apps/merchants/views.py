@@ -118,6 +118,10 @@ def merchant_detail_view(request, canonical_id):
         request.user.is_authenticated
         and (request.user.is_staff or request.user.owned_merchants.filter(id=merchant.id).exists())
     )
+    is_following = False
+    if request.session.session_key:
+        is_following = merchant.followers.filter(follower_key=f"sess_{request.session.session_key}").exists()
+    followers_count = merchant.followers.count()
 
     context = {
         'merchant': merchant,
@@ -142,6 +146,8 @@ def merchant_detail_view(request, canonical_id):
         'approved_photos': approved_photos,
         'active_posts': active_posts,
         'is_owner': is_owner,
+        'is_following': is_following,
+        'followers_count': followers_count,
     }
     return render(request, 'merchants/merchant_detail.html', context)
 
@@ -721,6 +727,64 @@ def campaign_center_view(request):
         'offer_links': offer_links,
     }
     return render(request, 'merchants/campaign_center.html', context)
+
+
+@login_required
+def following_feed_view(request):
+    """LinkedIn-style feed: latest posts and offers from followed merchants."""
+    if not request.session.session_key:
+        request.session['anon_marker'] = '1'
+        request.session.save()
+    follower_key = f"sess_{request.session.session_key}"
+    from .models import Follow, MerchantPost
+
+    followed = list(Follow.objects.filter(follower_key=follower_key).select_related('merchant')[:40])
+    followed_merchants = [f.merchant for f in followed]
+    feed = []
+    if followed_merchants:
+        posts = list(
+            MerchantPost.objects.filter(merchant__in=followed_merchants, active=True)
+            .select_related('merchant').order_by('-created_at')[:30]
+        )
+        for post in posts:
+            feed.append({
+                'kind': 'post',
+                'created_at': post.created_at,
+                'merchant': post.merchant,
+                'title': post.title,
+                'body': post.body,
+                'is_offer': post.kind == 'offer',
+            })
+        from apps.offers.models import Offer
+
+        latest_offers = list(
+            Offer.objects.filter(merchant__in=followed_merchants, availability_state=AvailabilityStateChoices.FRESH)
+            .select_related('variant', 'merchant').order_by('-last_confirmed_at')[:20]
+        )
+        for o in latest_offers:
+            feed.append({
+                'kind': 'offer',
+                'created_at': o.last_confirmed_at,
+                'merchant': o.merchant,
+                'title': o.variant.title,
+                'body': '',
+                'price': float(o.price_amount) if o.price_amount else 0.0,
+                'canonical_id': o.variant.canonical_id,
+                'offer_canonical_id': o.canonical_id,
+            })
+        feed.sort(key=lambda item: item['created_at'], reverse=True)
+        feed = feed[:30]
+
+    suggestions = []
+    if not followed_merchants:
+        suggestions = list(Merchant.objects.order_by('-trust_score')[:6])
+
+    context = {
+        'feed': feed,
+        'following_count': len(followed_merchants),
+        'suggestions': suggestions,
+    }
+    return render(request, 'merchants/following_feed.html', context)
 
 
 @login_required

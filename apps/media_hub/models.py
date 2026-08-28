@@ -81,6 +81,7 @@ class Short(TimeStampedModel):
         db_index=True
     )
     is_sponsored = models.BooleanField(default=False, help_text="Mandatory visible sponsorship disclosure flag")
+    affiliate = models.ForeignKey('referrals.Affiliate', on_delete=models.SET_NULL, null=True, blank=True, related_name='shorts')
 
     class Meta:
         ordering = ['-views']

@@ -381,3 +381,21 @@ class Campaign(TimeStampedModel):
 
     def launch_link(self, offer_canonical_id: str) -> str:
         return f'/l/{offer_canonical_id}?utm_campaign={self.canonical_id}'
+
+
+class Follow(TimeStampedModel):
+    """LinkedIn-style merchant follow (session-keyed, no account required)."""
+
+    merchant = models.ForeignKey(Merchant, on_delete=models.CASCADE, related_name='followers')
+    follower_key = models.CharField(max_length=128, db_index=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(fields=['merchant', 'follower_key'], name='unique_merchant_follower'),
+        ]
+        verbose_name = 'Merchant Follow'
+        verbose_name_plural = 'Merchant Follows'
+
+    def __str__(self):
+        return f'{self.follower_key[:20]} → {self.merchant.name}'
