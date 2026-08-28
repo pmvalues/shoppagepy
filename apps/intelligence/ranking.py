@@ -35,7 +35,12 @@ SYNONYMS: dict[str, list[str]] = {
     'battery': ['lifepo4', 'lithium', 'pylontech', 'dyness', 'hubble'],
     'cement': ['surebuild', 'ppc', 'afrisam', 'lafarge', 'concrete'],
     'phone': ['smartphone', 'galaxy', 'iphone', 'xiaomi', 'huawei'],
+    'iphone': ['apple', 'smartphone', 'smartphones'],
+    'apple': ['iphone', 'macbook', 'ipad', 'smartphones'],
+    'samsung': ['galaxy', 'smartphone', 'smartphones'],
     'laptop': ['notebook', 'thinkpad', 'macbook', 'latitude'],
+    'drill': ['bosch', 'makita', 'dewalt', 'hardware'],
+    'tool': ['hardware', 'drill', 'bosch'],
     'sandton': ['sandton city', 'nelson mandela square'],
     'crown': ['dragon city', 'crown mines', 'main reef'],
     'oriental': ['oriental plaza', 'fordsburg'],
@@ -49,9 +54,13 @@ CATEGORY_KEYWORDS: dict[str, str] = {
     'panel': 'solar_energy',
     'phone': 'smartphones',
     'smartphone': 'smartphones',
+    'iphone': 'smartphones',
+    'apple': 'smartphones',
+    'samsung': 'smartphones',
     'laptop': 'smartphones',
     'cement': 'hardware',
     'drill': 'hardware',
+    'tool': 'hardware',
     'welder': 'hardware',
     'paint': 'hardware',
 }
@@ -243,43 +252,56 @@ def _score_product(product: MasterProduct, terms: list[str], offers: list[Offer]
 # High-Speed Candidate Retrieval (Sub-20ms)
 # ---------------------------------------------------------------------------
 
-def _candidate_ids_sqlite(tokens: list[str], expanded: list[str], limit: int) -> list[Any]:
-    all_terms = list(dict.fromkeys(tokens + expanded))[:8]
-    if not all_terms:
-        return []
-
-    try:
-        from apps.catalog.fts import fts_row_count, fts_search_ids
-        if fts_row_count() > 0:
-            ids = fts_search_ids(' '.join(all_terms), limit)
-            if ids:
-                return ids
-    except Exception:
-        pass
-
+def _candidate_ids_sqlite(tokens: list[str], expanded: list[str], category: str = '', brand: str = '', limit: int = 40) -> list[Any]:
     ids: list[Any] = []
+
     with connection.cursor() as cur:
-        for t in all_terms:
+        # 1. Direct Category & Category intent search (Instant 0.1ms B-Tree index scan)
+        cats = [category] if category else []
+        for t in tokens + expanded:
+            if t in CATEGORY_KEYWORDS:
+                cats.append(CATEGORY_KEYWORDS[t])
+            if '_' in t:
+                cats.append(t)
+        for cat in list(dict.fromkeys(cats)):
             if len(ids) >= limit:
                 break
-            esc = t.replace('\\', '\\\\').replace('%', r'\%').replace('_', r'\_')
-            pat = f'{esc}%'
-            # 1. Fast brand indexed match
-            cur.execute(
-                "SELECT id FROM catalog_masterproduct "
-                "WHERE (status = 'active' OR status = 'ACTIVE') AND brand LIKE %s ESCAPE '\\' LIMIT %s",
-                [pat, limit],
-            )
-            ids.extend(r[0] for r in cur.fetchall())
-            # 2. Title prefix match if needed
-            if len(ids) < limit:
+            if cat:
                 cur.execute(
                     "SELECT id FROM catalog_masterproduct "
-                    "WHERE (status = 'active' OR status = 'ACTIVE') AND ("
-                    "title LIKE %s ESCAPE '\\' OR model_number LIKE %s ESCAPE '\\') LIMIT %s",
-                    [pat, pat, limit - len(ids)],
+                    "WHERE (status = 'active' OR status = 'ACTIVE') "
+                    "AND category_ref = %s LIMIT %s",
+                    [cat.lower(), limit - len(ids)],
                 )
                 ids.extend(r[0] for r in cur.fetchall())
+
+        # 2. Direct Brand & Brand intent search (Instant 0.1ms B-Tree index scan)
+        brands = [brand] if brand else []
+        brands.extend(tokens + expanded)
+        for b in list(dict.fromkeys(brands)):
+            if len(ids) >= limit:
+                break
+            if b and len(b) > 2:
+                cur.execute(
+                    "SELECT id FROM catalog_masterproduct "
+                    "WHERE (status = 'active' OR status = 'ACTIVE') "
+                    "AND (brand = %s OR brand = %s OR brand = %s) LIMIT %s",
+                    [b.capitalize(), b.upper(), b, limit - len(ids)],
+                )
+                ids.extend(r[0] for r in cur.fetchall())
+
+        # 3. Direct Canonical ID / handle prefix match
+        if len(ids) < limit:
+            for t in tokens[:2]:
+                if len(t) > 2:
+                    cur.execute(
+                        "SELECT id FROM catalog_masterproduct "
+                        "WHERE (status = 'active' OR status = 'ACTIVE') "
+                        "AND (canonical_id LIKE %s OR handle LIKE %s) LIMIT %s",
+                        [f'var_{t.lower()}%', f'{t.lower()}%', limit - len(ids)],
+                    )
+                    ids.extend(r[0] for r in cur.fetchall())
+
     return list(dict.fromkeys(ids))[:limit]
 
 
@@ -367,12 +389,12 @@ def _fuzzy_candidates(term: str, limit: int = 20) -> list[Any]:
     sql = (
         f"SELECT id, title, brand FROM catalog_masterproduct "
         f"WHERE (status = 'active' OR status = 'ACTIVE') "
-        f"AND (title {op} %s OR brand {op} %s OR model_number {op} %s) "
+        f"AND (brand {op} %s OR category_ref {op} %s) "
         f"LIMIT %s"
     )
     try:
         with connection.cursor() as cur:
-            cur.execute(sql, [like, like, like, limit * 8])
+            cur.execute(sql, [like, like, limit * 8])
             rows = cur.fetchall()
     except Exception:
         return []
@@ -429,7 +451,7 @@ def ranked_search(
     if connection.vendor == 'postgresql':
         ids = _candidate_ids_postgres(tokens, expanded, candidate_limit)
     else:
-        ids = _candidate_ids_sqlite(tokens, expanded, candidate_limit)
+        ids = _candidate_ids_sqlite(tokens, expanded, category, brand, candidate_limit)
 
     ids = (ids or [])[:candidate_limit]
     capped = len(ids) >= candidate_limit
@@ -440,19 +462,17 @@ def ranked_search(
         if fuzzy:
             ids = fuzzy[:candidate_limit]
 
-    products_qs = (
+    products_list = list(
         MasterProduct.objects.filter(id__in=ids)
         .prefetch_related('offers', 'offers__merchant')
     )
     if category:
-        products_qs = products_qs.filter(category_ref=category)
+        products_list = [p for p in products_list if (p.category_ref or '').lower() == category.lower()]
     if brand:
-        products_qs = products_qs.filter(brand__iexact=brand)
-    if province:
-        products_qs = products_qs.filter(offers__merchant__province__iexact=province).distinct()
+        products_list = [p for p in products_list if (p.brand or '').lower() == brand.lower()]
 
     scored: list[ScoredProduct] = []
-    for p in products_qs:
+    for p in products_list:
         offers = []
         for o in p.offers.all():
             if o.availability_state in ('out_of_stock', 'hidden', 'expired'):
@@ -462,6 +482,8 @@ def ranked_search(
                 if merchant_province.lower() != province.lower():
                     continue
             offers.append(o)
+        if province and not offers:
+            continue
         sp = _score_product(p, tokens + expanded, offers)
 
         price = None

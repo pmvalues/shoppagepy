@@ -93,7 +93,7 @@ class Merchant(TimeStampedModel):
     trust_score = models.IntegerField(default=80, db_index=True, help_text="0 to 100 calculated trust metric")
 
     class Meta:
-        ordering = ['-trust_score', 'name']
+        ordering = ['id']
         verbose_name = 'Merchant'
         verbose_name_plural = 'Merchants'
 

@@ -26,8 +26,21 @@ def data_version() -> int:
         return 1
 
 
+def configure_sqlite_pragmas(sender, connection, **kwargs):
+    if connection.vendor == 'sqlite':
+        with connection.cursor() as cursor:
+            cursor.execute("PRAGMA synchronous = NORMAL;")
+            cursor.execute("PRAGMA journal_mode = WAL;")
+            cursor.execute("PRAGMA cache_size = -64000;")
+            cursor.execute("PRAGMA temp_store = MEMORY;")
+            cursor.execute("PRAGMA mmap_size = 268435456;")
+
+
 def install(model_labels) -> None:
     from django.apps import apps
+    from django.db.backends.signals import connection_created
+
+    connection_created.connect(configure_sqlite_pragmas, dispatch_uid='core:sqlite_pragmas')
 
     for label in model_labels:
         try:

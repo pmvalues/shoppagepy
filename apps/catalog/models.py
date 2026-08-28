@@ -71,7 +71,7 @@ class MasterProduct(TimeStampedModel):
     compatibility_edge_count = models.IntegerField(default=0)
 
     class Meta:
-        ordering = ['brand', 'title']
+        ordering = ['id']
         verbose_name = 'Master Product'
         verbose_name_plural = 'Master Products'
 
@@ -116,7 +116,7 @@ class MasterProduct(TimeStampedModel):
             return MasterProduct.objects.none()
         return MasterProduct.objects.filter(
             family_ref=self.family_ref, status=ProductStatusChoices.ACTIVE
-        ).exclude(pk=self.pk).order_by('title')
+        ).exclude(pk=self.pk).order_by('id')
 
 # Backward compatible alias
 ProductVariant = MasterProduct

@@ -136,11 +136,14 @@ def product_detail_view(request, canonical_id):
         fulfilment_options = [str(option) for option in stated if str(option).strip()][:4]
 
     variation_group = list(product.variation_group()[:8])
-    bundle_items = variation_group or list(
-        MasterProduct.objects.filter(
-            category_ref=product.category_ref, status=ProductStatusChoices.ACTIVE
-        ).exclude(canonical_id=product.canonical_id)[:2]
-    )
+    if variation_group:
+        bundle_items = variation_group[:2]
+    else:
+        raw_candidates = list(
+            MasterProduct.objects.filter(brand=product.brand, status=ProductStatusChoices.ACTIVE)[:4]
+        )
+        bundle_items = [p for p in raw_candidates if p.canonical_id != product.canonical_id][:2]
+
     bundle_prices = []
     for item in bundle_items:
         lowest = item.offers.filter(
@@ -156,16 +159,16 @@ def product_detail_view(request, canonical_id):
     linked_shorts = list(product.shorts.filter(moderation_state__in=['approved', 'APPROVED']))
     if not linked_shorts and product.brand:
         linked_shorts = list(Short.objects.filter(
-            Q(title__icontains=product.brand) |
-            Q(product_title__icontains=product.brand) |
-            Q(summary__icontains=product.brand)
+            Q(title__istartswith=product.brand) |
+            Q(product_title__istartswith=product.brand)
         )[:3])
 
-    related_products = list(
+    raw_rel = list(
         MasterProduct.objects.filter(
-            category_ref=product.category_ref, status=ProductStatusChoices.ACTIVE
-        ).exclude(canonical_id=product.canonical_id).prefetch_related('offers')[:3]
+            brand=product.brand, status=ProductStatusChoices.ACTIVE
+        ).prefetch_related('offers')[:5]
     )
+    related_products = [p for p in raw_rel if p.canonical_id != product.canonical_id][:3]
 
     category_label = product.category_ref.replace('_', ' ').title()
     crumbs = [

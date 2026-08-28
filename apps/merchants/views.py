@@ -41,7 +41,7 @@ def merchant_list_view(request):
     # Fetch top-rated candidate merchants and deduplicate by storefront brand
     candidates = list(
         merchants_qs.select_related('market')
-        .order_by('-trust_score', 'id')[:200]
+        .order_by('-trust_score')[:120]
     )
 
     unique_merchants = []
