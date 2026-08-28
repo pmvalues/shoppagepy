@@ -672,7 +672,13 @@ def ranked_search(
     Returns products (ScoredProduct), merchants, facets, price stats, pagination meta.
     """
     t0 = time.perf_counter()
-    tokens = tokenize(raw_query)
+    # Advanced operators: "exact phrase" must appear; -word excluded.
+    quoted_phrases = [p.strip().lower() for p in re.findall(r'"([^"]+)"', raw_query) if p.strip()]
+    minus_terms = [w.lower().lstrip('-') for w in re.findall(r'-\S+', raw_query)]
+    minus_terms = [w for w in minus_terms if w]
+    clean_query = re.sub(r'"[^"]*"', ' ', raw_query)
+    clean_query = re.sub(r'-\S+', ' ', clean_query)
+    tokens = tokenize(clean_query)
     expanded = expand_synonyms(tokens)
     intent = detect_filters(raw_query)
 
@@ -765,6 +771,17 @@ def ranked_search(
     if near is not None:
         # Within relevance band, prefer genuinely closer storefronts (GMB-style).
         deduped_scored.sort(key=lambda s: (-(s.score if sort == 'relevance' else 0), s.distance_km or 1e9))
+    # Advanced operator filters: quoted phrase must appear; minus words excluded.
+    if minus_terms:
+        deduped_scored = [s for s in deduped_scored if not any(
+            w in (s.product.title or '').lower() or w in (s.product.brand or '').lower()
+            for w in minus_terms
+        )]
+    if quoted_phrases:
+        phrase = quoted_phrases[0]
+        deduped_scored = [s for s in deduped_scored if (
+            phrase in (s.product.title or '').lower() or phrase in (s.product.brand or '').lower()
+        )]
     deduped_scored = _sort_scored(deduped_scored, sort)
 
     total = len(deduped_scored)

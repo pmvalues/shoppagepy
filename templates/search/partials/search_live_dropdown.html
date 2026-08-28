@@ -2,6 +2,15 @@
 {% if products or merchants or malls or shorts or knowledge_card %}
 <div style="padding: 0.75rem;">
 
+  <!-- Google-style query-completion suggestions -->
+  {% if suggestions %}
+  <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; padding-left: 0.25rem;">
+    {% for s in suggestions %}
+    <a href="/search/?q={{ s|urlencode }}" style="font-size: 0.8rem; background: #F1F5F9; border: 1px solid #E2E8F0; color: #1E293B; padding: 0.3rem 0.7rem; border-radius: 9999px; text-decoration: none; font-weight: 600;">{{ s }}</a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   <!-- Brand Knowledge Pill if recognized -->
   {% if knowledge_card %}
   <div style="background: linear-gradient(135deg, #EFF6FF 0%, #F0FDF4 100%); border: 1px solid #BFDBFE; border-radius: 8px; padding: 0.6rem 0.85rem; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between;">

@@ -159,6 +159,9 @@
         <a href="/search?q={{ query|default:'' }}&tab=shopping" class="google-nav-tab {% if request.GET.tab == 'shopping' %}active-tab{% endif %}">
           🛍️ Price Matrix
         </a>
+        <a href="/search?q={{ query|default:'' }}&tab=images" class="google-nav-tab {% if request.GET.tab == 'images' %}active-tab{% endif %}">
+          🖼️ Images
+        </a>
         <a href="/search?q={{ query|default:'' }}&province=Gauteng" class="google-nav-tab {% if request.GET.province == 'Gauteng' %}active-tab{% endif %}">
           🇿🇦 South African Grid
         </a>

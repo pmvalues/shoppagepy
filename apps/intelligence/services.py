@@ -577,7 +577,64 @@ def get_brand_knowledge_card(query_or_brand: str) -> dict[str, Any] | None:
     for key, data in knowledge_base.items():
         if key in q:
             return data
-    return None
+    return _dynamic_knowledge_card(q)
+
+
+def _dynamic_knowledge_card(query: str) -> dict[str, Any] | None:
+    """Measured knowledge card from the live catalogue — any brand, not just curated ones."""
+    q = (query or '').strip().lower()
+    if len(q) < 3:
+        return None
+    try:
+        from collections import Counter
+
+        from apps.catalog.models import MasterProduct
+
+        products = list(
+            MasterProduct.objects.filter(status__in=['active', 'ACTIVE'], brand__iexact=q)
+            .order_by('-compatibility_edge_count', '-id')[:40]
+        )
+        if not products:
+            products = list(
+                MasterProduct.objects.filter(status__in=['active', 'ACTIVE'], brand__icontains=q)
+                .order_by('-compatibility_edge_count', '-id')[:40]
+            )
+        if not products:
+            return None
+        cats = Counter((p.category_ref or 'other').replace('_', ' ') for p in products)
+        top_cat = cats.most_common(1)[0][0].title()
+        icons = {'solar': '☀️', 'batter': '🔋', 'phone': '📱', 'electron': '🖥️', 'tool': '🔨',
+                 'hardware': '🔨', 'home': '🏠', 'grocer': '🛒', 'fashion': '👕'}
+        icon = next((v for k, v in icons.items() if k in (q + ' ' + top_cat.lower())), '🏷️')
+        prices = [float(p.estimated_price_zar) for p in products if p.estimated_price_zar]
+        avg = round(sum(prices) / len(prices)) if prices else None
+        models = []
+        seen = set()
+        for p in products:
+            t = (p.title or '').strip()
+            if t and t.lower() not in seen:
+                seen.add(t.lower())
+                models.append(t)
+            if len(models) >= 5:
+                break
+        return {
+            'brand': products[0].brand or top_cat,
+            'short_name': q.title(),
+            'icon': icon,
+            'category': top_cat,
+            'description': (
+                f'{len(products)} matching listing{"s" if len(products) != 1 else ""} on the '
+                'Shoppage National Commerce Grid'
+                + (f'; average listed price R {avg:,}ZAR' if avg else '')
+                + '. Compare verified stockists side-by-side.'
+            ),
+            'popular_models': models,
+            'distributors': [],
+            'satisfaction_rating': '',
+            'measured': True,
+        }
+    except Exception:
+        return None
 
 def get_people_also_ask(query: str) -> list[dict[str, str]]:
     """
@@ -585,8 +642,10 @@ def get_people_also_ask(query: str) -> list[dict[str, str]]:
     """
     q = (query or '').lower()
 
+    log_pairs = _logged_paa_pairs(q)
+
     if any(k in q for k in ['battery', 'batteries', 'lifepo4', 'lithium', 'dyness', 'pylontech', 'hubble', 'willard', 'sabat']):
-        return [
+        result = [
             {
                 'question': 'What is the difference between LiFePO4 and AGM/Lead-Acid batteries?',
                 'answer': 'Lithium Iron Phosphate (LiFePO4) batteries offer 6,000+ cycles at 90% Depth of Discharge (DoD) lasting 10–15 years, compared to Lead-Acid/Gel batteries which typically yield 500–800 cycles and last 2–3 years under daily Stage 6 load-shedding in South Africa.'
@@ -605,7 +664,7 @@ def get_people_also_ask(query: str) -> list[dict[str, str]]:
             }
         ]
     elif any(k in q for k in ['inverter', 'solar', 'deye', 'sunsynk', 'growatt', 'victron', 'panel']):
-        return [
+        result = [
             {
                 'question': 'Which hybrid inverter is best for home backup in South Africa?',
                 'answer': 'Deye 5kW/8kW and Sunsynk 5.5kW/8.8kW are the leading NRS 097 grid-certified hybrid inverters in SA due to their dual MPPT trackers, rapid <4ms UPS switchover time, and extensive local technician support.'
@@ -620,7 +679,7 @@ def get_people_also_ask(query: str) -> list[dict[str, str]]:
             }
         ]
     elif any(k in q for k in ['phone', 'smartphone', 'samsung', 'apple', 'iphone', 'huawei', 'xiaomi']):
-        return [
+        result = [
             {
                 'question': 'Are devices sold through Shoppage verified suppliers ICASA approved?',
                 'answer': 'Yes. All smartphones and wireless equipment listed on the Shoppage grid are verified against ICASA type-approval registers and include official South African manufacturer warranties.'
@@ -631,7 +690,7 @@ def get_people_also_ask(query: str) -> list[dict[str, str]]:
             }
         ]
     else:
-        return [
+        result = [
             {
                 'question': f'How do I compare verified supplier prices for {query.title() if query else "products"}?',
                 'answer': 'Shoppage indexes physical trade counters, shopping centres, and wholesale importers across South Africa with side-by-side price comparison, stock availability, and direct WhatsApp trade channels.'
@@ -641,6 +700,63 @@ def get_people_also_ask(query: str) -> list[dict[str, str]]:
                 'answer': 'Yes. You can click "Post Bulk RFQ Tender" on any search result to broadcast your procurement requirements directly to verified stockists and commercial distributors.'
             }
         ]
+    return (log_pairs + result)[:4]
+
+
+def _logged_paa_pairs(query: str) -> list[dict[str, str]]:
+    """Data-driven PAA: real logged query variants sharing a token with the current query."""
+    q = (query or '').lower().strip()
+    tokens = {t for t in re.split(r'\W+', q) if len(t) > 2}
+    if not tokens:
+        return []
+    try:
+        from datetime import timedelta
+
+        from django.db.models import Count
+        from django.utils import timezone
+
+        from apps.core.models import SearchQueryLog
+
+        since = timezone.now() - timedelta(days=30)
+        rows = list(
+            SearchQueryLog.objects.filter(created_at__gte=since)
+            .values('normalized').annotate(n=Count('id')).order_by('-n')[:200]
+        )
+        seen = set()
+        out: list[dict[str, str]] = []
+        for row in rows:
+            norm = (row['normalized'] or '').strip().lower()
+            if not norm or norm == q or norm in seen:
+                continue
+            if not (tokens & {t for t in re.split(r'\W+', norm) if len(t) > 2}):
+                continue
+            seen.add(norm)
+            stem = norm
+            question = answer = ''
+            if norm.endswith((' price', ' cost', ' how much')):
+                stem = norm.rsplit(' ', 1)[0]
+                question = f'How much does {stem} cost at verified stockists?'
+                answer = 'Live merchant-confirmed prices are shown in the price matrix — compare sellers side-by-side on the product page.'
+            elif 'near me' in norm:
+                stem = norm.replace(' near me', '').strip()
+                question = f'Where can I buy {stem} near me?'
+                answer = 'Use the local 3-pack and radius filter — Shoppage ranks verified stores by real distance and shows open-now status.'
+            elif 'where to buy' in norm or 'who sells' in norm:
+                question = f'Where can I find {norm}?'
+                answer = 'Shoppage lists verified stockists with live availability — open the product page and compare offers.'
+            elif norm.endswith(' best') or 'best ' in norm:
+                question = f'Which {norm.replace(" best", "").replace("best ", "").strip()} is the best value?'
+                answer = 'Sort by Top Rated or Best Value on search — rankings combine merchant trust, freshness and price completeness.'
+            else:
+                question = f'What are the current {norm} prices in South Africa?'
+                answer = 'Search Shoppage for merchant-confirmed prices and local availability across the grid.'
+            if question and answer:
+                out.append({'question': question, 'answer': answer})
+            if len(out) >= 2:
+                break
+        return out
+    except Exception:
+        return []
 
 def _popular_queries_from_logs(query: str, limit: int = 6) -> list[str]:
     """

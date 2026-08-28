@@ -478,6 +478,36 @@ def search_live_view(request):
     if len(query) < 2:
         return render(request, 'search/partials/search_live_dropdown.html', {'results': None, 'query': query})
 
+    # Google-style query completion: popular logged queries first, then brand/title prefix.
+    suggestions: list[str] = []
+    try:
+        from django.db.models import Count
+
+        from apps.catalog.models import MasterProduct
+        from apps.core.models import SearchQueryLog
+
+        norm = query.lower().strip()
+        rows = list(
+            SearchQueryLog.objects.filter(normalized__startswith=norm)
+            .exclude(normalized__iexact=norm)
+            .values('normalized').annotate(n=Count('id')).order_by('-n')[:4]
+        )
+        suggestions = [r['normalized'] for r in rows]
+        if len(suggestions) < 4:
+            seen = {s.lower() for s in suggestions}
+            brand_rows = list(
+                MasterProduct.objects.filter(status__in=['active', 'ACTIVE'], brand__istartswith=norm)
+                .exclude(brand='').values_list('brand', flat=True).distinct()[:4]
+            )
+            for b in brand_rows:
+                if b and b.lower() not in seen:
+                    seen.add(b.lower())
+                    suggestions.append(b)
+                if len(suggestions) >= 6:
+                    break
+    except Exception:
+        suggestions = []
+
     key = f'sp:live_v2:{query.lower()}'
     ctx = cache.get(key)
     if ctx is None:
@@ -518,6 +548,7 @@ def search_live_view(request):
 
         ctx = {
             'query': query,
+            'suggestions': suggestions,
             'products': products_list,
             'merchants': merchants_list,
             'malls': malls_list,
