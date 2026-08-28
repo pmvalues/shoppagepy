@@ -46,6 +46,12 @@ class CompetitorFeaturesTestCase(TestCase):
             trust_score=96,
             google_rating=4.9,
             google_reviews_count=48,
+            operating_hours_json={
+                "mon": ["00:00", "23:59"], "tue": ["00:00", "23:59"],
+                "wed": ["00:00", "23:59"], "thu": ["00:00", "23:59"],
+                "fri": ["00:00", "23:59"], "sat": ["00:00", "23:59"],
+                "sun": ["00:00", "23:59"],
+            },
         )
 
         self.product = MasterProduct.objects.create(

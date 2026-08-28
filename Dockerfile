@@ -39,6 +39,11 @@ COPY . .
 # Convert entrypoint script line endings and set permissions
 RUN dos2unix /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 
+# Health probe: only report healthy once gunicorn actually answers.
+# start-period covers migrate/collectstatic; seeding no longer blocks serving.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=120s --retries=3 \
+    CMD curl -fsS http://localhost:8000/healthz/ || exit 1
+
 EXPOSE 8000
 
 ENTRYPOINT ["/app/entrypoint.sh"]

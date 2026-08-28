@@ -185,6 +185,26 @@ def static_sitemap_view(request) -> HttpResponse:
     return HttpResponse(xml, content_type='application/xml')
 
 
+def itemlist_jsonld(name: str, items: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """ItemList for category/brand browse pages. Only evidence-backed fields."""
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        'name': name,
+        'numberOfItems': len(items),
+        'itemListElement': [
+            {
+                '@type': 'ListItem',
+                'position': idx + 1,
+                'url': item['url'],
+                'name': item['name'],
+            }
+            for idx, item in enumerate(items)
+        ],
+    }
+
+
+
 # ---------------------------------------------------------------------------
 # JSON-LD structured data builders
 # ---------------------------------------------------------------------------
@@ -364,6 +384,23 @@ def merchant_jsonld(merchant, request=None) -> dict[str, Any]:
             'reviewCount': merchant.rating_count,
             'bestRating': 5,
         }
+    hours = getattr(merchant, 'operating_hours_json', None)
+    if hours:
+        day_map = {
+            'mon': 'Mo', 'tue': 'Tu', 'wed': 'We', 'thu': 'Th',
+            'fri': 'Fr', 'sat': 'Sa', 'sun': 'Su',
+        }
+        opening_hours = []
+        for day, slots in hours.items():
+            code = day_map.get(str(day).lower())
+            if not code or not slots:
+                continue
+            if isinstance(slots, (list, tuple)) and len(slots) == 2:
+                opening_hours.append(f"{code} {slots[0]}-{slots[1]}")
+            elif isinstance(slots, str) and '-' in slots:
+                opening_hours.append(f"{code} {slots}")
+        if opening_hours:
+            data['openingHours'] = opening_hours
     return data
 
 

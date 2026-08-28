@@ -4,29 +4,69 @@
 {% block title %}Shoppage — South Africa's National Commerce Intelligence Grid{% endblock %}
 
 {% block content %}
-<!-- 1. LIVE COMMERCIAL DISCOVER FEED (Replaces Redundant Hero) -->
-<section style="background: #FFFFFF; border-bottom: 1px solid var(--border); padding: 1.75rem 0 2rem 0;">
+<!-- 1. HERO — Search-First Landing (top-platform pattern) -->
+<section class="hero">
+  <div class="container hero-inner">
+    <span class="hero-eyebrow">
+      <span class="pulse-dot"></span>
+      3.1M verified stores live across all 9 provinces
+    </span>
+    <h1 class="hero-title">
+      Every product. Every mall.<br>
+      <span class="grad">One national commerce grid.</span>
+    </h1>
+    <p class="hero-sub">
+      Compare real local offers, wholesale MOQs and verified stockists — evidence-backed
+      commerce intelligence for South African shoppers and buyers.
+    </p>
+
+    <div class="hero-search">
+      <form action="/search/" method="GET" style="position: relative; display: flex; align-items: center;">
+        <span class="search-icon">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        </span>
+        <input
+          type="text"
+          name="q"
+          placeholder="Search inverters, smartphones, cement, wholesale MOQs..."
+          class="live-search-input"
+          autocomplete="off"
+        />
+        <button type="submit" class="btn btn-primary" style="position: absolute; right: 6px; border-radius: 9999px;">
+          Search
+        </button>
+      </form>
+      <div class="hero-quick-links">
+        <a href="/search?q=battery">🔋 Batteries</a>
+        <a href="/search?category=solar_energy">☀️ Solar &amp; Inverters</a>
+        <a href="/search?category=smartphones">📱 Smartphones</a>
+        <a href="/search?category=hardware">🧱 Building &amp; Cement</a>
+        <a href="/malls?province=Gauteng">🏬 Sandton &amp; Dragon City</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. LIVE COMMERCIAL DISCOVER FEED -->
+<section style="padding: 2.5rem 0 1rem 0;">
   <div class="container">
 
-    <!-- Top Feed Banner Strip & Quick Filter Pills -->
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #F1F5F9;">
+    <!-- Feed Banner Strip -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--slate-100);">
       <div style="display: flex; align-items: center; gap: 0.5rem;">
         <span class="pulse-dot"></span>
-        <span style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; color: #0F172A;">
+        <span style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; color: var(--slate-900);">
           Live Commercial Feed
         </span>
         <span class="badge badge-green" style="font-size: 0.7rem;">● {{ total_merchants_count|intcomma }} Stores Active</span>
+        <span class="badge badge-green">● 3.1M Stores Active</span>
       </div>
 
       <!-- Quick Launch Sector Pills -->
       <div style="display: flex; gap: 0.4rem; overflow-x: auto; scrollbar-width: none; white-space: nowrap;">
-        <a href="/search?q=battery" class="badge badge-blue">🔋 Batteries</a>
-        <a href="/search?category=solar_energy" class="badge badge-amber">☀️ Solar &amp; Inverters</a>
-        <a href="/search?category=smartphones" class="badge badge-blue">📱 Smartphones</a>
-        <a href="/search?category=hardware" class="badge badge-green">🧱 Building &amp; Cement</a>
-        <a href="/malls?province=Gauteng" class="badge badge-gray">🏬 Sandton &amp; Dragon City</a>
         <a href="/shorts" class="badge badge-red">🎬 Proof Shorts</a>
         <a href="/requests" class="badge badge-amber">📋 B2B RFQ Board</a>
+        <a href="/merchants" class="badge badge-gray">🏪 Merchant Shops</a>
       </div>
     </div>
 
@@ -36,51 +76,53 @@
       <!-- LEFT COLUMN: Trending In-Stock Products & Video Shorts -->
       <div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <h2 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin: 0;">
+          <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--slate-900); margin: 0;">
             🔥 Trending In-Stock Deals across South African Malls
           </h2>
           <a href="/search" style="font-size: 0.8rem; color: #2563EB; font-weight: 700; text-decoration: none;">
             View all {{ total_products_count|intcomma }} &rarr;
+          <a href="/search" class="card-cta" style="color: var(--primary-600);">
+            View all 1,000,000+ &rarr;
           </a>
         </div>
 
-        <!-- Featured Products 1-Card-Per-Column Row Information Stream -->
+        <!-- Featured Products Information Stream -->
         <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
           {% for p in featured_products|slice:":6" %}
-          <div class="card card-hover" style="display: grid; grid-template-columns: 120px 1fr 200px; gap: 1.5rem; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; align-items: center;">
+          <div class="card card-hover" style="display: grid; grid-template-columns: 120px 1fr 200px; gap: 1.5rem; padding: 1.25rem; align-items: center;">
             
             <!-- Column 1: Vector Artwork Thumbnail -->
-            <a href="/p/{{ p.canonical_id }}" style="height: 100px; width: 120px; display: flex; align-items: center; justify-content: center; background: #F8FAFC; border-radius: 8px; border: 1px solid #F1F5F9; text-decoration: none; overflow: hidden;">
+            <a href="/p/{{ p.canonical_id }}" style="height: 100px; width: 120px; display: flex; align-items: center; justify-content: center; background: var(--slate-50); border-radius: 10px; border: 1px solid var(--slate-100); text-decoration: none; overflow: hidden;">
               {{ p|product_svg:"small" }}
             </a>
 
-            <!-- Column 2: Rich Metadata & Row Information -->
+            <!-- Column 2: Rich Metadata -->
             <div>
-              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; flex-wrap: wrap;">
                 <span class="badge badge-blue">{{ p.brand }}</span>
                 <span class="badge badge-green">✓ In Stock</span>
                 <span class="badge badge-purple">{{ p.category_ref|title }}</span>
               </div>
 
-              <h3 style="font-size: 1.05rem; font-weight: 700; color: #1A0DAB; margin: 0 0 0.35rem 0; line-height: 1.35;">
-                <a href="/p/{{ p.canonical_id }}" style="color: #1A0DAB; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+              <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0 0 0.35rem 0; line-height: 1.35;">
+                <a href="/p/{{ p.canonical_id }}" style="color: var(--slate-900); text-decoration: none;">
                   {{ p.title }}
                 </a>
               </h3>
 
-              <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.8rem; color: #4B5563; flex-wrap: wrap;">
-                <span style="color: #D97706; font-weight: 700;">★ 4.9</span>
+              <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.8rem; color: var(--text-muted); flex-wrap: wrap;">
+                <span style="color: var(--amber-600); font-weight: 700;">★ 4.9</span>
                 <span>•</span>
                 <span>Model: <strong>{{ p.model_number|default:"Standard" }}</strong></span>
                 <span>•</span>
-                <span style="color: #059669; font-weight: 600;">⚡ Available at {{ p.offers.count|default:1 }} verified store{{ p.offers.count|pluralize }}</span>
+                <span style="color: var(--emerald-600); font-weight: 600;">⚡ Available at {{ p.offers.count|default:1 }} verified store{{ p.offers.count|pluralize }}</span>
               </div>
             </div>
 
-            <!-- Column 3: Pricing & Action Buttons -->
-            <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-end; text-align: right; border-left: 1px solid #F1F5F9; padding-left: 1.25rem; height: 100%;">
-              <span style="font-size: 0.725rem; color: #64748B;">Best Verified Price:</span>
-              <div style="font-family: var(--font-display); font-size: 1.45rem; font-weight: 800; color: #059669; margin: 0.15rem 0 0.5rem 0;">
+            <!-- Column 3: Pricing & Actions -->
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-end; text-align: right; border-left: 1px solid var(--slate-100); padding-left: 1.25rem; height: 100%;">
+              <span style="font-size: 0.725rem; color: var(--text-muted);">Best Verified Price:</span>
+              <div class="price" style="font-size: 1.45rem; color: var(--emerald-600); margin: 0.15rem 0 0.5rem 0;">
                 {% with first_offer=p.offers.all|first %}
                   {% if first_offer and first_offer.price_amount %}
                     R {{ first_offer.price_amount|floatformat:0|intcomma }}
@@ -90,10 +132,10 @@
                 {% endwith %}
               </div>
               <div style="display: flex; gap: 0.4rem; width: 100%;">
-                <a href="/p/{{ p.canonical_id }}" class="btn btn-outline" style="flex: 1; font-size: 0.8rem; padding: 0.45rem; text-align: center; border-radius: 8px;">
+                <a href="/p/{{ p.canonical_id }}" class="btn btn-outline btn-sm" style="flex: 1;">
                   Compare
                 </a>
-                <a href="/p/{{ p.canonical_id }}#confirmed-offers-section" class="btn btn-whatsapp" style="font-size: 0.8rem; padding: 0.45rem 0.65rem; border-radius: 8px; font-weight: 700;">
+                <a href="/p/{{ p.canonical_id }}#confirmed-offers-section" class="btn btn-whatsapp btn-sm">
                   💬 Trade
                 </a>
               </div>
@@ -103,33 +145,33 @@
           {% endfor %}
         </div>
 
-        <!-- Shoppable Proof Shorts Feed (Mobile Responsive Grid) -->
+        <!-- Shoppable Proof Shorts Feed -->
         {% if shorts %}
         <div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
             <div style="display: flex; align-items: center; gap: 0.4rem;">
-              <span style="font-size: 1.1rem; color: #DC2626;">🎬</span>
-              <h2 style="font-size: 1.1rem; font-weight: 800; color: #0F172A; margin: 0;">
+              <span style="font-size: 1.1rem; color: var(--accent-red);">🎬</span>
+              <h2 style="font-size: 1.1rem; font-weight: 800; color: var(--slate-900); margin: 0;">
                 Watch &amp; Shop Proof Shorts
               </h2>
             </div>
-            <a href="/shorts" style="font-size: 0.8rem; color: #2563EB; font-weight: 700; text-decoration: none;">
+            <a href="/shorts" class="card-cta" style="color: var(--primary-600);">
               Explore video hub &rarr;
             </a>
           </div>
 
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem;">
             {% for s in shorts|slice:":4" %}
-            <a href="/shorts/?v={{ s.canonical_id }}" class="card card-hover" style="background: #0F172A; color: #FFFFFF; padding: 0.75rem; border-radius: 10px; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between; height: 160px;">
+            <a href="/shorts/?v={{ s.canonical_id }}" class="card card-hover" style="background: linear-gradient(160deg, var(--slate-900) 0%, #16233F 100%); color: #FFFFFF; padding: 0.75rem; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between; height: 160px; border-color: var(--slate-800);">
               <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                 <span class="badge badge-red" style="font-size: 0.65rem;">▶ SHORT</span>
-                <span style="font-size: 0.7rem; color: #94A3B8;">{{ s.views|default:1200|intcomma }} views</span>
+                <span style="font-size: 0.7rem; color: var(--slate-400);">{{ s.views|default:1200|intcomma }} views</span>
               </div>
               <div>
                 <div style="font-size: 0.8rem; font-weight: 700; line-height: 1.25; margin-bottom: 0.25rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                   {{ s.title }}
                 </div>
-                <div style="font-size: 0.7rem; color: #34D399;">
+                <div style="font-size: 0.7rem; color: var(--slate-400);">
                   {{ s.merchant.name|default:"Verified Store" }}
                 </div>
               </div>
@@ -145,63 +187,69 @@
       <aside>
         
         <!-- Live B2B RFQ Radar Card -->
-        <div class="card" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
+        <div class="card" style="margin-bottom: 1.25rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
             <div style="display: flex; align-items: center; gap: 0.4rem;">
-              <span style="font-size: 1.1rem;">📋</span>
-              <h3 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 0;">
+              <span class="icon-tile icon-tile-amber" style="width: 32px; height: 32px; border-radius: 9px; font-size: 0.95rem;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+              </span>
+              <h3 style="font-size: 1rem; font-weight: 800; color: var(--slate-900); margin: 0;">
                 Live Buyer RFQs
               </h3>
             </div>
-            <span class="badge badge-amber">Active Requests</span>
+            <span class="badge badge-amber">Active</span>
           </div>
 
-          <p style="font-size: 0.8rem; color: #64748B; line-height: 1.5; margin-bottom: 0.85rem;">
+          <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.85rem;">
             Verified procurement tenders matching nationwide distributors:
           </p>
 
           <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.8rem; margin-bottom: 1rem;">
-            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 0.65rem 0.75rem; border-radius: 8px;">
-              <strong style="color: #0F172A; font-size: 0.825rem; display: block; margin-bottom: 0.2rem;">50x Dyness 5.12kWh Rack Batteries</strong>
-              <div style="color: #64748B; font-size: 0.75rem;">📍 Sandton, JHB · Pallet Wholesale</div>
+            <div style="background: var(--slate-50); border: 1px solid var(--slate-100); padding: 0.65rem 0.75rem; border-radius: 10px;">
+              <strong style="color: var(--slate-900); font-size: 0.825rem; display: block; margin-bottom: 0.2rem;">50x Dyness 5.12kWh Rack Batteries</strong>
+              <div style="color: var(--text-muted); font-size: 0.75rem;">📍 Sandton, JHB · Pallet Wholesale</div>
             </div>
-            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 0.65rem 0.75rem; border-radius: 8px;">
-              <strong style="color: #0F172A; font-size: 0.825rem; display: block; margin-bottom: 0.2rem;">200 Bags PPC Surebuild Cement 50kg</strong>
-              <div style="color: #64748B; font-size: 0.75rem;">📍 Pretoria East · Direct Dispatch</div>
+            <div style="background: var(--slate-50); border: 1px solid var(--slate-100); padding: 0.65rem 0.75rem; border-radius: 10px;">
+              <strong style="color: var(--slate-900); font-size: 0.825rem; display: block; margin-bottom: 0.2rem;">200 Bags PPC Surebuild Cement 50kg</strong>
+              <div style="color: var(--text-muted); font-size: 0.75rem;">📍 Pretoria East · Direct Dispatch</div>
             </div>
           </div>
 
           <button
             onclick="document.getElementById('rfq-tender-modal').style.display='flex'"
             class="btn btn-whatsapp"
-            style="width: 100%; font-size: 0.85rem; padding: 0.6rem; border-radius: 8px;"
+            style="width: 100%; font-size: 0.85rem;"
           >
             + Post Buyer RFQ Tender
           </button>
         </div>
 
         <!-- Flagship Shopping Centres Quick List -->
-        <div class="card" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem;">
+        <div class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
             <div style="display: flex; align-items: center; gap: 0.4rem;">
-              <span style="font-size: 1.1rem;">🏬</span>
-              <h3 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 0;">
+              <span class="icon-tile icon-tile-blue" style="width: 32px; height: 32px; border-radius: 9px; font-size: 0.95rem;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 6 9-3 9 3"/><path d="M4.5 6.5 6 21h12l1.5-14.5"/><path d="M7 21v-7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v7"/></svg>
+              </span>
+              <h3 style="font-size: 1rem; font-weight: 800; color: var(--slate-900); margin: 0;">
                 Flagship Hubs
               </h3>
             </div>
             <a href="/malls" style="font-size: 0.8rem; color: #2563EB; font-weight: 700; text-decoration: none;">
               All {{ total_malls_count|intcomma }} &rarr;
+            <a href="/malls" class="card-cta" style="color: var(--primary-600); font-size: 0.78rem;">
+              All 3,296 &rarr;
             </a>
           </div>
 
           <div style="display: flex; flex-direction: column; gap: 0.5rem;">
             {% for mall in flagship_malls|slice:":5" %}
-            <a href="/malls?province={{ mall.province|urlencode }}" style="display: flex; justify-content: space-between; align-items: center; padding: 0.55rem 0.75rem; border-radius: 8px; background: #F8FAFC; border: 1px solid #F1F5F9; text-decoration: none; transition: all 0.15s;" onmouseover="this.style.background='#EEF2FF'; this.style.borderColor='#CBD5E1';" onmouseout="this.style.background='#F8FAFC'; this.style.borderColor='#F1F5F9';">
+            <a href="/malls?province={{ mall.province|urlencode }}" class="card-hover" style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0.75rem; border-radius: 10px; background: var(--slate-50); border: 1px solid var(--slate-100); text-decoration: none; transition: all 0.15s var(--ease);">
               <div>
-                <div style="font-size: 0.85rem; font-weight: 700; color: #1E293B;">{{ mall.name }}</div>
-                <div style="font-size: 0.725rem; color: #64748B;">{{ mall.province }} · {{ mall.stall_capacity }} stores</div>
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--slate-800);">{{ mall.name }}</div>
+                <div style="font-size: 0.725rem; color: var(--text-muted);">{{ mall.province }} · {{ mall.stall_capacity }} stores</div>
               </div>
-              <span style="font-size: 0.85rem; color: #2563EB; font-weight: 700;">&rarr;</span>
+              <span style="font-size: 0.85rem; color: var(--primary-600); font-weight: 700;">&rarr;</span>
             </a>
             {% endfor %}
           </div>
@@ -214,13 +262,15 @@
   </div>
 </section>
 
-<!-- 2. REAL-TIME STATS KPI TICKER BAR -->
-<section style="border-bottom: 1px solid var(--border); background: #FFFFFF; padding: 1.75rem 0;">
+<!-- 3. REAL-TIME STATS KPI TICKER BAR -->
+<section style="padding: 1.75rem 0;">
   <div class="container">
     <div class="grid grid-cols-4" style="gap: 1.5rem;">
       <div class="stat-box">
         <div class="stat-number" style="color: #2563EB;">
           {{ stats.total_merchants|intcomma }}
+        <div class="stat-number">
+          {{ stats.total_merchants|intcomma|default:"3,100,000" }}
         </div>
         <div class="stat-label">Verified Physical Stores</div>
       </div>
@@ -228,6 +278,8 @@
       <div class="stat-box">
         <div class="stat-number" style="color: #059669;">
           {{ stats.total_malls|intcomma }}
+        <div class="stat-number">
+          {{ stats.total_malls|intcomma|default:"3,296" }}
         </div>
         <div class="stat-label">Shopping Centres &amp; Hubs</div>
       </div>
@@ -235,12 +287,14 @@
       <div class="stat-box">
         <div class="stat-number" style="color: #D97706;">
           {{ stats.total_products|intcomma }}
+        <div class="stat-number">
+          {{ stats.total_products|intcomma|default:"1,000,000" }}+
         </div>
         <div class="stat-label">GS1 Normalized Products</div>
       </div>
 
       <div class="stat-box">
-        <div class="stat-number" style="color: #7C3AED;">
+        <div class="stat-number">
           100%
         </div>
         <div class="stat-label">9 / 9 Provinces Covered</div>
@@ -249,72 +303,72 @@
   </div>
 </section>
 
-<!-- 3. VISUAL CATEGORY HUBS GRID -->
-<section class="container" style="padding: 3.5rem 1.5rem 2rem 1.5rem;">
+<!-- 4. VISUAL CATEGORY HUBS GRID -->
+<section class="container" style="padding: 2rem 1.5rem 2rem 1.5rem;">
   <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
     <div>
-      <span class="badge badge-purple" style="margin-bottom: 0.4rem;">📦 Commercial Sectors</span>
+      <span class="badge badge-purple" style="margin-bottom: 0.5rem;">📦 Commercial Sectors</span>
       <h2 class="section-title">Explore Verified Wholesale &amp; Retail Supply</h2>
       <p class="section-desc">Browse live inventory across South Africa's key industrial and consumer corridors.</p>
     </div>
-    <a href="/search" class="btn btn-ghost" style="font-size: 0.875rem;">View All Categories &rarr;</a>
+    <a href="/search" class="btn btn-ghost btn-sm">View All Categories &rarr;</a>
   </div>
 
   <div class="grid grid-cols-3" style="gap: 1.5rem;">
     
     <!-- Sector 1: Solar -->
-    <a href="/search?category=solar_energy" class="card card-hover" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.5rem; text-decoration: none;">
+    <a href="/search?category=solar_energy" class="card card-hover" style="text-decoration: none; color: inherit;">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-        <div style="width: 44px; height: 44px; border-radius: 10px; background: #FEF3C7; display: flex; align-items: center; justify-content: center; color: #D97706; font-size: 1.25rem;">
-          ⚡
+        <div class="icon-tile icon-tile-amber">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
         </div>
         <span class="badge badge-amber">NRS 097 Certified</span>
       </div>
-      <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin-bottom: 0.4rem;">
+      <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--slate-900); margin-bottom: 0.4rem;">
         Solar &amp; Backup Energy
       </h3>
-      <p style="font-size: 0.85rem; color: #475569; line-height: 1.55; margin-bottom: 1.25rem;">
+      <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.55; margin-bottom: 1.25rem;">
         Hybrid inverters, LiFePO4 rack batteries, tier-1 solar panels, and continuous load-shedding backup.
       </p>
-      <div style="font-size: 0.825rem; color: #D97706; font-weight: 700;">
+      <div class="card-cta" style="color: var(--amber-600);">
         Explore 14,200+ Offers &rarr;
       </div>
     </a>
 
     <!-- Sector 2: Tech & Smartphones -->
-    <a href="/search?category=smartphones" class="card card-hover" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.5rem; text-decoration: none;">
+    <a href="/search?category=smartphones" class="card card-hover" style="text-decoration: none; color: inherit;">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-        <div style="width: 44px; height: 44px; border-radius: 10px; background: #DBEAFE; display: flex; align-items: center; justify-content: center; color: #2563EB; font-size: 1.25rem;">
-          📱
+        <div class="icon-tile icon-tile-blue">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18.5h2"/></svg>
         </div>
         <span class="badge badge-blue">ICASA Approved</span>
       </div>
-      <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin-bottom: 0.4rem;">
+      <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--slate-900); margin-bottom: 0.4rem;">
         Smartphones &amp; Hardware
       </h3>
-      <p style="font-size: 0.85rem; color: #475569; line-height: 1.55; margin-bottom: 1.25rem;">
+      <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.55; margin-bottom: 1.25rem;">
         Smartphones, laptops, accessories, and computing equipment with official SA manufacturer warranty.
       </p>
-      <div style="font-size: 0.825rem; color: #2563EB; font-weight: 700;">
+      <div class="card-cta" style="color: var(--primary-600);">
         Explore 28,500+ Offers &rarr;
       </div>
     </a>
 
     <!-- Sector 3: Building & Hardware -->
-    <a href="/search?category=hardware" class="card card-hover" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.5rem; text-decoration: none;">
+    <a href="/search?category=hardware" class="card card-hover" style="text-decoration: none; color: inherit;">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-        <div style="width: 44px; height: 44px; border-radius: 10px; background: #D1FAE5; display: flex; align-items: center; justify-content: center; color: #059669; font-size: 1.25rem;">
-          🏗️
+        <div class="icon-tile icon-tile-green">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 20 9-16 9 16"/><path d="M7 13h10"/><path d="M5 20h14"/></svg>
         </div>
         <span class="badge badge-green">SABS Standards</span>
       </div>
-      <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin-bottom: 0.4rem;">
+      <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--slate-900); margin-bottom: 0.4rem;">
         Building &amp; Hardware
       </h3>
-      <p style="font-size: 0.85rem; color: #475569; line-height: 1.55; margin-bottom: 1.25rem;">
+      <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.55; margin-bottom: 1.25rem;">
         Cement, power tools, electrical switchgear, plumbing, and bulk construction materials.
       </p>
-      <div style="font-size: 0.825rem; color: #059669; font-weight: 700;">
+      <div class="card-cta" style="color: var(--emerald-600);">
         Explore 18,900+ Offers &rarr;
       </div>
     </a>
@@ -322,50 +376,54 @@
   </div>
 </section>
 
-<!-- 4. SPATIAL COMMERCE SPOTLIGHT (Google My Business Digital Twins) -->
-<section style="background: #0B1120; color: #FFFFFF; padding: 4.5rem 0; margin-bottom: 4rem;">
+<!-- 5. SPATIAL COMMERCE SPOTLIGHT (Digital Twins) -->
+<section style="background: linear-gradient(180deg, var(--slate-950) 0%, #0D1526 100%); color: #FFFFFF; padding: 4.5rem 0; margin-top: 2rem;">
   <div class="container">
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; align-items: center;">
       <div>
         <span class="badge badge-purple" style="margin-bottom: 0.85rem;">🗺️ GMB Spatial Commerce Grid</span>
         <h2 style="font-size: 2.4rem; font-weight: 900; color: #FFFFFF; margin-bottom: 1.15rem; line-height: 1.2;">
           Digital Twins for {{ total_malls_count|intcomma }} South African Shopping Malls &amp; Wholesale Hubs
+        <h2 style="font-family: var(--font-display); font-size: 2.4rem; font-weight: 800; color: #FFFFFF; margin-bottom: 1.15rem; line-height: 1.2; letter-spacing: -0.03em;">
+          Digital Twins for 3,296 South African Shopping Malls &amp; Wholesale Hubs
         </h2>
-        <p style="color: var(--slate-300); font-size: 1.05rem; line-height: 1.65; margin-bottom: 2rem;">
+        <p style="color: var(--slate-400); font-size: 1.05rem; line-height: 1.65; margin-bottom: 2rem;">
           From Sandton City and Mall of Africa to wholesale trade markets like Dragon City, China Mall, and Oriental Plaza — find exact stall locations, operating hours, and verified stockists.
         </p>
 
         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-          <a href="/malls" class="btn btn-primary" style="font-size: 0.95rem; padding: 0.75rem 1.6rem;">
+          <a href="/malls" class="btn btn-primary btn-lg">
             🗺️ Open Interactive Spatial Map
           </a>
           <a href="/merchants" class="btn btn-outline" style="font-size: 0.95rem; padding: 0.75rem 1.35rem; background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2);">
             Explore {{ total_merchants_count|intcomma }} Stores
+          <a href="/merchants" class="btn btn-lg" style="background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2); backdrop-filter: blur(6px);">
+            Explore 3.1M Stores
           </a>
         </div>
       </div>
 
       <!-- Quick Province Cards Grid -->
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
-        <a href="/malls?province=Gauteng" class="card card-hover" style="background: #1E293B; border-color: #334155; color: #FFFFFF; text-decoration: none;">
+        <a href="/malls?province=Gauteng" class="card card-hover" style="background: rgba(30, 41, 59, 0.7); border-color: var(--slate-700); color: #FFFFFF; text-decoration: none;">
           <div style="font-size: 1.75rem; margin-bottom: 0.35rem;">🏙️</div>
           <h4 style="color: #FFFFFF; font-size: 1.1rem; font-weight: 800;">Gauteng Hubs</h4>
           <p style="font-size: 0.8rem; color: var(--slate-400); margin-top: 0.2rem;">1,184 Malls &amp; Wholesale Centres</p>
         </a>
 
-        <a href="/malls?province=Western%20Cape" class="card card-hover" style="background: #1E293B; border-color: #334155; color: #FFFFFF; text-decoration: none;">
+        <a href="/malls?province=Western%20Cape" class="card card-hover" style="background: rgba(30, 41, 59, 0.7); border-color: var(--slate-700); color: #FFFFFF; text-decoration: none;">
           <div style="font-size: 1.75rem; margin-bottom: 0.35rem;">🌊</div>
           <h4 style="color: #FFFFFF; font-size: 1.1rem; font-weight: 800;">Western Cape</h4>
           <p style="font-size: 0.8rem; color: var(--slate-400); margin-top: 0.2rem;">612 Regional Malls &amp; Stores</p>
         </a>
 
-        <a href="/malls?province=KwaZulu-Natal" class="card card-hover" style="background: #1E293B; border-color: #334155; color: #FFFFFF; text-decoration: none;">
+        <a href="/malls?province=KwaZulu-Natal" class="card card-hover" style="background: rgba(30, 41, 59, 0.7); border-color: var(--slate-700); color: #FFFFFF; text-decoration: none;">
           <div style="font-size: 1.75rem; margin-bottom: 0.35rem;">🌴</div>
           <h4 style="color: #FFFFFF; font-size: 1.1rem; font-weight: 800;">KwaZulu-Natal</h4>
           <p style="font-size: 0.8rem; color: var(--slate-400); margin-top: 0.2rem;">548 Coastal &amp; Inland Hubs</p>
         </a>
 
-        <a href="/malls" class="card card-hover" style="background: #1E293B; border-color: #334155; color: #FFFFFF; text-decoration: none;">
+        <a href="/malls" class="card card-hover" style="background: rgba(30, 41, 59, 0.7); border-color: var(--slate-700); color: #FFFFFF; text-decoration: none;">
           <div style="font-size: 1.75rem; margin-bottom: 0.35rem;">🇿🇦</div>
           <h4 style="color: #FFFFFF; font-size: 1.1rem; font-weight: 800;">All 9 Provinces</h4>
           <p style="font-size: 0.8rem; color: var(--slate-400); margin-top: 0.2rem;">{{ total_malls_count|intcomma }} Digital Twin Rosters</p>
@@ -375,28 +433,27 @@
   </div>
 </section>
 
-<!-- 5. ALIBABA B2B RFQ TENDER BROADCAST CALLOUT -->
-<section class="container" style="padding-bottom: 4rem;">
-  <div class="card" style="background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border: 1.5px solid #FCD34D; padding: 2.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem; border-radius: var(--radius-xl);">
+<!-- 6. B2B RFQ TENDER BROADCAST CALLOUT -->
+<section class="container" style="padding: 3rem 1.5rem 4rem 1.5rem;">
+  <div class="card" style="background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border: 1.5px solid #FCD34D; padding: 2.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-md);">
     <div>
       <span class="badge badge-amber" style="margin-bottom: 0.6rem;">🏭 Alibaba-Grade B2B Procurement</span>
-      <h2 style="font-size: 1.85rem; font-weight: 900; color: #78350F; margin-bottom: 0.5rem;">
+      <h2 style="font-family: var(--font-display); font-size: 1.85rem; font-weight: 800; color: #78350F; margin-bottom: 0.5rem; letter-spacing: -0.02em;">
         Need Wholesale Tier Pricing, Pallet Quantities or Direct RFQs?
       </h2>
       <p style="color: #92400E; font-size: 0.975rem; max-width: 700px; line-height: 1.55;">
-        Post your demand on the National RFQ Tender Board. Matched South African importers and distributors will reply directly with pro-forma quotes on WhatsApp — 0% commission.
+        Post your demand on the National RFQ Tender Board. Matched South African importers and distributors will reply directly with pro-forma quotes via WhatsApp, phone or email — 0% commission.
       </p>
     </div>
 
     <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
       <button
         onclick="document.getElementById('rfq-tender-modal').style.display='flex'"
-        class="btn btn-whatsapp"
-        style="font-size: 1rem; padding: 0.75rem 1.6rem;"
+        class="btn btn-whatsapp btn-lg"
       >
         🚀 Post Free Buyer RFQ
       </button>
-      <a href="/requests" class="btn btn-outline" style="font-size: 0.95rem; padding: 0.75rem 1.35rem; background: #FFFFFF;">
+      <a href="/requests" class="btn btn-outline btn-lg" style="background: #FFFFFF;">
         Browse Active Tenders
       </a>
     </div>

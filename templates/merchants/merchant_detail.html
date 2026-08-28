@@ -37,6 +37,8 @@
             {% endif %}
           {% else %}
             <span style="font-size: 0.8rem; color: #94A3B8; font-weight: 600;">● Hours not confirmed</span>
+          {% if open_now is not None %}
+          <span style="font-size: 0.8rem; font-weight: 700; {% if open_now %}color: #059669;{% else %}color: #DC2626;{% endif %}">{% if open_now %}● Open Now{% else %}● Closed{% endif %}{% if open_label %} · {{ open_label }}{% endif %}</span>
           {% endif %}
         </div>
 
@@ -308,6 +310,72 @@
     </div>
   </section>
   {% endif %}
+
+  <!-- Store Reviews (Google My Business ratings) -->
+  <section style="margin-bottom: 3rem;">
+    <h2 class="section-title" style="margin: 0 0 1rem 0;">⭐ Store Reviews</h2>
+
+    {% with rs=merchant.reviews_summary %}
+    <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: center; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
+      <div style="text-align: center;">
+        <div style="font-size: 2.75rem; font-weight: 900; color: #0F172A; line-height: 1;">{{ rs.average_rating|default:"—" }}</div>
+        <div style="font-size: 1.1rem; color: #F59E0B; letter-spacing: 2px;">{% if rs.average_rating %}{% for i in "12345" %}{% if forloop.counter <= rs.average_rating %}★{% else %}☆{% endif %}{% endfor %}{% endif %}</div>
+        <div style="font-size: 0.75rem; color: #64748B;">{{ rs.review_count|default:0 }} reviews</div>
+      </div>
+      <div style="flex: 1; min-width: 220px;">
+        {% for star in "54321" %}
+        <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #475569;">
+          <span style="width: 36px;">{{ star }} ★</span>
+          <div style="flex: 1; height: 8px; background: #F1F5F9; border-radius: 4px; overflow: hidden;">
+            <div style="height: 100%; background: #F59E0B; width: {% widthratio rs.distribution|get_item:star|default:0 rs.review_count|default:1 100 %}%;"></div>
+          </div>
+          <span style="width: 28px; text-align: right;">{{ rs.distribution|get_item:star|default:0 }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endwith %}
+
+    {% if reviews %}
+    <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
+      {% for rv in reviews %}
+      <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.1rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+          <span style="font-size: 1rem; color: #F59E0B; letter-spacing: 1px;">{% for i in "12345" %}{% if forloop.counter <= rv.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+          {% if rv.title %}<strong style="font-size: 0.9rem; color: #0F172A;">{{ rv.title }}</strong>{% endif %}
+          {% if rv.is_verified_buyer %}<span style="font-size: 0.65rem; background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; padding: 1px 6px; border-radius: 6px;">✓ Verified Buyer</span>{% endif %}
+        </div>
+        <div style="font-size: 0.85rem; color: #334155; line-height: 1.55;">{{ rv.body }}</div>
+        <div style="font-size: 0.7rem; color: #94A3B8; margin-top: 0.4rem;">— {{ rv.author_name }} · {{ rv.created_at|date:"j M Y" }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 1.5rem;">No reviews yet for this store.</p>
+    {% endif %}
+
+    <form method="post" action="/m/{{ merchant.canonical_id }}/" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem;">
+      {% csrf_token %}
+      <input type="hidden" name="review_submit" value="1">
+      <div style="display: none;"><label>Leave this blank<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+      <div style="font-weight: 800; color: #0F172A; margin-bottom: 0.75rem;">Rate this store</div>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.6rem;">
+        {% for i in "12345" %}
+        <label style="cursor: pointer; font-size: 1.4rem; color: #CBD5E1;">
+          <input type="radio" name="rating" value="{{ i }}" style="display: none;" {% if forloop.first %}checked{% endif %}>★<span style="font-size: 0;"></span>
+        </label>
+        {% endfor %}
+        <span style="font-size: 0.75rem; color: #64748B; align-self: center;">Select a rating</span>
+      </div>
+      <input type="text" name="author_name" placeholder="Your name (optional)" maxlength="120" style="width: 100%; padding: 0.5rem 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.85rem; margin-bottom: 0.5rem;">
+      <input type="text" name="title" placeholder="Review title (optional)" maxlength="200" style="width: 100%; padding: 0.5rem 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.85rem; margin-bottom: 0.5rem;">
+      <textarea name="body" placeholder="Share your experience with this store…" maxlength="2000" rows="3" style="width: 100%; padding: 0.5rem 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.85rem; margin-bottom: 0.6rem; resize: vertical;"></textarea>
+      <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; color: #475569; margin-bottom: 0.75rem;">
+        <input type="checkbox" name="is_verified_buyer"> I purchased from this store
+      </label>
+      <button type="submit" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.55rem 1.1rem;">Submit review</button>
+    </form>
+  </section>
 
 </div>
 
