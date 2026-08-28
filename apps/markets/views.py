@@ -8,18 +8,6 @@ from django.shortcuts import render
 
 from .models import Market
 
-PROVINCE_GEO = {
-    'Gauteng': {'lat': -26.2041, 'lng': 28.0473},
-    'Western Cape': {'lat': -33.9249, 'lng': 18.4241},
-    'KwaZulu-Natal': {'lat': -29.8587, 'lng': 31.0218},
-    'Eastern Cape': {'lat': -33.9608, 'lng': 25.6022},
-    'Limpopo': {'lat': -23.9045, 'lng': 29.4688},
-    'Mpumalanga': {'lat': -25.4753, 'lng': 30.9694},
-    'Free State': {'lat': -29.0852, 'lng': 26.1596},
-    'North West': {'lat': -25.6560, 'lng': 27.2424},
-    'Northern Cape': {'lat': -28.7282, 'lng': 24.7499},
-}
-
 def malls_directory_view(request):
     province_filter = request.GET.get('province')
     market_type_filter = request.GET.get('type')
@@ -50,17 +38,15 @@ def malls_directory_view(request):
 
     markets_list = unique_malls
 
-    # Build Map Points JSON
+    # Build Map Points JSON — only malls with real coordinates are plotted
+    # (no invented positions).
     map_points = []
-    for idx, m in enumerate(markets_list):
+    for m in markets_list:
         lat = float(m.latitude) if m.latitude else None
         lng = float(m.longitude) if m.longitude else None
 
         if not lat or not lng:
-            base_geo = PROVINCE_GEO.get(m.province, {'lat': -26.2041, 'lng': 28.0473})
-            # Small deterministic offset so markers spread out nicely
-            lat = base_geo['lat'] + ((idx % 7) - 3) * 0.02
-            lng = base_geo['lng'] + (((idx * 3) % 7) - 3) * 0.02
+            continue
 
         map_points.append({
             'name': m.name,
@@ -74,14 +60,23 @@ def malls_directory_view(request):
             'address': m.street_address or f"{m.name}, {m.province or 'South Africa'}",
         })
 
-    # Fast province distribution
+    # Fast province distribution (real counts from the database)
     provinces = [
         'Gauteng', 'Western Cape', 'KwaZulu-Natal', 'Eastern Cape',
         'Mpumalanga', 'Limpopo', 'Free State', 'North West', 'Northern Cape'
     ]
-    province_counts = dict.fromkeys(provinces, 366)
-    province_counts['Gauteng'] = 371
-    province_counts['Western Cape'] = 367
+    from django.db.models import Count
+
+    real_counts = dict(
+        Market.objects.exclude(province='')
+        .values('province')
+        .annotate(n=Count('id'))
+        .values_list('province', 'n')
+    )
+    province_counts = {p: int(real_counts.get(p, 0)) for p in provinces}
+    for p, n in real_counts.items():
+        if p and p not in province_counts:
+            province_counts[p] = int(n)
 
     context = {
         'markets': markets_list,

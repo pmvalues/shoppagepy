@@ -1,8 +1,10 @@
 import contextlib
 import hashlib
+from urllib.parse import urlencode
 
 from apps.catalog.models import MasterProduct
-from apps.intelligence.ranking import ranked_search
+from apps.core.models import log_search_query
+from apps.intelligence.ranking import _haversine_km, _merchant_rating, ranked_search
 from apps.markets.models import Market
 from apps.media_hub.models import Short, Show
 from apps.merchants.models import Merchant
@@ -48,6 +50,32 @@ def _fast_table_count(model_class):
         return cnt
     except Exception:
         return None
+
+def _parse_near(request):
+    """
+    Geo intent: ?near=lat,lng[,radius_km] or ?near=me (with optional browser
+    geolocation ?lat=&lng=; falls back to the Joburg metro when unknown).
+    Returns (lat, lng, radius_km) or None when no geo intent is present.
+    """
+    raw = (request.GET.get('near') or '').strip().lower()
+    if not raw:
+        return None
+    radius = 50.0
+    if raw == 'me':
+        try:
+            lat = float(request.GET.get('lat') or -26.2041)
+            lng = float(request.GET.get('lng') or 28.0473)
+        except ValueError:
+            return None
+    else:
+        parts = [p for p in raw.replace(';', ',').split(',') if p.strip()]
+        try:
+            lat, lng = float(parts[0]), float(parts[1])
+            if len(parts) > 2:
+                radius = float(parts[2])
+        except (IndexError, ValueError):
+            return None
+    return (lat, lng, min(max(radius, 1.0), 300.0))
 
 def home_view(request):
     """
@@ -164,6 +192,9 @@ def search_view(request):
     except ValueError:
         offset = 0
 
+    sort = request.GET.get('sort', 'relevance')
+    near = _parse_near(request)
+
     effective_query = query or f'{category} {brand}'.strip()
     results = ranked_search(
         effective_query,
@@ -174,6 +205,14 @@ def search_view(request):
         brand=brand,
         min_price=min_price,
         max_price=max_price,
+        sort=sort,
+        near=near,
+    )
+    log_search_query(
+        effective_query,
+        source='web',
+        result_count=results['total_products'],
+        province=province,
     )
 
     from apps.intelligence.services import (
@@ -203,6 +242,22 @@ def search_view(request):
         best_price = float(s.best_offer.price_amount) if s.best_offer and s.best_offer.price_amount else (p.estimated_price_zar or 1000.0)
         merchant_name = s.best_offer.merchant.name.split('#')[0].strip() if (s.best_offer and s.best_offer.merchant) else "Verified Supplier"
 
+        # Real rating/price/distance attributes for the template (no fabricated stars).
+        summary = p.reviews_summary if isinstance(p.reviews_summary, dict) else {}
+        rating = summary.get('ratingValue') or summary.get('average') or ''
+        rating_count = summary.get('reviewCount') or summary.get('count') or 0
+        if not rating:
+            mr = _merchant_rating(s)
+            rating = round(mr, 1) if mr else ''
+        try:
+            p.shoppage_rating = float(rating)
+        except (TypeError, ValueError):
+            p.shoppage_rating = ''
+        p.shoppage_rating_count = int(rating_count or 0)
+        p.shoppage_best_price = best_price
+        p.shoppage_offer_count = s.offer_count or (1 if s.best_offer else 0)
+        p.shoppage_distance_km = s.distance_km
+
         # B2B MOQ calculations
         product_moq_tables[p.canonical_id] = get_tiered_moq_pricing(best_price)
         offers_by_product[p.canonical_id] = [s.best_offer] if s.best_offer else []
@@ -216,8 +271,8 @@ def search_view(request):
                 'offer_count': s.offer_count or 1,
             })
 
-    if not plain_products:
-        plain_products = list(MasterProduct.objects.filter(status__in=['active', 'ACTIVE']).prefetch_related('offers')[:6])
+    # Honest zero state: when nothing matches, the page says so instead of
+    # padding with unrelated products.
 
     # Ensure Top & Featured Products always has 6-8 items
     if len(sponsored_products) < 6:
@@ -243,10 +298,9 @@ def search_view(request):
             if len(sponsored_products) >= 8:
                 break
 
-    # Places / Local 3-Pack Storefronts (Google GMB Pack without heavy map)
+    # Places / Local 3-Pack Storefronts (Google GMB Pack without heavy map).
+    # No merchants matched the query -> no local pack (honest empty state).
     raw_merchants = results.get('merchants', [])
-    if not raw_merchants:
-        raw_merchants = list(Merchant.objects.order_by('-trust_score').select_related('market')[:4])
 
     places_stores = []
     seen_store_keys = set()
@@ -255,6 +309,11 @@ def search_view(request):
         if store_key in seen_store_keys:
             continue
         seen_store_keys.add(store_key)
+
+        distance_km = None
+        if near and m.latitude is not None and m.longitude is not None:
+            with contextlib.suppress(TypeError, ValueError):
+                distance_km = round(_haversine_km(near[0], near[1], float(m.latitude), float(m.longitude)), 1)
 
         places_stores.append({
             'merchant': m,
@@ -268,6 +327,7 @@ def search_view(request):
             'review_snippet': '',
             'canonical_id': m.canonical_id,
             'whatsapp_number': m.whatsapp_number,
+            'distance_km': distance_km,
         })
         if len(places_stores) >= 4:
             break
@@ -305,6 +365,15 @@ def search_view(request):
         (product.title, f'{result_base}/p/{product.seo_handle}/')
         for product in plain_products[:20]
     ]
+
+    # Shared query-string for facet/sort/pagination links (drops offset & sort).
+    nav_params = {k: v for k, v in request.GET.items() if k not in ('offset', 'sort') and v}
+    base_query = urlencode(nav_params)
+    did_you_mean = results.get('did_you_mean') or ''
+    dym_params = {k: v for k, v in request.GET.items() if k not in ('offset', 'q') and v}
+    dym_params['q'] = did_you_mean
+    dym_link = urlencode(dym_params) if did_you_mean else ''
+
     context = {
         'query': query,
         'category': category,
@@ -312,6 +381,11 @@ def search_view(request):
         'brand': brand,
         'tab': tab,
         'mode': mode,
+        'sort': sort,
+        'near_active': near is not None,
+        'base_query': base_query,
+        'dym_link': dym_link,
+        'did_you_mean': did_you_mean,
         'min_price': min_price,
         'max_price': max_price,
         'in_stock_only': in_stock_only,
@@ -335,13 +409,13 @@ def search_view(request):
             'products': plain_products,
             'offers_by_product': offers_by_product,
             'product_moq_tables': product_moq_tables,
-            'total_products': len(plain_products),
         },
         'matched_shorts': matched_shorts,
         'facets': results['facets'],
         'price_stats': results['price_stats'],
         'elapsed_ms': results['elapsed_ms'],
         'next_offset': results['next_offset'],
+        'offset': offset,
         'page': results['page'],
     }
     with contextlib.suppress(Exception):

@@ -1,9 +1,11 @@
+import contextlib
 import json
 
 from apps.core.seo import breadcrumb_jsonld, jsonld_script, product_jsonld
 from apps.intelligence.services import get_brand_knowledge_card
 from apps.media_hub.models import Short
 from apps.offers.models import AvailabilityStateChoices
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.http import Http404, HttpResponsePermanentRedirect
@@ -89,12 +91,39 @@ def _price_history(offers):
     }
 
 
+def _capture_search_click(request, product):
+    """
+    Search feedback signal: opening a product page from a /search results page
+    counts as a click for that query (referer-based, no extra JS needed).
+    Throttled per session+product so refreshes don't inflate popularity.
+    """
+    referer = request.META.get('HTTP_REFERER', '') or ''
+    if '/search' not in referer:
+        return
+    from urllib.parse import parse_qs, urlparse
+
+    try:
+        query = (parse_qs(urlparse(referer).query).get('q') or [''])[0].strip()[:255]
+    except Exception:
+        query = ''
+    session_key = getattr(getattr(request, 'session', None), 'session_key', None) or 'anon'
+    throttle = f'sp:clk:{session_key}:{product.pk}'
+    if cache.get(throttle):
+        return
+    with contextlib.suppress(Exception):
+        cache.set(throttle, 1, 60)
+        from apps.core.models import SearchClick
+
+        SearchClick.objects.create(query=query, product_id=str(product.pk), source='web')
+
+
 def product_detail_view(request, canonical_id):
     product, matched_by_pk = _resolve_product(canonical_id)
     if not product:
         raise Http404("Product not found")
     if matched_by_pk:
         return HttpResponsePermanentRedirect(f'/p/{product.seo_handle}/')
+    _capture_search_click(request, product)
 
     offers = list(
         product.offers

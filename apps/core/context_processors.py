@@ -24,6 +24,13 @@ def shoppage_global_context(request):
     """
     from apps.core.seo import site_url
 
+    try:
+        from apps.core.seo import jsonld_script, web_site_jsonld
+
+        site_jsonld = jsonld_script(web_site_jsonld(request))
+    except Exception:
+        site_jsonld = ''
+
     counts: dict[str, int] = {}
     for label, key, var in (
         ('catalog.MasterProduct', 'sp:count:products', 'total_products_count'),
@@ -59,5 +66,6 @@ def shoppage_global_context(request):
         'provinces_count': 9,
         'google_site_verification': getattr(settings, 'GOOGLE_SITE_VERIFICATION', ''),
         'bing_site_verification': getattr(settings, 'BING_SITE_VERIFICATION', ''),
+        'site_jsonld': site_jsonld,
         **counts,
     }

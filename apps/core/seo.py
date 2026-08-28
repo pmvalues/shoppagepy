@@ -60,7 +60,7 @@ def robots_txt_view(request) -> HttpResponse:
     return HttpResponse('\n'.join(lines), content_type='text/plain')
 
 
-def _url_entry(loc: str, lastmod=None, changefreq: str = 'daily', priority: str = '0.7') -> str:
+def _url_entry(loc: str, lastmod=None, changefreq: str = 'daily', priority: str = '0.7', extra: str = '') -> str:
     lm = f'<lastmod>{lastmod:%Y-%m-%dT%H:%M:%S+00:00}</lastmod>' if lastmod else ''
     return (
         '<url>'
@@ -68,6 +68,7 @@ def _url_entry(loc: str, lastmod=None, changefreq: str = 'daily', priority: str 
         f'{lm}'
         f'<changefreq>{changefreq}</changefreq>'
         f'<priority>{priority}</priority>'
+        f'{extra}'
         '</url>'
     )
 
@@ -133,13 +134,29 @@ def _paged_sitemap(name: str, default_page: int = 1):
                 start_id = None
 
         if name == 'products':
-            qs = MasterProduct.objects.filter(status=ProductStatusChoices.ACTIVE)
+            qs = (
+                MasterProduct.objects.filter(status=ProductStatusChoices.ACTIVE)
+                .prefetch_related('images')
+            )
             if start_id is not None:
                 qs = qs.filter(id__gt=start_id)
             for p in qs.order_by('id')[:SITEMAP_CHUNK]:
+                img_xml = ''
+                for im in p.images.all()[:3]:
+                    im_url = im.url or ''
+                    if not im_url:
+                        continue
+                    loc = im_url if im_url.startswith('http') else _join(base, im_url)
+                    img_xml += (
+                        '<image:image>'
+                        f'<image:loc>{_xml_escape(loc)}</image:loc>'
+                        f'<image:title>{_xml_escape((p.title or "")[:100])}</image:title>'
+                        f'<image:caption>{_xml_escape((im.effective_alt or "")[:200])}</image:caption>'
+                        '</image:image>'
+                    )
                 entries.append(_url_entry(
                     _join(base, f'/p/{p.seo_handle}/'),
-                    lastmod=p.updated_at, changefreq='daily', priority='0.8'))
+                    lastmod=p.updated_at, changefreq='daily', priority='0.8', extra=img_xml))
         elif name == 'merchants':
             qs = Merchant.objects.all()
             if start_id is not None:
@@ -159,7 +176,9 @@ def _paged_sitemap(name: str, default_page: int = 1):
 
         xml = (
             '<?xml version="1.0" encoding="UTF-8"?>'
-            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"'
+            + (' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"' if name == 'products' else '')
+            + '>'
             + ''.join(entries) + '</urlset>'
         )
         return HttpResponse(xml, content_type='application/xml')
@@ -299,6 +318,29 @@ def product_jsonld(product, offers=None, request=None) -> dict[str, Any]:
             'reviewCount': int(rating_count),
             'bestRating': 5,
         }
+    # Individual Review entries when the summary carries real review text.
+    raw_reviews = summary.get('reviews') or summary.get('items') or []
+    review_entries = []
+    if isinstance(raw_reviews, list):
+        for r in raw_reviews[:5]:
+            if not isinstance(r, dict):
+                continue
+            body = str(r.get('reviewBody') or r.get('text') or r.get('comment') or '').strip()
+            try:
+                rv = float(r.get('ratingValue') or r.get('rating') or 0)
+            except (TypeError, ValueError):
+                continue
+            if not body or not 1 <= rv <= 5:
+                continue
+            author = str(r.get('author') or r.get('name') or r.get('reviewer') or 'Verified buyer')[:80]
+            review_entries.append({
+                '@type': 'Review',
+                'author': {'@type': 'Person', 'name': author},
+                'reviewRating': {'@type': 'Rating', 'ratingValue': rv, 'bestRating': 5},
+                'reviewBody': body[:500],
+            })
+    if review_entries:
+        data['review'] = review_entries
 
     publishable = [o for o in priced if o.availability_state in ('fresh', 'confirm_required', 'quote_required')]
     if len(publishable) > 1:
@@ -427,6 +469,102 @@ def search_results_jsonld(query: str, items, request=None, total: int | None = N
             'itemListElement': entry,
         },
     }
+
+
+def web_site_jsonld(request=None) -> dict[str, Any]:
+    """Site-wide WebSite + SearchAction (sitelinks search box eligibility)."""
+    base = site_url(request)
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        'name': 'Shoppage',
+        'url': f'{base}/',
+        'potentialAction': {
+            '@type': 'SearchAction',
+            'target': {
+                '@type': 'EntryPoint',
+                'urlTemplate': f'{base}/search/?q={{search_term_string}}',
+            },
+            'query-input': 'required name=search_term_string',
+        },
+    }
+
+
+def _iso_duration(raw: Any) -> str:
+    """'MM:SS' / 'HH:MM:SS' -> ISO-8601 ('PT4M5S'); '' when unparseable."""
+    text = str(raw or '').strip()
+    if not text:
+        return ''
+    parts = text.split(':')
+    try:
+        nums = [int(float(p)) for p in parts]
+    except ValueError:
+        return ''
+    if len(nums) == 3:
+        h, m, s = nums
+    elif len(nums) == 2:
+        h, m, s = 0, nums[0], nums[1]
+    elif len(nums) == 1:
+        h, m, s = 0, 0, nums[0]
+    else:
+        return ''
+    out = 'PT'
+    if h:
+        out += f'{h}H'
+    if m:
+        out += f'{m}M'
+    if s or out == 'PT':
+        out += f'{s}S'
+    return out
+
+
+def video_jsonld(obj, request=None) -> dict[str, Any]:
+    """VideoObject for Show/Short items (both expose video_url/thumbnail_url/views)."""
+    base = site_url(request)
+    title = (getattr(obj, 'title', '') or '').strip()
+    description = (
+        (getattr(obj, 'description', '') or '') or (getattr(obj, 'summary', '') or '')
+    ).strip() or title
+    canonical = getattr(obj, 'canonical_id', '') or str(getattr(obj, 'pk', ''))
+    if hasattr(obj, 'slug'):
+        path = f'/shows/{obj.slug}/'
+    else:
+        # Shorts have no dedicated pages yet; point at the directory.
+        path = '/shorts/'
+    data: dict[str, Any] = {
+        '@context': 'https://schema.org',
+        '@type': 'VideoObject',
+        'name': title[:200],
+        'description': description[:500],
+        'contentUrl': getattr(obj, 'video_url', '') or '',
+        'url': f'{base}{path}',
+    }
+    thumb = (getattr(obj, 'thumbnail_url', '') or '').strip()
+    if thumb:
+        data['thumbnailUrl'] = [thumb if thumb.startswith('http') else f'{base}{thumb}']
+    duration = _iso_duration(getattr(obj, 'duration', ''))
+    if duration:
+        data['duration'] = duration
+    created = getattr(obj, 'created_at', None)
+    if created:
+        data['uploadDate'] = created.strftime('%Y-%m-%d')
+    views = getattr(obj, 'views', None)
+    if views:
+        data['interactionStatistic'] = {
+            '@type': 'InteractionCounter',
+            'interactionType': 'https://schema.org/ViewAction',
+            'userInteractionCount': int(views),
+        }
+    return data
+
+
+def video_list_jsonld(objs, request=None) -> dict[str, Any]:
+    """ItemList of VideoObjects for the shorts/shows directory pages."""
+    items = [
+        {'@type': 'ListItem', 'position': position, 'item': video_jsonld(obj, request)}
+        for position, obj in enumerate(objs, start=1)
+    ]
+    return {'@context': 'https://schema.org', '@type': 'ItemList', 'itemListElement': items}
 
 
 def jsonld_script(data: dict[str, Any]) -> str:

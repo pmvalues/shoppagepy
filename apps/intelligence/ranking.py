@@ -13,16 +13,19 @@ Scale & performance:
 
 from __future__ import annotations
 
+import contextlib
+import math
 import re
 import time
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
 from apps.catalog.models import MasterProduct
 from apps.merchants.models import Merchant
 from apps.offers.models import Offer
+from django.core.cache import cache
 from django.db import connection
 
 # ---------------------------------------------------------------------------
@@ -121,6 +124,7 @@ class ScoredProduct:
     best_offer: Offer | None
     offer_count: int
     matched_terms: list[str]
+    distance_km: float | None = None
 
 
 def _score_text_match(product: MasterProduct, terms: list[str]) -> float:
@@ -305,29 +309,31 @@ def _candidate_ids_sqlite(tokens: list[str], expanded: list[str], category: str 
     return list(dict.fromkeys(ids))[:limit]
 
 
-def _candidate_ids_postgres(tokens: list[str], expanded: list[str], limit: int) -> list[Any]:
+def _candidate_ids_postgres(tokens: list[str], expanded: list[str], limit: int,
+                            category: str = '', brand: str = '') -> list[Any]:
     """
-    Ultra-fast indexed candidate retrieval on PostgreSQL (sub-5ms).
-    Uses brand B-Tree indexes and title pattern indexes.
+    Structural candidate pull on PostgreSQL: exact brand equality (B-Tree),
+    category browse, and title prefix — the deterministic lists that join the
+    lexical/fuzzy ones in RRF fusion.
     """
     if connection.vendor != 'postgresql':
         return []
-    if not tokens:
+    if not (tokens or category or brand):
         return []
 
     # Include search tokens and synonym brand expansions
-    candidate_terms = tokens[:2] + [e for e in (expanded or [])[:6] if ' ' not in e]
+    candidate_terms = ([brand] if brand else []) + tokens[:2] + [e for e in (expanded or [])[:6] if ' ' not in e]
     brand_variants = []
     for term in candidate_terms:
         t = term.strip()
         brand_variants.extend([t.capitalize(), t.upper(), t.lower(), t])
 
-    brand_variants = list(dict.fromkeys(brand_variants))[:20]
+    brand_variants = [b for b in dict.fromkeys(brand_variants) if b][:20]
 
     ids: list[Any] = []
     try:
         with connection.cursor() as cur:
-            # 1. Exact Brand match including synonym brands (Instant 0.2ms B-Tree index scan via IN)
+            # 1. Exact Brand match including synonym brands (0.2ms B-Tree index scan via IN)
             if brand_variants:
                 placeholders = ', '.join(['%s'] * len(brand_variants))
                 cur.execute(
@@ -338,14 +344,27 @@ def _candidate_ids_postgres(tokens: list[str], expanded: list[str], limit: int) 
                 )
                 ids.extend(r[0] for r in cur.fetchall())
 
-            # 2. Title prefix match (Instant 1ms index scan)
+            # 2. Title prefix match (1ms index scan)
             if len(ids) < limit:
-                t0 = tokens[0].strip()
+                title_terms = [t.strip() for t in (tokens[:1] + expanded[:2]) if len(t.strip()) >= 2]
+                for term in title_terms:
+                    if len(ids) >= limit:
+                        break
+                    cur.execute(
+                        "SELECT id FROM catalog_masterproduct "
+                        "WHERE (status = 'active' OR status = 'ACTIVE') "
+                        "AND (title ILIKE %s OR title ILIKE %s) LIMIT %s",
+                        [f'{term.capitalize()}%', f'{term.lower()}%', limit - len(ids)],
+                    )
+                    ids.extend(r[0] for r in cur.fetchall())
+
+            # 3. Category browse pull (faceted / category-only queries)
+            if category and len(ids) < limit:
                 cur.execute(
                     "SELECT id FROM catalog_masterproduct "
                     "WHERE (status = 'active' OR status = 'ACTIVE') "
-                    "AND (title LIKE %s OR title LIKE %s) LIMIT %s",
-                    [f'{t0.capitalize()}%', f'{t0.lower()}%', limit - len(ids)],
+                    "AND category_ref = %s ORDER BY popularity_score DESC NULLS LAST LIMIT %s",
+                    [category.lower(), limit - len(ids)],
                 )
                 ids.extend(r[0] for r in cur.fetchall())
         return list(dict.fromkeys(ids))[:limit]
@@ -370,17 +389,18 @@ def _levenshtein(a: str, b: str) -> int:
     return prev[-1]
 
 
-def _fuzzy_candidates(term: str, limit: int = 20) -> list[Any]:
+def _fuzzy_pass(term: str, limit: int = 20) -> tuple[list[Any], str]:
     """
     Typo-tolerance fallback: when the exact candidate pull returns nothing,
     pull a bounded set of rows by a short prefix, then rank their individual
     title/brand words by edit distance to the query term. Catches common
     prefix/character-omission typos (e.g. "samsng" -> "samsung").
     Works on both SQLite (LIKE) and PostgreSQL (ILIKE).
+    Returns (product ids best-first, best correction suggestion).
     """
     term = (term or '').strip().lower()
     if len(term) < 3:
-        return []
+        return [], ''
     threshold = max(2, len(term) // 3)
 
     op = 'ILIKE' if connection.vendor == 'postgresql' else 'LIKE'
@@ -389,17 +409,17 @@ def _fuzzy_candidates(term: str, limit: int = 20) -> list[Any]:
     sql = (
         f"SELECT id, title, brand FROM catalog_masterproduct "
         f"WHERE (status = 'active' OR status = 'ACTIVE') "
-        f"AND (brand {op} %s OR category_ref {op} %s) "
+        f"AND (brand {op} %s OR category_ref {op} %s OR title {op} %s) "
         f"LIMIT %s"
     )
     try:
         with connection.cursor() as cur:
-            cur.execute(sql, [like, like, limit * 8])
+            cur.execute(sql, [like, like, like, limit * 8])
             rows = cur.fetchall()
     except Exception:
-        return []
+        return [], ''
 
-    scored = []
+    scored: list[tuple[int, Any, str]] = []
     for rid, title, brand in rows:
         words = set()
         for field in (title or '', brand or ''):
@@ -408,18 +428,227 @@ def _fuzzy_candidates(term: str, limit: int = 20) -> list[Any]:
                     words.add(w)
         if not words:
             continue
-        best = min((_levenshtein(term, w) for w in words), default=99)
+        best_word = min(words, key=lambda w: _levenshtein(term, w))
+        best = _levenshtein(term, best_word)
         if best <= threshold:
-            scored.append((best, rid))
-    scored.sort()
-    return [rid for _, rid in scored[:limit]]
+            scored.append((best, rid, best_word))
+    scored.sort(key=lambda t: (t[0], str(t[1])))
+    ids = [rid for _, rid, _ in scored[:limit]]
+    suggestion = scored[0][2] if scored and scored[0][0] > 0 else ''
+    return ids, suggestion
+
+
+def _fuzzy_candidates(term: str, limit: int = 20) -> list[Any]:
+    ids, _ = _fuzzy_pass(term, limit)
+    return ids
+
+
+# ---------------------------------------------------------------------------
+# Hybrid retrieval: lexical (tsvector / FTS5 BM25), fuzzy (trgm), structural,
+# and an embedding hook — fused with Reciprocal Rank Fusion.
+# ---------------------------------------------------------------------------
+
+def _fts_ids(query: str, limit: int) -> list[Any]:
+    """SQLite serving path: porter-stemmed BM25 over the FTS5 index."""
+    if connection.vendor != 'sqlite' or not query.strip():
+        return []
+    try:
+        from apps.catalog.fts import fts_search_ids, fts_table_exists
+
+        if not fts_table_exists():
+            return []
+        return fts_search_ids(query, limit)
+    except Exception:
+        return []
+
+
+def _tsvector_ids(raw_query: str, expanded: list[str], limit: int) -> list[Any]:
+    """
+    PostgreSQL serving path: indexed GIN search over the weighted
+    `search_tsv` generated column, ordered by ts_rank. Query words are
+    OR-fused for recall; Python scoring re-establishes precision.
+    """
+    if connection.vendor != 'postgresql':
+        return []
+    tokens = tokenize(raw_query)
+    words = list(dict.fromkeys(
+        tokens + [w for e in (expanded or [])[:8] for w in tokenize(e)]
+    ))[:14]
+    if not words:
+        return []
+    ts_query = ' | '.join(words)
+    try:
+        with connection.cursor() as cur:
+            cur.execute(
+                "SELECT id FROM ("
+                "  SELECT id, ts_rank(search_tsv, q) AS rank, "
+                "         rank(search_tsv, q) AS exact_rank "
+                "  FROM catalog_masterproduct, to_tsquery('english', %s) q "
+                "  WHERE search_tsv @@ q "
+                "    AND (status = 'active' OR status = 'ACTIVE') "
+                "  ORDER BY exact_rank, rank DESC LIMIT %s"
+                ") top",
+                [ts_query, limit],
+            )
+            return [r[0] for r in cur.fetchall()]
+    except Exception:
+        return []
+
+
+def _trgm_ids(term: str, limit: int) -> list[Any]:
+    """PostgreSQL fuzzy path: pg_trgm similarity over title/brand (typos)."""
+    if connection.vendor != 'postgresql' or len((term or '').strip()) < 3:
+        return []
+    term = term.strip()
+    try:
+        with connection.cursor() as cur:
+            cur.execute(
+                "SELECT id FROM catalog_masterproduct "
+                "WHERE (status = 'active' OR status = 'ACTIVE') "
+                "  AND (title %% %s OR brand %% %s) "
+                "ORDER BY GREATEST(similarity(title, %s), similarity(brand, %s)) DESC "
+                "LIMIT %s",
+                [term, term, term, term, limit],
+            )
+            return [r[0] for r in cur.fetchall()]
+    except Exception:
+        return []
+
+
+_VECTOR_STATE: bool | None = None
+
+
+def vector_candidates(raw_query: str, limit: int) -> list[Any]:
+    """
+    Embedding ANN hook for the hybrid stack. Returns [] until a pgvector
+    `catalog_productembedding` table with a HNSW index is provisioned and
+    backfilled; the fusion layer already consumes whatever this yields.
+    """
+    global _VECTOR_STATE
+    if connection.vendor != 'postgresql':
+        return []
+    if _VECTOR_STATE is False:
+        return []
+    try:
+        with connection.cursor() as cur:
+            cur.execute("SELECT to_regclass('catalog_productembedding')")
+            _VECTOR_STATE = cur.fetchone()[0] is not None
+    except Exception:
+        _VECTOR_STATE = False
+    if not _VECTOR_STATE:
+        return []
+    # Embedding provider wiring lands here; until then contribute nothing.
+    return []
+
+
+def _rrf_fuse(candidate_lists: list[list[Any]], limit: int, k: int = 60) -> list[Any]:
+    """Reciprocal Rank Fusion: score(d) = Σ 1/(k + rank_i(d)) per result list."""
+    fused: dict[Any, float] = {}
+    for lst in candidate_lists:
+        for rank, rid in enumerate(lst):
+            fused[rid] = fused.get(rid, 0.0) + 1.0 / (k + rank + 1)
+    ordered = sorted(fused.items(), key=lambda kv: (-kv[1], str(kv[0])))
+    return [rid for rid, _ in ordered[:limit]]
+
+
+def _hybrid_candidate_ids(raw_query: str, expanded: list[str], tokens: list[str],
+                         category: str, brand: str, limit: int) -> list[Any]:
+    half = max(20, limit // 2)
+    if connection.vendor == 'postgresql':
+        lists = [
+            _tsvector_ids(raw_query, expanded, limit),
+            _trgm_ids(tokens[0] if tokens else '', half),
+            _candidate_ids_postgres(tokens, expanded, half, category, brand),
+            vector_candidates(raw_query, half),
+        ]
+    else:
+        lists = [
+            _fts_ids(raw_query, limit),
+            _candidate_ids_sqlite(tokens, expanded, category, brand, half),
+        ]
+    return _rrf_fuse([lst for lst in lists if lst], limit)
+
+
+def _haversine_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    r = 6371.0
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dp = p2 - p1
+    dl = math.radians(lng2 - lng1)
+    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(a))
+
+
+def _popularity_scores() -> dict[str, int]:
+    """Click counts per product over the last 30 days (cached, best-effort)."""
+    cached = cache.get('sp:pop30:v1')
+    if cached is not None:
+        return cached
+    result: dict[str, int] = {}
+    try:
+        from django.db.models import Count
+
+        from apps.core.models import SearchClick
+
+        since = datetime.now(UTC) - timedelta(days=30)
+        rows = (
+            SearchClick.objects.filter(created_at__gte=since)
+            .values('product_id').annotate(n=Count('id')).order_by('-n')[:500]
+        )
+        result = {r['product_id']: r['n'] for r in rows}
+    except Exception:
+        result = {}
+    with contextlib.suppress(Exception):
+        cache.set('sp:pop30:v1', result, 300)
+    return result
+
+
+def _apply_popularity_boost(scored: list[ScoredProduct]) -> None:
+    """Small capped behavioural prior: log-scaled click boost (max +0.05)."""
+    clicks = _popularity_scores()
+    if not clicks:
+        return
+    for s in scored:
+        n = clicks.get(str(s.product.pk))
+        if n:
+            s.score = round(s.score + min(0.05, 0.012 * math.log1p(n)), 4)
+
+
+SORT_CHOICES = ('relevance', 'price_asc', 'price_desc', 'newest', 'rating')
+
+
+def _display_price(s: ScoredProduct) -> float | None:
+    if s.best_offer is not None and s.best_offer.price_amount:
+        return float(s.best_offer.price_amount)
+    est = s.product.estimated_price_zar
+    return float(est) if est else None
+
+
+def _merchant_rating(s: ScoredProduct) -> float | None:
+    ratings = []
+    for o in s.product.offers.all():
+        m = getattr(o, 'merchant', None)
+        if m is not None and m.google_rating is not None:
+            ratings.append(float(m.google_rating))
+    return max(ratings) if ratings else None
+
+
+def _sort_scored(scored: list[ScoredProduct], sort: str) -> list[ScoredProduct]:
+    if sort == 'price_asc':
+        return sorted(scored, key=lambda s: (_display_price(s) is None, _display_price(s) or 0.0, -s.score))
+    if sort == 'price_desc':
+        return sorted(scored, key=lambda s: -(_display_price(s) or 0.0))
+    if sort == 'newest':
+        return sorted(scored, key=lambda s: s.product.created_at or datetime.min.replace(tzinfo=UTC), reverse=True)
+    if sort == 'rating':
+        return sorted(scored, key=lambda s: -(_merchant_rating(s) or 0.0))
+    return scored
 
 
 # ---------------------------------------------------------------------------
 # Public Ranked Search API
 # ---------------------------------------------------------------------------
 
-CANDIDATE_LIMIT = 400
+CANDIDATE_LIMIT = 1000
 
 
 def ranked_search(
@@ -432,9 +661,14 @@ def ranked_search(
     min_price: float | None = None,
     max_price: float | None = None,
     candidate_limit: int = CANDIDATE_LIMIT,
+    sort: str = 'relevance',
+    near: tuple[float, float, float] | None = None,
 ) -> dict[str, Any]:
     """
-    Deterministic ranked product+merchant search (< 30ms).
+    Deterministic ranked product+merchant search.
+    Hybrid candidate retrieval (tsvector/BM25 + trgm fuzzy + structural +
+    embeddings) fused via RRF, then Python-scored with behavioural priors.
+    `near` is an optional (lat, lng, radius_km) tuple for geo-constrained search.
     Returns products (ScoredProduct), merchants, facets, price stats, pagination meta.
     """
     t0 = time.perf_counter()
@@ -447,20 +681,23 @@ def ranked_search(
     min_price = min_price if min_price is not None else intent.get('min_price')
     max_price = max_price if max_price is not None else intent.get('max_price')
     province = (province or '').strip()
+    sort = sort if sort in SORT_CHOICES else 'relevance'
 
-    if connection.vendor == 'postgresql':
-        ids = _candidate_ids_postgres(tokens, expanded, candidate_limit)
-    else:
-        ids = _candidate_ids_sqlite(tokens, expanded, category, brand, candidate_limit)
+    did_you_mean = ''
+    ids: list[Any] = []
+    if tokens or category or brand:
+        ids = _hybrid_candidate_ids(raw_query, expanded, tokens, category, brand, candidate_limit)
 
     ids = (ids or [])[:candidate_limit]
     capped = len(ids) >= candidate_limit
 
-    # Typo-tolerance: if the exact pull found nothing, try near-miss matches.
+    # Typo-tolerance: if the exact pull found nothing, try near-miss matches
+    # and surface the correction as "did you mean".
     if not ids and tokens:
-        fuzzy = _fuzzy_candidates(tokens[0], candidate_limit)
+        fuzzy, suggestion = _fuzzy_pass(tokens[0], candidate_limit)
         if fuzzy:
             ids = fuzzy[:candidate_limit]
+            did_you_mean = suggestion
 
     products_list = list(
         MasterProduct.objects.filter(id__in=ids)
@@ -470,6 +707,8 @@ def ranked_search(
         products_list = [p for p in products_list if (p.category_ref or '').lower() == category.lower()]
     if brand:
         products_list = [p for p in products_list if (p.brand or '').lower() == brand.lower()]
+
+    near_lat, near_lng, near_radius = near if near else (None, None, None)
 
     scored: list[ScoredProduct] = []
     for p in products_list:
@@ -481,10 +720,24 @@ def ranked_search(
                 merchant_province = (o.merchant.province or '') if o.merchant_id else ''
                 if merchant_province.lower() != province.lower():
                     continue
+            if near is not None:
+                m = getattr(o, 'merchant', None)
+                if m is None or m.latitude is None or m.longitude is None:
+                    continue
+                dist = _haversine_km(near_lat, near_lng, float(m.latitude), float(m.longitude))
+                if dist > near_radius:
+                    continue
             offers.append(o)
         if province and not offers:
             continue
+        if near is not None and not offers:
+            continue
         sp = _score_product(p, tokens + expanded, offers)
+        if near is not None and offers:
+            best = sp.best_offer or offers[0]
+            bm = getattr(best, 'merchant', None)
+            if bm is not None and bm.latitude is not None and bm.longitude is not None:
+                sp.distance_km = round(_haversine_km(near_lat, near_lng, float(bm.latitude), float(bm.longitude)), 2)
 
         price = None
         if sp.best_offer is not None and sp.best_offer.price_amount:
@@ -497,6 +750,8 @@ def ranked_search(
             continue
         scored.append(sp)
 
+    _apply_popularity_boost(scored)
+
     # Deduplicate scored products by title to ensure clean unique search results
     deduped_scored: list[ScoredProduct] = []
     seen_titles = set()
@@ -507,6 +762,10 @@ def ranked_search(
             deduped_scored.append(s)
 
     deduped_scored.sort(key=lambda s: (-s.score, -(s.offer_count)))
+    if near is not None:
+        # Within relevance band, prefer genuinely closer storefronts (GMB-style).
+        deduped_scored.sort(key=lambda s: (-(s.score if sort == 'relevance' else 0), s.distance_km or 1e9))
+    deduped_scored = _sort_scored(deduped_scored, sort)
 
     total = len(deduped_scored)
     page = deduped_scored[offset:offset + limit]
@@ -514,12 +773,18 @@ def ranked_search(
     # Fast facets
     facet_categories: dict[str, int] = {}
     facet_brands: dict[str, int] = {}
+    facet_provinces: dict[str, int] = {}
     prices: list[float] = []
     for s in scored:
         cat = s.product.category_ref or 'other'
         facet_categories[cat] = facet_categories.get(cat, 0) + 1
         b = s.product.brand or 'Unknown'
         facet_brands[b] = facet_brands.get(b, 0) + 1
+        for o in s.product.offers.all():
+            m = getattr(o, 'merchant', None)
+            if m is not None and m.province:
+                facet_provinces[m.province] = facet_provinces.get(m.province, 0) + 1
+                break
         pr = s.best_offer.price_amount if s.best_offer else s.product.estimated_price_zar
         if pr:
             prices.append(float(pr))
@@ -540,12 +805,13 @@ def ranked_search(
 
     if len(merchants) < 6 and tokens:
         t = tokens[0].strip()
+        op = 'ILIKE' if connection.vendor == 'postgresql' else 'LIKE'
         try:
             with connection.cursor() as cur:
                 cur.execute(
-                    "SELECT id FROM merchants_merchant "
-                    "WHERE name LIKE %s OR name LIKE %s "
-                    "LIMIT %s",
+                    f"SELECT id FROM merchants_merchant "
+                    f"WHERE name {op} %s OR name {op} %s "
+                    f"LIMIT %s",
                     [f'{t.capitalize()}%', f'{t.lower()}%', 6 - len(merchants)]
                 )
                 extra_ids = [r[0] for r in cur.fetchall()]
@@ -556,6 +822,7 @@ def ranked_search(
             pass
 
     elapsed_ms = round((time.perf_counter() - t0) * 1000, 1)
+
     return {
         'query': raw_query,
         'tokens': tokens,
@@ -563,9 +830,12 @@ def ranked_search(
         'merchants': merchants,
         'total_products': total,
         'total_merchants': len(merchants),
+        'did_you_mean': did_you_mean,
+        'sort': sort,
         'facets': {
             'categories': dict(sorted(facet_categories.items(), key=lambda kv: -kv[1])[:10]),
             'brands': dict(sorted(facet_brands.items(), key=lambda kv: -kv[1])[:10]),
+            'provinces': dict(sorted(facet_provinces.items(), key=lambda kv: -kv[1])[:9]),
         },
         'price_stats': ({
             'min': min(prices), 'max': max(prices), 'avg': round(sum(prices) / len(prices))

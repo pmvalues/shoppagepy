@@ -1,7 +1,27 @@
+from urllib.parse import urlencode
+
 from django import template
 from django.utils.safestring import mark_safe
 
 register = template.Library()
+
+
+@register.simple_tag(takes_context=True)
+def facet_url(context, key, value=''):
+    """
+    Current search query string with one parameter set (or removed when the
+    value is empty or already active — click-to-toggle facets). Always drops
+    'offset' so filtered/sorted views return to page 1.
+    """
+    request = context.get('request')
+    if request is None:
+        return ''
+    params = {k: v for k, v in request.GET.items() if k != 'offset' and v}
+    if not value or str(params.get(key, '')) == str(value):
+        params.pop(key, None)
+    else:
+        params[key] = value
+    return urlencode(params)
 
 @register.filter
 def get_item(dictionary, key):

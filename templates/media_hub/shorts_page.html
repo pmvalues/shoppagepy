@@ -3,6 +3,10 @@
 
 {% block title %}YouTube Shorts — Verified Shoppable Video Feed | Shoppage{% endblock %}
 
+{% block structured_data %}
+{% if jsonld %}<script type="application/ld+json">{{ jsonld|safe }}</script>{% endif %}
+{% endblock %}
+
 {% block extra_css %}
 <style>
   /* YouTube Shorts Vertical Snap Scroll Container */

@@ -170,7 +170,76 @@
     border-color: #CBD5E1;
   }
 
+  /* Facet sidebar, sort tabs, did-you-mean, honest zero state */
+  .facet-box {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 1rem;
+    position: sticky;
+    top: 90px;
+    align-self: start;
+  }
+  .facet-group { margin-bottom: 1.25rem; }
+  .facet-group:last-child { margin-bottom: 0; }
+  .facet-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #0F172A;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.5rem;
+  }
+  .facet-link {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.825rem;
+    color: #1A73E8;
+    text-decoration: none;
+    padding: 0.2rem 0;
+  }
+  .facet-link:hover { text-decoration: underline; }
+  .facet-link .facet-count { color: #94A3B8; font-size: 0.75rem; white-space: nowrap; }
+  .facet-link.active { font-weight: 700; color: #0F172A; }
+  .sort-tabs {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 1px solid #E2E8F0;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+  }
+  .sort-tab {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+    text-decoration: none;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .sort-tab:hover { background: #F1F5F9; }
+  .sort-tab.active { background: #E8F0FE; color: #1A73E8; }
+  .dym-banner {
+    margin: -0.75rem 0 1.25rem 0;
+    font-size: 0.95rem;
+    color: #475569;
+  }
+  .zero-state {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 2.25rem 1.5rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .zero-state ul { list-style: none; padding: 0; margin: 1rem auto 0; display: inline-block; text-align: left; }
+  .zero-state li { font-size: 0.875rem; color: #475569; padding: 0.3rem 0; }
   @media (max-width: 768px) {
+    .facet-box { position: static; }
+  }
     .related-grid {
       grid-template-columns: 1fr;
     }
@@ -206,11 +275,19 @@
     </div>
   </div>
 
-  <!-- 2. TOP / SPONSORED PRODUCTS HORIZONTAL CAROUSEL (Google Shopping Top PLAs) -->
+  <!-- Did-you-mean banner (typo tolerance) -->
+  {% if did_you_mean %}
+  <div class="dym-banner">
+    No exact matches for &ldquo;{{ query }}&rdquo; &mdash; showing closest results. Did you mean
+    <a href="/search/?{{ dym_link }}" style="color: #1A73E8; font-weight: 700;">{{ did_you_mean }}</a>?
+  </div>
+  {% endif %}
+
+  <!-- 2. TOP & FEATURED PRODUCTS HORIZONTAL CAROUSEL (popularity-ranked, not paid) -->
   {% if sponsored_products %}
   <section style="margin-bottom: 2rem;">
     <div style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.75rem;">
-      <span style="font-size: 1rem; font-weight: 700; color: #202124;">Sponsored Products</span>
+      <span style="font-size: 1rem; font-weight: 700; color: #202124;">Top &amp; Featured Products</span>
       <span style="font-size: 0.9rem; color: #70757A; cursor: pointer; line-height: 1;" title="About these results">⋮</span>
     </div>
 
@@ -237,15 +314,7 @@
         >
           <!-- Product Visual / Thumbnail Box (135px height, pure white background) -->
           <div style="height: 135px; width: 100%; border-bottom: 1px solid #F1F3F4; display: flex; align-items: center; justify-content: center; position: relative; background: #FFFFFF; padding: 0.5rem;">
-            {% if forloop.counter == 3 or forloop.counter == 7 %}
-            <span style="position: absolute; top: 6px; left: 6px; background: #202124; color: #FFFFFF; font-size: 0.65rem; font-weight: 700; padding: 2px 4px; border-radius: 3px; line-height: 1;">
-              SALE
-            </span>
-            {% elif forloop.counter == 2 or forloop.counter == 5 %}
-            <span style="position: absolute; top: 6px; left: 6px; font-size: 0.75rem;">
-              🇿🇦
-            </span>
-            {% endif %}
+            <span style="position: absolute; top: 6px; left: 6px; font-size: 0.75rem;" title="Sold by a South African merchant">🇿🇦</span>
 
             <div style="width: 110px; height: 110px; display: flex; align-items: center; justify-content: center;">
               {{ sp.product|product_svg:"small" }}
@@ -263,11 +332,6 @@
                 <span style="font-size: 0.95rem; font-weight: 700; color: #202124;">
                   R {{ sp.price|floatformat:2|intcomma }}
                 </span>
-                {% if forloop.counter == 3 or forloop.counter == 7 %}
-                <span style="font-size: 0.75rem; color: #70757A; text-decoration: line-through;">
-                  R {{ sp.price|floatformat:0|intcomma }}
-                </span>
-                {% endif %}
               </div>
 
               <div style="font-size: 0.75rem; color: #4D5156; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">

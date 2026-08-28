@@ -8,6 +8,7 @@ from apps.api.serializers import (
     ReferralEventSerializer,
 )
 from apps.catalog.models import MasterProduct, ProductStatusChoices
+from apps.core.models import log_search_query
 from apps.core.signals import data_version
 from apps.intelligence.ranking import ranked_search
 from apps.intelligence.services import (
@@ -90,6 +91,13 @@ class SearchAPIView(APIView):
             brand=params.brand,
             min_price=params.min_price,
             max_price=params.max_price,
+            sort=params.sort,
+        )
+        log_search_query(
+            params.q,
+            source='api',
+            result_count=results['total_products'],
+            province=params.province,
         )
         intent = detect_intent(params.q)
         top_brands = list(results.get('facets', {}).get('brands', {}).keys())[:5]

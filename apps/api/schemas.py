@@ -38,6 +38,7 @@ class SearchQuery(BaseModel):
     brand: str = Field(default="")
     min_price: float | None = None
     max_price: float | None = None
+    sort: str = Field(default='relevance')
 
     @classmethod
     def from_get(cls, get_params: Any) -> SearchQuery:
@@ -58,6 +59,7 @@ class SearchQuery(BaseModel):
                 'brand': get_params.get('brand', ''),
                 'min_price': float(get_params['min_price']) if get_params.get('min_price') else None,
                 'max_price': float(get_params['max_price']) if get_params.get('max_price') else None,
+                'sort': get_params.get('sort', 'relevance'),
             }
             return cls(**data)
         except (ValidationError, ValueError):

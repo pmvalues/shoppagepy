@@ -568,7 +568,62 @@ def get_people_also_ask(query: str) -> list[dict[str, str]]:
             }
         ]
 
+def _popular_queries_from_logs(query: str, limit: int = 6) -> list[str]:
+    """
+    Behavioural related-searches: frequent logged queries (last 30 days) that
+    share a token with the current query. Empty until real traffic accumulates.
+    """
+    q = (query or '').lower().strip()
+    tokens = {t for t in re.split(r'\W+', q) if len(t) > 2}
+    if not tokens:
+        return []
+    try:
+        from datetime import timedelta
+
+        from django.db.models import Count
+        from django.utils import timezone
+
+        from apps.core.models import SearchQueryLog
+
+        since = timezone.now() - timedelta(days=30)
+        rows = (
+            SearchQueryLog.objects.filter(created_at__gte=since)
+            .values('normalized')
+            .annotate(n=Count('id'))
+            .order_by('-n')[:300]
+        )
+        out = []
+        for row in rows:
+            norm = (row['normalized'] or '').strip()
+            if not norm or norm == q:
+                continue
+            if tokens & {t for t in re.split(r'\W+', norm) if len(t) > 2}:
+                out.append(norm)
+            if len(out) >= limit:
+                break
+        return out
+    except Exception:
+        return []
+
+
 def get_related_searches(query: str, category: str = '') -> list[str]:
+    """
+    Related searches: real logged-query affinity first (when data exists),
+    then curated localized suggestions as the cold-start fallback.
+    """
+    log_part = _popular_queries_from_logs(query)
+    static_part = _static_related_searches(query, category)
+    seen = set()
+    merged = []
+    for item in log_part + static_part:
+        key = item.lower()
+        if key and key not in seen:
+            seen.add(key)
+            merged.append(item)
+    return merged[:10]
+
+
+def _static_related_searches(query: str, category: str = '') -> list[str]:
     """
     Generates high-intent localized search suggestions (Google 'People also search for' style).
     """

@@ -3,6 +3,10 @@
 
 {% block title %}Commerce Shows &amp; Original Series — Shoppage Media{% endblock %}
 
+{% block structured_data %}
+{% if jsonld %}<script type="application/ld+json">{{ jsonld|safe }}</script>{% endif %}
+{% endblock %}
+
 {% block content %}
 <div class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
   <div style="margin-bottom: 2rem;">

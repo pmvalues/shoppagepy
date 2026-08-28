@@ -1,4 +1,5 @@
 from apps.catalog.models import MasterProduct
+from apps.core.seo import jsonld_script, video_jsonld, video_list_jsonld
 from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -15,6 +16,7 @@ def shows_directory_view(request):
     context = {
         'shows': shows_qs,
         'selected_category': category_filter,
+        'jsonld': jsonld_script(video_list_jsonld(list(shows_qs[:20]), request)),
     }
     return render(request, 'media_hub/shows_page.html', context)
 
@@ -25,6 +27,7 @@ def show_detail_view(request, slug):
     context = {
         'show': show,
         'related_shows': related_shows,
+        'jsonld': jsonld_script(video_jsonld(show, request)),
     }
     return render(request, 'media_hub/show_detail.html', context)
 
@@ -69,6 +72,7 @@ def shorts_directory_view(request):
         'selected_category': category,
         'query': query,
         'all_products': list(MasterProduct.objects.all()[:20]),
+        'jsonld': jsonld_script(video_list_jsonld(list(shorts_qs[:20]), request)),
     }
     return render(request, 'media_hub/shorts_page.html', context)
 
