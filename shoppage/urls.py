@@ -21,7 +21,14 @@ from apps.core.views import (
     search_view,
 )
 from apps.markets.views import malls_directory_view, market_detail_view
-from apps.media_hub.views import shorts_directory_view, show_detail_view, shows_directory_view
+from apps.media_hub.views import (
+    short_comment_create_view,
+    short_like_view,
+    short_view_increment_view,
+    shorts_directory_view,
+    show_detail_view,
+    shows_directory_view,
+)
 from apps.merchants.views import (
     campaign_center_view,
     campaign_toggle_view,
@@ -96,6 +103,9 @@ urlpatterns = [
     path('shows/', shows_directory_view, name='shows_directory'),
     path('shows/<slug:slug>/', show_detail_view, name='show_detail'),
     path('shorts/', shorts_directory_view, name='shorts_directory'),
+    path('shorts/<str:canonical_id>/like/', short_like_view, name='short_like'),
+    path('shorts/<str:canonical_id>/view/', short_view_increment_view, name='short_view'),
+    path('shorts/<str:canonical_id>/comment/', short_comment_create_view, name='short_comment_create'),
 
     # 8. Search Engine & RFQ Broadcast
     path('search/', search_view, name='search'),

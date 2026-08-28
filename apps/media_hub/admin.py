@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Short, Show
+from .models import Short, ShortComment, Show
 
 
 @admin.register(Show)
@@ -22,3 +22,12 @@ class ShortAdmin(admin.ModelAdmin):
     list_filter = ('moderation_state', 'is_sponsored')
     search_fields = ('title', 'product_title', 'merchant_name', 'summary')
     readonly_fields = ('canonical_id', 'created_at', 'updated_at')
+
+
+@admin.register(ShortComment)
+class ShortCommentAdmin(admin.ModelAdmin):
+    list_display = ('author_name', 'short', 'state', 'created_at')
+    list_filter = ('state',)
+    search_fields = ('author_name', 'comment', 'short__title')
+    autocomplete_fields = ('short',)
+    readonly_fields = ('created_at', 'updated_at')

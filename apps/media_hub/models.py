@@ -61,9 +61,9 @@ class Short(TimeStampedModel):
     video_url = models.URLField()
     thumbnail_url = models.URLField()
     duration = models.CharField(max_length=30, default='0:59')
-    views = models.IntegerField(default=5000, db_index=True)
-    likes = models.IntegerField(default=100)
-    shares = models.IntegerField(default=20)
+    views = models.IntegerField(default=0, db_index=True)
+    likes = models.IntegerField(default=0)
+    shares = models.IntegerField(default=0)
     summary = models.TextField(blank=True, null=True)
 
     product_title = models.CharField(max_length=255, blank=True, null=True)
@@ -89,3 +89,24 @@ class Short(TimeStampedModel):
 
     def __str__(self):
         return f"Short: {self.title} ({self.views:,} views)"
+
+
+class ShortComment(TimeStampedModel):
+    """YouTube-Shorts-style comments on proof shorts (staff moderation via admin)."""
+
+    class StateChoices(models.TextChoices):
+        APPROVED = 'approved', 'Approved'
+        REMOVED = 'removed', 'Removed'
+
+    short = models.ForeignKey(Short, on_delete=models.CASCADE, related_name='comments')
+    author_name = models.CharField(max_length=120)
+    comment = models.TextField()
+    state = models.CharField(max_length=20, choices=StateChoices.choices, default=StateChoices.APPROVED, db_index=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Short Comment'
+        verbose_name_plural = 'Short Comments'
+
+    def __str__(self):
+        return f'{self.author_name}: {self.comment[:40]}'
