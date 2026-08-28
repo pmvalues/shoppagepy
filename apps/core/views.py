@@ -194,6 +194,13 @@ def search_view(request):
 
     sort = request.GET.get('sort', 'relevance')
     near = _parse_near(request)
+    open_now_only = request.GET.get('open_now') == '1'
+    radius_param = request.GET.get('radius')
+    if near and radius_param:
+        try:
+            near = (near[0], near[1], min(max(float(radius_param), 1.0), 300.0))
+        except ValueError:
+            pass
 
     effective_query = query or f'{category} {brand}'.strip()
     results = ranked_search(
@@ -315,15 +322,20 @@ def search_view(request):
             with contextlib.suppress(TypeError, ValueError):
                 distance_km = round(_haversine_km(near[0], near[1], float(m.latitude), float(m.longitude)), 1)
 
+        if open_now_only:
+            on = getattr(m, 'open_now', None)
+            if not (on and on.get('is_open')):
+                continue
+
         places_stores.append({
             'merchant': m,
             'clean_name': m.name.split('#')[0].strip(),
             'rating': m.google_rating,
             'reviews_count': m.google_reviews_count,
             'category_name': m.get_category_display() if hasattr(m, 'get_category_display') else (m.category or 'Commercial Supplier').replace('_', ' ').title(),
-            'address': m.address_text.split(',')[0] if m.address_text else f"{m.province or 'Gauteng'}, South Africa",
-            'phone': m.telephone or m.whatsapp_number or '011 440 2529',
-            'operating_hours': m.operating_hours or 'Open · Closes 5 pm',
+            'address': m.address_text.split(',')[0] if m.address_text else (m.province or ''),
+            'phone': m.telephone or m.whatsapp_number or '',
+            'operating_hours': m.operating_hours or '',
             'review_snippet': '',
             'canonical_id': m.canonical_id,
             'whatsapp_number': m.whatsapp_number,
@@ -374,6 +386,31 @@ def search_view(request):
     dym_params['q'] = did_you_mean
     dym_link = urlencode(dym_params) if did_you_mean else ''
 
+    # Pre-built facet filter links (the sidebar was CSS-only until now).
+    def _facet_url(rkey: str, rval: str) -> str:
+        params = request.GET.copy()
+        params[rkey] = rval
+        params.pop('offset', None)  # reset paging when a filter changes
+        return urlencode(params)
+
+    _facets = results.get('facets', {}) or {}
+    facet_links = {
+        # (value, url, count, display label) — label prettified for the sidebar.
+        'categories': [(c, _facet_url('category', c), n, c.replace('_', ' ').title())
+                       for c, n in (_facets.get('categories') or {}).items()],
+        'brands': [(b, _facet_url('brand', b), n, b.replace('_', ' ').title())
+                   for b, n in (_facets.get('brands') or {}).items()],
+        'provinces': [(p, _facet_url('province', p), n, p)
+                      for p, n in (_facets.get('provinces') or {}).items()],
+    }
+    sort_choices = [
+        ('relevance', 'Best Value'),
+        ('price_asc', 'Price ↑'),
+        ('price_desc', 'Price ↓'),
+        ('newest', 'Newest'),
+        ('rating', 'Top Rated'),
+    ]
+
     context = {
         'query': query,
         'category': category,
@@ -383,6 +420,11 @@ def search_view(request):
         'mode': mode,
         'sort': sort,
         'near_active': near is not None,
+        'near_raw': request.GET.get('near', ''),
+        'lat_param': request.GET.get('lat', ''),
+        'lng_param': request.GET.get('lng', ''),
+        'open_now_only': open_now_only,
+        'radius': radius_param or '',
         'base_query': base_query,
         'dym_link': dym_link,
         'did_you_mean': did_you_mean,
@@ -417,6 +459,8 @@ def search_view(request):
         'next_offset': results['next_offset'],
         'offset': offset,
         'page': results['page'],
+        'facet_links': facet_links,
+        'sort_choices': sort_choices,
     }
     with contextlib.suppress(Exception):
         # Cache the context data (not rendered HTML) to avoid stale CSRF tokens.

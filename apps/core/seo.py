@@ -399,6 +399,15 @@ def merchant_jsonld(merchant, request=None) -> dict[str, Any]:
     same_as = [link for link in (merchant.website_url, merchant.google_maps_url, merchant.google_reviews_url) if link]
     if same_as:
         data['sameAs'] = same_as
+    # GMB-level attributes: logo, accepted payments, currency, service area.
+    if merchant.public_image_url:
+        data['logo'] = merchant.public_image_url
+    methods = [m for m in (merchant.payment_methods or []) if isinstance(m, str)]
+    if methods:
+        data['paymentAccepted'] = ', '.join(methods[:8])
+    data['currenciesAccepted'] = 'ZAR'
+    if merchant.province:
+        data['areaServed'] = merchant.province
     if merchant.google_rating and merchant.rating_count:
         data['aggregateRating'] = {
             '@type': 'AggregateRating',
@@ -479,6 +488,7 @@ def web_site_jsonld(request=None) -> dict[str, Any]:
         '@type': 'WebSite',
         'name': 'Shoppage',
         'url': f'{base}/',
+        'publisher': {'@id': f'{base}/#organization'},
         'potentialAction': {
             '@type': 'SearchAction',
             'target': {
@@ -488,6 +498,29 @@ def web_site_jsonld(request=None) -> dict[str, Any]:
             'query-input': 'required name=search_term_string',
         },
     }
+
+
+def organization_jsonld(request=None) -> dict[str, Any]:
+    """Site-level Organization (Knowledge Panel publisher)."""
+    from django.conf import settings
+
+    base = site_url(request)
+    data: dict[str, Any] = {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        '@id': f'{base}/#organization',
+        'name': 'Shoppage',
+        'url': f'{base}/',
+        'logo': {'@type': 'ImageObject', 'url': f'{base}/static/icons/og-image.png'},
+        'description': (
+            'South Africa National Commerce Grid — compare merchant-confirmed prices, '
+            'local stock and verified traders across the commerce grid.'
+        ),
+    }
+    same_as = list(getattr(settings, 'SITE_SAME_AS', []) or [])
+    if same_as:
+        data['sameAs'] = same_as
+    return data
 
 
 def _iso_duration(raw: Any) -> str:

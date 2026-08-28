@@ -2,7 +2,7 @@ from apps.core.paginator import LargeTablePaginator
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import AvailabilityStateChoices, DiscoveredOffer, Offer, PriceObservation
+from .models import AvailabilityStateChoices, DiscoveredOffer, Offer, PriceObservation, Promotion
 
 
 @admin.register(Offer)
@@ -133,5 +133,20 @@ class PriceObservationAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
-    def has_change_permission(self, request, obj=None):
-        return False
+@admin.register(Promotion)
+class PromotionAdmin(admin.ModelAdmin):
+    list_display = ('canonical_id', 'title', 'merchant_link', 'discount_label', 'state', 'valid_from', 'valid_until')
+    list_filter = ('state', 'valid_from')
+    search_fields = ('canonical_id', 'title', 'merchant__name', 'variant__title')
+    autocomplete_fields = ('merchant', 'variant')
+    readonly_fields = ('canonical_id', 'created_at', 'updated_at')
+
+    def merchant_link(self, obj):
+        if obj.merchant:
+            return format_html('<a href="/m/{}/" target="_blank">{}</a>', obj.merchant.canonical_id, obj.merchant.name)
+        return "-"
+    merchant_link.short_description = "Merchant"
+
+    def discount_label(self, obj):
+        return obj.discount_label
+    discount_label.short_description = "Discount"

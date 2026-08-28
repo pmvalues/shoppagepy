@@ -78,18 +78,16 @@
         <span class="badge" style="background: rgba(16, 185, 129, 0.25); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.5); font-size: 0.75rem; font-weight: 700;">
           ● Merchant Centre OS v8.1
         </span>
-        <span class="badge badge-blue" style="font-size: 0.75rem;">📍 {{ merchant.province|default:"Gauteng" }}</span>
-        <span class="badge badge-purple" style="font-size: 0.75rem;">{{ merchant.category|default:"Solar & Hardware" }}</span>
+        {% if merchant.province %}<span class="badge badge-blue" style="font-size: 0.75rem;">📍 {{ merchant.province }}</span>{% endif %}
+        {% if merchant.category %}<span class="badge badge-purple" style="font-size: 0.75rem;">📦 {{ merchant.category }}</span>{% endif %}
       </div>
 
       <h1 style="font-size: 2.1rem; font-weight: 800; color: #FFFFFF; margin: 0 0 0.4rem 0; letter-spacing: -0.02em;">
         {{ merchant.name|default:"Store Hub" }}
       </h1>
       <p style="color: #CBD5E1; font-size: 0.875rem; margin: 0; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; font-weight: 500;">
-        <span>🏢 {{ merchant.address_text|default:"Physical Mall Stall" }}</span>
-        <span>•</span>
-        <span>💬 WhatsApp: <strong style="color: #34D399; font-weight: 700;">+{{ merchant.whatsapp_number|default:"27712345678" }}</strong></span>
-        <span>•</span>
+        {% if merchant.address_text %}<span>🏢 {{ merchant.address_text }}</span>{% endif %}
+        {% if merchant.whatsapp_number %}<span>💬 WhatsApp: <strong style="color: #34D399; font-weight: 700;">+{{ merchant.whatsapp_number }}</strong></span>{% endif %}
         <span>★ <strong style="color: #FBBF24;">{% if merchant.google_rating %}{{ merchant.google_rating }}{% else %}&mdash;{% endif %}</strong> ({% if merchant.google_reviews_count %}{{ merchant.google_reviews_count }} review{{ merchant.google_reviews_count|pluralize }}{% else %}no reviews yet{% endif %})</span>
       </p>
     </div>
@@ -107,7 +105,7 @@
   <!-- KPI Pulse Ticker -->
   <div class="grid grid-cols-4" style="gap: 1.25rem; margin-bottom: 2rem;">
     <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #10B981;">
-      <div class="stat-number" style="color: #059669;">{{ merchant.trust_score|default:85 }}/100</div>
+      <div class="stat-number" style="color: #059669;">{{ merchant.trust_score }}/100</div>
       <div class="stat-label">Verified Trust Score</div>
     </div>
     <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #2563EB;">
@@ -119,7 +117,7 @@
       <div class="stat-label">AI Drafts Pending</div>
     </div>
     <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #F59E0B;">
-      <div class="stat-number" style="color: #B45309;">{{ total_referrals_count|default:48 }}</div>
+      <div class="stat-number" style="color: #B45309;">{{ total_referrals_count }}</div>
       <div class="stat-label">WhatsApp Leads Sent</div>
     </div>
   </div>
@@ -166,6 +164,28 @@
     >
       <span>🛡️</span> Trust Passport &amp; Seal Studio
     </button>
+    <button 
+      type="button" 
+      @click="activeTab = 'feeds'" 
+      :style="activeTab === 'feeds' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
+      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
+    >
+      <span>📤</span> Feeds &amp; Syndication
+    </button>
+    <button 
+      type="button" 
+      @click="activeTab = 'performance'" 
+      :style="activeTab === 'performance' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
+      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
+    >
+      <span>📊</span> Performance
+    </button>
+    <a 
+      href="/merchant/settings/"
+      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; color: #334155; font-weight: 600; text-decoration: none;"
+    >
+      <span>⚙️</span> Settings &amp; Promotions
+    </a>
   </div>
 
   <!-- =========================================================================
@@ -342,6 +362,12 @@
                 {% if gtin %}GS1 {{ gtin.0|upper }}: <code>{{ gtin.1 }}</code>{% else %}<span style="color:#B45309;">no GS1 barcode that passes its check digit</span>{% endif %}
               {% endwith %}
             </p>
+            <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.5rem;">
+              {% if offer.diag_image %}<span class="badge badge-green" style="font-size:0.7rem;">🖼️ Photo</span>{% else %}<span class="badge" style="background:#FEF3C7;color:#92400E;font-size:0.7rem;">⚠️ No photo</span>{% endif %}
+              {% if offer.diag_identifier %}<span class="badge badge-green" style="font-size:0.7rem;">🏷️ Identifier</span>{% else %}<span class="badge" style="background:#FEF3C7;color:#92400E;font-size:0.7rem;">⚠️ No GTIN / brand+MPN</span>{% endif %}
+              {% if offer.diag_needs_attention %}<span class="badge" style="background:#FEE2E2;color:#991B1B;font-size:0.7rem;">Needs attention</span>{% else %}<span class="badge badge-green" style="font-size:0.7rem;">Live</span>{% endif %}
+              {% if offer.diag_promo %}<span class="badge" style="background:#FEF3C7;color:#B45309;font-size:0.7rem;font-weight:800;">🔥 {{ offer.diag_promo }}</span>{% endif %}
+            </div>
             <p style="font-size: 0.75rem; color: #64748B; margin: 0.3rem 0 0 0;">
               Confirmed {{ offer.last_confirmed_at|date:'d M Y H:i' }} · valid until {{ offer.expires_at|date:'d M Y H:i' }}
               {% if offer.is_expired %} · <span style="color:#B45309;font-weight:700;">lapsed — re-confirm to keep publishing</span>{% endif %}
@@ -459,19 +485,19 @@
         <div style="display: flex; flex-direction: column; gap: 0.75rem;">
           <div style="display: flex; justify-content: space-between; padding: 0.85rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #CBD5E1;">
             <span style="font-size: 0.875rem; color: #334155; font-weight: 600;">CIPC Enterprise Number:</span>
-            <strong style="font-size: 0.875rem; color: #0F172A;">{{ merchant.cipc_enterprise_number|default:"K2021/123456/07" }} (Verified)</strong>
+            <strong style="font-size: 0.875rem; color: #0F172A;">{% if merchant.cipc_enterprise_number %}{{ merchant.cipc_enterprise_number }} (Verified){% else %}<span style="color:#94A3B8;font-weight:600;">Not on file</span>{% endif %}</strong>
           </div>
           <div style="display: flex; justify-content: space-between; padding: 0.85rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #CBD5E1;">
             <span style="font-size: 0.875rem; color: #334155; font-weight: 600;">B-BBEE Level:</span>
-            <strong style="font-size: 0.875rem; color: #065F46;">{{ merchant.bbbee_level|default:"Level 1 Contributor" }}</strong>
+            <strong style="font-size: 0.875rem; color: #065F46;">{% if merchant.bbbee_level %}{{ merchant.bbbee_level }}{% else %}<span style="color:#94A3B8;font-weight:600;">Not on file</span>{% endif %}</strong>
           </div>
           <div style="display: flex; justify-content: space-between; padding: 0.85rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #CBD5E1;">
             <span style="font-size: 0.875rem; color: #334155; font-weight: 600;">Tax Compliance PIN:</span>
-            <strong style="font-size: 0.875rem; color: #1D4ED8;">SARS Verified Valid</strong>
+            <strong style="font-size: 0.875rem; color: #1D4ED8;">{% if merchant.tax_compliance_pin %}SARS PIN on file{% else %}<span style="color:#94A3B8;font-weight:600;">Not on file</span>{% endif %}</strong>
           </div>
           <div style="display: flex; justify-content: space-between; padding: 0.85rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #CBD5E1;">
-            <span style="font-size: 0.875rem; color: #334155; font-weight: 600;">Complaints (Last 90d):</span>
-            <strong style="font-size: 0.875rem; color: #065F46;">0 Complaints (Pristine)</strong>
+            <span style="font-size: 0.875rem; color: #334155; font-weight: 600;">Median Response:</span>
+            <strong style="font-size: 0.875rem; color: #065F46;">{{ merchant.measured_response_minutes|default:"—" }} minutes</strong>
           </div>
         </div>
       </div>
@@ -507,6 +533,152 @@
           📋 Copy Trust Seal HTML to Clipboard
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB 6: 📤 Feeds & Syndication (Merchant Center)
+       ========================================================================= -->
+  <div x-show="activeTab === 'feeds'" x-transition style="display: none;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: flex-start;">
+      <!-- Feed registration card -->
+      <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.4rem; color: #0F172A;">
+          Google Merchant Center Feed
+        </h3>
+        <p style="color: #334155; font-size: 0.85rem; margin-bottom: 1.25rem;">
+          Register this URL as your primary feed in Google Merchant Center, or use it with any
+          shopping engine. It regenerates live from your confirmed offers.
+        </p>
+        <input
+          type="text"
+          readonly
+          value="{{ feed_url }}"
+          @click="$el.select(); navigator.clipboard.writeText($el.value);"
+          class="form-control"
+          style="font-family: monospace; font-size: 0.775rem; background: #F8FAFC; color: #0F172A; font-weight: 600; margin-bottom: 0.75rem;"
+        />
+        <button 
+          type="button" 
+          class="btn btn-outline" 
+          style="width: 100%; font-size: 0.875rem; font-weight: 700;"
+          @click="navigator.clipboard.writeText('{{ feed_url }}'); alert('Feed URL copied to clipboard!');"
+        >
+          📋 Copy Feed URL
+        </button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+          <div style="padding: 0.85rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #CBD5E1; text-align: center;">
+            <div style="font-size: 1.35rem; font-weight: 800; color: #0F172A;">{{ feed_items }}</div>
+            <div style="font-size: 0.75rem; color: #64748B;">Feed items (priced)</div>
+          </div>
+          <div style="padding: 0.85rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #CBD5E1; text-align: center;">
+            <div style="font-size: 1.35rem; font-weight: 800; color: #0F172A;">{{ feed_coverage }}</div>
+            <div style="font-size: 0.75rem; color: #64748B;">Products covered</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feed quality diagnostics card -->
+      <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.4rem; color: #0F172A;">
+          Feed Quality Diagnostics
+        </h3>
+        <p style="color: #334155; font-size: 0.85rem; margin-bottom: 1.25rem;">
+          Disapproval-risk report: Google requires photos and a valid identifier per item.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <div style="display: flex; justify-content: space-between; padding: 0.85rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #CBD5E1;">
+            <span style="font-size: 0.875rem; color: #334155; font-weight: 600;">With photos:</span>
+            <strong style="font-size: 0.875rem; color: #0F172A;">{{ feed_with_image }} / {{ feed_coverage }} ({% widthratio feed_with_image feed_coverage 100 %}%)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 0.85rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #CBD5E1;">
+            <span style="font-size: 0.875rem; color: #334155; font-weight: 600;">With identifier (GTIN or brand+MPN):</span>
+            <strong style="font-size: 0.875rem; color: #0F172A;">{{ feed_with_identifier }} / {{ feed_coverage }} ({% widthratio feed_with_identifier feed_coverage 100 %}%)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 0.85rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #CBD5E1;">
+            <span style="font-size: 0.875rem; color: #334155; font-weight: 600;">With GTIN:</span>
+            <strong style="font-size: 0.875rem; color: #1D4ED8;">{{ feed_with_gtin }}</strong>
+          </div>
+        </div>
+
+        {% if feed_risks %}
+        <div style="margin-top: 1.25rem;">
+          <div style="font-size: 0.8rem; font-weight: 800; color: #B45309; margin-bottom: 0.5rem;">⚠️ Issues to fix before approval</div>
+          <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+            {% for risk in feed_risks %}
+            <div style="font-size: 0.8rem; color: #7C2D12; background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 6px; padding: 0.5rem 0.75rem;">
+              {{ risk }}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB 7: 📊 Performance (clicks & leads per product, 30 days)
+       ========================================================================= -->
+  <div x-show="activeTab === 'performance'" x-transition style="display: none;">
+    <div class="grid grid-cols-4" style="gap: 1.25rem; margin-bottom: 1.5rem;">
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #2563EB;">
+        <div class="stat-number" style="color: #1D4ED8;">{{ perf_totals.clicks }}</div>
+        <div class="stat-label">Search Clicks (last 30d)</div>
+      </div>
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #10B981;">
+        <div class="stat-number" style="color: #059669;">{{ perf_totals.leads }}</div>
+        <div class="stat-label">WhatsApp Leads (last 30d)</div>
+      </div>
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #8B5CF6;">
+        <div class="stat-number" style="color: #6D28D9; font-size: 1rem;">{{ perf_totals.top_product|default:"—" }}</div>
+        <div class="stat-label">Top Product</div>
+      </div>
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #F59E0B;">
+        <div class="stat-number" style="color: #B45309; font-size: 1rem;">{{ perf_totals.top_query|default:"—" }}</div>
+        <div class="stat-label">Top Query</div>
+      </div>
+    </div>
+
+    <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
+      <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 1rem; color: #0F172A;">
+        Top Products by Clicks &amp; Leads
+      </h3>
+      {% if top_products %}
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        {% for tp in top_products %}
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #CBD5E1; flex-wrap: wrap; gap: 0.75rem;">
+          <div style="min-width: 260px;">
+            <a href="/p/{{ tp.canonical_id }}/" style="font-weight: 700; color: #1A0DAB; text-decoration: none; font-size: 0.9rem;">{{ tp.title }}</a>
+            <div style="font-size: 0.8rem; color: #64748B;">R {{ tp.price|floatformat:0|intcomma }}</div>
+          </div>
+          <div style="display: flex; gap: 1.5rem; align-items: center;">
+            <span style="font-size: 0.85rem;">🖱️ <strong style="color: #1D4ED8;">{{ tp.clicks }}</strong> clicks</span>
+            <span style="font-size: 0.85rem;">💬 <strong style="color: #059669;">{{ tp.leads }}</strong> leads</span>
+            <a href="/l/{{ tp.canonical_id }}/" class="btn btn-whatsapp" style="font-size: 0.75rem; padding: 0.4rem 0.75rem;">Lead Link</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p style="color: #94A3B8; font-size: 0.875rem;">No click data yet — this fills automatically as shoppers open your products from search.</p>
+      {% endif %}
+    </div>
+
+    <div class="card" style="background: #FFFFFF; padding: 1.5rem; margin-top: 1.5rem;">
+      <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 1rem; color: #0F172A;">
+        Queries Driving Your Clicks
+      </h3>
+      {% if top_queries %}
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+        {% for q, n in top_queries %}
+        <a href="/search/?q={{ q|urlencode }}" class="badge badge-blue" style="font-size: 0.8rem; padding: 0.4rem 0.75rem; text-decoration: none;">{{ q }} · {{ n }}</a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p style="color: #94A3B8; font-size: 0.875rem;">No recorded queries yet this month.</p>
+      {% endif %}
     </div>
   </div>
 

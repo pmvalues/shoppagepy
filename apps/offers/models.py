@@ -224,3 +224,47 @@ class DiscoveredOffer(TimeStampedModel):
     @property
     def is_stale(self) -> bool:
         return (timezone.now() - self.observed_at).days > 7
+
+
+class Promotion(TimeStampedModel):
+    """
+    Merchant-created product promotion (the Merchant Center 'promotions' surface).
+    Active promotions emit g:promotion_id in the merchant feed and badge on the
+    product page and dashboard.
+    """
+
+    class StateChoices(models.TextChoices):
+        ACTIVE = 'active', 'Active'
+        ENDED = 'ended', 'Ended'
+
+    canonical_id = models.CharField(max_length=120, unique=True, db_index=True, help_text="e.g. prom_a1b2c3d4e5f6")
+    merchant = models.ForeignKey('merchants.Merchant', on_delete=models.CASCADE, related_name='promotions')
+    variant = models.ForeignKey('catalog.MasterProduct', on_delete=models.CASCADE, related_name='promotions')
+    title = models.CharField(max_length=150)
+    description = models.TextField(blank=True, default='')
+    percent_off = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="e.g. 10.00 for 10% off")
+    price_off = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Flat ZAR discount amount")
+    valid_from = models.DateTimeField(default=timezone.now)
+    valid_until = models.DateTimeField(null=True, blank=True)
+    state = models.CharField(max_length=20, choices=StateChoices.choices, default=StateChoices.ACTIVE, db_index=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Promotion'
+        verbose_name_plural = 'Promotions'
+
+    def __str__(self):
+        return f"{self.title} ({self.merchant.name})"
+
+    @property
+    def promo_id(self) -> str:
+        """Google Merchant Center promotion id (g:promotion_id)."""
+        return f'sp_{self.canonical_id}'
+
+    @property
+    def discount_label(self) -> str:
+        if self.percent_off:
+            return f"{self.percent_off:.0f}% off"
+        if self.price_off:
+            return f"R {self.price_off:,.0f} off"
+        return self.title

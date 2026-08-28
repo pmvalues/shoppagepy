@@ -476,6 +476,78 @@
       </section>
       {% endif %}
 
+      <!-- FACETS: computed in ranked_search, now rendered (was CSS-only) -->
+      {% if facet_links.categories or facet_links.brands or facet_links.provinces %}
+      <aside class="facet-box" style="padding: 1rem 1.25rem; margin-bottom: 1.5rem; border-radius: 12px; display: flex; flex-wrap: wrap; gap: 1.5rem 2rem; align-items: flex-start;">
+        {% if facet_links.categories %}
+        <div class="facet-group">
+          <div class="facet-title">Category</div>
+          {% for name, url, count, label in facet_links.categories %}
+          <a class="facet-link{% if category == name %} active{% endif %}" href="{% if query %}/search/?{{ url }}{% else %}/category/{{ name }}/{% endif %}">{{ label|default:"Other" }} <span class="facet-count">{{ count }}</span></a>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% if facet_links.brands %}
+        <div class="facet-group">
+          <div class="facet-title">Brand</div>
+          {% for name, url, count, label in facet_links.brands %}
+          <a class="facet-link{% if brand == name %} active{% endif %}" href="/search/?{{ url }}">{{ label|default:"Unknown" }} <span class="facet-count">{{ count }}</span></a>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% if facet_links.provinces %}
+        <div class="facet-group">
+          <div class="facet-title">Province</div>
+          {% for name, url, count, label in facet_links.provinces %}
+          <a class="facet-link{% if province == name %} active{% endif %}" href="/search/?{{ url }}">{{ label|default:"All" }} <span class="facet-count">{{ count }}</span></a>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <div class="facet-group">
+          <div class="facet-title">Price range (ZAR)</div>
+          <form method="get" action="/search/" style="display: flex; gap: 0.4rem; align-items: center;">
+            <input type="hidden" name="q" value="{{ query }}">
+            <input type="hidden" name="category" value="{{ category }}">
+            <input type="hidden" name="brand" value="{{ brand }}">
+            <input type="hidden" name="province" value="{{ province }}">
+            <input type="number" name="min_price" placeholder="Min" value="{{ min_price|default:'' }}" style="width: 72px;">
+            <input type="number" name="max_price" placeholder="Max" value="{{ max_price|default:'' }}" style="width: 72px;">
+            <button type="submit" class="btn btn-outline" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">Go</button>
+          </form>
+        </div>
+        <div class="facet-group">
+          <div class="facet-title">Local filters</div>
+          <form method="get" action="/search/" style="display: flex; flex-direction: column; gap: 0.4rem; align-items: flex-start;">
+            <input type="hidden" name="q" value="{{ query }}">
+            {% if near_raw %}<input type="hidden" name="near" value="{{ near_raw }}">
+            <input type="hidden" name="lat" value="{{ lat_param }}">
+            <input type="hidden" name="lng" value="{{ lng_param }}">{% endif %}
+            <label style="font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+              <input type="checkbox" name="open_now" value="1" {% if open_now_only %}checked{% endif %}> Open now
+            </label>
+            {% if near_raw %}
+            <select name="radius" style="font-size: 0.8rem; padding: 0.25rem 0.4rem;">
+              <option value="">Any distance</option>
+              <option value="10" {% if radius == '10' %}selected{% endif %}>Within 10 km</option>
+              <option value="25" {% if radius == '25' %}selected{% endif %}>Within 25 km</option>
+              <option value="50" {% if radius == '50' %}selected{% endif %}>Within 50 km</option>
+              <option value="100" {% if radius == '100' %}selected{% endif %}>Within 100 km</option>
+            </select>
+            {% endif %}
+            <button type="submit" class="btn btn-outline" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">Apply</button>
+          </form>
+        </div>
+        <div class="facet-group">
+          <div class="facet-title">Sort</div>
+          <div class="sort-tabs">
+            {% for skey, slabel in sort_choices %}
+            <a class="sort-tab{% if sort == skey %} active{% endif %}" href="/search/?{{ base_query }}&amp;sort={{ skey }}">{{ slabel }}</a>
+            {% endfor %}
+          </div>
+        </div>
+      </aside>
+      {% endif %}
+
       <!-- SECTION B: Consumer Google Shopping & Price Comparison Matrix -->
       {% if results.products %}
       <section style="margin-bottom: 2.5rem;">
@@ -519,7 +591,7 @@
 
               <!-- Star Rating & Store Availability -->
               <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.8rem; color: #4B5563; margin-bottom: 0.5rem; flex-wrap: wrap;">
-                <span style="color: #D97706; font-weight: 700;">★ 4.9 <span style="color: #6B7280; font-weight: normal;">(38 reviews)</span></span>
+                {% if p.shoppage_rating %}<span style="color: #D97706; font-weight: 700;">★ {{ p.shoppage_rating }} <span style="color: #6B7280; font-weight: normal;">({{ p.shoppage_rating_count|default:0 }} review{{ p.shoppage_rating_count|default:0|pluralize }})</span></span>{% endif %}
                 <span>•</span>
                 <span style="color: #059669; font-weight: 600;">⚡ Available at {{ p.offers.count|default:1 }} verified store{{ p.offers.count|pluralize }}</span>
               </div>

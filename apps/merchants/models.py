@@ -83,6 +83,11 @@ class Merchant(TimeStampedModel):
     years_in_business = models.IntegerField(default=1)
     median_response_minutes = models.IntegerField(default=15)
 
+    # Merchant Center syndication (per-merchant feed overrides)
+    shipping_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text="Standard shipping price in ZAR (feed g:shipping)")
+    shipping_service = models.CharField(max_length=80, blank=True, default='', help_text="Shipping service name, e.g. Standard Courier")
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, help_text="Tax rate percentage, e.g. 15.00 (feed g:tax)")
+
     # Rich JSON attributes
     delivery_options = models.JSONField(default=list, blank=True)
     payment_methods = models.JSONField(default=list, blank=True)

@@ -174,6 +174,14 @@
         GS1 ID: <code style="background: #F1F5F9; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem;">{{ product.canonical_id }}</code>
       </p>
 
+      <!-- GOOGLE SHOPPING SALE BADGE (active merchant promotion) -->
+      {% if active_promo %}
+      <div style="background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 12px; padding: 0.8rem 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.6rem; font-size: 0.875rem; font-weight: 800; color: #92400E;">
+        🔥 SALE · {{ active_promo.discount_label }} at {{ active_promo.merchant.name|truncatechars:32 }}
+        <span style="font-weight: 600; color: #B45309;">(until {{ active_promo.valid_until|date:"d M Y"|default:"further notice" }})</span>
+      </div>
+      {% endif %}
+
       <!-- GOOGLE SHOPPING BUY BOX (Primary Featured Merchant Offer) -->
       <div style="background: #FFFFFF; border: 1.5px solid #10B981; border-radius: 16px; padding: 1.75rem; margin-bottom: 1.75rem;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">

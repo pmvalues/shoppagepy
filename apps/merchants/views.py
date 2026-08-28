@@ -1,4 +1,5 @@
 import logging
+import json
 from decimal import Decimal, InvalidOperation
 
 from apps.catalog.models import MasterProduct
@@ -211,10 +212,94 @@ def merchant_dashboard_view(request):
         # No merchant linked to this account yet — send them to claim one.
         return redirect('merchant_claim')
 
-    offers = list(merchant.offers.select_related('variant').order_by('-price_amount')[:100])
+    offers = list(merchant.offers.select_related('variant').prefetch_related('variant__images').order_by('-price_amount')[:100])
     drafts = list(merchant.drafts.select_related('product').order_by('-created_at')[:25])
     agent_runs = list(merchant.agent_runs.order_by('-created_at')[:6])
     referral_events = list(merchant.referral_events.order_by('-created_at')[:12])
+
+    # Feeds & Syndication diagnostics (Merchant-Center-grade quality report).
+    from apps.core.seo import site_url
+
+    feed_states = (
+        AvailabilityStateChoices.FRESH,
+        AvailabilityStateChoices.CONFIRM_REQUIRED,
+        AvailabilityStateChoices.QUOTE_REQUIRED,
+    )
+    feed_offers = list(
+        merchant.offers.select_related('variant').prefetch_related('variant__images')
+        .filter(availability_state__in=feed_states, price_amount__isnull=False)
+    )
+    variants = {o.variant_id: o.variant for o in feed_offers}
+    cover = list(variants.values())
+    with_image = sum(1 for v in cover if v.images.all())
+    with_gtin = sum(1 for v in cover if v.gtin_pairs)
+    with_identifier = sum(1 for v in cover if v.gtin_pairs or (v.brand and v.mpn))
+    no_price = merchant.offers.filter(price_amount__isnull=True).count()
+
+    feed_risks = []
+    if cover and with_image < len(cover):
+        feed_risks.append(f'{len(cover) - with_image} product(s) without photos')
+    if cover and with_identifier < len(cover):
+        feed_risks.append(f'{len(cover) - with_identifier} product(s) without a valid identifier (GTIN or brand + MPN)')
+    if no_price:
+        feed_risks.append(f'{no_price} un-priced offer(s) excluded from the feed')
+    if not cover:
+        feed_risks.append('No priced offers yet — confirm prices to populate the feed.')
+
+    # ---- GMC-grade Performance: clicks & leads per product (last 30 days) ----
+    from django.db.models import Count
+
+    from apps.core.models import SearchClick
+    from apps.offers.models import Promotion
+    from apps.referrals.models import ReferralEvent
+
+    since30 = timezone.now() - timezone.timedelta(days=30)
+    catalog_pk_strings = [
+        str(pk) for pk in merchant.offers.exclude(variant__isnull=True).values_list('variant_id', flat=True)
+    ]
+    clicks_by_product: dict[str, int] = {}
+    query_rows: list[tuple[str, int]] = []
+    if catalog_pk_strings:
+        click_rows = list(
+            SearchClick.objects.filter(product_id__in=catalog_pk_strings, created_at__gte=since30)
+            .values('product_id').annotate(n=Count('id')).order_by('-n')
+        )
+        clicks_by_product = {r['product_id']: r['n'] for r in click_rows}
+        query_rows = list(
+            SearchClick.objects.filter(query__ne='', product_id__in=catalog_pk_strings, created_at__gte=since30)
+            .values('query').annotate(n=Count('id')).order_by('-n')[:8]
+            .values_list('query', 'n')
+        )
+    lead_rows = list(
+        ReferralEvent.objects.filter(merchant=merchant, occurred_at__gte=since30)
+        .exclude(offer__isnull=True)
+        .values('offer__variant_id').annotate(n=Count('id'))
+    )
+    leads_by_variant: dict[Any, int] = {r['offer__variant_id']: r['n'] for r in lead_rows}
+
+    # Per-item diagnostics & promotion badges (attached to the offer objects).
+    active_promos = list(Promotion.objects.filter(merchant=merchant, state='active').select_related('variant'))
+    promo_by_variant = {p.variant_id: p for p in active_promos}
+    for o in offers:
+        v = o.variant
+        o.diag_image = bool(v and v.images.all())
+        o.diag_gtin = bool(v and v.gtin_pairs)
+        o.diag_identifier = o.diag_gtin or bool(v and v.brand and v.mpn)
+        o.diag_needs_attention = not o.diag_image or not o.diag_identifier or o.is_expired
+        o.diag_promo = promo_by_variant[o.variant_id].discount_label if o.variant_id in promo_by_variant else ''
+        o.diag_clicks = clicks_by_product.get(str(o.variant_id), 0)
+        o.diag_leads = leads_by_variant.get(o.variant_id, 0)
+
+    top_products = sorted(
+        (o for o in offers if (o.diag_clicks or o.diag_leads)),
+        key=lambda o: -(o.diag_clicks + o.diag_leads),
+    )[:8]
+    perf_totals = {
+        'clicks': sum(clicks_by_product.values()),
+        'leads': sum(leads_by_variant.values()),
+        'top_product': top_products[0].variant.title if top_products else None,
+        'top_query': query_rows[0][0] if query_rows else None,
+    }
 
     context = {
         'merchant': merchant,
@@ -224,6 +309,26 @@ def merchant_dashboard_view(request):
         'referral_events': referral_events,
         'demands': referral_events,
         'total_referrals_count': len(referral_events),
+        'feed_url': f'{site_url(request)}/api/feeds/google-merchant-center/{merchant.canonical_id}/',
+        'feed_items': len(feed_offers),
+        'feed_coverage': len(cover),
+        'feed_with_image': with_image,
+        'feed_with_gtin': with_gtin,
+        'feed_with_identifier': with_identifier,
+        'feed_risks': feed_risks,
+        'top_queries': [(q, n) for q, n in query_rows],
+        'top_products': [
+            {
+                'title': o.variant.title,
+                'canonical_id': o.variant.canonical_id,
+                'price': float(o.price_amount) if o.price_amount else 0.0,
+                'clicks': o.diag_clicks,
+                'leads': o.diag_leads,
+            }
+            for o in top_products
+        ],
+        'perf_totals': perf_totals,
+        'active_promos': active_promos,
     }
     return render(request, 'merchants/merchant_dashboard.html', context)
 
@@ -269,3 +374,120 @@ def merchant_quick_price_view(request, offer_id):
         'price_amount', 'availability_state', 'last_confirmed_at', 'expires_at', 'updated_at',
     ])
     return HttpResponse(f'R {offer.price_amount:,.0f} · confirmed {offer.last_confirmed_at:%Y-%m-%d %H:%M}')
+
+
+@login_required
+def merchant_settings_view(request):
+    """
+    GMC-grade business settings: contact/location/hours plus per-merchant
+    shipping & tax that the merchant feed uses (g:shipping / g:tax).
+    """
+    merchant = request.user.owned_merchants.first()
+    merchant_id = request.GET.get('merchantId')
+    if merchant_id:
+        candidate = Merchant.objects.filter(canonical_id=merchant_id).first()
+        if candidate and (request.user.is_staff or candidate.owner_id == request.user.id):
+            merchant = candidate
+    if merchant is None:
+        return redirect('merchant_claim')
+
+    if request.method == 'POST':
+        updates: dict[str, Any] = {}
+        for f in ('name', 'whatsapp_number', 'telephone', 'email', 'website_url',
+                  'category', 'address_text', 'province', 'locality', 'postal_code',
+                  'stall_identifier', 'storefront_photo_url', 'appointment_url',
+                  'operating_hours', 'shipping_service'):
+            val = request.POST.get(f, '').strip()
+            updates[f] = val or None
+        for f in ('shipping_price', 'tax_rate'):
+            raw = request.POST.get(f, '').strip()
+            try:
+                updates[f] = Decimal(raw) if raw else None
+            except (InvalidOperation, TypeError, ValueError):
+                messages.error(request, f'{f} must be a number — unchanged.')
+        hours_raw = request.POST.get('opening_hours_json', '').strip()
+        if hours_raw:
+            try:
+                parsed = json.loads(hours_raw)
+                if isinstance(parsed, dict):
+                    updates['opening_hours'] = parsed
+                else:
+                    messages.error(request, 'Opening hours must be a JSON object.')
+            except ValueError:
+                messages.error(request, 'Opening hours JSON was invalid — hours unchanged.')
+        for f, v in updates.items():
+            setattr(merchant, f, v)
+        merchant.save(update_fields=list(updates.keys()))
+        messages.success(request, 'Business settings saved — the merchant feed now uses your shipping & tax.')
+        return redirect(f'/merchant/dashboard/?merchantId={merchant.canonical_id}')
+
+    context = {
+        'merchant': merchant,
+        'promos': list(merchant.promotions.select_related('variant').order_by('-created_at')[:25]),
+        'offer_products': list(
+            merchant.offers.exclude(variant__isnull=True).select_related('variant').order_by('-price_amount')[:200]
+        ),
+    }
+    return render(request, 'merchants/merchant_settings.html', context)
+
+
+@login_required
+@require_POST
+def merchant_promotion_create_view(request):
+    """Create an active product promotion; it feeds g:promotion_id and badges product pages."""
+    from apps.offers.models import Promotion
+
+    merchant = request.user.owned_merchants.first()
+    merchant_id = request.POST.get('merchantId') or request.GET.get('merchantId')
+    if merchant_id:
+        candidate = Merchant.objects.filter(canonical_id=merchant_id).first()
+        if candidate and (request.user.is_staff or candidate.owner_id == request.user.id):
+            merchant = candidate
+    if merchant is None:
+        raise PermissionDenied
+
+    variant = MasterProduct.objects.filter(
+        id=request.POST.get('product_id'), status__in=['active', 'ACTIVE']
+    ).first()
+    if not variant:
+        messages.error(request, 'Select a product for the promotion.')
+        return redirect(f'/merchant/settings/?merchantId={merchant.canonical_id}')
+
+    try:
+        percent = Decimal(request.POST.get('percent_off') or '')
+    except InvalidOperation:
+        percent = None
+    try:
+        price_off = Decimal(request.POST.get('price_off') or '')
+    except InvalidOperation:
+        price_off = None
+    if not percent and not price_off:
+        messages.error(request, 'Provide either % off or a flat R amount.')
+        return redirect(f'/merchant/settings/?merchantId={merchant.canonical_id}')
+
+    try:
+        days = max(1, min(365, int(request.POST.get('valid_days') or 14)))
+    except ValueError:
+        days = 14
+
+    title = (request.POST.get('title') or '').strip() or (
+        f'{percent}% off' if percent else f'R {price_off:,.0f} off'
+    )
+    promo = Promotion.objects.create(
+        canonical_id=(
+            f"prom_{merchant.canonical_id}_{variant.canonical_id[:8]}"
+            f"_{int(timezone.now().timestamp() * 1000) % 1000000}"
+        ),
+        merchant=merchant,
+        variant=variant,
+        title=title[:150],
+        percent_off=percent,
+        price_off=price_off,
+        valid_from=timezone.now(),
+        valid_until=timezone.now() + timezone.timedelta(days=days),
+    )
+    messages.success(
+        request,
+        f'Promotion "{promo.title}" live until {promo.valid_until:%d %b %Y} — badged in the feed and product page.',
+    )
+    return redirect(f'/merchant/settings/?merchantId={merchant.canonical_id}')

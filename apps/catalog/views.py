@@ -223,6 +223,15 @@ def product_detail_view(request, canonical_id):
             history_marker_pct = max(0, min(100, round((confirmed_min - low) / (high - low) * 100)))
     gallery = [{'url': img.url, 'alt': img.effective_alt} for img in product.images.all()[:8]]
 
+    from apps.offers.models import Promotion
+    from django.utils import timezone
+
+    _promo_now = timezone.now()
+    active_promo = (
+        Promotion.objects.filter(variant=product, state=Promotion.StateChoices.ACTIVE, valid_from__lte=_promo_now)
+        .exclude(valid_until__lt=_promo_now).select_related('merchant').first()
+    )
+
     context = {
         'product': product,
         'confirmed_offers': confirmed_offers,
@@ -266,5 +275,123 @@ def product_detail_view(request, canonical_id):
         'og_image_url': primary_image.url if primary_image else '',
         'og_image_alt': f'{product.brand} {product.title}',
         'og_type': 'product',
+        'active_promo': active_promo,
     }
     return render(request, 'catalog/product_detail.html', context)
+
+
+def category_landing_view(request, slug):
+    """Google-Shopping-style category browse destination: /category/<slug>/."""
+    from django.utils.http import urlencode
+
+    from apps.core.seo import breadcrumb_jsonld, jsonld_script
+    from apps.intelligence.ranking import ranked_search
+
+    category_ref = str(slug).lower().replace('-', '_')
+    if not MasterProduct.objects.filter(
+        category_ref=category_ref, status__in=['active', 'ACTIVE']
+    ).exists():
+        raise Http404('Category not found')
+
+    sort = request.GET.get('sort', 'relevance')
+    try:
+        offset = max(int(request.GET.get('offset', 0)), 0)
+    except ValueError:
+        offset = 0
+    try:
+        min_price = float(request.GET.get('min_price')) if request.GET.get('min_price') else None
+    except ValueError:
+        min_price = None
+    try:
+        max_price = float(request.GET.get('max_price')) if request.GET.get('max_price') else None
+    except ValueError:
+        max_price = None
+
+    results = ranked_search(
+        category_ref,
+        limit=24,
+        offset=offset,
+        category=category_ref,
+        min_price=min_price,
+        max_price=max_price,
+        sort=sort,
+    )
+
+    products = []
+    for s in results['products']:
+        p = s.product
+        summary = p.reviews_summary if isinstance(p.reviews_summary, dict) else {}
+        rating = summary.get('ratingValue') or summary.get('average') or ''
+        rating_count = summary.get('reviewCount') or summary.get('count') or 0
+        p.shoppage_rating = float(rating) if rating else ''
+        p.shoppage_rating_count = int(rating_count or 0)
+        p.shoppage_best_price = (
+            float(s.best_offer.price_amount)
+            if s.best_offer and s.best_offer.price_amount
+            else (float(p.estimated_price_zar) if p.estimated_price_zar else 0.0)
+        )
+        p.shoppage_offer_count = s.offer_count or (1 if s.best_offer else 0)
+        products.append(p)
+
+    nav_params = {k: v for k, v in request.GET.items() if k not in ('offset', 'sort') and v}
+    base_query = urlencode(nav_params)
+
+    def _facet_url(rkey: str, rval: str) -> str:
+        params = request.GET.copy()
+        params[rkey] = rval
+        params.pop('offset', None)
+        return urlencode(params)
+
+    _facets = results.get('facets', {}) or {}
+    facet_links = {
+        'categories': [
+            (c, f'/category/{c}/', n, c.replace('_', ' ').title())
+            for c, n in (_facets.get('categories') or {}).items()
+        ],
+        'brands': [
+            (b, f'/category/{slug}/?{_facet_url("brand", b)}', n, b.replace('_', ' ').title())
+            for b, n in (_facets.get('brands') or {}).items()
+        ],
+        'provinces': [
+            (p_, f'/category/{slug}/?{_facet_url("province", p_)}', n, p_)
+            for p_, n in (_facets.get('provinces') or {}).items()
+        ],
+    }
+    sort_choices = [
+        ('relevance', 'Best Value'),
+        ('price_asc', 'Price ↑'),
+        ('price_desc', 'Price ↓'),
+        ('newest', 'Newest'),
+        ('rating', 'Top Rated'),
+    ]
+
+    label = category_ref.replace('_', ' ').title()
+    total = results['total_products']
+    crumbs = [('Home', '/'), ('Categories', '/search/'), (label, None)]
+
+    context = {
+        'category': category_ref,
+        'category_label': label,
+        'products': products,
+        'total_products': total,
+        'facets': results['facets'],
+        'price_stats': results['price_stats'],
+        'facet_links': facet_links,
+        'sort': sort,
+        'sort_choices': sort_choices,
+        'base_query': base_query,
+        'min_price': min_price,
+        'max_price': max_price,
+        'offset': offset,
+        'next_offset': results['next_offset'],
+        'page': results['page'],
+        'breadcrumb_jsonld': jsonld_script(breadcrumb_jsonld(crumbs, request)),
+        'page_title': f'{label} — Prices, Stock & Verified Stockists | Shoppage',
+        'meta_description': (
+            f'{label} — compare {total} products, prices and verified stockists '
+            f'across the South Africa National Commerce Grid.'
+        ),
+        'canonical_path': f'/category/{slug}/',
+        'robots_meta': 'index,follow',
+    }
+    return render(request, 'catalog/category_page.html', context)

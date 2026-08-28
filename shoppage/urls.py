@@ -2,7 +2,7 @@
 Shoppage Platform URL Configuration (Pure Django Architecture)
 """
 
-from apps.catalog.views import product_detail_view
+from apps.catalog.views import category_landing_view, product_detail_view
 from apps.core.legal import legal_page_view
 from apps.core.seo import (
     _paged_sitemap,
@@ -27,7 +27,9 @@ from apps.merchants.views import (
     merchant_detail_view,
     merchant_draft_action_view,
     merchant_list_view,
+    merchant_promotion_create_view,
     merchant_quick_price_view,
+    merchant_settings_view,
 )
 from apps.referrals.views import universal_link_resolver
 from django.conf import settings
@@ -58,6 +60,7 @@ urlpatterns = [
 
     # 4. Catalog Product Detail & Matrix Pricing
     path('p/<str:canonical_id>/', product_detail_view, name='product_detail'),
+    path('category/<slug:slug>/', category_landing_view, name='category_landing'),
 
     # 5. Spatial Markets & Shopping Centres
     path('malls/', malls_directory_view, name='malls_directory'),
@@ -70,6 +73,8 @@ urlpatterns = [
     path('merchant/dashboard/', merchant_dashboard_view, name='merchant_dashboard'),
     path('merchant/draft/<str:draft_id>/action/', merchant_draft_action_view, name='merchant_draft_action'),
     path('merchant/offer/<uuid:offer_id>/price/', merchant_quick_price_view, name='merchant_quick_price'),
+    path('merchant/settings/', merchant_settings_view, name='merchant_settings'),
+    path('merchant/promotion/create/', merchant_promotion_create_view, name='merchant_promotion_create'),
 
     # 7. Media Hub: Shows & Proof Shorts
     path('shows/', shows_directory_view, name='shows_directory'),

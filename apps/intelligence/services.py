@@ -268,6 +268,23 @@ def _feed_date(value) -> str:
     return text
 
 
+def _gmc_product_category(category_ref: str | None) -> str | None:
+    """Best-effort map of an internal category slug to a Google product category id.
+
+    Returns None when there is no confident mapping so the feed never emits an
+    invalid google_product_category (which GMC would disapprove). Extend the map
+    as the catalogue grows.
+    """
+    if not category_ref:
+        return None
+    text = (category_ref or '').lower()
+    electronics_hints = ('solar', 'inverter', 'battery', 'panel', 'charger', 'adapter',
+                        'electronics', 'camera', 'speaker', 'router', 'cable', 'led', 'tv')
+    if any(h in text for h in electronics_hints):
+        return '201'  # Electronics
+    return None
+
+
 def generate_google_merchant_center_feed(merchant_id: str, base_url: str = 'https://shoppage.co.za') -> str:
     """RSS 2.0 product feed in the Google Merchant Center namespace.
 
@@ -296,6 +313,18 @@ def generate_google_merchant_center_feed(merchant_id: str, base_url: str = 'http
         .order_by('canonical_id')
     )
 
+    # Active promotions per product (g:promotion_id).
+    from django.utils import timezone
+
+    from apps.offers.models import Promotion
+
+    now = timezone.now()
+    promos = {
+        p.variant_id: p
+        for p in Promotion.objects.filter(merchant=merchant, state=Promotion.StateChoices.ACTIVE, valid_from__lte=now)
+        .exclude(valid_until__lt=now)
+    }
+
     items_xml = []
     for o in offers:
         p = o.variant
@@ -311,7 +340,6 @@ def generate_google_merchant_center_feed(merchant_id: str, base_url: str = 'http
             f'      <g:price>{o.price_amount:.2f} {_feed_text(o.currency)}</g:price>',
             f'      <g:condition>{_feed_text(p.condition_type or "new")}</g:condition>',
             f'      <g:country>{_feed_text(merchant.country or "ZA")}</g:country>',
-            '      <g:excluded_destination>ShoppingAds</g:excluded_destination>',
         ]
         image = p.primary_image
         if image:
@@ -340,6 +368,52 @@ def generate_google_merchant_center_feed(merchant_id: str, base_url: str = 'http
                 if attributes.get(key):
                     tags.append(f'      <g:{tag}>{_feed_text(attributes[key])}</g:{tag}>')
                     break
+        # Google Shopping eligibility: emit the Google taxonomy category id when
+        # the product category maps to one (unknown categories are omitted rather
+        # than sent with an invalid id, which GMC would reject).
+        gpc = _gmc_product_category(p.category_ref)
+        if gpc:
+            tags.append(f'      <g:google_product_category>{_feed_text(gpc)}</g:google_product_category>')
+        promo = promos.get(p.id)
+        if promo:
+            tags.append(f'      <g:promotion_id>{_feed_text(promo.promo_id)}</g:promotion_id>')
+        # Shipping & tax: sent only when the operator configured account-level
+        # defaults; otherwise Merchant Center uses the account settings.
+        from django.conf import settings
+
+        shipping = None
+        if merchant.shipping_price is not None:
+            shipping = {
+                'country': merchant.country or 'ZA',
+                'service': merchant.shipping_service or 'Standard',
+                'price': float(merchant.shipping_price),
+                'currency': o.currency,
+            }
+        else:
+            cfg = getattr(settings, 'GMC_SHIPPING', None)
+            if isinstance(cfg, dict):
+                shipping = cfg
+        if shipping:
+            tags.append('      <g:shipping>')
+            tags.append(f'        <g:country>{_feed_text(shipping.get("country", merchant.country or "ZA"))}</g:country>')
+            if shipping.get('service'):
+                tags.append(f'        <g:service>{_feed_text(shipping["service"])}</g:service>')
+            if shipping.get('price') is not None:
+                tags.append(f'        <g:price>{float(shipping["price"]):.2f} {_feed_text(shipping.get("currency", o.currency))}</g:price>')
+            tags.append('      </g:shipping>')
+        tax = None
+        if merchant.tax_rate is not None:
+            tax = {'country': merchant.country or 'ZA', 'rate': float(merchant.tax_rate)}
+        else:
+            cfg = getattr(settings, 'GMC_TAX', None)
+            if isinstance(cfg, dict):
+                tax = cfg
+        if tax:
+            tags.append('      <g:tax>')
+            tags.append(f'        <g:country>{_feed_text(tax.get("country", merchant.country or "ZA"))}</g:country>')
+            if tax.get('rate') is not None:
+                tags.append(f'        <g:rate>{float(tax["rate"]):.2f}</g:rate>')
+            tags.append('      </g:tax>')
         items_xml.append('    <item>\n' + '\n'.join(tags) + '\n    </item>')
 
     return (
