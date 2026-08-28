@@ -12,13 +12,13 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'shoppage.settings.prod')
 django.setup()
 from django.db import connection
 
-for attempt in range(1, 31):
+for attempt in range(1, 6):
     try:
         connection.ensure_connection()
         print(f'==> Database reachable ({connection.vendor}) on attempt {attempt}!')
         sys.exit(0)
     except Exception as e:
-        print(f'==> Waiting for database... (attempt {attempt}/30): {e}')
+        print(f'==> Waiting for database... (attempt {attempt}/5): {e}')
         time.sleep(1)
 print('==> Database wait timed out, continuing startup...')
 " || true
