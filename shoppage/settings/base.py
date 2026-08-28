@@ -101,33 +101,26 @@ DATABASES = {
 }
 
 db_url = os.environ.get('DATABASE_URL') or os.environ.get('DATABASE_URI')
-if db_url and (db_url.startswith('postgres://') or db_url.startswith('postgresql://')):
-    import socket
+use_sqlite = os.environ.get('USE_SQLITE', '').lower() in ('1', 'true', 'yes')
+
+if not use_sqlite and db_url and (db_url.startswith('postgres://') or db_url.startswith('postgresql://')):
     import urllib.parse
     url = urllib.parse.urlparse(db_url)
     db_name = url.path[1:]
     if '?' in db_name:
         db_name = db_name.split('?')[0]
-    host = url.hostname or 'localhost'
-    port = int(url.port or 5432)
-
-    pg_reachable = False
-    try:
-        with socket.create_connection((host, port), timeout=1.0):
-            pg_reachable = True
-    except Exception:
-        pg_reachable = False
-
-    if pg_reachable:
-        DATABASES['default'] = {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': urllib.parse.unquote(db_name),
-            'USER': urllib.parse.unquote(url.username or 'postgres'),
-            'PASSWORD': urllib.parse.unquote(url.password or ''),
-            'HOST': host,
-            'PORT': str(port),
-            'CONN_MAX_AGE': 60,
-        }
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': urllib.parse.unquote(db_name),
+        'USER': urllib.parse.unquote(url.username or 'postgres'),
+        'PASSWORD': urllib.parse.unquote(url.password or ''),
+        'HOST': url.hostname or 'localhost',
+        'PORT': str(url.port or '5432'),
+        'CONN_MAX_AGE': 60,
+        'OPTIONS': {
+            'connect_timeout': 3,
+        },
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
