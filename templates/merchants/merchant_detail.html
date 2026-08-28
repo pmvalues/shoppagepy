@@ -1,6 +1,27 @@
 {% extends 'base.html' %}
 {% load humanize core_tags %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const el = document.getElementById('merchant-map');
+  if (!el || typeof L === 'undefined') return;
+  const lat = parseFloat(el.dataset.lat), lng = parseFloat(el.dataset.lng);
+  if (!isFinite(lat) || !isFinite(lng)) return;
+  const map = L.map(el).setView([lat, lng], 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+  L.marker([lat, lng]).addTo(map);
+});
+</script>
+{% endblock %}
+
 {% block structured_data %}
 <script type="application/ld+json">{{ jsonld|safe }}</script>
 <script type="application/ld+json">{{ breadcrumb_jsonld|safe }}</script>
@@ -149,6 +170,12 @@
           📋 Post RFQ to {{ merchant.name }}
         </button>
 
+        {% if merchant.appointment_url %}
+        <a href="{{ merchant.appointment_url }}" target="_blank" rel="noopener" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.5rem; text-align: center;">
+          📅 Book an Appointment
+        </a>
+        {% endif %}
+
         <!-- Trust Seal Badge -->
         <div style="margin-top: 0.5rem; text-align: center;">
           <img
@@ -161,6 +188,214 @@
 
     </div>
   </div>
+
+  <!-- GMB: Store attributes (payments, delivery, facilities, languages) -->
+  {% if merchant.payment_methods or merchant.delivery_options or merchant.facilities or merchant.languages_spoken %}
+  <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 2rem;">
+    <div style="font-size: 0.8rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">Store attributes</div>
+    <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+      {% for m in merchant.payment_methods %}<span class="badge badge-gray">💳 {{ m }}</span>{% endfor %}
+      {% for d in merchant.delivery_options %}<span class="badge badge-gray">🚚 {{ d }}</span>{% endfor %}
+      {% for f in merchant.facilities %}<span class="badge badge-gray">🏷️ {{ f }}</span>{% endfor %}
+      {% for l in merchant.languages_spoken %}<span class="badge badge-gray">🗣️ {{ l }}</span>{% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- GMB: Special hours (holidays / temporary changes) -->
+  {% if merchant.special_hours %}
+  <div style="background: #FFF7ED; border: 1px solid #FED7AA; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 2rem;">
+    <div style="font-size: 0.8rem; font-weight: 800; color: #9A3412; margin-bottom: 0.5rem;">🗓️ Special hours</div>
+    <div style="display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.8rem;">
+      {% for date, h in merchant.special_hours.items %}
+      <div style="display: flex; justify-content: space-between;">
+        <span style="color: #7C2D12;">{{ date|date:"D d M Y" }}</span>
+        <strong>{% if h.closed %}Closed{% else %}{{ h.open|default:"—" }}–{{ h.close|default:"—" }}{% endif %}</strong>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- GMB: Embedded store map (only real coordinates) -->
+  {% if merchant.latitude and merchant.longitude %}
+  <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1rem; margin-bottom: 2rem;">
+    <div style="font-size: 0.8rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">📍 Store location</div>
+    <div id="merchant-map" data-lat="{{ merchant.latitude }}" data-lng="{{ merchant.longitude }}" style="height: 240px; border-radius: 10px; overflow: hidden;"></div>
+  </div>
+  {% endif %}
+
+  <!-- GMB: Store updates / offers (posted by the owner) -->
+  {% if active_posts or is_owner %}
+  <section style="margin-bottom: 3rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+      <div>
+        <span class="badge badge-blue" style="margin-bottom: 0.25rem;">📢 Updates &amp; Offers</span>
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: #0F172A; margin: 0;">From the store</h2>
+      </div>
+      {% if is_owner %}
+      <details style="font-size: 0.85rem;">
+        <summary style="cursor: pointer; font-weight: 700; color: #2563EB;">＋ Post an update or offer</summary>
+        <form method="post" action="/m/{{ merchant.canonical_id }}/post/" style="margin-top: 0.75rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem; display: flex; flex-direction: column; gap: 0.45rem; min-width: 320px;">
+          {% csrf_token %}
+          <input type="text" name="title" placeholder="Headline" required class="form-control">
+          <textarea name="body" rows="2" placeholder="Details…" required class="form-control"></textarea>
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <label style="font-size: 0.8rem;"><input type="radio" name="kind" value="text" checked> Update</label>
+            <label style="font-size: 0.8rem;"><input type="radio" name="kind" value="offer"> Offer</label>
+            <button type="submit" class="btn btn-primary" style="margin-left: auto; font-size: 0.8rem;">Publish</button>
+          </div>
+        </form>
+      </details>
+      {% endif %}
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+      {% for post in active_posts %}
+      <div class="card" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.1rem 1.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+          <span class="badge {% if post.kind == 'offer' %}badge-green{% else %}badge-blue{% endif %}" style="font-size: 0.7rem;">{% if post.kind == 'offer' %}🔥 Offer{% else %}📢 Update{% endif %}</span>
+          <span style="font-size: 0.72rem; color: #94A3B8;">{{ post.created_at|naturaltime }}</span>
+        </div>
+        <div style="font-weight: 800; font-size: 1rem; color: #0F172A;">{{ post.title }}</div>
+        <p style="font-size: 0.85rem; color: #475569; margin: 0.35rem 0 0 0; white-space: pre-line;">{{ post.body }}</p>
+      </div>
+      {% empty %}
+      {% if is_owner %}<p style="color: #94A3B8; font-size: 0.85rem;">No posts yet — share your first update.</p>{% endif %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- GMB: Customer reviews (own, moderated) -->
+  <section style="margin-bottom: 3rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+      <div>
+        <span class="badge badge-green" style="margin-bottom: 0.25rem;">⭐ Customer Reviews</span>
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: #0F172A; margin: 0;">What shoppers say</h2>
+        {% if pending_reviews_count %}<span style="font-size: 0.75rem; color: #B45309;">({{ pending_reviews_count }} review{{ pending_reviews_count|pluralize }} awaiting moderation)</span>{% endif %}
+      </div>
+      <details style="font-size: 0.85rem;">
+        <summary style="cursor: pointer; font-weight: 700; color: #2563EB;">＋ Write a review</summary>
+        <form method="post" action="/m/{{ merchant.canonical_id }}/review/" style="margin-top: 0.75rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem; display: flex; flex-direction: column; gap: 0.45rem; min-width: 320px;">
+          {% csrf_token %}
+          <input type="text" name="author_name" placeholder="Your name" class="form-control">
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span style="font-size: 0.8rem; font-weight: 700;">Rating:</span>
+            {% for star in "12345" %}<label style="font-size: 1.05rem; cursor: pointer;"><input type="radio" name="rating" value="{{ star }}" style="accent-color: #F59E0B;"> ★</label>{% endfor %}
+          </div>
+          <textarea name="comment" rows="3" placeholder="Share your experience…" required class="form-control"></textarea>
+          <button type="submit" class="btn btn-primary" style="font-size: 0.85rem;">Submit review</button>
+        </form>
+      </details>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+      {% for rev in approved_reviews %}
+      <div class="card" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.1rem 1.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.35rem;">
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <span style="font-weight: 800; font-size: 0.9rem; color: #0F172A;">{{ rev.author_name }}</span>
+            <span style="color: #F59E0B; font-weight: 800;">★ {{ rev.rating }}</span>
+            <span style="font-size: 0.75rem; color: #94A3B8;">{{ rev.created_at|date:"d M Y" }}</span>
+          </div>
+          {% if is_owner and not rev.reply_text %}
+          <details style="font-size: 0.8rem;">
+            <summary style="cursor: pointer; font-weight: 700; color: #2563EB;">Reply</summary>
+            <form method="post" action="/m/{{ merchant.canonical_id }}/review/{{ rev.pk }}/reply/" style="margin-top: 0.5rem; display: flex; gap: 0.4rem;">
+              {% csrf_token %}
+              <input type="text" name="reply_text" placeholder="Public reply…" class="form-control" style="flex: 1;">
+              <button type="submit" class="btn btn-outline" style="font-size: 0.78rem;">Post</button>
+            </form>
+          </details>
+          {% endif %}
+        </div>
+        <p style="font-size: 0.85rem; color: #334155; margin: 0 0 0.35rem 0; white-space: pre-line;">{{ rev.comment }}</p>
+        {% if rev.reply_text %}
+        <div style="background: #EEF2FF; border-left: 3px solid #6366F1; border-radius: 6px; padding: 0.6rem 0.8rem; margin-top: 0.5rem;">
+          <div style="font-size: 0.72rem; font-weight: 800; color: #4338CA;">Response from {{ merchant.name }} · {{ rev.replied_at|date:"d M Y" }}</div>
+          <div style="font-size: 0.82rem; color: #3730A3;">{{ rev.reply_text }}</div>
+        </div>
+        {% endif %}
+      </div>
+      {% empty %}
+      <p style="color: #94A3B8; font-size: 0.85rem;">Be the first to review this store.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- GMB: Questions & Answers -->
+  <section style="margin-bottom: 3rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+      <div>
+        <span class="badge badge-purple" style="margin-bottom: 0.25rem;">❓ Questions &amp; Answers</span>
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: #0F172A; margin: 0;">Ask before you visit</h2>
+      </div>
+      <details style="font-size: 0.85rem;">
+        <summary style="cursor: pointer; font-weight: 700; color: #2563EB;">＋ Ask a question</summary>
+        <form method="post" action="/m/{{ merchant.canonical_id }}/question/" style="margin-top: 0.75rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem; display: flex; flex-direction: column; gap: 0.45rem; min-width: 320px;">
+          {% csrf_token %}
+          <input type="text" name="asker_name" placeholder="Your name" class="form-control">
+          <textarea name="question" rows="2" placeholder="e.g. Do you have stock of the 5kW model?" required class="form-control"></textarea>
+          <button type="submit" class="btn btn-primary" style="font-size: 0.85rem;">Ask</button>
+        </form>
+      </details>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+      {% for q in approved_questions %}
+      <div class="card" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.1rem 1.25rem;">
+        <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+          <span style="font-weight: 800; font-size: 0.9rem; color: #0F172A;">{{ q.asker_name }}</span>
+          <span style="font-size: 0.75rem; color: #94A3B8;">{{ q.created_at|date:"d M Y" }}</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #0F172A; font-weight: 600; margin: 0 0 0.4rem 0;">{{ q.question }}</p>
+        {% if q.answer %}
+        <div style="background: #F0FDF4; border-left: 3px solid #10B981; border-radius: 6px; padding: 0.6rem 0.8rem;">
+          <div style="font-size: 0.72rem; font-weight: 800; color: #065F46;">Answer from {{ merchant.name }} · {{ q.answered_at|date:"d M Y" }}</div>
+          <div style="font-size: 0.82rem; color: #065F46;">{{ q.answer }}</div>
+        </div>
+        {% elif is_owner %}
+        <form method="post" action="/m/{{ merchant.canonical_id }}/question/{{ q.pk }}/answer/" style="display: flex; gap: 0.4rem; margin-top: 0.5rem;">
+          {% csrf_token %}
+          <input type="text" name="answer" placeholder="Public answer…" class="form-control" style="flex: 1;">
+          <button type="submit" class="btn btn-outline" style="font-size: 0.78rem;">Answer</button>
+        </form>
+        {% endif %}
+      </div>
+      {% empty %}
+      <p style="color: #94A3B8; font-size: 0.85rem;">No questions yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- GMB: Photo contributions -->
+  <section style="margin-bottom: 3rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+      <div>
+        <span class="badge badge-gray" style="margin-bottom: 0.25rem;">🖼️ Photos</span>
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: #0F172A; margin: 0;">Store gallery</h2>
+      </div>
+      <details style="font-size: 0.85rem;">
+        <summary style="cursor: pointer; font-weight: 700; color: #2563EB;">＋ Add a photo</summary>
+        <form method="post" action="/m/{{ merchant.canonical_id }}/photo/" style="margin-top: 0.75rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem; display: flex; flex-direction: column; gap: 0.45rem; min-width: 320px;">
+          {% csrf_token %}
+          <input type="url" name="image_url" placeholder="https://…photo URL" required class="form-control">
+          <input type="text" name="caption" placeholder="Caption (optional)" class="form-control">
+          <button type="submit" class="btn btn-primary" style="font-size: 0.85rem;">Add photo</button>
+        </form>
+      </details>
+    </div>
+    {% if approved_photos %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.85rem;">
+      {% for ph in approved_photos %}
+      <figure style="margin: 0;">
+        <img src="{{ ph.image_url }}" alt="{{ ph.caption|default:merchant.name }}" loading="lazy" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 10px; border: 1px solid #E2E8F0;">
+        {% if ph.caption %}<figcaption style="font-size: 0.72rem; color: #64748B; margin-top: 0.25rem;">{{ ph.caption }}</figcaption>{% endif %}
+      </figure>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="color: #94A3B8; font-size: 0.85rem;">No photos shared yet.</p>
+    {% endif %}
+  </section>
 
   <!-- Store Live Confirmed Inventory with Category Aisle Tabs & In-Store Search -->
   <section x-data="{

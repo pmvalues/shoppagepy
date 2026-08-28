@@ -268,3 +268,30 @@ class Promotion(TimeStampedModel):
         if self.price_off:
             return f"R {self.price_off:,.0f} off"
         return self.title
+
+
+class PriceAlert(TimeStampedModel):
+    """
+    Real price-drop subscription: watch a product, get flagged when the best
+    merchant-confirmed price falls below the threshold. A daily sweep command
+    (check_price_alerts) marks triggered alerts for delivery.
+    """
+
+    class ChannelChoices(models.TextChoices):
+        WHATSAPP = 'whatsapp', 'WhatsApp'
+        EMAIL = 'email', 'Email'
+
+    product = models.ForeignKey('catalog.MasterProduct', on_delete=models.CASCADE, related_name='price_alerts')
+    channel = models.CharField(max_length=20, choices=ChannelChoices.choices, default=ChannelChoices.WHATSAPP)
+    contact = models.CharField(max_length=255, help_text='WhatsApp number or email address')
+    threshold_price = models.DecimalField(max_digits=12, decimal_places=2)
+    active = models.BooleanField(default=True)
+    triggered_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Price Alert'
+        verbose_name_plural = 'Price Alerts'
+
+    def __str__(self):
+        return f"{self.product.title[:40]} < R{self.threshold_price} ({self.get_channel_display()}:{self.contact})"

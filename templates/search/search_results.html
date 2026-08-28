@@ -632,9 +632,15 @@
             <!-- Column 3: Pricing & Instant Actions -->
             <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-end; text-align: right; border-left: 1px solid #F1F5F9; padding-left: 1.25rem; height: 100%;">
               <span style="font-size: 0.75rem; color: #64748B; font-weight: 500;">Best Store Price:</span>
-              <div style="font-family: var(--font-display); font-size: 1.45rem; font-weight: 800; color: #059669; margin: 0.15rem 0 0.6rem 0;">
-                R {{ p.estimated_price_zar|floatformat:0|intcomma }}
+              {% if p.shoppage_promo_label and p.shoppage_original_price %}
+              <div style="font-size: 0.775rem; color: #94A3B8; text-decoration: line-through; margin-top: 0.1rem;">R {{ p.shoppage_original_price|floatformat:0|intcomma }}</div>
+              {% endif %}
+              <div style="font-family: var(--font-display); font-size: 1.45rem; font-weight: 800; color: #059669; margin: 0.15rem 0 0.35rem 0;">
+                R {{ p.shoppage_best_price|default:p.estimated_price_zar|floatformat:0|intcomma }}
               </div>
+              {% if p.shoppage_promo_label %}
+              <span class="badge" style="background:#FEF3C7; color:#B45309; font-weight:800; font-size:0.7rem; margin-bottom:0.6rem;">🔥 {{ p.shoppage_promo_label }}</span>
+              {% endif %}
 
               <div style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%;">
                 <a href="/p/{{ p.canonical_id }}" class="btn btn-outline" style="width: 100%; font-size: 0.8rem; padding: 0.45rem; text-align: center; border-radius: 8px;">

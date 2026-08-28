@@ -7,9 +7,11 @@ from apps.media_hub.models import Short
 from apps.offers.models import AvailabilityStateChoices
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.contrib import messages
 from django.db.models import Q
 from django.http import Http404, HttpResponsePermanentRedirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.views.decorators.http import require_POST
 
 from .models import MasterProduct, ProductStatusChoices
 
@@ -223,6 +225,33 @@ def product_detail_view(request, canonical_id):
             history_marker_pct = max(0, min(100, round((confirmed_min - low) / (high - low) * 100)))
     gallery = [{'url': img.url, 'alt': img.effective_alt} for img in product.images.all()[:8]]
 
+    # Trend series for the price-intelligence widget (measured observations).
+    price_series = None
+    src_offer = best_offer or (offers[0] if offers else None)
+    if src_offer:
+        from django.utils import timezone
+
+        from apps.offers.models import PriceObservation
+
+        obs = list(
+            PriceObservation.objects.filter(offer_id=src_offer.id, recorded_at__gte=timezone.now() - timezone.timedelta(days=30))
+            .order_by('recorded_at')[:60]
+        )
+        if len(obs) >= 2:
+            vals = [float(v) for _, v in obs]
+            mn, mx = min(vals), max(vals)
+            span = (mx - mn) or 1.0
+            w, h = 260, 56
+            coords = []
+            for i, (_, v) in enumerate(obs):
+                x = round((i / (len(obs) - 1)) * w)
+                y = round(h - 4 - ((float(v) - mn) / span) * (h - 8))
+                coords.append((x, y))
+            price_series = {
+                'coords': coords, 'low': round(mn), 'high': round(mx),
+                'latest': round(vals[-1]), 'width': w, 'height': h,
+            }
+
     from apps.offers.models import Promotion
     from django.utils import timezone
 
@@ -276,6 +305,7 @@ def product_detail_view(request, canonical_id):
         'og_image_alt': f'{product.brand} {product.title}',
         'og_type': 'product',
         'active_promo': active_promo,
+        'price_series': price_series,
     }
     return render(request, 'catalog/product_detail.html', context)
 
@@ -332,6 +362,38 @@ def category_landing_view(request, slug):
         )
         p.shoppage_offer_count = s.offer_count or (1 if s.best_offer else 0)
         products.append(p)
+
+    # Active promotions: sale price + badge on category cards (Google PLA-style).
+    try:
+        from apps.offers.models import Promotion
+        from django.utils import timezone as _tz
+
+        _now = _tz.now()
+        promo_map = {}
+        if products:
+            for promo in (
+                Promotion.objects.filter(
+                    variant_id__in=[p.id for p in products],
+                    state='active', valid_from__lte=_now,
+                ).exclude(valid_until__lt=_now)
+            ):
+                promo_map.setdefault(promo.variant_id, promo)
+        for p in products:
+            promo = promo_map.get(p.id)
+            if promo and p.shoppage_best_price:
+                p.shoppage_promo_label = promo.discount_label
+                p.shoppage_original_price = p.shoppage_best_price
+                if promo.percent_off:
+                    p.shoppage_best_price = round(p.shoppage_best_price * (1 - float(promo.percent_off) / 100), 2)
+                elif promo.price_off:
+                    p.shoppage_best_price = max(0.0, round(p.shoppage_best_price - float(promo.price_off), 2))
+            else:
+                p.shoppage_promo_label = ''
+                p.shoppage_original_price = None
+    except Exception:
+        for p in products:
+            p.shoppage_promo_label = ''
+            p.shoppage_original_price = None
 
     nav_params = {k: v for k, v in request.GET.items() if k not in ('offset', 'sort') and v}
     base_query = urlencode(nav_params)
@@ -395,3 +457,34 @@ def category_landing_view(request, slug):
         'robots_meta': 'index,follow',
     }
     return render(request, 'catalog/category_page.html', context)
+
+
+@require_POST
+def price_alert_subscribe_view(request, canonical_id):
+    """Register a real price-drop alert for a product (WhatsApp or email)."""
+    from decimal import Decimal, InvalidOperation
+
+    from apps.offers.models import PriceAlert
+
+    product = MasterProduct.objects.filter(
+        Q(seo_handle=canonical_id) | Q(canonical_id=canonical_id),
+        status__in=['active', 'ACTIVE'],
+    ).first()
+    if not product:
+        raise Http404('Product not found')
+    contact = (request.POST.get('contact') or '').strip()
+    try:
+        threshold = Decimal(request.POST.get('threshold_price') or '')
+    except (InvalidOperation, TypeError, ValueError):
+        threshold = None
+    if not contact or not threshold or threshold <= 0:
+        messages.error(request, 'Provide a valid WhatsApp number or email and a threshold price.')
+        return redirect(f'/p/{product.seo_handle}/')
+    PriceAlert.objects.create(
+        product=product,
+        channel='email' if '@' in contact else 'whatsapp',
+        contact=contact,
+        threshold_price=threshold,
+    )
+    messages.success(request, f'Alert set: you will be notified when the best price drops below R {threshold:,.0f}.')
+    return redirect(f'/p/{product.seo_handle}/')

@@ -11,8 +11,11 @@ from apps.merchants.models import Merchant
 from django.core.cache import cache
 from django.db import connection
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.utils import timezone
 from django.utils.cache import patch_vary_headers
 
 
@@ -277,6 +280,38 @@ def search_view(request):
                 'merchant_name': merchant_name,
                 'offer_count': s.offer_count or 1,
             })
+
+    # Active promotions: sale price + badge on search cards (Google PLA-style).
+    try:
+        from apps.offers.models import Promotion
+        from django.utils import timezone as _tz
+
+        _now = _tz.now()
+        promo_map = {}
+        if plain_products:
+            for promo in (
+                Promotion.objects.filter(
+                    variant_id__in=[p.id for p in plain_products],
+                    state='active', valid_from__lte=_now,
+                ).exclude(valid_until__lt=_now)
+            ):
+                promo_map.setdefault(promo.variant_id, promo)
+        for p in plain_products:
+            promo = promo_map.get(p.id)
+            if promo and p.shoppage_best_price:
+                p.shoppage_promo_label = promo.discount_label
+                p.shoppage_original_price = p.shoppage_best_price
+                if promo.percent_off:
+                    p.shoppage_best_price = round(p.shoppage_best_price * (1 - float(promo.percent_off) / 100), 2)
+                elif promo.price_off:
+                    p.shoppage_best_price = max(0.0, round(p.shoppage_best_price - float(promo.price_off), 2))
+            else:
+                p.shoppage_promo_label = ''
+                p.shoppage_original_price = None
+    except Exception:
+        for p in plain_products:
+            p.shoppage_promo_label = ''
+            p.shoppage_original_price = None
 
     # Honest zero state: when nothing matches, the page says so instead of
     # padding with unrelated products.
@@ -589,3 +624,128 @@ def readyz_view(request):
         ok = False
     return JsonResponse({'status': 'ready' if ok else 'degraded', 'checks': checks},
                         status=200 if ok else 503)
+
+
+@login_required
+def analytics_view(request):
+    """Google-Analytics-style platform report. Staff only; built from measured logs."""
+    if not (request.user.is_staff or request.user.is_superuser):
+        raise PermissionDenied
+    from datetime import timedelta
+
+    from django.db.models import Count
+    from django.db.models.functions import TruncDate
+
+    from apps.catalog.models import MasterProduct
+    from apps.core.models import SearchClick, SearchQueryLog
+    from apps.referrals.models import ReferralEvent
+
+    days = 30
+    since = timezone.now() - timedelta(days=days)
+
+    # All reports are guarded: on a migration-incomplete environment the page
+    # renders with empty data and a notice instead of failing.
+    data_error = ''
+    kpis = {'searches': 0, 'unique_queries': 0, 'clicks': 0, 'ctr': 0.0, 'leads': 0, 'conv': 0.0}
+    trend_rows = []
+    top_queries = []
+    top_products = []
+    channels = []
+    provinces = []
+    campaigns = []
+    campaign_leads = 0
+    try:
+        # Overview KPIs (all measured, never modelled).
+        searches = SearchQueryLog.objects.filter(created_at__gte=since).count()
+        unique_queries = SearchQueryLog.objects.filter(created_at__gte=since).values('normalized').distinct().count()
+        clicks = SearchClick.objects.filter(created_at__gte=since).count()
+        leads = ReferralEvent.objects.filter(occurred_at__gte=since).count()
+        kpis = {
+            'searches': searches,
+            'unique_queries': unique_queries,
+            'clicks': clicks,
+            'ctr': round(clicks / searches * 100, 2) if searches else 0.0,
+            'leads': leads,
+            'conv': round(leads / clicks * 100, 2) if clicks else 0.0,
+        }
+
+        # 14-day daily trend.
+        trend = {}
+        for model, date_field in ((SearchQueryLog, 'created_at'), (SearchClick, 'created_at'),
+                                  (ReferralEvent, 'occurred_at')):
+            rows = list(
+                model.objects.filter(**{f'{date_field}__gte': since})
+                .annotate(day=TruncDate(date_field)).values('day').annotate(n=Count('id')).order_by('day')
+            )
+            for row in rows:
+                key = row['day'].strftime('%Y-%m-%d')
+                slot = trend.setdefault(key, {'day': key})
+                slot[{
+                    SearchQueryLog: 'searches', SearchClick: 'clicks', ReferralEvent: 'leads'
+                }[model]] = row['n']
+        trend_rows = sorted(trend.values(), key=lambda r: r['day'])[-14:]
+
+        # Top queries by clicks.
+        top_queries = list(
+            SearchClick.objects.filter(created_at__gte=since)
+            .exclude(query='').values('query').annotate(n=Count('id')).order_by('-n')[:10]
+        )
+
+        # Top products: clicks (SearchClick.product_id) + leads (ReferralEvent.variant).
+        product_clicks = dict(
+            SearchClick.objects.filter(created_at__gte=since)
+            .values('product_id').annotate(n=Count('id')).order_by('-n')[:12]
+            .values_list('product_id', 'n')
+        )
+        product_leads = dict(
+            ReferralEvent.objects.filter(occurred_at__gte=since).exclude(variant__isnull=True)
+            .values('variant_id').annotate(n=Count('id')).order_by('-n')[:12]
+            .values_list('variant_id', 'n')
+        )
+        product_ids = list(product_clicks.keys())[:12]
+        products_by_id = {p.id: p for p in MasterProduct.objects.filter(id__in=product_ids)}
+        for pid in product_ids:
+            p = products_by_id.get(pid)
+            if not p:
+                continue
+            c = product_clicks[pid]
+            l = product_leads.get(pid, 0)
+            top_products.append({
+                'title': p.title,
+                'canonical_id': p.canonical_id,
+                'clicks': c,
+                'leads': l,
+                'conv': round(l / c * 100, 1) if c else 0.0,
+            })
+
+        # Channel split + geo split + UTM campaigns.
+        channels = list(SearchQueryLog.objects.filter(created_at__gte=since).values('source').annotate(n=Count('id')).order_by('-n'))
+        provinces = list(
+            ReferralEvent.objects.filter(occurred_at__gte=since).exclude(merchant__province='').exclude(merchant__province__isnull=True)
+            .values('merchant__province').annotate(n=Count('id')).order_by('-n')[:9]
+        )
+        campaigns = list(
+            ReferralEvent.objects.filter(occurred_at__gte=since)
+            .exclude(source_campaign='').exclude(source_campaign__isnull=True)
+            .values('source_campaign').annotate(n=Count('id')).order_by('-n')[:10]
+        )
+        campaign_leads = sum(c['n'] for c in campaigns)
+    except Exception as exc:
+        data_error = (
+            f'Report tables unavailable in this environment: {exc.__class__.__name__}. '
+            'Run the platform migrations (Postgres) to populate analytics.'
+        )
+
+    context = {
+        'kpis': kpis,
+        'trend_rows': trend_rows,
+        'top_queries': top_queries,
+        'top_products': top_products,
+        'channels': channels,
+        'provinces': provinces,
+        'campaigns': campaigns,
+        'campaign_leads': campaign_leads,
+        'days': days,
+        'data_error': data_error,
+    }
+    return render(request, 'analytics/analytics_page.html', context)

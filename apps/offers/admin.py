@@ -2,7 +2,7 @@ from apps.core.paginator import LargeTablePaginator
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import AvailabilityStateChoices, DiscoveredOffer, Offer, PriceObservation, Promotion
+from .models import AvailabilityStateChoices, DiscoveredOffer, Offer, PriceAlert, PriceObservation, Promotion
 
 
 @admin.register(Offer)
@@ -150,3 +150,18 @@ class PromotionAdmin(admin.ModelAdmin):
     def discount_label(self, obj):
         return obj.discount_label
     discount_label.short_description = "Discount"
+
+
+@admin.register(PriceAlert)
+class PriceAlertAdmin(admin.ModelAdmin):
+    list_display = ('product_link', 'channel', 'contact', 'threshold_price', 'active', 'triggered_at', 'created_at')
+    list_filter = ('channel', 'active')
+    search_fields = ('contact', 'product__title', 'product__canonical_id')
+    autocomplete_fields = ('product',)
+    readonly_fields = ('created_at', 'updated_at')
+
+    def product_link(self, obj):
+        if obj.product:
+            return format_html('<a href="/p/{}/" target="_blank">{}</a>', obj.product.canonical_id, obj.product.title[:60])
+        return "-"
+    product_link.short_description = "Product"

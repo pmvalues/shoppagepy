@@ -108,6 +108,17 @@ def merchant_detail_view(request, canonical_id):
         (merchant.name, None),
     ]
 
+    # GMB-grade engagement surfaces (moderated, never fabricated).
+    approved_reviews = list(merchant.reviews.filter(state='approved').order_by('-created_at')[:20])
+    pending_reviews_count = merchant.reviews.filter(state='pending').count()
+    approved_questions = list(merchant.questions.filter(state='approved').order_by('-created_at')[:20])
+    approved_photos = list(merchant.photos.filter(state='approved').order_by('-created_at')[:24])
+    active_posts = list(merchant.posts.filter(active=True).order_by('-created_at')[:10])
+    is_owner = bool(
+        request.user.is_authenticated
+        and (request.user.is_staff or request.user.owned_merchants.filter(id=merchant.id).exists())
+    )
+
     context = {
         'merchant': merchant,
         'offers': offers,
@@ -125,6 +136,12 @@ def merchant_detail_view(request, canonical_id):
         'og_image_url': merchant.public_image_url or '',
         'og_image_alt': merchant.name,
         'og_type': 'business.business',
+        'approved_reviews': approved_reviews,
+        'pending_reviews_count': pending_reviews_count,
+        'approved_questions': approved_questions,
+        'approved_photos': approved_photos,
+        'active_posts': active_posts,
+        'is_owner': is_owner,
     }
     return render(request, 'merchants/merchant_detail.html', context)
 
@@ -491,3 +508,237 @@ def merchant_promotion_create_view(request):
         f'Promotion "{promo.title}" live until {promo.valid_until:%d %b %Y} — badged in the feed and product page.',
     )
     return redirect(f'/merchant/settings/?merchantId={merchant.canonical_id}')
+
+
+@require_POST
+def merchant_review_create_view(request, canonical_id):
+    """Public: submit a review for a merchant profile (held for moderation)."""
+    from .models import MerchantReview
+
+    merchant = Merchant.objects.filter(canonical_id=canonical_id).first()
+    if not merchant:
+        raise Http404('Merchant not found')
+    name = (request.POST.get('author_name') or '').strip()[:150] or 'Anonymous shopper'
+    comment = (request.POST.get('comment') or '').strip()
+    try:
+        rating = int(request.POST.get('rating') or 0)
+        if not 1 <= rating <= 5:
+            raise ValueError
+    except (TypeError, ValueError):
+        rating = 0
+    if not comment or not rating:
+        messages.error(request, 'Please provide a rating (1-5 stars) and your comment.')
+        return redirect(f'/m/{merchant.canonical_id}/')
+    MerchantReview.objects.create(merchant=merchant, author_name=name, rating=rating, comment=comment)
+    messages.success(request, 'Thanks! Your review is queued for verification and will appear shortly.')
+    return redirect(f'/m/{merchant.canonical_id}/')
+
+
+@login_required
+@require_POST
+def merchant_review_reply_view(request, canonical_id, review_pk):
+    """Owner: reply to a review on their own profile."""
+    from .models import MerchantReview
+
+    merchant = Merchant.objects.filter(canonical_id=canonical_id).first()
+    if merchant is None or (
+        not request.user.is_staff and (merchant.owner_id is None or merchant.owner_id != request.user.id)
+    ):
+        raise PermissionDenied
+    review = MerchantReview.objects.filter(pk=review_pk, merchant=merchant).first()
+    if not review:
+        raise Http404('Review not found')
+    reply = (request.POST.get('reply_text') or '').strip()
+    if reply:
+        review.reply_text = reply
+        review.replied_at = timezone.now()
+        review.save(update_fields=['reply_text', 'replied_at', 'updated_at'])
+        messages.success(request, 'Reply published on the profile.')
+    return redirect(f'/m/{merchant.canonical_id}/')
+
+
+@require_POST
+def merchant_question_ask_view(request, canonical_id):
+    """Public: ask a question on a merchant profile (held for moderation)."""
+    from .models import MerchantQuestion
+
+    merchant = Merchant.objects.filter(canonical_id=canonical_id).first()
+    if not merchant:
+        raise Http404('Merchant not found')
+    question = (request.POST.get('question') or '').strip()
+    if not question:
+        messages.error(request, 'Question cannot be empty.')
+        return redirect(f'/m/{merchant.canonical_id}/')
+    asker = (request.POST.get('asker_name') or '').strip()[:120] or 'Shopper'
+    MerchantQuestion.objects.create(merchant=merchant, asker_name=asker, question=question)
+    messages.success(request, 'Question submitted — the store owner will answer shortly.')
+    return redirect(f'/m/{merchant.canonical_id}/')
+
+
+@login_required
+@require_POST
+def merchant_question_answer_view(request, canonical_id, q_pk):
+    """Owner: answer a question on their own profile."""
+    from .models import MerchantQuestion
+
+    merchant = Merchant.objects.filter(canonical_id=canonical_id).first()
+    if merchant is None or (
+        not request.user.is_staff and (merchant.owner_id is None or merchant.owner_id != request.user.id)
+    ):
+        raise PermissionDenied
+    q = MerchantQuestion.objects.filter(pk=q_pk, merchant=merchant).first()
+    if not q:
+        raise Http404('Question not found')
+    answer = (request.POST.get('answer') or '').strip()
+    if answer:
+        q.answer = answer
+        q.answered_at = timezone.now()
+        q.state = 'approved'
+        q.save(update_fields=['answer', 'answered_at', 'state', 'updated_at'])
+        messages.success(request, 'Answer published.')
+    return redirect(f'/m/{merchant.canonical_id}/')
+
+
+@require_POST
+def merchant_photo_add_view(request, canonical_id):
+    """Public: contribute a photo URL (held for moderation)."""
+    from .models import MerchantPhoto
+
+    merchant = Merchant.objects.filter(canonical_id=canonical_id).first()
+    if not merchant:
+        raise Http404('Merchant not found')
+    url = (request.POST.get('image_url') or '').strip()
+    if not url.startswith('http://') and not url.startswith('https://'):
+        messages.error(request, 'Please provide a valid photo URL (https://...).')
+        return redirect(f'/m/{merchant.canonical_id}/')
+    MerchantPhoto.objects.create(
+        merchant=merchant,
+        image_url=url,
+        caption=(request.POST.get('caption') or '').strip()[:200],
+    )
+    messages.success(request, 'Photo submitted — it will appear after moderation.')
+    return redirect(f'/m/{merchant.canonical_id}/')
+
+
+@login_required
+@require_POST
+def merchant_post_create_view(request, canonical_id):
+    """Owner: publish an update or offer on their own profile."""
+    from .models import MerchantPost
+
+    merchant = Merchant.objects.filter(canonical_id=canonical_id).first()
+    if merchant is None or (
+        not request.user.is_staff and (merchant.owner_id is None or merchant.owner_id != request.user.id)
+    ):
+        raise PermissionDenied
+    title = (request.POST.get('title') or '').strip()[:150]
+    body = (request.POST.get('body') or '').strip()
+    if not title or not body:
+        messages.error(request, 'Posts need a title and a body.')
+        return redirect(f'/m/{merchant.canonical_id}/')
+    MerchantPost.objects.create(
+        merchant=merchant,
+        kind='offer' if request.POST.get('kind') == 'offer' else 'text',
+        title=title,
+        body=body,
+    )
+    messages.success(request, 'Post published on your storefront.')
+    return redirect(f'/m/{merchant.canonical_id}/')
+
+
+@login_required
+def campaign_center_view(request):
+    """Google-Ads-style campaign center: create, manage and report campaigns."""
+    from .models import Campaign
+
+    merchant = request.user.owned_merchants.first()
+    merchant_id = request.GET.get('merchantId') or request.POST.get('merchantId')
+    if merchant_id:
+        candidate = Merchant.objects.filter(canonical_id=merchant_id).first()
+        if candidate and (request.user.is_staff or candidate.owner_id == request.user.id):
+            merchant = candidate
+    if merchant is None:
+        return redirect('merchant_claim')
+
+    if request.method == 'POST':
+        name = (request.POST.get('name') or '').strip()[:150]
+        if not name:
+            messages.error(request, 'Campaign name is required.')
+            return redirect(f'/merchant/campaigns/?merchantId={merchant.canonical_id}')
+        try:
+            budget = Decimal(request.POST.get('budget_zar') or '')
+        except InvalidOperation:
+            budget = None
+        try:
+            radius = int(request.POST.get('radius_km')) if request.POST.get('radius_km') else None
+        except (TypeError, ValueError):
+            radius = None
+        Campaign.objects.create(
+            canonical_id=f'cmp_{merchant.canonical_id[:12]}_{int(timezone.now().timestamp() * 1000) % 1000000}',
+            merchant=merchant,
+            name=name,
+            campaign_type=request.POST.get('campaign_type') or 'hyperlocal',
+            status=request.POST.get('status', 'draft') if request.POST.get('status') in ('draft', 'active', 'paused') else 'draft',
+            budget_zar=budget,
+            target_province=(request.POST.get('target_province') or '').strip()[:100],
+            radius_km=radius,
+            target_category=(request.POST.get('target_category') or '').strip()[:100],
+            headline=(request.POST.get('headline') or '').strip()[:150],
+            description=(request.POST.get('description') or '').strip()[:300],
+        )
+        messages.success(request, 'Campaign created — launch links are ready to copy.')
+        return redirect(f'/merchant/campaigns/?merchantId={merchant.canonical_id}')
+
+    campaigns = list(merchant.campaigns.all())
+    # Per-campaign UTM attribution report (leads, last 30 days) — guarded so a
+    # migration-incomplete environment renders empty instead of failing.
+    from django.db.models import Count
+
+    from apps.referrals.models import ReferralEvent
+
+    for c in campaigns:
+        c.leads_30 = 0
+    try:
+        since = timezone.now() - timezone.timedelta(days=30)
+        rows = list(
+            ReferralEvent.objects.filter(source_campaign__in=[c.canonical_id for c in campaigns], occurred_at__gte=since)
+            .values('source_campaign').annotate(leads=Count('id')).order_by('-leads')
+        )
+        leads_by_campaign = {r['source_campaign']: r['leads'] for r in rows}
+        for c in campaigns:
+            c.leads_30 = leads_by_campaign.get(c.canonical_id, 0)
+    except Exception:
+        for c in campaigns:
+            c.leads_30 = 0
+    offer_links = []
+    for o in merchant.offers.select_related('variant').order_by('-price_amount')[:24]:
+        offer_links.append({'title': o.variant.title, 'url': f'/l/{o.canonical_id}?utm_campaign='})
+
+    context = {
+        'merchant': merchant,
+        'campaigns': campaigns,
+        'leads_by_campaign': leads_by_campaign,
+        'offer_links': offer_links,
+    }
+    return render(request, 'merchants/campaign_center.html', context)
+
+
+@login_required
+@require_POST
+def campaign_toggle_view(request, campaign_id):
+    """Owner: activate / pause / end a campaign."""
+    from .models import Campaign
+
+    campaign = Campaign.objects.filter(canonical_id=campaign_id).first()
+    if campaign is None or (
+        not request.user.is_staff
+        and (campaign.merchant.owner_id is None or campaign.merchant.owner_id != request.user.id)
+    ):
+        raise PermissionDenied
+    action = request.POST.get('action', '')
+    new_status = {'activate': 'active', 'pause': 'paused', 'draft': 'draft', 'end': 'ended'}.get(action)
+    if new_status:
+        campaign.status = new_status
+        campaign.save(update_fields=['status', 'updated_at'])
+        messages.success(request, f'Campaign "{campaign.name}" is now {new_status}.')
+    return redirect(f'/merchant/campaigns/?merchantId={campaign.merchant.canonical_id}')

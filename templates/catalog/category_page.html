@@ -93,7 +93,13 @@
         </div>
         <div style="display: flex; flex-direction: column; align-items: flex-end; text-align: right; gap: 0.4rem;">
           <div style="font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; color: #059669;">
+            {% if p.shoppage_promo_label and p.shoppage_original_price %}
+            <span style="font-size: 0.7rem; color: #94A3B8; text-decoration: line-through;">R {{ p.shoppage_original_price|floatformat:0|intcomma }}</span>
+            <span style="background: #FEF3C7; color: #B45309; font-size: 0.7rem; font-weight: 800; padding: 2px 6px; border-radius: 6px;">🔥 {{ p.shoppage_promo_label }}</span>
+            <div style="color: #059669;">R {{ p.shoppage_best_price|floatformat:0|intcomma }}</div>
+            {% else %}
             R {{ p.shoppage_best_price|floatformat:0|intcomma }}
+            {% endif %}
           </div>
           <a href="/p/{{ p.canonical_id }}" class="btn btn-outline" style="width: 100%; font-size: 0.75rem; padding: 0.4rem; text-align: center; border-radius: 8px;">Compare Sellers</a>
           <a href="/p/{{ p.canonical_id }}#confirmed-offers-section" class="btn btn-whatsapp" style="width: 100%; font-size: 0.75rem; padding: 0.4rem; text-align: center; border-radius: 8px; font-weight: 700;">💬 WhatsApp</a>

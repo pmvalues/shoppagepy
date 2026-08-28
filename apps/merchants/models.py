@@ -2,6 +2,7 @@ from apps.core.hours import has_structured_hours, open_status, resolve_timezone,
 from apps.core.models import TimeStampedModel
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class CountryChoices(models.TextChoices):
@@ -65,6 +66,7 @@ class Merchant(TimeStampedModel):
     google_maps_url = models.URLField(blank=True, null=True)
     operating_hours = models.CharField(max_length=255, blank=True, null=True)
     opening_hours = models.JSONField(default=dict, blank=True, null=True, help_text='{"mon": {"open": "08:30", "close": "17:30"}, ...}')
+    special_hours = models.JSONField(default=dict, blank=True, null=True, help_text='{"2026-12-25": {"closed": true}, "2026-12-26": {"open": "09:00", "close": "13:00"}}')
     timezone = models.CharField(max_length=64, blank=True, null=True, help_text="IANA zone, e.g. Africa/Johannesburg")
     profile_categories = models.JSONField(default=list, blank=True, null=True, help_text="Primary category first, then secondary categories")
     appointment_url = models.URLField(blank=True, null=True)
@@ -238,3 +240,144 @@ class AgentRun(TimeStampedModel):
 
     def __str__(self):
         return f"{self.agent_name} for {self.merchant.name} ({self.status})"
+
+
+class MerchantReview(TimeStampedModel):
+    """GMB-style customer reviews with owner replies (pending moderation)."""
+
+    class StateChoices(models.TextChoices):
+        PENDING = 'pending', 'Pending moderation'
+        APPROVED = 'approved', 'Approved'
+        REJECTED = 'rejected', 'Rejected'
+
+    merchant = models.ForeignKey(Merchant, on_delete=models.CASCADE, related_name='reviews')
+    author_name = models.CharField(max_length=150)
+    rating = models.PositiveSmallIntegerField(choices=[(i, f'{i} star') for i in range(1, 6)])
+    comment = models.TextField()
+    state = models.CharField(max_length=20, choices=StateChoices.choices, default=StateChoices.PENDING, db_index=True)
+    reply_text = models.TextField(blank=True, default='')
+    replied_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Merchant Review'
+        verbose_name_plural = 'Merchant Reviews'
+
+    def __str__(self):
+        return f'{self.author_name} ★{self.rating} — {self.merchant.name}'
+
+
+class MerchantQuestion(TimeStampedModel):
+    """GMB-style Q&A: public questions, owner answers (pending moderation)."""
+
+    class StateChoices(models.TextChoices):
+        PENDING = 'pending', 'Pending moderation'
+        APPROVED = 'approved', 'Approved'
+
+    merchant = models.ForeignKey(Merchant, on_delete=models.CASCADE, related_name='questions')
+    asker_name = models.CharField(max_length=120)
+    question = models.TextField()
+    answer = models.TextField(blank=True, default='')
+    answered_at = models.DateTimeField(null=True, blank=True)
+    state = models.CharField(max_length=20, choices=StateChoices.choices, default=StateChoices.PENDING, db_index=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Merchant Question'
+        verbose_name_plural = 'Merchant Questions'
+
+    def __str__(self):
+        return f'{self.asker_name} → {self.merchant.name}'
+
+
+class MerchantPhoto(TimeStampedModel):
+    """GMB-style photo contributions (URL-based; pending moderation)."""
+
+    class StateChoices(models.TextChoices):
+        PENDING = 'pending', 'Pending moderation'
+        APPROVED = 'approved', 'Approved'
+
+    merchant = models.ForeignKey(Merchant, on_delete=models.CASCADE, related_name='photos')
+    image_url = models.URLField()
+    caption = models.CharField(max_length=200, blank=True, default='')
+    state = models.CharField(max_length=20, choices=StateChoices.choices, default=StateChoices.PENDING, db_index=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Merchant Photo'
+        verbose_name_plural = 'Merchant Photos'
+
+    def __str__(self):
+        return f'{self.merchant.name}: {self.image_url[:60]}'
+
+
+class MerchantPost(TimeStampedModel):
+    """GMB-style updates: text posts or offers published by the store owner."""
+
+    class KindChoices(models.TextChoices):
+        TEXT = 'text', 'Update'
+        OFFER = 'offer', 'Offer'
+
+    merchant = models.ForeignKey(Merchant, on_delete=models.CASCADE, related_name='posts')
+    kind = models.CharField(max_length=20, choices=KindChoices.choices, default=KindChoices.TEXT)
+    title = models.CharField(max_length=150)
+    body = models.TextField()
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Merchant Post'
+        verbose_name_plural = 'Merchant Posts'
+
+    def __str__(self):
+        return f'{self.merchant.name}: {self.title}'
+
+
+class Campaign(TimeStampedModel):
+    """
+    Google-Ads-style campaign owned by a merchant: targeting, budget cap,
+    ad creative (headline/description) and UTM-attributed referral reporting.
+    Launch links are /l/<offer>?utm_campaign=<canonical> — attribution flows
+    into ReferralEvent.source_campaign automatically.
+    """
+
+    class TypeChoices(models.TextChoices):
+        HYPERLOCAL = 'hyperlocal', 'Hyperlocal Radius'
+        SHOPPING_OFFER = 'shopping_offer', 'Shopping Offer'
+        BRAND = 'brand', 'Brand Awareness'
+
+    class StatusChoices(models.TextChoices):
+        DRAFT = 'draft', 'Draft'
+        ACTIVE = 'active', 'Active'
+        PAUSED = 'paused', 'Paused'
+        ENDED = 'ended', 'Ended'
+
+    canonical_id = models.CharField(max_length=120, unique=True, db_index=True, help_text="e.g. cmp_abc123")
+    merchant = models.ForeignKey(Merchant, on_delete=models.CASCADE, related_name='campaigns')
+    name = models.CharField(max_length=150)
+    campaign_type = models.CharField(max_length=30, choices=TypeChoices.choices, default=TypeChoices.HYPERLOCAL, db_index=True)
+    status = models.CharField(max_length=20, choices=StatusChoices.choices, default=StatusChoices.DRAFT, db_index=True)
+    budget_zar = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True, help_text='Optional budget cap in ZAR')
+    target_province = models.CharField(max_length=100, blank=True, default='', db_index=True)
+    radius_km = models.IntegerField(blank=True, null=True, help_text='Optional radius targeting')
+    target_category = models.CharField(max_length=100, blank=True, default='')
+    headline = models.CharField(max_length=150, blank=True, default='')
+    description = models.CharField(max_length=300, blank=True, default='')
+    valid_from = models.DateTimeField(default=timezone.now)
+    valid_until = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Campaign'
+        verbose_name_plural = 'Campaigns'
+
+    def __str__(self):
+        return f'{self.name} [{self.get_status_display()}] — {self.merchant.name}'
+
+    @property
+    def is_live(self) -> bool:
+        now = timezone.now()
+        return self.status == self.StatusChoices.ACTIVE and (self.valid_until is None or self.valid_until > now)
+
+    def launch_link(self, offer_canonical_id: str) -> str:
+        return f'/l/{offer_canonical_id}?utm_campaign={self.canonical_id}'

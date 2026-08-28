@@ -2,7 +2,7 @@
 Shoppage Platform URL Configuration (Pure Django Architecture)
 """
 
-from apps.catalog.views import category_landing_view, product_detail_view
+from apps.catalog.views import category_landing_view, price_alert_subscribe_view, product_detail_view
 from apps.core.legal import legal_page_view
 from apps.core.seo import (
     _paged_sitemap,
@@ -12,6 +12,7 @@ from apps.core.seo import (
 )
 from apps.core.views import (
     agency_view,
+    analytics_view,
     healthz_view,
     home_view,
     readyz_view,
@@ -22,13 +23,21 @@ from apps.core.views import (
 from apps.markets.views import malls_directory_view, market_detail_view
 from apps.media_hub.views import shorts_directory_view, show_detail_view, shows_directory_view
 from apps.merchants.views import (
+    campaign_center_view,
+    campaign_toggle_view,
     merchant_claim_view,
     merchant_dashboard_view,
     merchant_detail_view,
     merchant_draft_action_view,
     merchant_list_view,
+    merchant_photo_add_view,
+    merchant_post_create_view,
     merchant_promotion_create_view,
+    merchant_question_answer_view,
+    merchant_question_ask_view,
     merchant_quick_price_view,
+    merchant_review_create_view,
+    merchant_review_reply_view,
     merchant_settings_view,
 )
 from apps.referrals.views import universal_link_resolver
@@ -60,6 +69,7 @@ urlpatterns = [
 
     # 4. Catalog Product Detail & Matrix Pricing
     path('p/<str:canonical_id>/', product_detail_view, name='product_detail'),
+    path('p/<str:canonical_id>/alert/', price_alert_subscribe_view, name='price_alert_subscribe'),
     path('category/<slug:slug>/', category_landing_view, name='category_landing'),
 
     # 5. Spatial Markets & Shopping Centres
@@ -75,6 +85,12 @@ urlpatterns = [
     path('merchant/offer/<uuid:offer_id>/price/', merchant_quick_price_view, name='merchant_quick_price'),
     path('merchant/settings/', merchant_settings_view, name='merchant_settings'),
     path('merchant/promotion/create/', merchant_promotion_create_view, name='merchant_promotion_create'),
+    path('m/<str:canonical_id>/review/', merchant_review_create_view, name='merchant_review_create'),
+    path('m/<str:canonical_id>/review/<int:review_pk>/reply/', merchant_review_reply_view, name='merchant_review_reply'),
+    path('m/<str:canonical_id>/question/', merchant_question_ask_view, name='merchant_question_ask'),
+    path('m/<str:canonical_id>/question/<int:q_pk>/answer/', merchant_question_answer_view, name='merchant_question_answer'),
+    path('m/<str:canonical_id>/photo/', merchant_photo_add_view, name='merchant_photo_add'),
+    path('m/<str:canonical_id>/post/', merchant_post_create_view, name='merchant_post_create'),
 
     # 7. Media Hub: Shows & Proof Shorts
     path('shows/', shows_directory_view, name='shows_directory'),
@@ -86,6 +102,9 @@ urlpatterns = [
     path('search/live/', search_live_view, name='search_live'),
     path('requests/', requests_view, name='requests'),
     path('agency/', agency_view, name='agency'),
+    path('analytics/', analytics_view, name='analytics'),
+    path('merchant/campaigns/', campaign_center_view, name='campaign_center'),
+    path('merchant/campaign/<str:campaign_id>/toggle/', campaign_toggle_view, name='campaign_toggle'),
 
     # 9. Homepage
     path('', home_view, name='home'),

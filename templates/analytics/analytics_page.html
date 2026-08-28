@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Site Analytics — Shoppage Commerce Grid{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 1.6rem; font-weight: 800; color: #0F172A; margin: 0 0 0.25rem 0;">📊 Platform Analytics</h1>
+      <p style="color: #64748B; font-size: 0.875rem; margin: 0;">
+        Last {{ days }} days · measured from the query, click and referral ledgers — nothing modelled.
+      </p>
+      {% if data_error %}<p style="color: #B45309; font-size: 0.8rem; margin: 0.25rem 0 0 0; font-weight: 700;">⚠️ {{ data_error }}</p>{% endif %}
+    </div>
+    <a href="/admin/" class="btn btn-outline" style="font-size: 0.85rem;">← Django Admin</a>
+  </div>
+
+  <!-- KPI cards -->
+  <div class="grid grid-cols-4" style="gap: 1.25rem; margin-bottom: 2rem;">
+    <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #2563EB;">
+      <div class="stat-number" style="color: #1D4ED8;">{{ kpis.searches|intcomma }}</div>
+      <div class="stat-label">Searches · {{ kpis.unique_queries|intcomma }} unique</div>
+    </div>
+    <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #8B5CF6;">
+      <div class="stat-number" style="color: #6D28D9;">{{ kpis.clicks|intcomma }}</div>
+      <div class="stat-label">Result clicks · CTR {{ kpis.ctr }}%</div>
+    </div>
+    <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #10B981;">
+      <div class="stat-number" style="color: #059669;">{{ kpis.leads|intcomma }}</div>
+      <div class="stat-label">Referral actions · conv {{ kpis.conv }}%</div>
+    </div>
+    <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #F59E0B;">
+      <div class="stat-number" style="color: #B45309;">{{ campaign_leads|intcomma }}</div>
+      <div class="stat-label">UTM campaign leads</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 1.5rem; align-items: start;">
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <!-- Daily trend -->
+      <div class="card" style="background: #FFFFFF; padding: 1.25rem 1.5rem;">
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: #0F172A; margin: 0 0 0.75rem 0;">Daily trend (last {{ trend_rows|length }} days)</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+          <thead>
+            <tr style="color: #64748B; text-align: left;">
+              <th style="padding: 0.35rem 0.5rem;">Day</th>
+              <th style="padding: 0.35rem 0.5rem; text-align: right;">Searches</th>
+              <th style="padding: 0.35rem 0.5rem; text-align: right;">Clicks</th>
+              <th style="padding: 0.35rem 0.5rem; text-align: right;">Leads</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in trend_rows %}
+            <tr style="border-top: 1px solid #F1F5F9;">
+              <td style="padding: 0.35rem 0.5rem; color: #334155;">{{ row.day }}</td>
+              <td style="padding: 0.35rem 0.5rem; text-align: right; font-weight: 700; color: #1D4ED8;">{{ row.searches|default:0 }}</td>
+              <td style="padding: 0.35rem 0.5rem; text-align: right; font-weight: 700; color: #6D28D9;">{{ row.clicks|default:0 }}</td>
+              <td style="padding: 0.35rem 0.5rem; text-align: right; font-weight: 700; color: #059669;">{{ row.leads|default:0 }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="padding: 1rem; color: #94A3B8; text-align: center;">No recorded activity in this window.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Top products funnel -->
+      <div class="card" style="background: #FFFFFF; padding: 1.25rem 1.5rem;">
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: #0F172A; margin: 0 0 0.75rem 0;">Top products (clicks → lead funnels)</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+          <thead>
+            <tr style="color: #64748B; text-align: left;">
+              <th style="padding: 0.35rem 0.5rem;">Product</th>
+              <th style="padding: 0.35rem 0.5rem; text-align: right;">Clicks</th>
+              <th style="padding: 0.35rem 0.5rem; text-align: right;">Leads</th>
+              <th style="padding: 0.35rem 0.5rem; text-align: right;">Conv</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for tp in top_products %}
+            <tr style="border-top: 1px solid #F1F5F9;">
+              <td style="padding: 0.35rem 0.5rem;"><a href="/p/{{ tp.canonical_id }}/" style="color: #1A0DAB; text-decoration: none; font-weight: 600;">{{ tp.title|truncatechars:60 }}</a></td>
+              <td style="padding: 0.35rem 0.5rem; text-align: right; font-weight: 700; color: #6D28D9;">{{ tp.clicks }}</td>
+              <td style="padding: 0.35rem 0.5rem; text-align: right; font-weight: 700; color: #059669;">{{ tp.leads }}</td>
+              <td style="padding: 0.35rem 0.5rem; text-align: right;">{{ tp.conv }}%</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="padding: 1rem; color: #94A3B8; text-align: center;">No click data yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <!-- Top queries -->
+      <div class="card" style="background: #FFFFFF; padding: 1.25rem 1.5rem;">
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: #0F172A; margin: 0 0 0.75rem 0;">Top queries by clicks</h3>
+        <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+          {% for q in top_queries %}
+          <a href="/search/?q={{ q.query|urlencode }}" style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #2563EB; text-decoration: none; padding: 0.4rem 0.6rem; background: #F8FAFC; border-radius: 6px;">
+            <span style="font-weight: 600;">{{ q.query|truncatechars:48 }}</span>
+            <span style="color: #64748B; font-weight: 700;">{{ q.n }}</span>
+          </a>
+          {% empty %}
+          <p style="color: #94A3B8; font-size: 0.85rem;">No click data yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Channels -->
+      <div class="card" style="background: #FFFFFF; padding: 1.25rem 1.5rem;">
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: #0F172A; margin: 0 0 0.75rem 0;">Channels</h3>
+        <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+          {% for c in channels %}
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.4rem 0.6rem; background: #F8FAFC; border-radius: 6px;">
+            <span style="font-weight: 600; color: #334155;">{{ c.source }}</span>
+            <span style="color: #64748B; font-weight: 700;">{{ c.n }}</span>
+          </div>
+          {% empty %}
+          <p style="color: #94A3B8; font-size: 0.85rem;">No searches yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Provinces -->
+      <div class="card" style="background: #FFFFFF; padding: 1.25rem 1.5rem;">
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: #0F172A; margin: 0 0 0.75rem 0;">Leads by province</h3>
+        <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+          {% for p in provinces %}
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.4rem 0.6rem; background: #F8FAFC; border-radius: 6px;">
+            <span style="font-weight: 600; color: #334155;">{{ p.merchant__province }}</span>
+            <span style="color: #64748B; font-weight: 700;">{{ p.n }}</span>
+          </div>
+          {% empty %}
+          <p style="color: #94A3B8; font-size: 0.85rem;">No attributed leads yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- UTM campaigns -->
+      <div class="card" style="background: #FFFFFF; padding: 1.25rem 1.5rem;">
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: #0F172A; margin: 0 0 0.75rem 0;">UTM campaign leads</h3>
+        <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+          {% for c in campaigns %}
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.4rem 0.6rem; background: #F8FAFC; border-radius: 6px;">
+            <span style="font-weight: 600; color: #334155; font-family: monospace;">{{ c.source_campaign|truncatechars:30 }}</span>
+            <span style="color: #059669; font-weight: 700;">{{ c.n }} leads</span>
+          </div>
+          {% empty %}
+          <p style="color: #94A3B8; font-size: 0.85rem;">No campaign-attributed leads yet — merchants copy their launch links from the Campaign Center.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

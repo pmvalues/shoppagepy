@@ -265,6 +265,12 @@
               🔔 Track Price Drop on WhatsApp
             </a>
             {% endif %}
+            <form method="post" action="/p/{{ product.seo_handle }}/alert/" style="display: flex; gap: 0.35rem; margin-top: 0.5rem;">
+              {% csrf_token %}
+              <input type="text" name="contact" placeholder="WhatsApp or email" required style="flex: 1; min-width: 120px; font-size: 0.75rem; padding: 0.3rem 0.5rem; border: 1px solid #CBD5E1; border-radius: 6px;">
+              <input type="number" step="0.01" min="1" name="threshold_price" placeholder="Below R?" required style="width: 92px; font-size: 0.75rem; padding: 0.3rem 0.5rem; border: 1px solid #CBD5E1; border-radius: 6px;">
+              <button type="submit" class="btn btn-primary" style="font-size: 0.72rem; padding: 0.35rem 0.6rem;">🔔 Watch</button>
+            </form>
           </div>
 
           {% if price_history and price_history.meaningful %}
@@ -279,6 +285,15 @@
           <div style="font-size: 0.7rem; color: #94A3B8; margin-top: 0.4rem;">
             {{ price_history.observations }} price observation{{ price_history.observations|pluralize }} recorded in the last 30 days
           </div>
+          {% if price_series %}
+          {% with last_pt=price_series.coords|last %}
+          <svg viewBox="0 0 {{ price_series.width }} {{ price_series.height }}" style="width: 100%; height: 56px; margin-top: 0.75rem; display: block;">
+            <polyline points="{% for x, y in price_series.coords %}{{ x }},{{ y }} {% endfor %}" fill="none" stroke="#2563EB" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+            <circle cx="{{ last_pt.0 }}" cy="{{ last_pt.1 }}" r="3.5" fill="#059669"/>
+          </svg>
+          <div style="font-size: 0.7rem; color: #64748B; margin-top: 0.3rem;">30d trend: low R {{ price_series.low|floatformat:0|intcomma }} · latest R {{ price_series.latest|floatformat:0|intcomma }}</div>
+          {% endwith %}
+          {% endif %}
           {% else %}
           <div style="font-size: 0.75rem; color: #64748B;">
             No measured price history yet — the 30-day band is built from each merchant confirmation.
@@ -470,8 +485,30 @@
   </section>
   {% endif %}
 
+  <!-- Customer Reviews (measured texts from the commerce graph) -->
+  {% with rev_items=product.reviews_summary.reviews|default:product.reviews_summary.items %}
+  {% if rev_items %}
+  <section style="margin-bottom: 3rem;">
+    <h2 class="section-title" style="margin-bottom: 1rem;">⭐ Customer Reviews</h2>
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      {% for r in rev_items|slice:":5" %}
+      {% if r.reviewBody or r.text or r.comment %}
+      <div class="card" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.1rem 1.25rem;">
+        <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+          <span style="font-weight: 800; font-size: 0.9rem; color: #0F172A;">{{ r.author|default:r.name|default:"Verified buyer" }}</span>
+          {% if r.ratingValue or r.rating %}<span style="color: #F59E0B; font-weight: 800;">★ {{ r.ratingValue|default:r.rating }}</span>{% endif %}
+        </div>
+        <p style="font-size: 0.85rem; color: #334155; margin: 0; line-height: 1.55;">{{ r.reviewBody|default:r.text|default:r.comment }}</p>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+  {% endwith %}
+
   <!-- GOOGLE SHOPPING MULTI-SELLER COMPARISON MATRIX (Confirmed + Discovered) -->
-  <section id="confirmed-offers-section" style="margin-bottom: 3rem;">
+  <section id="confirmed-offers-section" x-data="{ compare: [] }" style="margin-bottom: 3rem;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
       <div>
         <span class="badge badge-green">🛍️ Multi-Store Comparison Matrix</span>
@@ -486,6 +523,19 @@
       >
         + Stock This Item? List Yours
       </a>
+    </div>
+
+    <!-- Compare tray (Google Shopping-style seller selection) -->
+    <div x-show="compare.length > 0" x-transition style="position: sticky; bottom: 0; z-index: 20; background: #0F172A; color: #FFFFFF; border-radius: 12px; padding: 0.9rem 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+      <span style="font-size: 0.8rem; font-weight: 800;">⚖️ Comparing:</span>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        {% for offer in confirmed_offers %}
+        <div x-show="compare.includes('ofr{{ offer.canonical_id }}')" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 0.35rem 0.6rem; font-size: 0.75rem;">
+          <div style="font-weight: 700;">{{ offer.merchant.name|truncatechars:24 }}</div>
+          <div style="color: #34D399; font-weight: 800;">R {{ offer.price_amount|floatformat:0|intcomma }} <a href="/l/{{ offer.canonical_id }}" style="color: #93C5FD; text-decoration: none; margin-left: 0.4rem;">💬</a></div>
+        </div>
+        {% endfor %}
+      </div>
     </div>
 
     <!-- Offers List -->
@@ -520,6 +570,9 @@
         </div>
 
         <div>
+          <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 0.4rem; cursor: pointer;">
+            <input type="checkbox" value="ofr{{ offer.canonical_id }}" x-model="compare"> Compare
+          </label>
           <a
             href="/l/{{ offer.canonical_id }}"
             class="btn btn-whatsapp"

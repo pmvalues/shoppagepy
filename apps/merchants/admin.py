@@ -5,9 +5,14 @@ from django.utils.html import format_html
 
 from .models import (
     AgentRun,
+    Campaign,
     ClaimStateChoices,
     Draft,
     Merchant,
+    MerchantPhoto,
+    MerchantPost,
+    MerchantQuestion,
+    MerchantReview,
     TrustPassport,
     VerificationStateChoices,
 )
@@ -217,3 +222,59 @@ class AgentRunAdmin(admin.ModelAdmin):
     list_filter = ('agent_name', 'status', 'created_at')
     search_fields = ('run_id', 'merchant__name', 'agent_name')
     readonly_fields = ('run_id', 'created_at', 'updated_at')
+
+
+@admin.register(MerchantReview)
+class MerchantReviewAdmin(admin.ModelAdmin):
+    paginator = LargeTablePaginator
+    show_full_result_count = False
+    list_per_page = 50
+    list_display = ('author_name', 'merchant', 'rating', 'state', 'replied_at', 'created_at')
+    list_filter = ('state', 'rating')
+    search_fields = ('author_name', 'comment', 'merchant__name')
+    autocomplete_fields = ('merchant',)
+    readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(MerchantQuestion)
+class MerchantQuestionAdmin(admin.ModelAdmin):
+    paginator = LargeTablePaginator
+    show_full_result_count = False
+    list_per_page = 50
+    list_display = ('asker_name', 'merchant', 'state', 'answered_at', 'created_at')
+    list_filter = ('state',)
+    search_fields = ('asker_name', 'question', 'merchant__name')
+    autocomplete_fields = ('merchant',)
+    readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(MerchantPhoto)
+class MerchantPhotoAdmin(admin.ModelAdmin):
+    paginator = LargeTablePaginator
+    show_full_result_count = False
+    list_per_page = 50
+    list_display = ('merchant', 'image_url', 'state', 'created_at')
+    list_filter = ('state',)
+    search_fields = ('caption', 'image_url', 'merchant__name')
+    autocomplete_fields = ('merchant',)
+    readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(MerchantPost)
+class MerchantPostAdmin(admin.ModelAdmin):
+    paginator = LargeTablePaginator
+    show_full_result_count = False
+    list_per_page = 50
+    readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(Campaign)
+class CampaignAdmin(admin.ModelAdmin):
+    paginator = LargeTablePaginator
+    show_full_result_count = False
+    list_per_page = 50
+    list_display = ('name', 'merchant', 'campaign_type', 'status', 'budget_zar', 'target_province', 'valid_from', 'valid_until')
+    list_filter = ('campaign_type', 'status', 'target_province')
+    search_fields = ('name', 'canonical_id', 'merchant__name', 'headline')
+    autocomplete_fields = ('merchant',)
+    readonly_fields = ('canonical_id', 'created_at', 'updated_at')
