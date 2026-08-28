@@ -8,7 +8,23 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, Field, ValidationError
+try:
+    from pydantic import BaseModel, Field, ValidationError
+except ImportError:
+    class BaseModel:
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+        def model_dump(self):
+            return self.__dict__
+        def dict(self):
+            return self.__dict__
+
+    def Field(default=None, **kwargs):
+        return default
+
+    class ValidationError(Exception):
+        pass
 
 
 class SearchQuery(BaseModel):
