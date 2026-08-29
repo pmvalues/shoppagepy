@@ -10,8 +10,16 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Force HTTPS for apt (outbound port 80 to deb.debian.org is blocked/slow on some hosts)
+# then install system dependencies
+RUN set -eux; \
+    if [ -f /etc/apt/sources.list.d/debian.sources ]; then \
+        sed -i 's|http://|https://|g' /etc/apt/sources.list.d/debian.sources; \
+    fi; \
+    if [ -f /etc/apt/sources.list ]; then \
+        sed -i 's|http://|https://|g' /etc/apt/sources.list; \
+    fi; \
+    apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
     curl \
