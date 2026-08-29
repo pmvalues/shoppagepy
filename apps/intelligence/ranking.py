@@ -68,6 +68,21 @@ CATEGORY_KEYWORDS: dict[str, str] = {
     'paint': 'hardware',
 }
 
+# Legacy intent categories -> canonical category_ref values actually stored in
+# the catalogue (the 1M-row grid uses *_tools / *_electronics suffixes).
+CATEGORY_ALIASES: dict[str, set[str]] = {
+    'hardware': {'hardware', 'hardware_tools'},
+    'smartphones': {'smartphones', 'smartphones_electronics'},
+}
+
+
+def canonical_category(category: str) -> str:
+    """Map a legacy intent category to its canonical stored value."""
+    for legacy, members in CATEGORY_ALIASES.items():
+        if category in members:
+            return legacy if category == legacy else next(iter(members - {legacy}))
+    return category
+
 
 def tokenize(query: str) -> list[str]:
     """Tokenize query into lowercase alphanumeric terms; strip punctuation."""
@@ -91,7 +106,7 @@ def detect_filters(query: str) -> dict[str, Any]:
 
     for token in tokens:
         if token in CATEGORY_KEYWORDS:
-            intent['category'] = CATEGORY_KEYWORDS[token]
+            intent['category'] = canonical_category(CATEGORY_KEYWORDS[token])
             break
 
     price_under = re.search(r'(?:under|below|less than|<)\s*r?(\d+[\d\s,]*)', query, re.I)
@@ -363,7 +378,7 @@ def _candidate_ids_postgres(tokens: list[str], expanded: list[str], limit: int,
                 cur.execute(
                     "SELECT id FROM catalog_masterproduct "
                     "WHERE (status = 'active' OR status = 'ACTIVE') "
-                    "AND category_ref = %s ORDER BY popularity_score DESC NULLS LAST LIMIT %s",
+                    "AND category_ref = %s LIMIT %s",
                     [category.lower(), limit - len(ids)],
                 )
                 ids.extend(r[0] for r in cur.fetchall())
@@ -482,7 +497,7 @@ def _tsvector_ids(raw_query: str, expanded: list[str], limit: int) -> list[Any]:
             cur.execute(
                 "SELECT id FROM ("
                 "  SELECT id, ts_rank(search_tsv, q) AS rank, "
-                "         rank(search_tsv, q) AS exact_rank "
+                "         ts_rank(search_tsv, q) AS exact_rank "
                 "  FROM catalog_masterproduct, to_tsquery('english', %s) q "
                 "  WHERE search_tsv @@ q "
                 "    AND (status = 'active' OR status = 'ACTIVE') "
@@ -585,9 +600,8 @@ def _popularity_scores() -> dict[str, int]:
         return cached
     result: dict[str, int] = {}
     try:
-        from django.db.models import Count
-
         from apps.core.models import SearchClick
+        from django.db.models import Count
 
         since = datetime.now(UTC) - timedelta(days=30)
         rows = (
@@ -710,7 +724,8 @@ def ranked_search(
         .prefetch_related('offers', 'offers__merchant')
     )
     if category:
-        products_list = [p for p in products_list if (p.category_ref or '').lower() == category.lower()]
+        allowed_refs = CATEGORY_ALIASES.get(category, {category})
+        products_list = [p for p in products_list if (p.category_ref or '').lower() in allowed_refs]
     if brand:
         products_list = [p for p in products_list if (p.brand or '').lower() == brand.lower()]
 

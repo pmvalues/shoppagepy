@@ -2,7 +2,74 @@ from apps.core.paginator import LargeTablePaginator
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import AvailabilityStateChoices, DiscoveredOffer, Offer, PriceAlert, PriceObservation, Promotion
+from .models import (
+    AvailabilityStateChoices,
+    DiscoveredOffer,
+    Offer,
+    PriceAlert,
+    PriceObservation,
+    Promotion,
+    VendorProduct,
+)
+
+
+class VendorOfferInline(admin.TabularInline):
+    """Price-state rows hanging off one vendor listing."""
+    model = Offer
+    extra = 0
+    fields = ('price_amount', 'currency', 'availability_state', 'sla_class', 'expires_at')
+    readonly_fields = ('last_confirmed_at',)
+    show_change_link = True
+
+
+@admin.register(VendorProduct)
+class VendorProductAdmin(admin.ModelAdmin):
+    paginator = LargeTablePaginator
+    show_full_result_count = False
+    list_per_page = 50
+
+    list_display = (
+        'merchant',
+        'master_product',
+        'vendor_sku',
+        'condition',
+        'stock_state',
+        'status_badge',
+        'match_source',
+        'match_confidence',
+        'updated_at',
+    )
+    list_filter = ('condition', 'stock_state', 'status', 'match_source')
+    search_fields = ('canonical_id', 'vendor_sku', 'vendor_gtin', 'mpn', 'merchant__name', 'master_product__title')
+    autocomplete_fields = ('master_product', 'merchant')
+    readonly_fields = ('canonical_id', 'created_at', 'updated_at')
+    inlines = [VendorOfferInline]
+    ordering = ('-updated_at',)
+
+    fieldsets = (
+        ('Listing Identity', {
+            'fields': ('canonical_id', 'master_product', 'merchant', 'vendor_sku', 'vendor_gtin', 'mpn')
+        }),
+        ('Merchant Listing Details', {
+            'fields': ('condition', 'unit_descriptor', 'stock_state', 'stall_ref', 'status')
+        }),
+        ('Match Provenance', {
+            'fields': ('match_source', 'match_confidence')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def status_badge(self, obj):
+        color = {
+            'active': '#059669',
+            'draft': '#D97706',
+            'offboarded': '#DC2626',
+        }.get(obj.status, '#64748B')
+        return format_html('<span style="color: {}; font-weight: 800;">{}</span>', color, obj.get_status_display())
+    status_badge.short_description = 'Status'
 
 
 @admin.register(Offer)
@@ -25,7 +92,7 @@ class OfferAdmin(admin.ModelAdmin):
     )
     list_filter = ('availability_state', 'sla_class', 'destination_type', 'currency')
     search_fields = ('canonical_id', 'variant__title', 'merchant__name', 'stall_ref')
-    autocomplete_fields = ('variant', 'merchant')
+    autocomplete_fields = ('vendor_product', 'variant', 'merchant')
     readonly_fields = ('canonical_id', 'last_confirmed_at', 'expires_at', 'created_at', 'updated_at')
 
     def variant_link(self, obj):
@@ -138,7 +205,7 @@ class PromotionAdmin(admin.ModelAdmin):
     list_display = ('canonical_id', 'title', 'merchant_link', 'discount_label', 'state', 'valid_from', 'valid_until')
     list_filter = ('state', 'valid_from')
     search_fields = ('canonical_id', 'title', 'merchant__name', 'variant__title')
-    autocomplete_fields = ('merchant', 'variant')
+    autocomplete_fields = ('vendor_product', 'merchant', 'variant')
     readonly_fields = ('canonical_id', 'created_at', 'updated_at')
 
     def merchant_link(self, obj):

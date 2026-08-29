@@ -229,6 +229,25 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/merchant/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
+# Federated live search — internal index + rights-gated external providers (M1)
+SHOPPAGE_EXTERNAL_SEARCH = {
+    'enabled': os.environ.get('EXTERNAL_SEARCH_ENABLED', '1') == '1',
+    'cache_ttl_seconds': int(os.environ.get('EXTERNAL_SEARCH_CACHE_TTL', '86400')),
+    'rate_limit_per_minute': int(os.environ.get('EXTERNAL_SEARCH_RATE_LIMIT', '60')),
+    'timeout_seconds': float(os.environ.get('EXTERNAL_SEARCH_TIMEOUT', '3')),
+    'max_workers': 3,
+    'providers': {
+        'own_sweep': {'max_results': 4},
+        'wikipedia': {'max_results': 4},
+        'tinyfish': {'max_results': 4},
+        'tinyfish_fetch': {'max_results': 2},
+    },
+}
+
+# TinyFish live web search — read from TINYFISH_API_KEY; the key lives in the
+# gitignored shoppage/settings/local.py, never committed.
+TINYFISH_API_KEY = os.environ.get('TINYFISH_API_KEY', '')
+
 # Custom domain settings
 SHOPPAGE_COUNTRY_DEFAULT = 'ZA'
 SHOPPAGE_CURRENCY_DEFAULT = 'ZAR'

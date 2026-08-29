@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.http import HttpResponse
 from django.utils.html import format_html
 
-from .models import MasterProduct, ProductImage, ProductStatusChoices
+from .models import Category, CategoryPath, MasterProduct, ProductImage, ProductStatusChoices
 
 
 class ProductCategoryFilter(admin.SimpleListFilter):
@@ -77,6 +77,50 @@ class ProductImageInline(admin.TabularInline):
     ordering = ('sort_order', 'id')
 
 
+class TaxonomyFilter(admin.SimpleListFilter):
+    """Filter products by their level-0 Google taxonomy branch."""
+    title = 'Taxonomy branch'
+    parameter_name = 'taxonomy'
+
+    def lookups(self, request, model_admin):
+        return list(
+            Category.objects.filter(level=0).values_list('google_id', 'name')[:40]
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if not value:
+            return queryset
+        try:
+            root = Category.objects.get(google_id=int(value))
+        except (Category.DoesNotExist, ValueError):
+            return queryset
+        descendant_ids = CategoryPath.objects.filter(ancestor=root).values_list('descendant_id', flat=True)
+        return queryset.filter(master_category_id__in=descendant_ids)
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('google_id', 'path', 'level', 'sector', 'product_count')
+    list_filter = ('level', 'sector')
+    search_fields = ('name', 'path')
+    ordering = ('path',)
+    readonly_fields = ('google_id', 'level', 'slug', 'path')
+    list_per_page = 100
+
+    def product_count(self, obj):
+        return obj.products.count()
+    product_count.short_description = 'Products'
+
+
+@admin.register(CategoryPath)
+class CategoryPathAdmin(admin.ModelAdmin):
+    list_display = ('ancestor', 'descendant', 'depth')
+    search_fields = ('ancestor__path', 'descendant__path')
+    list_filter = ('depth',)
+    list_per_page = 100
+
+
 @admin.register(MasterProduct)
 class MasterProductAdmin(admin.ModelAdmin):
     paginator = LargeTablePaginator
@@ -92,15 +136,16 @@ class MasterProductAdmin(admin.ModelAdmin):
         'status_badge',
         'view_on_site'
     )
-    list_filter = (ProductCategoryFilter, ProductStatusFilter, ProductPublishableFilter)
+    list_filter = (ProductCategoryFilter, TaxonomyFilter, ProductStatusFilter, ProductPublishableFilter)
     search_fields = ('title', 'canonical_id', 'gtin13', 'mpn', 'model_number', 'brand')
     readonly_fields = ('canonical_id', 'created_at', 'updated_at')
+    autocomplete_fields = ('master_category',)
     inlines = [ProductImageInline, OfferInline, DiscoveredOfferInline]
     actions = ('activate_selected', 'unpublish_selected', 'export_csv')
 
     fieldsets = (
         ('Product Identification', {
-            'fields': ('canonical_id', 'handle', 'title', 'brand', 'model_number', 'family_ref', 'category_ref', 'status', 'condition_type')
+            'fields': ('canonical_id', 'handle', 'title', 'brand', 'model_number', 'family_ref', 'category_ref', 'master_category', 'status', 'condition_type')
         }),
         ('Description', {
             'fields': ('description', 'bullet_points', 'tags')

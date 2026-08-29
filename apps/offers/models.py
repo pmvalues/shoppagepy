@@ -1,3 +1,4 @@
+from apps.catalog.models import ConditionChoices
 from apps.core.models import TimeStampedModel
 from django.db import models
 from django.utils import timezone
@@ -64,11 +65,82 @@ PUBLISHABLE_STATES = (
 )
 
 
+class VendorProduct(TimeStampedModel):
+    """
+    A merchant's first-party listing of a canonical master product.
+
+    The stable link between the merchant world (SKU, barcode, condition,
+    stock) and the master product graph. Offers become price-state records
+    against the listing; promotions and evidence claims attach here too.
+    One listing per (merchant, master_product, condition, unit_descriptor).
+    """
+
+    class StockStateChoices(models.TextChoices):
+        IN_STOCK = 'in_stock', 'In Stock'
+        LOW_STOCK = 'low_stock', 'Low Stock'
+        OUT_OF_STOCK = 'out_of_stock', 'Out of Stock'
+        UNKNOWN = 'unknown', 'Unknown'
+
+    class StatusChoices(models.TextChoices):
+        ACTIVE = 'active', 'Active'
+        DRAFT = 'draft', 'Draft'
+        OFFBOARDED = 'offboarded', 'Offboarded / Suspended'
+
+    class MatchSourceChoices(models.TextChoices):
+        SWEEP = 'sweep', 'Public Web Sweep'
+        MANUAL = 'manual', 'Operator Entered'
+        MERCHANT_CLAIMED = 'merchant_claimed', 'Merchant Claimed'
+        EVIDENCE = 'evidence', 'Field Evidence'
+
+    canonical_id = models.CharField(max_length=120, unique=True, db_index=True, blank=True, help_text='e.g. vp_ab12cd34ef56')
+    master_product = models.ForeignKey('catalog.MasterProduct', on_delete=models.CASCADE, related_name='vendor_products')
+    merchant = models.ForeignKey('merchants.Merchant', on_delete=models.CASCADE, related_name='vendor_products')
+
+    vendor_sku = models.CharField(max_length=100, blank=True, default='', db_index=True, help_text='The merchant\'s own SKU for this listing')
+    vendor_gtin = models.CharField(max_length=14, blank=True, null=True, help_text='Vendor barcode when it differs from the master GTIN')
+    mpn = models.CharField(max_length=100, blank=True, default='')
+
+    condition = models.CharField(max_length=20, choices=ConditionChoices.choices, default=ConditionChoices.NEW)
+    unit_descriptor = models.CharField(max_length=50, blank=True, default='', help_text='e.g. each, per 5L, box of 10')
+    stock_state = models.CharField(max_length=20, choices=StockStateChoices.choices, default=StockStateChoices.UNKNOWN, db_index=True)
+    stall_ref = models.CharField(max_length=150, blank=True, null=True)
+    status = models.CharField(max_length=20, choices=StatusChoices.choices, default=StatusChoices.ACTIVE, db_index=True)
+
+    match_source = models.CharField(max_length=30, choices=MatchSourceChoices.choices, default=MatchSourceChoices.MANUAL)
+    match_confidence = models.FloatField(default=0.85)
+
+    class Meta:
+        ordering = ['merchant', 'master_product']
+        verbose_name = 'Vendor Product Listing'
+        verbose_name_plural = 'Vendor Product Listings'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['merchant', 'master_product', 'condition', 'unit_descriptor'],
+                name='uniq_vendor_product_listing',
+            ),
+        ]
+
+    def __str__(self):
+        sku = f' [{self.vendor_sku}]' if self.vendor_sku else ''
+        return f'{self.merchant.name} — {self.master_product.title}{sku}'
+
+    def save(self, *args, **kwargs):
+        if not self.canonical_id:
+            import uuid
+
+            self.canonical_id = f'vp_{uuid.uuid4().hex[:12]}'
+        super().save(*args, **kwargs)
+
+
 class Offer(TimeStampedModel):
     """
     Confirmed Offer: Direct first-party commercial proposition from a verified merchant.
     """
     canonical_id = models.CharField(max_length=120, unique=True, db_index=True, help_text="e.g. ofr_01")
+    vendor_product = models.ForeignKey(
+        VendorProduct, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='offers', help_text='Stable listing this price-state record belongs to',
+    )
     variant = models.ForeignKey('catalog.MasterProduct', on_delete=models.CASCADE, related_name='offers')
     merchant = models.ForeignKey('merchants.Merchant', on_delete=models.CASCADE, related_name='offers')
     destination_type = models.CharField(
@@ -107,6 +179,19 @@ class Offer(TimeStampedModel):
         return f"{self.variant.title} @ {self.merchant.name} - R{self.price_amount}"
 
     def save(self, *args, **kwargs):
+        if self.vendor_product_id is None and self.variant_id and self.merchant_id:
+            # Every confirmed offer implies a vendor listing; resolve or create it
+            # so price-state rows always hang off the stable listing.
+            self.vendor_product, _ = VendorProduct.objects.get_or_create(
+                merchant=self.merchant,
+                master_product=self.variant,
+                condition=self.variant.condition_type or ConditionChoices.NEW,
+                unit_descriptor='',
+                defaults={
+                    'match_source': VendorProduct.MatchSourceChoices.MANUAL,
+                    'vendor_sku': '',
+                },
+            )
         stored = (
             Offer.objects.filter(pk=self.pk).values_list('pk', 'price_amount').first()
             if self.pk else None
@@ -197,6 +282,10 @@ class DiscoveredOffer(TimeStampedModel):
     canonical_id = models.CharField(max_length=120, unique=True, db_index=True)
     master_product = models.ForeignKey('catalog.MasterProduct', on_delete=models.CASCADE, related_name='discovered_offers')
     merchant = models.ForeignKey('merchants.Merchant', on_delete=models.SET_NULL, null=True, blank=True, related_name='discovered_offers')
+    vendor_product = models.ForeignKey(
+        VendorProduct, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='discovered_offers', help_text='Listing this sweep resolved to (if any)',
+    )
     merchant_name = models.CharField(max_length=255)
     source_website = models.CharField(max_length=255)
     source_url = models.URLField()
@@ -238,6 +327,10 @@ class Promotion(TimeStampedModel):
         ENDED = 'ended', 'Ended'
 
     canonical_id = models.CharField(max_length=120, unique=True, db_index=True, help_text="e.g. prom_a1b2c3d4e5f6")
+    vendor_product = models.ForeignKey(
+        VendorProduct, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='promotions', help_text='Listing this promotion applies to',
+    )
     merchant = models.ForeignKey('merchants.Merchant', on_delete=models.CASCADE, related_name='promotions')
     variant = models.ForeignKey('catalog.MasterProduct', on_delete=models.CASCADE, related_name='promotions')
     title = models.CharField(max_length=150)
@@ -255,6 +348,17 @@ class Promotion(TimeStampedModel):
 
     def __str__(self):
         return f"{self.title} ({self.merchant.name})"
+
+    def save(self, *args, **kwargs):
+        if self.vendor_product_id is None and self.variant_id and self.merchant_id:
+            self.vendor_product, _ = VendorProduct.objects.get_or_create(
+                merchant=self.merchant,
+                master_product=self.variant,
+                condition=self.variant.condition_type or ConditionChoices.NEW,
+                unit_descriptor='',
+                defaults={'match_source': VendorProduct.MatchSourceChoices.MANUAL, 'vendor_sku': ''},
+            )
+        super().save(*args, **kwargs)
 
     @property
     def promo_id(self) -> str:

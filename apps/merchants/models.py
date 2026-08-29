@@ -191,6 +191,7 @@ class DraftTypeChoices(models.TextChoices):
     REQUEST_RESPONSE = 'request_response', 'Buyer Request Negotiation Response'
     OFFER_CANDIDATE = 'offer_candidate', 'Offer Candidate Draft'
     MEDIA_SCRIPT = 'media_script', 'Media Hub Script'
+    TAXONOMY_MAPPING = 'taxonomy_mapping', 'Google Taxonomy Mapping'
 
 class ReviewStateChoices(models.TextChoices):
     PENDING = 'pending', 'Pending Merchant Review'

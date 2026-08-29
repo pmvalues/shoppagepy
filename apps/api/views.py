@@ -19,8 +19,7 @@ from apps.intelligence.services import (
     generate_trust_seal_svg,
 )
 from apps.markets.models import Market
-from apps.merchants.models import Merchant
-from apps.merchants.models import ClaimStateChoices
+from apps.merchants.models import ClaimStateChoices, Merchant
 from apps.offers.models import AvailabilityStateChoices
 from apps.referrals.models import ReferralEvent
 from django.core.cache import cache
@@ -31,7 +30,6 @@ from django.http import (
     HttpResponsePermanentRedirect,
     StreamingHttpResponse,
 )
-from django.shortcuts import get_object_or_404
 from django.utils.cache import patch_response_headers
 from rest_framework import generics, pagination, status
 from rest_framework.permissions import IsAdminUser
@@ -124,6 +122,10 @@ class SearchAPIView(APIView):
             result_cap=results.get('result_cap'),
             is_capped=results.get('is_capped', False),
         )
+        if params.live:
+            from apps.intelligence.federated import external_results
+
+            response.external = external_results(params.q)['results']
         return Response(response.model_dump())
 
 
@@ -409,7 +411,7 @@ def shopify_products_view(request):
             'title': product.title,
             'body_html': (product.description or '')[:5000],
             'vendor': product.brand,
-            'product_type': product.category_ref,
+            'product_type': product.master_category.path if product.master_category_id else product.category_ref,
             'tags': product.tags if isinstance(product.tags, list) else [],
             'images': [
                 {'src': img.url, 'alt': img.alt_text or product.title}

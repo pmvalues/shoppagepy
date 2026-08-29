@@ -39,6 +39,7 @@ class SearchQuery(BaseModel):
     min_price: float | None = None
     max_price: float | None = None
     sort: str = Field(default='relevance')
+    live: bool = Field(default=False, description='Include rights-gated live external web results')
 
     @classmethod
     def from_get(cls, get_params: Any) -> SearchQuery:
@@ -60,6 +61,7 @@ class SearchQuery(BaseModel):
                 'min_price': float(get_params['min_price']) if get_params.get('min_price') else None,
                 'max_price': float(get_params['max_price']) if get_params.get('max_price') else None,
                 'sort': get_params.get('sort', 'relevance'),
+                'live': str(get_params.get('live', '')).lower() in ('1', 'true', 'yes'),
             }
             return cls(**data)
         except (ValidationError, ValueError):
@@ -80,3 +82,6 @@ class SearchResponse(BaseModel):
     merchants: Any
     result_cap: int | None = None
     is_capped: bool = False
+    external: list[dict[str, Any]] | None = Field(
+        default=None, description='Live external web results when ?live=1'
+    )

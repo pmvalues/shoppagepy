@@ -5,9 +5,9 @@ from apps.core.seo import breadcrumb_jsonld, jsonld_script, product_jsonld
 from apps.intelligence.services import get_brand_knowledge_card
 from apps.media_hub.models import Short
 from apps.offers.models import AvailabilityStateChoices
+from django.contrib import messages
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.contrib import messages
 from django.db.models import Q
 from django.http import Http404, HttpResponsePermanentRedirect
 from django.shortcuts import redirect, render
@@ -229,9 +229,8 @@ def product_detail_view(request, canonical_id):
     price_series = None
     src_offer = best_offer or (offers[0] if offers else None)
     if src_offer:
-        from django.utils import timezone
-
         from apps.offers.models import PriceObservation
+        from django.utils import timezone
 
         obs = list(
             PriceObservation.objects.filter(offer_id=src_offer.id, recorded_at__gte=timezone.now() - timezone.timedelta(days=30))
@@ -312,16 +311,26 @@ def product_detail_view(request, canonical_id):
 
 def category_landing_view(request, slug):
     """Google-Shopping-style category browse destination: /category/<slug>/."""
-    from django.utils.http import urlencode
-
+    from apps.catalog.models import Category, CategoryPath
     from apps.core.seo import breadcrumb_jsonld, jsonld_script
     from apps.intelligence.ranking import ranked_search
+    from django.utils.http import urlencode
 
     category_ref = str(slug).lower().replace('-', '_')
-    if not MasterProduct.objects.filter(
+    taxonomy_node = Category.objects.filter(slug=slug).first()
+    has_sector = MasterProduct.objects.filter(
         category_ref=category_ref, status__in=['active', 'ACTIVE']
-    ).exists():
+    ).exists()
+    if not has_sector and taxonomy_node is None:
         raise Http404('Category not found')
+
+    # Taxonomy pages are children-inclusive: the node plus every descendant leaf.
+    descendant_ids = []
+    if taxonomy_node is not None:
+        descendant_ids = list(
+            CategoryPath.objects.filter(ancestor=taxonomy_node)
+            .values_list('descendant_id', flat=True)
+        )
 
     sort = request.GET.get('sort', 'relevance')
     try:
@@ -337,15 +346,22 @@ def category_landing_view(request, slug):
     except ValueError:
         max_price = None
 
-    results = ranked_search(
-        category_ref,
-        limit=24,
-        offset=offset,
-        category=category_ref,
-        min_price=min_price,
-        max_price=max_price,
-        sort=sort,
-    )
+    if taxonomy_node is not None and not has_sector and not descendant_ids:
+        # Classified products don't exist under this branch yet — degrade gracefully.
+        results = {
+            'products': [], 'total_products': 0, 'facets': {}, 'price_stats': {},
+            'next_offset': None, 'page': 1,
+        }
+    else:
+        results = ranked_search(
+            category_ref if has_sector else (taxonomy_node.sector or taxonomy_node.name),
+            limit=24,
+            offset=offset,
+            category=category_ref if has_sector else taxonomy_node.sector,
+            min_price=min_price,
+            max_price=max_price,
+            sort=sort,
+        )
 
     products = []
     for s in results['products']:
@@ -362,6 +378,54 @@ def category_landing_view(request, slug):
         )
         p.shoppage_offer_count = s.offer_count or (1 if s.best_offer else 0)
         products.append(p)
+
+    # Taxonomy pages are precision-filtered: keep only products inside the branch.
+    if taxonomy_node is not None and descendant_ids:
+        allowed = set(descendant_ids)
+        products = [p for p in products if p.master_category_id in allowed]
+        if offset == 0 and len(products) < 8:
+            # The sector-ranked crop rarely covers a deep leaf — top up from the
+            # branch itself, ranked by behavioural popularity then price.
+            from apps.intelligence.ranking import _popularity_scores
+            from apps.offers.models import Offer
+            from django.db.models import Exists, Min, OuterRef
+
+            known = {p.id for p in products}
+            candidates = list(
+                MasterProduct.objects.filter(
+                    master_category_id__in=descendant_ids,
+                    status__in=['active', 'ACTIVE'],
+                )
+                .exclude(pk__in=known)
+                .annotate(
+                    best_price=Min('offers__price_amount'),
+                    has_offer=Exists(
+                        Offer.objects.filter(variant_id=OuterRef('pk'), price_amount__isnull=False)
+                    ),
+                )
+            )
+            clicks = _popularity_scores()
+
+            def _rank(p):
+                price = float(p.best_price) if p.best_price is not None else float('inf')
+                return (-clicks.get(str(p.pk), 0), 0 if p.has_offer else 1, price)
+
+            candidates.sort(key=_rank)
+            room = max(0, 24 - len(products))
+            for p in candidates[:room]:
+                summary = p.reviews_summary if isinstance(p.reviews_summary, dict) else {}
+                rating = summary.get('ratingValue') or summary.get('average') or ''
+                p.shoppage_rating = float(rating) if rating else ''
+                p.shoppage_rating_count = int(summary.get('reviewCount') or summary.get('count') or 0)
+                p.shoppage_best_price = (
+                    float(p.best_price)
+                    if p.best_price is not None
+                    else (float(p.estimated_price_zar) if p.estimated_price_zar else 0.0)
+                )
+                p.shoppage_offer_count = 1 if p.has_offer else 0
+                p.shoppage_promo_label = ''
+                p.shoppage_original_price = None
+                products.append(p)
 
     # Active promotions: sale price + badge on category cards (Google PLA-style).
     try:
@@ -405,11 +469,39 @@ def category_landing_view(request, slug):
         return urlencode(params)
 
     _facets = results.get('facets', {}) or {}
+
+    taxonomy_children = []
+    if taxonomy_node is not None:
+        from django.db.models import Count
+
+        child_desc_ids = [
+            row.descendant_id
+            for row in CategoryPath.objects.filter(ancestor=taxonomy_node, depth=1)
+        ]
+        if child_desc_ids:
+            counts = dict(
+                MasterProduct.objects.filter(
+                    master_category_id__in=child_desc_ids, status__in=['active', 'ACTIVE']
+                )
+                .values('master_category_id')
+                .annotate(n=Count('id'))
+                .values_list('master_category_id', 'n')
+            )
+            children = Category.objects.filter(id__in=child_desc_ids)
+            taxonomy_children = [
+                (child.slug, child.name, counts.get(child.id, 0))
+                for child in children
+                if counts.get(child.id)
+            ]
+            taxonomy_children.sort(key=lambda row: -row[2])
+
     facet_links = {
-        'categories': [
-            (c, f'/category/{c}/', n, c.replace('_', ' ').title())
-            for c, n in (_facets.get('categories') or {}).items()
-        ],
+        'categories': (
+            [(c, f'/category/{c}/', n, c.replace('_', ' ').title())
+             for c, n in (_facets.get('categories') or {}).items()]
+            if not taxonomy_children else
+            [(c, f'/category/{c}/', n, name) for c, name, n in taxonomy_children]
+        ),
         'brands': [
             (b, f'/category/{slug}/?{_facet_url("brand", b)}', n, b.replace('_', ' ').title())
             for b, n in (_facets.get('brands') or {}).items()
@@ -427,9 +519,24 @@ def category_landing_view(request, slug):
         ('rating', 'Top Rated'),
     ]
 
-    label = category_ref.replace('_', ' ').title()
-    total = results['total_products']
-    crumbs = [('Home', '/'), ('Categories', '/search/'), (label, None)]
+    if taxonomy_node is not None:
+        label = taxonomy_node.path
+        chain = []
+        cursor = taxonomy_node
+        while cursor is not None:
+            chain.append(cursor)
+            cursor = cursor.parent
+        crumbs = [('Home', '/')]
+        for node in reversed(chain[:-1]):
+            crumbs.append((node.name, f'/category/{node.slug}/'))
+        crumbs.append((taxonomy_node.name, None))
+        total = MasterProduct.objects.filter(
+            master_category_id__in=descendant_ids, status__in=['active', 'ACTIVE']
+        ).count() if descendant_ids else 0
+    else:
+        label = category_ref.replace('_', ' ').title()
+        total = results['total_products']
+        crumbs = [('Home', '/'), ('Categories', '/search/'), (label, None)]
 
     context = {
         'category': category_ref,
@@ -455,6 +562,7 @@ def category_landing_view(request, slug):
         ),
         'canonical_path': f'/category/{slug}/',
         'robots_meta': 'index,follow',
+        'taxonomy_path': taxonomy_node.path if taxonomy_node else '',
     }
     return render(request, 'catalog/category_page.html', context)
 

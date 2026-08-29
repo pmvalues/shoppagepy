@@ -42,6 +42,14 @@ class MasterProduct(TimeStampedModel):
     status = models.CharField(max_length=30, choices=ProductStatusChoices.choices, default=ProductStatusChoices.ACTIVE, db_index=True)
     condition_type = models.CharField(max_length=20, choices=ConditionChoices.choices, default=ConditionChoices.NEW)
 
+    # Fine-grained Google Shopping taxonomy node (the ~5.5k-node en-US tree).
+    # category_ref stays as the coarse commerce vertical (solar_energy, ...); this
+    # FK carries the precise classification used by GMC feeds and category pages.
+    master_category = models.ForeignKey(
+        'catalog.Category', null=True, blank=True, on_delete=models.PROTECT,
+        related_name='products', help_text='Google product taxonomy leaf',
+    )
+
     # Technical specs JSON-B
     attributes = models.JSONField(default=dict, blank=True, help_text="Structured technical specifications")
 
@@ -120,6 +128,50 @@ class MasterProduct(TimeStampedModel):
 
 # Backward compatible alias
 ProductVariant = MasterProduct
+
+
+class Category(TimeStampedModel):
+    """
+    Google Shopping product taxonomy node (taxonomy-with-ids.en-US.txt).
+
+    Holds every node of the ~5,500-category tree: level-0 branches through
+    leaf categories. Products link via ``MasterProduct.master_category``;
+    child-inclusive queries go through :class:`CategoryPath` (closure table).
+    ``sector`` records which coarse commerce vertical (``category_ref`` value)
+    the node feeds, so ranking/facets can stay on the cheap string path.
+    """
+    google_id = models.IntegerField(unique=True, help_text='Google taxonomy node id')
+    name = models.CharField(max_length=255)
+    path = models.CharField(max_length=1000, db_index=True, help_text='e.g. Electronics > Communications > Telephony > Mobile Phones')
+    slug = models.SlugField(max_length=255, unique=True, db_index=True)
+    level = models.PositiveSmallIntegerField(default=0, db_index=True)
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='children')
+    sector = models.CharField(max_length=100, blank=True, db_index=True, help_text='Coarse vertical (category_ref) this node feeds')
+
+    class Meta:
+        ordering = ['path']
+        verbose_name = 'Google Taxonomy Category'
+        verbose_name_plural = 'Google Taxonomy Categories'
+
+    def __str__(self):
+        return self.path
+
+
+class CategoryPath(TimeStampedModel):
+    """Closure rows: every (ancestor, descendant, depth) pair including self (depth 0)."""
+    ancestor = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='descendant_links')
+    descendant = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='ancestor_links')
+    depth = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['ancestor', 'descendant'], name='uniq_category_path_pair'),
+        ]
+        indexes = [
+            models.Index(fields=['descendant'], name='catpath_descendant_idx'),
+        ]
+        verbose_name = 'Category Closure Row'
+        verbose_name_plural = 'Category Closure Rows'
 
 
 class ProductImage(TimeStampedModel):

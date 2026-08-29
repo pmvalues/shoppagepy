@@ -268,16 +268,17 @@ def _feed_date(value) -> str:
     return text
 
 
-def _gmc_product_category(category_ref: str | None) -> str | None:
-    """Best-effort map of an internal category slug to a Google product category id.
+def _gmc_product_category(product) -> str | None:
+    """Google taxonomy node id for a product, falling back to keyword hints.
 
-    Returns None when there is no confident mapping so the feed never emits an
-    invalid google_product_category (which GMC would disapprove). Extend the map
-    as the catalogue grows.
+    Returns None when there is no mapping so the feed never emits an invalid
+    google_product_category (which GMC would disapprove).
     """
-    if not category_ref:
-        return None
-    text = (category_ref or '').lower()
+    category = getattr(product, 'master_category', None)
+    if category is not None:
+        return str(category.google_id)
+    category_ref = getattr(product, 'category_ref', '') or ''
+    text = str(category_ref).lower()
     electronics_hints = ('solar', 'inverter', 'battery', 'panel', 'charger', 'adapter',
                         'electronics', 'camera', 'speaker', 'router', 'cable', 'led', 'tv')
     if any(h in text for h in electronics_hints):
@@ -308,15 +309,14 @@ def generate_google_merchant_center_feed(merchant_id: str, base_url: str = 'http
             availability_state__in=PUBLISHABLE_STATES,
             price_amount__isnull=False,
         )
-        .select_related('variant', 'merchant')
+        .select_related('variant', 'merchant', 'vendor_product')
         .prefetch_related('variant__images')
         .order_by('canonical_id')
     )
 
     # Active promotions per product (g:promotion_id).
-    from django.utils import timezone
-
     from apps.offers.models import Promotion
+    from django.utils import timezone
 
     now = timezone.now()
     promos = {
@@ -328,9 +328,15 @@ def generate_google_merchant_center_feed(merchant_id: str, base_url: str = 'http
     items_xml = []
     for o in offers:
         p = o.variant
+        listing = o.vendor_product
         attributes = p.attributes if isinstance(p.attributes, dict) else {}
+        # Feed ids follow the listing graph: g:id is the vendor's own SKU
+        # (stable per listing), g:item_group_id groups variants under the
+        # canonical master product.
+        feed_id = (listing.vendor_sku if listing and listing.vendor_sku else o.canonical_id)
+        condition = listing.condition if listing else (p.condition_type or 'new')
         tags = [
-            f'      <g:id>{_feed_text(o.canonical_id)}</g:id>',
+            f'      <g:id>{_feed_text(feed_id)}</g:id>',
             f'      <g:title>{_feed_text(p.title[:150])}</g:title>',
             f'      <g:description>{_feed_text((p.listing_description or p.title)[:1000])}</g:description>',
             f'      <g:link>{_feed_text(f"{base_url}/p/{p.seo_handle}/")}</g:link>',
@@ -338,7 +344,7 @@ def generate_google_merchant_center_feed(merchant_id: str, base_url: str = 'http
             f'      <g:product_type>{_feed_text(p.category_ref.replace("_", " "))}</g:product_type>',
             f'      <g:availability>{_feed_text(o.feed_availability)}</g:availability>',
             f'      <g:price>{o.price_amount:.2f} {_feed_text(o.currency)}</g:price>',
-            f'      <g:condition>{_feed_text(p.condition_type or "new")}</g:condition>',
+            f'      <g:condition>{_feed_text(condition)}</g:condition>',
             f'      <g:country>{_feed_text(merchant.country or "ZA")}</g:country>',
         ]
         image = p.primary_image
@@ -355,6 +361,10 @@ def generate_google_merchant_center_feed(merchant_id: str, base_url: str = 'http
             tags.append('      <g:identifier_exists>false</g:identifier_exists>')
         if p.family_ref:
             tags.append(f'      <g:item_group_id>{_feed_text(p.family_ref)}</g:item_group_id>')
+        elif listing:
+            tags.append(f'      <g:item_group_id>{_feed_text(p.canonical_id)}</g:item_group_id>')
+        if listing and listing.vendor_gtin:
+            tags.append(f'      <g:gtin>{_feed_text(listing.vendor_gtin)}</g:gtin>')
         if o.expires_at:
             tags.append(f'      <g:expiration_date>{_feed_text(_feed_date(o.expires_at))}</g:expiration_date>')
         for tag, keys in (
@@ -369,9 +379,9 @@ def generate_google_merchant_center_feed(merchant_id: str, base_url: str = 'http
                     tags.append(f'      <g:{tag}>{_feed_text(attributes[key])}</g:{tag}>')
                     break
         # Google Shopping eligibility: emit the Google taxonomy category id when
-        # the product category maps to one (unknown categories are omitted rather
-        # than sent with an invalid id, which GMC would reject).
-        gpc = _gmc_product_category(p.category_ref)
+        # the product maps to one (unknown categories are omitted rather than
+        # sent with an invalid id, which GMC would reject).
+        gpc = _gmc_product_category(p)
         if gpc:
             tags.append(f'      <g:google_product_category>{_feed_text(gpc)}</g:google_product_category>')
         promo = promos.get(p.id)
@@ -712,10 +722,9 @@ def _logged_paa_pairs(query: str) -> list[dict[str, str]]:
     try:
         from datetime import timedelta
 
+        from apps.core.models import SearchQueryLog
         from django.db.models import Count
         from django.utils import timezone
-
-        from apps.core.models import SearchQueryLog
 
         since = timezone.now() - timedelta(days=30)
         rows = list(
@@ -770,10 +779,9 @@ def _popular_queries_from_logs(query: str, limit: int = 6) -> list[str]:
     try:
         from datetime import timedelta
 
+        from apps.core.models import SearchQueryLog
         from django.db.models import Count
         from django.utils import timezone
-
-        from apps.core.models import SearchQueryLog
 
         since = timezone.now() - timedelta(days=30)
         rows = (

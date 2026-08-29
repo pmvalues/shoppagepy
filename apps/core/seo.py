@@ -280,7 +280,7 @@ def product_jsonld(product, offers=None, request=None) -> dict[str, Any]:
         '@type': 'Product',
         'name': product.title,
         'sku': product.canonical_id,
-        'category': product.category_ref,
+        'category': product.master_category.path if product.master_category_id else product.category_ref,
         'url': url,
     }
     description = (product.listing_description or '').strip()

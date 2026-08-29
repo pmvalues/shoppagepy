@@ -8,11 +8,11 @@ from apps.intelligence.ranking import _haversine_km, _merchant_rating, ranked_se
 from apps.markets.models import Market
 from apps.media_hub.models import Short, Show
 from apps.merchants.models import Merchant
+from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
+from django.core.exceptions import PermissionDenied
 from django.db import connection
 from django.db.models import Q
-from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.utils import timezone
@@ -224,6 +224,14 @@ def search_view(request):
         result_count=results['total_products'],
         province=province,
     )
+
+    # Federated live tier: rights-gated external web results, cached per query.
+    live = request.GET.get('live', '1') == '1'
+    external = {}
+    if live and effective_query:
+        from apps.intelligence.federated import external_results
+
+        external = external_results(effective_query)
 
     from apps.intelligence.services import (
         build_overview,
@@ -473,6 +481,7 @@ def search_view(request):
         'places_stores': places_stores,
         'people_also_ask': people_also_ask,
         'related_searches': related_searches,
+        'external': external,
         'page_title': (
             f'{query} — prices, local stock & verified sellers | Shoppage' if query
             else 'Search products, prices and verified sellers | Shoppage'
@@ -516,10 +525,9 @@ def search_live_view(request):
     # Google-style query completion: popular logged queries first, then brand/title prefix.
     suggestions: list[str] = []
     try:
-        from django.db.models import Count
-
         from apps.catalog.models import MasterProduct
         from apps.core.models import SearchQueryLog
+        from django.db.models import Count
 
         norm = query.lower().strip()
         rows = list(
@@ -633,12 +641,11 @@ def analytics_view(request):
         raise PermissionDenied
     from datetime import timedelta
 
-    from django.db.models import Count
-    from django.db.models.functions import TruncDate
-
     from apps.catalog.models import MasterProduct
     from apps.core.models import SearchClick, SearchQueryLog
     from apps.referrals.models import ReferralEvent
+    from django.db.models import Count
+    from django.db.models.functions import TruncDate
 
     days = 30
     since = timezone.now() - timedelta(days=days)
