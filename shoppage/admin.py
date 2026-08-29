@@ -21,6 +21,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import urlencode
 
+from shoppage.admin_nav import ADMIN_NAV_SECTIONS
+
 STATS_CACHE_KEY = 'shoppage:admin:portal_stats'
 STATS_CACHE_TTL = 60  # seconds — dashboard telemetry refresh window
 
@@ -77,7 +79,6 @@ def compute_portal_stats() -> dict:
             'cards': [],
             'queues': [],
         }
-
 
 def _compute_portal_stats() -> dict:
     from apps.catalog.models import MasterProduct, ProductStatusChoices
@@ -252,16 +253,208 @@ def _compute_portal_stats() -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Chart data & activity feed (dashboard extras)
+# ---------------------------------------------------------------------------
+
+def compute_activity_chart_data() -> dict:
+    """
+    Last 7 days of platform activity: searches, clicks, referral leads.
+    Returns JSON-safe dict for Chart.js consumption.
+    """
+    try:
+        return _compute_activity_chart_data()
+    except Exception:
+        return {'labels': [], 'searches': [], 'clicks': [], 'leads': []}
+
+
+def _compute_activity_chart_data() -> dict:
+    from apps.core.models import SearchClick, SearchQueryLog
+    from apps.referrals.models import ReferralEvent
+    from django.db.models import Count
+    from django.db.models.functions import TruncDate
+
+    now = timezone.now()
+    seven_days_ago = now - datetime.timedelta(days=6)
+
+    def _daily(model, date_field):
+        rows = list(
+            model.objects.filter(**{f'{date_field}__gte': seven_days_ago})
+            .annotate(day=TruncDate(date_field))
+            .values('day')
+            .annotate(n=Count('id'))
+            .order_by('day')
+        )
+        return {r['day'].isoformat(): r['n'] for r in rows}
+
+    searches_by_day = _daily(SearchQueryLog, 'created_at')
+    clicks_by_day = _daily(SearchClick, 'created_at')
+    leads_by_day = _daily(ReferralEvent, 'occurred_at')
+
+    labels = []
+    searches, clicks, leads = [], [], []
+    for i in range(7):
+        day = (seven_days_ago + datetime.timedelta(days=i)).date()
+        labels.append(day.strftime('%a %d'))
+        searches.append(searches_by_day.get(day.isoformat(), 0))
+        clicks.append(clicks_by_day.get(day.isoformat(), 0))
+        leads.append(leads_by_day.get(day.isoformat(), 0))
+
+    return {'labels': labels, 'searches': searches, 'clicks': clicks, 'leads': leads}
+
+
+def compute_activity_trend() -> dict:
+    """Week-over-week direction for total platform activity."""
+    try:
+        return _compute_activity_trend()
+    except Exception:
+        return {'direction': 'flat', 'pct': 0}
+
+
+def _compute_activity_trend() -> dict:
+    from apps.core.models import SearchQueryLog
+
+    now = timezone.now()
+    this_week = now - datetime.timedelta(days=7)
+    last_week_start = now - datetime.timedelta(days=14)
+    this_count = SearchQueryLog.objects.filter(created_at__gte=this_week).count()
+    last_count = SearchQueryLog.objects.filter(
+        created_at__gte=last_week_start, created_at__lt=this_week
+    ).count()
+    if last_count == 0:
+        return {'direction': 'flat', 'pct': 0}
+    pct = round((this_count - last_count) / last_count * 100, 1)
+    if pct > 0:
+        return {'direction': 'up', 'pct': abs(pct)}
+    if pct < 0:
+        return {'direction': 'down', 'pct': abs(pct)}
+    return {'direction': 'flat', 'pct': 0}
+
+
+def compute_mix_chart_data() -> dict:
+    """Entity composition: merchants, products, offers, markets, markets."""
+    try:
+        return _compute_mix_chart_data()
+    except Exception:
+        return {'labels': [], 'data': []}
+
+
+def _compute_mix_chart_data() -> dict:
+    from apps.catalog.models import MasterProduct
+    from apps.markets.models import Market
+    from apps.merchants.models import Merchant
+    from apps.offers.models import DiscoveredOffer, Offer
+
+    return {
+        'labels': ['Merchants', 'Products', 'Offers', 'Markets', 'Discovered'],
+        'data': [
+            Merchant.objects.count(),
+            MasterProduct.objects.count(),
+            Offer.objects.count(),
+            Market.objects.count(),
+            DiscoveredOffer.objects.count(),
+        ],
+    }
+
+
+def compute_recent_activity(limit: int = 12) -> list[dict]:
+    """Latest Django admin LogEntry rows with friendly rendering."""
+    try:
+        return _compute_recent_activity(limit)
+    except Exception:
+        return []
+
+
+def _compute_recent_activity(limit: int) -> list[dict]:
+    from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
+    from django.contrib.contenttypes.models import ContentType
+
+    rows = list(
+        LogEntry.objects.select_related('user', 'content_type')
+        .order_by('-action_time')[:limit]
+    )
+    out = []
+    for entry in rows:
+        flag = 'change'
+        if entry.action_flag == ADDITION:
+            flag = 'add'
+        elif entry.action_flag == DELETION:
+            flag = 'delete'
+        change_url = None
+        if entry.content_type_id and entry.object_id:
+            try:
+                change_url = reverse(
+                    f'admin:{entry.content_type.app_label}_{entry.content_type.model}_change',
+                    args=[entry.object_id],
+                )
+            except Exception:
+                pass
+        out.append({
+            'user': entry.user.get_short_name() or entry.user.username if entry.user_id else 'system',
+            'action': entry.get_action_flag_display().lower() + ' ' + (entry.object_repr or 'item'),
+            'content_type': entry.content_type.name if entry.content_type else 'unknown',
+            'action_time': entry.action_time.strftime('%d %b %H:%M'),
+            'action_flag': flag,
+            'change_url': change_url,
+        })
+    return out
+
+
+def build_palette_items() -> list[dict]:
+    """
+    All admin-nav pages plus common quick actions — consumed by the
+    command-palette search overlay (Cmd/Ctrl+K).
+    """
+    items = []
+    for section in ADMIN_NAV_SECTIONS:
+        for nav in section.items:
+            items.append({
+                'group': section.label,
+                'label': nav.label,
+                'url': reverse(nav.url_name) if nav.url_name else '#',
+                'hint': f'{section.label} · {nav.app_label}/{nav.model_name}',
+            })
+    extras = [
+        {'group': 'Actions', 'label': 'Run Catalog Crawl', 'url': '/admin/', 'hint': 'Trigger crawl rotation'},
+        {'group': 'Actions', 'label': 'Open Merchant Centre', 'url': '/merchant/dashboard/', 'hint': 'Merchant OS'},
+        {'group': 'Actions', 'label': 'Live Search API', 'url': '/api/v1/search/?q=&live=1', 'hint': 'Federated search'},
+        {'group': 'Actions', 'label': 'View Malls Explorer', 'url': '/malls/', 'hint': 'Spatial commerce'},
+        {'group': 'Account', 'label': 'Change Password', 'url': reverse('admin:password_change'), 'hint': 'Your credentials'},
+        {'group': 'Account', 'label': 'Log Out', 'url': reverse('admin:logout'), 'hint': 'End session'},
+    ]
+    for e in extras:
+        try:
+            e['url'] = reverse(e['url'].lstrip('/')) if e['url'].startswith('/admin/') else e['url']
+        except Exception:
+            pass
+        items.append(e)
+    return items
+
+
+# ---------------------------------------------------------------------------
 # Custom AdminSite — Command Centre chrome
 # ---------------------------------------------------------------------------
 
 class ShoppageAdminSite(AdminSite):
     """Live-telemetry index plus environment/version chrome on every page."""
 
+    site_header = 'Shoppage Command Centre'
+    site_title = 'Shoppage Admin'
+    index_title = 'Dashboard'
+
+    def _greeting(self) -> str:
+        hour = timezone.localtime().hour
+        if hour < 12:
+            return 'Good morning'
+        if hour < 18:
+            return 'Good afternoon'
+        return 'Good evening'
+
     def each_context(self, request):
         context = super().each_context(request)
         context['shoppage_version'] = getattr(settings, 'SHOPPAGE_VERSION', 'v8.2')
         context['shoppage_env'] = 'DEV' if settings.DEBUG else 'LIVE'
+        context['admin_nav'] = ADMIN_NAV_SECTIONS
+        context['greeting'] = self._greeting()
         return context
 
     def index(self, request, extra_context=None):
@@ -269,4 +462,15 @@ class ShoppageAdminSite(AdminSite):
         extra_context['portal_stats'] = cache.get_or_set(
             STATS_CACHE_KEY, compute_portal_stats, STATS_CACHE_TTL
         )
+        extra_context['activity_chart_data'] = cache.get_or_set(
+            'shoppage:admin:activity_chart', compute_activity_chart_data, 300
+        )
+        extra_context['activity_trend'] = cache.get_or_set(
+            'shoppage:admin:activity_trend', compute_activity_trend, 300
+        )
+        extra_context['mix_chart_data'] = cache.get_or_set(
+            'shoppage:admin:mix_chart', compute_mix_chart_data, 600
+        )
+        extra_context['recent_activity'] = compute_recent_activity(limit=12)
+        extra_context['palette_items'] = build_palette_items()
         return super().index(request, extra_context=extra_context)
