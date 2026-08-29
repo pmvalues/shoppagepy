@@ -3,28 +3,16 @@
 # ==============================================================================
 
 # 1. Base Stage: Python 3.12 Slim
+# NOTE: No apt-get step. psycopg-binary (in requirements.txt) bundles libpq, so
+# build-essential/libpq-dev are not needed; every dependency ships prebuilt wheels.
+# This keeps the build independent of the Debian mirror (deb.debian.org was
+# unreachable from the host at build time).
 FROM python:3.12-slim AS base
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     DJANGO_SETTINGS_MODULE=shoppage.settings.prod
 
 WORKDIR /app
-
-# Force HTTPS for apt (outbound port 80 to deb.debian.org is blocked/slow on some hosts)
-# then install system dependencies
-RUN set -eux; \
-    if [ -f /etc/apt/sources.list.d/debian.sources ]; then \
-        sed -i 's|http://|https://|g' /etc/apt/sources.list.d/debian.sources; \
-    fi; \
-    if [ -f /etc/apt/sources.list ]; then \
-        sed -i 's|http://|https://|g' /etc/apt/sources.list; \
-    fi; \
-    apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    curl \
-    dos2unix \
-    && rm -rf /var/lib/apt/lists/*
 
 # 2. Builder Stage
 FROM base AS builder
@@ -44,8 +32,8 @@ ENV PATH=/root/.local/bin:$PATH
 # Copy project files
 COPY . .
 
-# Convert entrypoint script line endings and set permissions
-RUN dos2unix /app/entrypoint.sh && chmod +x /app/entrypoint.sh
+# Normalize entrypoint line endings (defensive, no-op when already LF) and set permissions
+RUN sed -i 's/\r$//' /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 
 EXPOSE 8000
 
