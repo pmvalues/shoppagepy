@@ -23,6 +23,9 @@
 </a>
 {% endblock %}
 
+{% block welcome-msg %}{% endblock %}
+{% block userlinks %}{% endblock %}
+
 {% block nav-global %}
 <div class="sp-topbar-right">
   <button class="sp-icon-btn sp-theme-toggle" title="Toggle theme" aria-label="Toggle theme">
@@ -108,30 +111,30 @@
 {% endwith %}
 {% endblock %}
 
+{% block messages %}
+{% if messages %}
+<div class="sp-messages">
+  {% for message in messages %}
+  <div class="sp-message sp-message-{{ message.tags|default:'info' }}">
+    <span class="sp-message-text">{{ message }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="sp-breadcrumbs" aria-label="Breadcrumb">
+  <a href="{% url 'admin:index' %}" class="sp-breadcrumb-link">Dashboard</a>
+  {% if title %}
+  <svg class="sp-breadcrumb-sep" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  <span class="sp-breadcrumb-current">{{ title }}</span>
+  {% endif %}
+</nav>
+{% endblock %}
+
 {% block content %}
 <div class="sp-content-wrapper">
-  {% block messages %}
-  {% if messages %}
-  <div class="sp-messages">
-    {% for message in messages %}
-    <div class="sp-message sp-message-{{ message.tags|default:'info' }}">
-      <span class="sp-message-text">{{ message }}</span>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
-  {% endblock %}
-
-  {% block breadcrumbs %}
-  <nav class="sp-breadcrumbs" aria-label="Breadcrumb">
-    <a href="{% url 'admin:index' %}" class="sp-breadcrumb-link">Dashboard</a>
-    {% if title %}
-    <svg class="sp-breadcrumb-sep" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-    <span class="sp-breadcrumb-current">{{ title }}</span>
-    {% endif %}
-  </nav>
-  {% endblock %}
-
   <main class="sp-main-content">
     {% block pretitle %}{% endblock %}
     {% block content_title %}<h1 class="sp-page-title">{% if content_title %}{{ content_title }}{% else %}{{ title }}{% endif %}</h1>{% endblock %}

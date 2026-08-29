@@ -66,8 +66,8 @@
   --sp-bg-body: var(--sp-slate-50);
   --sp-bg-surface: #ffffff;
   --sp-bg-surface-alt: var(--sp-slate-100);
-  --sp-bg-sidebar: var(--sp-slate-900);
-  --sp-bg-sidebar-hover: var(--sp-slate-800);
+  --sp-bg-sidebar: #ffffff;
+  --sp-bg-sidebar-hover: var(--sp-slate-100);
   --sp-bg-sidebar-active: var(--sp-indigo);
   --sp-bg-topbar: #ffffff;
 
@@ -75,7 +75,8 @@
   --sp-text-secondary: var(--sp-slate-500);
   --sp-text-tertiary: var(--sp-slate-400);
   --sp-text-inverse: #ffffff;
-  --sp-text-sidebar: var(--sp-slate-400);
+  --sp-text-sidebar: var(--sp-slate-600);
+  --sp-text-sidebar-hover: var(--sp-slate-900);
   --sp-text-sidebar-active: #ffffff;
 
   --sp-border: var(--sp-slate-200);
@@ -104,6 +105,7 @@
   --sp-text-tertiary: var(--sp-slate-500);
   --sp-text-inverse: var(--sp-slate-900);
   --sp-text-sidebar: var(--sp-slate-500);
+  --sp-text-sidebar-hover: #ffffff;
   --sp-text-sidebar-active: #ffffff;
 
   --sp-border: var(--sp-slate-800);
@@ -421,11 +423,12 @@
   bottom: 0;
   width: var(--sp-sidebar-width);
   background: var(--sp-bg-sidebar);
+  border-right: 1px solid var(--sp-border);
   overflow-y: auto;
   overflow-x: hidden;
   z-index: 50;
   scrollbar-width: thin;
-  scrollbar-color: var(--sp-slate-700) transparent;
+  scrollbar-color: var(--sp-slate-300) transparent;
 }
 
 .sp-sidebar::-webkit-scrollbar {
@@ -433,7 +436,7 @@
 }
 
 .sp-sidebar::-webkit-scrollbar-thumb {
-  background: var(--sp-slate-700);
+  background: var(--sp-slate-300);
   border-radius: 4px;
 }
 
@@ -464,7 +467,7 @@
 }
 
 .sp-nav-section-toggle:hover {
-  color: var(--sp-text-sidebar-active);
+  color: var(--sp-text-sidebar-hover);
 }
 
 .sp-nav-icon {
@@ -506,22 +509,45 @@
 }
 
 .sp-nav-item:hover {
-  color: var(--sp-text-sidebar-active);
+  color: var(--sp-text-sidebar-hover);
   background: var(--sp-bg-sidebar-hover);
 }
 
 .sp-nav-item.sp-nav-active {
   color: var(--sp-text-sidebar-active);
   background: var(--sp-bg-sidebar-active);
-  border-left-color: rgba(255, 255, 255, 0.3);
+  border-left-color: transparent;
   font-weight: 600;
 }
 
 /* --------------------------------------------------------------------------
- * Content wrapper
+ * Django built-in chrome neutralized — the portal sidebar replaces it
  * -------------------------------------------------------------------------- */
+.sp-admin #nav-sidebar,
+.sp-admin .toggle-nav-sidebar {
+  display: none !important;
+}
+
+/* Its contents (welcome msg, userlinks, color toggle) are removed in
+   base_site.html; the custom sp-topbar-right replaces them. */
+.sp-admin #user-tools {
+  display: none !important;
+}
+
+/* Django's .main flexbox (built for #nav-sidebar) would squeeze #content */
+.sp-admin #main {
+  display: block !important;
+}
+
+/* --------------------------------------------------------------------------
+ * Content offset — everything below the header must clear the fixed sidebar
+ * -------------------------------------------------------------------------- */
+.sp-admin #container > nav,
+.sp-admin main#content-start {
+  padding-left: var(--sp-sidebar-width);
+}
+
 .sp-content-wrapper {
-  margin-left: var(--sp-sidebar-width);
   min-height: calc(100vh - var(--sp-topbar-height));
 }
 
@@ -636,6 +662,11 @@
 
   .sp-sidebar.is-open {
     transform: translateX(0);
+  }
+
+  .sp-admin #container > nav,
+  .sp-admin main#content-start {
+    padding-left: 0;
   }
 
   .sp-content-wrapper {
@@ -1095,4 +1126,32 @@
 
 .sp-admin .object-tools a.addlink {
   background: var(--sp-success);
+}
+
+/* --------------------------------------------------------------------------
+ * Header link colors — Django's `#header a` paints these white-on-white
+ * now that our header surface is light. Beat it with id-level specificity.
+ * -------------------------------------------------------------------------- */
+.sp-admin #header .sp-brand:link,
+.sp-admin #header .sp-brand:visited {
+  color: var(--sp-text-primary);
+}
+
+.sp-admin #header .sp-topbar-link:link,
+.sp-admin #header .sp-topbar-link:visited {
+  color: var(--sp-text-secondary);
+}
+
+.sp-admin #header .sp-topbar-link:hover {
+  color: var(--sp-text-primary);
+}
+
+.sp-admin #header .sp-user-dropdown-item:link,
+.sp-admin #header .sp-user-dropdown-item:visited {
+  color: var(--sp-text-primary);
+}
+
+.sp-admin #header .sp-user-dropdown-item.sp-user-dropdown-danger:link,
+.sp-admin #header .sp-user-dropdown-item.sp-user-dropdown-danger:visited {
+  color: var(--sp-danger);
 }

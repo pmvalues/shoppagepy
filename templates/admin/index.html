@@ -76,18 +76,6 @@
 
 {% block content %}
 <div class="sp-content-wrapper">
-  {% block messages %}
-  {% if messages %}
-  <div class="sp-messages">
-    {% for message in messages %}
-    <div class="sp-message sp-message-{{ message.tags|default:'info' }}"><span class="sp-message-text">{{ message }}</span></div>
-    {% endfor %}
-  </div>
-  {% endif %}
-  {% endblock %}
-
-  <nav class="sp-breadcrumbs"><a href="{% url 'admin:index' %}" class="sp-breadcrumb-link">Dashboard</a></nav>
-
   <main class="sp-main-content">
     {% if portal_stats %}
 
@@ -272,8 +260,6 @@
       </div>
     </section>
     {% endif %}
-
-    {{ block.super }}
   </main>
 </div>
 
@@ -300,7 +286,6 @@
 {% block extrajs %}
 {{ block.super }}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="{% static 'js/admin_portal.js' %}"></script>
 <script>
 /* Charts & command palette bootstrap */
 (function () {
