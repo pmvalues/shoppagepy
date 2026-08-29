@@ -4,11 +4,14 @@ from django.utils.html import format_html
 
 from .models import (
     AvailabilityStateChoices,
+    CrawlRun,
     DiscoveredOffer,
     Offer,
     PriceAlert,
     PriceObservation,
     Promotion,
+    UrlHealthRecord,
+    UrlImpression,
     VendorProduct,
 )
 
@@ -232,3 +235,111 @@ class PriceAlertAdmin(admin.ModelAdmin):
             return format_html('<a href="/p/{}/" target="_blank">{}</a>', obj.product.canonical_id, obj.product.title[:60])
         return "-"
     product_link.short_description = "Product"
+
+
+@admin.register(UrlHealthRecord)
+class UrlHealthRecordAdmin(admin.ModelAdmin):
+    """Crawl ledger — the merchant-catalog health surface."""
+
+    paginator = LargeTablePaginator
+    show_full_result_count = False
+    list_per_page = 50
+
+    list_display = (
+        'url_short', 'state_badge', 'merchant_link', 'product_link',
+        'last_price_amount', 'price_drift', 'last_availability_text',
+        'refresh_requested_at', 'last_crawled_at', 'checks_count',
+    )
+    list_filter = ('state', 'source', 'merchant', 'refresh_requested_at')
+    search_fields = ('url', 'final_url', 'last_title', 'canonical_id', 'master_product__title', 'merchant__name')
+    autocomplete_fields = ('merchant', 'master_product', 'offer', 'discovered_offer')
+    readonly_fields = ('canonical_id', 'created_at', 'updated_at')
+    ordering = ('-refresh_requested_at', '-last_crawled_at')
+    date_hierarchy = 'last_crawled_at'
+
+    fieldsets = (
+        ('URL', {
+            'fields': ('canonical_id', 'url', 'final_url', 'expected_hostname', 'last_image_url', 'source')
+        }),
+        ('Links', {
+            'fields': ('merchant', 'master_product', 'offer', 'discovered_offer')
+        }),
+        ('Latest Observation', {
+            'fields': (
+                'state', 'last_title', 'last_price_amount', 'previous_price_amount',
+                'price_drift_amount', 'last_availability_text', 'last_http_status',
+                'last_crawled_at', 'last_success_at', 'checks_count', 'error_text',
+            )
+        }),
+        ('Refresh Signals', {
+            'fields': ('refresh_requested_at', 'refresh_count')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+        }),
+    )
+
+    def url_short(self, obj):
+        return format_html('<a href="{}" target="_blank">{}</a>', obj.url, obj.url[:70])
+    url_short.short_description = 'URL'
+
+    def state_badge(self, obj):
+        colors = {
+            'healthy': '#059669', 'stale': '#F59E0B', 'failed': '#EF4444',
+            'off_domain': '#B45309', 'unknown': '#94A3B8',
+        }
+        color = colors.get(obj.effective_state, '#94A3B8')
+        return format_html('<span style="color: {}; font-weight: 700;">● {}</span>', color, obj.effective_state)
+    state_badge.short_description = 'State'
+
+    def merchant_link(self, obj):
+        if obj.merchant_id:
+            return format_html('<a href="/merchant/dashboard/?merchantId={}">{}</a>', obj.merchant.canonical_id, obj.merchant.name[:40])
+        return '-'
+    merchant_link.short_description = 'Merchant'
+
+    def product_link(self, obj):
+        if obj.master_product_id:
+            return format_html('<a href="/p/{}/" target="_blank">{}</a>', obj.master_product.canonical_id, obj.master_product.title[:40])
+        return '-'
+    product_link.short_description = 'Product'
+
+    def price_drift(self, obj):
+        if obj.price_drift_amount is None:
+            return '-'
+        color = '#059669' if obj.price_drift_amount < 0 else '#DC2626'
+        return format_html('<span style="color: {};">{:+.2f}</span>', color, obj.price_drift_amount)
+    price_drift.short_description = 'Drift'
+
+
+@admin.register(UrlImpression)
+class UrlImpressionAdmin(admin.ModelAdmin):
+    """Append-only impression ledger — staff never edits rows."""
+
+    list_display = ('url', 'source', 'merchant', 'product', 'seen_at')
+    list_filter = ('source', 'seen_at')
+    search_fields = ('url',)
+    autocomplete_fields = ('merchant', 'product')
+    readonly_fields = [field.name for field in UrlImpression._meta.fields]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(CrawlRun)
+class CrawlRunAdmin(admin.ModelAdmin):
+    """Bounded crawler executions — diagnostics only."""
+
+    list_display = ('run_id', 'trigger', 'merchant', 'status', 'urls_attempted', 'urls_ok', 'urls_failed', 'started_at', 'finished_at')
+    list_filter = ('trigger', 'status', 'merchant')
+    autocomplete_fields = ('merchant',)
+    readonly_fields = [field.name for field in CrawlRun._meta.fields]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False

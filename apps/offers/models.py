@@ -374,6 +374,160 @@ class Promotion(TimeStampedModel):
         return self.title
 
 
+class UrlHealthStateChoices(models.TextChoices):
+    UNKNOWN = 'unknown', 'Never Checked'
+    HEALTHY = 'healthy', 'Healthy'
+    FAILED = 'failed', 'Check Failed'
+    OFF_DOMAIN = 'off_domain', 'Resolves Off Domain'
+
+
+class UrlHealthRecord(TimeStampedModel):
+    """
+    Merchant-Center-grade crawl ledger: one row per tracked product URL.
+
+    The periodic crawler (and impression-triggered refreshes) re-fetch each
+    URL, capture an EvidenceArtifact, and update this row — live title, price,
+    availability, resolved URL, domain match and drift against the previous
+    observation. Databases the merchant dashboard's catalog-health tab and the
+    admin portal's crawl queues.
+    """
+
+    canonical_id = models.CharField(max_length=120, unique=True, db_index=True, blank=True)
+    merchant = models.ForeignKey(
+        'merchants.Merchant', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='url_health_records',
+    )
+    master_product = models.ForeignKey(
+        'catalog.MasterProduct', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='url_health_records',
+    )
+    offer = models.ForeignKey(
+        Offer, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='url_health_records',
+    )
+    discovered_offer = models.ForeignKey(
+        DiscoveredOffer, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='url_health_records',
+    )
+
+    url = models.URLField(unique=True, db_index=True)
+    final_url = models.URLField(blank=True, default='', help_text='URL after redirect resolution')
+    expected_hostname = models.CharField(max_length=255, blank=True, default='')
+    last_image_url = models.URLField(blank=True, default='')
+
+    state = models.CharField(
+        max_length=20, choices=UrlHealthStateChoices.choices,
+        default=UrlHealthStateChoices.UNKNOWN, db_index=True,
+    )
+    checks_count = models.PositiveIntegerField(default=0)
+    last_crawled_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    last_success_at = models.DateTimeField(null=True, blank=True)
+    last_http_status = models.PositiveIntegerField(null=True, blank=True)
+
+    last_title = models.CharField(max_length=300, blank=True, default='')
+    last_price_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    previous_price_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    price_drift_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    last_availability_text = models.CharField(max_length=100, blank=True, default='')
+    error_text = models.TextField(blank=True, default='')
+
+    refresh_requested_at = models.DateTimeField(null=True, blank=True, db_index=True,
+                                               help_text='Set by impressions; drained by the next crawl')
+    refresh_count = models.PositiveIntegerField(default=0)
+    source = models.CharField(max_length=30, default='web_sweep', db_index=True)
+
+    class Meta:
+        ordering = ['-last_crawled_at']
+        verbose_name = 'URL Health Record'
+        verbose_name_plural = 'URL Health Records'
+
+    def __str__(self):
+        return f'{self.url[:60]} [{self.get_state_display()}]'
+
+    def save(self, *args, **kwargs):
+        if not self.canonical_id:
+            import uuid
+
+            self.canonical_id = f'uhr_{uuid.uuid4().hex[:12]}'
+        super().save(*args, **kwargs)
+
+    @property
+    def effective_state(self) -> str:
+        """Display state: healthy-but-old surfaces as stale."""
+        if self.state == UrlHealthStateChoices.HEALTHY and self.last_success_at:
+            age = timezone.now() - self.last_success_at
+            if age > timezone.timedelta(days=7):
+                return 'stale'
+        return self.state
+
+
+class UrlImpression(models.Model):
+    """Append-only ledger: a tracked URL was shown to a user (search/product/feed).
+
+    Writes are deduplicated per URL per hour so bot traffic cannot flood the
+    table; the impression also requests a refresh of the URL health record.
+    """
+
+    url = models.URLField(db_index=True)
+    product = models.ForeignKey(
+        'catalog.MasterProduct', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='url_impressions',
+    )
+    merchant = models.ForeignKey(
+        'merchants.Merchant', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='url_impressions',
+    )
+    source = models.CharField(max_length=30, default='search')
+    seen_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ['-seen_at']
+        verbose_name = 'URL Impression'
+        verbose_name_plural = 'URL Impressions'
+
+    def __str__(self):
+        return f'{self.url[:60]} @ {self.seen_at:%Y-%m-%d %H:%M}'
+
+
+class CrawlRun(TimeStampedModel):
+    """One bounded crawler execution (periodic, discovery or manual)."""
+
+    class TriggerChoices(models.TextChoices):
+        PERIODIC = 'periodic', 'Periodic Rotation'
+        IMPRESSION = 'impression', 'Impression-Driven'
+        MANUAL = 'manual', 'Manual / Dashboard'
+        DISCOVERY = 'discovery', 'Discovery Pass'
+
+    run_id = models.CharField(max_length=120, unique=True, db_index=True)
+    trigger = models.CharField(max_length=20, choices=TriggerChoices.choices, default=TriggerChoices.PERIODIC)
+    merchant = models.ForeignKey(
+        'merchants.Merchant', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='crawl_runs',
+    )
+    status = models.CharField(max_length=20, default='running')  # running | completed | failed
+    urls_attempted = models.PositiveIntegerField(default=0)
+    urls_ok = models.PositiveIntegerField(default=0)
+    urls_failed = models.PositiveIntegerField(default=0)
+    started_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+    error = models.TextField(blank=True, default='')
+
+    class Meta:
+        ordering = ['-started_at']
+        verbose_name = 'Crawl Run'
+        verbose_name_plural = 'Crawl Runs'
+
+    def __str__(self):
+        return f'Run {self.run_id[:12]} ({self.get_trigger_display()}) — {self.urls_ok}/{self.urls_attempted} ok'
+
+    def save(self, *args, **kwargs):
+        if not self.run_id:
+            import uuid
+
+            self.run_id = f'crawl_{uuid.uuid4().hex[:12]}'
+        super().save(*args, **kwargs)
+
+
 class PriceAlert(TimeStampedModel):
     """
     Real price-drop subscription: watch a product, get flagged when the best

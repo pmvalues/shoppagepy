@@ -2,7 +2,11 @@
 Shoppage Platform URL Configuration (Pure Django Architecture)
 """
 
-from apps.catalog.views import category_landing_view, price_alert_subscribe_view, product_detail_view
+from apps.catalog.views import (
+    category_landing_view,
+    price_alert_subscribe_view,
+    product_detail_view,
+)
 from apps.core.legal import legal_page_view
 from apps.core.seo import (
     _paged_sitemap,
@@ -34,6 +38,7 @@ from apps.merchants.views import (
     campaign_toggle_view,
     following_feed_view,
     merchant_claim_view,
+    merchant_crawl_actions_view,
     merchant_dashboard_view,
     merchant_detail_view,
     merchant_draft_action_view,
@@ -100,6 +105,7 @@ urlpatterns = [
     path('m/<str:canonical_id>/', merchant_detail_view, name='merchant_detail'),
     path('merchant/claim/', merchant_claim_view, name='merchant_claim'),
     path('merchant/dashboard/', merchant_dashboard_view, name='merchant_dashboard'),
+    path('merchant/crawl/actions/', merchant_crawl_actions_view, name='merchant_crawl_actions'),
     path('merchant/draft/<str:draft_id>/action/', merchant_draft_action_view, name='merchant_draft_action'),
     path('merchant/offer/<uuid:offer_id>/price/', merchant_quick_price_view, name='merchant_quick_price'),
     path('merchant/settings/', merchant_settings_view, name='merchant_settings'),

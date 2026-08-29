@@ -11,11 +11,10 @@ Run daily via cron/scheduler:
 
 from decimal import Decimal
 
+from apps.offers.models import AvailabilityStateChoices, Offer, PriceAlert
 from django.core.management.base import BaseCommand
 from django.db.models import Min
 from django.utils import timezone
-
-from apps.offers.models import AvailabilityStateChoices, Offer, PriceAlert
 
 ACTIVE_STATES = (
     AvailabilityStateChoices.FRESH,

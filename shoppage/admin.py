@@ -99,10 +99,13 @@ def _compute_portal_stats() -> dict:
     )
     from apps.offers.models import (
         AvailabilityStateChoices,
+        CrawlRun,
         DiscoveredOffer,
         Offer,
         PriceAlert,
         Promotion,
+        UrlHealthRecord,
+        UrlHealthStateChoices,
     )
     from apps.referrals.models import ReferralEvent
     from django.db.models import Sum
@@ -157,6 +160,14 @@ def _compute_portal_stats() -> dict:
     alerts_active = PriceAlert.objects.filter(active=True).count()
     promotions_active = Promotion.objects.filter(state='active').count()
 
+    # --- Web crawl ledger (merchant catalog health) --------------------------
+    crawl_urls_total = UrlHealthRecord.objects.count()
+    crawl_healthy = UrlHealthRecord.objects.filter(state=UrlHealthStateChoices.HEALTHY).count()
+    crawl_failed = UrlHealthRecord.objects.filter(state=UrlHealthStateChoices.FAILED).count()
+    crawl_off_domain = UrlHealthRecord.objects.filter(state=UrlHealthStateChoices.OFF_DOMAIN).count()
+    crawl_pending = UrlHealthRecord.objects.filter(refresh_requested_at__isnull=False).count()
+    crawl_runs_24h = CrawlRun.objects.filter(started_at__gte=day_ago).count()
+
     cards = [
         {'icon': '🏬', 'label': 'Spatial Commerce Nodes', 'value': _compact(markets_total),
          'sub': f'{markets_verified:,} field-verified', 'color': '#2563EB'},
@@ -164,10 +175,12 @@ def _compute_portal_stats() -> dict:
          'sub': f'{merchants_claimed:,} claimed · {merchants_verified:,} fully verified', 'color': '#10B981'},
         {'icon': '🛒', 'label': 'Master Catalogue', 'value': _compact(products_total),
          'sub': f'{products_active:,} active · {products_with_live_offers:,} with live offers', 'color': '#8B5CF6'},
+        {'icon': '🕸️', 'label': 'Web Crawl Ledger', 'value': _compact(crawl_urls_total),
+         'sub': f'{crawl_healthy:,} healthy · {crawl_failed:,} failing · {crawl_off_domain:,} off-domain', 'color': '#0EA5E9'},
         {'icon': '💰', 'label': 'Live Offers', 'value': _compact(offers_live),
          'sub': f'{offers_lapsed:,} lapsed · {discovered_total:,} discovered', 'color': '#F59E0B'},
         {'icon': '🤖', 'label': 'Autopilot Pipeline', 'value': _compact(drafts_pending),
-         'sub': f'{agent_runs_24h:,} agent runs in 24h', 'color': '#06B6D4'},
+         'sub': f'{agent_runs_24h:,} agent runs in 24h · {crawl_runs_24h:,} crawls', 'color': '#06B6D4'},
         {'icon': '📜', 'label': 'Evidence Ledge', 'value': _compact(claims_verified),
          'sub': f'{artifacts_total:,} hashed artifacts', 'color': '#EC4899'},
         {'icon': '🎬', 'label': 'Proof Media Reach', 'value': _compact(shorts_views),
@@ -201,6 +214,12 @@ def _compute_portal_stats() -> dict:
         {'icon': '🔔', 'title': 'Trust passports flagged', 'model': TrustPassport,
          'qs': TrustPassport.objects.filter(state='FLAGGED'),
          'filters': {'state': 'FLAGGED'}, 'empty_hint': 'no passports flagged'},
+        {'icon': '🕸️', 'title': 'Crawled URLs failing checks', 'model': UrlHealthRecord,
+         'qs': UrlHealthRecord.objects.filter(state=UrlHealthStateChoices.FAILED),
+         'filters': {'state': 'failed'}, 'empty_hint': 'no failing crawl URLs'},
+        {'icon': '🔄', 'title': 'URLs waiting impression refresh', 'model': UrlHealthRecord,
+         'qs': UrlHealthRecord.objects.filter(refresh_requested_at__isnull=False),
+         'filters': {'refresh_requested_at__isnull': 'False'}, 'empty_hint': 'no refresh requests queued'},
     ]
 
     built_queues = []
@@ -226,6 +245,8 @@ def _compute_portal_stats() -> dict:
             'price_alerts_active': alerts_active,
             'promotions_active': promotions_active,
             'agent_runs_24h': agent_runs_24h,
+            'crawl_runs_24h': crawl_runs_24h,
+            'crawl_refresh_pending': crawl_pending,
         },
     }
 

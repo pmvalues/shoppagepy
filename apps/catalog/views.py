@@ -138,6 +138,19 @@ def product_detail_view(request, canonical_id):
         product.discovered_offers.select_related('merchant').order_by('discovered_price_amount')[:12]
     )
 
+    # Catalog-health ledger: every impression of a live offer URL requests a
+    # refresh of that URL's crawl record (hour-gated, never raises).
+    try:
+        from apps.offers.services.crawler import record_url_impression
+
+        for offer in offers:
+            if offer.destination_url:
+                record_url_impression(
+                    offer.destination_url, product=product, merchant=offer.merchant, source='product_page'
+                )
+    except Exception:
+        pass
+
     price_points = [float(o.price_amount) for o in confirmed_offers]
     market_prices = price_points + [
         float(o.discovered_price_amount) for o in discovered_offers if o.discovered_price_amount

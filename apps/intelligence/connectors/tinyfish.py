@@ -125,6 +125,10 @@ class TinyFishFetchProvider(ExternalSearchProvider):
     timeout_s = _MAX_FETCH_TIMEOUT_S
     networked = True
 
+    def __init__(self, config=None):
+        super().__init__(config)
+        self.last_errors: list[dict] = []
+
     def is_available(self) -> bool:
         if not api_key(self.config):
             return False
@@ -155,7 +159,7 @@ class TinyFishFetchProvider(ExternalSearchProvider):
                     ),
                     'intent': intent or 'verify current retail price and availability',
                     'links': False,
-                    'image_links': False,
+                    'image_links': bool(self.config.get('image_links', False)),
                 },
                 headers={'X-API-Key': key},
                 timeout=min(self.timeout_s, _MAX_FETCH_TIMEOUT_S),
@@ -164,6 +168,7 @@ class TinyFishFetchProvider(ExternalSearchProvider):
             payload = resp.json()
         except Exception:
             return []
+        self.last_errors = payload.get('errors') or []
 
         rights = RightsSource.objects.filter(name=self.rights_name).first()
         snapshots = []
@@ -174,6 +179,7 @@ class TinyFishFetchProvider(ExternalSearchProvider):
             text = (result.get('text') or '').strip()
             snippet = text[:300]
             price = extract_zar(text)
+            images = result.get('image_links') or []
             captured_at = timezone.now()
             artifact_payload = {
                 'url': url,
@@ -181,6 +187,7 @@ class TinyFishFetchProvider(ExternalSearchProvider):
                 'title': result.get('title') or '',
                 'language': result.get('language') or '',
                 'snippet': snippet,
+                'images': images[:3],
                 'price_amount': str(price) if price is not None else None,
                 'provider': self.key,
                 'captured_at': captured_at.isoformat(),
@@ -203,6 +210,7 @@ class TinyFishFetchProvider(ExternalSearchProvider):
                 'snippet': snippet,
                 'price_amount': artifact_payload['price_amount'],
                 'language': result.get('language') or '',
+                'image_url': images[0] if images else '',
                 'artifact_hash': artifact_hash,
             })
         return snapshots

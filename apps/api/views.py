@@ -133,9 +133,10 @@ class VerifyPriceAPIView(APIView):
     """
     Click-to-verify price snapshot (/api/v1/verify-price/).
 
-    Fetches the given URL live via TinyFish, captures the page as an
-    EvidenceArtifact and returns the normalized snapshot. Rights + key gated
-    (403 when off), rate limited, and cached per URL for five minutes.
+    Fetches the given URL live via the crawler engine (TinyFish fetch tier),
+    captures the page as an EvidenceArtifact, updates the URL health ledger
+    and returns the normalized snapshot. Rights + key gated (403 when off),
+    rate limited, and cached per URL for five minutes.
     """
 
     throttle_classes = [ScopedRateThrottle]
@@ -143,14 +144,14 @@ class VerifyPriceAPIView(APIView):
 
     def post(self, request):
         from apps.intelligence.connectors.tinyfish import TinyFishFetchProvider
+        from apps.offers.services.crawler import verify_url
 
         url = (request.data.get('url') or '').strip()
         intent = (request.data.get('intent') or '').strip()[:200]
         if not url or len(url) > 2048 or not url.lower().startswith(('http://', 'https://')):
             return Response({'error': 'A valid http(s) URL is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        provider = TinyFishFetchProvider({'per_url_timeout_ms': 20000})
-        if not provider.is_available():
+        if not TinyFishFetchProvider({'per_url_timeout_ms': 20000}).is_available():
             return Response({'error': 'Live price verification is not enabled'}, status=status.HTTP_403_FORBIDDEN)
 
         cache_key = f'sp:verify:v1:{hashlib.sha256(url.encode()).hexdigest()}'
@@ -158,12 +159,36 @@ class VerifyPriceAPIView(APIView):
         if cached is not None:
             return Response({'verified': True, 'snapshot': cached, 'cached': True})
 
-        snapshots = provider.fetch([url], intent=intent)
-        if not snapshots:
+        outcome = verify_url(url, intent=intent, timeout_ms=20000)
+        snapshot = outcome.get('snapshot')
+        if not snapshot:
             return Response({'verified': False, 'snapshot': None}, status=status.HTTP_200_OK)
-        snapshot = snapshots[0]
         cache.set(cache_key, snapshot, 300)
         return Response({'verified': True, 'snapshot': snapshot, 'cached': False})
+
+
+class MerchantHealthAPIView(APIView):
+    """
+    Merchant catalog health (/api/v1/merchants/<canonical_id>/health/).
+
+    Crawl-ledger roll-up: state counts, staleness, pending impression
+    refreshes, last crawl run and the top-priority URL rows.
+    """
+
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'search'
+
+    def get(self, request, canonical_id):
+        from apps.merchants.models import Merchant
+        from apps.offers.services.crawler import health_summary
+
+        merchant = Merchant.objects.filter(canonical_id=canonical_id).first()
+        if not merchant:
+            return Response({'error': 'Merchant not found'}, status=status.HTTP_404_NOT_FOUND)
+        summary = health_summary(merchant)
+        response = Response({'merchant': merchant.name, 'health': summary})
+        _public_cache(response, 60)
+        return response
 
 
 class ProductListAPIView(CachedListMixin, generics.ListAPIView):

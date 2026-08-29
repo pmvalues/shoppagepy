@@ -1,6 +1,7 @@
-import logging
 import json
+import logging
 from decimal import Decimal, InvalidOperation
+from typing import Any
 
 from apps.catalog.models import MasterProduct
 from apps.core.hours import day_rows
@@ -16,7 +17,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import IntegrityError
-from django.db.models import Q
 from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -270,11 +270,10 @@ def merchant_dashboard_view(request):
         feed_risks.append('No priced offers yet — confirm prices to populate the feed.')
 
     # ---- GMC-grade Performance: clicks & leads per product (last 30 days) ----
-    from django.db.models import Count
-
     from apps.core.models import SearchClick
     from apps.offers.models import Promotion
     from apps.referrals.models import ReferralEvent
+    from django.db.models import Count
 
     since30 = timezone.now() - timezone.timedelta(days=30)
     catalog_pk_strings = [
@@ -324,6 +323,11 @@ def merchant_dashboard_view(request):
         'top_query': query_rows[0][0] if query_rows else None,
     }
 
+    # ---- Catalog health: crawl-ledger roll-up for this merchant ----
+    from apps.offers.services.crawler import health_summary
+
+    catalog_health = health_summary(merchant) if merchant else None
+
     context = {
         'merchant': merchant,
         'offers': offers,
@@ -352,8 +356,49 @@ def merchant_dashboard_view(request):
         ],
         'perf_totals': perf_totals,
         'active_promos': active_promos,
+        'catalog_health': catalog_health,
     }
     return render(request, 'merchants/merchant_dashboard.html', context)
+
+
+@login_required
+def merchant_crawl_actions_view(request):
+    """Merchant dashboard crawl controls: run web discovery or check next batch.
+
+    Both actions are bounded (max ~5 new URLs / max 2 live checks) so the
+    request stays responsive even on the free TinyFish tier.
+    """
+    merchant_id = request.POST.get('merchantId', '')
+    merchant = None
+    if merchant_id:
+        candidate = Merchant.objects.filter(canonical_id=merchant_id).first()
+        if candidate and (request.user.is_staff or candidate.owner_id == request.user.id):
+            merchant = candidate
+    if merchant is None:
+        merchant = request.user.owned_merchants.first()
+    if merchant is None:
+        return redirect('merchant_claim')
+
+    action = request.POST.get('action', '')
+    from apps.offers.services.crawler import crawl_rotation, discover_merchant_urls
+
+    if action == 'discover':
+        outcome = discover_merchant_urls(merchant)
+        messages.success(
+            request,
+            f'Discovery scanned {outcome["queries"]} web queries and tracked '
+            f'{outcome["found"]} new product URL(s) for health monitoring.',
+        )
+    elif action == 'check_next':
+        outcome = crawl_rotation(limit=2, merchant=merchant, trigger='manual', pacing=0.0)
+        messages.success(
+            request,
+            f'Checked {outcome["attempted"]} URL(s): {outcome["ok"]} ok, '
+            f'{outcome["failed"]} failed — the ledger is refreshed.',
+        )
+    else:
+        messages.error(request, 'Unknown crawl action.')
+    return redirect(f'/merchant/dashboard/?merchantId={merchant.canonical_id}#health')
 
 @login_required
 def merchant_draft_action_view(request, draft_id):
@@ -698,9 +743,8 @@ def campaign_center_view(request):
     campaigns = list(merchant.campaigns.all())
     # Per-campaign UTM attribution report (leads, last 30 days) — guarded so a
     # migration-incomplete environment renders empty instead of failing.
-    from django.db.models import Count
-
     from apps.referrals.models import ReferralEvent
+    from django.db.models import Count
 
     for c in campaigns:
         c.leads_30 = 0

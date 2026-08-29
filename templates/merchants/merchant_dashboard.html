@@ -180,6 +180,14 @@
     >
       <span>📊</span> Performance
     </button>
+    <button 
+      type="button" 
+      @click="activeTab = 'health'" 
+      :style="activeTab === 'health' ? 'border-bottom: 3px solid #1D4ED8; color: #1D4ED8; font-weight: 800;' : 'color: #334155; font-weight: 600;'"
+      style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;"
+    >
+      <span>🩺</span> Catalog Health <span class="badge badge-blue" style="font-size: 0.75rem;">{{ catalog_health.total|default:0 }}</span>
+    </button>
     <a 
       href="/merchant/settings/"
       style="background: transparent; border: none; padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; color: #334155; font-weight: 600; text-decoration: none;"
@@ -686,6 +694,180 @@
       <p style="color: #94A3B8; font-size: 0.875rem;">No recorded queries yet this month.</p>
       {% endif %}
     </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB 8: 🩺 Catalog Health (Merchant-Center-grade crawl ledger)
+       ========================================================================= -->
+  <div x-show="activeTab === 'health'" x-transition style="display: none;">
+    {% if catalog_health %}
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+      <div>
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin: 0; color: #0F172A;">🩺 Catalog Health</h3>
+        <div style="font-size: 0.78rem; color: #64748B;">
+          Every tracked product URL is re-checked on the live web — title, price, availability, redirects and domain match — recording each observation as evidence.
+        </div>
+      </div>
+      <form method="post" action="/merchant/crawl/actions/" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+        {% csrf_token %}
+        <input type="hidden" name="merchantId" value="{{ merchant.canonical_id }}" />
+        <button type="submit" name="action" value="discover" class="btn btn-primary" style="font-size: 0.78rem; padding: 0.45rem 0.9rem;">🔍 Discover new product URLs</button>
+        <button type="submit" name="action" value="check_next" class="btn" style="font-size: 0.78rem; padding: 0.45rem 0.9rem; border: 1px solid #CBD5E1; background: #FFFFFF;">✓ Check next batch</button>
+      </form>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.9rem; margin-bottom: 1.25rem;">
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #2563EB; padding: 0.8rem 1rem;">
+        <div style="font-size: 0.7rem; color: #64748B; text-transform: uppercase; letter-spacing: 0.04em;">Tracked URLs</div>
+        <div style="font-size: 1.6rem; font-weight: 800; color: #0F172A;">{{ catalog_health.total }}</div>
+      </div>
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #059669; padding: 0.8rem 1rem;">
+        <div style="font-size: 0.7rem; color: #64748B; text-transform: uppercase; letter-spacing: 0.04em;">Healthy</div>
+        <div style="font-size: 1.6rem; font-weight: 800; color: #059669;">{{ catalog_health.healthy }}</div>
+        <div style="font-size: 0.72rem; color: #94A3B8;">{{ catalog_health.stale }} stale · {{ catalog_health.never_checked }} never checked</div>
+      </div>
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #EF4444; padding: 0.8rem 1rem;">
+        <div style="font-size: 0.7rem; color: #64748B; text-transform: uppercase; letter-spacing: 0.04em;">Failed Checks</div>
+        <div style="font-size: 1.6rem; font-weight: 800; color: #EF4444;">{{ catalog_health.failed }}</div>
+      </div>
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #F59E0B; padding: 0.8rem 1rem;">
+        <div style="font-size: 0.7rem; color: #64748B; text-transform: uppercase; letter-spacing: 0.04em;">Off Domain</div>
+        <div style="font-size: 1.6rem; font-weight: 800; color: #F59E0B;">{{ catalog_health.off_domain }}</div>
+        <div style="font-size: 0.72rem; color: #94A3B8;">URLs resolving off your store</div>
+      </div>
+      <div class="stat-box" style="background: #FFFFFF; border-left: 4px solid #8B5CF6; padding: 0.8rem 1rem;">
+        <div style="font-size: 0.7rem; color: #64748B; text-transform: uppercase; letter-spacing: 0.04em;">Refresh Pending</div>
+        <div style="font-size: 1.6rem; font-weight: 800; color: #8B5CF6;">{{ catalog_health.refresh_pending }}</div>
+        <div style="font-size: 0.72rem; color: #94A3B8;">impressions requested a re-check</div>
+      </div>
+    </div>
+
+    {% if catalog_health.last_run %}
+    <p style="font-size: 0.75rem; color: #94A3B8; margin: 0 0 0.9rem;">
+      Last crawl: {{ catalog_health.last_run.trigger }} · {{ catalog_health.last_run.status }} ·
+      {{ catalog_health.last_run.ok }}/{{ catalog_health.last_run.attempted }} ok · started {{ catalog_health.last_run.started_at|slice:":16" }} UTC
+    </p>
+    {% endif %}
+
+    <div class="card" style="background: #FFFFFF; padding: 1.25rem; overflow-x: auto;">
+      {% if catalog_health.urls %}
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+        <thead>
+          <tr style="text-align: left; color: #64748B; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em;">
+            <th style="padding: 0.5rem 0.6rem;">URL</th>
+            <th style="padding: 0.5rem 0.6rem;">Status</th>
+            <th style="padding: 0.5rem 0.6rem;">Price</th>
+            <th style="padding: 0.5rem 0.6rem;">Stock</th>
+            <th style="padding: 0.5rem 0.6rem;">Last Check</th>
+            <th style="padding: 0.5rem 0.6rem;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in catalog_health.urls %}
+          <tr style="border-top: 1px solid #F1F5F9; vertical-align: top;">
+            <td style="padding: 0.55rem 0.6rem; max-width: 340px;">
+              <div style="font-weight: 700; color: #0F172A; line-height: 1.3;">{{ row.title|default:row.url|truncatechars:70 }}</div>
+              <a href="{{ row.url }}" target="_blank" rel="noopener nofollow" style="font-size: 0.72rem; color: #2563EB; text-decoration: none; word-break: break-all;">{{ row.url|truncatechars:60 }}</a>
+              {% if row.state == 'off_domain' %}
+              <div style="font-size: 0.7rem; color: #B45309; margin-top: 2px;">⚠ resolves off <strong>{{ row.expected_hostname }}</strong> — fix the URL</div>
+              {% elif row.state == 'failed' and row.error_text %}
+              <div style="font-size: 0.7rem; color: #DC2626; margin-top: 2px;">⚠ {{ row.error_text|truncatechars:80 }}</div>
+              {% endif %}
+            </td>
+            <td style="padding: 0.55rem 0.6rem;">
+              {% if row.state == 'healthy' %}<span style="color: #059669; font-weight: 700;">● Healthy</span>
+              {% elif row.state == 'stale' %}<span style="color: #F59E0B; font-weight: 700;">● Stale</span>
+              {% elif row.state == 'failed' %}<span style="color: #EF4444; font-weight: 700;">● Failed</span>
+              {% elif row.state == 'off_domain' %}<span style="color: #B45309; font-weight: 700;">● Off domain</span>
+              {% else %}<span style="color: #94A3B8; font-weight: 700;">○ Never checked</span>{% endif %}
+              {% if row.refresh_pending %}<div style="font-size: 0.68rem; color: #8B5CF6;">↻ refresh requested</div>{% endif %}
+            </td>
+            <td style="padding: 0.55rem 0.6rem; white-space: nowrap;">
+              {% if row.price_amount %}
+              <div style="font-weight: 800; color: #0F172A;">R {{ row.price_amount }}</div>
+              {% if row.price_drift_amount %}
+                {% if row.price_drift_amount|slice:":1" == "-" %}
+                <div style="font-size: 0.7rem; color: #059669;">▼ R {{ row.price_drift_amount|slice:"1:" }}</div>
+                {% else %}
+                <div style="font-size: 0.7rem; color: #DC2626;">▲ R {{ row.price_drift_amount }}</div>
+                {% endif %}
+              {% endif %}
+              {% else %}<span style="color: #94A3B8;">—</span>{% endif %}
+            </td>
+            <td style="padding: 0.55rem 0.6rem;">
+              {% if row.availability %}<span style="color: {% if row.availability == 'in stock' %}#059669{% else %}#DC2626{% endif %};">{{ row.availability }}</span>
+              {% else %}<span style="color: #94A3B8;">—</span>{% endif %}
+            </td>
+            <td style="padding: 0.55rem 0.6rem; white-space: nowrap; color: #64748B; font-size: 0.74rem;">
+              {% if row.last_crawled_at %}{{ row.last_crawled_at|slice:":16" }} UTC · {{ row.checks_count }} checks{% else %}never{% endif %}
+            </td>
+            <td style="padding: 0.55rem 0.6rem;">
+              <button type="button" class="sp-verify-btn" data-url="{{ row.url }}" data-row-label="{{ row.title|default:row.url|truncatechars:50 }}"
+                style="background: #059669; color: #FFFFFF; border: 0; border-radius: 6px; padding: 4px 10px; font-size: 0.7rem; font-weight: 700; cursor: pointer;">
+                ✓ Check now
+              </button>
+              <span class="sp-verify-out" style="display: block; font-size: 0.72rem; color: #475569; margin-top: 3px;"></span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p style="color: #64748B; font-size: 0.85rem; margin: 0;">
+        No product URLs tracked yet. Hit <strong>Discover new product URLs</strong> to sweep the web for your
+        catalogue, or open any product from search and click “Verify price now” — both feed this ledger.
+      </p>
+      {% endif %}
+    </div>
+
+    <script>
+    (function () {
+      function formatPrice(value) {
+        if (!value) return '';
+        var parts = String(value).split('.');
+        var grouped = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        return 'R ' + grouped + (parts[1] ? '.' + parts[1] : '');
+      }
+      document.addEventListener('click', function (event) {
+        var btn = event.target.closest('.sp-verify-btn');
+        if (!btn) return;
+        var out = btn.parentNode.querySelector('.sp-verify-out');
+        var original = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Checking…';
+        out.textContent = '';
+        var tokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+        fetch('/api/v1/verify-price/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': tokenInput ? tokenInput.value : ''
+          },
+          body: JSON.stringify({ url: btn.getAttribute('data-url') })
+        })
+          .then(function (resp) { return resp.json(); })
+          .then(function (data) {
+            if (data.snapshot && data.snapshot.price_amount) {
+              out.textContent = '✓ ' + formatPrice(data.snapshot.price_amount) + ' · ' + (data.snapshot.title || '').slice(0, 40);
+            } else if (data.snapshot) {
+              out.textContent = '✓ Page verified — no clear price';
+            } else {
+              out.textContent = data.error || 'Could not read this page';
+              btn.disabled = false;
+              btn.textContent = original;
+            }
+          })
+          .catch(function () {
+            out.textContent = 'Verification failed — try again later.';
+            btn.disabled = false;
+            btn.textContent = original;
+          });
+      });
+    })();
+    </script>
+    {% else %}
+    <p style="color: #64748B;">Catalog health is being prepared — re-open this tab shortly.</p>
+    {% endif %}
   </div>
 
 </div>

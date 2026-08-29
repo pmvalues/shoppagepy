@@ -5,6 +5,7 @@ from .views import (
     MarketDetailAPIView,
     MarketListAPIView,
     MerchantDetailAPIView,
+    MerchantHealthAPIView,
     MerchantListAPIView,
     ProductDetailAPIView,
     ProductListAPIView,
@@ -32,6 +33,7 @@ urlpatterns = [
     # Merchants
     path('v1/merchants/', MerchantListAPIView.as_view(), name='api-merchant-list'),
     path('v1/merchants/<str:canonical_id>/', MerchantDetailAPIView.as_view(), name='api-merchant-detail'),
+    path('v1/merchants/<str:canonical_id>/health/', MerchantHealthAPIView.as_view(), name='api-merchant-health'),
 
     # Markets
     path('v1/markets/', MarketListAPIView.as_view(), name='api-market-list'),
