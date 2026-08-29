@@ -266,6 +266,10 @@ class MerchantPostAdmin(admin.ModelAdmin):
     paginator = LargeTablePaginator
     show_full_result_count = False
     list_per_page = 50
+    list_display = ('title', 'merchant', 'kind', 'active', 'created_at')
+    list_filter = ('kind', 'active', 'created_at')
+    search_fields = ('title', 'body', 'merchant__name')
+    autocomplete_fields = ('merchant',)
     readonly_fields = ('created_at', 'updated_at')
 
 

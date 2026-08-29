@@ -3,32 +3,74 @@
 
 {% block content %}
 <div id="content-main">
-  <!-- Top KPI Telemetry Deck -->
-  <div class="admin-kpi-grid">
-    <div class="admin-kpi-card" style="border-left: 4px solid #2563EB;">
-      <div class="admin-kpi-label">🏬 Spatial Commerce Nodes</div>
-      <div class="admin-kpi-value" style="color: #2563EB;">3,296</div>
-      <div class="admin-kpi-sub">✓ 100% 9-Province Roster Coverage</div>
-    </div>
 
-    <div class="admin-kpi-card" style="border-left: 4px solid #10B981;">
-      <div class="admin-kpi-label">🏪 Verified Merchant Index</div>
-      <div class="admin-kpi-value" style="color: #10B981;">3,100,000+</div>
-      <div class="admin-kpi-sub">✓ Direct WhatsApp Routing Active</div>
+  <!-- ================= Live National Telemetry Deck (real DB counts, 60s cache) ================= -->
+  {% if portal_stats %}
+  <div class="admin-section-head">
+    <div>
+      <h2 class="admin-section-title">📡 National Live Telemetry</h2>
+      <p class="admin-section-sub">Real database counts across every authority plane · refreshed every 60 seconds</p>
     </div>
-
-    <div class="admin-kpi-card" style="border-left: 4px solid #8B5CF6;">
-      <div class="admin-kpi-label">🛡️ Evidence Graph Moat</div>
-      <div class="admin-kpi-value" style="color: #8B5CF6;">100%</div>
-      <div class="admin-kpi-sub">✓ SABS &amp; CIPC Provenance Verified</div>
-    </div>
-
-    <div class="admin-kpi-card" style="border-left: 4px solid #F59E0B;">
-      <div class="admin-kpi-label">🤖 Autopilot Draft Pipeline</div>
-      <div class="admin-kpi-value" style="color: #F59E0B;">Active</div>
-      <div class="admin-kpi-sub">✓ Bounded AI Execution Policy</div>
-    </div>
+    <div class="admin-refresh-chip">↻ {{ portal_stats.generated_at }} SAST</div>
   </div>
+
+  <div class="admin-kpi-grid">
+    {% for card in portal_stats.cards %}
+    <div class="admin-kpi-card" style="border-left: 4px solid {{ card.color }};">
+      <div class="admin-kpi-label">{{ card.icon }} {{ card.label }}</div>
+      <div class="admin-kpi-value" style="color: {{ card.color }};">{{ card.value }}</div>
+      <div class="admin-kpi-sub">{{ card.sub }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if portal_stats.pulse %}
+  <div class="admin-pulse-strip">
+    <span>🔍 <strong>{{ portal_stats.pulse.searches_today|intcomma }}</strong> searches today</span>
+    <span>🔔 <strong>{{ portal_stats.pulse.price_alerts_active|intcomma }}</strong> active price alerts</span>
+    <span>🏷️ <strong>{{ portal_stats.pulse.promotions_active|intcomma }}</strong> live promotions</span>
+    <span>🤖 <strong>{{ portal_stats.pulse.agent_runs_24h|intcomma }}</strong> agent runs last 24h</span>
+  </div>
+  {% endif %}
+
+  <!-- ================= Operator Triage Queues ================= -->
+  <div class="admin-section-head" style="margin-top: 2.5rem;">
+    <div>
+      <h2 class="admin-section-title">⚡ Command Triage Queues</h2>
+      <p class="admin-section-sub">Work items that need an operator's attention — each queue deep-links into its filtered changelist</p>
+    </div>
+    {% if portal_stats.error %}
+    <div class="admin-refresh-chip" style="color: var(--admin-danger);">⚠ stats degraded: {{ portal_stats.error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="admin-queue-grid">
+    {% for queue in portal_stats.queues %}
+    <div class="admin-queue-card">
+      <div class="admin-queue-head">
+        <span class="admin-queue-title">{{ queue.icon }} {{ queue.title }}</span>
+        {% if queue.count %}
+        <span class="admin-queue-count">{{ queue.count|intcomma }}</span>
+        {% else %}
+        <span class="admin-queue-clear">clear</span>
+        {% endif %}
+      </div>
+      <div class="admin-queue-body">
+        {% for item in queue.items %}
+        <div class="admin-queue-item">
+          <a href="{{ item.url }}" title="Open">{{ item.label }}</a>
+        </div>
+        {% empty %}
+        <div class="admin-queue-empty">✓ {{ queue.empty_hint }}</div>
+        {% endfor %}
+      </div>
+      <div class="admin-queue-footer">
+        <a href="{{ queue.url }}">Open queue — full list &nearr;</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
   <!-- Operational Quick Actions Bar -->
   <div class="module" style="padding: 1.25rem; background: #FFFFFF; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--admin-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">

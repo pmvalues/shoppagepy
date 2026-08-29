@@ -750,3 +750,201 @@ span.help,
   color: var(--admin-accent);
   font-weight: 700;
 }
+
+/* ==========================================================================
+   11. Command Centre — Triage Queues, Section Headers & Chrome Badges
+   ========================================================================== */
+.admin-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-section-title {
+  margin: 0 0 0.2rem 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--admin-text-main);
+  letter-spacing: -0.01em;
+}
+
+.admin-section-sub {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--admin-text-muted);
+}
+
+.admin-refresh-chip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--admin-text-secondary);
+  background: #F1F5F9;
+  border: 1px solid var(--admin-border);
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* Live activity pulse strip under the KPI deck */
+.admin-pulse-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  background: var(--admin-sidebar);
+  border-radius: 12px;
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 2rem;
+  color: #CBD5E1;
+  font-size: 0.8rem;
+}
+
+.admin-pulse-strip span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.admin-pulse-strip strong {
+  color: #FFFFFF;
+  font-weight: 800;
+}
+
+/* Triage queue grid */
+.admin-queue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.admin-queue-card {
+  background: #FFFFFF;
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-queue-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #E2E8F0;
+  background: #F8FAFC;
+}
+
+.admin-queue-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--admin-text-main);
+}
+
+.admin-queue-count {
+  background: #EFF6FF;
+  color: var(--admin-primary);
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 2px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.admin-queue-clear {
+  color: var(--admin-accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-queue-body {
+  padding: 0.4rem 1rem 0.6rem;
+  flex: 1;
+}
+
+.admin-queue-item {
+  padding: 0.35rem 0;
+  font-size: 0.8rem;
+  border-bottom: 1px dashed #E2E8F0;
+}
+
+.admin-queue-item:last-child {
+  border-bottom: none;
+}
+
+.admin-queue-item a {
+  color: var(--admin-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.admin-queue-item a:hover {
+  text-decoration: underline;
+}
+
+.admin-queue-empty {
+  color: var(--admin-accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.4rem 0;
+}
+
+.admin-queue-footer {
+  border-top: 1px solid #E2E8F0;
+  padding: 0.55rem 1rem;
+}
+
+.admin-queue-footer a {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--admin-accent);
+  text-decoration: none;
+}
+
+.admin-queue-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Header chrome: version + environment badges */
+.admin-version-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 0.4rem;
+  color: #38BDF8;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.admin-env-badge {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-left: 0.35rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+.admin-env-dev {
+  color: #FBBF24;
+  border-color: rgba(251, 191, 36, 0.4);
+  background: rgba(251, 191, 36, 0.12);
+}
+
+.admin-env-live {
+  color: #34D399;
+  border-color: rgba(52, 211, 153, 0.4);
+  background: rgba(52, 211, 153, 0.12);
+}

@@ -16,7 +16,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 INSTALLED_APPS = [
     # Django core apps
-    'django.contrib.admin',
+    'shoppage.apps.ShoppageAdminConfig',  # replaces django.contrib.admin (custom AdminSite)
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -232,3 +232,6 @@ LOGOUT_REDIRECT_URL = '/'
 # Custom domain settings
 SHOPPAGE_COUNTRY_DEFAULT = 'ZA'
 SHOPPAGE_CURRENCY_DEFAULT = 'ZAR'
+
+# Admin portal branding & version
+SHOPPAGE_VERSION = os.environ.get('SHOPPAGE_VERSION', 'v8.2')
