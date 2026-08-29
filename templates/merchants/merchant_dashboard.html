@@ -11,7 +11,7 @@
 <section class="mc-panel" data-panel="glance">
   <div class="mc-hero">
     <div>
-      <p class="mc-eyebrow" style="color:#7fe7ac;">Merchant Centre OS · {{ merchant.province|default:"South Africa" }}</p>
+      <p class="mc-eyebrow">Merchant Centre · {{ merchant.province|default:"South Africa" }}</p>
       <h1 class="mc-hero-title">{{ merchant.name|default:"Your Store" }}</h1>
       <p class="mc-hero-meta">
         <span>★ <strong>{% if merchant.google_rating %}{{ merchant.google_rating }}{% else %}—{% endif %}</strong> ({% if merchant.google_reviews_count %}{{ merchant.google_reviews_count }} review{{ merchant.google_reviews_count|pluralize }}{% else %}no reviews yet{% endif %})</span>
@@ -22,7 +22,7 @@
     </div>
     <div class="mc-hero-actions">
       <a class="mc-btn mc-btn-wa" href="https://wa.me/{{ merchant.whatsapp_number }}" target="_blank" rel="noopener">💬 Open WhatsApp</a>
-      <a class="mc-btn" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.28);color:#fff;" href="/m/{{ merchant.canonical_id }}/" target="_blank" rel="noopener">View storefront ↗</a>
+      <a class="mc-btn" href="/m/{{ merchant.canonical_id }}/" target="_blank" rel="noopener">View storefront ↗</a>
     </div>
   </div>
 
@@ -294,7 +294,7 @@
       <div class="mc-span-8">
         <div class="mc-terminal">
           <div class="mc-terminal-head">
-            <span><span class="status-dot" :class="streamRunning ? 'on' : ''"></span>SSE · <strong style="color:#7fe7ac;" x-text="selectedAgent"></strong></span>
+            <span><span class="status-dot" :class="streamRunning ? 'on' : ''"></span>SSE · <strong style="color:#8ab4f8;" x-text="selectedAgent"></strong></span>
             <span x-text="currentStep" style="color:#d8b64a;"></span>
           </div>
           <div class="mc-progress"><span :style="`width: ${progressPct}%`"></span></div>
@@ -410,7 +410,7 @@
     <div class="mc-card mc-span-6">
       <h2 class="mc-h2">Verified Trust Seal</h2>
       <p class="mc-sub" style="margin-bottom:1rem;">A dynamic SVG badge — cryptographic, live score, regenerates on every request.</p>
-      <div style="text-align:center;padding:1.4rem;background:radial-gradient(400px 140px at 50% -20%, rgba(22,160,107,.3), transparent 60%), var(--mc-ink);border-radius:var(--mc-radius-md);margin-bottom:1.1rem;">
+      <div style="text-align:center;padding:1.4rem;background:linear-gradient(180deg,#e8f0fe 0%,#f8f9fa 100%);border-radius:var(--mc-radius-md);margin-bottom:1.1rem;">
         <img src="/api/seal/{{ merchant.canonical_id }}/" alt="Shoppage verified trust seal for {{ merchant.name }}" style="max-height:96px;">
       </div>
       <label for="mc-seal-code" style="font-size:.72rem;font-weight:700;">HTML embed snippet</label>
@@ -683,8 +683,8 @@
       data: {
         labels: labels,
         datasets: [
-          { label: 'Search clicks', data: rows.map(function (r) { return r.clicks; }), backgroundColor: 'rgba(29, 78, 216, 0.75)', borderRadius: 5, maxBarThickness: 22 },
-          { label: 'WhatsApp leads', data: rows.map(function (r) { return r.leads; }), backgroundColor: 'rgba(14, 124, 80, 0.8)', borderRadius: 5, maxBarThickness: 22 }
+          { label: 'Search clicks', data: rows.map(function (r) { return r.clicks; }), backgroundColor: 'rgba(26, 115, 232, 0.85)', borderRadius: 4, maxBarThickness: 20 },
+          { label: 'WhatsApp leads', data: rows.map(function (r) { return r.leads; }), backgroundColor: 'rgba(24, 128, 56, 0.85)', borderRadius: 4, maxBarThickness: 20 }
         ]
       },
       options: {
@@ -701,8 +701,8 @@
   }
 
   if (window.Chart) {
-    Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
-    Chart.defaults.color = '#566159';
+    Chart.defaults.font.family = "'Google Sans Text', Roboto, system-ui, sans-serif";
+    Chart.defaults.color = '#5f6368';
   }
 
   window.__mcPanelInit = function (tab) {
