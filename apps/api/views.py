@@ -129,6 +129,43 @@ class SearchAPIView(APIView):
         return Response(response.model_dump())
 
 
+class VerifyPriceAPIView(APIView):
+    """
+    Click-to-verify price snapshot (/api/v1/verify-price/).
+
+    Fetches the given URL live via TinyFish, captures the page as an
+    EvidenceArtifact and returns the normalized snapshot. Rights + key gated
+    (403 when off), rate limited, and cached per URL for five minutes.
+    """
+
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'verify'
+
+    def post(self, request):
+        from apps.intelligence.connectors.tinyfish import TinyFishFetchProvider
+
+        url = (request.data.get('url') or '').strip()
+        intent = (request.data.get('intent') or '').strip()[:200]
+        if not url or len(url) > 2048 or not url.lower().startswith(('http://', 'https://')):
+            return Response({'error': 'A valid http(s) URL is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        provider = TinyFishFetchProvider({'per_url_timeout_ms': 20000})
+        if not provider.is_available():
+            return Response({'error': 'Live price verification is not enabled'}, status=status.HTTP_403_FORBIDDEN)
+
+        cache_key = f'sp:verify:v1:{hashlib.sha256(url.encode()).hexdigest()}'
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return Response({'verified': True, 'snapshot': cached, 'cached': True})
+
+        snapshots = provider.fetch([url], intent=intent)
+        if not snapshots:
+            return Response({'verified': False, 'snapshot': None}, status=status.HTTP_200_OK)
+        snapshot = snapshots[0]
+        cache.set(cache_key, snapshot, 300)
+        return Response({'verified': True, 'snapshot': snapshot, 'cached': False})
+
+
 class ProductListAPIView(CachedListMixin, generics.ListAPIView):
     serializer_class = MasterProductSerializer
     pagination_class = ShoppagePagination
@@ -333,11 +370,7 @@ def google_merchant_center_feed_view(request, merchant_id):
         raise Http404('Feed unavailable: this profile has not been claimed by its operator.')
 
     base_url = request.build_absolute_uri('/')[:-1]
-    key = 'sp:feed:%s:%s:v%d' % (
-        merchant.canonical_id,
-        hashlib.md5(base_url.encode()).hexdigest()[:10],
-        data_version(),
-    )
+    key = f'sp:feed:{merchant.canonical_id}:{hashlib.md5(base_url.encode()).hexdigest()[:10]}:v{data_version()}'
     xml_content = cache.get(key)
     if xml_content is None:
         xml_content = generate_google_merchant_center_feed(merchant.canonical_id, base_url=base_url)

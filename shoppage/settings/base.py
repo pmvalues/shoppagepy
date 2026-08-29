@@ -174,6 +174,7 @@ REST_FRAMEWORK = {
         'anon': '120/min',
         'search': '60/min',
         'assistant': '20/min',
+        'verify': '15/min',
     },
 }
 

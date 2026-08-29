@@ -191,6 +191,88 @@ class TinyFishProviderTestCase(TestCase):
         self.assertIsNone(extract_zar('no price mentioned'))
 
 
+class VerifyPriceSurfaceTestCase(TestCase):
+    """POST /api/v1/verify-price/ — TinyFish fetch tier via the API."""
+
+    VERIFY_URL = '/api/v1/verify-price/'
+
+    def setUp(self):
+        cache.clear()
+
+    def _make_rights(self):
+        RightsSource.objects.create(
+            name='tinyfish', rights_class=RightsClassChoices.PARTNER_CONTRACTUAL_FEED,
+            status=RightsStatusChoices.CLEARED, ai_use_permitted=True,
+        )
+
+    def test_rejects_missing_or_invalid_url(self):
+        resp = self.client.post(self.VERIFY_URL, {'url': ''}, content_type='application/json')
+        self.assertEqual(resp.status_code, 400)
+        resp = self.client.post(self.VERIFY_URL, {'url': 'ftp://not-web'}, content_type='application/json')
+        self.assertEqual(resp.status_code, 400)
+        resp = self.client.post(self.VERIFY_URL, {'url': 'x' * 3000}, content_type='application/json')
+        self.assertEqual(resp.status_code, 400)
+
+    def test_forbidden_when_rights_blocked(self):
+        _clear_tinyfish_rights()
+        resp = self.client.post(
+            self.VERIFY_URL, {'url': 'https://example.co.za/p'}, content_type='application/json'
+        )
+        self.assertEqual(resp.status_code, 403)
+
+    def test_returns_snapshot_then_serves_cache(self):
+        self._make_rights()
+        fake_json = {
+            'results': [{
+                'url': 'https://example.co.za/inverter',
+                'final_url': 'https://example.co.za/inverter',
+                'title': 'Solar Inverter 5kW',
+                'language': 'en',
+                'text': 'Price: R 31 995.00 incl VAT. In stock now.',
+            }],
+            'errors': [],
+        }
+        with mock.patch('requests.post', return_value=mock.Mock(
+            raise_for_status=lambda: None, json=lambda: fake_json,
+        )) as request_post:
+            first = self.client.post(
+                self.VERIFY_URL, {'url': 'https://example.co.za/inverter'},
+                content_type='application/json',
+            )
+            second = self.client.post(
+                self.VERIFY_URL, {'url': 'https://example.co.za/inverter'},
+                content_type='application/json',
+            )
+        self.assertEqual(first.status_code, 200)
+        self.assertTrue(first.json()['verified'])
+        self.assertEqual(first.json()['snapshot']['price_amount'], '31995.00')
+        self.assertEqual(first.json()['snapshot']['title'], 'Solar Inverter 5kW')
+        self.assertTrue(second.json()['cached'])
+        request_post.assert_called_once()  # repeat verify served from cache
+        artifact = EvidenceArtifact.objects.filter(
+            source_identifier='https://example.co.za/inverter'
+        ).first()
+        self.assertIsNotNone(artifact)
+        self.assertEqual(artifact.raw_payload['price_amount'], '31995.00')
+
+    def test_unreadable_page_reports_verified_false(self):
+        self._make_rights()
+        fake_json = {
+            'results': [],
+            'errors': [{'url': 'https://example.co.za/blocked', 'error': 'timeout'}],
+        }
+        with mock.patch('requests.post', return_value=mock.Mock(
+            raise_for_status=lambda: None, json=lambda: fake_json,
+        )):
+            resp = self.client.post(
+                self.VERIFY_URL, {'url': 'https://example.co.za/blocked'},
+                content_type='application/json',
+            )
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse(resp.json()['verified'])
+        self.assertIsNone(resp.json()['snapshot'])
+
+
 class FederatedSurfaceTestCase(TestCase):
     """The API ?live=1 block and the search-page panel."""
 

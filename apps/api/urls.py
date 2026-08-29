@@ -10,6 +10,7 @@ from .views import (
     ProductListAPIView,
     ReferralEventListAPIView,
     SearchAPIView,
+    VerifyPriceAPIView,
     agent_event_stream_view,
     google_merchant_center_feed_view,
     shopify_products_view,
@@ -20,6 +21,9 @@ urlpatterns = [
     # Search
     path('v1/search/', SearchAPIView.as_view(), name='api-search'),
     path('search/', SearchAPIView.as_view(), name='api-search-alias'),
+
+    # Live price verification (TinyFish fetch tier)
+    path('v1/verify-price/', VerifyPriceAPIView.as_view(), name='api-verify-price'),
 
     # Products
     path('v1/products/', ProductListAPIView.as_view(), name='api-product-list'),
