@@ -19,7 +19,7 @@ services:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-shoppage_super_secure_django_secret_key_50chars}
       - ALLOWED_HOSTS=${DOMAIN:-shoppage.co.za},localhost,127.0.0.1
       - DATABASE_URI=postgres://${POSTGRES_USER:-shoppage}:${POSTGRES_PASSWORD:-shoppage_secure_pass}@postgres:5432/${POSTGRES_DB:-shoppage_db}
-      - REDIS_URL=redis://redis:6379
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-shoppage_redis_pass}@redis:6379/0
       - TYPESENSE_URL=http://typesense:8108
       - TYPESENSE_API_KEY=${TYPESENSE_API_KEY:-shoppage_typesense_secret_key}
       - XAI_API_KEY=${XAI_API_KEY:-}

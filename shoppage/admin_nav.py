@@ -52,7 +52,8 @@ ADMIN_NAV_SECTIONS: tuple[AdminNavSection, ...] = (
         label="Overview",
         icon="grid",
         items=(
-            AdminNavItem("admin", "index", "Dashboard", "layout-dashboard"),
+            # index URL is named 'admin:index'; auto-generated changelist name would 500 the palette
+            AdminNavItem("admin", "index", "Dashboard", "layout-dashboard", url_name="admin:index"),
         ),
     ),
     AdminNavSection(
@@ -80,7 +81,7 @@ ADMIN_NAV_SECTIONS: tuple[AdminNavSection, ...] = (
             AdminNavItem("catalog", "masterproduct", "Products", "package"),
             AdminNavItem("catalog", "category", "Categories", "folder-tree"),
             AdminNavItem("catalog", "categorypath", "Category Paths", "git-branch"),
-            AdminNavItem("catalog", "googlecategorymapping", "Google Taxonomy", "database"),
+            # Google taxonomy IS catalog.Category ("Google Taxonomy Category") — no separate model exists
         ),
     ),
     AdminNavSection(
