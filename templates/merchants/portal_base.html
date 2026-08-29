@@ -1,0 +1,195 @@
+{% load humanize static %}<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Merchant Centre{% endblock %} · Shoppage</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" type="image/svg+xml" href="{% static 'icons/favicon.svg' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/merchant_portal.css' %}">
+  <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  {% block mc_head %}{% endblock %}
+</head>
+<body class="mc-portal">
+  <div id="mc-csrf">{% csrf_token %}</div>
+
+  <header class="mc-topbar">
+    <button type="button" class="mc-menu-btn" id="mc-menu-btn" aria-label="Toggle navigation" aria-expanded="false">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <a class="mc-logo" href="/merchant/dashboard/">
+      <span class="mc-logo-badge" aria-hidden="true">⚡</span>
+      <span class="mc-logo-word">Merchant Centre<small>Shoppage OS v8.2</small></span>
+    </a>
+    {% if merchant %}
+    <span class="mc-store-chip" title="{{ merchant.name }}">
+      <span class="dot" aria-hidden="true"></span>{{ merchant.name }}
+    </span>
+    {% endif %}
+    <div class="mc-topbar-right">
+      {% if merchant %}
+      <a class="mc-topbar-link" href="/m/{{ merchant.canonical_id }}/" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        <span class="long">Storefront</span>
+      </a>
+      {% if merchant.whatsapp_number %}
+      <a class="mc-topbar-link mc-wa" href="https://wa.me/{{ merchant.whatsapp_number }}" target="_blank" rel="noopener">
+        <span aria-hidden="true">💬</span><span class="long">WhatsApp</span>
+      </a>
+      {% endif %}
+      {% endif %}
+      {% if request.user.is_authenticated %}
+      <a class="mc-user" href="/merchant/settings/" title="Account &amp; settings">
+        <span class="avatar" aria-hidden="true">{{ request.user.username|make_list|first|upper }}</span>{{ request.user.get_short_name|default:request.user.username }}
+      </a>
+      <form method="post" action="/admin/logout/" aria-label="Log out">
+        {% csrf_token %}
+        <button type="submit" class="mc-topbar-link">Log out</button>
+      </form>
+      {% endif %}
+    </div>
+  </header>
+
+  <div class="mc-nav-backdrop" id="mc-nav-backdrop"></div>
+
+  <nav class="mc-sidebar" id="mc-sidebar" aria-label="Merchant Centre sections">
+    <div class="mc-nav-section">
+      <div class="mc-nav-label">Overview</div>
+      <a class="mc-nav-item" href="/merchant/dashboard/#glance" data-nav="glance">
+        <span class="nav-ico" aria-hidden="true">🧭</span>At a Glance
+      </a>
+    </div>
+    <div class="mc-nav-section">
+      <div class="mc-nav-label">Sell</div>
+      <a class="mc-nav-item" href="/merchant/dashboard/#offers" data-nav="offers">
+        <span class="nav-ico" aria-hidden="true">🏷️</span>Live Offers
+      </a>
+      <a class="mc-nav-item" href="/merchant/campaigns/" data-page="/merchant/campaigns">
+        <span class="nav-ico" aria-hidden="true">📈</span>Campaigns
+      </a>
+      <a class="mc-nav-item" href="/merchant/dashboard/#feeds" data-nav="feeds">
+        <span class="nav-ico" aria-hidden="true">📤</span>Feeds &amp; Syndication
+      </a>
+    </div>
+    <div class="mc-nav-section">
+      <div class="mc-nav-label">Automate</div>
+      <a class="mc-nav-item" href="/merchant/dashboard/#agent" data-nav="agent">
+        <span class="nav-ico" aria-hidden="true">🤖</span>Agent Console
+      </a>
+      <a class="mc-nav-item" href="/merchant/dashboard/#drafts" data-nav="drafts">
+        <span class="nav-ico" aria-hidden="true">📝</span>Draft Review
+        {% if drafts %}<span class="mc-nav-count">{{ drafts|length }}</span>{% endif %}
+      </a>
+    </div>
+    <div class="mc-nav-section">
+      <div class="mc-nav-label">Grow</div>
+      <a class="mc-nav-item" href="/merchant/dashboard/#demands" data-nav="demands">
+        <span class="nav-ico" aria-hidden="true">📡</span>Demand Radar
+      </a>
+      <a class="mc-nav-item" href="/merchant/dashboard/#performance" data-nav="performance">
+        <span class="nav-ico" aria-hidden="true">📊</span>Performance
+      </a>
+    </div>
+    <div class="mc-nav-section">
+      <div class="mc-nav-label">Trust &amp; Quality</div>
+      <a class="mc-nav-item" href="/merchant/dashboard/#health" data-nav="health">
+        <span class="nav-ico" aria-hidden="true">🩺</span>Catalog Health
+        {% if catalog_health.failed %}<span class="mc-nav-count warn">{{ catalog_health.failed }}</span>{% endif %}
+      </a>
+      <a class="mc-nav-item" href="/merchant/dashboard/#trust" data-nav="trust">
+        <span class="nav-ico" aria-hidden="true">🛡️</span>Trust Passport
+      </a>
+    </div>
+    <div class="mc-nav-section">
+      <div class="mc-nav-label">Account</div>
+      <a class="mc-nav-item" href="/merchant/settings/" data-page="/merchant/settings">
+        <span class="nav-ico" aria-hidden="true">⚙️</span>Business Settings
+      </a>
+    </div>
+  </nav>
+
+  <main class="mc-main" id="mc-main">
+    {% block mc_body %}{% endblock %}
+  </main>
+
+  {% if messages %}
+  <div class="mc-toasts" aria-live="polite">
+    {% for message in messages %}
+    <div class="mc-toast {% if 'error' in message.tags %}error{% elif 'warning' in message.tags %}warning{% endif %}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <script>
+  (function () {
+    'use strict';
+    var DASH = /^\/merchant\/dashboard\/?$/;
+
+    function activeTab() {
+      var h = (location.hash || '').replace(/^#/, '');
+      return h || 'glance';
+    }
+
+    function sync() {
+      var onDash = DASH.test(location.pathname);
+      var tab = activeTab();
+
+      document.querySelectorAll('.mc-panel').forEach(function (p) {
+        var show = onDash && p.dataset.panel === tab;
+        p.hidden = !show;
+        if (show && window.__mcPanelInit) window.__mcPanelInit(tab);
+      });
+
+      document.querySelectorAll('.mc-nav-item').forEach(function (a) {
+        var active;
+        if (a.dataset.page) {
+          active = location.pathname.indexOf(a.dataset.page) !== -1;
+        } else {
+          active = onDash && a.dataset.nav === tab;
+        }
+        a.classList.toggle('is-active', !!active);
+      });
+    }
+
+    window.addEventListener('hashchange', function () { sync(); window.scrollTo(0, 0); });
+    document.addEventListener('DOMContentLoaded', sync);
+    window.__mcSync = sync;
+    sync();
+
+    var menuBtn = document.getElementById('mc-menu-btn');
+    var sidebar = document.getElementById('mc-sidebar');
+    var backdrop = document.getElementById('mc-nav-backdrop');
+
+    function closeMenu() {
+      sidebar.classList.remove('is-open');
+      backdrop.classList.remove('is-open');
+      menuBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    menuBtn.addEventListener('click', function () {
+      var open = sidebar.classList.toggle('is-open');
+      backdrop.classList.toggle('is-open', open);
+      menuBtn.setAttribute('aria-expanded', String(open));
+    });
+    backdrop.addEventListener('click', closeMenu);
+    sidebar.addEventListener('click', function (e) {
+      if (e.target.closest('.mc-nav-item')) closeMenu();
+    });
+
+    document.querySelectorAll('.mc-toast').forEach(function (t) {
+      setTimeout(function () {
+        t.style.transition = 'opacity .3s ease, transform .3s ease';
+        t.style.opacity = '0';
+        t.style.transform = 'translateY(-6px)';
+        setTimeout(function () { t.remove(); }, 350);
+      }, 4200);
+    });
+  })();
+  </script>
+  {% block mc_scripts %}{% endblock %}
+</body>
+</html>

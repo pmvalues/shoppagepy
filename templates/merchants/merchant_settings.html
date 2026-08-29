@@ -1,154 +1,96 @@
-{% extends 'base.html' %}
+{% extends 'merchants/portal_base.html' %}
+{% load humanize %}
 
-{% block title %}Settings &amp; Promotions — {{ merchant.name }} | Shoppage{% endblock %}
+{% block title %}Business Settings — {{ merchant.name }}{% endblock %}
 
-{% block content %}
-<div class="container" style="padding-top: 2rem; padding-bottom: 5rem;">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-    <div>
-      <h1 style="font-size: 1.6rem; font-weight: 800; color: #0F172A; margin: 0 0 0.25rem 0;">⚙️ Business Settings &amp; Promotions</h1>
-      <p style="color: #64748B; font-size: 0.875rem; margin: 0;">
-        Shipment &amp; tax you set here flow straight into your Google Merchant feed.
-      </p>
-    </div>
-    <a href="/merchant/dashboard/" class="btn btn-outline" style="font-size: 0.875rem;">← Back to Dashboard</a>
+{% block mc_body %}
+<div class="mc-page-head">
+  <div>
+    <p class="mc-eyebrow">Account</p>
+    <h1 class="mc-h1">Business Settings &amp; Promotions</h1>
+    <p class="mc-sub">Contact details, hours, shipping and tax flow straight into your Google Merchant feed and public storefront profile.</p>
   </div>
+  <a class="mc-btn" href="/m/{{ merchant.canonical_id }}/" target="_blank" rel="noopener">View public profile ↗</a>
+</div>
 
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: flex-start;">
-    <!-- Business info -->
-    <form method="post" action="/merchant/settings/?merchantId={{ merchant.canonical_id }}" class="card" style="background: #FFFFFF; padding: 1.5rem;">
-      {% csrf_token %}
-      <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.4rem; color: #0F172A;">Business Information</h3>
-      <p style="color: #334155; font-size: 0.85rem; margin-bottom: 1.25rem;">
-        Displayed on your storefront profile (<a href="/m/{{ merchant.canonical_id }}/" style="color: #2563EB;">/m/{{ merchant.canonical_id }}/</a>).
-      </p>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-        <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">Store name</label>
-          <input type="text" name="name" value="{{ merchant.name|default:'' }}" class="form-control" style="width: 100%;">
-        </div>
-        <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">Category</label>
-          <input type="text" name="category" value="{{ merchant.category|default:'' }}" class="form-control" style="width: 100%;">
-        </div>
-        <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">WhatsApp</label>
-          <input type="text" name="whatsapp_number" value="{{ merchant.whatsapp_number|default:'' }}" class="form-control" style="width: 100%;">
-        </div>
-        <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">Telephone</label>
-          <input type="text" name="telephone" value="{{ merchant.telephone|default:'' }}" class="form-control" style="width: 100%;">
-        </div>
-        <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">Email</label>
-          <input type="email" name="email" value="{{ merchant.email|default:'' }}" class="form-control" style="width: 100%;">
-        </div>
-        <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">Website</label>
-          <input type="url" name="website_url" value="{{ merchant.website_url|default:'' }}" class="form-control" style="width: 100%;">
-        </div>
-        <div style="grid-column: 1 / -1;">
-          <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">Street address</label>
-          <input type="text" name="address_text" value="{{ merchant.address_text|default:'' }}" class="form-control" style="width: 100%;">
-        </div>
-        <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">Province</label>
-          <input type="text" name="province" value="{{ merchant.province|default:'' }}" class="form-control" style="width: 100%;">
-        </div>
-        <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">City / Locality</label>
-          <input type="text" name="locality" value="{{ merchant.locality|default:'' }}" class="form-control" style="width: 100%;">
-        </div>
-        <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">Postal code</label>
-          <input type="text" name="postal_code" value="{{ merchant.postal_code|default:'' }}" class="form-control" style="width: 100%;">
-        </div>
-        <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">Stall / Shop</label>
-          <input type="text" name="stall_identifier" value="{{ merchant.stall_identifier|default:'' }}" class="form-control" style="width: 100%;">
-        </div>
-        <div style="grid-column: 1 / -1;">
-          <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">Storefront photo URL</label>
-          <input type="url" name="storefront_photo_url" value="{{ merchant.storefront_photo_url|default:'' }}" class="form-control" style="width: 100%;">
-        </div>
-        <div style="grid-column: 1 / -1;">
-          <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">Operating hours (text)</label>
-          <input type="text" name="operating_hours" value="{{ merchant.operating_hours|default:'' }}" class="form-control" style="width: 100%;" placeholder="e.g. Mon-Sun: 08:30-18:00">
-        </div>
-        <div style="grid-column: 1 / -1;">
-          <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">Structured hours (JSON — powers Open Now)</label>
-          <textarea name="opening_hours_json" rows="4" class="form-control" style="width: 100%; font-family: monospace; font-size: 0.8rem;">{{ merchant.opening_hours|default:""|escape }}</textarea>
-          <div style="font-size: 0.72rem; color: #94A3B8; margin-top: 0.25rem;">{"mon": {"open": "08:30", "close": "17:30"}, "tue": {...}, ...}</div>
-        </div>
+<form method="post" action="/merchant/settings/?merchantId={{ merchant.canonical_id }}" class="mc-card" style="margin-bottom:1rem;">
+  {% csrf_token %}
+  <h2 class="mc-h2">Business information</h2>
+  <p class="mc-sub" style="margin:0 0 1.1rem;">Displayed on your storefront profile <a href="/m/{{ merchant.canonical_id }}/" target="_blank" rel="noopener" style="color:var(--mc-accent-hover);">/m/{{ merchant.canonical_id }}/</a>.</p>
+  <div class="mc-grid-3">
+    <div class="mc-field"><label for="ms-name">Store name</label><input id="ms-name" class="mc-input" type="text" name="name" value="{{ merchant.name|default:'' }}"></div>
+    <div class="mc-field"><label for="ms-category">Category</label><input id="ms-category" class="mc-input" type="text" name="category" value="{{ merchant.category|default:'' }}"></div>
+    <div class="mc-field"><label for="ms-stall">Stall / shop</label><input id="ms-stall" class="mc-input" type="text" name="stall_identifier" value="{{ merchant.stall_identifier|default:'' }}"></div>
+    <div class="mc-field"><label for="ms-whatsapp">WhatsApp</label><input id="ms-whatsapp" class="mc-input" type="text" name="whatsapp_number" value="{{ merchant.whatsapp_number|default:'' }}"></div>
+    <div class="mc-field"><label for="ms-phone">Telephone</label><input id="ms-phone" class="mc-input" type="text" name="telephone" value="{{ merchant.telephone|default:'' }}"></div>
+    <div class="mc-field"><label for="ms-email">Email</label><input id="ms-email" class="mc-input" type="email" name="email" value="{{ merchant.email|default:'' }}"></div>
+    <div class="mc-field"><label for="ms-web">Website</label><input id="ms-web" class="mc-input" type="url" name="website_url" value="{{ merchant.website_url|default:'' }}" placeholder="https://…"></div>
+    <div class="mc-field"><label for="ms-photo">Storefront photo URL</label><input id="ms-photo" class="mc-input" type="url" name="storefront_photo_url" value="{{ merchant.storefront_photo_url|default:'' }}" placeholder="https://…"></div>
+    <div class="mc-field"><label for="ms-address">Street address</label><input id="ms-address" class="mc-input" type="text" name="address_text" value="{{ merchant.address_text|default:'' }}"></div>
+    <div class="mc-field"><label for="ms-province">Province</label><input id="ms-province" class="mc-input" type="text" name="province" value="{{ merchant.province|default:'' }}"></div>
+    <div class="mc-field"><label for="ms-locality">City / locality</label><input id="ms-locality" class="mc-input" type="text" name="locality" value="{{ merchant.locality|default:'' }}"></div>
+    <div class="mc-field"><label for="ms-postal">Postal code</label><input id="ms-postal" class="mc-input" type="text" name="postal_code" value="{{ merchant.postal_code|default:'' }}"></div>
+    <div class="mc-field mc-span-full"><label for="ms-hours">Operating hours (display text)</label><input id="ms-hours" class="mc-input" type="text" name="operating_hours" value="{{ merchant.operating_hours|default:'' }}" placeholder="e.g. Mon-Sun: 08:30-18:00"></div>
+    <div class="mc-field mc-span-full">
+      <label for="ms-ohjson">Structured hours (JSON — powers “Open Now”)</label>
+      <textarea id="ms-ohjson" class="mc-textarea" name="opening_hours_json" rows="3">{{ merchant.opening_hours|default:""|escape }}</textarea>
+      <span class="hint">{"mon": {"open": "08:30", "close": "17:30"}, "tue": {...}, …}</span>
+    </div>
+  </div>
+  <button type="submit" class="mc-btn mc-btn-primary" style="margin-top:1.1rem;">💾 Save business settings</button>
+</form>
+
+<div class="mc-bento">
+  <form method="post" action="/merchant/settings/?merchantId={{ merchant.canonical_id }}" class="mc-card mc-span-5">
+    {% csrf_token %}
+    <h2 class="mc-h2">Feed shipping &amp; tax</h2>
+    <p class="mc-sub" style="margin:0 0 1.1rem;">Emitted as <code style="font-family:var(--mc-font-mono);font-size:.8em;">g:shipping</code> / <code style="font-family:var(--mc-font-mono);font-size:.8em;">g:tax</code> in your Google Merchant feed.</p>
+    <div class="mc-grid-2">
+      <div class="mc-field"><label for="ms-ship-service">Shipping service</label><input id="ms-ship-service" class="mc-input" type="text" name="shipping_service" value="{{ merchant.shipping_service|default:'' }}" placeholder="Standard Courier"></div>
+      <div class="mc-field"><label for="ms-ship-price">Shipping price (R)</label><input id="ms-ship-price" class="mc-input" type="number" step="0.01" min="0" name="shipping_price" value="{{ merchant.shipping_price|default:'' }}" placeholder="e.g. 99.00"></div>
+      <div class="mc-field"><label for="ms-tax">Tax rate (%)</label><input id="ms-tax" class="mc-input" type="number" step="0.01" min="0" max="100" name="tax_rate" value="{{ merchant.tax_rate|default:'' }}" placeholder="e.g. 15.00"></div>
+    </div>
+    <button type="submit" class="mc-btn" style="margin-top:1.1rem;">Save shipping &amp; tax</button>
+  </form>
+
+  <div class="mc-card mc-span-7" id="promotions">
+    <h2 class="mc-h2">🔥 Promotions</h2>
+    <p class="mc-sub" style="margin:0 0 1rem;">Live promotions emit <code style="font-family:var(--mc-font-mono);font-size:.8em;">g:promotion_id</code> in your feed and badge the product page.</p>
+    {% if promos %}
+    <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.2rem;">
+      {% for promo in promos %}
+      <div class="mc-kv">
+        <dt>
+          <span style="font-weight:700;color:var(--mc-text-1);">{{ promo.title }}</span><br>
+          <span style="font-size:.72rem;color:var(--mc-text-3);">{{ promo.variant.title|truncatechars:44 }} · until {{ promo.valid_until|date:"d M Y"|default:"further notice" }}</span>
+        </dt>
+        <dd><span class="mc-badge {% if promo.state == 'active' %}mc-badge-green{% else %}mc-badge-gray{% endif %}">{{ promo.discount_label }} · {{ promo.get_state_display }}</span></dd>
       </div>
-      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; font-size: 0.9rem; font-weight: 700;">💾 Save Business &amp; Feed Settings</button>
-    </form>
-
-    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-      <!-- Shipping & tax -->
-      <form method="post" action="/merchant/settings/?merchantId={{ merchant.canonical_id }}" class="card" style="background: #FFFFFF; padding: 1.5rem;">
-        {% csrf_token %}
-        <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.4rem; color: #0F172A;">Feed Shipping &amp; Tax (Merchant Center)</h3>
-        <p style="color: #334155; font-size: 0.85rem; margin-bottom: 1.25rem;">
-          Emitted as <code>g:shipping</code> / <code>g:tax</code> in your Google Merchant feed.
-        </p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-          <div>
-            <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">Shipping service</label>
-            <input type="text" name="shipping_service" value="{{ merchant.shipping_service|default:'' }}" class="form-control" style="width: 100%;" placeholder="Standard Courier">
-          </div>
-          <div>
-            <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">Shipping price (R)</label>
-            <input type="number" step="0.01" min="0" name="shipping_price" value="{{ merchant.shipping_price|default:'' }}" class="form-control" style="width: 100%;" placeholder="e.g. 99.00">
-          </div>
-          <div>
-            <label style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">Tax rate (%)</label>
-            <input type="number" step="0.01" min="0" max="100" name="tax_rate" value="{{ merchant.tax_rate|default:'' }}" class="form-control" style="width: 100%;" placeholder="e.g. 15.00">
-          </div>
-        </div>
-        <button type="submit" class="btn btn-outline" style="width: 100%; margin-top: 1rem; font-size: 0.875rem; font-weight: 700;">Save shipping &amp; tax</button>
-      </form>
-
-      <!-- Promotions -->
-      <div class="card" style="background: #FFFFFF; padding: 1.5rem;">
-        <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.4rem; color: #0F172A;">🔥 Promotions</h3>
-        <p style="color: #334155; font-size: 0.85rem; margin-bottom: 1.25rem;">
-          Live promotions emit <code>g:promotion_id</code> in your feed and badge the product page.
-        </p>
-        {% if promos %}
-        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem;">
-          {% for promo in promos %}
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 8px; gap: 0.75rem; flex-wrap: wrap;">
-            <div>
-              <div style="font-weight: 800; font-size: 0.875rem; color: #0F172A;">{{ promo.title }}</div>
-              <div style="font-size: 0.775rem; color: #64748B;">
-                {{ promo.variant.title|truncatechars:48 }} · until {{ promo.valid_until|date:"d M Y"|default:"further notice" }}
-              </div>
-            </div>
-            <span class="badge {% if promo.state == 'active' %}badge-green{% else %}badge-gray{% endif %}" style="font-size: 0.75rem;">{{ promo.discount_label }} · {{ promo.get_state_display }}</span>
-          </div>
-          {% endfor %}
-        </div>
-        {% endif %}
-        <form method="post" action="/merchant/promotion/create/" style="display: flex; flex-direction: column; gap: 0.5rem;">
-          {% csrf_token %}
-          <input type="hidden" name="merchantId" value="{{ merchant.canonical_id }}">
-          <select name="product_id" class="form-control" required style="width: 100%;">
+      {% endfor %}
+    </div>
+    {% endif %}
+    <form method="post" action="/merchant/promotion/create/" style="display:flex;flex-direction:column;gap:.6rem;">
+      {% csrf_token %}
+      <input type="hidden" name="merchantId" value="{{ merchant.canonical_id }}">
+      <div class="mc-grid-2">
+        <div class="mc-field">
+          <label for="promo-product">Product</label>
+          <select id="promo-product" class="mc-select" name="product_id" required>
             <option value="">— Select your product —</option>
             {% for o in offer_products %}
-            <option value="{{ o.variant_id }}">{{ o.variant.title|truncatechars:60 }} · R {{ o.price_amount|floatformat:0 }}</option>
+            <option value="{{ o.variant_id }}">{{ o.variant.title|truncatechars:56 }} · R {{ o.price_amount|floatformat:0 }}</option>
             {% endfor %}
           </select>
-          <input type="text" name="title" placeholder="Promo title (e.g. Winter Load-Shedding Special)" class="form-control" style="width: 100%;">
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
-            <input type="number" step="0.01" min="0" max="100" name="percent_off" placeholder="% off" class="form-control">
-            <input type="number" step="0.01" min="0" name="price_off" placeholder="R off" class="form-control">
-            <input type="number" min="1" max="365" name="valid_days" value="14" class="form-control" placeholder="Days">
-          </div>
-          <button type="submit" class="btn btn-whatsapp" style="width: 100%; font-size: 0.875rem; font-weight: 700;">🔥 Launch Promotion</button>
-        </form>
+        </div>
+        <div class="mc-field"><label for="promo-title">Promo title</label><input id="promo-title" class="mc-input" type="text" name="title" placeholder="e.g. Winter Load-Shedding Special"></div>
       </div>
-    </div>
+      <div class="mc-grid-3">
+        <div class="mc-field"><label for="promo-pct">Percent off</label><input id="promo-pct" class="mc-input" type="number" step="0.01" min="0" max="100" name="percent_off" placeholder="% off"></div>
+        <div class="mc-field"><label for="promo-off">Price off (R)</label><input id="promo-off" class="mc-input" type="number" step="0.01" min="0" name="price_off" placeholder="R off"></div>
+        <div class="mc-field"><label for="promo-days">Valid (days)</label><input id="promo-days" class="mc-input" type="number" min="1" max="365" name="valid_days" value="14"></div>
+      </div>
+      <button type="submit" class="mc-btn mc-btn-primary">🔥 Launch promotion</button>
+    </form>
   </div>
 </div>
 {% endblock %}

@@ -288,7 +288,8 @@ def merchant_dashboard_view(request):
         )
         clicks_by_product = {r['product_id']: r['n'] for r in click_rows}
         query_rows = list(
-            SearchClick.objects.filter(query__ne='', product_id__in=catalog_pk_strings, created_at__gte=since30)
+            SearchClick.objects.filter(product_id__in=catalog_pk_strings, created_at__gte=since30)
+            .exclude(query='')
             .values('query').annotate(n=Count('id')).order_by('-n')[:8]
             .values_list('query', 'n')
         )
