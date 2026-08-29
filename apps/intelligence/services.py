@@ -916,6 +916,7 @@ def get_tiered_moq_pricing(unit_price: float) -> list[dict[str, Any]]:
     ]
 
 def generate_trust_seal_svg(merchant: Merchant) -> str:
+    from xml.sax.saxutils import escape as xml_escape
     score = merchant.trust_score
     status = merchant.get_verification_state_display()
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="280" height="70" viewBox="0 0 280 70" fill="none">
@@ -924,6 +925,6 @@ def generate_trust_seal_svg(merchant: Merchant) -> str:
   <path d="M35 22L42 27V36C42 41 39 45 35 47C31 45 28 41 28 36V27L35 22Z" fill="#10B981" stroke="#34D399" stroke-width="1.5"/>
   <path d="M32 35L34.5 37.5L38.5 32.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
   <text x="65" y="28" fill="#F8FAFC" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="bold">SHOPPAGE TRUST VERIFIED</text>
-  <text x="65" y="44" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10">{merchant.name[:24]}</text>
-  <text x="65" y="58" fill="#34D399" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" font-weight="bold">✓ Trust Score: {score}/100 · {status}</text>
+  <text x="65" y="44" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10">{xml_escape(merchant.name[:24])}</text>
+  <text x="65" y="58" fill="#34D399" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" font-weight="bold">✓ Trust Score: {score}/100 · {xml_escape(status)}</text>
 </svg>"""

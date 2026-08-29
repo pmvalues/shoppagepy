@@ -1,73 +1,69 @@
 {% extends 'base.html' %}
-{% load humanize core_tags %}
+{% load static humanize core_tags %}
 
 {% block title %}Verified South African Merchant Network — Shoppage{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/merchant_public.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
-  <div style="margin-bottom: 2rem;">
-    <span class="badge badge-purple" style="margin-bottom: 0.5rem;">🏪 3,100,000+ Nationwide Storefronts</span>
-    <h1 style="font-size: 2.25rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">
-      Verified Physical Merchants &amp; Distributors
-    </h1>
-    <p style="color: var(--text-secondary); font-size: 1rem; max-width: 700px;">
+<div class="container mp-page">
+
+  <header class="mp-page-head">
+    <span class="badge badge-purple mp-eyebrow">🏪 3,100,000+ Nationwide Storefronts</span>
+    <h1 class="mp-page-title">Verified Physical Merchants &amp; Distributors</h1>
+    <p class="mp-page-sub">
       Direct WhatsApp access to vetted South African shopkeepers, importers, and hardware distributors.
     </p>
-  </div>
+  </header>
 
-  <div style="display: flex; flex-direction: column; gap: 1rem;">
+  <div class="mp-list">
     {% for m in merchants %}
-    <div class="card card-hover" style="display: grid; grid-template-columns: 120px 1fr 220px; gap: 1.5rem; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; align-items: center;">
-      
-      <!-- Column 1: Storefront Vector / Brand Icon -->
-      <a href="/m/{{ m.canonical_id }}" style="height: 110px; width: 120px; background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; overflow: hidden;">
+    <article class="mp-row card-hover">
+
+      <!-- Storefront vector / brand icon -->
+      <a class="mp-row-thumb" href="/m/{{ m.canonical_id }}" aria-label="View {{ m.name }}">
         {{ m|merchant_svg:"small" }}
       </a>
 
-      <!-- Column 2: Rich Metadata & Row Information -->
-      <div>
-        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.35rem; flex-wrap: wrap;">
+      <!-- Rich metadata -->
+      <div class="mp-row-body">
+        <div class="mp-meta-row">
           <span class="badge badge-purple">{{ m.category|default:"Commercial Supplier" }}</span>
           <span class="badge badge-green">✓ Trust Score: {{ m.trust_score }}/100</span>
           <span class="badge badge-blue">🇿🇦 Verified Business</span>
         </div>
 
-        <h3 style="font-size: 1.15rem; font-weight: 700; color: #1A0DAB; margin: 0 0 0.35rem 0; line-height: 1.35;">
-          <a href="/m/{{ m.canonical_id }}" style="color: #1A0DAB; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
-            {{ m.name }}
-          </a>
+        <h3 class="mp-row-title">
+          <a href="/m/{{ m.canonical_id }}">{{ m.name }}</a>
         </h3>
 
-        <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.8rem; color: #4B5563; margin-bottom: 0.4rem; flex-wrap: wrap;">
-          <span style="color: #D97706; font-weight: 700;">★ {{ m.google_rating|default:"4.8" }} <span style="color: #6B7280; font-weight: normal;">({{ m.google_reviews_count|default:42 }}+ Google reviews)</span></span>
-          <span>•</span>
-          {% if m.measured_response_minutes %}<span style="color: #059669; font-weight: 600;">⚡ Responds in ~{{ m.measured_response_minutes }} mins on WhatsApp</span>{% endif %}
+        <div class="mp-meta-sub">
+          <span class="mp-rating">★ {{ m.google_rating|default:"4.8" }} <span class="mp-rating-count">({{ m.google_reviews_count|default:42 }}+ Google reviews)</span></span>
+          <span aria-hidden="true">•</span>
+          {% if m.measured_response_minutes %}<span class="mp-response">⚡ Responds in ~{{ m.measured_response_minutes }} mins on WhatsApp</span>{% endif %}
         </div>
 
-        <p style="color: #64748B; font-size: 0.825rem; margin: 0;">
+        <p class="mp-row-sub">
           📍 {{ m.address_text|default:"Major Commercial Corridor, South Africa" }}
           {% if m.stall_identifier %}· Stall: <strong>{{ m.stall_identifier }}</strong>{% endif %}
         </p>
       </div>
 
-      <!-- Column 3: Instant Action Buttons -->
-      <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: flex-end; text-align: right; border-left: 1px solid #F1F5F9; padding-left: 1.25rem; flex-wrap: wrap;">
-        <a href="/m/{{ m.canonical_id }}" class="btn btn-outline" style="font-size: 0.825rem; padding: 0.45rem 0.85rem; text-align: center; border-radius: 8px;">
-          View Store
-        </a>
+      <!-- Instant actions -->
+      <div class="mp-row-actions">
+        <a href="/m/{{ m.canonical_id }}" class="btn btn-outline mp-btn-sm">View Store</a>
         {% if m.whatsapp_number %}
-        <a href="/l/m_{{ m.canonical_id }}" class="btn btn-whatsapp" style="font-size: 0.825rem; padding: 0.45rem 0.95rem; text-align: center; border-radius: 8px; font-weight: 700;">
-          💬 WhatsApp
-        </a>
+        <a href="/l/m_{{ m.canonical_id }}" class="btn btn-whatsapp mp-btn-sm mp-btn-sm--wa">💬 WhatsApp</a>
         {% endif %}
       </div>
 
-    </div>
+    </article>
     {% empty %}
-    <div class="card" style="text-align: center; padding: 3rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px;">
-      <p style="color: #64748B;">No merchants found matching your query.</p>
-    </div>
+    <div class="mp-empty">No merchants found matching your query.</div>
     {% endfor %}
   </div>
+
 </div>
 {% endblock %}

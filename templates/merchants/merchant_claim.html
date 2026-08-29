@@ -1,88 +1,81 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Claim Store &amp; Connect WhatsApp — Shoppage Merchant Grid{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/merchant_public.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container" style="padding-top: 3rem; padding-bottom: 5rem; max-width: 680px;">
-  <div style="text-align: center; margin-bottom: 2.25rem;">
-    <div style="display: inline-flex; align-items: center; gap: 0.4rem; background: var(--emerald-50); border: 1px solid var(--emerald-100); padding: 0.35rem 0.85rem; border-radius: var(--radius-full); margin-bottom: 0.75rem;">
+<div class="container mp-claim-wrap">
+
+  <header class="mp-claim-head">
+    <div class="mp-claim-pulse">
       <span class="pulse-dot"></span>
-      <span style="font-size: 0.75rem; color: var(--emerald-700); font-weight: 700;">
-        0% Commission · Direct Buyer WhatsApp Inquiries
-      </span>
+      <span>0% Commission · Direct Buyer WhatsApp Inquiries</span>
     </div>
 
-    <h1 style="font-size: 2.25rem; font-weight: 900; color: #0F172A; margin-bottom: 0.5rem; letter-spacing: -0.025em;">
-      Claim Your Store &amp; Go Live
-    </h1>
-    <p style="color: var(--slate-600); font-size: 0.95rem; line-height: 1.5;">
+    <h1 class="mp-claim-title">Claim Your Store &amp; Go Live</h1>
+    <p class="mp-claim-sub">
       Link your physical stall, verify your location, and start receiving direct WhatsApp inquiries with zero middleman fees.
     </p>
-  </div>
+  </header>
 
-  <div class="card" style="background: #FFFFFF; padding: 2.25rem; border-radius: var(--radius-xl); border: 1px solid #CBD5E1;">
+  <div class="mp-claim-card">
     {% if product %}
-    <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
-      <span style="font-size: 1.5rem;">📦</span>
+    <div class="mp-product-banner">
+      <span class="mp-product-banner-icon">📦</span>
       <div>
-        <div style="font-size: 0.75rem; color: #1D4ED8; font-weight: 700;">Listing Offer For Master Product:</div>
-        <div style="font-weight: 800; font-size: 1.05rem; color: #0F172A;">{{ product.brand }}: {{ product.title }}</div>
+        <div class="mp-product-banner-label">Listing Offer For Master Product:</div>
+        <div class="mp-product-banner-name">{{ product.brand }}: {{ product.title }}</div>
       </div>
     </div>
     {% endif %}
 
     <form method="POST">
       {% csrf_token %}
-      
-      <div style="margin-bottom: 1.25rem;">
-        <label style="font-size: 0.8rem; font-weight: 700; color: var(--slate-700); display: block; margin-bottom: 0.35rem;">
-          Business / Shop Trading Name *
-        </label>
+
+      <div class="mp-field">
+        <label class="mp-label" for="claim-name">Business / Shop Trading Name *</label>
         <input
           type="text"
+          id="claim-name"
           name="name"
           required
-          class="search-input"
+          class="mp-input"
           placeholder="e.g. SolarBros Sandton or SunPower Crown Mines"
         />
       </div>
 
-      <div class="grid grid-cols-2" style="gap: 1rem; margin-bottom: 1.25rem;">
+      <div class="mp-field-row">
         <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: var(--slate-700); display: block; margin-bottom: 0.35rem;">
-            WhatsApp Number (Direct Inquiries) *
-          </label>
+          <label class="mp-label" for="claim-whatsapp">WhatsApp Number (Direct Inquiries) *</label>
           <input
             type="tel"
+            id="claim-whatsapp"
             name="whatsapp"
             required
-            class="search-input"
+            class="mp-input"
             placeholder="e.g. 071 234 5678"
           />
         </div>
 
         <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: var(--slate-700); display: block; margin-bottom: 0.35rem;">
-            Business Email
-          </label>
+          <label class="mp-label" for="claim-email">Business Email</label>
           <input
             type="email"
+            id="claim-email"
             name="email"
-            class="search-input"
+            class="mp-input"
             placeholder="sales@yourstore.co.za"
           />
         </div>
       </div>
 
-      <div style="margin-bottom: 1.25rem;">
-        <label style="font-size: 0.8rem; font-weight: 700; color: var(--slate-700); display: block; margin-bottom: 0.35rem;">
-          Shopping Centre / Mall / Wholesale Market
-        </label>
-        <select
-          name="market_id"
-          class="search-input"
-          style="background: #FFFFFF;"
-        >
+      <div class="mp-field">
+        <label class="mp-label" for="claim-market">Shopping Centre / Mall / Wholesale Market</label>
+        <select id="claim-market" name="market_id" class="mp-input">
           <option value="">-- Select Mall or Standalone Shop --</option>
           {% for m in markets %}
           <option value="{{ m.id }}">{{ m.name }} ({{ m.province }})</option>
@@ -90,45 +83,44 @@
         </select>
       </div>
 
-      <div class="grid grid-cols-2" style="gap: 1rem; margin-bottom: 1.5rem;">
+      <div class="mp-field-row">
         <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: var(--slate-700); display: block; margin-bottom: 0.35rem;">
-            Stall / Unit Identifier
-          </label>
+          <label class="mp-label" for="claim-stall">Stall / Unit Identifier</label>
           <input
             type="text"
+            id="claim-stall"
             name="stall"
-            class="search-input"
+            class="mp-input"
             placeholder='e.g. "Shop B-18, Building 2"'
           />
         </div>
 
         {% if product %}
         <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: var(--slate-700); display: block; margin-bottom: 0.35rem;">
-            Your Selling Price (ZAR)
-          </label>
+          <label class="mp-label" for="claim-price">Your Selling Price (ZAR)</label>
           <input
             type="number"
+            id="claim-price"
             step="0.01"
             name="price"
-            class="search-input"
+            class="mp-input"
             placeholder="e.g. 15499"
           />
         </div>
         {% endif %}
       </div>
 
-      <div style="margin-top: 2rem;">
-        <button type="submit" class="btn btn-whatsapp" style="width: 100%; font-size: 1rem; padding: 0.85rem;">
+      <div class="mp-claim-actions">
+        <button type="submit" class="btn btn-whatsapp mp-claim-submit">
           🚀 Publish Store &amp; Activate WhatsApp Referrals
         </button>
       </div>
 
-      <p style="text-align: center; color: var(--slate-500); font-size: 0.75rem; margin-top: 1rem;">
+      <p class="mp-fineprint">
         🔒 By claiming, you confirm you are an authorized representative of this commercial business in South Africa.
       </p>
     </form>
   </div>
+
 </div>
 {% endblock %}
