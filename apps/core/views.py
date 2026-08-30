@@ -574,6 +574,7 @@ def search_live_view(request):
                 price = 0.0
 
             products_list.append({
+                'master': p,
                 'product': p,
                 'best_offer': offer,
                 'merchant': merch,
@@ -582,6 +583,7 @@ def search_live_view(request):
                 'canonical_id': p.canonical_id,
                 'category_ref': p.category_ref,
                 'price': price,
+                'merchant_count': p.offers.count() if hasattr(p, 'offers') else 1,
                 'has_verified_offer': bool(offer),
                 'trust_score': merch.trust_score if merch else 98,
                 'merchant_name': merch.name if merch else 'Shoppage Verified',
@@ -618,6 +620,8 @@ def search_live_view(request):
             'malls': malls_list,
             'shorts': shorts_list,
             'knowledge_card': card,
+            'facets': res.get('facets', {}),
+            'total': len(products_list) + len(merchants_list),
             'total_matches': len(products_list) + len(merchants_list) + len(malls_list),
         }
         cache.set(key, ctx, 60)
