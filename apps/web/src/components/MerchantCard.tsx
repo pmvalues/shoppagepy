@@ -2,8 +2,6 @@ import Link from 'next/link';
 import type { Merchant } from '@shoppage/contracts';
 
 export default function MerchantCard({ merchant }: { merchant: Merchant }) {
-  const wa = merchant.contacts?.whatsapp;
-
   return (
     <div
       className="card card-interactive"
@@ -39,23 +37,46 @@ export default function MerchantCard({ merchant }: { merchant: Merchant }) {
 
         <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
           <span className="badge badge-green" style={{ fontSize: '0.65rem' }}>✓ CIPC Verified</span>
-          <span className="badge badge-blue" style={{ fontSize: '0.65rem' }}>⚡ ~10m Reply</span>
+          <span className="badge badge-blue" style={{ fontSize: '0.65rem' }}>⚡ Direct Inquiries</span>
         </div>
       </div>
 
       <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-subtle)' }}>
-        <Link href={`/m/${merchant.id}`} className="btn btn-outline btn-sm" style={{ flex: 1 }}>
-          View Catalog
+        <Link href={`/m/${merchant.id}`} className="btn btn-outline btn-sm" style={{ flex: 1, justifyContent: 'center' }}>
+          View Store
         </Link>
-        {wa && (
+        {merchant.contacts?.telephone ? (
           <a
-            href={`https://wa.me/${wa.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${merchant.name}, I found your shop on Shoppage. Do you have stock available?`)}`}
+            href={`tel:${merchant.contacts.telephone.replace(/[^0-9+]/g, '')}`}
+            className="btn btn-primary btn-sm"
+            title="Call Store Directly"
+          >
+            📞 Call
+          </a>
+        ) : merchant.contacts?.website ? (
+          <a
+            href={merchant.contacts.website}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn btn-whatsapp btn-sm"
+            className="btn btn-primary btn-sm"
+            title="Visit Merchant Website"
           >
-            💬 WhatsApp
+            🌐 Web
           </a>
+        ) : merchant.contacts?.whatsapp ? (
+          <a
+            href={`https://wa.me/${merchant.contacts.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${merchant.name}, I found your shop on Shoppage. Do you have stock available?`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-primary btn-sm"
+            title="Message Merchant"
+          >
+            💬 Contact
+          </a>
+        ) : (
+          <Link href={`/m/${merchant.id}`} className="btn btn-primary btn-sm">
+            Contact
+          </Link>
         )}
       </div>
     </div>

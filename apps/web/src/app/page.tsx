@@ -77,7 +77,7 @@ export default function HomePage() {
             lineHeight: 1.6
           }}>
             South Africa&apos;s National Commerce Intelligence Grid.<br />
-            Connect directly with verified local store counters on WhatsApp with zero transaction fees.
+            Connect directly with verified local stores (Phone, Web, In-Store, Messaging) with zero transaction fees.
           </p>
 
           <LiveSearch />

@@ -102,7 +102,7 @@ export default function SearchPage({
             🏪 Verified Physical Suppliers Stocking In This Category
           </h3>
           <p style={{ color: 'var(--slate-600)', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
-            Direct WhatsApp counter contact with zero middleman markups.
+            Direct store contact (Phone, Web, In-Store) with zero middleman markups.
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
@@ -111,16 +111,27 @@ export default function SearchPage({
                 <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--slate-900)' }}>{merchant.name}</div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--slate-500)', margin: '0.2rem 0 0.75rem 0' }}>📍 {merchant.addressText}</div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <Link href={`/m/${merchant.id}`} className="btn btn-outline btn-sm" style={{ flex: 1 }}>View Store</Link>
-                  {merchant.contacts?.whatsapp && (
+                  <Link href={`/m/${merchant.id}`} className="btn btn-outline btn-sm" style={{ flex: 1, justifyContent: 'center' }}>View Store</Link>
+                  {merchant.contacts?.telephone ? (
                     <a
-                      href={`https://wa.me/${merchant.contacts.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${merchant.name}, I am looking for a quote on products found on Shoppage.`)}`}
-                      className="btn btn-whatsapp btn-sm"
+                      href={`tel:${merchant.contacts.telephone}`}
+                      className="btn btn-primary btn-sm"
+                    >
+                      📞 Call
+                    </a>
+                  ) : merchant.contacts?.website ? (
+                    <a
+                      href={merchant.contacts.website}
                       target="_blank"
                       rel="noopener noreferrer"
+                      className="btn btn-dark btn-sm"
                     >
-                      💬 WhatsApp
+                      🌐 Web
                     </a>
+                  ) : (
+                    <Link href={`/m/${merchant.id}`} className="btn btn-primary btn-sm">
+                      Contact
+                    </Link>
                   )}
                 </div>
               </div>
@@ -137,10 +148,10 @@ export default function SearchPage({
             Broadcast your exact specifications to 3.1M verified suppliers
           </h3>
           <p style={{ color: '#94A3B8', fontSize: '0.875rem', margin: 0 }}>
-            Post a free sourcing RFQ and receive quotes directly on WhatsApp.
+            Post a free sourcing RFQ and receive direct quotes with 0% commission.
           </p>
         </div>
-        <Link href="/requests" className="btn btn-whatsapp" style={{ fontWeight: 800, padding: '0.75rem 1.5rem' }}>
+        <Link href="/requests" className="btn btn-primary" style={{ fontWeight: 800, padding: '0.75rem 1.5rem' }}>
           📋 Post Free Buyer RFQ
         </Link>
       </div>

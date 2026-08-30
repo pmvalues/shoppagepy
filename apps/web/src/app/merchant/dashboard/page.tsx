@@ -112,13 +112,9 @@ export default function MerchantDashboardPage() {
               </option>
             ))}
           </select>
-
-          <Link href={`/m/${merchant.id}`} className="btn btn-outline btn-sm" target="_blank">
+          <Link href={`/m/${merchant.id}`} className="btn btn-primary btn-sm" target="_blank">
             👁️ View Public Store &nearr;
           </Link>
-          <a href={`https://wa.me/${merchant.contacts?.whatsapp || '27820000000'}`} target="_blank" rel="noopener noreferrer" className="btn btn-whatsapp btn-sm">
-            💬 Test WhatsApp Inbound
-          </a>
         </div>
       </div>
 
@@ -138,46 +134,44 @@ export default function MerchantDashboardPage() {
             style={{
               padding: '0.65rem 1.15rem',
               border: 'none',
-              background: activeTab === tab.id ? '#1E293B' : 'transparent',
-              color: activeTab === tab.id ? '#FFFFFF' : 'var(--slate-600)',
-              fontWeight: 700,
-              fontSize: '0.875rem',
-              borderRadius: '8px',
+              borderRadius: '8px 8px 0 0',
+              fontWeight: 800,
+              fontSize: '0.85rem',
               cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.4rem',
+              background: activeTab === tab.id ? '#0F172A' : 'transparent',
+              color: activeTab === tab.id ? '#FFFFFF' : 'var(--slate-600)',
               transition: 'all 0.15s ease',
+              whiteSpace: 'nowrap',
             }}
           >
-            <span>{tab.icon}</span> {tab.label}
+            {tab.label}
           </button>
         ))}
       </div>
 
       {/* TAB 1: 1-CLICK DISCOVERED STOCK CONFIRMATION */}
       {activeTab === 'discovered' && (
-        <div>
-          <div className="card" style={{ background: 'linear-gradient(135deg, #ECFDF5 0%, #EFF6FF 100%)', border: '1.5px solid #10B981', marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-              <div>
-                <span className="badge badge-green" style={{ marginBottom: '0.35rem' }}>🤖 Automated Web & Feed Discovery</span>
-                <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#064E3B', margin: '0.2rem 0' }}>
-                  We discovered {discoveredStock.length} items from your website & feeds
+        <section className="card" style={{ padding: '2rem', background: '#FFFFFF' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--slate-900)', margin: 0 }}>
+                  Pre-Scraped Website Products (Ready for 1-Click Confirmation)
                 </h2>
-                <p style={{ color: '#334155', fontSize: '0.875rem', margin: 0 }}>
-                  Confirm your prices and in-stock status below. Once confirmed, your products go live instantly on the national search matrix and Google Shopping with direct WhatsApp RFQ links.
-                </p>
+                <span className="badge badge-purple">AI Entity Sweeper</span>
               </div>
-              <button
-                onClick={() => setDiscoveredStock((prev) => prev.map((s) => ({ ...s, status: 'confirmed' })))}
-                className="btn btn-whatsapp"
-                style={{ padding: '0.65rem 1.5rem', fontWeight: 800 }}
-              >
-                ✓ Confirm All Items (1-Click)
-              </button>
+              <p style={{ color: 'var(--slate-600)', fontSize: '0.85rem', margin: 0 }}>
+                Confirm your prices and in-stock status below. Once confirmed, your products go live instantly on the national search matrix and Google Shopping.
+              </p>
             </div>
+
+            <button
+              onClick={() => setDiscoveredStock((prev) => prev.map((s) => ({ ...s, status: 'confirmed' })))}
+              className="btn btn-primary"
+              style={{ padding: '0.65rem 1.5rem', fontWeight: 800 }}
+            >
+              ✓ Confirm All Items (1-Click)
+            </button>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -242,7 +236,7 @@ export default function MerchantDashboardPage() {
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <button
                         onClick={() => handleConfirmStock(item.id)}
-                        className="btn btn-whatsapp btn-sm"
+                        className="btn btn-primary btn-sm"
                         style={{ padding: '0.55rem 1.15rem' }}
                       >
                         ✓ Confirm Stock
@@ -256,7 +250,7 @@ export default function MerchantDashboardPage() {
                     </div>
                   ) : (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ fontSize: '0.85rem', color: '#059669', fontWeight: 800 }}>✓ Live on WhatsApp</span>
+                      <span style={{ fontSize: '0.85rem', color: '#059669', fontWeight: 800 }}>✓ Live & Verified</span>
                       <button
                         onClick={() => setDiscoveredStock(prev => prev.map(s => s.id === item.id ? { ...s, status: 'pending' } : s))}
                         style={{ background: 'none', border: 'none', color: '#64748B', fontSize: '0.75rem', cursor: 'pointer', textDecoration: 'underline' }}
@@ -269,7 +263,7 @@ export default function MerchantDashboardPage() {
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {/* TAB 2: ACTIVE OFFERS */}
@@ -402,7 +396,7 @@ export default function MerchantDashboardPage() {
       {activeTab === 'qr' && (
         <div className="card">
           <h2 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '0.5rem' }}>Stall QR Code & Print Poster</h2>
-          <p style={{ color: 'var(--slate-600)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>Scan to open your live WhatsApp catalog.</p>
+          <p style={{ color: 'var(--slate-600)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>Scan to open your live online store & catalog.</p>
           <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <img src={qrCodeUrl} alt="Store QR" style={{ width: 180, height: 180, borderRadius: 12, border: '1px solid var(--border)', padding: '0.5rem', background: '#FFF' }} />
             <div>

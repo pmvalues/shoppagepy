@@ -277,7 +277,7 @@ export function askAssistant(message: string): AssistantReply {
   }
 
   if (merchantRes.items.length > 0) {
-    parts.push(`💡 You can message **${merchantRes.items[0].name}** directly on WhatsApp for live stock and counter pricing.`);
+    parts.push(`💡 You can contact **${merchantRes.items[0].name}** directly (Phone, Web, or Storefront) for live stock and counter pricing.`);
   }
 
   const reply = parts.join('\n\n');
@@ -289,7 +289,7 @@ export function semanticSearch(rawQuery: string, opts?: { limit?: number; offset
   const totalProducts = res.products.length;
   const totalMerchants = res.merchants.length;
   const topBrands = Array.from(new Set(res.products.map((p) => p.brand))).slice(0, 5);
-  const overview = `Shoppage intelligence matched ${totalProducts} master products and ${totalMerchants} verified merchants across South Africa. Results are prioritized by confirmed stock, SABS/NRS 097 compliance, and direct WhatsApp trade channels.`;
+  const overview = `Shoppage intelligence matched ${totalProducts} master products and ${totalMerchants} verified merchants across South Africa. Results are prioritized by confirmed stock, SABS/NRS 097 compliance, and direct multi-channel trade contact.`;
 
   return {
     query: rawQuery,

@@ -68,17 +68,16 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const confirmedOffers = SA_FLAGSHIP_OFFERS.filter((o) => o.variantRef === product.canonicalId);
   const discoveredOffers = DiscoveredOffersStore.getDiscoveredOffersByProduct(product.canonicalId);
 
-  // If no direct offers, provide a synthesized live offer
   const displayOffers: Offer[] = confirmedOffers.length > 0 ? confirmedOffers : [
     {
       id: `off_${product.canonicalId}_1`,
       variantRef: product.canonicalId,
       merchantRef: 'loc_sunpower_crownmines',
       stallRef: 'Crown Mines Main Concourse',
-      destinationType: 'merchant_whatsapp',
+      destinationType: 'retailer_website',
       actionTarget: {
-        type: 'whatsapp',
-        whatsappNumber: '+27820001001',
+        type: 'url',
+        destinationUrl: 'https://sunpower.co.za',
       },
       price: {
         amount: Number((product.attributes as any)?.estimatedPriceZar) || 1250,
@@ -184,20 +183,23 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </div>
           )}
 
-          {/* Direct WhatsApp Negotiation Actions */}
+          {/* Direct Omnichannel Seller Inquiries */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <a
-              href={`https://wa.me/27820001001?text=${encodeURIComponent(`Hi, I am looking to purchase ${product.title} starting from R ${minPrice.toLocaleString()} found on Shoppage.`)}`}
-              className="btn btn-whatsapp"
+            <Link
+              href="/requests"
+              className="btn btn-primary"
               style={{ padding: '0.9rem', fontSize: '1rem', fontWeight: 800, justifyContent: 'center' }}
-              target="_blank"
-              rel="noopener noreferrer"
             >
-              💬 Get WhatsApp Quote & Live Stock (0% Middleman Take Rate)
-            </a>
-            <Link href="/requests" className="btn btn-outline" style={{ justifyContent: 'center', fontSize: '0.9rem' }}>
-              📋 Request Bulk Wholesale Sourcing Quote
+              📋 Contact Sellers & Request Direct Quotes (0% Commission)
             </Link>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <Link href="/merchants" className="btn btn-outline btn-sm" style={{ flex: 1, justifyContent: 'center' }}>
+                🏪 View Local Stockists
+              </Link>
+              <Link href="/malls" className="btn btn-outline btn-sm" style={{ flex: 1, justifyContent: 'center' }}>
+                🏬 Find in Nearby Malls
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -208,7 +210,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           🏪 Verified South African Stockists ({displayOffers.length})
         </h2>
         <p style={{ color: 'var(--slate-600)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
-          Prices confirmed directly with merchants. Instant WhatsApp counter negotiation available.
+          Prices confirmed directly with merchants. Direct phone, web, and in-store inquiries available.
         </p>
 
         <div style={{ overflowX: 'auto' }}>
@@ -227,7 +229,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                   id: offer.merchantRef,
                   name: 'SunPower Solutions (Crown Mines)',
                   addressText: 'Crown Mines Wholesale Hub, Johannesburg',
-                  contacts: { whatsapp: '+27820001001' },
+                  contacts: { telephone: '+27110001001', website: 'https://sunpower.co.za' },
                   googleRating: 4.9,
                 };
 
@@ -248,14 +250,31 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                       R {(offer.price.amount || minPrice).toLocaleString()}
                     </td>
                     <td style={{ padding: '1rem 0.75rem', textAlign: 'right' }}>
-                      <a
-                        href={`https://wa.me/${(merchant.contacts?.whatsapp || '27820001001').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${merchant.name}, I want to confirm stock for ${product.title} at R ${(offer.price.amount || minPrice).toLocaleString()}`)}`}
-                        className="btn btn-whatsapp btn-sm"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        💬 Chat on WhatsApp
-                      </a>
+                      <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'flex-end' }}>
+                        <Link href={`/m/${merchant.id}`} className="btn btn-outline btn-sm">
+                          View Store
+                        </Link>
+                        {merchant.contacts?.telephone && (
+                          <a
+                            href={`tel:${merchant.contacts.telephone}`}
+                            className="btn btn-primary btn-sm"
+                            title="Call Seller"
+                          >
+                            📞 Call
+                          </a>
+                        )}
+                        {merchant.contacts?.website && (
+                          <a
+                            href={merchant.contacts.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-dark btn-sm"
+                            title="Visit Website"
+                          >
+                            🌐 Web
+                          </a>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

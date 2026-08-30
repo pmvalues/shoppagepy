@@ -98,9 +98,9 @@ export default function MerchantClaimWizardPage({
       {/* STEP 1: BUSINESS DETAILS */}
       {step === 1 && (
         <div className="card" style={{ padding: '2rem' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>Step 1: Your Business & WhatsApp Info</h2>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>Step 1: Your Business & Contact Channels</h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-            Where should customer inquiries be sent? All leads are dispatched directly to your WhatsApp with zero middlemen.
+            Where should customer inquiries be sent? Buyers connect directly to your store via phone, official website, email, and messaging with 0% middleman fees.
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -134,12 +134,12 @@ export default function MerchantClaimWizardPage({
               </div>
 
               <div className="form-group">
-                <label className="form-label">WhatsApp Number for Leads *</label>
+                <label className="form-label">Store Telephone / Mobile for Inquiries *</label>
                 <input
                   type="tel"
                   value={formData.whatsappPhone}
                   onChange={(e) => setFormData({ ...formData, whatsappPhone: e.target.value })}
-                  placeholder="+27 82 123 4567"
+                  placeholder="+27 11 123 4567 or +27 82 123 4567"
                   className="form-control"
                   required
                 />

@@ -104,11 +104,11 @@ export default function ProductCard({
                 href={`/l/${firstOffer.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-whatsapp btn-sm"
+                className="btn btn-primary btn-sm"
                 style={{ padding: '0.35rem 0.65rem' }}
-                title="WhatsApp Direct Counter Quote"
+                title="Direct Store Inquiries & Quotes"
               >
-                💬 Quote
+                Inquire
               </a>
             ) : (
               <Link

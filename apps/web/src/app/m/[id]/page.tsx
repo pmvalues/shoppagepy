@@ -30,8 +30,8 @@ function synthesizeFallbackMerchant(id: string): Merchant {
     medianResponseMinutes: 10,
     verificationState: 'fully_verified',
     contacts: {
-      whatsapp: '+27820001001',
       telephone: '+27110001001',
+      email: `sales@${clean.replace(/\s+/g, '')}.co.za`,
       website: `https://${clean.replace(/\s+/g, '')}.co.za`,
     },
   };
@@ -84,26 +84,35 @@ export default function MerchantProfilePage({ params }: { params: { id: string }
             </p>
             {merchant.operatingHours && (
               <p style={{ color: 'var(--slate-500)', fontSize: '0.85rem', margin: 0 }}>
-                ⏰ {merchant.operatingHours} · ~{passport.medianResponseMinutes}m average reply speed
+                ⏰ {merchant.operatingHours} · Direct Omnichannel Contacts
               </p>
             )}
           </div>
 
-          {/* Quick Contact Box */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: '220px' }}>
-            {merchant.contacts?.whatsapp && (
+          {/* Omnichannel Multi-Contact Channels */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: '240px' }}>
+            {merchant.contacts?.telephone && (
               <a
-                href={`https://wa.me/${merchant.contacts.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${merchant.name}, I am contacting you from Shoppage to request product pricing.`)}`}
-                className="btn btn-whatsapp"
+                href={`tel:${merchant.contacts.telephone.replace(/[^0-9+]/g, '')}`}
+                className="btn btn-primary"
                 style={{ fontWeight: 800, justifyContent: 'center', padding: '0.75rem' }}
+              >
+                📞 Call Store: {merchant.contacts.telephone}
+              </a>
+            )}
+            {merchant.contacts?.website && (
+              <a
+                href={merchant.contacts.website}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="btn btn-dark"
+                style={{ fontWeight: 700, justifyContent: 'center', padding: '0.75rem' }}
               >
-                💬 Chat on WhatsApp
+                🌐 Visit Official Store Website
               </a>
             )}
             <Link href="/requests" className="btn btn-outline" style={{ justifyContent: 'center', fontSize: '0.85rem' }}>
-              📋 Submit Formal RFQ
+              📋 Submit Sourcing RFQ
             </Link>
           </div>
         </div>
@@ -135,7 +144,7 @@ export default function MerchantProfilePage({ params }: { params: { id: string }
           📦 Live Stock & Verified Offers Available
         </h2>
         <p style={{ color: 'var(--slate-600)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
-          Direct wholesale & retail pricing available for pickup or courier delivery.
+          Direct wholesale & retail pricing available for pickup or delivery.
         </p>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1.25rem' }}>
