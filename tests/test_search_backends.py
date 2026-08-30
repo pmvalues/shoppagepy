@@ -391,3 +391,48 @@ class CollectionSchemaTests(TestCase):
             self.assertIn(field, indexed)
         faceted = {f['name'] for f in backends.COLLECTION_SCHEMA['fields'] if f.get('facet')}
         self.assertTrue({'category_ref', 'brand', 'provinces', 'merchant_names', 'in_stock'} <= faceted)
+
+
+class SilentFailureVisibilityTests(TestCase):
+    """A retrieval tier that dies silently makes an outage look like "no
+    products exist". Each one must log and degrade, not swallow."""
+
+    def test_candidate_tier_logs_when_the_database_fails(self):
+        from apps.intelligence import ranking
+
+        with mock.patch.object(ranking, 'connection') as conn:
+            conn.vendor = 'postgresql'
+            conn.cursor.side_effect = RuntimeError('database unavailable')
+            with self.assertLogs('apps.intelligence.ranking', level='ERROR') as logs:
+                self.assertEqual(ranking._tsvector_ids('inverter', ['inverter'], 10), [])
+                self.assertEqual(ranking._trgm_ids('inverter', 10), [])
+        captured = '\n'.join(logs.output)
+        self.assertIn('_tsvector_ids', captured)
+        self.assertIn('_trgm_ids', captured)
+
+    def test_backend_failure_is_logged_and_the_sql_engine_still_answers(self):
+        cache.clear()
+        merchant = Merchant.objects.create(
+            canonical_id='m_log', name='Logged Fallback Store', country='ZA',
+            trust_score=70, province='Gauteng',
+        )
+        product = MasterProduct.objects.create(
+            canonical_id='var_log', category_ref='solar_energy',
+            title='Logged Fallback Inverter', brand='LogCo',
+            status=ProductStatusChoices.ACTIVE,
+        )
+        Offer.objects.create(
+            canonical_id='ofr_log', variant=product, merchant=merchant,
+            destination_type=DestinationTypeChoices.MERCHANT_WHATSAPP,
+            price_amount=1500.0, currency='ZAR',
+            availability_state=AvailabilityStateChoices.FRESH,
+        )
+        with override_settings(SHOPPAGE_SEARCH=TYPESENSE):
+            backends.reset_backends()
+            with mock.patch.object(backends.TypesenseBackend, 'search',
+                                   side_effect=RuntimeError('connection refused')):
+                with self.assertLogs('apps.intelligence.ranking', level='ERROR') as logs:
+                    result = ranked_search('fallback inverter', limit=5)
+        backends.reset_backends()
+        self.assertIn('falling back to the SQL engine', '\n'.join(logs.output))
+        self.assertEqual([s.product.canonical_id for s in result['products']], ['var_log'])

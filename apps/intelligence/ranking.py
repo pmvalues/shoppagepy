@@ -14,6 +14,7 @@ Scale & performance:
 from __future__ import annotations
 
 import contextlib
+import logging
 import math
 import re
 import time
@@ -27,6 +28,8 @@ from apps.merchants.models import Merchant
 from apps.offers.models import Offer
 from django.core.cache import cache
 from django.db import connection
+
+logger = logging.getLogger(__name__)
 from django.db.models import Prefetch
 
 # ---------------------------------------------------------------------------
@@ -386,6 +389,7 @@ def _candidate_ids_postgres(tokens: list[str], expanded: list[str], limit: int,
                 ids.extend(r[0] for r in cur.fetchall())
         return list(dict.fromkeys(ids))[:limit]
     except Exception:
+        logger.exception("search candidate tier _candidate_ids_postgres failed; that list contributes nothing to fusion")
         return []
 
 
@@ -434,6 +438,7 @@ def _fuzzy_pass(term: str, limit: int = 20) -> tuple[list[Any], str]:
             cur.execute(sql, [like, like, like, limit * 8])
             rows = cur.fetchall()
     except Exception:
+        logger.exception("search candidate tier _fuzzy_pass failed; that list contributes nothing to fusion")
         return [], ''
 
     scored: list[tuple[int, Any, str]] = []
@@ -476,6 +481,7 @@ def _fts_ids(query: str, limit: int) -> list[Any]:
             return []
         return fts_search_ids(query, limit)
     except Exception:
+        logger.exception("search candidate tier _fts_ids failed; that list contributes nothing to fusion")
         return []
 
 
@@ -512,6 +518,7 @@ def _tsvector_ids(raw_query: str, expanded: list[str], limit: int) -> list[Any]:
                 cur.execute(sql, [loose_query, limit - len(rows)])
                 rows.extend(r[0] for r in cur.fetchall())
     except Exception:
+        logger.exception("search candidate tier _tsvector_ids failed; that list contributes nothing to fusion")
         return []
     return list(dict.fromkeys(rows))
 
@@ -540,6 +547,7 @@ def _trgm_ids(term: str, limit: int) -> list[Any]:
             )
             return [r[0] for r in cur.fetchall()]
     except Exception:
+        logger.exception("search candidate tier _trgm_ids failed; that list contributes nothing to fusion")
         return []
 
 
@@ -562,6 +570,7 @@ def vector_candidates(raw_query: str, limit: int) -> list[Any]:
             cur.execute("SELECT to_regclass('catalog_productembedding')")
             _VECTOR_STATE = cur.fetchone()[0] is not None
     except Exception:
+        logger.exception("search candidate tier vector_candidates failed; that list contributes nothing to fusion")
         _VECTOR_STATE = False
     if not _VECTOR_STATE:
         return []
@@ -623,6 +632,7 @@ def _popularity_scores() -> dict[str, int]:
         )
         result = {r['product_id']: r['n'] for r in rows}
     except Exception:
+        logger.exception("behavioural click prior unavailable; ranking continues without the popularity boost")
         result = {}
     with contextlib.suppress(Exception):
         cache.set('sp:pop30:v1', result, 300)
@@ -882,7 +892,7 @@ def _ranked_search_sql(
                 extra_merchants = list(Merchant.objects.filter(id__in=extra_ids).select_related('market'))
                 merchants.extend(extra_merchants)
         except Exception:
-            pass
+            logger.exception("merchant name lookup failed; the local 3-pack may come back short")
 
     elapsed_ms = round((time.perf_counter() - t0) * 1000, 1)
 
@@ -954,6 +964,7 @@ def ranked_search(
     try:
         result = backends.get_backend().search(raw_query, **filters)
     except Exception:
+        logger.exception("selected search backend raised; falling back to the SQL engine")
         result = None
     if result is not None:
         return result
