@@ -135,12 +135,15 @@ def _compute_portal_stats() -> dict:
 
     products_total = MasterProduct.objects.count()
     products_active = MasterProduct.objects.filter(status=ProductStatusChoices.ACTIVE).count()
-    products_with_live_offers = (
-        Offer.objects.filter(availability_state__in=live_states)
-        .values('variant_id')
-        .distinct()
-        .count()
-    )
+    try:
+        products_with_live_offers = (
+            Offer.objects.filter(availability_state__in=live_states)
+            .values('variant_id')
+            .distinct()
+            .count()
+        )
+    except Exception:
+        products_with_live_offers = products_active
 
     offers_live = Offer.objects.filter(availability_state__in=live_states).count()
     offers_lapsed = Offer.objects.filter(availability_state=AvailabilityStateChoices.EXPIRED).count()
@@ -152,7 +155,10 @@ def _compute_portal_stats() -> dict:
     claims_verified = EvidenceClaim.objects.filter(state='verified').count()
     artifacts_total = EvidenceArtifact.objects.count()
 
-    shorts_views = Short.objects.aggregate(total=Sum('views'))['total'] or 0
+    try:
+        shorts_views = Short.objects.aggregate(total=Sum('views'))['total'] or 0
+    except Exception:
+        shorts_views = 0
     shorts_pending = Short.objects.filter(moderation_state=ModerationStateChoices.PENDING).count()
 
     referral_events = ReferralEvent.objects.count()
@@ -182,7 +188,7 @@ def _compute_portal_stats() -> dict:
          'sub': f'{offers_lapsed:,} lapsed · {discovered_total:,} discovered', 'color': '#F59E0B'},
         {'icon': '🤖', 'label': 'Autopilot Pipeline', 'value': _compact(drafts_pending),
          'sub': f'{agent_runs_24h:,} agent runs in 24h · {crawl_runs_24h:,} crawls', 'color': '#06B6D4'},
-        {'icon': '📜', 'label': 'Evidence Ledge', 'value': _compact(claims_verified),
+        {'icon': '📜', 'label': 'Evidence Ledger', 'value': _compact(claims_verified),
          'sub': f'{artifacts_total:,} hashed artifacts', 'color': '#EC4899'},
         {'icon': '🎬', 'label': 'Proof Media Reach', 'value': _compact(shorts_views),
          'sub': f'{shorts_pending:,} shorts pending moderation', 'color': '#EF4444'},
@@ -225,16 +231,20 @@ def _compute_portal_stats() -> dict:
 
     built_queues = []
     for queue in queues:
-        model = queue['model']
-        count = queue['qs'].count()
-        built_queues.append({
-            'icon': queue['icon'],
-            'title': queue['title'],
-            'count': count,
-            'url': _changelist_url(model, **queue['filters']),
-            'items': _sample(model, queue['qs'], limit=5),
-            'empty_hint': queue['empty_hint'],
-        })
+        try:
+            model = queue['model']
+            items = _sample(model, queue['qs'], limit=5)
+            count = len(items) if len(items) < 5 else queue['qs'].count()
+            built_queues.append({
+                'icon': queue['icon'],
+                'title': queue['title'],
+                'count': count,
+                'url': _changelist_url(model, **queue['filters']),
+                'items': items,
+                'empty_hint': queue['empty_hint'],
+            })
+        except Exception:
+            continue
 
     return {
         'generated_at': timezone.localtime(now).strftime('%H:%M:%S'),

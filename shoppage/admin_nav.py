@@ -78,7 +78,7 @@ ADMIN_NAV_SECTIONS: tuple[AdminNavSection, ...] = (
         label="Catalogue",
         icon="package",
         items=(
-            AdminNavItem("catalog", "masterproduct", "Products", "package"),
+            AdminNavItem("catalog", "masterproduct", "Master Products", "package"),
             AdminNavItem("catalog", "category", "Categories", "folder-tree"),
             AdminNavItem("catalog", "categorypath", "Category Paths", "git-branch"),
             # Google taxonomy IS catalog.Category ("Google Taxonomy Category") — no separate model exists
@@ -105,7 +105,7 @@ ADMIN_NAV_SECTIONS: tuple[AdminNavSection, ...] = (
         label="Markets & Malls",
         icon="map",
         items=(
-            AdminNavItem("markets", "market", "Markets / Malls", "map-pin"),
+            AdminNavItem("markets", "market", "Markets & Shopping Centres", "map-pin"),
         ),
     ),
     AdminNavSection(
@@ -113,8 +113,8 @@ ADMIN_NAV_SECTIONS: tuple[AdminNavSection, ...] = (
         label="Evidence & Rights",
         icon="scale",
         items=(
-            AdminNavItem("evidence", "evidenceartifact", "Artifacts", "file-search"),
-            AdminNavItem("evidence", "evidenceclaim", "Claims", "scroll-text"),
+            AdminNavItem("evidence", "evidenceartifact", "Evidence Artifacts", "file-search"),
+            AdminNavItem("evidence", "evidenceclaim", "Evidence Claims", "scroll-text"),
             AdminNavItem("evidence", "evidenceobservation", "Observations", "clock"),
             AdminNavItem("rights", "rightssource", "Rights Sources", "lock"),
         ),

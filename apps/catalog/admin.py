@@ -83,9 +83,12 @@ class TaxonomyFilter(admin.SimpleListFilter):
     parameter_name = 'taxonomy'
 
     def lookups(self, request, model_admin):
-        return list(
-            Category.objects.filter(level=0).values_list('google_id', 'name')[:40]
-        )
+        try:
+            return list(
+                Category.objects.filter(level=0).values_list('google_id', 'name')[:40]
+            )
+        except Exception:
+            return []
 
     def queryset(self, request, queryset):
         value = self.value()
@@ -93,10 +96,10 @@ class TaxonomyFilter(admin.SimpleListFilter):
             return queryset
         try:
             root = Category.objects.get(google_id=int(value))
-        except (Category.DoesNotExist, ValueError):
+            descendant_ids = CategoryPath.objects.filter(ancestor=root).values_list('descendant_id', flat=True)
+            return queryset.filter(master_category_id__in=descendant_ids)
+        except Exception:
             return queryset
-        descendant_ids = CategoryPath.objects.filter(ancestor=root).values_list('descendant_id', flat=True)
-        return queryset.filter(master_category_id__in=descendant_ids)
 
 
 @admin.register(Category)
