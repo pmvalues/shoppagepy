@@ -569,7 +569,7 @@
             {% endif %}
           </div>
 
-          <form method="post" action="/p/{{ product.seo_handle }}/alert/" style="display: flex; gap: 0.35rem; margin-top: 0.6rem; flex-wrap: wrap;">
+          <form id="price-alert" method="post" action="/p/{{ product.seo_handle }}/alert/" style="display: flex; gap: 0.35rem; margin-top: 0.6rem; flex-wrap: wrap;">
             {% csrf_token %}
             <input type="text" name="contact" placeholder="WhatsApp or email" required style="flex: 1; min-width: 130px; font-size: 0.78rem; padding: 0.35rem 0.55rem;">
             <input type="number" step="0.01" min="1" name="threshold_price" placeholder="Below R?" required style="width: 96px; font-size: 0.78rem; padding: 0.35rem 0.55rem;">

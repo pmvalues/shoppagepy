@@ -4,7 +4,7 @@ from urllib.parse import urlencode
 
 from apps.catalog.models import MasterProduct
 from apps.core.models import log_search_query
-from apps.intelligence.ranking import _haversine_km, _merchant_rating, ranked_search
+from apps.intelligence.ranking import _display_price, _haversine_km, _merchant_rating, ranked_search
 from apps.markets.models import Market
 from apps.media_hub.models import Short, Show
 from apps.merchants.models import Merchant
@@ -159,6 +159,28 @@ def home_view(request):
 
     return render(request, 'home.html', context)
 
+def _live_offer_facts(product):
+    """(price, merchant name, live offer count) from real rows only.
+
+    Price falls back to the catalogue estimate and then to None — never to an
+    invented figure — so the storefront cannot display a price nobody quoted.
+    """
+    live = [
+        o for o in product.offers.all()
+        if o.availability_state not in ('out_of_stock', 'hidden', 'expired')
+    ]
+    price = None
+    for o in live:
+        if o.price_amount:
+            price = float(o.price_amount)
+            break
+    if price is None and product.estimated_price_zar:
+        price = float(product.estimated_price_zar)
+    merchant = live[0].merchant if live else None
+    name = merchant.name.split('#')[0].strip() if merchant else ''
+    return price, name, len(live)
+
+
 def search_view(request):
     key = _cache_key('search_page_v5', request)
     cached = cache.get(key)
@@ -217,6 +239,7 @@ def search_view(request):
         max_price=max_price,
         sort=sort,
         near=near,
+        in_stock_only=in_stock_only,
     )
     log_search_query(
         effective_query,
@@ -257,8 +280,8 @@ def search_view(request):
         if sabs_only and not (p.compliance and (p.compliance.get('sabsApproved') or p.compliance.get('nrs097Certified'))):
             continue
 
-        best_price = float(s.best_offer.price_amount) if s.best_offer and s.best_offer.price_amount else (p.estimated_price_zar or 1000.0)
-        merchant_name = s.best_offer.merchant.name.split('#')[0].strip() if (s.best_offer and s.best_offer.merchant) else "Verified Supplier"
+        best_price = _display_price(s)
+        merchant_name = s.best_offer.merchant.name.split('#')[0].strip() if (s.best_offer and s.best_offer.merchant) else ''
 
         # Real rating/price/distance attributes for the template (no fabricated stars).
         summary = p.reviews_summary if isinstance(p.reviews_summary, dict) else {}
@@ -273,11 +296,16 @@ def search_view(request):
             p.shoppage_rating = ''
         p.shoppage_rating_count = int(rating_count or 0)
         p.shoppage_best_price = best_price
+        p.shoppage_in_stock = bool(s.best_offer)
+        p.shoppage_merchant_name = merchant_name
+        p.shoppage_merchant_trust = (
+            s.best_offer.merchant.trust_score if (s.best_offer and s.best_offer.merchant) else None
+        )
         p.shoppage_offer_count = s.offer_count or (1 if s.best_offer else 0)
         p.shoppage_distance_km = s.distance_km
 
         # B2B MOQ calculations
-        product_moq_tables[p.canonical_id] = get_tiered_moq_pricing(best_price)
+        product_moq_tables[p.canonical_id] = get_tiered_moq_pricing(best_price) if best_price else {}
         offers_by_product[p.canonical_id] = [s.best_offer] if s.best_offer else []
         plain_products.append(p)
 
@@ -324,26 +352,31 @@ def search_view(request):
     # Honest zero state: when nothing matches, the page says so instead of
     # padding with unrelated products.
 
-    # Ensure Top & Featured Products always has 6-8 items
+    # Fill the featured carousel from additional active products. Price,
+    # merchant and offer count come only from real rows; a product nobody has
+    # quoted is skipped instead of shown with an invented price.
     if len(sponsored_products) < 6:
         extra_products = list(
             MasterProduct.objects.filter(status__in=['active', 'ACTIVE'])
             .exclude(canonical_id__in=[sp['product'].canonical_id for sp in sponsored_products])
-            .prefetch_related('offers', 'offers__merchant')[:8]
+            .prefetch_related('offers', 'offers__merchant', 'images')[:24]
         )
         for ep in extra_products:
-            ep_price = float(ep.estimated_price_zar or 2800.0)
-            ep_merchant = ep.brand + " South Africa"
-            first_o = ep.offers.all().first()
-            if first_o and first_o.merchant:
-                ep_merchant = first_o.merchant.name.split('#')[0].strip()
-                if first_o.price_amount:
-                    ep_price = float(first_o.price_amount)
+            ep_price, ep_merchant, ep_offers = _live_offer_facts(ep)
+            if ep_price is None:
+                continue
+            ep.shoppage_best_price = ep_price
+            ep.shoppage_in_stock = ep_offers > 0
+            ep.shoppage_merchant_name = ep_merchant
+            ep.shoppage_merchant_trust = None
+            ep.shoppage_offer_count = ep_offers
+            ep.shoppage_promo_label = ''
+            ep.shoppage_original_price = None
             sponsored_products.append({
                 'product': ep,
                 'price': ep_price,
                 'merchant_name': ep_merchant,
-                'offer_count': 1,
+                'offer_count': ep_offers,
             })
             if len(sponsored_products) >= 8:
                 break
@@ -522,107 +555,32 @@ def search_live_view(request):
     """
     query = request.GET.get('q', '').strip()
     if len(query) < 2:
-        return render(request, 'search/partials/search_live_dropdown.html', {'results': None, 'query': query})
+        return render(request, 'search/partials/search_live_dropdown.html', {'query': query})
 
-    suggestions: list[str] = []
-    try:
-        from apps.catalog.models import MasterProduct
-        from apps.core.models import SearchQueryLog
-        from django.db.models import Count
-
-        norm = query.lower().strip()
-        rows = list(
-            SearchQueryLog.objects.filter(normalized__startswith=norm)
-            .exclude(normalized__iexact=norm)
-            .values('normalized').annotate(n=Count('id')).order_by('-n')[:4]
-        )
-        suggestions = [r['normalized'] for r in rows]
-        if len(suggestions) < 4:
-            seen = {s.lower() for s in suggestions}
-            brand_rows = list(
-                MasterProduct.objects.filter(status__in=['active', 'ACTIVE'], brand__istartswith=norm)
-                .exclude(brand='').values_list('brand', flat=True).distinct()[:4]
-            )
-            for b in brand_rows:
-                if b and b.lower() not in seen:
-                    seen.add(b.lower())
-                    suggestions.append(b)
-                if len(suggestions) >= 6:
-                    break
-    except Exception:
-        suggestions = []
-
-    key = f'sp:live_v3:{query.lower()}'
+    key = f'sp:live_v4:{query.lower()}'
     ctx = cache.get(key)
     if ctx is None:
-        res = ranked_search(query, limit=6)
+        res = ranked_search(query, limit=6, candidate_limit=80)
         candidates = res.get('products', [])
 
         products_list = []
         for s in candidates:
             p = s.product
             offer = s.best_offer
-            merch = getattr(s, 'merchant', None) or (offer.merchant if offer else None)
-            
-            # Safe price extraction: Offer price_amount, then MasterProduct estimated_price_zar
-            price = None
-            if offer and getattr(offer, 'price_amount', None) is not None:
-                price = float(offer.price_amount)
-            elif getattr(p, 'estimated_price_zar', None) is not None:
-                price = float(p.estimated_price_zar)
-            else:
-                price = 0.0
-
+            merch = offer.merchant if offer else None
             products_list.append({
                 'master': p,
-                'product': p,
-                'best_offer': offer,
                 'merchant': merch,
-                'title': p.title,
-                'brand': p.brand,
                 'canonical_id': p.canonical_id,
-                'category_ref': p.category_ref,
-                'price': price,
-                'merchant_count': p.offers.count() if hasattr(p, 'offers') else 1,
-                'has_verified_offer': bool(offer),
-                'trust_score': merch.trust_score if merch else 98,
-                'merchant_name': merch.name if merch else 'Shoppage Verified',
+                'price': _display_price(s),
+                'merchant_count': s.offer_count,
             })
-
-        merchants_list = [
-            {
-                'name': m.name,
-                'canonical_id': m.canonical_id,
-                'trust_score': m.trust_score,
-                'address_text': m.address_text,
-                'category': m.category,
-                'whatsapp_number': getattr(m, 'whatsapp_number', None),
-                'province': m.province,
-            }
-            for m in res.get('merchants', [])[:3]
-        ]
-
-        malls = list(Market.objects.filter(name__icontains=query)[:2])
-        malls_list = [{'name': m.name, 'canonical_slug': m.canonical_slug, 'province': m.province} for m in malls]
-
-        shorts = list(Short.objects.filter(Q(title__icontains=query) | Q(product_title__icontains=query))[:2])
-        shorts_list = [{'title': s.title, 'views': s.views, 'canonical_id': s.canonical_id} for s in shorts]
-
-        from apps.intelligence.services import get_brand_knowledge_card
-        card = get_brand_knowledge_card(query)
 
         ctx = {
             'query': query,
-            'suggestions': suggestions,
-            'candidates': candidates,
             'products': products_list,
-            'merchants': merchants_list,
-            'malls': malls_list,
-            'shorts': shorts_list,
-            'knowledge_card': card,
             'facets': res.get('facets', {}),
-            'total': len(products_list) + len(merchants_list),
-            'total_matches': len(products_list) + len(merchants_list) + len(malls_list),
+            'total': len(products_list),
         }
         cache.set(key, ctx, 60)
 

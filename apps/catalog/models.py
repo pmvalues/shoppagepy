@@ -104,7 +104,10 @@ class MasterProduct(TimeStampedModel):
 
     @property
     def primary_image(self):
-        return self.images.first()
+        # `.first()` always hits the DB even when `images` is prefetched; a
+        # `[:1]` slice uses the prefetch cache and still limits when uncached.
+        images = self.images.all()[:1]
+        return images[0] if images else None
 
     @property
     def image_urls(self) -> list[str]:

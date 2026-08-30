@@ -27,6 +27,7 @@ from apps.merchants.models import Merchant
 from apps.offers.models import Offer
 from django.core.cache import cache
 from django.db import connection
+from django.db.models import Prefetch
 
 # ---------------------------------------------------------------------------
 # Query Processing
@@ -359,17 +360,18 @@ def _candidate_ids_postgres(tokens: list[str], expanded: list[str], limit: int,
                 )
                 ids.extend(r[0] for r in cur.fetchall())
 
-            # 2. Title prefix match (1ms index scan)
+            # 2. Title / brand prefix match — lower() on both sides so the
+            # text_pattern_ops expression indexes are usable (ILIKE is not).
             if len(ids) < limit:
-                title_terms = [t.strip() for t in (tokens[:1] + expanded[:2]) if len(t.strip()) >= 2]
+                title_terms = [t.strip().lower() for t in (tokens[:1] + expanded[:2]) if len(t.strip()) >= 2]
                 for term in title_terms:
                     if len(ids) >= limit:
                         break
                     cur.execute(
                         "SELECT id FROM catalog_masterproduct "
                         "WHERE (status = 'active' OR status = 'ACTIVE') "
-                        "AND (title ILIKE %s OR title ILIKE %s) LIMIT %s",
-                        [f'{term.capitalize()}%', f'{term.lower()}%', limit - len(ids)],
+                        "AND (lower(title) LIKE %s OR lower(brand) LIKE %s) LIMIT %s",
+                        [f'{term}%', f'{term}%', limit - len(ids)],
                     )
                     ids.extend(r[0] for r in cur.fetchall())
 
@@ -491,27 +493,38 @@ def _tsvector_ids(raw_query: str, expanded: list[str], limit: int) -> list[Any]:
     ))[:14]
     if not words:
         return []
-    ts_query = ' | '.join(words)
+    # Strict pass requires every leading term; the relaxed OR pass only tops up.
+    strict_query = ' & '.join(words[:6])
+    loose_query = ' | '.join(words)
+    # `exact_rank` used to duplicate `rank` and sort ASCENDING, which returned
+    # the worst matches first. Rank descending is the intended ordering.
+    sql = (
+        "SELECT id FROM catalog_masterproduct, to_tsquery('english', %s) q "
+        "WHERE search_tsv @@ q "
+        "  AND (status = 'active' OR status = 'ACTIVE') "
+        "ORDER BY ts_rank(search_tsv, q) DESC LIMIT %s"
+    )
     try:
         with connection.cursor() as cur:
-            cur.execute(
-                "SELECT id FROM ("
-                "  SELECT id, ts_rank(search_tsv, q) AS rank, "
-                "         ts_rank(search_tsv, q) AS exact_rank "
-                "  FROM catalog_masterproduct, to_tsquery('english', %s) q "
-                "  WHERE search_tsv @@ q "
-                "    AND (status = 'active' OR status = 'ACTIVE') "
-                "  ORDER BY exact_rank, rank DESC LIMIT %s"
-                ") top",
-                [ts_query, limit],
-            )
-            return [r[0] for r in cur.fetchall()]
+            cur.execute(sql, [strict_query, limit])
+            rows = [r[0] for r in cur.fetchall()]
+            if len(rows) < limit:
+                cur.execute(sql, [loose_query, limit - len(rows)])
+                rows.extend(r[0] for r in cur.fetchall())
     except Exception:
         return []
+    return list(dict.fromkeys(rows))
 
 
 def _trgm_ids(term: str, limit: int) -> list[Any]:
-    """PostgreSQL fuzzy path: pg_trgm similarity over title/brand (typos)."""
+    """
+    PostgreSQL fuzzy path: pg_trgm similarity over title/brand (typos).
+
+    Deliberately *not* KNN-ordered. GiST trigram `<->` was measured on the 1M
+    product table at 19.5s for 'inverter' / 9.8s for 'samsng' versus ~3.5s for
+    this similarity-sorted form (the `%` predicate narrows via the GIN index
+    first), so the ordered-scan variant is a regression here.
+    """
     if connection.vendor != 'postgresql' or len((term or '').strip()) < 3:
         return []
     term = term.strip()
@@ -677,6 +690,7 @@ def ranked_search(
     candidate_limit: int = CANDIDATE_LIMIT,
     sort: str = 'relevance',
     near: tuple[float, float, float] | None = None,
+    in_stock_only: bool = False,
 ) -> dict[str, Any]:
     """
     Deterministic ranked product+merchant search.
@@ -721,7 +735,10 @@ def ranked_search(
 
     products_list = list(
         MasterProduct.objects.filter(id__in=ids)
-        .prefetch_related('offers', 'offers__merchant')
+        .prefetch_related(
+            Prefetch('offers', queryset=Offer.objects.select_related('merchant')),
+            'images',
+        )
     )
     if category:
         allowed_refs = CATEGORY_ALIASES.get(category, {category})
@@ -752,6 +769,8 @@ def ranked_search(
         if province and not offers:
             continue
         if near is not None and not offers:
+            continue
+        if in_stock_only and not offers:
             continue
         sp = _score_product(p, tokens + expanded, offers)
         if near is not None and offers:
@@ -806,17 +825,25 @@ def ranked_search(
     facet_categories: dict[str, int] = {}
     facet_brands: dict[str, int] = {}
     facet_provinces: dict[str, int] = {}
+    facet_merchants: dict[str, int] = {}
     prices: list[float] = []
     for s in scored:
         cat = s.product.category_ref or 'other'
         facet_categories[cat] = facet_categories.get(cat, 0) + 1
         b = s.product.brand or 'Unknown'
         facet_brands[b] = facet_brands.get(b, 0) + 1
+        province_attributed = False
+        counted_merchants = set()
         for o in s.product.offers.all():
             m = getattr(o, 'merchant', None)
-            if m is not None and m.province:
+            if m is None:
+                continue
+            if m.name not in counted_merchants:
+                counted_merchants.add(m.name)
+                facet_merchants[m.name] = facet_merchants.get(m.name, 0) + 1
+            if not province_attributed and m.province:
                 facet_provinces[m.province] = facet_provinces.get(m.province, 0) + 1
-                break
+                province_attributed = True
         pr = s.best_offer.price_amount if s.best_offer else s.product.estimated_price_zar
         if pr:
             prices.append(float(pr))
@@ -868,6 +895,7 @@ def ranked_search(
             'categories': dict(sorted(facet_categories.items(), key=lambda kv: -kv[1])[:10]),
             'brands': dict(sorted(facet_brands.items(), key=lambda kv: -kv[1])[:10]),
             'provinces': dict(sorted(facet_provinces.items(), key=lambda kv: -kv[1])[:9]),
+            'merchants': dict(sorted(facet_merchants.items(), key=lambda kv: -kv[1])[:10]),
         },
         'price_stats': ({
             'min': min(prices), 'max': max(prices), 'avg': round(sum(prices) / len(prices))
