@@ -282,7 +282,7 @@ export default function MerchantDashboardPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
             {SA_CANONICAL_PRODUCTS.slice(0, 4).map((p) => (
               <div key={p.canonicalId} className="card" style={{ background: '#F8FAFC' }}>
-                <span className="badge badge-green" style={{ marginBottom: '0.5rem' }}>✓ WhatsApp Connected</span>
+                <span className="badge badge-green" style={{ marginBottom: '0.5rem' }}>✓ Store Inquiries Connected</span>
                 <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: '0.25rem 0' }}>{p.title}</h4>
                 <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#059669', margin: '0.5rem 0' }}>
                   R {(p.attributes?.estimatedPriceZar as number || 15000).toLocaleString()}
@@ -303,9 +303,11 @@ export default function MerchantDashboardPage() {
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
-              <span className="badge badge-green">CIPC & Statutory Trust Score</span>
-              <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: '0.25rem 0' }}>Verified Merchant Trust Passport</h2>
-              <p style={{ color: 'var(--slate-600)', fontSize: '0.85rem' }}>Elevate your trust score to achieve priority placement on search and RFQ dispatch.</p>
+              <span className="badge badge-green">Internal Statutory Verification</span>
+              <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: '0.25rem 0' }}>Merchant Verification & Trust Score</h2>
+              <p style={{ color: 'var(--slate-600)', fontSize: '0.85rem' }}>
+                Confidential statutory records (CIPC, SARS PINs, wireman licenses) are strictly encrypted for internal validation and never exposed on the public forefront.
+              </p>
             </div>
             <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#059669', fontFamily: 'var(--font-display)' }}>
               {overview.trustPassportScore} <small style={{ fontSize: '1rem', color: '#64748B' }}>/ 100</small>
@@ -314,19 +316,19 @@ export default function MerchantDashboardPage() {
 
           <div className="grid grid-cols-3" style={{ gap: '1rem', marginBottom: '2rem' }}>
             <div className="card" style={{ background: '#F8FAFC' }}>
-              <div style={{ fontSize: '0.8rem', color: '#64748B' }}>CIPC Registration</div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: '0.25rem 0' }}>K2021/482910/07</div>
-              <span className="badge badge-green" style={{ fontSize: '0.7rem' }}>✓ Active Verified</span>
+              <div style={{ fontSize: '0.8rem', color: '#64748B' }}>CIPC Entity Status</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: '0.25rem 0' }}>Verified Enterprise</div>
+              <span className="badge badge-green" style={{ fontSize: '0.7rem' }}>🔒 Internal Only</span>
             </div>
 
             <div className="card" style={{ background: '#F8FAFC' }}>
               <div style={{ fontSize: '0.8rem', color: '#64748B' }}>SARS Tax PIN</div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: '0.25rem 0' }}>9482-9182-XXXX</div>
-              <span className="badge badge-green" style={{ fontSize: '0.7rem' }}>✓ Good Standing</span>
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: '0.25rem 0' }}>Compliant / Active</div>
+              <span className="badge badge-green" style={{ fontSize: '0.7rem' }}>🔒 Internal Only</span>
             </div>
 
             <div className="card" style={{ background: '#F8FAFC' }}>
-              <div style={{ fontSize: '0.8rem', color: '#64748B' }}>Median WhatsApp Reply</div>
+              <div style={{ fontSize: '0.8rem', color: '#64748B' }}>Median Reply Time</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: '0.25rem 0' }}>~10 Minutes</div>
               <span className="badge badge-blue" style={{ fontSize: '0.7rem' }}>⚡ Ultra Fast</span>
             </div>

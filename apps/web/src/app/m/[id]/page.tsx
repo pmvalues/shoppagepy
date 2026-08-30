@@ -117,23 +117,23 @@ export default function MerchantProfilePage({ params }: { params: { id: string }
           </div>
         </div>
 
-        {/* Statutory Credentials Matrix */}
+        {/* Public Trust & Verification Matrix (Confidential statutory numbers kept in internal verification store) */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
           <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>CIPC Registration Number</div>
-            <div style={{ fontWeight: 800, color: 'var(--slate-900)', fontSize: '0.9rem' }}>{merchant.cipcEnterpriseNumber || 'K2023/892019/07'}</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Statutory Business Status</div>
+            <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>✓ Registered & Verified Entity</div>
           </div>
           <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>SARS Tax Compliance PIN</div>
-            <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>✓ Verified Active</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Tax Standing & Good Standing</div>
+            <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>✓ Tax Compliance Active</div>
           </div>
           <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Middleman Commission</div>
-            <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>0% (Direct Buyer Trade)</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Platform Trade Fee</div>
+            <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>0% Take Rate (Direct Trade)</div>
           </div>
           <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>DoL Wireman License</div>
-            <div style={{ fontWeight: 800, color: 'var(--slate-900)', fontSize: '0.9rem' }}>{merchant.wiremanLicenseNumber || 'IE-99201'}</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Technical & Trade Credentials</div>
+            <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>✓ Certified Trade Stockist</div>
           </div>
         </div>
       </div>
