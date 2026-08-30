@@ -147,7 +147,13 @@ class CompetitorFeaturesTestCase(TestCase):
         res = self.client.get('/requests/')
         self.assertEqual(res.status_code, 200)
         self.assertContains(res, "National Commercial RFQ Tender Board")
-        self.assertContains(res, "Active Buyer Tenders")
+        body = res.content.decode()
+        self.assertContains(res, "How a buyer tender appears")
+        # The board has no RFQ model behind it, so it must not pose as live demand.
+        for fabricated in ('Active Buyer Tenders', 'Live Matching',
+                           'Submit Quote on WhatsApp', 'Posted by Verified EPC Contractor'):
+            self.assertNotIn(fabricated, body)
+        self.assertIn('not open for quotes', body)
 
     def test_gmb_pillar_spatial_map_and_storefront_profile(self):
         # 1. Spatial Malls Directory & Map Data
