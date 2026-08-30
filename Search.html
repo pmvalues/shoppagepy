@@ -1,0 +1,209 @@
+{# templates/search.html - POLISHED Google Shopping clone for shoppage.co.za
+   Built for: MasterProduct + Offer + Merchant + TrustPassport
+   Uses: ranked_search() results + FTS
+#}
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen bg-[#f8f9fa]">
+  {# --- GOOGLE-STYLE HEADER --- #}
+  <header class="sticky top-0 z-40 bg-white border-b border-[#dadce0] shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+    <div class="max-w-[1680px] mx-auto px-4 lg:px-6">
+      <div class="h-[72px] flex items-center gap-4 lg:gap-8">
+        {# Logo #}
+        <a href="/" class="shrink-0 flex items-baseline gap-[1px]">
+          <span class="text-[24px] font-normal tracking-tight"><span class="text-[#4285f4] font-medium">Shop</span><span class="text-[#ea4335]">page</span></span>
+          <span class="text-[11px] text-[#5f6368] ml-1 font-medium">.co.za</span>
+          <span class="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-[#e8f0fe] text-[#1967d2] font-medium hidden sm:inline">NATIONAL GRID</span>
+        </a>
+
+        {# Search Box - Core of Google Shopping #}
+        <form method="GET" action="{% url 'search' %}" id="main-search-form" class="flex-1 max-w-[760px] relative">
+          <div class="relative group">
+            <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+              <svg class="w-[20px] h-[20px] text-[#9aa0a6] group-focus-within:text-[#4285f4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+            <input
+              id="search-input"
+              name="q"
+              value="{{ query }}"
+              autocomplete="off"
+              hx-get="{% url 'search_live' %}"
+              hx-trigger="keyup changed delay:250ms, focus"
+              hx-target="#live-dropdown"
+              hx-indicator="#search-spinner"
+              placeholder="Search 2.3M products across SA merchants"
+              class="w-full h-[48px] pl-12 pr-[120px] rounded-full border border-[#dfe1e5] bg-white text-[16px] placeholder:text-[#9aa0a6] shadow-[0_1px_2px_rgba(0,0,0,0.08)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.12)] focus:shadow-[0_2px_8px_rgba(0,0,0,0.16)] focus:border-transparent outline-none transition-all"
+            >
+            <div class="absolute inset-y-0 right-0 pr-2 flex items-center gap-1">
+              <div id="search-spinner" class="htmx-indicator w-5 h-5 border-2 border-[#dadce0] border-t-[#4285f4] rounded-full animate-spin hidden"></div>
+              <button type="submit" class="h-[40px] px-5 bg-[#1a73e8] hover:bg-[#185abc] text-white rounded-full text-[14px] font-medium">Search</button>
+            </div>
+          </div>
+
+          {# LIVE DROPDOWN - Google style #}
+          <div id="live-dropdown" class="absolute top-[56px] left-0 right-0 z-50"></div>
+        </form>
+
+        {# Right actions #}
+        <div class="hidden lg:flex items-center gap-3 ml-auto">
+          <a href="/malls/" class="text-[13px] text-[#5f6368] hover:text-[#202124]">Malls</a>
+          <a href="/merchants/" class="text-[13px] text-[#5f6368] hover:text-[#202124]">Merchants</a>
+          <a href="/merchant/dashboard/" class="h-8 px-4 rounded-full border border-[#dadce0] text-[13px] font-medium text-[#1a73e8] hover:bg-[#f8f9ff]">Merchant Centre</a>
+        </div>
+      </div>
+
+      {# Tabs + Stats #}
+      <div class="flex items-center justify-between h-[48px] border-t border-[#f1f3f4] -mb-[1px]">
+        <nav class="flex gap-6 text-[14px]">
+          <a class="py-3 border-b-2 border-transparent text-[#5f6368]">All</a>
+          <a class="py-3 border-b-[3px] border-[#1a73e8] text-[#1a73e8] font-medium">Shopping <span class="ml-1 text-[12px] bg-[#e8f0fe] px-1.5 rounded">{{ total_products|default:"" }}</span></a>
+          <a class="py-3 border-b-2 border-transparent text-[#5f6368] hidden sm:block">Shorts</a>
+          <a class="py-3 border-b-2 border-transparent text-[#5f6368] hidden sm:block">Markets</a>
+        </nav>
+        <div class="hidden md:flex items-center gap-4 text-[12px] text-[#70757a]">
+          <span>{{ price_stats.min|floatformat:0 }} - {{ price_stats.max|floatformat:0 }} ZAR range</span>
+          <span>•</span>
+          <span>{{ facets.merchants|length }} merchants</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-[1680px] mx-auto px-4 lg:px-6 py-6 flex gap-6">
+    {# --- LEFT FILTERS - Google Shopping facets --- #}
+    <aside class="w-[260px] shrink-0 hidden lg:block">
+      <div class="sticky top-[140px] space-y-6">
+        {# Price #}
+        <div class="bg-white rounded-[12px] border border-[#dadce0] p-4">
+          <h3 class="text-[14px] font-medium text-[#202124] mb-3">Price</h3>
+          <form id="filter-form" hx-get="{% url 'search' %}" hx-target="#product-grid" hx-push-url="true" hx-include="this">
+            <div class="flex gap-2 mb-3">
+              <div class="relative flex-1">
+                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[12px] text-[#5f6368]">R</span>
+                <input name="min_price" value="{{ min_price }}" placeholder="Min" class="w-full h-8 pl-5 pr-2 border border-[#dadce0] rounded-[8px] text-[13px] focus:border-[#1a73e8] outline-none">
+              </div>
+              <div class="relative flex-1">
+                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[12px] text-[#5f6368]">R</span>
+                <input name="max_price" value="{{ max_price }}" placeholder="Max" class="w-full h-8 pl-5 pr-2 border border-[#dadce0] rounded-[8px] text-[13px] focus:border-[#1a73e8] outline-none">
+              </div>
+            </div>
+            <div class="space-y-1">
+              <label class="flex items-center gap-2 text-[13px] cursor-pointer py-1"><input type="radio" name="price_range" value="" class="text-[#1a73e8]"> Any price</label>
+              <label class="flex items-center gap-2 text-[13px] cursor-pointer py-1"><input type="radio" name="price_range" value="0-1000"> Under R1,000</label>
+              <label class="flex items-center gap-2 text-[13px] cursor-pointer py-1"><input type="radio" name="price_range" value="1000-5000"> R1k - R5k</label>
+              <label class="flex items-center gap-2 text-[13px] cursor-pointer py-1"><input type="radio" name="price_range" value="5000-"> Over R5k</label>
+            </div>
+          </form>
+        </div>
+
+        {# Categories - from your CategoryPath closure #}
+        <div class="bg-white rounded-[12px] border border-[#dadce0] p-4">
+          <h3 class="text-[14px] font-medium text-[#202124] mb-3">Category</h3>
+          <div class="space-y-1 max-h-[240px] overflow-y-auto">
+            {% for cat_id, cat_name, count in facet_links.categories|slice:":12" %}
+            <a href="/category/{{ cat_id }}/?{{ base_query }}" class="flex items-center justify-between py-1.5 text-[13px] text-[#1a73e8] hover:underline">
+              <span class="truncate">{{ cat_name }}</span><span class="text-[#70757a] text-[12px]">{{ count }}</span>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        {# Merchants + Trust #}
+        <div class="bg-white rounded-[12px] border border-[#dadce0] p-4">
+          <h3 class="text-[14px] font-medium text-[#202124] mb-3">Seller</h3>
+          {% for brand, url, count, label in facet_links.brands|slice:":8" %}
+          <label class="flex items-center gap-2 py-1.5 cursor-pointer">
+            <input type="checkbox" name="brand" value="{{ brand }}" class="rounded border-[#dadce0] text-[#1a73e8]" hx-get="{% url 'search' %}" hx-target="#product-grid" hx-include="#filter-form">
+            <span class="text-[13px] truncate flex-1">{{ label }}</span>
+            <span class="text-[11px] text-[#70757a]">{{ count }}</span>
+          </label>
+          {% endfor %}
+          <a href="/merchants/" class="text-[12px] text-[#1a73e8] mt-2 inline-block">More merchants →</a>
+        </div>
+
+        {# Trust filter #}
+        <div class="bg-[#e8f0fe] rounded-[12px] p-4">
+          <div class="flex gap-2">
+            <span class="text-[16px]">🛡️</span>
+            <div>
+              <h4 class="text-[13px] font-medium text-[#1967d2]">Verified Stockists Only</h4>
+              <p class="text-[11px] text-[#5f6368] mt-1">Show only merchants with Trust Passport + Evidence verified offers</p>
+              <label class="mt-2 flex items-center gap-2 text-[12px] font-medium"><input type="checkbox" name="verified_only"> Enable</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    {# --- MAIN GRID --- #}
+    <main class="flex-1 min-w-0">
+      {# Breadcrumbs + Sort #}
+      <div class="flex items-center justify-between mb-4">
+        <div class="text-[13px] text-[#70757a]">
+          {% if query %}Results for <span class="font-medium text-[#202124]">"{{ query }}"</span> • {% endif %}{{ total_products }} products from {{ offers_count|default:total_products }} offers
+        </div>
+        <select name="sort" hx-get="{% url 'search' %}" hx-target="#product-grid" hx-include="#filter-form" class="h-8 border border-[#dadce0] rounded-full px-3 text-[13px] bg-white">
+          {% for val,label in sort_choices %}
+          <option value="{{ val }}" {% if sort == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      {# Sponsored - top offers #}
+      {% if sponsored_products %}
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-[11px] font-bold tracking-wide text-[#202124]">SPONSORED</span>
+          <span class="text-[11px] text-[#70757a]">• Verified merchants</span>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {% for product in sponsored_products|slice:":4" %}
+            {% include "catalog/_master_product_card.html" with product=product sponsored=True %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {# MAIN PRODUCT GRID - Google Shopping style #}
+      <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+        {% for product in products %}
+          {% include "catalog/_master_product_card.html" with product=product %}
+        {% empty %}
+          <div class="col-span-full py-24 text-center bg-white rounded-[16px] border border-[#dadce0]">
+            <div class="text-[48px] mb-4">🔍</div>
+            <h3 class="text-[16px] font-medium">No products for "{{ query }}"</h3>
+            <p class="text-[13px] text-[#70757a] mt-1">Try different filters or search for {{ facets.categories|first|first|default:"solar" }}</p>
+            <div class="mt-4 flex gap-2 justify-center">
+              <a href="/search/?q=solar inverter" class="px-4 py-2 bg-[#f1f3f4] rounded-full text-[13px]">Solar Inverter</a>
+              <a href="/search/?q=deye 5kw" class="px-4 py-2 bg-[#f1f3f4] rounded-full text-[13px]">Deye 5kW</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      {# Pagination - offset based like your category_landing_view #}
+      {% if next_offset %}
+      <div class="mt-8 flex justify-center">
+        <a href="?{{ base_query }}&offset={{ next_offset }}" class="px-6 py-2.5 border border-[#dadce0] rounded-full text-[14px] font-medium hover:bg-[#f8f9fa]">Show more • Page {{ page|add:1 }}</a>
+      </div>
+      {% endif %}
+
+      {# SEO - Price stats + JSON-LD already in view #}
+      <div class="mt-8 p-4 bg-white rounded-[12px] border border-[#dadce0] text-[12px] text-[#70757a]">
+        Price range: R{{ price_stats.min|floatformat:0 }} - R{{ price_stats.max|floatformat:0 }} • Avg R{{ price_stats.avg|floatformat:0 }} • {{ total_products }} products indexed • National Commerce Grid
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+// Close live dropdown on outside click
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#main-search-form')) {
+    document.getElementById('live-dropdown').innerHTML = '';
+  }
+});
+</script>
+{% endblock %}

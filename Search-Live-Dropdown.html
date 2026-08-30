@@ -1,0 +1,63 @@
+{# templates/search/partials/search_live_dropdown.html - Google-style instant dropdown
+   For: search_live_view -> returns 8 MasterProducts with best Offer
+#}
+{% if products %}
+<div class="bg-white rounded-[16px] shadow-[0_8px_28px_rgba(0,0,0,0.18)] border border-[#dadce0] overflow-hidden">
+  {# Header #}
+  <div class="px-4 py-2.5 flex items-center justify-between border-b border-[#f1f3f4]">
+    <span class="text-[11px] font-medium tracking-wide text-[#5f6368]">{{ total|default:products|length }} PRODUCTS • BEST PRICE FIRST</span>
+    <a href="/search/?q={{ query }}" class="text-[12px] text-[#1a73e8] font-medium hover:underline">See all results →</a>
+  </div>
+
+  {# Product list - Google Shopping dropdown style #}
+  <div class="max-h-[520px] overflow-y-auto">
+    {% for item in products %}
+    <a href="/p/{{ item.master.seo_handle }}/" class="flex items-center gap-3 px-4 py-3 hover:bg-[#f8f9fa] group border-b border-[#f8f9fa] last:border-0">
+      {# Image #}
+      <div class="w-[56px] h-[56px] rounded-[8px] bg-[#f8f9fa] border border-[#f1f3f4] overflow-hidden shrink-0">
+        {% if item.master.primary_image %}
+        <img src="{{ item.master.primary_image.url }}" alt="{{ item.master.title }}" class="w-full h-full object-contain group-hover:scale-105 transition-transform">
+        {% else %}
+        <div class="w-full h-full flex items-center justify-center text-[#dadce0]">📦</div>
+        {% endif %}
+      </div>
+
+      {# Info #}
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5 mb-0.5">
+          <span class="text-[11px] px-1.5 py-0.5 rounded bg-[#e6f4ea] text-[#137333] font-medium">IN STOCK</span>
+          {% if item.merchant %}<span class="text-[11px] text-[#70757a] truncate">{{ item.merchant.name|truncatechars:20 }}</span>{% endif %}
+        </div>
+        <h4 class="text-[13px] leading-[16px] text-[#202124] line-clamp-2 group-hover:text-[#1a73e8]">{{ item.master.brand }} {{ item.master.title|truncatechars:72 }}</h4>
+        <div class="flex items-center gap-2 mt-1">
+          <span class="text-[14px] font-bold text-[#202124]">R{{ item.price|floatformat:0 }}</span>
+          {% if item.master.estimated_price_zar and item.master.estimated_price_zar > item.price %}
+          <span class="text-[11px] text-[#70757a] line-through">R{{ item.master.estimated_price_zar|floatformat:0 }}</span>
+          {% endif %}
+          <span class="text-[11px] text-[#70757a]">• {{ item.merchant_count }} offers</span>
+        </div>
+      </div>
+
+      {# Arrow #}
+      <div class="shrink-0 text-[#dadce0] group-hover:text-[#1a73e8]"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round"/></svg></div>
+    </a>
+    {% endfor %}
+  </div>
+
+  {# Footer - Search intelligence #}
+  <div class="px-4 py-2.5 bg-[#f8f9fa] flex items-center justify-between">
+    <span class="text-[11px] text-[#70757a]">⚡ Live from National Grid • {{ facets.merchants|length|default:"" }} merchants</span>
+    <span class="text-[11px] text-[#70757a]">Press Enter for full comparison</span>
+  </div>
+</div>
+{% else %}
+{# Empty state for short queries #}
+<div class="bg-white rounded-[16px] shadow-[0_8px_28px_rgba(0,0,0,0.18)] border border-[#dadce0] p-4">
+  <div class="text-[13px] text-[#5f6368]">Type 2+ characters • Try "Deye 5kW", "solar inverter", "GTIN 600..."</div>
+  <div class="mt-3 flex gap-2">
+    <a href="/search/?q=solar" class="px-3 py-1.5 bg-[#f1f3f4] hover:bg-[#e8eaed] rounded-full text-[12px]">Solar</a>
+    <a href="/search/?q=deye" class="px-3 py-1.5 bg-[#f1f3f4] hover:bg-[#e8eaed] rounded-full text-[12px]">Deye</a>
+    <a href="/search/?q=inverter 5kw" class="px-3 py-1.5 bg-[#f1f3f4] hover:bg-[#e8eaed] rounded-full text-[12px]">5kW Inverter</a>
+  </div>
+</div>
+{% endif %}

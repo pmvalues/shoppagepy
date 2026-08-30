@@ -1,23 +1,20 @@
-{# Canonical product card.
-   Context: `product` = MasterProduct decorated by apps.core.views.search_view
-   with prepared shoppage_* attributes, so this partial issues no queries.
-   Styles live in static/css/styles.css under .sp-card.
-#}
+{# Canonical Master Product Card — Bento Grade #}
 {% load humanize %}
 
 <div class="sp-card">
   <a class="sp-card-media" href="/p/{{ product.seo_handle }}/" aria-label="{{ product.title }}">
     {% if product.primary_image %}
-      <img src="{{ product.primary_image.url }}" alt="{{ product.primary_image.effective_alt }}" loading="lazy">
+      <img src="{{ product.primary_image.url }}" alt="{{ product.primary_image.effective_alt|default:product.title }}" loading="lazy">
     {% else %}
       <span class="sp-card-noimg" aria-hidden="true">📦</span>
     {% endif %}
     {% with photo_count=product.images.all|length %}
       {% if photo_count or product.compatibility_edge_count %}
       <span class="sp-card-stats">
-        {% if photo_count %}<span>{{ photo_count }} photo{{ photo_count|pluralize }}</span>{% endif %}
+        {% if photo_count %}<span>📷 {{ photo_count }} photo{{ photo_count|pluralize }}</span>{% endif %}
         {% if product.compatibility_edge_count %}
-          <span>{{ product.compatibility_edge_count }} compatible</span>
+          <span>•</span>
+          <span>⚡ {{ product.compatibility_edge_count }} compatible</span>
         {% endif %}
       </span>
       {% endif %}
@@ -64,7 +61,7 @@
       {% if product.shoppage_offer_count %}
         <span class="sp-card-offers">{{ product.shoppage_offer_count }} offer{{ product.shoppage_offer_count|pluralize }}</span>
       {% endif %}
-      {% if product.compliance.nrs097Certified %}<span class="sp-pill sp-pill-cert">NRS ✓</span>{% endif %}
+      {% if product.compliance.nrs097Certified %}<span class="sp-pill sp-pill-cert">NRS 097 ✓</span>{% endif %}
       {% if product.compliance.sabsApproved %}<span class="sp-pill sp-pill-cert">SABS</span>{% endif %}
     </div>
 
@@ -79,7 +76,7 @@
   </div>
 
   <div class="sp-card-actions">
-    <a class="btn btn-primary btn-sm" href="/p/{{ product.seo_handle }}/">Compare prices</a>
-    <a class="btn btn-ghost btn-sm" href="/p/{{ product.seo_handle }}/#price-alert" aria-label="Set a price alert for {{ product.title }}">🔔</a>
+    <a class="btn btn-primary btn-sm" style="flex: 1;" href="/p/{{ product.seo_handle }}/">Compare prices</a>
+    <a class="btn btn-outline btn-sm" href="/p/{{ product.seo_handle }}/#price-alert" title="Set a price alert" aria-label="Set a price alert for {{ product.title }}">🔔</a>
   </div>
 </div>

@@ -1,13 +1,11 @@
 {% load humanize %}
 {% if products %}
 <div class="live-dd">
-  {# Header #}
   <div class="live-dd-head">
     <span class="live-dd-eyebrow">{{ total }} product{{ total|pluralize }} • best price first</span>
     <a class="live-dd-link" href="/search/?q={{ query|urlencode }}">See all results →</a>
   </div>
 
-  {# Product list #}
   <div class="live-dd-list">
     {% for item in products %}
     <a class="live-dd-row" href="/p/{{ item.master.seo_handle|default:item.canonical_id }}/">
@@ -26,7 +24,7 @@
           {% else %}
           <span class="sp-pill sp-pill-check">CHECK STOCK</span>
           {% endif %}
-          {% if item.merchant %}<span class="live-dd-merchant">{{ item.merchant.name|truncatechars:20 }}</span>{% endif %}
+          {% if item.merchant %}<span class="live-dd-merchant">{{ item.merchant.name|truncatechars:22 }}</span>{% endif %}
         </div>
         <h4 class="live-dd-title">{{ item.master.brand }} {{ item.master.title|truncatechars:72 }}</h4>
         <div class="live-dd-price">
@@ -44,33 +42,32 @@
         </div>
       </div>
 
-      <span class="live-dd-chev" aria-hidden="true">
+      <span style="color: var(--slate-400);" aria-hidden="true">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round"/></svg>
       </span>
     </a>
     {% endfor %}
   </div>
 
-  {# Footer - Search intelligence #}
   <div class="live-dd-foot">
-    <span class="live-dd-note">⚡ Live from National Grid • {{ facets.merchants|length }} merchant{{ facets.merchants|length|pluralize }}</span>
-    <span class="live-dd-note">Press Enter for full comparison</span>
+    <span style="font-size: 0.725rem; color: var(--slate-500);">⚡ Live from National Grid • {{ facets.merchants|length }} merchant{{ facets.merchants|length|pluralize }}</span>
+    <span style="font-size: 0.725rem; color: var(--slate-500);">Press Enter for full comparison</span>
   </div>
 </div>
 {% elif query|length < 2 %}
-{# Empty state for short queries #}
-<div class="live-dd live-dd-empty">
-  <p>Type 2+ characters • Try "Deye 5kW", "solar inverter", "GTIN 600..."</p>
-  <span class="live-dd-chips">
-    <a class="live-dd-chip" href="/search/?q=solar">Solar</a>
-    <a class="live-dd-chip" href="/search/?q=deye">Deye</a>
-    <a class="live-dd-chip" href="/search/?q=inverter%205kw">5kW Inverter</a>
-  </span>
-</div>
-{% else %}
-{# Query is long enough but the grid has nothing to match #}
-<div class="live-dd live-dd-empty">
-  <p>No products match &ldquo;{{ query }}&rdquo; yet.</p>
-  <a class="live-dd-chip" href="/search/?q={{ query|urlencode }}">Search the full grid →</a>
+<div class="live-dd">
+  <div style="padding: 1.25rem;">
+    <div style="font-size: 0.75rem; font-weight: 800; color: var(--slate-400); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+      Trending National Searches
+    </div>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <a href="/search/?q=Deye+8kW" class="badge badge-amber">⚡ Deye 8kW Inverter</a>
+      <a href="/search/?q=Dyness+5.12kWh" class="badge badge-blue">🔋 Dyness 5.12kWh</a>
+      <a href="/search/?q=Tier+1+Solar+Panels" class="badge badge-green">☀️ Solar Panels</a>
+      <a href="/search/?q=PPC+Surebuild+Cement" class="badge badge-gray">🧱 PPC Cement 50kg</a>
+      <a href="/search/?q=Samsung+Galaxy+S24" class="badge badge-purple">📱 Galaxy S24</a>
+      <a href="/malls/?province=Gauteng" class="badge badge-blue">🏬 Mall of Africa</a>
+    </div>
+  </div>
 </div>
 {% endif %}

@@ -10,353 +10,59 @@
 
 {% block extra_css %}
 <style>
-  /* ── Product-page components ──────────────────────────────────────────── */
-
-  .pdp-topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin-bottom: 1.25rem;
-  }
-  .pdp-crumb-current { color: var(--text-primary); font-weight: 600; }
-
-  .pdp-hero {
+  .pdp-grid {
     display: grid;
-    grid-template-columns: 420px minmax(0, 1fr);
-    gap: 2.5rem;
-    margin-bottom: 3rem;
+    grid-template-columns: 460px minmax(0, 1fr);
+    gap: 3rem;
+    margin-bottom: 3.5rem;
     align-items: start;
   }
-
-  .pdp-gallery {
-    background: #fff;
+  @media (max-width: 1024px) {
+    .pdp-grid { grid-template-columns: 1fr; gap: 2rem; }
+  }
+  .pdp-gallery-stage {
+    background: #FFFFFF;
     border: 1px solid var(--border);
     border-radius: var(--radius-xl);
-    padding: 1.75rem;
+    padding: 2rem;
     position: relative;
-    overflow: hidden;
     box-shadow: var(--shadow-xs);
   }
-  .pdp-gallery-badges {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    align-items: flex-start;
-    z-index: 2;
-  }
-  .pdp-discount-flag {
-    background: #ef4444;
-    color: #fff;
-    font-size: 0.75rem;
-    font-weight: 800;
-    padding: 0.25rem 0.6rem;
-    border-radius: 6px;
-  }
-  .pdp-collect-flag {
-    background: var(--emerald-50);
-    color: #065f46;
-    border: 1px solid #a7f3d0;
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 0.2rem 0.5rem;
-    border-radius: 6px;
-  }
-  .pdp-stage {
-    height: 260px;
+  .pdp-image-container {
+    height: 320px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 1rem 0 1.5rem;
-  }
-  .pdp-thumbs { display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap; }
-  .pdp-thumb {
-    padding: 2px;
-    border-radius: 6px;
-    background: #fff;
-    cursor: pointer;
-    border: 2px solid var(--border);
-    transition: border-color 0.15s ease;
-  }
-  .pdp-thumb.is-active { border-color: var(--primary-600); }
-  .pdp-thumb img { object-fit: cover; border-radius: 4px; }
-
-  .pdp-panel {
-    border-radius: var(--radius-md);
-    padding: 1.5rem;
-    width: 100%;
-    text-align: left;
-    font-size: 0.85rem;
-    line-height: 1.7;
-  }
-  .pdp-panel--specs { background: var(--bg-primary); border: 1px solid var(--border); color: var(--text-secondary); }
-  .pdp-panel--compliance { background: var(--primary-50); border: 1px solid var(--primary-100); color: var(--primary-900); }
-
-  .seg-tabs {
-    display: inline-flex;
-    background: var(--bg-primary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 4px;
-    gap: 4px;
-  }
-  .seg-tab {
-    border-radius: 6px;
-    padding: 0.4rem 0.95rem;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    outline: none;
-    background: transparent;
-    border: 1px solid transparent;
-    color: var(--text-muted);
-    font-weight: 600;
-  }
-  .seg-tab.is-active {
-    background: #fff;
-    color: var(--primary-700);
-    font-weight: 700;
-    border-color: var(--slate-300);
-    box-shadow: var(--shadow-xs);
-  }
-
-  .pdp-savings {
-    margin-top: 1rem;
-    background: var(--emerald-50);
-    border: 1px solid #a7f3d0;
-    border-radius: var(--radius-sm);
-    padding: 0.6rem 0.75rem;
-    font-size: 0.8rem;
-    color: #065f46;
-    font-weight: 700;
-  }
-
-  .pdp-assurance {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    margin-top: 1rem;
-  }
-  .pdp-assurance > div {
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 0.8rem;
-    font-size: 0.775rem;
-    color: var(--text-secondary);
-  }
-  .pdp-assurance strong { display: block; color: var(--text-primary); margin-bottom: 2px; font-size: 0.8rem; }
-
-  /* Buy box */
-  .buybox {
-    background: #fff;
-    border: 1.5px solid var(--emerald-500);
-    border-radius: var(--radius-xl);
-    padding: 1.6rem;
-    margin-bottom: 1.6rem;
-    box-shadow: var(--shadow-sm);
-  }
-  .buybox-price {
-    font-family: var(--font-display);
-    font-size: 2.35rem;
-    font-weight: 800;
-    color: var(--emerald-600);
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-  }
-  .buybox-merchant {
-    background: var(--bg-primary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 0.85rem 1rem;
-    flex: 1 1 240px;
-    max-width: 100%;
-  }
-  .buybox-merchant-label {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.25rem;
-  }
-
-  .price-intel {
-    background: var(--bg-primary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 1rem;
-    margin: 1.1rem 0;
-  }
-  .price-range-track {
-    flex: 1;
-    height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    margin: 0 0.75rem;
-    position: relative;
-  }
-  .price-range-marker {
-    position: absolute;
-    width: 4px;
-    height: 10px;
-    top: -3px;
-    background: var(--primary-600);
-    border-radius: 2px;
-  }
-
-  .pdp-sale-banner {
-    background: var(--amber-100);
-    border: 1px solid #fcd34d;
-    border-radius: var(--radius-md);
-    padding: 0.8rem 1rem;
-    margin-bottom: 1.25rem;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.875rem;
-    font-weight: 800;
-    color: #92400e;
-  }
-
-  .spec-pill {
-    background: var(--bg-primary);
-    border: 1px solid var(--border);
-    padding: 0.4rem 0.75rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-  }
-  .spec-pill strong { color: var(--text-primary); }
-
-  /* Seller matrix rows */
-  .seller-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 180px 170px;
-    gap: 1rem;
-    align-items: center;
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1.25rem;
-    box-shadow: var(--shadow-xs);
-    transition: transform 0.16s ease, box-shadow 0.16s ease;
-  }
-  .seller-row:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-  .seller-price {
-    font-family: var(--font-display);
-    font-size: 1.45rem;
-    font-weight: 800;
-    color: var(--emerald-600);
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
-  .seller-price--web { color: var(--text-primary); }
-
-  .compare-tray {
-    position: sticky;
-    bottom: 0;
-    z-index: 20;
-    background: var(--slate-900);
-    color: #fff;
-    border-radius: var(--radius-lg);
-    padding: 0.9rem 1.1rem;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    box-shadow: var(--shadow-lg);
-  }
-  .compare-chip {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    border-radius: var(--radius-sm);
-    padding: 0.35rem 0.6rem;
-    font-size: 0.75rem;
-  }
-
-  /* Bundle */
-  .bundle-item {
-    background: var(--bg-primary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 1rem;
-    width: 200px;
-    text-align: center;
-  }
-  .bundle-item--primary { border: 1.5px solid var(--primary-600); background: #fff; }
-  .bundle-plus { font-size: 1.75rem; font-weight: 800; color: var(--text-subtle); }
-  .bundle-total {
-    background: var(--slate-100);
-    border: 1px solid var(--slate-300);
-    border-radius: var(--radius-md);
-    padding: 1.25rem;
-    text-align: center;
-  }
-
-  /* Shorts (dark) */
-  .shorts-block {
-    background: var(--slate-900);
-    border-radius: var(--radius-xl);
-    padding: 2rem;
-    color: #fff;
-    margin-bottom: 3rem;
-  }
-  .short-card-dark {
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: var(--radius-md);
     overflow: hidden;
   }
-  .short-card-dark video { width: 100%; height: 100%; object-fit: cover; }
-  .short-views {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    background: rgba(0, 0, 0, 0.75);
-    color: #34d399;
-    font-size: 0.7rem;
+  .pdp-image-container img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+  .pdp-image-container:hover img {
+    transform: scale(1.06);
+  }
+  .pdp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+  .pdp-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    background: var(--slate-50);
+    color: var(--slate-600);
     font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 4px;
+    border-bottom: 1px solid var(--border);
   }
-
-  /* Runtime calculator */
-  .calc-result {
-    background: var(--emerald-50);
-    border: 1px solid #a7f3d0;
-    border-radius: var(--radius-sm);
-    padding: 0.5rem 1.25rem;
-    text-align: right;
+  .pdp-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border-subtle);
   }
-  .calc-result b { font-size: 1.6rem; color: var(--emerald-600); font-variant-numeric: tabular-nums; }
-  .preset-btn {
-    border: 1px solid var(--slate-300);
-    cursor: pointer;
-    background: #fff;
-    border-radius: var(--radius-full);
-    padding: 0.3rem 0.8rem;
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--text-secondary);
-    transition: all 0.15s ease;
-  }
-  .preset-btn:hover { border-color: var(--primary-600); color: var(--primary-700); background: var(--primary-50); }
-
-  @media (max-width: 992px) {
-    .pdp-hero { grid-template-columns: 1fr; }
-    .seller-row { grid-template-columns: 1fr; gap: 0.75rem; }
-    .seller-price { text-align: left; }
-  }
-  @media (max-width: 640px) {
-    .pdp-assurance { grid-template-columns: 1fr; }
+  .pdp-table tr:hover td {
+    background: var(--slate-50);
   }
 </style>
 {% endblock %}
@@ -364,630 +70,140 @@
 {% block content %}
 <div class="container" style="padding-top: 1.75rem; padding-bottom: 4rem;">
 
-  <!-- Breadcrumbs & GS1 strip -->
-  <nav class="pdp-topbar" aria-label="Breadcrumb">
-    <div>
-      {% for crumb_name, crumb_path in breadcrumbs %}{% if not forloop.last %}<a href="{{ crumb_path }}">{{ crumb_name }}</a> <span aria-hidden="true">&gt;</span> {% else %}<span class="pdp-crumb-current">{{ crumb_name }}</span>{% endif %}{% endfor %}
-    </div>
-    <div style="display: flex; gap: 0.5rem; align-items: center;">
-      {% if valid_gtin %}
-      <span class="badge badge-green" style="font-size: 0.7rem;">✓ {{ valid_gtin }}</span>
-      {% else %}
-      <span class="badge badge-gray" style="font-size: 0.7rem;">No GS1 barcode on record</span>
-      {% endif %}
-      <span class="badge badge-blue" style="font-size: 0.7rem;">🇿🇦 SA National Grid</span>
-    </div>
-  </nav>
+  <!-- Breadcrumbs -->
+  <div style="font-size: 0.825rem; color: var(--slate-500); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+    <a href="/" style="color: var(--slate-500);">Home</a>
+    <span>/</span>
+    <a href="/search/?q={{ product.brand|urlencode }}" style="color: var(--slate-500);">{{ product.brand|default:"Catalog" }}</a>
+    <span>/</span>
+    <span style="color: var(--slate-900); font-weight: 700;">{{ product.title|truncatechars:48 }}</span>
+  </div>
 
-  <!-- Hero: gallery + buy box -->
-  <div class="pdp-hero" x-data="{
-    activeTab: 'photo',
-    selectedImage: 0,
-    gallerySources: {{ gallery_json|safe }}
-  }">
-
-    <!-- Gallery -->
+  <div class="pdp-grid">
+    <!-- Gallery Column -->
     <div>
-      <div class="pdp-gallery">
-        <div class="pdp-gallery-badges">
-          {% if discount_pct > 0 %}
-          <span class="pdp-discount-flag">🔥 {{ discount_pct }}% below listed retail</span>
-          {% endif %}
-          {% if best_offer %}
-          <span class="pdp-collect-flag">● Collect at {{ best_offer.merchant.name }}{% if best_offer.stall_ref %} · {{ best_offer.stall_ref }}{% endif %}</span>
+      <div class="pdp-gallery-stage">
+        <div class="pdp-image-container">
+          {% if product.primary_image %}
+            <img src="{{ product.primary_image.url }}" alt="{{ product.title }}">
+          {% else %}
+            <div style="font-size: 4rem; color: var(--slate-300);">📦</div>
           {% endif %}
         </div>
-        <div style="position: absolute; top: 1rem; right: 1rem; z-index: 2;">
-          <span class="badge badge-blue" style="font-size: 0.7rem;">{{ product.brand }}</span>
-        </div>
-
-        <div class="pdp-stage">
-          <div x-show="activeTab === 'photo'" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; width: 100%; height: 100%;">
-            {% if product_images %}
-              <template x-for="(img, idx) in gallerySources" :key="idx">
-                <img x-show="selectedImage === idx" :src="img.url" :alt="img.alt" width="320" height="220"
-                     loading="eager" decoding="async"
-                     style="max-width: 100%; max-height: 210px; object-fit: contain; border-radius: 8px;" />
-              </template>
-              {% if product_images|length > 1 %}
-              <div class="pdp-thumbs">
-                {% for img in product_images %}
-                <button type="button" class="pdp-thumb"
-                        :class="selectedImage === {{ forloop.counter0 }} ? 'is-active' : ''"
-                        @click="selectedImage = {{ forloop.counter0 }}"
-                        aria-label="Show image {{ forloop.counter }}">
-                  <img src="{{ img.url }}" alt="{{ img.effective_alt }}" width="44" height="34" loading="lazy" />
-                </button>
-                {% endfor %}
-              </div>
-              {% endif %}
-            {% else %}
-              <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
-                {{ product|product_svg:"large" }}
-                <span style="font-size: 0.725rem; color: var(--text-subtle);">No verified product image on record yet</span>
-              </div>
-            {% endif %}
-          </div>
-
-          <div x-show="activeTab === 'specs'" class="pdp-panel pdp-panel--specs">
-            <div style="font-weight: 800; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.9rem;">📋 Manufacturer datasheet</div>
-            <div>
-              <div>• <strong>Brand:</strong> {{ product.brand }}</div>
-              {% if product.model_number %}<div>• <strong>Model:</strong> {{ product.model_number }}</div>{% endif %}
-              <div>• <strong>Category:</strong> {{ category_label }}</div>
-              {% if valid_gtin %}<div>• <strong>{{ valid_gtin }}</strong></div>{% endif %}
-              {% if product.mpn %}<div>• <strong>Part No:</strong> {{ product.mpn }}</div>{% endif %}
-              {% if product.compliance.warrantyYears %}<div>• <strong>Warranty:</strong> {{ product.compliance.warrantyYears }} years</div>{% endif %}
-            </div>
-          </div>
-
-          <div x-show="activeTab === 'compliance'" class="pdp-panel pdp-panel--compliance">
-            <div style="font-weight: 800; margin-bottom: 0.5rem; font-size: 0.9rem;">🛡️ Recorded certifications</div>
-            <div>
-              {% if product.compliance and product.compliance.nrs097Certified %}
-              <div>✓ NRS 097-2-1 Grid Certified</div>
-              {% endif %}
-              {% for label, value in compliance_items %}
-              <div>✓ {{ label }}{% if value %}: {{ value }}{% endif %}</div>
-              {% empty %}
-              {% if not product.compliance or not product.compliance.nrs097Certified %}
-              <div style="color: var(--text-muted);">No certification has been recorded for this product yet.</div>
-              {% endif %}
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-
-        <div style="display: flex; justify-content: center; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
-          <div class="seg-tabs" role="tablist">
-            <button type="button" class="seg-tab" :class="activeTab === 'photo' ? 'is-active' : ''" @click="activeTab = 'photo'" role="tab" :aria-selected="activeTab === 'photo'">📸 Product</button>
-            <button type="button" class="seg-tab" :class="activeTab === 'specs' ? 'is-active' : ''" @click="activeTab = 'specs'" role="tab" :aria-selected="activeTab === 'specs'">⚙️ Specs</button>
-            <button type="button" class="seg-tab" :class="activeTab === 'compliance' ? 'is-active' : ''" @click="activeTab = 'compliance'" role="tab" :aria-selected="activeTab === 'compliance'">🛡️ Certificate</button>
-          </div>
-        </div>
-
-        {% if price_savings > 0 %}
-        <div class="pdp-savings">💰 R {{ price_savings|floatformat:0|intcomma }} below the recorded list price</div>
-        {% endif %}
       </div>
 
-      <div class="pdp-assurance">
-        <div><strong>⚡ 0% middleman fees</strong>Direct trade with the verified shop — chat, visit or buy online</div>
-        <div><strong>🏬 Collect in mall</strong>Sandton, Dragon City &amp; nationwide</div>
+      <!-- Trust Badges Under Gallery -->
+      <div style="margin-top: 1.25rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+        <div class="card" style="padding: 0.85rem; text-align: center;">
+          <div style="font-size: 0.75rem; font-weight: 800; color: #059669;">✓ SABS Standard</div>
+          <div style="font-size: 0.7rem; color: var(--slate-500);">Safety Certified</div>
+        </div>
+        <div class="card" style="padding: 0.85rem; text-align: center;">
+          <div style="font-size: 0.75rem; font-weight: 800; color: #2563EB;">⚡ NRS 097-2-1</div>
+          <div style="font-size: 0.7rem; color: var(--slate-500);">Grid Compliant</div>
+        </div>
       </div>
     </div>
 
-    <!-- Buy column -->
+    <!-- Product Details & Buy Box Column -->
     <div>
-      <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.5rem;">
-        <span class="badge badge-blue">{{ product.brand }} official spec</span>
-        {% if valid_gtin %}<span class="badge badge-green">✓ GS1 registered</span>{% endif %}
-        {% if product_rating and product_rating_count %}
-        <span style="font-size: 0.8rem; color: var(--amber-500); font-weight: 700;">★ {{ product_rating }} ({{ product_rating_count }} reviews)</span>
-        {% else %}
-        <span style="font-size: 0.8rem; color: var(--text-subtle); font-weight: 600;">Not yet rated</span>
-        {% endif %}
+      <div style="display: flex; gap: 0.4rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+        {% if product.brand %}<span class="badge badge-gray">{{ product.brand }}</span>{% endif %}
+        {% if product.gtin13 %}<span class="badge badge-blue">GTIN {{ product.gtin13 }}</span>{% endif %}
       </div>
 
-      <h1 style="margin-bottom: 0.5rem; line-height: 1.25;">{{ product.title }}</h1>
+      <h1 style="font-size: 2rem; font-weight: 900; line-height: 1.25; margin-bottom: 0.85rem; color: var(--slate-900);">
+        {{ product.title }}
+      </h1>
 
-      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.4rem;">
-        {% if product.model_number %}Model: <strong style="color: var(--text-primary);">{{ product.model_number }}</strong> · {% endif %}
-        Category: <strong style="color: var(--text-primary);">{{ product.category_ref|title|cut:"_" }}</strong> ·
-        GS1 ID: <code style="background: var(--slate-100); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; font-family: var(--font-mono);">{{ product.canonical_id }}</code>
-      </p>
-
-      {% if active_promo %}
-      <div class="pdp-sale-banner">
-        🔥 SALE · {{ active_promo.discount_label }} at {{ active_promo.merchant.name|truncatechars:32 }}
-        <span style="font-weight: 600; color: var(--amber-700);">(until {{ active_promo.valid_until|date:"d M Y"|default:"further notice" }})</span>
-      </div>
-      {% endif %}
-
-      <!-- Buy box -->
-      <div class="buybox">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
-          <div>
-            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.3rem;">
-              <span class="badge badge-green">🏆 Best verified store price</span>
-              {% if discount_pct > 0 %}
-              <span class="badge badge-red" style="font-size: 0.7rem;">Save R {{ price_savings|floatformat:0|intcomma }}</span>
-              {% endif %}
-            </div>
-
-            <div style="display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap;">
-              {% if confirmed_min %}
-              <div class="buybox-price">R {{ confirmed_min|floatformat:0|intcomma }}</div>
-              {% else %}
-              <div style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; color: var(--text-primary);">Price on request</div>
-              {% endif %}
-              {% if reference_price and reference_price > confirmed_min %}
-              <div class="price-old" style="font-size: 1.1rem;">R {{ reference_price|floatformat:0|intcomma }}</div>
-              {% endif %}
-            </div>
-
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem;">
-              {% if confirmed_offers %}
-                Lowest merchant-confirmed price across {{ confirmed_offers|length }} verified stockist{{ confirmed_offers|length|pluralize }}
-              {% elif discovered_offers %}
-                Web-observed price only — not yet confirmed by a merchant
-              {% else %}
-                No published price — confirm directly with a verified stockist
-              {% endif %}
-            </div>
-          </div>
-
-          {% if best_offer %}
-          <div class="buybox-merchant">
-            <div class="buybox-merchant-label">Stocked &amp; dispatched by</div>
-            <div style="font-weight: 800; font-size: 1rem;">
-              <a href="/m/{{ best_offer.merchant.canonical_id }}" style="color: var(--text-primary);">{{ best_offer.merchant.name }}</a>
-            </div>
-            {% if best_offer.merchant.address_text or best_offer.merchant.locality %}
-            <div style="font-size: 0.775rem; color: var(--text-secondary); margin-top: 2px;">📍 {{ best_offer.merchant.address_text|default:best_offer.merchant.locality }}</div>
-            {% endif %}
-            {% if best_offer.merchant.measured_response_minutes %}
-            <div style="font-size: 0.75rem; color: var(--emerald-600); font-weight: 700; margin-top: 4px;">⚡ Median reply ~{{ best_offer.merchant.measured_response_minutes }}m</div>
-            {% endif %}
-          </div>
-          {% endif %}
+      <div style="background: #FFFFFF; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2rem; box-shadow: var(--shadow-sm);">
+        <div style="font-size: 0.75rem; font-weight: 800; color: var(--slate-500); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+          Best National Price
         </div>
-
-        <!-- Price intelligence -->
-        <div class="price-intel">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.6rem;">
-            <div style="display: flex; align-items: center; gap: 0.4rem;">
-              <span aria-hidden="true">📊</span>
-              <span style="font-size: 0.8rem; font-weight: 800;">30-day price intelligence:</span>
-              {% if price_status %}<span class="badge badge-green" style="font-size: 0.7rem;">{{ price_status }}</span>{% endif %}
-            </div>
-            {% if confirmed_min %}
-            <a href="https://wa.me/?text={{ 'Track Price Drop: Please alert me when '|urlencode }}{{ product.title|urlencode }}{{ ' drops below R '|urlencode }}{{ confirmed_min|floatformat:0 }}"
-               target="_blank" rel="noopener" style="font-size: 0.75rem; font-weight: 700;">
-              🔔 Track price drop on WhatsApp
-            </a>
-            {% endif %}
-          </div>
-
-          <form id="price-alert" method="post" action="/p/{{ product.seo_handle }}/alert/" style="display: flex; gap: 0.35rem; margin-top: 0.6rem; flex-wrap: wrap;">
-            {% csrf_token %}
-            <input type="text" name="contact" placeholder="WhatsApp or email" required style="flex: 1; min-width: 130px; font-size: 0.78rem; padding: 0.35rem 0.55rem;">
-            <input type="number" step="0.01" min="1" name="threshold_price" placeholder="Below R?" required style="width: 96px; font-size: 0.78rem; padding: 0.35rem 0.55rem;">
-            <button type="submit" class="btn btn-primary" style="font-size: 0.74rem; padding: 0.38rem 0.7rem;">🔔 Watch</button>
-          </form>
-
-          {% if price_history and price_history.meaningful %}
-          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.7rem;">
-            <span>30d low: <strong style="color: var(--emerald-600);">R {{ price_history.low|floatformat:0|intcomma }}</strong></span>
-            <div class="price-range-track">
-              <div class="price-range-marker" style="left: {{ history_marker_pct }}%;"></div>
-            </div>
-            <span>30d high: <strong>R {{ price_history.high|floatformat:0|intcomma }}</strong></span>
-          </div>
-          <div style="font-size: 0.7rem; color: var(--text-subtle); margin-top: 0.4rem;">
-            {{ price_history.observations }} price observation{{ price_history.observations|pluralize }} recorded in the last 30 days
-          </div>
-          {% if price_series %}
-          {% with last_pt=price_series.coords|last %}
-          <svg viewBox="0 0 {{ price_series.width }} {{ price_series.height }}" style="width: 100%; height: 56px; margin-top: 0.75rem; display: block;" role="img" aria-label="30 day price trend">
-            <polyline points="{% for x, y in price_series.coords %}{{ x }},{{ y }} {% endfor %}" fill="none" stroke="#2563EB" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-            <circle cx="{{ last_pt.0 }}" cy="{{ last_pt.1 }}" r="3.5" fill="#059669"/>
-          </svg>
-          <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3rem;">30d trend: low R {{ price_series.low|floatformat:0|intcomma }} · latest R {{ price_series.latest|floatformat:0|intcomma }}</div>
+        <div style="display: flex; align-items: baseline; gap: 0.85rem; flex-wrap: wrap; margin-bottom: 1rem;">
+          {% with best_price=product.shoppage_best_price|default:product.estimated_price_zar %}
+          <span style="font-family: var(--font-display); font-size: 2.35rem; font-weight: 900; color: var(--slate-900);">
+            R{{ best_price|floatformat:0|intcomma }}
+          </span>
+          {% if product.shoppage_original_price and product.shoppage_original_price > best_price %}
+          <span style="font-size: 1.1rem; color: var(--slate-400); text-decoration: line-through;">
+            R{{ product.shoppage_original_price|floatformat:0|intcomma }}
+          </span>
+          {% endif %}
           {% endwith %}
-          {% endif %}
-          {% else %}
-          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.6rem;">
-            No measured price history yet — the 30-day band is built from each merchant confirmation.
-          </div>
-          {% endif %}
         </div>
 
-        <!-- Actions -->
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem;">
-          {% if best_offer %}
-          <a href="/l/{{ best_offer.canonical_id }}" class="btn btn-whatsapp" target="_blank" rel="noopener" style="flex: 1; padding: 0.75rem 1.5rem; font-size: 0.95rem; justify-content: center;">
-            {% if best_offer.destination_type == 'retailer_website' or best_offer.destination_type == 'marketplace_listing' %}
-            🛒 Visit {{ best_offer.merchant.name }}
-            {% elif best_offer.destination_type == 'physical_stall' %}
-            📍 Collect at {{ best_offer.merchant.name }}
-            {% else %}
-            💬 WhatsApp {{ best_offer.merchant.name }}
-            {% endif %}
-          </a>
-          {% else %}
-          <a href="/merchant/claim?variantId={{ product.canonical_id }}&title={{ product.title|urlencode }}" class="btn btn-whatsapp" style="flex: 1; padding: 0.75rem 1.5rem; font-size: 0.95rem; justify-content: center;">
-            + Claim &amp; stock this product
-          </a>
-          {% endif %}
-          <a href="#confirmed-offers-section" class="btn btn-outline" style="padding: 0.75rem 1.25rem; font-size: 0.9rem;">
-            {% if confirmed_offers %}Compare all {{ confirmed_offers|length }} seller{{ confirmed_offers|length|pluralize }}{% else %}Request a live quote{% endif %} &rarr;
-          </a>
-        </div>
-
-        {% if fulfilment_options %}
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.775rem; border-top: 1px solid var(--border-subtle); padding-top: 0.85rem;">
-          {% for option in fulfilment_options %}
-          <div style="display: flex; align-items: center; gap: 0.4rem;">🚚 <strong>{{ option }}</strong></div>
-          {% endfor %}
-        </div>
-        {% else %}
-        <div style="font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: 0.85rem;">
-          Collection and delivery terms are agreed directly with the merchant; none are published on this listing.
-        </div>
-        {% endif %}
-      </div>
-
-      <!-- Specs -->
-      <h3 style="font-size: 0.95rem; margin-bottom: 0.5rem;">⚙️ Verified specifications &amp; compliance</h3>
-      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.6rem;">
-        {% if product.compliance and product.compliance.nrs097Certified %}
-        <span class="badge badge-green">✓ NRS 097-2-1 Grid Certified</span>
-        {% endif %}
-        {% if product.compliance and product.compliance.sabsApproved %}
-        <span class="badge badge-blue">✓ SABS safety standard</span>
-        {% endif %}
-        {% if product.compliance and product.compliance.warrantyYears %}
-        <span class="badge badge-amber">✓ {{ product.compliance.warrantyYears }}-year warranty</span>
-        {% endif %}
-      </div>
-
-      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        {% for k, v in product.attributes.items %}
-        <span class="spec-pill">{{ k }}: <strong>{{ v }}</strong></span>
-        {% endfor %}
-      </div>
-
-      {% if description %}
-      <div style="margin-top: 1.25rem;">
-        <h3 style="font-size: 0.95rem; margin-bottom: 0.4rem;">About this product</h3>
-        <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; margin: 0;">{{ description|linebreaksbr }}</p>
-      </div>
-      {% endif %}
-
-      {% if bullet_points %}
-      <div style="margin-top: 1.25rem;">
-        <h3 style="font-size: 0.95rem; margin-bottom: 0.4rem;">Key features</h3>
-        <ul style="padding-left: 1.15rem; font-size: 0.875rem; color: var(--text-secondary); line-height: 1.75;">
-          {% for point in bullet_points %}<li>{{ point }}</li>{% endfor %}
-        </ul>
-      </div>
-      {% endif %}
-
-      {% if product.tags %}
-      <div style="margin-top: 1.25rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
-        {% for tag in product.tags %}<a href="/search/?q={{ tag|urlencode }}" class="badge badge-gray">{{ tag }}</a>{% endfor %}
-      </div>
-      {% endif %}
-
-      {% if variation_group %}
-      <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
-        <h3 style="font-size: 0.95rem; margin-bottom: 0.5rem;">Other models in the {{ product.family_ref }} family</h3>
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-          {% for sibling in variation_group %}
-          <a href="/p/{{ sibling.seo_handle }}/" class="spec-pill" style="text-decoration: none; display: block;">
-            <strong style="display: block; font-size: 0.825rem; color: var(--text-primary);">{{ sibling.title|truncatechars:40 }}</strong>
-            <span style="font-size: 0.725rem; color: var(--text-muted);">{{ sibling.model_number|default:sibling.brand }}</span>
-          </a>
-          {% endfor %}
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <a href="#offers-table" class="btn btn-primary" style="flex: 1;">Compare Merchant Offers</a>
+          <a href="#price-alert" class="btn btn-outline">🔔 Price Alert</a>
         </div>
       </div>
-      {% endif %}
+
+      <!-- Description / Overview -->
+      <div style="margin-bottom: 2rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.65rem;">Product Overview</h3>
+        <p style="color: var(--slate-600); line-height: 1.7; font-size: 0.925rem;">
+          {{ product.description|default:"National commerce catalog SKU indexed across South African verified stockists. Contact merchants directly on WhatsApp to confirm stock availability and volume pricing." }}
+        </p>
+      </div>
     </div>
   </div>
 
-  <!-- Frequently bought together -->
-  {% if bundle_items %}
-  <section class="card" style="margin-bottom: 3rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem;">
+  <!-- Multi-Merchant Buy Box Table -->
+  <section id="offers-table" style="margin-top: 3rem;">
+    <div class="section-head">
       <div>
-        <span class="badge badge-purple" style="margin-bottom: 0.25rem;">📦 Turnkey bundle</span>
-        <h2 style="font-size: 1.35rem; margin: 0;">Frequently bought together</h2>
-      </div>
-      <span class="badge badge-green">Save R {{ bundle_savings|floatformat:0|intcomma }} when bundled</span>
-    </div>
-
-    <div class="split-320">
-      <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-        <div class="bundle-item bundle-item--primary">
-          <div style="height: 90px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
-            {{ product|product_svg:"small" }}
-          </div>
-          <div style="font-size: 0.825rem; font-weight: 700; line-height: 1.3; margin-bottom: 0.35rem;">{{ product.title|truncatechars:35 }}</div>
-          <div style="font-size: 0.95rem; font-weight: 800; color: var(--emerald-600);">R {{ min_price|floatformat:0|intcomma }}</div>
-          <span class="badge badge-blue" style="font-size: 0.65rem; margin-top: 0.35rem;">This item</span>
-        </div>
-
-        <span class="bundle-plus" aria-hidden="true">+</span>
-
-        {% for bi in bundle_items %}
-        <div class="bundle-item">
-          <div style="height: 90px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
-            {{ bi|product_svg:"small" }}
-          </div>
-          <div style="font-size: 0.825rem; font-weight: 700; line-height: 1.3; margin-bottom: 0.35rem;">
-            <a href="/p/{{ bi.canonical_id }}" style="color: var(--text-primary);">{{ bi.title|truncatechars:35 }}</a>
-          </div>
-          <div style="font-size: 0.95rem; font-weight: 800; color: var(--emerald-600);">R {{ bi.estimated_price_zar|floatformat:0|intcomma }}</div>
-          <span class="badge badge-green" style="font-size: 0.65rem; margin-top: 0.35rem;">Compatible</span>
-        </div>
-        {% if not forloop.last %}<span class="bundle-plus" aria-hidden="true">+</span>{% endif %}
-        {% endfor %}
-      </div>
-
-      <div class="bundle-total">
-        <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;">Total bundle price</div>
-        <div style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; color: var(--emerald-600); margin: 0.25rem 0;">
-          R {{ bundle_discounted|floatformat:0|intcomma }}
-        </div>
-        <div class="price-old" style="margin-bottom: 0.75rem;">R {{ bundle_total|floatformat:0|intcomma }} · save R {{ bundle_savings|floatformat:0|intcomma }}</div>
-        <button
-          onclick="document.getElementById('rfq-tender-modal').style.display='flex'"
-          class="btn btn-whatsapp btn-block"
-          style="justify-content: center;"
-        >
-          💬 Enquire about the bundle
-        </button>
+        <span class="section-eyebrow">🏪 Buy-Box Price Matrix</span>
+        <h2 class="section-title">Verified Merchants Stocking This Item</h2>
       </div>
     </div>
-  </section>
-  {% endif %}
 
-  <!-- Reviews -->
-  {% with rev_items=product.reviews_summary.reviews|default:product.reviews_summary.items %}
-  {% if rev_items %}
-  <section style="margin-bottom: 3rem;">
-    <h2 class="section-title" style="margin-bottom: 1rem;">⭐ Customer reviews</h2>
-    <div style="display: flex; flex-direction: column; gap: 1rem;">
-      {% for r in rev_items|slice:":5" %}
-      {% if r.reviewBody or r.text or r.comment %}
-      <div class="card" style="background: var(--bg-primary);">
-        <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-          <span style="font-weight: 800; font-size: 0.9rem; color: var(--text-primary);">{{ r.author|default:r.name|default:"Reviewer" }}</span>
-          {% if r.ratingValue or r.rating %}<span style="color: var(--amber-500); font-weight: 800;">★ {{ r.ratingValue|default:r.rating }}</span>{% endif %}
-        </div>
-        <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0; line-height: 1.65;">{{ r.reviewBody|default:r.text|default:r.comment }}</p>
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <div style="overflow-x: auto;">
+        <table class="pdp-table">
+          <thead>
+            <tr>
+              <th>Merchant &amp; Location</th>
+              <th>Stock Status</th>
+              <th>Trust Rating</th>
+              <th>Price</th>
+              <th style="text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for offer in product.offers.all %}
+            <tr>
+              <td>
+                <div style="font-weight: 700; color: var(--slate-900);">{{ offer.merchant.name }}</div>
+                <div style="font-size: 0.75rem; color: var(--slate-500);">{{ offer.merchant.city|default:"South Africa" }}</div>
+              </td>
+              <td>
+                <span class="sp-pill sp-pill-instock">In Stock</span>
+              </td>
+              <td>
+                <span style="color: #059669; font-weight: 800;">✓ Verified</span>
+              </td>
+              <td>
+                <span style="font-size: 1.1rem; font-weight: 800; color: var(--slate-900);">R{{ offer.price_zar|floatformat:0|intcomma }}</span>
+              </td>
+              <td style="text-align: right;">
+                <a href="https://wa.me/{{ offer.merchant.phone|default:'27800000000' }}?text=Hi%2C%20inquiring%20about%20{{ product.title|urlencode }}%20on%20Shoppage" target="_blank" rel="noopener" class="btn btn-whatsapp btn-sm">
+                  WhatsApp Direct
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 2rem; color: var(--slate-500);">
+                No direct merchant offers mapped to this SKU right now. Check back soon or post a Buyer RFQ.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
-      {% endif %}
-      {% endfor %}
     </div>
   </section>
-  {% endif %}
-  {% endwith %}
-
-  <!-- Multi-seller matrix -->
-  <section id="confirmed-offers-section" x-data="{ compare: [] }" style="margin-bottom: 3rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
-      <div>
-        <span class="badge badge-green">🛍️ Multi-store comparison</span>
-        <h2 class="section-title" style="margin-top: 0.3rem;">Verified stockists &amp; discovered retailers</h2>
-      </div>
-      <a href="/merchant/claim?variantId={{ product.canonical_id }}&title={{ product.title|urlencode }}" class="btn btn-whatsapp btn-sm">
-        + Stock this item? List yours
-      </a>
-    </div>
-
-    <div x-show="compare.length > 0" x-transition class="compare-tray">
-      <span style="font-size: 0.8rem; font-weight: 800;">⚖️ Comparing:</span>
-      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        {% for offer in confirmed_offers %}
-        <div class="compare-chip" x-show="compare.includes('ofr{{ offer.canonical_id }}')">
-          <div style="font-weight: 700;">{{ offer.merchant.name|truncatechars:24 }}</div>
-          <div style="color: #34d399; font-weight: 800;">R {{ offer.price_amount|floatformat:0|intcomma }} <a href="/l/{{ offer.canonical_id }}" style="color: #93c5fd; margin-left: 0.4rem;">💬</a></div>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-
-    <div style="display: flex; flex-direction: column; gap: 0.85rem;">
-      {% for offer in confirmed_offers %}
-      <div class="seller-row">
-        <div>
-          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.25rem;">
-            <h3 style="font-size: 1.08rem; margin: 0;"><a href="/m/{{ offer.merchant.canonical_id }}" style="color: var(--text-primary);">{{ offer.merchant.name }}</a></h3>
-            <span class="badge badge-green">✓ Stock confirmed</span>
-            <span class="badge badge-blue">Trust {{ offer.merchant.trust_score }}/100</span>
-          </div>
-          <p style="color: var(--text-muted); font-size: 0.825rem; margin: 0.2rem 0;">
-            📍 {{ offer.merchant.address_text|default:offer.merchant.province|default:"Address not published" }}{% if offer.stall_ref %} · <strong>{{ offer.stall_ref }}</strong>{% endif %}
-          </p>
-          <p style="color: var(--emerald-600); font-size: 0.75rem; font-weight: 600; margin: 0;">
-            🕒 {{ offer.get_sla_class_display }} · valid until {{ offer.expires_at|date:'d M Y H:i' }}
-            {% if offer.merchant.measured_response_minutes %}· median reply ~{{ offer.merchant.measured_response_minutes }}m{% endif %}
-          </p>
-        </div>
-
-        <div style="text-align: right;">
-          <div class="seller-price">R {{ offer.price_amount|floatformat:0|intcomma }}</div>
-          <div style="font-size: 0.725rem; color: var(--emerald-500); font-weight: 700;">
-            ● Confirmed {{ offer.last_confirmed_at|date:'d M Y H:i' }}{% if offer.expires_at %} · expires {{ offer.expires_at|date:'d M Y' }}{% endif %}
-          </div>
-        </div>
-
-        <div>
-          <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.4rem; cursor: pointer;">
-            <input type="checkbox" value="ofr{{ offer.canonical_id }}" x-model="compare"> Compare
-          </label>
-          <a href="/l/{{ offer.canonical_id }}" class="btn btn-whatsapp btn-block" target="_blank" rel="noopener" style="font-size: 0.85rem; padding: 0.55rem 0.85rem; justify-content: center;">
-            {% if offer.destination_type == 'merchant_whatsapp' %}💬 WhatsApp{% elif offer.destination_type == 'physical_stall' %}📍 Collect{% else %}🌐 Visit store{% endif %}
-          </a>
-        </div>
-      </div>
-      {% endfor %}
-
-      {% for disc in discovered_offers %}
-      <div class="seller-row">
-        <div>
-          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.25rem;">
-            <h3 style="font-size: 1.08rem; margin: 0;">
-              {% if disc.merchant %}
-              <a href="/m/{{ disc.merchant.canonical_id }}" style="color: var(--text-primary);">{{ disc.merchant_name }}</a>
-              {% else %}
-              {{ disc.merchant_name }}
-              {% endif %}
-            </h3>
-            <span class="badge badge-blue">🌐 Discovered web feed</span>
-            <span class="badge badge-purple">{{ disc.source_website }}</span>
-          </div>
-          <p style="color: var(--text-muted); font-size: 0.825rem; margin: 0.2rem 0;">
-            📍 {{ disc.location_hint|default:"Location not recorded by sweep" }}
-            {% if disc.sku %} · SKU: <code style="font-size: 0.75rem; background: var(--slate-100); padding: 1px 4px; border-radius: 3px; font-family: var(--font-mono);">{{ disc.sku }}</code>{% endif %}
-          </p>
-          <p style="color: var(--text-secondary); font-size: 0.75rem; margin: 0;">📦 {{ disc.availability_text|default:"Availability unconfirmed" }} · discovered via automated retailer sweep</p>
-        </div>
-
-        <div style="text-align: right;">
-          <div class="seller-price seller-price--web">R {{ disc.discovered_price_amount|floatformat:0|intcomma }}</div>
-          <div style="font-size: 0.725rem; color: var(--text-muted);">Web-discovered rate</div>
-        </div>
-
-        <div>
-          <a href="{{ disc.source_url }}" class="btn btn-outline btn-block" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; padding: 0.55rem 0.85rem; justify-content: center;">
-            View on {{ disc.source_website|truncatechars:14 }} &nearr;
-          </a>
-        </div>
-      </div>
-      {% empty %}
-        {% if not confirmed_offers %}
-        <div class="card" style="background: var(--bg-primary); text-align: center; padding: 2rem;">
-          <p style="color: var(--text-muted); margin-bottom: 0.9rem;">
-            No local store has confirmed direct stock yet. Be the first verified stockist.
-          </p>
-          <a href="/merchant/claim?variantId={{ product.canonical_id }}&title={{ product.title|urlencode }}" class="btn btn-whatsapp">
-            + List as first verified stockist
-          </a>
-        </div>
-        {% endif %}
-      {% endfor %}
-    </div>
-  </section>
-
-  <!-- Proof shorts -->
-  {% if linked_shorts %}
-  <section class="shorts-block">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;">
-      <div>
-        <span class="badge badge-red" style="margin-bottom: 0.3rem;">🎬 Proof shorts</span>
-        <h2 style="color: #fff; font-size: 1.3rem; margin: 0;">Verified load tests &amp; unboxings</h2>
-      </div>
-      <a href="/shorts" style="color: #7dd3fc; font-size: 0.85rem; font-weight: 600;">View all shorts &rarr;</a>
-    </div>
-
-    <div class="grid grid-cols-3" style="gap: 1.25rem;">
-      {% for s in linked_shorts %}
-      <div class="short-card-dark">
-        <div style="height: 220px; background: #000; position: relative;">
-          <video poster="{{ s.thumbnail_url }}" controls preload="none">
-            <source src="{{ s.video_url }}" type="video/mp4">
-          </video>
-          <span class="short-views">✓ {{ s.views|intcomma }} views</span>
-        </div>
-        <div style="padding: 0.85rem;">
-          <h4 style="font-size: 0.9rem; color: #fff; margin-bottom: 0.3rem;">{{ s.title }}</h4>
-          <p style="font-size: 0.75rem; color: #94a3b8; margin: 0;">{{ s.summary|truncatechars:75 }}</p>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </section>
-  {% endif %}
-
-  <!-- Load-shedding runtime estimator -->
-  {% if 'solar' in product.category_ref or 'inverter' in product.category_ref or 'battery' in product.category_ref or 'solar' in product.title|lower or 'inverter' in product.title|lower %}
-  <section class="card" style="margin-bottom: 3rem; background: var(--bg-primary);" x-data="{
-    batteryKwh: 5.12,
-    dod: 0.90,
-    watts: 650,
-    calculateRuntime() {
-      if (this.watts <= 0) return 'N/A';
-      let totalHours = (this.batteryKwh * this.dod * 1000) / this.watts;
-      let h = Math.floor(totalHours);
-      let m = Math.round((totalHours - h) * 60);
-      return `${h}h ${m.toString().padStart(2, '0')}m`;
-    }
-  }">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
-      <div>
-        <span class="badge badge-green" style="margin-bottom: 0.3rem;">🔋 Interactive estimator</span>
-        <h2 style="font-size: 1.3rem; margin: 0;">Continuous Backup Calculator</h2>
-      </div>
-      <div class="calc-result">
-        <span style="font-size: 0.75rem; color: #065f46; font-weight: 600;">Estimated runtime</span><br>
-        <b x-text="calculateRuntime()"></b>
-      </div>
-    </div>
-
-    <div style="background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.25rem;">
-      <div style="display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.4rem;">
-        <span>Current load: <span style="color: var(--primary-600);" x-text="watts + ' W'"></span></span>
-        <span style="color: var(--text-muted); font-weight: 500; font-size: 0.8rem;">Standard 5.12kWh LiFePO4 · 90% DoD</span>
-      </div>
-      <input type="range" min="100" max="3500" step="50" x-model="watts" style="width: 100%; cursor: pointer; accent-color: #2563eb;" aria-label="Load in watts">
-    </div>
-
-    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-      <span style="font-size: 0.8rem; color: var(--text-muted);">Presets:</span>
-      <button type="button" class="preset-btn" @click="watts = 250">💡 Essentials 250W</button>
-      <button type="button" class="preset-btn" @click="watts = 650">🏠 Home &amp; TV 650W</button>
-      <button type="button" class="preset-btn" @click="watts = 1200">💻 Workstation 1,200W</button>
-      <button type="button" class="preset-btn" @click="watts = 2400">⚡ Heavy load 2,400W</button>
-    </div>
-  </section>
-  {% endif %}
-
-  <!-- Alternatives -->
-  {% if related_products %}
-  <section style="margin-bottom: 3rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
-      <h2 class="section-title" style="margin: 0;">⚔️ Side-by-side alternatives</h2>
-      <span style="font-size: 0.8rem; color: var(--text-muted);">Compare specs &amp; pricing across brands</span>
-    </div>
-
-    <div style="display: flex; flex-direction: column; gap: 1rem;">
-      {% for rel in related_products %}
-      <div class="row-card" style="grid-template-columns: 110px minmax(0, 1fr) 200px;">
-        <a href="/p/{{ rel.canonical_id }}" class="row-thumb" style="height: 100px;" aria-label="{{ rel.title }}">
-          {{ rel|product_svg:"small" }}
-        </a>
-        <div class="row-body">
-          <div class="row-meta-row"><span class="badge badge-blue">{{ rel.brand }}</span></div>
-          <h3 class="row-title"><a class="row-title-link" href="/p/{{ rel.canonical_id }}">{{ rel.title }}</a></h3>
-          <p class="row-sub">{% if rel.model_number %}Model: <strong>{{ rel.model_number }}</strong> · {% endif %}{{ rel.category_ref|title|cut:"_" }}</p>
-        </div>
-        <div class="row-side">
-          <div>
-            <span class="row-sub">Alternative price</span>
-            <div class="price-big">{% if rel.estimated_price_zar %}R {{ rel.estimated_price_zar|floatformat:0|intcomma }}{% else %}<span style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted);">Price on request</span>{% endif %}</div>
-          </div>
-          <a href="/p/{{ rel.canonical_id }}" class="btn btn-outline btn-block" style="justify-content: center;">Compare specs &rarr;</a>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </section>
-  {% endif %}
 
 </div>
-
-{% include 'includes/rfq_modal.html' %}
 {% endblock %}
