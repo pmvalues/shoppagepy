@@ -391,6 +391,8 @@ class ServedTemplateFabricationGuardTests(TestCase):
         'Online store & nationwide delivery',
         'opens later this week', '08:00–18:00',
         'verified units', 'verified merchant units',
+        'Live Matching', 'Active Buyer Tenders', 'Posted by Verified EPC Contractor',
+        'Submit Quote on WhatsApp', 'AI routes tender',
     )
 
     def test_no_served_template_substitutes_invented_values(self):
