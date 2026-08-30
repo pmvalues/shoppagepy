@@ -129,8 +129,75 @@
         <div id="live-search-dropdown" class="omnibox-dropdown" x-show="open" x-transition style="display: none;"></div>
       </div>
 
-      <!-- Primary CTA -->
-      <div style="flex-shrink: 0; display: flex; align-items: center; gap: 0.75rem;">
+      <!-- App Launcher & Primary CTA -->
+      <div style="flex-shrink: 0; display: flex; align-items: center; gap: 0.6rem;" x-data="{ appsOpen: false }">
+        <!-- 9-Dot Google Apps Launcher -->
+        <div style="position: relative;">
+          <button
+            type="button"
+            @click="appsOpen = !appsOpen"
+            @click.away="appsOpen = false"
+            title="Google-Style Commerce Apps"
+            aria-label="Google Suite Ecosystem Apps"
+            style="background: transparent; border: none; cursor: pointer; padding: 6px 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: #475569;"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="5" cy="5" r="2.5"/><circle cx="12" cy="5" r="2.5"/><circle cx="19" cy="5" r="2.5"/>
+              <circle cx="5" cy="12" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="19" cy="12" r="2.5"/>
+              <circle cx="5" cy="19" r="2.5"/><circle cx="12" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/>
+            </svg>
+          </button>
+
+          <!-- Apps Modal Dropdown -->
+          <div
+            x-show="appsOpen"
+            x-transition
+            style="display: none; position: absolute; right: 0; top: 42px; width: 310px; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16); padding: 1rem; z-index: 9999;"
+          >
+            <div style="font-size: 0.75rem; font-weight: 800; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; padding-left: 0.25rem;">
+              Shoppage Commerce Suite
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center;">
+              <a href="/search/" style="text-decoration: none; padding: 0.6rem 0.3rem; border-radius: 10px; transition: background 0.15s;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='transparent'">
+                <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">🔍</div>
+                <div style="font-size: 0.725rem; font-weight: 700; color: #0F172A;">Search</div>
+              </a>
+              <a href="/search/?tab=shopping" style="text-decoration: none; padding: 0.6rem 0.3rem; border-radius: 10px; transition: background 0.15s;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='transparent'">
+                <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">🛍️</div>
+                <div style="font-size: 0.725rem; font-weight: 700; color: #0F172A;">Shopping</div>
+              </a>
+              <a href="/merchants" style="text-decoration: none; padding: 0.6rem 0.3rem; border-radius: 10px; transition: background 0.15s;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='transparent'">
+                <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">📍</div>
+                <div style="font-size: 0.725rem; font-weight: 700; color: #0F172A;">My Business</div>
+              </a>
+              <a href="/merchant/dashboard/" style="text-decoration: none; padding: 0.6rem 0.3rem; border-radius: 10px; transition: background 0.15s;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='transparent'">
+                <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">🏬</div>
+                <div style="font-size: 0.725rem; font-weight: 700; color: #0F172A;">Merchant OS</div>
+              </a>
+              <a href="/analytics/" style="text-decoration: none; padding: 0.6rem 0.3rem; border-radius: 10px; transition: background 0.15s;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='transparent'">
+                <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">📊</div>
+                <div style="font-size: 0.725rem; font-weight: 700; color: #0F172A;">Analytics</div>
+              </a>
+              <a href="/shorts" style="text-decoration: none; padding: 0.6rem 0.3rem; border-radius: 10px; transition: background 0.15s;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='transparent'">
+                <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">🎬</div>
+                <div style="font-size: 0.725rem; font-weight: 700; color: #0F172A;">Shorts</div>
+              </a>
+              <a href="/requests" style="text-decoration: none; padding: 0.6rem 0.3rem; border-radius: 10px; transition: background 0.15s;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='transparent'">
+                <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">📋</div>
+                <div style="font-size: 0.725rem; font-weight: 700; color: #0F172A;">Buyer RFQs</div>
+              </a>
+              <a href="/malls" style="text-decoration: none; padding: 0.6rem 0.3rem; border-radius: 10px; transition: background 0.15s;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='transparent'">
+                <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">🗺️</div>
+                <div style="font-size: 0.725rem; font-weight: 700; color: #0F172A;">Malls Grid</div>
+              </a>
+              <a href="/agency" style="text-decoration: none; padding: 0.6rem 0.3rem; border-radius: 10px; transition: background 0.15s;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='transparent'">
+                <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">🏢</div>
+                <div style="font-size: 0.725rem; font-weight: 700; color: #0F172A;">Trade Agency</div>
+              </a>
+            </div>
+          </div>
+        </div>
+
         <a href="/merchant/claim" class="btn btn-whatsapp" style="padding: 0.55rem 1.2rem; font-size: 0.875rem; border-radius: 9999px;">
           + List Shop
         </a>

@@ -3,49 +3,331 @@
 
 {% block title %}Shoppage — South Africa's National Commerce Intelligence Grid{% endblock %}
 
+{% block extra_css %}
+<style>
+  /* ══════════════════ Google-Style Hero Centerpiece ══════════════════ */
+  .google-hero-stage {
+    background: radial-gradient(circle at 50% 0%, #FFFFFF 0%, #F8FAFC 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 3.5rem 1rem 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .google-hero-stage::before {
+    content: '';
+    position: absolute;
+    top: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 650px;
+    height: 250px;
+    background: radial-gradient(ellipse, rgba(37, 99, 235, 0.08) 0%, rgba(16, 185, 129, 0.04) 50%, transparent 80%);
+    pointer-events: none;
+  }
+  .google-brand-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    text-decoration: none;
+  }
+  .google-brand-title {
+    font-family: var(--font-display);
+    font-size: 3.25rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: #0F172A;
+  }
+  .google-brand-dot-blue { color: #2563EB; }
+  .google-brand-dot-red { color: #DC2626; }
+  .google-brand-dot-yellow { color: #D97706; }
+  .google-brand-dot-green { color: #059669; }
+
+  .google-search-wrapper {
+    max-width: 680px;
+    margin: 1.5rem auto 1.25rem;
+    position: relative;
+  }
+  .google-search-box {
+    display: flex;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1px solid #DFE1E5;
+    border-radius: 9999px;
+    padding: 0.4rem 0.6rem 0.4rem 1.4rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+  }
+  .google-search-box:hover, .google-search-box:focus-within {
+    border-color: rgba(37, 99, 235, 0.4);
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.14);
+  }
+  .google-search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1.05rem;
+    font-family: var(--font-sans);
+    color: var(--text-primary);
+    background: transparent;
+    padding: 0.5rem 0.5rem;
+  }
+  .google-btn-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1.25rem;
+  }
+  .google-action-btn {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    color: #334155;
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.55rem 1.25rem;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+  .google-action-btn:hover {
+    background: #F1F5F9;
+    border-color: #CBD5E1;
+    color: #0F172A;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  /* ══════════════════ 5-Pillar Ecosystem Bento Grid ══════════════════ */
+  .ecosystem-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  .ecosystem-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    box-shadow: var(--shadow-xs);
+  }
+  .ecosystem-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-500);
+  }
+  .ecosystem-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* ══════════════════ Live Ticker ══════════════════ */
+  .live-pulse-ticker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--emerald-50);
+    border: 1px solid #A7F3D0;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.775rem;
+    font-weight: 700;
+    color: #065F46;
+    margin-bottom: 1rem;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 
-<!-- ════════════════ 1. VALUE BAND + QUICK ENTRY ════════════════ -->
-<section style="background: #FFFFFF; border-bottom: 1px solid var(--border); padding: 2.75rem 0 2.25rem;">
+<!-- ════════════════ 1. GOOGLE-STYLE HERO CENTERPIECE ════════════════ -->
+<section class="google-hero-stage">
   <div class="container">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.75rem;">
-      <div>
-        <div class="section-eyebrow"><span class="pulse-dot"></span> LIVE GRID · {{ total_merchants_count|intcomma }} STORES ONLINE</div>
-        <h1 style="margin: 0 0 0.5rem;">Buy direct from verified South African stores</h1>
-        <p class="section-desc" style="max-width: 62ch;">
-          Real stock, real stalls, real WhatsApp numbers. {{ total_products_count|intcomma }} products across
-          {{ total_malls_count|intcomma }} malls and wholesale hubs — with zero middleman fees.
-        </p>
-      </div>
-      <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
-        <a href="/merchant/claim" class="btn btn-whatsapp">🏪 List your shop — free</a>
-        <a href="/merchants" class="btn btn-outline">Browse merchants</a>
-      </div>
+    <div class="live-pulse-ticker">
+      <span class="pulse-dot"></span> LIVE NATIONAL COMMERCE GRID · {{ total_merchants_count|intcomma }} VERIFIED STORES · {{ total_products_count|intcomma }} PRODUCTS
     </div>
 
-    <!-- Quick sector pills -->
-    <div style="display: flex; gap: 0.5rem; overflow-x: auto; scrollbar-width: none; white-space: nowrap; padding-bottom: 2px;">
-      <a href="/search?q=battery" class="badge badge-blue" style="padding: 0.45rem 0.9rem; font-size: 0.8rem;">🔋 Batteries</a>
-      <a href="/search?category=solar_energy" class="badge badge-amber" style="padding: 0.45rem 0.9rem; font-size: 0.8rem;">☀️ Solar &amp; Inverters</a>
-      <a href="/search?category=smartphones" class="badge badge-blue" style="padding: 0.45rem 0.9rem; font-size: 0.8rem;">📱 Smartphones</a>
-      <a href="/search?category=hardware" class="badge badge-green" style="padding: 0.45rem 0.9rem; font-size: 0.8rem;">🧱 Building &amp; Cement</a>
-      <a href="/malls?province=Gauteng" class="badge badge-gray" style="padding: 0.45rem 0.9rem; font-size: 0.8rem;">🏬 Sandton &amp; Dragon City</a>
-      <a href="/shorts" class="badge badge-red" style="padding: 0.45rem 0.9rem; font-size: 0.8rem;">🎬 Proof Shorts</a>
-      <a href="/requests" class="badge badge-amber" style="padding: 0.45rem 0.9rem; font-size: 0.8rem;">📋 B2B RFQ Board</a>
+    <div>
+      <a href="/" class="google-brand-logo" aria-label="Shoppage Home">
+        <span style="font-size: 2.75rem;">⚡</span>
+        <span class="google-brand-title">
+          <span class="google-brand-dot-blue">S</span><span class="google-brand-dot-red">h</span><span class="google-brand-dot-yellow">o</span><span class="google-brand-dot-blue">p</span><span class="google-brand-dot-green">p</span><span class="google-brand-dot-red">a</span><span class="google-brand-dot-blue">g</span><span class="google-brand-dot-green">e</span>
+        </span>
+      </a>
+      <p style="font-size: 1rem; color: var(--text-secondary); max-width: 580px; margin: 0 auto 0.5rem;">
+        South Africa's Google-Grade Commerce &amp; Price Intelligence Grid.<br>
+        Direct trade with verified physical stores — <strong>0% middleman fees</strong>.
+      </p>
+    </div>
+
+    <!-- Centerpiece Omnibox -->
+    <div class="google-search-wrapper" x-data="{ open: false }">
+      <form action="/search/" method="GET" class="google-search-box">
+        <span style="font-size: 1.15rem; color: var(--text-muted); margin-right: 0.5rem;" aria-hidden="true">🔍</span>
+        <input
+          id="hero-omnibox-input"
+          class="google-search-input"
+          type="text"
+          name="q"
+          placeholder="Search inverters, batteries, cement, phones, brands or Sandton malls…"
+          value="{{ query|default:'' }}"
+          autocomplete="off"
+          aria-label="Search products and stores"
+          hx-get="/search/live/"
+          hx-trigger="keyup changed delay:120ms, search"
+          hx-target="#hero-live-dropdown"
+          hx-swap="innerHTML"
+          @focus="open = true"
+          @click.away="open = false"
+          @keydown.escape="open = false"
+        />
+        
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <button
+            type="button"
+            @click="startVoiceSearch()"
+            :class="{ 'voice-listening': isListening }"
+            title="Voice search"
+            aria-label="Voice search"
+            style="background: transparent; border: none; cursor: pointer; padding: 6px; border-radius: 50%; font-size: 1.1rem;"
+          >
+            <span x-text="isListening ? '🔴' : '🎙️'"></span>
+          </button>
+
+          <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1.25rem; font-size: 0.875rem; border-radius: 9999px;">
+            Search
+          </button>
+        </div>
+      </form>
+
+      <!-- Hero Live Dropdown -->
+      <div id="hero-live-dropdown" class="omnibox-dropdown" x-show="open" x-transition style="display: none; text-align: left;"></div>
+    </div>
+
+    <!-- Google-style Action Buttons -->
+    <div class="google-btn-row">
+      <a href="/search/?q=inverter" class="google-action-btn">🔍 Shoppage Search</a>
+      <a href="/search/?tab=shopping" class="google-action-btn">🛍️ Price Matrix (I'm Feeling Lucky)</a>
+      <button type="button" onclick="document.getElementById('rfq-tender-modal').style.display='flex'" class="google-action-btn">📋 Post Buyer RFQ</button>
+      <a href="/merchant/claim" class="google-action-btn" style="color: #059669; font-weight: 700;">🏪 List Shop — Free</a>
+    </div>
+
+    <!-- Quick search pills -->
+    <div style="display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin-top: 1.5rem;">
+      <span style="font-size: 0.775rem; color: var(--text-muted); align-self: center;">Popular:</span>
+      <a href="/search/?q=Deye+8kW" class="badge badge-amber">⚡ Deye 8kW Hybrid Inverter</a>
+      <a href="/search/?q=Dyness+5.12kWh" class="badge badge-blue">🔋 Dyness 5.12kWh LiFePO4</a>
+      <a href="/search/?q=Tier+1+Solar+Panels" class="badge badge-green">☀️ Tier-1 Solar Panels</a>
+      <a href="/search/?q=PPC+Surebuild+Cement" class="badge badge-gray">🧱 PPC Cement 50kg</a>
+      <a href="/search/?q=Samsung+Galaxy+S24" class="badge badge-purple">📱 Galaxy S24 Ultra</a>
+      <a href="/malls/?province=Gauteng" class="badge badge-blue">🏬 Sandton City</a>
+      <a href="/malls/?province=Gauteng" class="badge badge-amber">🏬 Dragon City Wholesale</a>
     </div>
   </div>
 </section>
 
-<!-- ════════════════ 2. TRENDING FEED + SIDEBAR ════════════════ -->
-<section class="section" style="padding-top: 2.5rem;">
+<!-- ════════════════ 2. 5-PILLAR ECOSYSTEM APP BENTO ════════════════ -->
+<section class="section" style="padding-top: 2rem; padding-bottom: 1.5rem;">
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+      <div>
+        <span class="badge badge-blue" style="margin-bottom: 0.25rem;">🌐 5-Pillar Commerce Engine</span>
+        <h2 style="font-size: 1.35rem; margin: 0; color: #0F172A;">Google Suite &amp; Shopify Parity Infrastructure</h2>
+      </div>
+      <span style="font-size: 0.8rem; color: var(--text-muted);">Authoritative data · 0% transaction commission</span>
+    </div>
+
+    <div class="ecosystem-grid">
+      <!-- 1. Google Search -->
+      <a href="/search/?q=solar" class="ecosystem-card">
+        <div>
+          <div class="ecosystem-icon" style="background: #EFF6FF; color: #2563EB;">🔍</div>
+          <h3 style="font-size: 1.05rem; font-weight: 800; color: #0F172A; margin: 0 0 0.35rem 0;">Google Search SERP</h3>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; margin: 0 0 0.75rem 0;">
+            Universal SERP with AI Overview, Knowledge Graph brand panels, Places 3-Pack, and People Also Ask.
+          </p>
+        </div>
+        <div style="font-size: 0.75rem; color: #2563EB; font-weight: 700;">Explore Search Engine &rarr;</div>
+      </a>
+
+      <!-- 2. Google Shopping -->
+      <a href="/search/?tab=shopping" class="ecosystem-card">
+        <div>
+          <div class="ecosystem-icon" style="background: #ECFDF5; color: #059669;">🛍️</div>
+          <h3 style="font-size: 1.05rem; font-weight: 800; color: #0F172A; margin: 0 0 0.35rem 0;">Google Shopping Matrix</h3>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; margin: 0 0 0.75rem 0;">
+            Side-by-side Buy-Box price matrix, 30-day price trends, and NRS 097 grid certified technical specs.
+          </p>
+        </div>
+        <div style="font-size: 0.75rem; color: #059669; font-weight: 700;">Compare Store Prices &rarr;</div>
+      </a>
+
+      <!-- 3. Google My Business -->
+      <a href="/merchants" class="ecosystem-card">
+        <div>
+          <div class="ecosystem-icon" style="background: #FEF3C7; color: #D97706;">📍</div>
+          <h3 style="font-size: 1.05rem; font-weight: 800; color: #0F172A; margin: 0 0 0.35rem 0;">Google My Business</h3>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; margin: 0 0 0.75rem 0;">
+            Verified physical storefronts with real-time hours, Leaflet GPS directions, reviews, and WhatsApp direct.
+          </p>
+        </div>
+        <div style="font-size: 0.75rem; color: #D97706; font-weight: 700;">Browse Local Stores &rarr;</div>
+      </a>
+
+      <!-- 4. Google Merchant Centre + Shopify -->
+      <a href="/merchant/dashboard/" class="ecosystem-card">
+        <div>
+          <div class="ecosystem-icon" style="background: #F5F3FF; color: #7C3AED;">🏬</div>
+          <h3 style="font-size: 1.05rem; font-weight: 800; color: #0F172A; margin: 0 0 0.35rem 0;">Merchant Centre + Shopify</h3>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; margin: 0 0 0.75rem 0;">
+            Real-time catalog OS, instant price edits, stock toggles, and live Google Shopping feed syndication.
+          </p>
+        </div>
+        <div style="font-size: 0.75rem; color: #7C3AED; font-weight: 700;">Open Merchant OS &rarr;</div>
+      </a>
+
+      <!-- 5. Google Analytics -->
+      <a href="/analytics/" class="ecosystem-card">
+        <div>
+          <div class="ecosystem-icon" style="background: #FFF1F2; color: #E11D48;">📊</div>
+          <h3 style="font-size: 1.05rem; font-weight: 800; color: #0F172A; margin: 0 0 0.35rem 0;">Google Analytics Suite</h3>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; margin: 0 0 0.75rem 0;">
+            Live telemetry pulse, 14-day search &amp; lead funnels, Chart.js trends, and provincial demand breakdown.
+          </p>
+        </div>
+        <div style="font-size: 0.75rem; color: #E11D48; font-weight: 700;">View Platform Telemetry &rarr;</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ 3. TRENDING IN-STOCK DEALS (GOOGLE SHOPPING CAROUSEL) ════════════════ -->
+<section class="section" style="padding-top: 1rem; padding-bottom: 2.5rem;">
   <div class="container">
     <div class="side-stack">
 
-      <!-- LEFT: trending products -->
+      <!-- LEFT: Trending products -->
       <div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.15rem;">
-          <h2 style="font-size: 1.2rem; margin: 0;">🔥 Trending in-stock deals</h2>
-          <a href="/search" class="link-quiet">View all {{ total_products_count|intcomma }} &rarr;</a>
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: #0F172A;">🔥 Trending In-Stock Deals (Google Shopping Feed)</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">Verified low prices confirmed directly by local store desks</p>
+          </div>
+          <a href="/search/?tab=shopping" class="link-quiet" style="font-size: 0.85rem; font-weight: 700;">View all {{ total_products_count|intcomma }} &rarr;</a>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2.5rem;">
@@ -58,7 +340,7 @@
             <div class="row-body">
               <div class="row-meta-row">
                 <span class="badge badge-blue">{{ p.brand }}</span>
-                <span class="badge badge-green">✓ In stock</span>
+                <span class="badge badge-green">✓ In Stock</span>
                 <span class="badge badge-purple">{{ p.category_ref|title }}</span>
               </div>
 
@@ -77,7 +359,7 @@
 
             <div class="row-side">
               <div>
-                <span class="row-sub">Best verified price</span>
+                <span class="row-sub">Best Store Price</span>
                 <div class="price-big">
                   {% with first_offer=p.offers.all|first %}
                     {% if first_offer and first_offer.price_amount %}
@@ -100,8 +382,11 @@
         <!-- Proof shorts strip -->
         {% if shorts %}
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.9rem;">
-          <h2 style="font-size: 1.2rem; margin: 0;">🎬 Watch &amp; shop proof shorts</h2>
-          <a href="/shorts" class="link-quiet">Video hub &rarr;</a>
+          <div>
+            <h2 style="font-size: 1.2rem; margin: 0; color: #0F172A;">🎬 Watch &amp; Shop Proof Shorts</h2>
+            <p style="font-size: 0.775rem; color: var(--text-muted); margin: 0.15rem 0 0 0;">Verified load tests, unboxings &amp; mall inspections</p>
+          </div>
+          <a href="/shorts" class="link-quiet" style="font-size: 0.85rem; font-weight: 700;">Video Hub &rarr;</a>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem;">
@@ -127,35 +412,35 @@
       <aside style="display: flex; flex-direction: column; gap: 1.25rem;">
         <div class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-            <h3 style="font-size: 1rem; margin: 0;">📋 Live buyer RFQs</h3>
-            <span class="badge badge-amber">Active</span>
+            <h3 style="font-size: 1rem; margin: 0; color: #0F172A;">📋 Live Buyer RFQ Radar</h3>
+            <span class="badge badge-amber">⚡ Live Matching</span>
           </div>
-          <p class="row-sub" style="margin-bottom: 0.85rem;">Verified procurement tenders matched to nationwide distributors.</p>
+          <p class="row-sub" style="margin-bottom: 0.85rem;">Verified procurement demands broadcast to national wholesale stockists.</p>
 
           <div style="display: flex; flex-direction: column; gap: 0.6rem;">
             <div style="background: var(--bg-primary); border: 1px solid var(--border); padding: 0.7rem 0.8rem; border-radius: var(--radius-md);">
-              <strong style="font-size: 0.83rem; color: var(--text-primary); display: block; margin-bottom: 0.15rem;">50× Dyness 5.12kWh rack batteries</strong>
-              <span class="row-sub">📍 Sandton, JHB · pallet wholesale</span>
+              <strong style="font-size: 0.83rem; color: var(--text-primary); display: block; margin-bottom: 0.15rem;">50× Dyness 5.12kWh Rack Batteries</strong>
+              <span class="row-sub">📍 Sandton, JHB · Target: R 850,000</span>
             </div>
             <div style="background: var(--bg-primary); border: 1px solid var(--border); padding: 0.7rem 0.8rem; border-radius: var(--radius-md);">
-              <strong style="font-size: 0.83rem; color: var(--text-primary); display: block; margin-bottom: 0.15rem;">200 bags PPC Surebuild cement 50kg</strong>
-              <span class="row-sub">📍 Pretoria East · direct dispatch</span>
+              <strong style="font-size: 0.83rem; color: var(--text-primary); display: block; margin-bottom: 0.15rem;">200 bags PPC Surebuild Cement 50kg</strong>
+              <span class="row-sub">📍 Pretoria East · Direct Dispatch</span>
             </div>
           </div>
 
           <button
             onclick="document.getElementById('rfq-tender-modal').style.display='flex'"
             class="btn btn-whatsapp btn-block"
-            style="margin-top: 1rem; font-size: 0.85rem;"
+            style="margin-top: 1rem; font-size: 0.85rem; justify-content: center;"
           >
-            + Post a buyer RFQ
+            + Post Buyer RFQ Tender
           </button>
         </div>
 
         <div class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
-            <h3 style="font-size: 1rem; margin: 0;">🏬 Flagship hubs</h3>
-            <a href="/malls" class="link-quiet">All {{ total_malls_count|intcomma }} &rarr;</a>
+            <h3 style="font-size: 1rem; margin: 0; color: #0F172A;">🏬 Flagship Malls &amp; Hubs</h3>
+            <a href="/malls" class="link-quiet" style="font-size: 0.8rem; font-weight: 700;">All {{ total_malls_count|intcomma }} &rarr;</a>
           </div>
           <div style="display: flex; flex-direction: column; gap: 0.5rem;">
             {% for mall in flagship_malls|slice:":5" %}
@@ -175,49 +460,25 @@
   </div>
 </section>
 
-<!-- ════════════════ 3. GRID STATS ════════════════ -->
-<section style="background: #FFFFFF; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 2.5rem 0;">
-  <div class="container">
-    <div class="grid grid-cols-4" style="gap: 1.5rem;">
-      <div class="stat-box">
-        <div class="stat-number" style="color: var(--primary-600);">{{ stats.total_merchants|intcomma }}</div>
-        <div class="stat-label">Verified physical stores</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-number" style="color: var(--emerald-600);">{{ stats.total_malls|intcomma }}</div>
-        <div class="stat-label">Shopping centres &amp; hubs</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-number" style="color: var(--amber-600);">{{ stats.total_products|intcomma }}</div>
-        <div class="stat-label">GS1-normalised products</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-number" style="color: var(--accent-purple);">9 / 9</div>
-        <div class="stat-label">Provinces covered</div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ════════════════ 4. SECTORS ════════════════ -->
-<section class="section">
+<section class="section" style="background: #FFFFFF; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 3rem 0;">
   <div class="container">
     <div class="section-head">
       <div>
-        <span class="badge badge-purple" style="margin-bottom: 0.5rem;">📦 Commercial sectors</span>
-        <h2 class="section-title">Explore verified wholesale &amp; retail supply</h2>
+        <span class="badge badge-purple" style="margin-bottom: 0.5rem;">📦 Commercial Sectors</span>
+        <h2 class="section-title">Explore Verified Wholesale &amp; Retail Supply</h2>
         <p class="section-desc">Live inventory across South Africa's key industrial and consumer corridors.</p>
       </div>
-      <a href="/search" class="btn btn-ghost">View all categories &rarr;</a>
+      <a href="/search" class="btn btn-ghost">View All Categories &rarr;</a>
     </div>
 
     <div class="grid grid-cols-3" style="gap: 1.5rem;">
       <a href="/search?category=solar_energy" class="card card-hover" style="text-decoration: none;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
           <span style="width: 46px; height: 46px; border-radius: 12px; background: var(--amber-100); display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">⚡</span>
-          <span class="badge badge-amber">NRS 097 certified</span>
+          <span class="badge badge-amber">NRS 097 Certified</span>
         </div>
-        <h3 style="margin-bottom: 0.4rem;">Solar &amp; backup energy</h3>
+        <h3 style="margin-bottom: 0.4rem; color: #0F172A;">Solar &amp; Backup Energy</h3>
         <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 1.1rem;">
           Hybrid inverters, LiFePO4 rack batteries, tier-1 panels and load-shedding-ready backup.
         </p>
@@ -227,9 +488,9 @@
       <a href="/search?category=smartphones" class="card card-hover" style="text-decoration: none;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
           <span style="width: 46px; height: 46px; border-radius: 12px; background: var(--primary-100); display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">📱</span>
-          <span class="badge badge-blue">ICASA approved</span>
+          <span class="badge badge-blue">ICASA Approved</span>
         </div>
-        <h3 style="margin-bottom: 0.4rem;">Smartphones &amp; tech</h3>
+        <h3 style="margin-bottom: 0.4rem; color: #0F172A;">Smartphones &amp; Tech</h3>
         <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 1.1rem;">
           Phones, laptops and accessories with official South African manufacturer warranty.
         </p>
@@ -239,9 +500,9 @@
       <a href="/search?category=hardware" class="card card-hover" style="text-decoration: none;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
           <span style="width: 46px; height: 46px; border-radius: 12px; background: var(--emerald-100); display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">🏗️</span>
-          <span class="badge badge-green">SABS standards</span>
+          <span class="badge badge-green">SABS Standards</span>
         </div>
-        <h3 style="margin-bottom: 0.4rem;">Building &amp; hardware</h3>
+        <h3 style="margin-bottom: 0.4rem; color: #0F172A;">Building &amp; Hardware</h3>
         <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 1.1rem;">
           Cement, power tools, switchgear, plumbing and bulk construction materials.
         </p>
@@ -251,23 +512,23 @@
   </div>
 </section>
 
-<!-- ════════════════ 5. SPATIAL COMMERCE (dark band) ════════════════ -->
+<!-- ════════════════ 5. SPATIAL COMMERCE (DARK BAND) ════════════════ -->
 <section class="band-dark">
   <div class="container">
     <div class="band-split">
       <div>
-        <span class="badge badge-purple" style="margin-bottom: 1rem;">🗺️ Spatial commerce grid</span>
+        <span class="badge badge-purple" style="margin-bottom: 1rem;">🗺️ Spatial Commerce Grid</span>
         <h2 style="font-size: 2.1rem; line-height: 1.25; margin-bottom: 1rem; color: #fff;">
-          Digital twins for {{ total_malls_count|intcomma }} malls &amp; wholesale hubs
+          Digital Twins for {{ total_malls_count|intcomma }} Malls &amp; Wholesale Hubs
         </h2>
         <p style="font-size: 1rem; line-height: 1.7; margin-bottom: 1.85rem; color: #a8b6c8; max-width: 52ch;">
           From Sandton City and Mall of Africa to Dragon City, China Mall and Oriental Plaza —
           exact stall locations, opening hours and verified stockists.
         </p>
         <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
-          <a href="/malls" class="btn btn-primary">🗺️ Open spatial map</a>
+          <a href="/malls" class="btn btn-primary">🗺️ Open Spatial Map</a>
           <a href="/merchants" class="btn" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.22); color: #fff;">
-            Explore {{ total_merchants_count|intcomma }} stores
+            Explore {{ total_merchants_count|intcomma }} Stores
           </a>
         </div>
       </div>
@@ -275,7 +536,7 @@
       <div class="grid grid-cols-2" style="gap: 1.1rem;">
         <a href="/malls?province=Gauteng" class="card card-hover" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12); text-decoration: none;">
           <div style="font-size: 1.7rem; margin-bottom: 0.4rem;">🏙️</div>
-          <h4 style="color: #fff;">Gauteng hubs</h4>
+          <h4 style="color: #fff;">Gauteng Hubs</h4>
           <p class="row-sub" style="color: #8b98a5;">1,184 malls &amp; centres</p>
         </a>
         <a href="/malls?province=Western%20Cape" class="card card-hover" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12); text-decoration: none;">
@@ -290,7 +551,7 @@
         </a>
         <a href="/malls" class="card card-hover" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12); text-decoration: none;">
           <div style="font-size: 1.7rem; margin-bottom: 0.4rem;">🇿🇦</div>
-          <h4 style="color: #fff;">All 9 provinces</h4>
+          <h4 style="color: #fff;">All 9 Provinces</h4>
           <p class="row-sub" style="color: #8b98a5;">{{ total_malls_count|intcomma }} digital twins</p>
         </a>
       </div>
@@ -302,8 +563,8 @@
 <section class="container" style="padding-top: 3.5rem; padding-bottom: var(--space-section);">
   <div class="cta-band" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
     <div>
-      <span class="badge badge-amber" style="margin-bottom: 0.6rem;">🏭 B2B procurement</span>
-      <h2 style="color: #78350f; margin-bottom: 0.5rem;">Need wholesale pricing or pallet quantities?</h2>
+      <span class="badge badge-amber" style="margin-bottom: 0.6rem;">🏭 B2B Procurement Tender Board</span>
+      <h2 style="color: #78350f; margin-bottom: 0.5rem;">Need Wholesale Pricing or Pallet Quantities?</h2>
       <p style="color: #92400e; font-size: 0.95rem; max-width: 62ch; line-height: 1.65;">
         Post your demand on the national RFQ board. Matched importers and distributors reply with
         pro-forma quotes directly on WhatsApp — 0% commission.
@@ -315,10 +576,10 @@
         class="btn btn-whatsapp"
         style="font-size: 0.95rem; padding: 0.75rem 1.5rem;"
       >
-        🚀 Post a free RFQ
+        🚀 Post a Free RFQ Tender
       </button>
       <a href="/requests" class="btn btn-outline" style="font-size: 0.95rem; padding: 0.75rem 1.35rem;">
-        Browse tenders
+        Browse Active Tenders
       </a>
     </div>
   </div>
