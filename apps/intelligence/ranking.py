@@ -678,7 +678,11 @@ def _sort_scored(scored: list[ScoredProduct], sort: str) -> list[ScoredProduct]:
 CANDIDATE_LIMIT = 1000
 
 
-def ranked_search(
+# Availability states that must never back a displayed price or stock claim.
+UNAVAILABLE_STATES = ('out_of_stock', 'hidden', 'expired')
+
+
+def _ranked_search_sql(
     raw_query: str,
     limit: int = 24,
     offset: int = 0,
@@ -752,7 +756,7 @@ def ranked_search(
     for p in products_list:
         offers = []
         for o in p.offers.all():
-            if o.availability_state in ('out_of_stock', 'hidden', 'expired'):
+            if o.availability_state in UNAVAILABLE_STATES:
                 continue
             if province:
                 merchant_province = (o.merchant.province or '') if o.merchant_id else ''
@@ -907,3 +911,50 @@ def ranked_search(
         'is_capped': capped,
         'elapsed_ms': elapsed_ms,
     }
+
+
+def ranked_search(
+    raw_query: str,
+    limit: int = 24,
+    offset: int = 0,
+    category: str = '',
+    province: str = '',
+    brand: str = '',
+    min_price: float | None = None,
+    max_price: float | None = None,
+    candidate_limit: int = CANDIDATE_LIMIT,
+    sort: str = 'relevance',
+    near: tuple[float, float, float] | None = None,
+    in_stock_only: bool = False,
+) -> dict[str, Any]:
+    """
+    Public retrieval entry point.
+
+    Dispatches to the configured search backend (see
+    apps.intelligence.backends and settings.SHOPPAGE_SEARCH) and falls back to
+    the hybrid SQL engine whenever that backend declines, errors or returns
+    nothing usable — so an absent or unhealthy Typesense degrades latency, not
+    the results page.
+    """
+    filters = {
+        'limit': limit,
+        'offset': offset,
+        'category': category,
+        'province': province,
+        'brand': brand,
+        'min_price': min_price,
+        'max_price': max_price,
+        'candidate_limit': candidate_limit,
+        'sort': sort,
+        'near': near,
+        'in_stock_only': in_stock_only,
+    }
+    from apps.intelligence import backends
+
+    try:
+        result = backends.get_backend().search(raw_query, **filters)
+    except Exception:
+        result = None
+    if result is not None:
+        return result
+    return _ranked_search_sql(raw_query, **filters)

@@ -4,7 +4,13 @@ from urllib.parse import urlencode
 
 from apps.catalog.models import MasterProduct
 from apps.core.models import log_search_query
-from apps.intelligence.ranking import _display_price, _haversine_km, _merchant_rating, ranked_search
+from apps.intelligence.ranking import (
+    UNAVAILABLE_STATES,
+    _display_price,
+    _haversine_km,
+    _merchant_rating,
+    ranked_search,
+)
 from apps.markets.models import Market
 from apps.media_hub.models import Short, Show
 from apps.merchants.models import Merchant
@@ -167,7 +173,7 @@ def _live_offer_facts(product):
     """
     live = [
         o for o in product.offers.all()
-        if o.availability_state not in ('out_of_stock', 'hidden', 'expired')
+        if o.availability_state not in UNAVAILABLE_STATES
     ]
     price = None
     for o in live:

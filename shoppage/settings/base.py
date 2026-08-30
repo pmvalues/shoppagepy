@@ -268,6 +268,16 @@ SHOPPAGE_EXTERNAL_SEARCH = {
     },
 }
 
+# Internal retrieval engine (M2): 'auto' prefers Typesense when configured and
+# falls back to the SQL hybrid engine; 'sql' forces SQL; 'typesense' requires it.
+SHOPPAGE_SEARCH = {
+    'backend': os.environ.get('SHOPPAGE_SEARCH_BACKEND', 'auto'),
+    'typesense_url': os.environ.get('TYPESENSE_URL', '').rstrip('/'),
+    'typesense_api_key': os.environ.get('TYPESENSE_API_KEY', ''),
+    'typesense_collection': os.environ.get('TYPESENSE_COLLECTION', 'products'),
+    'timeout_seconds': float(os.environ.get('TYPESENSE_TIMEOUT', '1.5')),
+}
+
 # TinyFish live web search — read from TINYFISH_API_KEY; the key lives in the
 # gitignored shoppage/settings/local.py, never committed.
 TINYFISH_API_KEY = os.environ.get('TINYFISH_API_KEY', '')
