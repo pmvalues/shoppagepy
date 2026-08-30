@@ -1,0 +1,170 @@
+{% extends 'merchants/portal_base.html' %}
+{% load humanize %}
+
+{% block title %}Add Product to Inventory — {{ merchant.name }}{% endblock %}
+
+{% block mc_body %}
+<div class="mc-page-head">
+  <div>
+    <p class="mc-eyebrow"><a href="/merchant/dashboard/?merchantId={{ merchant.canonical_id }}#offers" style="color:var(--mc-accent);text-decoration:none;">← Back to Live Offers</a></p>
+    <h1 class="mc-h1">Add Product to Inventory</h1>
+    <p class="mc-sub">List a product from the 1,000,000+ GS1 National Master Catalog, or create a custom SKU listing for {{ merchant.name }}.</p>
+  </div>
+  <a class="mc-btn" href="/merchant/dashboard/?merchantId={{ merchant.canonical_id }}#offers">Cancel</a>
+</div>
+
+<div class="mc-bento" x-data="{
+  selectedProduct: null,
+  searchTerm: '',
+  selectProduct(p) {
+    this.selectedProduct = p;
+    document.getElementById('pa-prod-id').value = p.canonical_id;
+    document.getElementById('pa-title').value = p.title;
+    document.getElementById('pa-brand').value = p.brand;
+    document.getElementById('pa-category').value = p.category_ref;
+    document.getElementById('pa-model').value = p.model_number || '';
+    document.getElementById('pa-gtin').value = p.gtin13 || '';
+    document.getElementById('pa-desc').value = p.description || '';
+  },
+  resetSelection() {
+    this.selectedProduct = null;
+    document.getElementById('pa-prod-id').value = '';
+  }
+}">
+
+  <!-- Left: Product Form (Shopify-Style Admin) -->
+  <form method="post" action="/merchant/products/add/?merchantId={{ merchant.canonical_id }}" class="mc-card mc-span-7">
+    {% csrf_token %}
+    <input type="hidden" name="product_id" id="pa-prod-id" value="">
+    <input type="hidden" name="merchantId" value="{{ merchant.canonical_id }}">
+
+    <!-- Master Catalog Selected Banner -->
+    <div x-show="selectedProduct" x-transition style="display:none;background:#E6F4EA;border:1px solid #CEEAD6;border-radius:8px;padding:0.75rem 1rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <span style="font-size:0.75rem;font-weight:700;color:#137333;text-transform:uppercase;letter-spacing:0.04em;">✓ Linked to Master Catalog Node</span>
+        <div style="font-weight:700;color:#202124;font-size:0.95rem;" x-text="selectedProduct ? selectedProduct.title : ''"></div>
+        <div style="font-size:0.75rem;color:#5F6368;" x-text="'GS1 Canonical ID: ' + (selectedProduct ? selectedProduct.canonical_id : '')"></div>
+      </div>
+      <button type="button" @click="resetSelection()" class="mc-btn mc-btn-sm" style="background:#FFFFFF;border:1px solid #DADCE0;">Change ✕</button>
+    </div>
+
+    <h2 class="mc-h2">Product information</h2>
+    <p class="mc-sub" style="margin:0 0 1.1rem;">Details displayed on your public storefront and Google Shopping Buy-Box.</p>
+
+    <div class="mc-grid-2">
+      <div class="mc-field" style="grid-column: span 2;">
+        <label for="pa-title">Product title *</label>
+        <input id="pa-title" class="mc-input" type="text" name="title" required placeholder="e.g. Deye 8kW Hybrid Inverter SUN-8K-SG01LP1-EU">
+      </div>
+
+      <div class="mc-field">
+        <label for="pa-brand">Brand / Manufacturer *</label>
+        <input id="pa-brand" class="mc-input" type="text" name="brand" required placeholder="e.g. Deye, Dyness, Apple, AfriSam">
+      </div>
+
+      <div class="mc-field">
+        <label for="pa-category">Category *</label>
+        <select id="pa-category" class="mc-select" name="category">
+          <option value="solar_energy">Solar &amp; Energy Storage</option>
+          <option value="smartphones">Smartphones &amp; Tech</option>
+          <option value="hardware">Building &amp; Hardware</option>
+          <option value="electronics">Electronics &amp; Appliances</option>
+          <option value="fashion">Clothing &amp; Footwear</option>
+          <option value="general">General Commercial Goods</option>
+        </select>
+      </div>
+
+      <div class="mc-field">
+        <label for="pa-model">Model number / SKU</label>
+        <input id="pa-model" class="mc-input" type="text" name="model_number" placeholder="e.g. SUN-8K-SG01LP1">
+      </div>
+
+      <div class="mc-field">
+        <label for="pa-gtin">GS1 Barcode (EAN-13 / GTIN)</label>
+        <input id="pa-gtin" class="mc-input" type="text" name="gtin13" placeholder="e.g. 6001234567890">
+      </div>
+
+      <div class="mc-field" style="grid-column: span 2;">
+        <label for="pa-desc">Product description</label>
+        <textarea id="pa-desc" class="mc-textarea" name="description" rows="3" placeholder="Factual product features, continuous output, warranty terms, specifications..."></textarea>
+      </div>
+    </div>
+
+    <h2 class="mc-h2" style="margin-top:1.5rem;">Pricing &amp; availability</h2>
+    <p class="mc-sub" style="margin:0 0 1.1rem;">Your store price in South African Rand (ZAR) and stock status.</p>
+
+    <div class="mc-grid-3">
+      <div class="mc-field">
+        <label for="pa-price">Price (ZAR R) *</label>
+        <input id="pa-price" class="mc-input" type="number" step="0.01" min="1" name="price" required placeholder="e.g. 24999.00">
+      </div>
+
+      <div class="mc-field">
+        <label for="pa-avail">Stock status</label>
+        <select id="pa-avail" class="mc-select" name="availability">
+          <option value="fresh">✓ In Stock (Immediate Dispatch)</option>
+          <option value="confirm_required">Confirm on Inquiry</option>
+          <option value="quote_required">Made to Order / RFQ</option>
+        </select>
+      </div>
+
+      <div class="mc-field">
+        <label for="pa-stall">Location / Stall</label>
+        <input id="pa-stall" class="mc-input" type="text" name="stall_ref" value="{{ merchant.stall_identifier|default:'Main Showroom' }}">
+      </div>
+    </div>
+
+    <div style="margin-top:1.5rem;display:flex;gap:0.75rem;align-items:center;">
+      <button type="submit" class="mc-btn mc-btn-primary mc-btn-lg">
+        🚀 Publish to Store &amp; Google Feed
+      </button>
+      <a href="/merchant/dashboard/?merchantId={{ merchant.canonical_id }}#offers" class="mc-btn">Cancel</a>
+    </div>
+  </form>
+
+  <!-- Right: 1-Click Master Catalog Fast-Select -->
+  <div class="mc-card mc-span-5 pad-0">
+    <div class="mc-card-head">
+      <div>
+        <h2 class="mc-h2">1-Click Catalog Attach</h2>
+        <p class="mc-sub" style="margin-top:0;">Attach verified items from the 1M+ National Catalog</p>
+      </div>
+    </div>
+
+    <div style="padding:0.75rem 1rem;border-bottom:1px solid var(--mc-divider);">
+      <input
+        type="text"
+        class="mc-input"
+        placeholder="🔍 Search catalog (e.g. Deye, Dyness, AfriSam)..."
+        x-model="searchTerm"
+        style="width:100%;height:36px;"
+      />
+    </div>
+
+    <div style="max-height: 520px; overflow-y: auto; display: flex; flex-direction: column;">
+      {% for mp in master_products %}
+      <div
+        class="mc-att-row"
+        style="cursor: pointer;"
+        x-show="!searchTerm || '{{ mp.title|escapejs }} {{ mp.brand|escapejs }} {{ mp.model_number|default:''|escapejs }}'.toLowerCase().includes(searchTerm.toLowerCase())"
+        @click="selectProduct({
+          canonical_id: '{{ mp.canonical_id|escapejs }}',
+          title: '{{ mp.title|escapejs }}',
+          brand: '{{ mp.brand|escapejs }}',
+          category_ref: '{{ mp.category_ref|escapejs }}',
+          model_number: '{{ mp.model_number|default:''|escapejs }}',
+          gtin13: '{{ mp.gtin13|default:''|escapejs }}',
+          description: '{{ mp.description|default:''|escapejs }}'
+        })"
+      >
+        <span class="mc-att-icon info" aria-hidden="true">⚡</span>
+        <span class="mc-att-body">
+          <span class="mc-att-title" style="font-size:0.875rem;">{{ mp.title }}</span>
+          <span class="mc-att-sub">{{ mp.brand }} · {{ mp.category_ref|title }} · {% if mp.gtin13 %}GTIN: {{ mp.gtin13 }}{% else %}Model: {{ mp.model_number|default:'Std' }}{% endif %}</span>
+        </span>
+        <button type="button" class="mc-btn mc-btn-sm mc-btn-primary">Attach</button>
+      </div>
+      {% endfor %}
+  </div>
+</div>
+{% endblock %}

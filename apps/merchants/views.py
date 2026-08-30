@@ -851,3 +851,91 @@ def campaign_toggle_view(request, campaign_id):
         campaign.save(update_fields=['status', 'updated_at'])
         messages.success(request, f'Campaign "{campaign.name}" is now {new_status}.')
     return redirect(f'/merchant/campaigns/?merchantId={campaign.merchant.canonical_id}')
+
+
+@login_required
+def merchant_product_add_view(request):
+    """
+    Shopify / Google Merchant Center Product Listing Creator:
+    Allows merchants to add items from the 1M+ GS1 Master Catalog or create custom listings.
+    """
+    import re
+    import uuid
+
+    merchant_id = request.GET.get('merchantId') or request.POST.get('merchantId')
+    merchant = None
+    if merchant_id:
+        candidate = Merchant.objects.filter(canonical_id=merchant_id).first()
+        if candidate and (request.user.is_staff or candidate.owner_id == request.user.id):
+            merchant = candidate
+    if merchant is None:
+        merchant = request.user.owned_merchants.first()
+    if merchant is None:
+        return redirect('merchant_claim')
+
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id', '').strip()
+        custom_title = request.POST.get('title', '').strip()
+        custom_brand = request.POST.get('brand', '').strip()
+        custom_category = request.POST.get('category', 'general').strip()
+        custom_model = request.POST.get('model_number', '').strip()
+        custom_gtin = request.POST.get('gtin13', '').strip()
+        custom_desc = request.POST.get('description', '').strip()
+        price_raw = request.POST.get('price', '').strip()
+        availability = request.POST.get('availability', 'fresh')
+        stall_ref = request.POST.get('stall_ref', merchant.stall_identifier or 'Showroom').strip()
+
+        product = None
+        if product_id:
+            product = MasterProduct.objects.filter(canonical_id=product_id).first()
+            if not product:
+                try:
+                    product = MasterProduct.objects.filter(id=product_id).first()
+                except (ValueError, ValidationError):
+                    product = None
+
+        if not product and custom_title:
+            slug = re.sub(r'[^a-zA-Z0-9]+', '_', custom_title.lower()).strip('_')[:32]
+            canonical_id = f"var_{slug}_{timezone.now().strftime('%m%d%H%M')}_{uuid.uuid4().hex[:4]}"
+            product = MasterProduct.objects.create(
+                canonical_id=canonical_id,
+                title=custom_title,
+                brand=custom_brand or merchant.name,
+                category_ref=custom_category or 'general',
+                model_number=custom_model or None,
+                gtin13=custom_gtin if len(custom_gtin) in [8, 12, 13, 14] else None,
+                description=custom_desc,
+                status='active',
+            )
+
+        if product and price_raw:
+            try:
+                price = float(price_raw)
+                ofr_id = f"ofr_{merchant.canonical_id[:16]}_{product.canonical_id[:16]}_{uuid.uuid4().hex[:4]}"
+                Offer.objects.create(
+                    canonical_id=ofr_id,
+                    variant=product,
+                    merchant=merchant,
+                    price_amount=price,
+                    stall_ref=stall_ref,
+                    destination_type='merchant_whatsapp',
+                    availability_state=availability,
+                    last_confirmed_at=timezone.now(),
+                    expires_at=timezone.now() + timezone.timedelta(days=30),
+                )
+                messages.success(request, f"✓ Product '{product.title}' successfully listed in your catalog at R {price:,.2f}!")
+                return redirect(f"/merchant/dashboard/?merchantId={merchant.canonical_id}#offers")
+            except (ValueError, IntegrityError) as exc:
+                logger.warning('Offer create error: %s', exc)
+                messages.error(request, f"Error saving offer: {exc}")
+        else:
+            messages.error(request, "Please provide a valid product title and price in ZAR.")
+
+    # GET request - load popular master catalog products for 1-click pricing
+    master_products = list(MasterProduct.objects.filter(status='active').order_by('-created_at')[:40])
+    context = {
+        'merchant': merchant,
+        'master_products': master_products,
+    }
+    return render(request, 'merchants/merchant_product_add.html', context)
+

@@ -163,7 +163,7 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.55rem;">
         <a class="mc-btn mc-btn-primary" href="#agent">🤖 Run an agent</a>
         <a class="mc-btn" href="/merchant/campaigns/">📈 New campaign</a>
-        <a class="mc-btn" href="/merchant/claim">🏷️ List product</a>
+        <a class="mc-btn" href="/merchant/products/add/?merchantId={{ merchant.canonical_id }}">🏷️ List product</a>
         <a class="mc-btn" href="#offers">📦 Update prices</a>
         <a class="mc-btn" href="#feeds">📤 Google feed</a>
         <a class="mc-btn" href="/merchant/settings/">⚙️ Settings</a>
@@ -186,7 +186,7 @@
       <p class="mc-sub">Your confirmed propositions, indexed across the national grid. Saving a price re-confirms it and refreshes the validity window.</p>
     </div>
     <div class="mc-actions">
-      <a class="mc-btn mc-btn-primary" href="/merchant/claim">＋ List new product</a>
+      <a class="mc-btn mc-btn-primary" href="/merchant/products/add/?merchantId={{ merchant.canonical_id }}">＋ Add new product</a>
     </div>
   </div>
 
