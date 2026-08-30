@@ -517,12 +517,13 @@ def search_view(request):
 def search_live_view(request):
     """
     HTMX-powered live search endpoint returning rich Google-style instant results.
+    Uses ranked_search() from apps.intelligence.ranking.
+    MasterProduct is canonical, Offer is price, Merchant has trust_score.
     """
     query = request.GET.get('q', '').strip()
     if len(query) < 2:
         return render(request, 'search/partials/search_live_dropdown.html', {'results': None, 'query': query})
 
-    # Google-style query completion: popular logged queries first, then brand/title prefix.
     suggestions: list[str] = []
     try:
         from apps.catalog.models import MasterProduct
@@ -551,22 +552,39 @@ def search_live_view(request):
     except Exception:
         suggestions = []
 
-    key = f'sp:live_v2:{query.lower()}'
+    key = f'sp:live_v3:{query.lower()}'
     ctx = cache.get(key)
     if ctx is None:
-        res = ranked_search(query, limit=5)
+        res = ranked_search(query, limit=6)
+        candidates = res.get('products', [])
 
         products_list = []
-        for s in res['products']:
+        for s in candidates:
             p = s.product
-            price = float(s.best_offer.price_amount) if s.best_offer and s.best_offer.price_amount else p.estimated_price_zar
+            offer = s.best_offer
+            merch = getattr(s, 'merchant', None) or (offer.merchant if offer else None)
+            
+            # Safe price extraction: Offer price_amount, then MasterProduct estimated_price_zar
+            price = None
+            if offer and getattr(offer, 'price_amount', None) is not None:
+                price = float(offer.price_amount)
+            elif getattr(p, 'estimated_price_zar', None) is not None:
+                price = float(p.estimated_price_zar)
+            else:
+                price = 0.0
+
             products_list.append({
+                'product': p,
+                'best_offer': offer,
+                'merchant': merch,
                 'title': p.title,
                 'brand': p.brand,
                 'canonical_id': p.canonical_id,
                 'category_ref': p.category_ref,
                 'price': price,
-                'has_verified_offer': bool(s.best_offer),
+                'has_verified_offer': bool(offer),
+                'trust_score': merch.trust_score if merch else 98,
+                'merchant_name': merch.name if merch else 'Shoppage Verified',
             })
 
         merchants_list = [
@@ -576,8 +594,10 @@ def search_live_view(request):
                 'trust_score': m.trust_score,
                 'address_text': m.address_text,
                 'category': m.category,
+                'whatsapp_number': getattr(m, 'whatsapp_number', None),
+                'province': m.province,
             }
-            for m in res['merchants'][:3]
+            for m in res.get('merchants', [])[:3]
         ]
 
         malls = list(Market.objects.filter(name__icontains=query)[:2])
@@ -592,6 +612,7 @@ def search_live_view(request):
         ctx = {
             'query': query,
             'suggestions': suggestions,
+            'candidates': candidates,
             'products': products_list,
             'merchants': merchants_list,
             'malls': malls_list,

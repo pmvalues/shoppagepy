@@ -1,68 +1,62 @@
-{% load humanize %}
+{% load humanize core_tags %}
 {% if products or merchants or malls or shorts or knowledge_card %}
-<div style="padding: 0.75rem;">
+<div style="padding: 0.85rem; max-width: 820px; width: 100%;">
 
   <!-- Google-style query-completion suggestions -->
   {% if suggestions %}
-  <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; padding-left: 0.25rem;">
+  <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.85rem;">
     {% for s in suggestions %}
-    <a href="/search/?q={{ s|urlencode }}" style="font-size: 0.8rem; background: #F1F5F9; border: 1px solid #E2E8F0; color: #1E293B; padding: 0.3rem 0.7rem; border-radius: 9999px; text-decoration: none; font-weight: 600;">{{ s }}</a>
+    <a href="/search/?q={{ s|urlencode }}" style="font-size: 0.8rem; background: #F1F5F9; border: 1px solid #E2E8F0; color: #1E293B; padding: 0.3rem 0.75rem; border-radius: 9999px; text-decoration: none; font-weight: 600; transition: background 0.15s ease;" onmouseover="this.style.background='#E2E8F0'" onmouseout="this.style.background='#F1F5F9'">
+      🔍 {{ s }}
+    </a>
     {% endfor %}
   </div>
   {% endif %}
 
   <!-- Brand Knowledge Pill if recognized -->
   {% if knowledge_card %}
-  <div style="background: linear-gradient(135deg, #EFF6FF 0%, #F0FDF4 100%); border: 1px solid #BFDBFE; border-radius: 8px; padding: 0.6rem 0.85rem; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
-    <div style="display: flex; align-items: center; gap: 0.5rem;">
-      <span style="font-size: 1.25rem;">{{ knowledge_card.icon }}</span>
+  <div style="background: linear-gradient(135deg, #EFF6FF 0%, #F0FDF4 100%); border: 1px solid #BFDBFE; border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between;">
+    <div style="display: flex; align-items: center; gap: 0.65rem;">
+      <span style="font-size: 1.4rem;">{{ knowledge_card.icon }}</span>
       <div>
-        <div style="font-weight: 700; font-size: 0.85rem; color: #1E40AF;">{{ knowledge_card.brand }}</div>
-        <div style="font-size: 0.75rem; color: #475569;">{{ knowledge_card.category }} · {{ knowledge_card.satisfaction_rating }}</div>
+        <div style="font-weight: 800; font-size: 0.9rem; color: #1E40AF;">{{ knowledge_card.brand }}</div>
+        <div style="font-size: 0.76rem; color: #475569;">{{ knowledge_card.category }} · {{ knowledge_card.satisfaction_rating }}</div>
       </div>
     </div>
-    <span class="badge badge-green" style="font-size: 0.7rem;">✓ Verified Brand</span>
+    <span class="badge badge-green" style="font-size: 0.72rem; font-weight: 700;">✓ Verified Brand</span>
   </div>
   {% endif %}
 
-  <!-- Products Section -->
+  <!-- Google Shopping Product Cards Grid -->
   {% if products %}
-  <div style="font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 0.4rem; padding-left: 0.25rem; display: flex; justify-content: space-between;">
-    <span>📦 Products</span>
-    <span style="font-size: 0.7rem; color: #94A3B8;">Google Shopping Matched</span>
+  <div style="font-size: 0.75rem; font-weight: 800; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6rem; display: flex; justify-content: space-between; align-items: center;">
+    <span>🛍️ Products · Google Shopping Matched</span>
+    <a href="/search/?q={{ query|urlencode }}" style="font-size: 0.72rem; color: #1A73E8; text-decoration: none; font-weight: 700;">View all &rarr;</a>
   </div>
-  <div style="display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.75rem;">
-    {% for p in products %}
-    <a href="/p/{{ p.canonical_id }}/" style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.75rem; border-radius: 6px; text-decoration: none; color: #0F172A; transition: background 0.15s ease;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='transparent'">
-      <div>
-        <div style="font-weight: 600; font-size: 0.85rem;">{{ p.title }}</div>
-        <div style="font-size: 0.75rem; color: #64748B;">
-          <span style="color: #2563EB; font-weight: 600;">{{ p.brand }}</span> · {{ p.category_ref }}
-          {% if p.has_verified_offer %}<span style="color: #059669; font-weight: 600;">· In Stock</span>{% endif %}
-        </div>
-      </div>
-      <div style="font-weight: 800; font-size: 0.9rem; color: #059669; white-space: nowrap; margin-left: 0.75rem;">
-        R {{ p.price|floatformat:0|intcomma }}
-      </div>
-    </a>
+  
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+    {% for item in products %}
+      {% include 'products/_card.html' with product=item.product best_offer=item.best_offer merchant=item.merchant price=item.price %}
     {% endfor %}
   </div>
   {% endif %}
 
-  <!-- Merchants / Verified Stores -->
+  <!-- Verified Stores -->
   {% if merchants %}
-  <div style="font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 0.4rem; padding-left: 0.25rem; border-top: 1px solid var(--border); padding-top: 0.5rem; display: flex; justify-content: space-between;">
+  <div style="font-size: 0.75rem; font-weight: 800; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; border-top: 1px solid #E2E8F0; padding-top: 0.75rem; display: flex; justify-content: space-between;">
     <span>🏪 Verified Stores</span>
-    <span style="font-size: 0.7rem; color: #94A3B8;">WhatsApp Direct</span>
+    <span style="font-size: 0.7rem; color: #137333; font-weight: 700;">WhatsApp Direct Verified</span>
   </div>
-  <div style="display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.75rem;">
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0.5rem; margin-bottom: 0.85rem;">
     {% for m in merchants %}
-    <a href="/m/{{ m.canonical_id }}/" style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.75rem; border-radius: 6px; text-decoration: none; color: #0F172A; transition: background 0.15s ease;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='transparent'">
-      <div>
-        <div style="font-weight: 600; font-size: 0.85rem;">{{ m.name }}</div>
-        <div style="font-size: 0.75rem; color: #64748B;">📍 {{ m.address_text|truncatechars:35 }}</div>
+    <a href="/m/{{ m.canonical_id }}/" style="display: flex; justify-content: space-between; align-items: center; padding: 0.55rem 0.85rem; border-radius: 8px; border: 1px solid #E2E8F0; background: #FFFFFF; text-decoration: none; color: #0F172A; transition: all 0.15s ease;" onmouseover="this.style.borderColor='#1A73E8'; this.style.background='#F8FAFC';" onmouseout="this.style.borderColor='#E2E8F0'; this.style.background='#FFFFFF';">
+      <div style="min-width: 0; padding-right: 0.5rem;">
+        <div style="font-weight: 700; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ m.name }}</div>
+        <div style="font-size: 0.75rem; color: #64748B; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">📍 {{ m.address_text|default:m.province|truncatechars:28 }}</div>
       </div>
-      <span class="badge badge-green" style="font-size: 0.7rem;">✓ {{ m.trust_score }}/100 Trust</span>
+      <span style="font-size: 0.7rem; font-weight: 700; background: #E6F4EA; color: #137333; border: 1px solid #CEEAD6; padding: 2px 6px; border-radius: 4px; white-space: nowrap;">
+        ✓ {{ m.trust_score }}/100
+      </span>
     </a>
     {% endfor %}
   </div>
@@ -70,39 +64,26 @@
 
   <!-- Malls & Markets -->
   {% if malls %}
-  <div style="font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 0.4rem; padding-left: 0.25rem; border-top: 1px solid var(--border); padding-top: 0.5rem;">
+  <div style="font-size: 0.75rem; font-weight: 800; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; border-top: 1px solid #E2E8F0; padding-top: 0.6rem;">
     🏬 Malls &amp; Shopping Centres
   </div>
-  <div style="display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.75rem;">
+  <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
     {% for ml in malls %}
-    <a href="/markets/{{ ml.canonical_slug }}/" style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.75rem; border-radius: 6px; text-decoration: none; color: #0F172A; transition: background 0.15s ease;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='transparent'">
-      <div style="font-weight: 600; font-size: 0.85rem;">🏬 {{ ml.name }}</div>
-      <span class="badge badge-blue" style="font-size: 0.7rem;">{{ ml.province }}</span>
+    <a href="/markets/{{ ml.canonical_slug }}/" style="display: inline-flex; align-items: center; gap: 6px; padding: 0.35rem 0.75rem; border-radius: 6px; border: 1px solid #E2E8F0; background: #FFFFFF; text-decoration: none; color: #0F172A; font-size: 0.82rem; font-weight: 600;">
+      <span>🏬 {{ ml.name }}</span>
+      <span style="font-size: 0.68rem; background: #E8F0FE; color: #1A73E8; padding: 1px 5px; border-radius: 4px;">{{ ml.province }}</span>
     </a>
     {% endfor %}
   </div>
   {% endif %}
 
-  <!-- Shorts -->
-  {% if shorts %}
-  <div style="font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 0.4rem; padding-left: 0.25rem; border-top: 1px solid var(--border); padding-top: 0.5rem;">
-    🎬 Proof Shorts
-  </div>
-  <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-    {% for s in shorts %}
-    <a href="/shorts" style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.75rem; border-radius: 6px; text-decoration: none; color: #0F172A; transition: background 0.15s ease;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='transparent'">
-      <div style="font-size: 0.825rem; color: #0F172A;">▶️ {{ s.title }}</div>
-      <span style="font-size: 0.75rem; color: #EF4444; font-weight: 600;">{{ s.views|intcomma }} views</span>
+  <div style="border-top: 1px solid #E2E8F0; margin-top: 0.5rem; padding-top: 0.65rem; text-align: center;">
+    <a href="/search/?q={{ query|urlencode }}" style="font-size: 0.84rem; color: #1A73E8; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+      <span>View all Google-ranked results for &ldquo;{{ query }}&rdquo;</span>
+      <span>&rarr;</span>
     </a>
-    {% endfor %}
   </div>
-  {% endif %}
 
-  <div style="border-top: 1px solid var(--border); margin-top: 0.5rem; padding-top: 0.5rem; text-align: center;">
-    <a href="/search/?q={{ query|urlencode }}" style="font-size: 0.8rem; color: #2563EB; font-weight: 700; text-decoration: none;">
-      View all Google-ranked results for &ldquo;{{ query }}&rdquo; &rarr;
-    </a>
-  </div>
 </div>
 {% else %}
 <div style="padding: 1.25rem; text-align: center; color: #64748B; font-size: 0.85rem;">
