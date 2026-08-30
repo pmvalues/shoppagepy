@@ -5,7 +5,6 @@ RUN apk add --no-cache libc6-compat
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NODE_ENV=production
 
 RUN npm install
 RUN npm run build
