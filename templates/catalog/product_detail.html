@@ -763,7 +763,7 @@
       {% if r.reviewBody or r.text or r.comment %}
       <div class="card" style="background: var(--bg-primary);">
         <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-          <span style="font-weight: 800; font-size: 0.9rem; color: var(--text-primary);">{{ r.author|default:r.name|default:"Verified buyer" }}</span>
+          <span style="font-weight: 800; font-size: 0.9rem; color: var(--text-primary);">{{ r.author|default:r.name|default:"Reviewer" }}</span>
           {% if r.ratingValue or r.rating %}<span style="color: var(--amber-500); font-weight: 800;">★ {{ r.ratingValue|default:r.rating }}</span>{% endif %}
         </div>
         <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0; line-height: 1.65;">{{ r.reviewBody|default:r.text|default:r.comment }}</p>
@@ -809,7 +809,7 @@
             <span class="badge badge-blue">Trust {{ offer.merchant.trust_score }}/100</span>
           </div>
           <p style="color: var(--text-muted); font-size: 0.825rem; margin: 0.2rem 0;">
-            📍 {{ offer.merchant.address_text|default:offer.merchant.province|default:"Address not published" }} · <strong>{{ offer.stall_ref|default:"Direct storefront" }}</strong>
+            📍 {{ offer.merchant.address_text|default:offer.merchant.province|default:"Address not published" }}{% if offer.stall_ref %} · <strong>{{ offer.stall_ref }}</strong>{% endif %}
           </p>
           <p style="color: var(--emerald-600); font-size: 0.75rem; font-weight: 600; margin: 0;">
             🕒 {{ offer.get_sla_class_display }} · valid until {{ offer.expires_at|date:'d M Y H:i' }}
@@ -850,10 +850,10 @@
             <span class="badge badge-purple">{{ disc.source_website }}</span>
           </div>
           <p style="color: var(--text-muted); font-size: 0.825rem; margin: 0.2rem 0;">
-            📍 {{ disc.location_hint|default:"Online store & nationwide delivery" }}
+            📍 {{ disc.location_hint|default:"Location not recorded by sweep" }}
             {% if disc.sku %} · SKU: <code style="font-size: 0.75rem; background: var(--slate-100); padding: 1px 4px; border-radius: 3px; font-family: var(--font-mono);">{{ disc.sku }}</code>{% endif %}
           </p>
-          <p style="color: var(--text-secondary); font-size: 0.75rem; margin: 0;">📦 {{ disc.availability_text|default:"In Stock" }} · discovered via automated retailer sweep</p>
+          <p style="color: var(--text-secondary); font-size: 0.75rem; margin: 0;">📦 {{ disc.availability_text|default:"Availability unconfirmed" }} · discovered via automated retailer sweep</p>
         </div>
 
         <div style="text-align: right;">

@@ -49,12 +49,16 @@ document.addEventListener('DOMContentLoaded', function () {
     <div>
       <div class="mp-meta-row">
         <span class="badge badge-purple">{{ merchant.primary_category|default:"Commercial Supplier" }}</span>
+        {% if merchant.verification_state == 'fully_verified' or merchant.verification_state == 'phone_verified' %}
         <span class="badge badge-green">✓ {{ merchant.get_verification_state_display }}</span>
+        {% else %}
+        <span class="badge badge-gray">{{ merchant.get_verification_state_display }}</span>
+        {% endif %}
         {% if merchant.open_now %}
           {% if merchant.open_now.is_open %}
           <span class="mp-open-state mp-open-state--open">● Open Now · Closes {{ merchant.open_now.closes_at }}</span>
           {% else %}
-          <span class="mp-open-state mp-open-state--closed">● Closed · {{ merchant.open_now.reopens_label|default:"opens later this week" }}</span>
+          <span class="mp-open-state mp-open-state--closed">● Closed{% if merchant.open_now.reopens_label %} · {{ merchant.open_now.reopens_label }}{% endif %}</span>
           {% endif %}
         {% else %}
           <span class="mp-open-state mp-open-state--unknown">● Hours not confirmed</span>
@@ -469,9 +473,9 @@ document.addEventListener('DOMContentLoaded', function () {
         <!-- Metadata -->
         <div class="mp-row-body">
           <div class="mp-meta-row">
-            <span class="badge badge-green">✓ In Stock</span>
+            <span class="badge badge-green">✓ {{ offer.get_availability_state_display }}</span>
             <span class="badge badge-blue">{{ offer.variant.brand }}</span>
-            <span style="font-size: 0.75rem; color: var(--slate-500);">Category: {{ offer.variant.category_ref|title }}</span>
+            <span style="font-size: 0.75rem; color: var(--slate-500);">Category: {{ offer.variant.category_ref|title|cut:"_" }}</span>
           </div>
 
           <h3 class="mp-row-title">

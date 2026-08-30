@@ -20,8 +20,14 @@
       <div>
         <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center;">
           <span class="badge badge-blue">{{ market.get_market_type_display }}</span>
+          {% if market.verification_state and market.verification_state != 'unverified' %}
           <span class="badge badge-green">✓ Verified Digital Twin</span>
-          <span style="font-size: 0.8rem; color: var(--emerald-600); font-weight: 700;">● Open Now · 08:00–18:00</span>
+          {% else %}
+          <span class="badge badge-gray">Unverified listing</span>
+          {% endif %}
+          {% if market.operating_hours %}
+          <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">🕒 {{ market.operating_hours }}</span>
+          {% endif %}
         </div>
 
         <h1 style="font-size: 2.25rem; font-weight: 900; color: #0F172A; margin-bottom: 0.5rem; letter-spacing: -0.025em;">
@@ -29,11 +35,11 @@
         </h1>
 
         <p style="color: var(--slate-600); font-size: 0.95rem; margin-bottom: 0.5rem;">
-          📍 {{ market.street_address|default:"Major South African Commercial Hub" }} · {{ market.metro }}, {{ market.province }}
+          📍 {{ market.street_address|default:"Address not published" }} · {{ market.metro }}, {{ market.province }}
         </p>
 
         <p style="color: var(--slate-500); font-size: 0.8rem; margin: 0;">
-          Capacity: <strong>{{ market.stall_capacity }} verified merchant units</strong> · SABS &amp; NRS certified suppliers active
+          Capacity: <strong>{{ market.stall_capacity }} merchant units</strong> · individual supplier certifications are shown on each store profile
         </p>
       </div>
 
@@ -74,17 +80,23 @@
           <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.35rem; flex-wrap: wrap;">
             <span class="badge badge-purple">{{ m.category|default:"Commercial Supplier" }}</span>
             <span class="badge badge-green" style="font-size: 0.7rem;">✓ Trust: {{ m.trust_score }}/100</span>
-            <span class="badge badge-blue">🇿🇦 Verified Merchant</span>
+            {% if m.verification_state == 'fully_verified' %}
+            <span class="badge badge-green">🇿🇦 Fully Verified</span>
+            {% elif m.verification_state == 'phone_verified' %}
+            <span class="badge badge-green">🇿🇦 Phone Verified</span>
+            {% else %}
+            <span class="badge badge-gray">🇿🇦 Unverified</span>
+            {% endif %}
           </div>
 
           <h3 style="font-size: 1.15rem; font-weight: 700; color: #1A0DAB; margin: 0 0 0.35rem 0; line-height: 1.35;">
-            <a href="/m/{{ m.canonical_id }}" style="color: #1A0DAB; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+            <a href="/m/{{ m.canonical_id }}/" style="color: #1A0DAB; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
               {{ m.name }}
             </a>
           </h3>
 
           <p style="color: #64748B; font-size: 0.85rem; margin: 0;">
-            🏬 Stall / Physical Unit: <strong>{{ m.stall_identifier|default:"Direct Mall Counter" }}</strong> · {{ market.name }}
+            {% if m.stall_identifier %}🏬 Stall / Physical Unit: <strong>{{ m.stall_identifier }}</strong> · {% endif %}{{ market.name }}
           </p>
         </div>
 

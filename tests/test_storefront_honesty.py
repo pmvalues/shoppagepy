@@ -385,6 +385,12 @@ class ServedTemplateFabricationGuardTests(TestCase):
         '★ 4.9', '|default:"4.9"', '|default:12 ', '|default:1200',
         '|default:"Standard"', '|default:"Direct Counter"', '|default:"Verified Store"',
         'or 1000.0', 'or 2800.0',
+        '|default:"Verified buyer"', '|default:"Shoppage Lab"', '|default:"In Stock"',
+        'Direct storefront', 'Direct Mall Counter',
+        'Major South African Commercial',
+        'Online store & nationwide delivery',
+        'opens later this week', '08:00–18:00',
+        'verified units', 'verified merchant units',
     )
 
     def test_no_served_template_substitutes_invented_values(self):
