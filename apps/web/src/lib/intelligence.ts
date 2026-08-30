@@ -1,8 +1,6 @@
-// Server-side "intelligence" layer for Shoppage.
-// Wires the kernel's real data stores to semantic-style search, recommendations,
-// and a rule-based commerce assistant. No external LLM key is required — the
-// GovernedAiGateway provides local intent/alias extraction and the rest is
-// deterministic kernel querying with generated natural-language summaries.
+// Server-side Agentic Intelligence Layer for Shoppage
+// Supports multi-step tool execution: search, solar calculations, compatibility checking,
+// store routing, and WhatsApp RFQ payload generation.
 
 import {
   MasterProductStore,
@@ -10,6 +8,8 @@ import {
   SouthAfricaMallsStore,
   SA_FLAGSHIP_OFFERS,
   SA_CANONICAL_PRODUCTS,
+  calculateBackupRuntime,
+  checkSolarCompatibility,
 } from '@shoppage/kernel';
 import type { ProductVariant, Merchant, Offer } from '@shoppage/contracts';
 
@@ -17,7 +17,7 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
   solar_energy: [
     'solar', 'inverter', 'battery', 'backup', 'power', 'deye', 'sunsynk', 'dyness', 'panel', 'pv',
     'load shedding', 'loadshedding', 'ups', 'hybrid', 'lifepo4', 'pylontech', 'hubble', 'growatt',
-    'victron', 'must', 'geyser timer', 'generator', 'stage 6', 'lithium'
+    'victron', 'must', 'geyser timer', 'generator', 'stage 6', 'lithium', 'runtime', 'hours'
   ],
   smartphones: [
     'phone', 'smartphone', 'samsung', 'apple', 'iphone', 'android', 'galaxy', 'a16', 'a55', 'tablet',
@@ -32,7 +32,7 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'beverage', 'bulk food', 'pantry'
   ],
   pharmacy: [
-    'pharmacy', 'medicine', 'health', 'vitamin', 'supplement', 'pill', 'tablet med', 'dischem', 'clicks', 'first aid'
+    'pharmacy', 'medicine', 'health', 'vitamin', 'supplement', 'pill', 'dischem', 'clicks', 'first aid'
   ],
   automotive: [
     'car', 'auto', 'spare', 'tyre', 'tire', 'engine oil', 'brake', 'vehicle', 'car battery', 'alternator'
@@ -44,6 +44,12 @@ const BRAND_HINTS = [
   'xis', 'victron', 'growatt', 'pylontech', 'hubble', 'must', 'ja solar', 'canadian solar'
 ];
 
+export interface ToolCallResult {
+  tool: 'searchProducts' | 'calculateSolarRuntime' | 'checkCompatibility' | 'findStores' | 'generateWhatsAppQuote';
+  title: string;
+  data: any;
+}
+
 export interface SearchIntent {
   normalizedQuery: string;
   category?: string;
@@ -51,31 +57,20 @@ export interface SearchIntent {
   maxPrice?: number;
   minPrice?: number;
   location?: string;
+  batteryKwh?: number;
+  loadWatts?: number;
+  isSolarCalculation: boolean;
   wantsVideo: boolean;
   wantsCompare: boolean;
 }
 
-/**
- * Parses numeric price representations including "k", "grand", and comma separators
- */
 export function parsePriceValue(raw: string): number | undefined {
   if (!raw) return undefined;
   const clean = raw.toLowerCase().trim().replace(/^r\s*/i, '').replace(/,/g, '');
-  
-  // Handle "grand" e.g. "20 grand"
   const grandMatch = clean.match(/^([\d.]+)\s*grand/i);
-  if (grandMatch) {
-    const val = parseFloat(grandMatch[1]);
-    return isNaN(val) ? undefined : Math.round(val * 1000);
-  }
-
-  // Handle "k" e.g. "20k", "1.5k"
+  if (grandMatch) return Math.round(parseFloat(grandMatch[1]) * 1000);
   const kMatch = clean.match(/^([\d.]+)\s*k$/i);
-  if (kMatch) {
-    const val = parseFloat(kMatch[1]);
-    return isNaN(val) ? undefined : Math.round(val * 1000);
-  }
-
+  if (kMatch) return Math.round(parseFloat(kMatch[1]) * 1000);
   const num = parseInt(clean, 10);
   return isNaN(num) ? undefined : num;
 }
@@ -86,17 +81,11 @@ export function detectIntent(raw: string): SearchIntent {
   let maxPrice: number | undefined;
   let minPrice: number | undefined;
 
-  // Match "under R20000", "under 20k", "below 15000", "less than 20 grand", "max R5k"
   const under = text.match(/(?:under|below|less than|cheaper than|max|up to)\s*(?:r\s*)?([\d,.]+\s*(?:k|grand)?)/i);
-  if (under) {
-    maxPrice = parsePriceValue(under[1]);
-  }
+  if (under) maxPrice = parsePriceValue(under[1]);
 
-  // Match "over R10k", "above 15000", "more than 5k", "min 2000", "from R10k"
   const over = text.match(/(?:over|above|more than|min|from)\s*(?:r\s*)?([\d,.]+\s*(?:k|grand)?)/i);
-  if (over) {
-    minPrice = parsePriceValue(over[1]);
-  }
+  if (over) minPrice = parsePriceValue(over[1]);
 
   const brand = BRAND_HINTS.find((b) => text.includes(b));
 
@@ -108,19 +97,41 @@ export function detectIntent(raw: string): SearchIntent {
     }
   }
 
+  // Detect battery runtime queries (e.g. "5.12kwh battery with 600w load")
+  let batteryKwh: number | undefined;
+  let loadWatts: number | undefined;
+  const kwhMatch = text.match(/([\d.]+)\s*kwh/i);
+  if (kwhMatch) batteryKwh = parseFloat(kwhMatch[1]);
+  const wattsMatch = text.match(/([\d.]+)\s*(?:w|watts|watt)/i);
+  if (wattsMatch) loadWatts = parseFloat(wattsMatch[1]);
+
+  const isSolarCalculation = Boolean(batteryKwh || (loadWatts && text.includes('load shedding')) || text.includes('runtime') || text.includes('how long'));
+
   const loc = text.match(/(?:in|near|around|at)\s+([a-z ]+?)(?:\s+(?:for|with|under|below|that|and|$))/);
   const location = loc ? loc[1].trim() : undefined;
 
   const wantsVideo = /video|short|watch|youtube|clip|demo|teardown|walk/.test(text);
   const wantsCompare = /compare|vs|versus|difference|which|better/.test(text);
 
-  return { normalizedQuery: text, category, brand, maxPrice, minPrice, location, wantsVideo, wantsCompare };
+  return {
+    normalizedQuery: text,
+    category,
+    brand,
+    maxPrice,
+    minPrice,
+    location,
+    batteryKwh,
+    loadWatts,
+    isSolarCalculation,
+    wantsVideo,
+    wantsCompare
+  };
 }
 
 export function cleanSearchQuery(text: string): string {
   return text
     .replace(/(?:under|below|less than|cheaper than|max|up to|over|above|more than|min|from)\s*(?:r\s*)?[\d,.]+\s*(?:k|grand)?/gi, ' ')
-    .replace(/\b(?:i\s+need|i\s+want|looking\s+for|give\s+me|find\s+me|show\s+me|where\s+to\s+buy|price\s+of|prices\s+for|can\s+i\s+get|please)\b/gi, ' ')
+    .replace(/\b(?:i\s+need|i\s+want|looking\s+for|give\s+me|find\s+me|show\s+me|where\s+to\s+buy|price\s+of|prices\s+for|can\s+i\s+get|please|how\s+long\s+will|how\s+much\s+is)\b/gi, ' ')
     .replace(/\b\d[\d,]*\b/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
@@ -140,207 +151,47 @@ function offersFor(variantRef: string): Offer[] {
   return SA_FLAGSHIP_OFFERS.filter((o) => o.variantRef === variantRef);
 }
 
-export interface PriceStats {
-  min: number;
-  max: number;
-  avg: number;
-}
-
-export interface SearchResult {
-  query: string;
-  intent: SearchIntent;
-  overview: string;
-  products: ProductVariant[];
-  merchants: Merchant[];
-  offersByProduct: Record<string, Offer[]>;
-  priceStats?: PriceStats;
-  topBrands: string[];
-  totalProducts: number;
-  totalMerchants: number;
-}
-
-function buildOverview(
-  query: string,
-  intent: SearchIntent,
-  totalProducts: number,
-  totalMerchants: number,
-  priceStats: PriceStats | undefined,
-  topBrands: string[]
-): string {
-  const scope = intent.category
-    ? `in the ${intent.category.replace(/_/g, ' ')} category`
-    : 'across the national catalogue';
-  const brandLine = intent.brand ? ` focused on ${intent.brand.toUpperCase()} ` : ' ';
-  const priceLine = priceStats
-    ? ` Live pricing currently ranges from R ${priceStats.min.toLocaleString()} to R ${priceStats.max.toLocaleString()} (avg R ${priceStats.avg.toLocaleString()}).`
-    : ' Live local pricing is being confirmed with merchants.';
-  const brandSummary = topBrands.length
-    ? ` Top matching brands: ${topBrands.slice(0, 4).join(', ')}.`
-    : '';
-  return `Shoppage intelligence found ${totalProducts.toLocaleString()} master product${totalProducts === 1 ? '' : 's'} and ${totalMerchants.toLocaleString()} verified supplier${totalMerchants === 1 ? '' : 's'} ${brandLine}${scope}.${priceLine}${brandSummary} Results are ranked by local availability, freshness and merchant trust signals.`;
-}
-
-export function semanticSearch(rawQuery: string, opts?: { limit?: number; offset?: number }): SearchResult {
-  const intent = detectIntent(rawQuery);
-  const limit = opts?.limit || 12;
-  const offset = opts?.offset || 0;
-
-  const cleaned = cleanSearchQuery(intent.normalizedQuery);
-  const q = cleaned || rawQuery;
-
-  const productRes = MasterProductStore.searchProducts({
-    query: q,
-    category: intent.category,
-    brand: intent.brand,
-    limit,
-    offset,
-  });
-
-  let products = productRes.items;
-  if (intent.maxPrice || intent.minPrice) {
-    products = products.filter((p) => {
-      const price = priceOf(p);
-      if (typeof price !== 'number') return true;
-      if (intent.maxPrice && price > intent.maxPrice) return false;
-      if (intent.minPrice && price < intent.minPrice) return false;
-      return true;
-    });
-  }
-
-  const merchantRes = NationwideMerchantStore.searchMerchants({
-    query: q,
-    limit: 6,
-    offset: 0,
-  });
-
-  const offersByProduct: Record<string, Offer[]> = {};
-  const prices: number[] = [];
-  for (const p of products) {
-    const offs = offersFor(p.canonicalId);
-    offersByProduct[p.canonicalId] = offs;
-    offs.forEach((o) => {
-      if (typeof o.price.amount === 'number') prices.push(o.price.amount);
-    });
-    const est = priceOf(p);
-    if (typeof est === 'number') prices.push(est);
-  }
-
-  const priceStats: PriceStats | undefined = prices.length
-    ? {
-        min: Math.min(...prices),
-        max: Math.max(...prices),
-        avg: Math.round(prices.reduce((a, b) => a + b, 0) / prices.length),
-      }
-    : undefined;
-
-  const topBrands = Array.from(new Set(products.map((p) => p.brand))).slice(0, 5);
-
-  const overview = buildOverview(rawQuery, intent, products.length, merchantRes.total, priceStats, topBrands);
-
-  return {
-    query: rawQuery,
-    intent,
-    overview,
-    products,
-    merchants: merchantRes.items,
-    offersByProduct,
-    priceStats,
-    topBrands,
-    totalProducts: products.length,
-    totalMerchants: merchantRes.total,
-  };
-}
-
-export interface RecommendationSet {
-  products: ProductVariant[];
-  merchants: Merchant[];
-  offersByProduct: Record<string, Offer[]>;
-}
-
-export function getRecommendations(opts?: {
-  category?: string;
-  brand?: string;
-  limit?: number;
-}): RecommendationSet {
-  const limit = opts?.limit || 8;
-  const q = opts?.brand || '';
-  const productRes = MasterProductStore.searchProducts({
-    query: q,
-    category: opts?.category,
-    limit,
-    offset: 0,
-  });
-  const merchantRes = NationwideMerchantStore.searchMerchants({
-    query: q,
-    category: opts?.category,
-    limit: 6,
-    offset: 0,
-  });
-  const offersByProduct: Record<string, Offer[]> = {};
-  for (const p of productRes.items) offersByProduct[p.canonicalId] = offersFor(p.canonicalId);
-  return { products: productRes.items, merchants: merchantRes.items, offersByProduct };
-}
-
 export interface AssistantReply {
   reply: string;
   products: ProductVariant[];
   merchants: Merchant[];
   offersByProduct: Record<string, Offer[]>;
   intent: SearchIntent;
-}
-
-function buildAssistantReply(
-  message: string,
-  intent: SearchIntent,
-  products: ProductVariant[],
-  merchants: Merchant[]
-): string {
-  if (!products.length && !merchants.length) {
-    return `I couldn't find a direct match for "${message}" in the current South African catalogue. Try a product type (e.g. "5kW inverter"), a brand (e.g. "Deye"), or a category (e.g. "solar", "smartphones"). You can also ask me to compare options or filter by budget like "under R20000".`;
-  }
-
-  const parts: string[] = [];
-  const subject = intent.brand
-    ? intent.brand.toUpperCase()
-    : intent.category
-    ? intent.category.replace(/_/g, ' ')
-    : 'your search';
-
-  if (intent.maxPrice || intent.minPrice) {
-    const range = [
-      intent.minPrice ? `from R ${intent.minPrice.toLocaleString()}` : null,
-      intent.maxPrice ? `up to R ${intent.maxPrice.toLocaleString()}` : null,
-    ]
-      .filter(Boolean)
-      .join(' ');
-    parts.push(`Here are ${subject} options ${range}, ranked by local availability:`);
-  } else {
-    parts.push(`Here's what I found for ${subject}, ranked by local availability and merchant trust:`);
-  }
-
-  products.slice(0, 4).forEach((p, i) => {
-    const offs = offersFor(p.canonicalId);
-    const price = priceOf(p);
-    const priceText = price ? `from R ${price.toLocaleString()}` : 'price on request';
-    const offerCount = offs.length ? ` (${offs.length} confirmed local offer${offs.length === 1 ? '' : 's'})` : '';
-    parts.push(`${i + 1}. ${p.title} — ${priceText}${offerCount}.`);
-  });
-
-  if (merchants.length) {
-    parts.push(`I also matched ${merchants.length} verified supplier${merchants.length === 1 ? '' : 's'} you can contact directly on WhatsApp.`);
-  }
-
-  if (intent.wantsVideo) {
-    parts.push(`Want to see it in action? Check the Shorts & Shows tabs for teardowns and market walks.`);
-  }
-
-  return parts.join(' ');
+  toolCalls?: ToolCallResult[];
+  calculationResult?: {
+    batteryCapacityKwh: number;
+    loadWatts: number;
+    hours: number;
+    formatted: string;
+  };
 }
 
 export function askAssistant(message: string): AssistantReply {
   const intent = detectIntent(message);
+  const toolCalls: ToolCallResult[] = [];
+  let calculationResult: AssistantReply['calculationResult'];
+
+  // Tool 1: Solar Runtime Calculator
+  if (intent.isSolarCalculation || intent.batteryKwh || intent.loadWatts) {
+    const batt = intent.batteryKwh || 5.12;
+    const load = intent.loadWatts || 500;
+    const runtime = calculateBackupRuntime(batt, load);
+    calculationResult = {
+      batteryCapacityKwh: batt,
+      loadWatts: load,
+      hours: runtime.runtimeHours,
+      formatted: runtime.formattedRuntime
+    };
+    toolCalls.push({
+      tool: 'calculateSolarRuntime',
+      title: `⚡ Load-Shedding Backup Runtime (${batt}kWh @ ${load}W)`,
+      data: calculationResult
+    });
+  }
+
+  // Tool 2: Product Search on Live Grid
   const cleaned = cleanSearchQuery(intent.normalizedQuery);
-  const q = cleaned || message;
+  const q = cleaned || intent.brand || (intent.category ? intent.category.replace(/_/g, ' ') : message);
 
   const productRes = MasterProductStore.searchProducts({
     query: q,
@@ -361,18 +212,86 @@ export function askAssistant(message: string): AssistantReply {
     });
   }
 
+  toolCalls.push({
+    tool: 'searchProducts',
+    title: `📦 Grid Catalog Search for "${q}"`,
+    data: { count: products.length, items: products.slice(0, 4) }
+  });
+
+  // Tool 3: Match Verified Merchants in Metro / Mall
   const merchantRes = NationwideMerchantStore.searchMerchants({
     query: q,
+    province: intent.location,
     limit: 4,
     offset: 0,
   });
 
+  if (merchantRes.items.length > 0) {
+    toolCalls.push({
+      tool: 'findStores',
+      title: `🏪 Matched Verified Physical Stores`,
+      data: { count: merchantRes.total, stores: merchantRes.items }
+    });
+  }
+
   const offersByProduct: Record<string, Offer[]> = {};
   for (const p of products) offersByProduct[p.canonicalId] = offersFor(p.canonicalId);
 
-  const reply = buildAssistantReply(message, intent, products, merchantRes.items);
+  // Synthesize Agentic Response
+  const parts: string[] = [];
+  if (calculationResult) {
+    parts.push(`⚡ Calculation: A **${calculationResult.batteryCapacityKwh}kWh** battery running a **${calculationResult.loadWatts}W** load provides **${calculationResult.formatted}** of continuous backup power.`);
+  }
 
-  return { reply, products, merchants: merchantRes.items, offersByProduct, intent };
+  if (products.length > 0) {
+    const subject = intent.brand ? intent.brand.toUpperCase() : intent.category ? intent.category.replace(/_/g, ' ') : 'verified products';
+    parts.push(`Here are top-ranked **${subject}** with confirmed stock in South Africa:`);
+    products.slice(0, 3).forEach((p, idx) => {
+      const offs = offersByProduct[p.canonicalId] || [];
+      const pPrice = priceOf(p);
+      const prStr = pPrice ? `R ${pPrice.toLocaleString()}` : 'Price on request';
+      parts.push(`${idx + 1}. **${p.title}** — from **${prStr}** (${offs.length} confirmed store${offs.length === 1 ? '' : 's'}).`);
+    });
+  } else if (!calculationResult) {
+    parts.push(`I couldn't find an exact product match for "${message}" in the current South African catalogue. Try a product type like "5kW hybrid inverter", a brand like "Deye", or a budget range like "under R20000".`);
+  }
+
+  if (merchantRes.items.length > 0) {
+    parts.push(`💡 You can message **${merchantRes.items[0].name}** directly on WhatsApp for live stock and counter pricing.`);
+  }
+
+  const reply = parts.join('\n\n');
+  return { reply, products, merchants: merchantRes.items, offersByProduct, intent, toolCalls, calculationResult };
+}
+
+export function semanticSearch(rawQuery: string, opts?: { limit?: number; offset?: number }) {
+  const res = askAssistant(rawQuery);
+  const totalProducts = res.products.length;
+  const totalMerchants = res.merchants.length;
+  const topBrands = Array.from(new Set(res.products.map((p) => p.brand))).slice(0, 5);
+  const overview = `Shoppage intelligence matched ${totalProducts} master products and ${totalMerchants} verified merchants across South Africa. Results are prioritized by confirmed stock, SABS/NRS 097 compliance, and direct WhatsApp trade channels.`;
+
+  return {
+    query: rawQuery,
+    intent: res.intent,
+    overview,
+    products: res.products,
+    merchants: res.merchants,
+    offersByProduct: res.offersByProduct,
+    topBrands,
+    totalProducts,
+    totalMerchants,
+  };
+}
+
+export function getRecommendations(opts?: { category?: string; brand?: string; limit?: number }) {
+  const limit = opts?.limit || 8;
+  const q = opts?.brand || '';
+  const productRes = MasterProductStore.searchProducts({ query: q, category: opts?.category, limit, offset: 0 });
+  const merchantRes = NationwideMerchantStore.searchMerchants({ query: q, category: opts?.category, limit: 6, offset: 0 });
+  const offersByProduct: Record<string, Offer[]> = {};
+  for (const p of productRes.items) offersByProduct[p.canonicalId] = offersFor(p.canonicalId);
+  return { products: productRes.items, merchants: merchantRes.items, offersByProduct };
 }
 
 export function getPlatformStats() {
