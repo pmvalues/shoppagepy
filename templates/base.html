@@ -25,8 +25,7 @@
   <meta name="twitter:image" content="{% block twitter_image %}{% if og_image_url %}{{ og_image_url }}{% else %}{{ default_og_image }}{% endif %}{% endblock %}">
   {% if google_site_verification %}<meta name="google-site-verification" content="{{ google_site_verification }}">{% endif %}
   {% if bing_site_verification %}<meta name="msvalidate.01" content="{{ bing_site_verification }}">{% endif %}
-  <meta name="theme-color" content="#0F172A">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0d1526">
   <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
   <link rel="icon" type="image/svg+xml" href="{% static 'icons/favicon.svg' %}">
   <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
@@ -34,16 +33,15 @@
   <link rel="apple-touch-icon" href="{% static 'icons/favicon.svg' %}">
   {% if site_jsonld %}<script type="application/ld+json">{{ site_jsonld|safe }}</script>{% endif %}
   {% block structured_data %}{% endblock %}
-  
-  <!-- Premium Modern Fonts: Plus Jakarta Sans (Body & UI), Outfit (Headings & Numbers), JetBrains Mono (SKUs & Codes) -->
+
+  <!-- Typography: Plus Jakarta Sans (body) · Outfit (display) · JetBrains Mono (codes) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
 
-  <!-- Modern Responsive Stylesheet -->
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-  
-  <!-- Interactive Libraries: HTMX (HTML-over-the-wire) & Alpine.js (Reactive Client State) -->
+
+  <!-- HTMX (live search) & Alpine.js (reactive UI) -->
   <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
   <script defer src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js"></script>
 
@@ -77,30 +75,29 @@
     recognition.start();
   }
 }" @keydown.window="if ($event.key === '/' && !['INPUT', 'TEXTAREA'].includes($event.target.tagName)) { $event.preventDefault(); document.getElementById('global-omnibox-input')?.focus(); }">
-  <!-- Main Google-Style Header -->
+
+  <!-- ══════════════════════════ Header ══════════════════════════ -->
   <header class="header">
-    <div class="container nav-wrapper" style="height: 70px; gap: 1.5rem;">
-      <!-- Logo -->
-      <a href="/" class="logo" style="flex-shrink: 0;">
-        <span class="logo-badge">⚡</span>
-        <div style="display: flex; flex-direction: column;">
-          <span style="font-family: var(--font-display); font-size: 1.45rem; font-weight: 900; letter-spacing: -0.03em; color: #0F172A; line-height: 1.1;">Shoppage</span>
-          <span style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #2563EB;">National Grid</span>
-        </div>
+    <div class="container nav-wrapper">
+      <a href="/" class="logo">
+        <span class="logo-badge" aria-hidden="true">⚡</span>
+        <span class="logo-word">Shoppage<small>National Grid</small></span>
       </a>
 
-      <!-- Wide Omnibox Search Bar (Google Style) -->
+      <!-- Omnibox -->
       <div style="position: relative; flex: 1; max-width: 692px;" x-data="{ open: false }">
-        <form action="/search/" method="GET" class="search-container" style="position: relative; display: flex; align-items: center; width: 100%;">
-          <span class="search-icon" style="position: absolute; left: 16px; font-size: 1.15rem; color: #94A3B8; pointer-events: none;">🔍</span>
+        <form action="/search/" method="GET" class="search-container">
+          <span class="search-icon" aria-hidden="true">🔍</span>
           <input
             id="global-omnibox-input"
+            class="search-input omnibox-input"
             type="text"
             name="q"
-            placeholder="Search {{ total_products_count|default:0 }} products, inverters, brands, wholesale MOQs or malls..."
-            class="search-input"
+            placeholder="Search {{ total_products_count|default:0 }} products, inverters, brands, wholesale MOQs or malls…"
             value="{{ query|default:'' }}"
             autocomplete="off"
+            aria-label="Search products, merchants and malls"
+            style="padding: 0.8rem 7.5rem 0.8rem 3.1rem;"
             hx-get="/search/live/"
             hx-trigger="keyup changed delay:120ms, search"
             hx-target="#live-search-dropdown"
@@ -108,21 +105,19 @@
             @focus="open = true"
             @click.away="open = false"
             @keydown.escape="open = false"
-            style="width: 100%; padding: 0.8rem 7.5rem 0.8rem 3.25rem; border: 1.5px solid #CBD5E1; border-radius: 9999px; font-size: 0.95rem; font-family: var(--font-sans); outline: none; background: #FFFFFF; transition: border-color 0.15s; box-shadow: none;"
-            onfocus="this.style.borderColor='#2563EB'"
-            onblur="this.style.borderColor='#CBD5E1'"
           />
           <div style="position: absolute; right: 8px; display: flex; align-items: center; gap: 4px;">
             {% if query %}
-            <a href="/search/" title="Clear search" style="color: #94A3B8; font-size: 1rem; padding: 4px 6px; text-decoration: none; line-height: 1;">✕</a>
-            <span style="color: #E2E8F0;">|</span>
+            <a href="/search/" title="Clear search" style="color: var(--text-subtle); font-size: 1rem; padding: 4px 6px; line-height: 1;" aria-label="Clear search">✕</a>
+            <span style="color: var(--border);">|</span>
             {% endif %}
             <button
               type="button"
               @click="startVoiceSearch()"
               :class="{ 'voice-listening': isListening }"
-              title="Voice Search"
-              style="background: transparent; border: none; cursor: pointer; padding: 4px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; color: #64748B;"
+              title="Voice search"
+              aria-label="Voice search"
+              style="background: transparent; border: none; cursor: pointer; padding: 4px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; color: var(--text-muted);"
             >
               <span x-text="isListening ? '🔴' : '🎙️'"></span>
             </button>
@@ -131,74 +126,51 @@
             </button>
           </div>
         </form>
-        
-        <!-- Live Floating Results Dropdown -->
-        <div
-          id="live-search-dropdown"
-          x-show="open"
-          x-transition
-          style="display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px; z-index: 1000; max-height: 440px; overflow-y: auto;"
-        >
-        </div>
+
+        <!-- Live results dropdown -->
+        <div id="live-search-dropdown" class="omnibox-dropdown" x-show="open" x-transition style="display: none;"></div>
       </div>
 
-      <!-- Right Action Button: + List Shop -->
+      <!-- Primary CTA -->
       <div style="flex-shrink: 0; display: flex; align-items: center; gap: 0.75rem;">
-        <a href="/merchant/claim" class="btn btn-whatsapp" style="padding: 0.55rem 1.25rem; font-size: 0.875rem; font-weight: 700; border-radius: 9999px;">
+        <a href="/merchant/claim" class="btn btn-whatsapp" style="padding: 0.55rem 1.2rem; font-size: 0.875rem; border-radius: 9999px;">
           + List Shop
         </a>
       </div>
     </div>
 
-    <!-- Second Row Elements Under Header: Google-Style Navigation Tabs -->
-    <div style="background: #FFFFFF; border-top: 1px solid #E2E8F0; padding: 0;">
-      <div class="container" style="display: flex; gap: 1.75rem; overflow-x: auto; font-size: 0.875rem; font-weight: 600; color: #475569; align-items: center; white-space: nowrap; scrollbar-width: none;">
-        <a href="/search?q={{ query|default:'' }}" class="google-nav-tab {% if not request.GET.mode and not request.GET.tab and '/shorts' not in request.path and '/malls' not in request.path and '/merchants' not in request.path and '/requests' not in request.path %}active-tab{% endif %}">
-          🔍 All
-        </a>
-        <a href="/search?q={{ query|default:'' }}&tab=shopping" class="google-nav-tab {% if request.GET.tab == 'shopping' %}active-tab{% endif %}">
-          🛍️ Price Matrix
-        </a>
-        <a href="/search?q={{ query|default:'' }}&tab=images" class="google-nav-tab {% if request.GET.tab == 'images' %}active-tab{% endif %}">
-          🖼️ Images
-        </a>
-        <a href="/search?q={{ query|default:'' }}&province=Gauteng" class="google-nav-tab {% if request.GET.province == 'Gauteng' %}active-tab{% endif %}">
-          🇿🇦 South African Grid
-        </a>
-        <a href="/merchants" class="google-nav-tab {% if '/merchants' in request.path %}active-tab{% endif %}">
-          🏪 Detailed Merchant Shops
-        </a>
-        <a href="/malls" class="google-nav-tab {% if '/malls' in request.path %}active-tab{% endif %}">
-          🗺️ {{ total_malls_count|default:0 }} Malls
-        </a>
-        <a href="/shorts" class="google-nav-tab {% if '/shorts' in request.path %}active-tab{% endif %}">
-          🎬 Proof Shorts
-        </a>
-        <a href="/requests" class="google-nav-tab {% if '/requests' in request.path %}active-tab{% endif %}">
-          📋 Buyer RFQs
-        </a>
+    <!-- Tab strip -->
+    <div class="nav-tabs-strip">
+      <div class="container nav-tabs-row">
+        <a href="/search?q={{ query|default:'' }}" class="google-nav-tab {% if not request.GET.mode and not request.GET.tab and '/shorts' not in request.path and '/malls' not in request.path and '/merchants' not in request.path and '/requests' not in request.path %}active-tab{% endif %}">🔍 All</a>
+        <a href="/search?q={{ query|default:'' }}&tab=shopping" class="google-nav-tab {% if request.GET.tab == 'shopping' %}active-tab{% endif %}">🛍️ Price Matrix</a>
+        <a href="/search?q={{ query|default:'' }}&tab=images" class="google-nav-tab {% if request.GET.tab == 'images' %}active-tab{% endif %}">🖼️ Images</a>
+        <a href="/search?q={{ query|default:'' }}&province=Gauteng" class="google-nav-tab {% if request.GET.province == 'Gauteng' %}active-tab{% endif %}">🇿🇦 SA Grid</a>
+        <a href="/merchants" class="google-nav-tab {% if '/merchants' in request.path %}active-tab{% endif %}">🏪 Merchants</a>
+        <a href="/malls" class="google-nav-tab {% if '/malls' in request.path %}active-tab{% endif %}">🗺️ {{ total_malls_count|default:0 }} Malls</a>
+        <a href="/shorts" class="google-nav-tab {% if '/shorts' in request.path %}active-tab{% endif %}">🎬 Proof Shorts</a>
+        <a href="/requests" class="google-nav-tab {% if '/requests' in request.path %}active-tab{% endif %}">📋 Buyer RFQs</a>
       </div>
     </div>
   </header>
 
-  <!-- Main Content Block -->
   <main>
     {% block content %}{% endblock %}
   </main>
 
-  <!-- AI Assistant Floating Widget -->
+  <!-- AI Assistant widget -->
   {% include 'includes/ai_assistant_widget.html' %}
 
-  <!-- Footer -->
-  <footer style="background: #0F172A; color: #94A3B8; border-top: 1px solid #1E293B; padding: 4rem 0 2rem 0; margin-top: 4rem;">
+  <!-- ══════════════════════════ Footer ══════════════════════════ -->
+  <footer class="site-footer">
     <div class="container">
       <div class="footer-grid" style="margin-bottom: 3rem;">
         <div>
-          <div style="font-size: 1.4rem; font-weight: 800; color: #FFFFFF; margin-bottom: 0.75rem;">
+          <div style="font-size: 1.35rem; font-weight: 800; color: #FFFFFF; margin-bottom: 0.75rem; font-family: var(--font-display);">
             ⚡ Shoppage
           </div>
-          <p style="font-size: 0.85rem; line-height: 1.6; max-width: 320px;">
-            The National Commercial Intelligence Grid for South Africa. Connecting consumers directly with verified local merchants on WhatsApp with 0% transaction fees.
+          <p style="font-size: 0.875rem; line-height: 1.7; max-width: 320px;">
+            The National Commerce Intelligence Grid for South Africa. Connecting buyers directly with verified local merchants on WhatsApp — 0% transaction fees.
           </p>
           <div style="margin-top: 1rem; font-size: 0.8rem; color: #34D399; font-weight: 600;">
             ✓ SABS &amp; NRS 097 Grid Certified Standard
@@ -206,8 +178,8 @@
         </div>
 
         <div>
-          <h4 style="color: #FFFFFF; font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem;">Primary Sectors</h4>
-          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+          <h4>Primary Sectors</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.55rem;">
             <a href="/search?category=solar_energy">Solar &amp; Backup Power</a>
             <a href="/search?category=smartphones">Smartphones &amp; Tablets</a>
             <a href="/search?category=hardware">Building &amp; Hardware</a>
@@ -217,8 +189,8 @@
         </div>
 
         <div>
-          <h4 style="color: #FFFFFF; font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem;">Spatial Commerce</h4>
-          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+          <h4>Spatial Commerce</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.55rem;">
             <a href="/malls?province=Gauteng">Gauteng Malls (1,184)</a>
             <a href="/malls?province=Western%20Cape">Western Cape Malls (612)</a>
             <a href="/malls?province=KwaZulu-Natal">KZN Shopping Hubs (548)</a>
@@ -228,8 +200,8 @@
         </div>
 
         <div>
-          <h4 style="color: #FFFFFF; font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem;">Media &amp; Proof</h4>
-          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+          <h4>Media &amp; Proof</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.55rem;">
             <a href="/shorts">Proof Shorts</a>
             <a href="/shows">Market Walk Series</a>
             <a href="/shows">Product Battles Lab</a>
@@ -238,8 +210,8 @@
         </div>
 
         <div>
-          <h4 style="color: #FFFFFF; font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem;">Merchants &amp; Admin</h4>
-          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+          <h4>Merchants &amp; Admin</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.55rem;">
             <a href="/merchant/claim" style="color: #34D399;">Claim Store Profile</a>
             <a href="/merchant/dashboard">Merchant Dashboard</a>
             <a href="/affiliate/" style="color: #F9A8D4;">🎬 Affiliate Program</a>
@@ -250,7 +222,7 @@
         </div>
       </div>
 
-      <div style="border-top: 1px solid #1E293B; padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: 0.75rem;">
+      <div style="border-top: 1px solid #1c2a40; padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: 0.75rem;">
         <div>
           &copy; 2026 Shoppage Group (Pty) Ltd. Built on Django 5.1 &amp; National Commercial Intelligence Grid.
         </div>

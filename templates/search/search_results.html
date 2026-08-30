@@ -7,187 +7,250 @@
 
 {% block extra_css %}
 <style>
-  /* Google-Grade Layout & Typography */
-  .google-tabs-bar {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    border-bottom: 1px solid #E2E8F0;
-    margin-bottom: 1.25rem;
-    overflow-x: auto;
-    white-space: nowrap;
-    padding-bottom: 0.5rem;
-  }
-  .google-tab {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #475569;
-    text-decoration: none;
-    padding: 0.4rem 0.1rem;
-    border-bottom: 3px solid transparent;
-    transition: all 0.15s;
-  }
-  .google-tab:hover {
-    color: #1E293B;
-  }
-  .google-tab.active {
-    color: #2563EB;
-    font-weight: 700;
-    border-bottom: 3px solid #2563EB;
+  /* ── Search-specific components (page-scoped) ─────────────────────────── */
+
+  .serp-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) {% if knowledge_card %}360px{% endif %};
+    gap: 2.5rem;
+    align-items: start;
   }
 
-  /* Sponsored Carousel */
-  .sponsored-carousel {
+  .result-status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.825rem;
+    color: var(--text-muted);
+    margin-bottom: 1.4rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .dym-banner {
+    margin: -0.5rem 0 1.4rem;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+  }
+
+  /* Featured carousel */
+  .featured-track {
     display: flex;
     gap: 0.85rem;
     overflow-x: auto;
-    padding-bottom: 0.75rem;
-    scrollbar-width: thin;
+    scrollbar-width: none;
+    padding: 2px 2px 8px;
+    scroll-behavior: smooth;
   }
-  .sponsored-card {
-    flex: 0 0 165px;
-    background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 10px;
-    padding: 0.65rem;
+  .featured-track::-webkit-scrollbar { display: none; }
+
+  .featured-card {
+    flex: 0 0 164px;
+    width: 164px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    transition: transform 0.15s, border-color 0.15s;
-    text-decoration: none;
     color: inherit;
-    box-shadow: none !important;
+    text-decoration: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
-  .sponsored-card:hover {
-    transform: translateY(-2px);
-    border-color: #2563EB;
+  .featured-card:hover { border-color: var(--slate-400); box-shadow: var(--shadow-sm); }
+
+  .featured-thumb {
+    height: 132px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: #fff;
+    padding: 0.5rem;
   }
 
-  /* AI Overview Card */
+  .featured-body {
+    padding: 0.65rem 0.75rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    flex: 1;
+  }
+
+  .featured-title {
+    color: var(--link-blue);
+    font-size: 0.84rem;
+    font-weight: 500;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.3em;
+  }
+
+  .carousel-arrow {
+    position: absolute;
+    right: -14px;
+    top: 45%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--primary-600);
+    font-size: 1.25rem;
+    font-weight: 700;
+    z-index: 10;
+  }
+
+  /* AI Overview */
   .ai-overview-card {
-    background: #F8FAFC;
-    border: 1px solid #BFDBFE;
-    border-radius: 14px;
+    background: linear-gradient(180deg, #f4f8ff 0%, #fbfdff 100%);
+    border: 1px solid #cfe0fb;
+    border-radius: var(--radius-lg);
     padding: 1.5rem;
     margin-bottom: 2rem;
-    box-shadow: none !important;
+    box-shadow: var(--shadow-xs);
   }
   .ai-sparkle-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.4rem;
     font-size: 0.95rem;
     font-weight: 800;
-    color: #1D4ED8;
-    margin-bottom: 0.75rem;
+    color: var(--primary-800);
+    margin-bottom: 0.7rem;
+  }
+  .ai-toggle {
+    background: transparent;
+    border: none;
+    font-size: 0.825rem;
+    font-weight: 700;
+    color: var(--primary-700);
+    cursor: pointer;
+    padding: 0;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
   }
 
-  /* Local 3-Pack Place Card */
+  /* Local places 3-pack */
   .place-card {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    gap: 1rem;
     padding: 1rem 0;
-    border-bottom: 1px solid #F1F5F9;
+    border-bottom: 1px solid var(--border-subtle);
   }
-  .place-card:last-child {
-    border-bottom: none;
-  }
+  .place-card:last-child { border-bottom: none; }
 
-  /* Knowledge Graph 4-Photo Collage */
+  /* Knowledge graph */
   .kg-collage {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 4px;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     overflow: hidden;
     margin-bottom: 1rem;
-    height: 190px;
-    background: #F1F5F9;
+    height: 180px;
+    background: var(--slate-100);
   }
   .kg-photo-box {
     display: flex;
     align-items: center;
     justify-content: center;
     background: #FFFFFF;
-    font-size: 2.2rem;
-    border: 1px solid #F1F5F9;
+    font-size: 2.1rem;
+    border: 1px solid var(--border-subtle);
+  }
+  .kg-side {
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    position: sticky;
+    top: 96px;
+    box-shadow: var(--shadow-xs);
   }
 
-  /* PAA Accordion */
-  .paa-item {
-    border-bottom: 1px solid #E2E8F0;
-    padding: 0.85rem 0;
-  }
+  /* People also ask */
+  .paa-item { border-bottom: 1px solid var(--border-subtle); padding: 0.85rem 0; }
+  .paa-item:last-child { border-bottom: none; }
   .paa-question {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
     font-size: 0.95rem;
     font-weight: 600;
-    color: #1E293B;
+    color: var(--text-primary);
     cursor: pointer;
     user-select: none;
   }
-  .paa-question:hover {
-    color: #2563EB;
-  }
+  .paa-question:hover { color: var(--primary-700); }
   .paa-answer {
     font-size: 0.875rem;
-    color: #475569;
-    line-height: 1.55;
-    margin-top: 0.5rem;
-    padding-left: 0.5rem;
-    border-left: 3px solid #3B82F6;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin-top: 0.55rem;
+    padding-left: 0.75rem;
+    border-left: 3px solid var(--primary-500);
   }
 
-  /* Related Searches Grid */
+  /* Related searches */
   .related-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.75rem;
   }
   .related-pill {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: #F1F5F9;
-    border: 1px solid #E2E8F0;
-    border-radius: 9999px;
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
     padding: 0.6rem 1rem;
     font-size: 0.85rem;
     font-weight: 600;
-    color: #1E293B;
+    color: var(--text-primary);
     text-decoration: none;
-    transition: all 0.15s;
+    transition: background 0.15s ease, border-color 0.15s ease;
   }
-  .related-pill:hover {
-    background: #E2E8F0;
-    color: #0F172A;
-    border-color: #CBD5E1;
-  }
+  .related-pill:hover { background: var(--slate-100); border-color: var(--slate-300); color: var(--text-primary); }
 
-  /* Facet sidebar, sort tabs, did-you-mean, honest zero state */
+  /* Facets / sort / zero-state */
   .facet-box {
     background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 12px;
-    padding: 1rem;
-    position: sticky;
-    top: 90px;
-    align-self: start;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem 2rem;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-xs);
   }
-  .facet-group { margin-bottom: 1.25rem; }
-  .facet-group:last-child { margin-bottom: 0; }
+  .facet-group { margin-bottom: 0; }
   .facet-title {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 800;
-    color: #0F172A;
+    color: var(--text-primary);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     margin-bottom: 0.5rem;
   }
   .facet-link {
@@ -195,292 +258,242 @@
     justify-content: space-between;
     gap: 0.5rem;
     font-size: 0.825rem;
-    color: #1A73E8;
+    color: var(--link-blue);
     text-decoration: none;
     padding: 0.2rem 0;
   }
   .facet-link:hover { text-decoration: underline; }
-  .facet-link .facet-count { color: #94A3B8; font-size: 0.75rem; white-space: nowrap; }
-  .facet-link.active { font-weight: 700; color: #0F172A; }
+  .facet-link .facet-count { color: var(--text-subtle); font-size: 0.75rem; white-space: nowrap; }
+  .facet-link.active { font-weight: 700; color: var(--text-primary); }
+
   .sort-tabs {
     display: flex;
     gap: 0.25rem;
     flex-wrap: wrap;
     align-items: center;
-    border-bottom: 1px solid #E2E8F0;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
   }
   .sort-tab {
     font-size: 0.8rem;
     font-weight: 600;
-    color: #475569;
+    color: var(--text-secondary);
     text-decoration: none;
-    padding: 0.35rem 0.75rem;
+    padding: 0.35rem 0.8rem;
     border-radius: 999px;
     white-space: nowrap;
   }
-  .sort-tab:hover { background: #F1F5F9; }
-  .sort-tab.active { background: #E8F0FE; color: #1A73E8; }
-  .dym-banner {
-    margin: -0.75rem 0 1.25rem 0;
-    font-size: 0.95rem;
-    color: #475569;
-  }
+  .sort-tab:hover { background: var(--slate-100); }
+  .sort-tab.active { background: var(--primary-50); color: var(--primary-700); font-weight: 700; }
+
   .zero-state {
     background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 12px;
-    padding: 2.25rem 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem 1.5rem;
     text-align: center;
     margin-bottom: 2.5rem;
   }
   .zero-state ul { list-style: none; padding: 0; margin: 1rem auto 0; display: inline-block; text-align: left; }
-  .zero-state li { font-size: 0.875rem; color: #475569; padding: 0.3rem 0; }
-  @media (max-width: 768px) {
-    .facet-box { position: static; }
+  .zero-state li { font-size: 0.875rem; color: var(--text-secondary); padding: 0.3rem 0; }
+
+  /* Images tab */
+  .img-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 1rem;
   }
-    .related-grid {
-      grid-template-columns: 1fr;
-    }
-    .place-card {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
+  .img-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .img-card:hover { border-color: var(--slate-300); box-shadow: var(--shadow-sm); }
+  .img-frame {
+    aspect-ratio: 1 / 1;
+    background: linear-gradient(180deg, #fbfcfe, #f4f7fb);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .img-frame img { width: 100%; height: 100%; object-fit: cover; }
+
+  @media (max-width: 992px) {
+    .serp-grid { grid-template-columns: 1fr !important; }
+    .kg-side { position: static; }
+  }
+
+  @media (max-width: 768px) {
+    .related-grid { grid-template-columns: 1fr; }
+    .place-card { flex-direction: column; gap: 0.75rem; }
     .place-card > div:last-child {
       flex-direction: row;
       align-items: center;
       width: 100%;
       justify-content: space-between;
     }
-    .ai-overview-card {
-      padding: 1rem;
-    }
+    .ai-overview-card { padding: 1.1rem; }
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container" style="padding-top: 1.25rem; padding-bottom: 4rem;">
+<div class="container" style="padding-top: 1.5rem; padding-bottom: 4.5rem;">
 
-  <!-- Location Indicator Bar -->
-  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.825rem; color: #64748B; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #F1F5F9;">
-    <div style="display: flex; align-items: center; gap: 0.4rem;">
-      <span>📍</span>
-      <span><strong>{{ province|default:"South Africa" }}</strong> · Verified South Africa Commercial Grid</span>
-      <a href="/malls" style="color: #2563EB; font-weight: 600; text-decoration: none; margin-left: 0.25rem;">Change location</a>
+  <!-- Status bar -->
+  <div class="result-status-bar">
+    <div style="display: flex; align-items: center; gap: 0.45rem;">
+      <span aria-hidden="true">📍</span>
+      <span><strong style="color: var(--text-primary);">{{ province|default:"South Africa" }}</strong> · Verified SA commercial grid</span>
+      <a href="/malls" style="margin-left: 0.25rem;">Change location</a>
     </div>
     <div>
-      Retrieved in <strong>{{ elapsed_ms }}ms</strong> · {{ results.total_products }} matching product{{ results.total_products|pluralize }}{% if results.is_capped %} <span style="color:#B45309;">(top {{ results.result_cap }} matches shown)</span>{% endif %} · {{ results.total_merchants }} supplier{{ results.total_merchants|pluralize }}
+      {{ elapsed_ms }}ms · {{ results.total_products }} matching product{{ results.total_products|pluralize }}{% if results.is_capped %} <span style="color: var(--amber-700);">(top {{ results.result_cap }} shown)</span>{% endif %} · {{ results.total_merchants }} supplier{{ results.total_merchants|pluralize }}
     </div>
   </div>
 
-  <!-- Did-you-mean banner (typo tolerance) -->
   {% if did_you_mean %}
   <div class="dym-banner">
-    No exact matches for &ldquo;{{ query }}&rdquo; &mdash; showing closest results. Did you mean
-    <a href="/search/?{{ dym_link }}" style="color: #1A73E8; font-weight: 700;">{{ did_you_mean }}</a>?
+    No exact matches for &ldquo;{{ query }}&rdquo; — showing closest results. Did you mean
+    <a href="/search/?{{ dym_link }}"><strong>{{ did_you_mean }}</strong></a>?
   </div>
   {% endif %}
 
-  <!-- 2. TOP & FEATURED PRODUCTS HORIZONTAL CAROUSEL (popularity-ranked, not paid) -->
+  <!-- Featured carousel -->
   {% if sponsored_products %}
   <section style="margin-bottom: 2rem;">
-    <div style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.75rem;">
-      <span style="font-size: 1rem; font-weight: 700; color: #202124;">Top &amp; Featured Products</span>
-      <span style="font-size: 0.9rem; color: #70757A; cursor: pointer; line-height: 1;" title="About these results">⋮</span>
+    <div style="display: flex; align-items: baseline; gap: 0.4rem; margin-bottom: 0.75rem;">
+      <h2 style="font-size: 1.05rem; margin: 0;">Top &amp; featured products</h2>
+      <span title="Ranked by popularity across the grid — not paid placement" style="color: var(--text-subtle); cursor: help;">ⓘ</span>
     </div>
 
-    <!-- Relative Carousel Container with Smooth Scroll Navigation -->
     <div style="position: relative;" x-data="{
-      scrollRight() {
-        $refs.topProductsCarousel.scrollBy({ left: 340, behavior: 'smooth' });
-      },
-      scrollLeft() {
-        $refs.topProductsCarousel.scrollBy({ left: -340, behavior: 'smooth' });
-      }
+      scrollRight() { $refs.carousel.scrollBy({ left: 340, behavior: 'smooth' }); },
+      scrollLeft() { $refs.carousel.scrollBy({ left: -340, behavior: 'smooth' }); }
     }">
-      <!-- Horizontal Scroll Track -->
-      <div
-        x-ref="topProductsCarousel"
-        style="display: flex; gap: 0.85rem; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 2px 2px 8px 2px; scroll-behavior: smooth;"
-      >
+      <div x-ref="carousel" class="featured-track">
         {% for sp in sponsored_products %}
-        <a
-          href="/p/{{ sp.product.canonical_id }}"
-          style="flex: 0 0 160px; width: 160px; background: #FFFFFF; border: 1px solid #DADCE0; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; text-decoration: none; color: inherit; transition: border-color 0.15s;"
-          onmouseover="this.style.borderColor='#70757A'"
-          onmouseout="this.style.borderColor='#DADCE0'"
-        >
-          <!-- Product Visual / Thumbnail Box (135px height, pure white background) -->
-          <div style="height: 135px; width: 100%; border-bottom: 1px solid #F1F3F4; display: flex; align-items: center; justify-content: center; position: relative; background: #FFFFFF; padding: 0.5rem;">
-            <span style="position: absolute; top: 6px; left: 6px; font-size: 0.75rem;" title="Sold by a South African merchant">🇿🇦</span>
-
-            <div style="width: 110px; height: 110px; display: flex; align-items: center; justify-content: center;">
+        <a href="/p/{{ sp.product.canonical_id }}" class="featured-card">
+          <div class="featured-thumb">
+            <span style="position: absolute; top: 6px; left: 6px;" title="South African merchant">🇿</span>
+            <div style="width: 108px; height: 108px; display: flex; align-items: center; justify-content: center;">
               {{ sp.product|product_svg:"small" }}
             </div>
           </div>
-
-          <!-- Product Details: Google Blue Title, Price, Merchant Name -->
-          <div style="padding: 0.65rem 0.75rem; display: flex; flex-direction: column; justify-content: space-between; flex: 1;">
-            <div style="color: #1A0DAB; font-size: 0.85rem; font-weight: 500; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.3rem;">
-              {{ sp.product.title }}
-            </div>
-
-            <div style="margin-top: 0.4rem;">
-              <div style="display: flex; align-items: baseline; gap: 0.35rem; flex-wrap: wrap;">
-                <span style="font-size: 0.95rem; font-weight: 700; color: #202124;">
-                  R {{ sp.price|floatformat:2|intcomma }}
-                </span>
-              </div>
-
-              <div style="font-size: 0.75rem; color: #4D5156; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                {{ sp.merchant_name }}
-              </div>
+          <div class="featured-body">
+            <div class="featured-title">{{ sp.product.title }}</div>
+            <div style="margin-top: auto;">
+              <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">R {{ sp.price|floatformat:2|intcomma }}</div>
+              <div style="font-size: 0.74rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ sp.merchant_name }}</div>
             </div>
           </div>
         </a>
         {% endfor %}
       </div>
 
-      <!-- Right Scroll Navigation Arrow Button (Google Style) -->
-      <button
-        type="button"
-        @click="scrollRight()"
-        style="position: absolute; right: -14px; top: 45%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; background: #FFFFFF; border: 1px solid #DADCE0; box-shadow: 0 1px 3px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #1A73E8; font-size: 1.25rem; font-weight: 700; z-index: 10;"
-        aria-label="Scroll right"
-      >
-        ›
-      </button>
+      <button type="button" @click="scrollRight()" class="carousel-arrow" aria-label="Scroll right">›</button>
     </div>
   </section>
   {% endif %}
 
-  <!-- 3. AI OVERVIEW CARD (Gemini / Google SGE Style) -->
+  <!-- AI Overview -->
   <section class="ai-overview-card" x-data="{ expanded: false }">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
-      <div class="ai-sparkle-badge">
-        <span>✦</span>
-        <span>Shoppage AI Overview</span>
-      </div>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.7rem;">
+      <div class="ai-sparkle-badge"><span aria-hidden="true">✦</span> Shoppage AI overview</div>
       <div style="display: flex; gap: 0.5rem;">
-        <span class="badge badge-blue" style="font-size: 0.7rem;">Verified Citations</span>
+        <span class="badge badge-blue" style="font-size: 0.7rem;">Verified citations</span>
         <span class="badge badge-green" style="font-size: 0.7rem;">SABS / NRS 097</span>
       </div>
     </div>
 
-    <!-- Structured Definition / Overview -->
-    <div style="font-size: 0.925rem; color: #1E293B; line-height: 1.6; margin-bottom: 1rem;">
+    <div style="font-size: 0.95rem; color: var(--text-primary); line-height: 1.7;">
       {{ ai_overview }}
     </div>
 
-    <!-- Collapsible Deep Breakdown -->
-    <div x-show="expanded" x-transition style="border-top: 1px solid #DBEAFE; padding-top: 1rem; margin-top: 1rem;">
-      <h4 style="font-size: 0.9rem; font-weight: 700; color: #1E3A8A; margin-bottom: 0.5rem;">
-        💡 Technical Buying Guidance for South African Users
-      </h4>
-      <ul style="font-size: 0.85rem; color: #334155; line-height: 1.6; padding-left: 1.25rem; margin-bottom: 1rem;">
-        <li><strong>Stage 6 Load-Shedding Sizing:</strong> Recommend minimum 5.12kWh LiFePO4 battery paired with 5kW/8kW NRS 097 certified hybrid inverter for 4.5-hour continuous uptime.</li>
-        <li><strong>Compliance &amp; CoC:</strong> Fixed installations require SANS 10142-1 Electrical Certificate of Compliance for insurance validity.</li>
-        <li><strong>Volume Procurement:</strong> Wholesale container and bulk trade MOQ pricing available directly from verified importer trade desks.</li>
+    <div x-show="expanded" x-transition style="border-top: 1px solid #cfe0fb; padding-top: 1rem; margin-top: 1rem;">
+      <h3 style="font-size: 0.9rem; color: var(--primary-900); margin-bottom: 0.5rem;">💡 Buying guidance for South African conditions</h3>
+      <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.7; padding-left: 1.25rem; margin-bottom: 1rem;">
+        <li><strong>Stage 6 load-shedding sizing:</strong> minimum 5.12kWh LiFePO4 battery paired with a 5–8kW NRS 097-certified hybrid inverter for ±4.5 hours of uptime.</li>
+        <li><strong>Compliance &amp; CoC:</strong> fixed installations require a SANS 10142-1 Electrical Certificate of Compliance for your insurance to stay valid.</li>
+        <li><strong>Volume procurement:</strong> container and pallet MOQ pricing is available directly from verified importer trade desks.</li>
       </ul>
-
-      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        <span style="font-size: 0.75rem; color: #64748B;">Cited Sources:</span>
-        <span class="badge badge-gray" style="font-size: 0.7rem;">SABS Standards Register</span>
-        <span class="badge badge-gray" style="font-size: 0.7rem;">NRS 097-2-1 Inverter Database</span>
-        <span class="badge badge-gray" style="font-size: 0.7rem;">Shoppage Commercial Index</span>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Sources:</span>
+        <span class="badge badge-gray" style="font-size: 0.7rem;">SABS register</span>
+        <span class="badge badge-gray" style="font-size: 0.7rem;">NRS 097-2-1 database</span>
+        <span class="badge badge-gray" style="font-size: 0.7rem;">Shoppage index</span>
       </div>
     </div>
 
-    <button
-      type="button"
-      @click="expanded = !expanded"
-      style="background: transparent; border: none; font-size: 0.825rem; font-weight: 700; color: #2563EB; cursor: pointer; padding: 0; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.25rem;"
-    >
+    <button type="button" @click="expanded = !expanded" class="ai-toggle">
       <span x-text="expanded ? 'Show less ∧' : 'Show more ∨'"></span>
     </button>
   </section>
 
   {% include 'search/partials/external_results.html' %}
 
-  <!-- 4. TWO-COLUMN MASTER GRID (Left: Places & Shopping Matrix, Right: Knowledge Graph) -->
-  <div style="display: grid; grid-template-columns: 1fr {% if knowledge_card %}360px{% endif %}; gap: 2.5rem; align-items: start;">
+  <div class="serp-grid">
 
-    <!-- LEFT COLUMN: Main Organic & Commercial Stream -->
+    <!-- LEFT: results column -->
     <div>
 
-      <!-- SECTION A: Places / Local 3-Pack Physical Storefronts -->
+      <!-- Places 3-pack -->
       {% if places_stores %}
-      <section style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; margin-bottom: 2.5rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #F1F5F9;">
+      <section class="card" style="margin-bottom: 2.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border-subtle);">
           <div>
-            <h2 style="font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0;">
-              📍 Places &amp; Verified Trade Counters
-            </h2>
-            <span style="font-size: 0.775rem; color: #64748B;">Physical verified storefronts near Sandton, Gauteng &amp; Nationwide</span>
+            <h2 style="font-size: 1.2rem; margin: 0;">📍 Places &amp; verified trade counters</h2>
+            <span style="font-size: 0.775rem; color: var(--text-muted);">Physical storefronts near you &amp; nationwide</span>
           </div>
-          <a href="/merchants?q={{ query|urlencode }}" class="btn btn-outline" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">
-            More places &rarr;
-          </a>
+          <a href="/merchants?q={{ query|urlencode }}" class="btn btn-outline btn-sm">More places &rarr;</a>
         </div>
 
-        <div>
-          {% for store in places_stores %}
-          <div class="place-card">
-            <div style="flex: 1; padding-right: 1rem;">
-              <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0 0 0.25rem 0;">
-                <a href="/m/{{ store.canonical_id }}" style="color: #1E293B; text-decoration: none;">
-                  {{ store.clean_name }}
-                </a>
-              </h3>
-
-              <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; margin-bottom: 0.25rem;">
-                {% if store.rating %}<span style="color: #D97706; font-weight: 700;">★ {{ store.rating }}</span>{% endif %}
-                {% if store.reviews_count %}<span style="color: #64748B;">({{ store.reviews_count }})</span>{% endif %}
-                <span style="color: #94A3B8;">·</span>
-                <span style="color: #475569;">{{ store.category_name }}</span>
-              </div>
-
-              <div style="font-size: 0.8rem; color: #475569; margin-bottom: 0.25rem;">
-                {{ store.address }} · <span style="font-weight: 600;">{{ store.phone }}</span>
-              </div>
-
-              <div style="font-size: 0.8rem; margin-bottom: 0.4rem;">
-                <span style="color: #059669; font-weight: 600;">● {{ store.operating_hours }}</span>
-              </div>
-
-              {% if store.review_snippet %}
-              <div style="font-size: 0.775rem; color: #64748B; font-style: italic; background: #F8FAFC; padding: 0.35rem 0.6rem; border-radius: 6px; margin-top: 0.35rem; display: inline-block;">
-                &ldquo;{{ store.review_snippet }}&rdquo;
-              </div>
+        {% for store in places_stores %}
+        <div class="place-card">
+          <div style="flex: 1; min-width: 0; padding-right: 1rem;">
+            <h3 style="font-size: 1.05rem; margin: 0 0 0.25rem;">
+              <a href="/m/{{ store.canonical_id }}" style="color: var(--text-primary); text-decoration: none;">{{ store.clean_name }}</a>
+            </h3>
+            <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; margin-bottom: 0.25rem; flex-wrap: wrap;">
+              {% if store.rating %}<span style="color: var(--amber-600); font-weight: 700;">★ {{ store.rating }}</span>{% endif %}
+              {% if store.reviews_count %}<span style="color: var(--text-muted);">({{ store.reviews_count }})</span>{% endif %}
+              <span aria-hidden="true">·</span>
+              <span>{{ store.category_name }}</span>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.25rem;">
+              {{ store.address }} · <strong>{{ store.phone }}</strong>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--emerald-600); font-weight: 600;">● {{ store.operating_hours }}</div>
+            {% if store.review_snippet %}
+            <div style="font-size: 0.775rem; color: var(--text-muted); font-style: italic; background: var(--bg-primary); padding: 0.35rem 0.6rem; border-radius: 6px; margin-top: 0.4rem; display: inline-block;">
+              &ldquo;{{ store.review_snippet }}&rdquo;
+            </div>
+            {% endif %}
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+            <div style="width: 72px; height: 72px; background: var(--slate-100); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; border: 1px solid var(--border);" aria-hidden="true">🏬</div>
+            <div style="display: flex; gap: 0.35rem;">
+              <a href="/m/{{ store.canonical_id }}" class="btn btn-outline" style="font-size: 0.7rem; padding: 0.3rem 0.55rem;">Store</a>
+              {% if store.whatsapp_number %}
+              <a href="/l/m_{{ store.canonical_id }}" class="btn btn-whatsapp" style="font-size: 0.7rem; padding: 0.3rem 0.6rem;">💬 WhatsApp</a>
               {% endif %}
             </div>
-
-            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
-              <div style="width: 72px; height: 72px; background: #F1F5F9; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; border: 1px solid #E2E8F0;">
-                🏬
-              </div>
-              <div style="display: flex; gap: 0.35rem;">
-                <a href="/m/{{ store.canonical_id }}" class="btn btn-outline" style="font-size: 0.7rem; padding: 0.3rem 0.55rem;">
-                  Store
-                </a>
-                {% if store.whatsapp_number %}
-                <a href="/l/m_{{ store.canonical_id }}" class="btn btn-whatsapp" style="font-size: 0.7rem; padding: 0.3rem 0.6rem;">
-                  💬 WhatsApp
-                </a>
-                {% endif %}
-              </div>
-            </div>
           </div>
-          {% endfor %}
         </div>
+        {% endfor %}
       </section>
       {% endif %}
 
-      <!-- FACETS: computed in ranked_search, now rendered (was CSS-only) -->
+      <!-- Facets -->
       {% if facet_links.categories or facet_links.brands or facet_links.provinces %}
-      <aside class="facet-box" style="padding: 1rem 1.25rem; margin-bottom: 1.5rem; border-radius: 12px; display: flex; flex-wrap: wrap; gap: 1.5rem 2rem; align-items: flex-start;">
+      <aside class="facet-box">
         {% if facet_links.categories %}
         <div class="facet-group">
           <div class="facet-title">Category</div>
@@ -512,9 +525,9 @@
             <input type="hidden" name="category" value="{{ category }}">
             <input type="hidden" name="brand" value="{{ brand }}">
             <input type="hidden" name="province" value="{{ province }}">
-            <input type="number" name="min_price" placeholder="Min" value="{{ min_price|default:'' }}" style="width: 72px;">
-            <input type="number" name="max_price" placeholder="Max" value="{{ max_price|default:'' }}" style="width: 72px;">
-            <button type="submit" class="btn btn-outline" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">Go</button>
+            <input type="number" name="min_price" placeholder="Min" value="{{ min_price|default:'' }}" style="width: 74px;">
+            <input type="number" name="max_price" placeholder="Max" value="{{ max_price|default:'' }}" style="width: 74px;">
+            <button type="submit" class="btn btn-outline" style="font-size: 0.75rem; padding: 0.32rem 0.65rem;">Go</button>
           </form>
         </div>
         <div class="facet-group">
@@ -524,7 +537,7 @@
             {% if near_raw %}<input type="hidden" name="near" value="{{ near_raw }}">
             <input type="hidden" name="lat" value="{{ lat_param }}">
             <input type="hidden" name="lng" value="{{ lng_param }}">{% endif %}
-            <label style="font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+            <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
               <input type="checkbox" name="open_now" value="1" {% if open_now_only %}checked{% endif %}> Open now
             </label>
             {% if near_raw %}
@@ -536,7 +549,7 @@
               <option value="100" {% if radius == '100' %}selected{% endif %}>Within 100 km</option>
             </select>
             {% endif %}
-            <button type="submit" class="btn btn-outline" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">Apply</button>
+            <button type="submit" class="btn btn-outline" style="font-size: 0.75rem; padding: 0.32rem 0.65rem;">Apply</button>
           </form>
         </div>
         <div class="facet-group">
@@ -550,22 +563,22 @@
       </aside>
       {% endif %}
 
-      <!-- SECTION B0: 🖼️ Images Grid (Google Images-style) -->
+      <!-- Images tab -->
       {% if results.products and tab == 'images' %}
       <section style="margin-bottom: 2.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <h2 style="font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0;">🖼️ Products</h2>
-          <span style="font-size: 0.8rem; color: #64748B;">{{ results.products|length }} visual results</span>
+          <h2 style="font-size: 1.2rem; margin: 0;">🖼️ Products</h2>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">{{ results.products|length }} visual results</span>
         </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1rem;">
+        <div class="img-grid">
           {% for p in results.products %}
           {% with img=p.images.all|first %}
-          <a href="/p/{{ p.canonical_id }}" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 0.75rem; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 0.5rem;">
-            <div style="aspect-ratio: 1 / 1; background: #F8FAFC; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-              {% if img %}<img src="{{ img.url }}" alt="{{ p.title }}" style="width: 100%; height: 100%; object-fit: cover;">{% else %}{{ p|product_svg:"small" }}{% endif %}
+          <a href="/p/{{ p.canonical_id }}" class="img-card">
+            <div class="img-frame">
+              {% if img %}<img src="{{ img.url }}" alt="{{ p.title }}" loading="lazy">{% else %}{{ p|product_svg:"small" }}{% endif %}
             </div>
-            <div style="font-size: 0.8rem; font-weight: 700; color: #0F172A; line-height: 1.3;">{{ p.title|truncatechars:58 }}</div>
-            <div style="font-size: 0.8rem; font-weight: 800; color: #059669;">R {{ p.shoppage_best_price|floatformat:0|intcomma }}</div>
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); line-height: 1.35;">{{ p.title|truncatechars:58 }}</div>
+            <div style="font-size: 0.85rem; font-weight: 800; color: var(--emerald-600);">R {{ p.shoppage_best_price|floatformat:0|intcomma }}</div>
           </a>
           {% endwith %}
           {% endfor %}
@@ -573,127 +586,113 @@
       </section>
       {% endif %}
 
-      <!-- SECTION B: Consumer Google Shopping & Price Comparison Matrix -->
+      <!-- Price matrix -->
       {% if results.products and tab != 'images' %}
       <section style="margin-bottom: 2.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <h2 style="font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0;">
-            🛍️ Products &amp; Verified Price Matrix
-          </h2>
-          <span style="font-size: 0.8rem; color: #64748B;">
-            Sorted by Best Value &amp; Verified Merchant Trust
-          </span>
+          <h2 style="font-size: 1.2rem; margin: 0;">🛍️ Products &amp; verified price matrix</h2>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Best value &amp; merchant trust</span>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 1rem;">
           {% for p in results.products %}
-          <div class="card card-hover" style="display: grid; grid-template-columns: 140px 1fr 200px; gap: 1.5rem; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; align-items: center; position: relative;">
-            
-            <!-- Column 1: Image / Vector Thumbnail -->
-            <a href="/p/{{ p.canonical_id }}" style="height: 120px; width: 140px; background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; overflow: hidden;">
+          <div class="row-card">
+            <a href="/p/{{ p.canonical_id }}" class="row-thumb" aria-label="{{ p.title }}">
               {{ p|product_svg:"small" }}
             </a>
 
-            <!-- Column 2: Rich Metadata & Row Information -->
-            <div>
-              <!-- Brand & Compliance Pills -->
-              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+            <div class="row-body">
+              <div class="row-meta-row">
                 <span class="badge badge-blue">{{ p.brand }}</span>
                 {% if p.compliance and p.compliance.nrs097Certified %}
-                <span class="badge badge-green">✓ NRS 097-2-1 Grid Certified</span>
+                <span class="badge badge-green">✓ NRS 097-2-1 certified</span>
                 {% else %}
-                <span class="badge badge-green">✓ In Stock</span>
+                <span class="badge badge-green">✓ In stock</span>
                 {% endif %}
-                <span style="font-size: 0.75rem; color: #64748B;">Model: {{ p.model_number|default:"Standard" }}</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Model: {{ p.model_number|default:"Standard" }}</span>
               </div>
 
-              <!-- Blue Clickable Title (Google Standard) -->
-              <h3 style="font-size: 1.1rem; font-weight: 700; color: #1A0DAB; margin: 0 0 0.35rem 0; line-height: 1.35;">
-                <a href="/p/{{ p.canonical_id }}" style="color: #1A0DAB; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
-                  {{ p.title }}
-                </a>
+              <h3 class="row-title">
+                <a class="row-title-link" href="/p/{{ p.canonical_id }}">{{ p.title }}</a>
               </h3>
 
-              <!-- Star Rating & Store Availability -->
-              <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.8rem; color: #4B5563; margin-bottom: 0.5rem; flex-wrap: wrap;">
-                {% if p.shoppage_rating %}<span style="color: #D97706; font-weight: 700;">★ {{ p.shoppage_rating }} <span style="color: #6B7280; font-weight: normal;">({{ p.shoppage_rating_count|default:0 }} review{{ p.shoppage_rating_count|default:0|pluralize }})</span></span>{% endif %}
-                <span>•</span>
-                <span style="color: #059669; font-weight: 600;">⚡ Available at {{ p.offers.count|default:1 }} verified store{{ p.offers.count|pluralize }}</span>
+              <div class="row-stat-line" style="margin-bottom: 0.5rem;">
+                {% if p.shoppage_rating %}<span style="color: var(--amber-600); font-weight: 700;">★ {{ p.shoppage_rating }} <span style="color: var(--text-muted); font-weight: 400;">({{ p.shoppage_rating_count|default:0 }} review{{ p.shoppage_rating_count|default:0|pluralize }})</span></span>{% endif %}
+                <span aria-hidden="true">·</span>
+                <span style="color: var(--emerald-600); font-weight: 600;">⚡ {{ p.offers.count|default:1 }} verified store{{ p.offers.count|pluralize }}</span>
               </div>
 
-              <!-- Attributes / Snippet Pills -->
               <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
                 {% for k, v in p.attributes.items|slice:":3" %}
-                <span style="font-size: 0.725rem; background: #F1F5F9; color: #475569; padding: 2px 8px; border-radius: 4px; border: 1px solid #E2E8F0;">
-                  {{ k }}: <strong>{{ v }}</strong>
-                </span>
+                <span class="chip-attr">{{ k }}: <strong>{{ v }}</strong></span>
                 {% endfor %}
               </div>
             </div>
 
-            <!-- Column 3: Pricing & Instant Actions -->
-            <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-end; text-align: right; border-left: 1px solid #F1F5F9; padding-left: 1.25rem; height: 100%;">
-              <span style="font-size: 0.75rem; color: #64748B; font-weight: 500;">Best Store Price:</span>
-              {% if p.shoppage_promo_label and p.shoppage_original_price %}
-              <div style="font-size: 0.775rem; color: #94A3B8; text-decoration: line-through; margin-top: 0.1rem;">R {{ p.shoppage_original_price|floatformat:0|intcomma }}</div>
-              {% endif %}
-              <div style="font-family: var(--font-display); font-size: 1.45rem; font-weight: 800; color: #059669; margin: 0.15rem 0 0.35rem 0;">
-                R {{ p.shoppage_best_price|default:p.estimated_price_zar|floatformat:0|intcomma }}
+            <div class="row-side">
+              <div>
+                <span class="row-sub">Best store price</span>
+                {% if p.shoppage_promo_label and p.shoppage_original_price %}
+                <div class="price-old">R {{ p.shoppage_original_price|floatformat:0|intcomma }}</div>
+                {% endif %}
+                <div class="price-big">R {{ p.shoppage_best_price|default:p.estimated_price_zar|floatformat:0|intcomma }}</div>
+                {% if p.shoppage_promo_label %}
+                <span class="badge badge-amber" style="font-weight: 800; margin-top: 0.2rem;">🔥 {{ p.shoppage_promo_label }}</span>
+                {% endif %}
               </div>
-              {% if p.shoppage_promo_label %}
-              <span class="badge" style="background:#FEF3C7; color:#B45309; font-weight:800; font-size:0.7rem; margin-bottom:0.6rem;">🔥 {{ p.shoppage_promo_label }}</span>
-              {% endif %}
 
-              <div style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%;">
-                <a href="/p/{{ p.canonical_id }}" class="btn btn-outline" style="width: 100%; font-size: 0.8rem; padding: 0.45rem; text-align: center; border-radius: 8px;">
-                  Compare Sellers
-                </a>
-                <a href="/p/{{ p.canonical_id }}#confirmed-offers-section" class="btn btn-whatsapp" style="width: 100%; font-size: 0.75rem; padding: 0.4rem; text-align: center; border-radius: 8px; font-weight: 700;">🛒 Order</a>
-                  🛒 Order
-                </a>
+              <div style="display: flex; gap: 0.4rem; justify-content: flex-end; width: 100%;">
+                <a href="/p/{{ p.canonical_id }}" class="btn btn-outline" style="font-size: 0.78rem; padding: 0.42rem 0.65rem;">Sellers</a>
+                <a href="/p/{{ p.canonical_id }}#confirmed-offers-section" class="btn btn-whatsapp" style="font-size: 0.78rem; padding: 0.42rem 0.65rem;">🛒 Order</a>
               </div>
             </div>
-
           </div>
           {% endfor %}
         </div>
       </section>
       {% endif %}
 
-      <!-- SECTION C: People Also Ask (PAA Accordion) -->
+      <!-- Zero state -->
+      {% if not results.products and tab != 'images' %}
+      <div class="zero-state">
+        <h2 style="font-size: 1.15rem; margin-bottom: 0.4rem;">No products matched &ldquo;{{ query }}&rdquo;</h2>
+        <p style="color: var(--text-muted); font-size: 0.875rem; margin: 0 auto;">Things to try:</p>
+        <ul>
+          <li>🔍 Use fewer or more general words — e.g. &ldquo;inverter&rdquo; instead of a model code</li>
+          <li>🗺️ Widen the province filter, or clear price ranges</li>
+          <li>📋 Post it as a buyer RFQ and let verified suppliers come to you</li>
+        </ul>
+        <div style="display: flex; gap: 0.6rem; justify-content: center; margin-top: 1.4rem; flex-wrap: wrap;">
+          <button onclick="document.getElementById('rfq-tender-modal').style.display='flex'" class="btn btn-primary">📋 Post an RFQ</button>
+          <a href="/merchants?q={{ query|urlencode }}" class="btn btn-outline">Search merchants instead</a>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- People also ask -->
       {% if people_also_ask %}
-      <section style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; margin-bottom: 2.5rem;">
-        <h2 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin: 0 0 1rem 0;">
-          People also ask
-        </h2>
-
-        <div>
-          {% for item in people_also_ask %}
-          <div class="paa-item" x-data="{ open: false }">
-            <div class="paa-question" @click="open = !open">
-              <span>{{ item.question }}</span>
-              <span x-text="open ? '∧' : '∨'" style="font-size: 0.8rem; color: #94A3B8;"></span>
-            </div>
-            <div class="paa-answer" x-show="open" x-transition>
-              {{ item.answer }}
-            </div>
+      <section class="card" style="margin-bottom: 2.5rem;">
+        <h2 style="font-size: 1.15rem; margin: 0 0 0.75rem;">People also ask</h2>
+        {% for item in people_also_ask %}
+        <div class="paa-item" x-data="{ open: false }">
+          <div class="paa-question" @click="open = !open" role="button" tabindex="0" @keydown.enter="open = !open" :aria-expanded="open">
+            <span>{{ item.question }}</span>
+            <span x-text="open ? '∧' : '∨'" style="font-size: 0.8rem; color: var(--text-subtle);"></span>
           </div>
-          {% endfor %}
+          <div class="paa-answer" x-show="open" x-transition>{{ item.answer }}</div>
         </div>
+        {% endfor %}
       </section>
       {% endif %}
 
-      <!-- SECTION D: People Also Search For (Related Queries Grid) -->
+      <!-- Related searches -->
       {% if related_searches %}
       <section style="margin-bottom: 3rem;">
-        <h2 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin: 0 0 1rem 0;">
-          People also search for
-        </h2>
-
+        <h2 style="font-size: 1.15rem; margin: 0 0 1rem;">People also search for</h2>
         <div class="related-grid">
           {% for rel in related_searches %}
           <a href="/search/?q={{ rel|urlencode }}" class="related-pill">
-            <span style="color: #94A3B8;">🔍</span>
+            <span aria-hidden="true" style="color: var(--text-subtle);">🔍</span>
             <span>{{ rel }}</span>
           </a>
           {% endfor %}
@@ -701,75 +700,59 @@
       </section>
       {% endif %}
 
-      <!-- SECTION E: Google-Style Pagination -->
-      <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 2rem;">
+      <!-- Pagination -->
+      <div style="display: flex; justify-content: center; align-items: center; gap: 0.75rem; margin-top: 2rem;">
         {% if page > 1 %}
-        <a href="?q={{ query|urlencode }}&offset={{ offset|add:'-24' }}&mode={{ mode }}" class="btn btn-outline" style="font-size: 0.85rem;">
-          &larr; Previous
-        </a>
+        <a href="?q={{ query|urlencode }}&offset={{ offset|add:'-24' }}&mode={{ mode }}" class="btn btn-outline" style="font-size: 0.85rem;">&larr; Previous</a>
         {% endif %}
-        
-        <div style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.9rem; font-weight: 700; padding: 0 1rem;">
-          <span style="color: #2563EB;">Page {{ page }}</span>
-        </div>
-
+        <span style="font-size: 0.9rem; font-weight: 700; color: var(--primary-700);">Page {{ page }}</span>
         {% if results.has_more %}
-        <a href="?q={{ query|urlencode }}&offset={{ results.next_offset }}&mode={{ mode }}" class="btn btn-primary" style="font-size: 0.85rem;">
-          Next &rarr;
-        </a>
+        <a href="?q={{ query|urlencode }}&offset={{ results.next_offset }}&mode={{ mode }}" class="btn btn-primary" style="font-size: 0.85rem;">Next &rarr;</a>
         {% endif %}
       </div>
-
     </div>
 
-    <!-- RIGHT COLUMN: Google-Style Knowledge Graph Card (Sticky) -->
+    <!-- RIGHT: knowledge graph -->
     {% if knowledge_card %}
-    <aside style="background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; position: sticky; top: 90px;">
-      
-      <!-- 4-Photo Curated Collage Grid -->
-      <div class="kg-collage">
+    <aside class="kg-side">
+      <div class="kg-collage" aria-hidden="true">
         <div class="kg-photo-box">{{ knowledge_card.icon }}</div>
         <div class="kg-photo-box">⚡</div>
-        <div class="kg-photo-box">🇿🇦</div>
+        <div class="kg-photo-box">🇿</div>
         <div class="kg-photo-box">🛡️</div>
       </div>
 
       <div style="margin-bottom: 0.75rem;">
-        <h3 style="font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0 0 0.2rem 0;">
-          {{ knowledge_card.brand }}
-        </h3>
-        <span style="font-size: 0.8rem; color: #64748B; font-weight: 600;">
-          {{ knowledge_card.category }}
-        </span>
+        <h3 style="font-size: 1.25rem; margin: 0 0 0.2rem;">{{ knowledge_card.brand }}</h3>
+        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">{{ knowledge_card.category }}</span>
       </div>
 
-      <p style="font-size: 0.825rem; color: #334155; line-height: 1.55; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #E2E8F0;">
+      <p style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 1rem; padding-bottom: 0.85rem; border-bottom: 1px solid var(--border-subtle);">
         {{ knowledge_card.description }}
       </p>
 
-      <!-- Key Specifications Table -->
-      <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.8rem; margin-bottom: 1.25rem;">
+      <div style="display: flex; flex-direction: column; gap: 0.7rem; font-size: 0.8rem; margin-bottom: 1.25rem;">
         <div>
-          <strong>Origin / Standards:</strong>
-          <div style="color: #475569; margin-top: 0.15rem;">{{ knowledge_card.origin }}</div>
+          <strong>Origin / standards:</strong>
+          <div style="color: var(--text-secondary); margin-top: 0.15rem;">{{ knowledge_card.origin }}</div>
         </div>
         <div>
-          <strong>Official Warranty:</strong>
-          <div style="color: #059669; font-weight: 600; margin-top: 0.15rem;">{{ knowledge_card.warranty }}</div>
+          <strong>Official warranty:</strong>
+          <div style="color: var(--emerald-600); font-weight: 600; margin-top: 0.15rem;">{{ knowledge_card.warranty }}</div>
         </div>
         <div>
-          <strong>Customer Sentiment:</strong>
-          <div style="color: #D97706; font-weight: 700; margin-top: 0.15rem;">★ {{ knowledge_card.satisfaction_rating }}</div>
+          <strong>Customer sentiment:</strong>
+          <div style="color: var(--amber-600); font-weight: 700; margin-top: 0.15rem;">★ {{ knowledge_card.satisfaction_rating }}</div>
         </div>
 
         {% if knowledge_card.attributes_table %}
-        <div style="border-top: 1px solid #F1F5F9; padding-top: 0.6rem;">
-          <strong>Technical Specs:</strong>
-          <div style="margin-top: 0.35rem; display: flex; flex-direction: column; gap: 0.35rem;">
+        <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.7rem;">
+          <strong>Technical specs:</strong>
+          <div style="margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.4rem;">
             {% for key, val in knowledge_card.attributes_table.items %}
-            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; gap: 0.5rem;">
-              <span style="color: #64748B;">{{ key }}:</span>
-              <span style="color: #1E293B; font-weight: 600; text-align: right;">{{ val }}</span>
+            <div style="display: flex; justify-content: space-between; font-size: 0.76rem; gap: 0.75rem;">
+              <span style="color: var(--text-muted);">{{ key }}:</span>
+              <span style="color: var(--text-primary); font-weight: 600; text-align: right;">{{ val }}</span>
             </div>
             {% endfor %}
           </div>
@@ -777,8 +760,8 @@
         {% endif %}
 
         <div>
-          <strong>Key Certifications:</strong>
-          <div style="display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.25rem;">
+          <strong>Certifications:</strong>
+          <div style="display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.3rem;">
             {% for cert in knowledge_card.certifications %}
             <span class="badge badge-green" style="font-size: 0.65rem;">✓ {{ cert }}</span>
             {% endfor %}
@@ -786,25 +769,18 @@
         </div>
 
         <div>
-          <strong>Authorized Distributors in ZA:</strong>
-          <div style="font-size: 0.75rem; color: #475569; margin-top: 0.2rem;">
-            {{ knowledge_card.distributors|join:", " }}
-          </div>
+          <strong>Authorised distributors in SA:</strong>
+          <div style="color: var(--text-secondary); margin-top: 0.2rem;">{{ knowledge_card.distributors|join:", " }}</div>
         </div>
       </div>
 
-      <!-- Wholesale Container B2B Tender Card -->
-      <div style="background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 8px; padding: 0.75rem; text-align: center;">
-        <div style="font-size: 0.75rem; font-weight: 700; color: #1E40AF; margin-bottom: 0.25rem;">
-          💼 Looking for Wholesale Containers?
-        </div>
-        <p style="font-size: 0.7rem; color: #64748B; margin-bottom: 0.5rem;">
-          Broadcast your procurement demand to {{ knowledge_card.short_name }} authorized stockists.
-        </p>
+      <div style="background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.85rem; text-align: center;">
+        <div style="font-size: 0.78rem; font-weight: 700; color: var(--primary-800); margin-bottom: 0.25rem;">💼 Looking for wholesale containers?</div>
+        <p style="font-size: 0.72rem; color: var(--text-muted); margin: 0 0 0.6rem;">Broadcast your demand to {{ knowledge_card.short_name }} stockists.</p>
         <button
           onclick="document.getElementById('rfq-tender-modal').style.display='flex'"
-          class="btn btn-whatsapp"
-          style="width: 100%; font-size: 0.75rem; padding: 0.4rem;"
+          class="btn btn-whatsapp btn-block"
+          style="font-size: 0.75rem; padding: 0.45rem;"
         >
           📋 Post {{ knowledge_card.short_name }} RFQ
         </button>
@@ -815,10 +791,8 @@
   </div>
 </div>
 
-<!-- Included RFQ Tender Broadcast Modal -->
 {% include 'includes/rfq_modal.html' %}
 
-<!-- JavaScript for Quick Pro-Forma Quote Generation -->
 <script>
 function openQuoteModal(title, id, price) {
   const modal = document.getElementById('rfq-tender-modal');
