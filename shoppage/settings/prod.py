@@ -12,8 +12,10 @@ if not SECRET_KEY:
 hosts_env = os.environ.get('ALLOWED_HOSTS', '').strip()
 if hosts_env:
     ALLOWED_HOSTS = [h.strip() for h in hosts_env.split(',') if h.strip()]
+    if '*' not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append('*')
 else:
-    ALLOWED_HOSTS = ['shoppage.co.za', 'www.shoppage.co.za', '.dokploy.app', '.sslip.io', 'localhost', '127.0.0.1', '*']
+    ALLOWED_HOSTS = ['*']
 
 # CSRF Trusted Origins for Dokploy Domains, sslip.io, and custom domains
 csrf_env = os.environ.get('CSRF_TRUSTED_ORIGINS', '').strip()
@@ -30,6 +32,8 @@ else:
         'http://shoppage.co.za',
         'http://localhost:8000',
         'http://127.0.0.1:8000',
+        'https://*',
+        'http://*',
     ]
 
 # WhiteNoise production static file serving (graceful fallback if not present)
