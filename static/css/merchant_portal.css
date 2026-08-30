@@ -713,16 +713,38 @@
 
 .mc-input,
 .mc-select,
-.mc-textarea {
+.mc-textarea,
+input[type="text"].mc-input,
+input[type="number"].mc-input,
+input[type="email"].mc-input,
+input[type="url"].mc-input,
+input[type="search"].mc-input {
   width: 100%;
-  font: inherit;
-  font-size: 0.84rem;
+  font-family: var(--mc-font-body);
+  font-size: 0.875rem;
+  line-height: 1.5;
   color: var(--mc-text-1);
   background: var(--mc-surface);
   border: 1px solid var(--mc-line);
   border-radius: var(--mc-radius-sm);
-  padding: 0.55rem 0.7rem;
+  padding: 0.5rem 0.75rem;
+  min-height: 40px;
+  height: auto;
+  box-sizing: border-box;
+  vertical-align: middle;
   transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.mc-select {
+  padding-right: 2.25rem !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235F6368' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 14px 14px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
 }
 
 .mc-input:focus, .mc-select:focus, .mc-textarea:focus {

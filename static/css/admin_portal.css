@@ -1,7 +1,7 @@
 /* ==========================================================================
    Shoppage National Commercial Intelligence Grid — Enterprise Admin OS
    Theme: High-Contrast Google Cloud & Shopify Command Center
-   Features: Collapsible Sidebar, Zero Extra Indents, Google Material 3 Palette
+   Features: Full-Glyph Form Rendering (Zero Cropping), Collapsible Sidebar
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
@@ -802,9 +802,11 @@ ul.object-tools li a:hover {
   color: #0F172A !important;
   border: 1px solid #CBD5E1 !important;
   border-radius: 6px !important;
-  padding: 0.35rem 0.75rem !important;
+  padding: 0.35rem 2rem 0.35rem 0.75rem !important;
   font-weight: 500 !important;
   font-size: 0.82rem !important;
+  min-height: 36px !important;
+  line-height: 1.5 !important;
 }
 
 .actions .button {
@@ -965,8 +967,65 @@ p.paginator,
 }
 
 /* --------------------------------------------------------------------------
-   7. Changeforms & Fieldsets
+   7. Form Inputs, Select Dropdowns & Changeforms (Zero Cropping, Full Glyphs)
    -------------------------------------------------------------------------- */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="url"],
+input[type="number"],
+input[type="search"],
+input[type="tel"],
+.vTextField,
+.vIntegerField,
+.vDateField,
+.vTimeField,
+.vURLField,
+.vLargeTextField,
+textarea,
+select,
+.form-select {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1px solid #CBD5E1 !important;
+  border-radius: 6px !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  line-height: 1.5 !important;
+  min-height: 40px !important;
+  height: auto !important;
+  box-sizing: border-box !important;
+  vertical-align: middle !important;
+  overflow: visible !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+select,
+.form-select,
+.actions select,
+#changelist-filter select {
+  padding-right: 2.25rem !important;
+  background-color: #FFFFFF !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 14px 14px !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  cursor: pointer !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+.vTextField:focus {
+  border-color: #1A73E8 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px #E8F0FE !important;
+}
+
+/* Fieldset & Form Rows in Changeform */
 fieldset {
   background: #FFFFFF !important;
   border: 1px solid #E2E8F0 !important;
@@ -974,6 +1033,7 @@ fieldset {
   padding: 1.25rem !important;
   margin-bottom: 1.25rem !important;
   box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+  overflow: visible !important;
 }
 
 fieldset h2 {
@@ -986,35 +1046,59 @@ fieldset h2 {
 }
 
 .form-row {
-  padding: 0.65rem 0 !important;
+  padding: 0.75rem 0 !important;
   border-bottom: 1px solid #F1F5F9 !important;
+  overflow: visible !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
 }
 
-.form-row label {
-  font-size: 0.82rem !important;
-  font-weight: 600 !important;
-  color: #475569 !important;
+.form-row:last-child {
+  border-bottom: none !important;
 }
 
-input[type="text"],
-input[type="password"],
-input[type="email"],
-input[type="url"],
-input[type="number"],
-textarea,
-select {
-  background: #FFFFFF !important;
-  color: #0F172A !important;
-  border: 1px solid #CBD5E1 !important;
-  border-radius: 6px !important;
-  padding: 0.45rem 0.75rem !important;
+.aligned label {
+  float: none !important;
+  width: 180px !important;
+  min-width: 160px !important;
   font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  line-height: 1.4 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  white-space: normal !important;
 }
 
-input:focus, textarea:focus, select:focus {
-  border-color: #1A73E8 !important;
-  outline: none !important;
-  box-shadow: 0 0 0 3px #E8F0FE !important;
+.aligned label + p,
+.aligned label + div.help,
+.aligned label + input,
+.aligned label + select,
+.aligned label + textarea,
+.aligned .vTextField,
+.aligned .related-widget-wrapper {
+  margin-left: 0 !important;
+  flex: 1 !important;
+  max-width: 600px !important;
+}
+
+.help,
+p.help,
+div.help,
+.form-row .help,
+.form-row span.help-tooltip {
+  width: 100% !important;
+  margin-left: 180px !important;
+  font-size: 0.76rem !important;
+  color: #64748B !important;
+  line-height: 1.45 !important;
+  margin-top: 0.25rem !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  word-break: normal !important;
 }
 
 .submit-row {
