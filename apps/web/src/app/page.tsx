@@ -24,7 +24,6 @@ export default function HomePage() {
   const totalMerchantsCount = NationwideMerchantStore.getTotalCount();
   const provinceMallCounts = SouthAfricaMallsStore.getProvinceCounts();
 
-  const heroSearch = semanticSearch('solar inverter', { limit: 4 });
   const topMerchants = NationwideMerchantStore.searchMerchants({ limit: 8, offset: 0 }).items;
 
   return (

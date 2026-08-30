@@ -15,18 +15,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const quickCategories = [
-    { label: '☀️ Solar & Inverters', href: '/search?category=solar_energy' },
-    { label: '🔋 LiFePO4 Batteries', href: '/search?q=5.12kwh+battery' },
-    { label: '📱 Phones & Tech', href: '/search?category=smartphones' },
-    { label: '🧱 Building & Hardware', href: '/search?category=hardware' },
-    { label: '🛒 Food & Groceries', href: '/search?category=groceries' },
-    { label: '💊 Health & Pharmacy', href: '/search?category=pharmacy' },
-    { label: '🚗 Auto & Spares', href: '/search?category=automotive' },
-    { label: '🏬 All 3,296 Malls', href: '/malls' },
-    { label: '🏪 3.1M Stores Directory', href: '/merchants' },
-  ];
-
   return (
     <html lang="en">
       <body>
@@ -49,25 +37,25 @@ export default function RootLayout({
           </div>
         </div>
 
-        {/* Sticky Frosted Header */}
+        {/* Sticky Frosted Header with Big Default Omnibox */}
         <header
           style={{
             position: 'sticky',
             top: 0,
             zIndex: 100,
-            background: 'rgba(255, 255, 255, 0.88)',
+            background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
-            borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
+            borderBottom: '1px solid #E2E8F0',
           }}
         >
-          <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.25rem', height: '68px' }}>
+          <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem', height: '74px' }}>
             {/* Brand Logo */}
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none' }}>
+            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none', flexShrink: 0 }}>
               <div
                 style={{
-                  width: '36px',
-                  height: '36px',
+                  width: '38px',
+                  height: '38px',
                   borderRadius: '10px',
                   background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
                   display: 'flex',
@@ -75,47 +63,41 @@ export default function RootLayout({
                   justifyContent: 'center',
                   color: '#FFFFFF',
                   fontWeight: 900,
-                  fontSize: '1.25rem',
+                  fontSize: '1.35rem',
                   boxShadow: '0 2px 8px rgba(15, 23, 42, 0.25)',
                 }}
               >
                 S
               </div>
               <div>
-                <span style={{ fontSize: '1.25rem', fontWeight: 900, letterSpacing: '-0.03em', color: 'var(--slate-950)' }}>
+                <span style={{ fontSize: '1.35rem', fontWeight: 900, letterSpacing: '-0.03em', color: 'var(--slate-950)' }}>
                   Shoppage<span style={{ color: '#059669' }}>.</span>
                 </span>
               </div>
             </Link>
 
-            {/* Omnibox Live Search Trigger */}
-            <div style={{ flex: 1, maxWidth: '580px' }}>
+            {/* Big Prominent Default Search Bar */}
+            <div style={{ flex: 1, maxWidth: '780px' }}>
               <LiveSearch />
             </div>
 
             {/* Navigation Right Actions */}
-            <nav style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <nav style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
               <Link href="/search" className="btn btn-outline btn-sm" style={{ border: 'none' }}>
                 Catalog
               </Link>
               <Link href="/malls" className="btn btn-outline btn-sm" style={{ border: 'none' }}>
-                Malls (3,296)
+                Malls
               </Link>
               <Link href="/merchants" className="btn btn-outline btn-sm" style={{ border: 'none' }}>
                 Stores
               </Link>
               <Link href="/requests" className="btn btn-outline btn-sm" style={{ border: 'none' }}>
-                Buyer RFQs
-              </Link>
-              <Link href="/shorts" className="btn btn-outline btn-sm" style={{ border: 'none' }}>
-                Proof Shorts
+                RFQs
               </Link>
 
               <div style={{ width: '1px', height: '24px', background: 'var(--border)', margin: '0 0.25rem' }}></div>
 
-              <Link href="/agency/field-marshal" className="btn btn-outline btn-sm" style={{ background: '#FAF5FF', borderColor: '#E9D5FF', color: '#6D28D9' }}>
-                📍 Field Marshal
-              </Link>
               <Link href="/merchant/dashboard" className="btn btn-dark btn-sm">
                 Merchant OS
               </Link>
@@ -123,41 +105,6 @@ export default function RootLayout({
                 + List Store
               </Link>
             </nav>
-          </div>
-
-          {/* Quick Category Ribbon */}
-          <div
-            style={{
-              borderTop: '1px solid var(--border-subtle)',
-              background: '#FFFFFF',
-              overflowX: 'auto',
-              whiteSpace: 'nowrap',
-              padding: '0.4rem 0',
-            }}
-          >
-            <div className="container" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.05em', marginRight: '0.25rem' }}>
-                EXPLORE:
-              </span>
-              {quickCategories.map((cat, idx) => (
-                <Link
-                  key={idx}
-                  href={cat.href}
-                  className="badge badge-gray"
-                  style={{
-                    textDecoration: 'none',
-                    fontSize: '0.75rem',
-                    padding: '0.25rem 0.65rem',
-                    borderRadius: 'var(--radius-full)',
-                    background: '#F1F5F9',
-                    color: 'var(--slate-700)',
-                    fontWeight: 600,
-                  }}
-                >
-                  {cat.label}
-                </Link>
-              ))}
-            </div>
           </div>
         </header>
 

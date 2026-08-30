@@ -48,17 +48,17 @@ export default function GoogleHeader({ currentQuery = '', currentTab = 'all' }: 
           </Link>
 
           {/* Omnibox Search Input */}
-          <form onSubmit={handleSearch} style={{ flex: 1, maxWidth: '690px', position: 'relative' }}>
+          <form onSubmit={handleSearch} style={{ flex: 1, maxWidth: '760px', position: 'relative' }}>
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 background: '#FFFFFF',
-                borderRadius: '24px',
+                borderRadius: '28px',
                 border: '1px solid #DFE1E5',
-                boxShadow: '0 1px 6px rgba(32, 33, 36, 0.2)',
-                padding: '0.45rem 1.15rem',
-                gap: '0.65rem',
+                boxShadow: '0 2px 8px rgba(32, 33, 36, 0.22)',
+                padding: '0.65rem 1.35rem',
+                gap: '0.75rem',
                 transition: 'box-shadow 0.2s',
               }}
             >
@@ -71,7 +71,7 @@ export default function GoogleHeader({ currentQuery = '', currentTab = 'all' }: 
                   flex: 1,
                   border: 'none',
                   outline: 'none',
-                  fontSize: '1rem',
+                  fontSize: '1.05rem',
                   color: 'var(--slate-900)',
                   background: 'transparent',
                 }}

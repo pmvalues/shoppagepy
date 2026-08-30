@@ -94,14 +94,14 @@ export default function LiveSearch() {
   };
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', maxWidth: 700, margin: '0 auto' }}>
-      <form onSubmit={submit} style={{ position: 'relative' }}>
+    <div ref={containerRef} style={{ position: 'relative', width: '100%', margin: '0 auto' }}>
+      <form onSubmit={submit} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onFocus={() => q && setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Search products, brands, malls — or ask the AI anything…"
+          placeholder="Search products, brands, malls, stores in South Africa..."
           className="live-search-input"
           aria-label="Search"
           autoComplete="off"
@@ -113,14 +113,14 @@ export default function LiveSearch() {
             onClick={clearSearch}
             style={{
               position: 'absolute',
-              right: '90px',
+              right: '110px',
               top: '50%',
               transform: 'translateY(-50%)',
               background: 'none',
               border: 'none',
               color: '#94A3B8',
               cursor: 'pointer',
-              fontSize: '1rem',
+              fontSize: '1.1rem',
               padding: '0.25rem',
             }}
             aria-label="Clear search"
@@ -132,7 +132,17 @@ export default function LiveSearch() {
         <button
           type="submit"
           className="btn btn-primary"
-          style={{ position: 'absolute', right: 6, top: 6, borderRadius: 9999, padding: '0.6rem 1.3rem' }}
+          style={{
+            position: 'absolute',
+            right: 5,
+            top: 5,
+            bottom: 5,
+            height: '38px',
+            borderRadius: 9999,
+            padding: '0 1.25rem',
+            fontWeight: 800,
+            fontSize: '0.875rem',
+          }}
         >
           Search
         </button>
