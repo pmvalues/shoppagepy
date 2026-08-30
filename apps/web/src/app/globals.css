@@ -109,6 +109,10 @@ a {
   transition: color var(--transition-fast);
 }
 
+.hover-underline:hover {
+  text-decoration: underline !important;
+}
+
 /* Layout Container */
 .container {
   width: 100%;
