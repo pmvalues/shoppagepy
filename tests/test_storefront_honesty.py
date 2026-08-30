@@ -19,10 +19,10 @@ from apps.merchants.models import Merchant, VerificationStateChoices
 from apps.offers.models import AvailabilityStateChoices, DestinationTypeChoices, Offer
 
 
-def _make_product(canonical_id, title, brand, **kwargs):
+def _make_product(canonical_id, title, brand, category_ref='solar_energy', **kwargs):
     return MasterProduct.objects.create(
         canonical_id=canonical_id,
-        category_ref='solar_energy',
+        category_ref=category_ref,
         title=title,
         brand=brand,
         status=ProductStatusChoices.ACTIVE,
@@ -300,3 +300,101 @@ class NoPerRowQueryTests(TestCase):
         sql = ' '.join(q['sql'] for q in ctx.captured_queries).lower()
         self.assertNotIn('from "markets_market" where', sql)
         self.assertNotIn('from "media_hub_short"', sql)
+
+
+class PlaceholderClaimTests(TestCase):
+    """The imageless placeholder must not assert specs or compliance marks."""
+
+    def test_placeholder_svg_carries_no_certification_or_spec_claims(self):
+        from apps.core.templatetags.core_tags import product_svg
+
+        product = _make_product(
+            'var_nophoto', 'AfriSam RhinoBoard Plasterboard 12.7mm', 'AfriSam',
+            category_ref='building_materials',
+        )
+        svg = product_svg(product, 'small')
+        for claim in ('SABS', 'NRS 097', 'ICASA', 'GS1 VERIFIED', 'IN STOCK', 'SUREBUILD',
+                      'CEMENT', 'kWh', ' kW', '2000A', '5G', '42.5N'):
+            self.assertNotIn(claim, svg, f'placeholder asserts "{claim}" for {product.title}')
+        self.assertIn('NO PHOTO YET', svg)
+        self.assertIn('AFRISAM', svg)          # brand is real data, so it may show
+        self.assertIn('role="img"', svg)
+
+    def test_placeholder_ignores_title_keywords_as_facts(self):
+        from apps.core.templatetags.core_tags import product_svg
+
+        svg = product_svg('5.5kW Deye Hybrid Inverter with 51.2V LiFePO4 battery')
+        for claim in ('5.0 kW', '51.2', 'NRS', 'SABS', '5.12 kWh', 'IN STOCK'):
+            self.assertNotIn(claim, svg)
+
+
+class HomepageHonestyTests(TestCase):
+    def setUp(self):
+        cache.clear()
+        self.merchant = Merchant.objects.create(
+            canonical_id='m_home', name='Home Grid Solar', country='ZA',
+            trust_score=90, province='Gauteng',
+        )
+        self.quoted = _make_product(
+            'var_home_quoted', 'Home Quoted Hybrid Inverter', 'HomeCo',
+            model_number='HQ-5K',
+        )
+        self.unquoted = _make_product(
+            'var_home_unquoted', 'Home Unquoted Lithium Battery', 'HomeCo',
+        )
+        Offer.objects.create(
+            canonical_id='ofr_home_quoted', variant=self.quoted, merchant=self.merchant,
+            destination_type=DestinationTypeChoices.MERCHANT_WHATSAPP,
+            price_amount=7700.00, currency='ZAR',
+            availability_state=AvailabilityStateChoices.FRESH,
+        )
+
+    def test_featured_row_never_invents_stock_rating_or_price(self):
+        content = self.client.get('/').content.decode()
+        self.assertNotIn('★ 4.9', content)
+        self.assertNotIn('(12 reviews)', content)
+        # The unquoted product must be admitted, not decorated.
+        self.assertIn('Home Unquoted Lithium Battery', content)
+        self.assertIn('Price on request', content)
+        self.assertIn('No live quotes yet', content)
+        self.assertNotIn('R 0\n', content)
+        # Slugs must not leak.
+        self.assertNotIn('Building_Materials', content)
+
+    def test_featured_row_shows_real_price_and_model_for_quoted_product(self):
+        content = self.client.get('/').content.decode()
+        self.assertIn('7,700', content)
+        self.assertIn('HQ-5K', content)
+        self.assertIn('Home Grid Solar', content)
+
+    def test_rfq_board_stops_claiming_live_verified_demand(self):
+        content = self.client.get('/').content.decode()
+        self.assertNotIn('Live Matching', content)
+        self.assertNotIn('Verified procurement demands', content)
+        self.assertIn('illustrative examples', content)
+
+    def test_featured_rows_link_without_a_redirect(self):
+        content = self.client.get('/').content.decode()
+        self.assertIn('href="/p/var_home_quoted/"', content)
+
+
+class ServedTemplateFabricationGuardTests(TestCase):
+    """Keep the whole defect class out, not just the two pages that were audited."""
+
+    BANNED = (
+        '★ 4.9', '|default:"4.9"', '|default:12 ', '|default:1200',
+        '|default:"Standard"', '|default:"Direct Counter"', '|default:"Verified Store"',
+        'or 1000.0', 'or 2800.0',
+    )
+
+    def test_no_served_template_substitutes_invented_values(self):
+        template_root = settings.BASE_DIR / 'templates'
+        offenders = []
+        for path in template_root.rglob('*.html'):
+            if 'cms' in path.parts:
+                continue
+            text = path.read_text(encoding='utf-8', errors='ignore')
+            for needle in self.BANNED:
+                if needle in text:
+                    offenders.append(f'{path.relative_to(template_root)}: {needle}')
+        self.assertEqual(offenders, [], f'invented defaults reintroduced:\n' + '\n'.join(offenders))

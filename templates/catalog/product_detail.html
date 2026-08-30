@@ -492,8 +492,8 @@
       <h1 style="margin-bottom: 0.5rem; line-height: 1.25;">{{ product.title }}</h1>
 
       <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.4rem;">
-        Model: <strong style="color: var(--text-primary);">{{ product.model_number|default:"Standard" }}</strong> ·
-        Category: <strong style="color: var(--text-primary);">{{ product.category_ref|title }}</strong> ·
+        {% if product.model_number %}Model: <strong style="color: var(--text-primary);">{{ product.model_number }}</strong> · {% endif %}
+        Category: <strong style="color: var(--text-primary);">{{ product.category_ref|title|cut:"_" }}</strong> ·
         GS1 ID: <code style="background: var(--slate-100); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; font-family: var(--font-mono);">{{ product.canonical_id }}</code>
       </p>
 
@@ -621,7 +621,7 @@
           </a>
           {% endif %}
           <a href="#confirmed-offers-section" class="btn btn-outline" style="padding: 0.75rem 1.25rem; font-size: 0.9rem;">
-            Compare all {{ confirmed_offers|length|default:1 }} sellers &rarr;
+            {% if confirmed_offers %}Compare all {{ confirmed_offers|length }} seller{{ confirmed_offers|length|pluralize }}{% else %}Request a live quote{% endif %} &rarr;
           </a>
         </div>
 
@@ -972,12 +972,12 @@
         <div class="row-body">
           <div class="row-meta-row"><span class="badge badge-blue">{{ rel.brand }}</span></div>
           <h3 class="row-title"><a class="row-title-link" href="/p/{{ rel.canonical_id }}">{{ rel.title }}</a></h3>
-          <p class="row-sub">Model: <strong>{{ rel.model_number|default:"Standard" }}</strong> · {{ rel.category_ref|title }}</p>
+          <p class="row-sub">{% if rel.model_number %}Model: <strong>{{ rel.model_number }}</strong> · {% endif %}{{ rel.category_ref|title|cut:"_" }}</p>
         </div>
         <div class="row-side">
           <div>
             <span class="row-sub">Alternative price</span>
-            <div class="price-big">R {{ rel.estimated_price_zar|floatformat:0|intcomma }}</div>
+            <div class="price-big">{% if rel.estimated_price_zar %}R {{ rel.estimated_price_zar|floatformat:0|intcomma }}{% else %}<span style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted);">Price on request</span>{% endif %}</div>
           </div>
           <a href="/p/{{ rel.canonical_id }}" class="btn btn-outline btn-block" style="justify-content: center;">Compare specs &rarr;</a>
         </div>

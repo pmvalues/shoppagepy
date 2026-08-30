@@ -16,6 +16,7 @@ from apps.media_hub.models import Short, Show
 from apps.merchants.models import Merchant
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
+from django.db.models import Prefetch
 from django.core.exceptions import PermissionDenied
 from django.db import connection
 from django.db.models import Q
@@ -100,26 +101,60 @@ def home_view(request):
     if context is None:
         from apps.offers.models import Offer
 
-        # Fetch diverse flagship products with real verified offers
-        offers_candidates = list(
-            Offer.objects.select_related('variant', 'merchant')
-            .filter(variant__isnull=False)[:40]
+        def _rating_of(product, live_offers):
+            summary = product.reviews_summary if isinstance(product.reviews_summary, dict) else {}
+            rating = summary.get('ratingValue') or summary.get('average')
+            count = summary.get('reviewCount') or summary.get('count') or 0
+            if not rating:
+                rated = [
+                    float(o.merchant.google_rating) for o in live_offers
+                    if o.merchant and o.merchant.google_rating is not None
+                ]
+                rating = round(max(rated), 1) if rated else None
+            try:
+                return float(rating), int(count or 0)
+            except (TypeError, ValueError):
+                return None, int(count or 0)
+
+        # Fetch candidate ids first, then hydrate once with offers/merchant/images
+        # prefetched, so the row template never issues a per-product query.
+        candidate_ids = list(
+            Offer.objects.filter(variant__isnull=False).order_by('price_amount')
+            .values_list('variant_id', flat=True)[:40]
         )
-        all_candidates = [o.variant for o in offers_candidates if o.variant]
-        if len(all_candidates) < 8:
-            extra = list(
+        if len(candidate_ids) < 8:
+            candidate_ids += list(
                 MasterProduct.objects.filter(status__in=['active', 'ACTIVE'])
-                .prefetch_related('offers', 'offers__merchant')[:20]
+                .order_by('id').values_list('id', flat=True)[:20]
             )
-            all_candidates.extend(extra)
+
+        hydrated = list(
+            MasterProduct.objects.filter(id__in=list(dict.fromkeys(candidate_ids))).prefetch_related(
+                Prefetch('offers', queryset=Offer.objects.select_related('merchant')),
+                'images',
+            )
+        )
+        by_id = {p.id: p for p in hydrated}
+        ordered = [by_id[i] for i in dict.fromkeys(candidate_ids) if i in by_id]
 
         featured_products = []
         seen_titles = set()
-        for p in all_candidates:
-            clean_title = p.title.strip().lower()
-            if clean_title not in seen_titles:
-                seen_titles.add(clean_title)
-                featured_products.append(p)
+        for p in ordered:
+            clean_title = (p.title or '').strip().lower()
+            if clean_title in seen_titles:
+                continue
+            seen_titles.add(clean_title)
+            price, merchant_name, live_count = _live_offer_facts(p)
+            rating, rating_count = _rating_of(p, [
+                o for o in p.offers.all() if o.availability_state not in UNAVAILABLE_STATES
+            ])
+            p.shoppage_best_price = price
+            p.shoppage_merchant_name = merchant_name
+            p.shoppage_offer_count = live_count
+            p.shoppage_in_stock = live_count > 0
+            p.shoppage_rating = rating
+            p.shoppage_rating_count = rating_count
+            featured_products.append(p)
             if len(featured_products) >= 8:
                 break
 

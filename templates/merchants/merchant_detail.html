@@ -479,7 +479,7 @@ document.addEventListener('DOMContentLoaded', function () {
           </h3>
 
           <p class="mp-row-sub">
-            Model: <strong>{{ offer.variant.model_number|default:"Standard" }}</strong> · Stall Location: <strong>{{ offer.stall_ref|default:"Direct Counter" }}</strong>
+            {% if offer.variant.model_number %}Model: <strong>{{ offer.variant.model_number }}</strong>{% endif %}{% if offer.stall_ref %} · Stall Location: <strong>{{ offer.stall_ref }}</strong>{% endif %}
           </p>
         </div>
 

@@ -57,107 +57,90 @@ def div(value, arg):
 @register.filter(is_safe=True)
 def product_svg(product_or_title, size="medium"):
     """
-    Renders professional, crisp, enterprise-grade vector product artwork
-    matching Google Shopping and Takealot standards.
+    Placeholder artwork for a product with no photograph.
+
+    Only states things that are true of the product it is drawn for: the brand
+    and a "no photo yet" caption. Category shapes are decorative and carry no
+    specification, certification or stock claim — an earlier version stamped
+    "SABS 50197-1", "NRS 097-2-1", "ICASA", capacities and "IN STOCK" onto the
+    artwork of any imageless product, which invented compliance marks.
     """
-    title = ""
-    cat = ""
-    if hasattr(product_or_title, 'title'):
-        title = product_or_title.title.lower()
-        cat = getattr(product_or_title, 'category_ref', '').lower()
-    elif isinstance(product_or_title, str):
+    title = ''
+    cat = ''
+    brand = ''
+    if isinstance(product_or_title, str):
+        # str has a .title() method, so this must be checked before hasattr.
         title = product_or_title.lower()
+    elif product_or_title is not None:
+        title = str(getattr(product_or_title, 'title', '') or '').lower()
+        cat = str(getattr(product_or_title, 'category_ref', '') or '').lower()
+        brand = str(getattr(product_or_title, 'brand', '') or '').upper()
 
     dim = "120" if size == "small" else ("160" if size == "medium" else "220")
 
-    # 1. LiFePO4 Lithium Battery / Power Storage
-    if 'battery' in title or 'lifepo4' in title or 'dyness' in title or 'hubble' in title or 'pylon' in title:
-        return mark_safe(f'''<svg width="{dim}" height="{dim}" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="20" y="32" width="120" height="96" rx="8" fill="#1E293B" stroke="#334155" stroke-width="2"/>
-  <rect x="28" y="42" width="104" height="28" rx="4" fill="#0F172A"/>
-  <rect x="36" y="52" width="12" height="8" rx="2" fill="#10B981"/>
-  <rect x="52" y="52" width="12" height="8" rx="2" fill="#10B981"/>
-  <rect x="68" y="52" width="12" height="8" rx="2" fill="#10B981"/>
-  <rect x="84" y="52" width="12" height="8" rx="2" fill="#10B981"/>
-  <rect x="100" y="52" width="12" height="8" rx="2" fill="#34D399"/>
-  <text x="36" y="90" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="9" font-weight="700" fill="#94A3B8">LiFePO4 51.2V</text>
-  <text x="36" y="104" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="800" fill="#FFFFFF">5.12 kWh</text>
-  <circle cx="116" cy="94" r="8" fill="#0F172A" stroke="#475569" stroke-width="1.5"/>
-  <rect x="114" y="90" width="4" height="8" rx="1" fill="#EF4444"/>
-  <circle cx="14" cy="50" width="6" height="60" rx="3" fill="#64748B"/>
-  <rect x="12" y="54" width="4" height="52" rx="2" fill="#94A3B8"/>
-  <rect x="144" y="54" width="4" height="52" rx="2" fill="#94A3B8"/>
-</svg>''')
-
-    # 2. Solar Inverter / Hybrid Station
-    elif 'inverter' in title or 'solar' in title or 'deye' in title or 'sunsynk' in title or 'growatt' in title or 'solar' in cat:
-        return mark_safe(f'''<svg width="{dim}" height="{dim}" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="26" y="24" width="108" height="112" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
-  <rect x="36" y="34" width="88" height="50" rx="6" fill="#0F172A"/>
-  <rect x="44" y="42" width="72" height="34" rx="4" fill="#022C22"/>
-  <text x="50" y="58" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="800" fill="#34D399">5.0 kW</text>
-  <text x="50" y="70" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="7" font-weight="700" fill="#6EE7B7">NRS 097-2-1 GRID OK</text>
-  <circle cx="106" cy="56" r="4" fill="#10B981"/>
-  <rect x="36" y="96" width="88" height="2" fill="#E2E8F0"/>
-  <rect x="42" y="106" width="24" height="18" rx="3" fill="#F1F5F9" stroke="#CBD5E1"/>
-  <rect x="72" y="106" width="24" height="18" rx="3" fill="#F1F5F9" stroke="#CBD5E1"/>
-  <rect x="102" y="106" width="12" height="18" rx="2" fill="#0F172A"/>
-  <path d="M76 24L84 14L92 24H76Z" fill="#F59E0B"/>
-</svg>''')
-
-    # 3. Smartphones / Mobile Tech
-    elif 'phone' in title or 'smart' in title or 'galaxy' in title or 'iphone' in title or 'xiaomi' in title or 'smartphones' in cat:
-        return mark_safe(f'''<svg width="{dim}" height="{dim}" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="46" y="18" width="68" height="124" rx="14" fill="#0F172A" stroke="#334155" stroke-width="2"/>
-  <rect x="50" y="22" width="60" height="116" rx="11" fill="url(#phoneGrad)"/>
-  <circle cx="80" cy="28" r="2.5" fill="#000000"/>
-  <rect x="66" y="132" width="28" height="3" rx="1.5" fill="#FFFFFF" fill-opacity="0.6"/>
-  <text x="80" y="75" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="900" fill="#FFFFFF" text-anchor="middle">5G</text>
-  <text x="80" y="90" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="8" font-weight="600" fill="#E2E8F0" text-anchor="middle">ICASA ZA</text>
-  <defs>
-    <linearGradient id="phoneGrad" x1="50" y1="22" x2="110" y2="138" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#1E3A8A"/>
-      <stop offset="0.5" stop-color="#2563EB"/>
-      <stop offset="1" stop-color="#0284C7"/>
-    </linearGradient>
-  </defs>
-</svg>''')
-
-    # 4. Building, Hardware & Industrial
-    elif 'cement' in title or 'hardware' in title or 'drill' in title or 'ppc' in title or 'afrisam' in title or 'hardware' in cat:
-        return mark_safe(f'''<svg width="{dim}" height="{dim}" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="28" y="44" width="104" height="74" rx="6" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="2"/>
-  <rect x="36" y="52" width="88" height="24" rx="4" fill="#DC2626"/>
-  <text x="80" y="68" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="900" fill="#FFFFFF" text-anchor="middle">SUREBUILD 50kg</text>
-  <text x="80" y="94" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="10" font-weight="800" fill="#0F172A" text-anchor="middle">42.5N CEMENT</text>
-  <text x="80" y="108" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="8" font-weight="700" fill="#059669" text-anchor="middle">✓ SABS 50197-1</text>
-  <path d="M20 126H140V136H20V126Z" fill="#78350F" rx="2"/>
-</svg>''')
-
-    # 5. Jump Starter / Power Equipment
-    elif 'jump' in title or 'starter' in title or 'inflator' in title or 'station' in title or 'power' in title:
-        return mark_safe(f'''<svg width="{dim}" height="{dim}" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="28" y="32" width="104" height="96" rx="10" fill="#1E293B" stroke="#0F172A" stroke-width="2"/>
-  <rect x="36" y="40" width="88" height="36" rx="6" fill="#F59E0B"/>
-  <rect x="44" y="48" width="40" height="20" rx="3" fill="#0F172A"/>
-  <text x="64" y="63" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="800" fill="#10B981" text-anchor="middle">100%</text>
-  <circle cx="104" cy="58" r="8" fill="#DC2626"/>
-  <text x="44" y="94" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="900" fill="#FFFFFF">2000A PEAK</text>
-  <text x="44" y="108" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="8" font-weight="600" fill="#94A3B8">12V Jump Starter</text>
-  <rect x="18" y="58" width="10" height="44" rx="4" fill="#DC2626"/>
-  <rect x="132" y="58" width="10" height="44" rx="4" fill="#0F172A" stroke="#334155"/>
-</svg>''')
-
-    # Default General High-Tech Commercial Product Graphic
+    # Category only chooses a shape and a palette — never a claim.
+    if 'batter' in cat or any(w in title for w in ('battery', 'lifepo4', 'dyness', 'hubble', 'pylon')):
+        glyph, accent = 'battery', '#10B981'
+    elif any(w in title for w in ('inverter', 'solar', 'panel', 'deye', 'sunsynk', 'growatt')) or 'solar' in cat:
+        glyph, accent = 'inverter', '#F59E0B'
+    elif any(w in title for w in ('phone', 'smart', 'galaxy', 'iphone', 'xiaomi')) or 'smartphone' in cat:
+        glyph, accent = 'device', '#3B82F6'
+    elif any(w in title for w in ('cement', 'drill', 'hardware', 'board', 'timber')) or 'hardware' in cat or 'building' in cat:
+        glyph, accent = 'crate', '#64748B'
     else:
-        return mark_safe(f'''<svg width="{dim}" height="{dim}" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="30" y="30" width="100" height="100" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>
-  <rect x="42" y="42" width="76" height="50" rx="6" fill="#F8FAFC" stroke="#E2E8F0"/>
-  <path d="M54 62L68 50L82 64L94 54L106 66" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="62" cy="54" r="3" fill="#F59E0B"/>
-  <text x="80" y="112" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="9" font-weight="800" fill="#0F172A" text-anchor="middle">GS1 VERIFIED</text>
-  <text x="80" y="122" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="7" font-weight="600" fill="#059669" text-anchor="middle">● IN STOCK</text>
-</svg>''')
+        glyph, accent = 'crate', '#94A3B8'
+
+    brand_text = (brand[:16] if brand else '')
+    label = '<text x="80" y="140" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="9" font-weight="700" fill="#94A3B8" letter-spacing="0.5">NO PHOTO YET</text>'
+    if brand_text:
+        brand_markup = (
+            '<text x="80" y="26" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"'
+            f' font-size="10" font-weight="800" fill="#475569">{_svg_escape(brand_text)}</text>'
+        )
+    else:
+        brand_markup = ''
+
+    if glyph == 'battery':
+        shape = (
+            '<rect x="26" y="46" width="108" height="72" rx="8" fill="#1E293B" stroke="#334155" stroke-width="2"/>'
+            f'<rect x="36" y="58" width="14" height="8" rx="2" fill="{accent}"/>'
+            f'<rect x="56" y="58" width="14" height="8" rx="2" fill="{accent}"/>'
+            f'<rect x="76" y="58" width="14" height="8" rx="2" fill="{accent}"/>'
+            '<rect x="136" y="66" width="8" height="32" rx="2" fill="#475569"/>'
+        )
+    elif glyph == 'inverter':
+        shape = (
+            '<rect x="34" y="38" width="92" height="90" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>'
+            '<rect x="46" y="50" width="68" height="40" rx="5" fill="#0F172A"/>'
+            f'<circle cx="118" cy="104" r="6" fill="{accent}"/>'
+            f'<rect x="46" y="100" width="34" height="18" rx="3" fill="{accent}" fill-opacity="0.18" stroke="{accent}"/>'
+        )
+    elif glyph == 'device':
+        shape = (
+            '<rect x="54" y="36" width="52" height="96" rx="12" fill="#0F172A" stroke="#334155" stroke-width="2"/>'
+            f'<rect x="60" y="44" width="40" height="76" rx="8" fill="{accent}" fill-opacity="0.35"/>'
+            '<circle cx="80" cy="126" r="3" fill="#475569"/>'
+        )
+    else:
+        shape = (
+            '<rect x="30" y="48" width="100" height="70" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>'
+            f'<path d="M40 78L56 64L72 76L88 62L120 84" stroke="{accent}" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
+            '<rect x="30" y="92" width="100" height="26" rx="4" fill="#F1F5F9" stroke="#E2E8F0"/>'
+        )
+
+    return mark_safe(
+        f'<svg width="{dim}" height="{dim}" viewBox="0 0 160 160" role="img" '
+        'xmlns="http://www.w3.org/2000/svg" aria-label="No product photo available yet">'
+        f'<title>No product photo available yet</title>'
+        f'<rect width="160" height="160" rx="14" fill="#F8FAFC"/>{brand_markup}{shape}{label}</svg>'
+    )
+
+
+def _svg_escape(value: str) -> str:
+    return (
+        str(value).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        .replace('"', '&quot;')
+    )
 
 @register.filter(is_safe=True)
 def merchant_svg(merchant, size="medium"):
