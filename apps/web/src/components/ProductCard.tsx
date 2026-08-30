@@ -1,12 +1,6 @@
 import Link from 'next/link';
 import type { ProductVariant, Offer } from '@shoppage/contracts';
 
-function lowestPrice(offers?: Offer[]): number | null {
-  if (!offers || offers.length === 0) return null;
-  const nums = offers.map((o) => o.price.amount).filter((n): n is number => typeof n === 'number');
-  return nums.length ? Math.min(...nums) : null;
-}
-
 export default function ProductCard({
   product,
   offers = [],
@@ -14,55 +8,120 @@ export default function ProductCard({
   product: ProductVariant;
   offers?: Offer[];
 }) {
-  const price = lowestPrice(offers);
-  const est = (product.attributes as Record<string, unknown>)?.estimatedPriceZar;
-  const displayPrice =
-    price !== null && price < 999999
-      ? `R ${price.toLocaleString()}`
-      : typeof est === 'number'
-      ? `R ${est.toLocaleString()}`
-      : 'Price on request';
+  const minPrice = offers.length
+    ? Math.min(...offers.map((o) => (typeof o.price?.amount === 'number' ? o.price.amount : Infinity)))
+    : (product.attributes?.estimatedPriceZar as number | undefined);
+
+  const priceText = typeof minPrice === 'number' && minPrice !== Infinity
+    ? `R ${minPrice.toLocaleString()}`
+    : 'Price on request';
+
+  const firstOffer = offers[0];
 
   return (
-    <div className="sp-card">
-      <Link href={`/p/${product.canonicalId}`} className="sp-card-media">
-        <span aria-hidden="true">📦</span>
-      </Link>
-
-      <div className="sp-card-body">
-        <div className="sp-card-tags">
-          {product.brand && <span className="sp-card-brand">{product.brand}</span>}
+    <div
+      className="card card-interactive"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        height: '100%',
+        padding: '1.25rem',
+      }}
+    >
+      <div>
+        {/* Studio Image / Category Stage */}
+        <div
+          style={{
+            position: 'relative',
+            width: '100%',
+            aspectRatio: '1 / 1',
+            borderRadius: '10px',
+            background: 'linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%)',
+            border: '1px solid var(--border-subtle)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '3.25rem',
+            marginBottom: '1rem',
+            overflow: 'hidden',
+          }}
+        >
+          {product.categoryRef === 'solar_energy' ? '⚡' : product.categoryRef === 'smartphones' ? '📱' : product.categoryRef === 'hardware' ? '🧱' : '📦'}
+          
           {offers.length > 0 ? (
-            <span className="sp-pill sp-pill-instock">✓ {offers.length} Confirmed</span>
+            <span className="badge badge-green" style={{ position: 'absolute', top: 8, right: 8, fontSize: '0.65rem' }}>
+              ✓ {offers.length} Confirmed {offers.length === 1 ? 'Store' : 'Stores'}
+            </span>
           ) : (
-            <span className="sp-pill sp-pill-check">🌐 Web Discovered</span>
+            <span className="badge badge-gray" style={{ position: 'absolute', top: 8, right: 8, fontSize: '0.65rem' }}>
+              Master SKU
+            </span>
           )}
+
+          <span className="badge badge-blue" style={{ position: 'absolute', bottom: 8, left: 8, fontSize: '0.65rem' }}>
+            {product.brand}
+          </span>
         </div>
 
-        <Link href={`/p/${product.canonicalId}`} className="sp-card-title">
-          {product.title}
-        </Link>
+        {/* Product Title */}
+        <h3 style={{ fontSize: '0.95rem', fontWeight: 700, margin: '0 0 0.4rem 0', lineHeight: 1.35, color: 'var(--slate-900)' }}>
+          <Link href={`/p/${product.canonicalId}`} style={{ color: 'inherit' }}>
+            {product.title}
+          </Link>
+        </h3>
 
-        <div className="sp-card-gtin">
-          GTIN {product.identifiers.gtin13 || product.identifiers.mpn || 'Universal Master SKU'}
-        </div>
-
-        <div className="sp-card-price">
-          <span className="sp-card-price-now">{displayPrice}</span>
+        {/* Technical attribute highlights */}
+        <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)', marginBottom: '0.75rem', display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+          {product.compliance?.nrs097Certified && (
+            <span className="badge badge-green" style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem' }}>NRS 097</span>
+          )}
+          {product.compliance?.sabsApproved && (
+            <span className="badge badge-blue" style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem' }}>SABS</span>
+          )}
+          {product.compliance?.warrantyYears && (
+            <span className="badge badge-gray" style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem' }}>{product.compliance.warrantyYears}yr Warranty</span>
+          )}
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '0.5rem', padding: '0 1rem 1rem' }}>
-        <Link href={`/p/${product.canonicalId}`} className="btn btn-primary btn-sm" style={{ flex: 1 }}>
-          Compare Sellers
-        </Link>
-        <Link
-          href={`/merchant/claim?variantId=${product.canonicalId}&title=${encodeURIComponent(product.title)}`}
-          className="btn btn-whatsapp btn-sm"
-          title="List as verified seller"
-        >
-          + List
-        </Link>
+      <div>
+        {/* Price & Action Bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: '0.75rem', borderTop: '1px solid var(--border-subtle)' }}>
+          <div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--slate-500)', textTransform: 'uppercase', fontWeight: 700 }}>Starting From</div>
+            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#059669', fontVariantNumeric: 'tabular-nums' }}>
+              {priceText}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.35rem' }}>
+            <Link href={`/p/${product.canonicalId}`} className="btn btn-outline btn-sm" style={{ padding: '0.35rem 0.65rem' }}>
+              Compare
+            </Link>
+            {firstOffer ? (
+              <a
+                href={`/l/${firstOffer.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-whatsapp btn-sm"
+                style={{ padding: '0.35rem 0.65rem' }}
+                title="WhatsApp Direct Counter Quote"
+              >
+                💬 Quote
+              </a>
+            ) : (
+              <Link
+                href={`/merchant/claim?variantId=${product.canonicalId}&title=${encodeURIComponent(product.title)}`}
+                className="btn btn-outline btn-sm"
+                style={{ padding: '0.35rem 0.65rem', background: '#F8FAFC' }}
+                title="List your store for this product"
+              >
+                + List
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -38,39 +38,56 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const runtime1200W = calculateBackupRuntime(5.12, 1200); // Heavy load + Microwave + Desktop PCs
 
   return (
-    <div className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
+    <div className="container" style={{ paddingTop: '2rem', paddingBottom: '5rem' }}>
       {/* Breadcrumbs */}
-      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-        <Link href="/">Home</Link> &gt; <Link href={`/search?category=${product.categoryRef}`}>{product.categoryRef}</Link> &gt; <span style={{ color: 'var(--text-primary)' }}>{product.brand}</span>
+      <div style={{ fontSize: '0.85rem', color: 'var(--slate-500)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+        <Link href="/" style={{ color: 'var(--slate-500)' }}>Home</Link>
+        <span>&gt;</span>
+        <Link href={`/search?category=${product.categoryRef}`} style={{ color: 'var(--slate-500)', textTransform: 'capitalize' }}>
+          {product.categoryRef.replace(/_/g, ' ')}
+        </Link>
+        <span>&gt;</span>
+        <span style={{ color: 'var(--slate-900)', fontWeight: 600 }}>{product.brand}</span>
       </div>
 
       {/* Product Hero & Specifications */}
       <div className="grid grid-cols-2" style={{ gap: '2.5rem', marginBottom: '3rem' }}>
         <div>
           {/* Gallery View */}
-          <div style={{ background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: '12px', padding: '2.5rem', textAlign: 'center', marginBottom: '1rem', boxShadow: 'var(--shadow-sm)' }}>
-            <span style={{ fontSize: '5rem' }}>📦</span>
-            <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <span className="badge badge-blue">Master Product</span>
+          <div
+            className="card"
+            style={{
+              padding: '3.5rem 2rem',
+              textAlign: 'center',
+              marginBottom: '1.25rem',
+              background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)',
+              position: 'relative',
+              borderRadius: 'var(--radius-xl)',
+            }}
+          >
+            <div style={{ fontSize: '5.5rem', marginBottom: '1rem', filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.06))' }}>
+              {product.categoryRef === 'solar_energy' ? '⚡' : product.categoryRef === 'smartphones' ? '📱' : product.categoryRef === 'hardware' ? '🧱' : '📦'}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <span className="badge badge-blue">Master Canonical SKU</span>
               {confirmedOffers.length > 0 && (
-                <span className="badge badge-green">✓ {confirmedOffers.length} Confirmed Offers</span>
+                <span className="badge badge-green">✓ {confirmedOffers.length} Confirmed Local Offers</span>
               )}
               {discoveredOffers.length > 0 && (
-                <span className="badge badge-gray">🌐 {discoveredOffers.length} Discovered Offers</span>
-              )}
-              {confirmedOffers.length === 0 && discoveredOffers.length === 0 && (
-                <span className="badge badge-amber">Awaiting Local Listings</span>
+                <span className="badge badge-gray">🌐 {discoveredOffers.length} Discovered Web Listings</span>
               )}
             </div>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.75rem' }}>
-              Verified GS1 GTIN: {product.identifiers.gtin13 || product.identifiers.gtin14 || product.identifiers.mpn || 'Universal Standard Identity'}
-            </p>
+
+            <div style={{ color: 'var(--slate-400)', fontSize: '0.75rem', marginTop: '1rem', fontFamily: 'var(--font-mono)' }}>
+              GS1 GTIN: {product.identifiers.gtin13 || product.identifiers.gtin14 || product.identifiers.mpn || 'Universal Standard Identity'}
+            </div>
           </div>
 
           {/* Compliance & Certification Badges */}
           {product.compliance && (
-            <div className="card" style={{ marginBottom: '1rem', background: '#F8FAFC' }}>
-              <h4 style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+            <div className="card" style={{ marginBottom: '1.25rem', background: '#F8FAFC' }}>
+              <h4 style={{ fontWeight: 800, fontSize: '0.875rem', marginBottom: '0.65rem', color: 'var(--slate-900)' }}>
                 🛡️ Verified Standards & South African Certification
               </h4>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -87,11 +104,11 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
           {/* Compatibility Engine Card */}
           {compatibilityResult && (
-            <div className="card" style={{ borderColor: compatibilityResult.isCompatible ? 'var(--accent-green)' : 'var(--accent-red)' }}>
-              <h4 style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.5rem' }}>
-                ⚡ Typed Compatibility Engine Verified
+            <div className="card" style={{ borderLeft: `4px solid ${compatibilityResult.isCompatible ? '#10B981' : '#EF4444'}`, background: '#FFFFFF' }}>
+              <h4 style={{ fontWeight: 800, fontSize: '0.9rem', marginBottom: '0.4rem', color: 'var(--slate-900)' }}>
+                ⚡ Typed Grid Compatibility Verified
               </h4>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--slate-600)', lineHeight: 1.45 }}>
                 {compatibilityResult.isCompatible
                   ? 'Compatible with standard 48V Lithium Batteries (Dyness, Pylontech, Hubble) and up to 8x 550W PV strings.'
                   : compatibilityResult.safetyWarning}
@@ -102,36 +119,36 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
         <div>
           <span className="badge badge-blue" style={{ marginBottom: '0.5rem' }}>{product.brand}</span>
-          <h1 style={{ fontSize: '1.85rem', fontWeight: 800, lineHeight: 1.25, marginBottom: '0.75rem' }}>
+          <h1 style={{ fontSize: '2.1rem', fontWeight: 900, lineHeight: 1.2, marginBottom: '0.75rem', color: 'var(--slate-900)' }}>
             {product.title}
           </h1>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-            <span style={{ color: '#F59E0B', fontWeight: 700 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+            <span style={{ color: '#D97706', fontWeight: 800, fontSize: '0.95rem' }}>
               ★ {product.reviewsSummary?.averageRating || 4.8}
             </span>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+            <span style={{ color: 'var(--slate-500)', fontSize: '0.85rem' }}>
               ({product.reviewsSummary?.totalReviewsCount || 34} verified buyer reviews)
             </span>
-            <span style={{ color: 'var(--text-muted)' }}>•</span>
-            <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-              Category: <strong>{product.categoryRef}</strong>
+            <span style={{ color: 'var(--slate-300)' }}>•</span>
+            <span style={{ color: 'var(--slate-600)', fontSize: '0.85rem' }}>
+              Category: <strong style={{ textTransform: 'capitalize' }}>{product.categoryRef.replace(/_/g, ' ')}</strong>
             </span>
           </div>
 
           {/* Master Product Definition & Technical Attributes */}
           <div className="card" style={{ marginBottom: '1.5rem', background: '#F8FAFC' }}>
-            <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.75rem' }}>
+            <h3 style={{ fontSize: '0.95rem', fontWeight: 800, marginBottom: '0.85rem', color: 'var(--slate-900)' }}>
               📋 Normalized Master Product Specifications
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', fontSize: '0.85rem' }}>
-              <div><strong>Brand:</strong> {product.brand}</div>
-              <div><strong>Model:</strong> {product.modelNumber || 'Standard'}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontSize: '0.85rem' }}>
+              <div><strong style={{ color: 'var(--slate-700)' }}>Brand:</strong> {product.brand}</div>
+              <div><strong style={{ color: 'var(--slate-700)' }}>Model:</strong> {product.modelNumber || 'Standard'}</div>
               {Object.entries(product.attributes).map(([key, val]) => {
                 if (key === 'estimatedPriceZar') return null;
                 return (
                   <div key={key}>
-                    <strong style={{ textTransform: 'capitalize' }}>{key.replace(/([A-Z])/g, ' $1')}:</strong>{' '}
+                    <strong style={{ textTransform: 'capitalize', color: 'var(--slate-700)' }}>{key.replace(/([A-Z])/g, ' $1')}:</strong>{' '}
                     {Array.isArray(val) ? val.join(', ') : String(val)}
                   </div>
                 );
@@ -142,8 +159,8 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           {/* Multilingual Keywords & Dialects */}
           {product.aliases && product.aliases.length > 0 && (
             <div style={{ marginBottom: '1.5rem' }}>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
-                🇿🇦 Supported South African Dialects & Aliases:
+              <div style={{ fontSize: '0.78rem', color: 'var(--slate-500)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.4rem' }}>
+                🇿🇦 Supported South African Search Dialects:
               </div>
               <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
                 {product.aliases.map((alias, i) => (
@@ -155,76 +172,39 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </div>
           )}
 
-          {/* Proof Video Embed Preview */}
-          {product.media?.videos && product.media.videos.length > 0 && (
-            <div className="card" style={{ background: '#F8FAFC', padding: '1rem' }}>
-              <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.4rem' }}>
-                🎬 Watch Lab Teardown & Real Load Test
-              </h4>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
-                {product.media.videos[0].title} ({Math.round(product.media.videos[0].durationSeconds / 60)} mins)
-              </p>
-              <Link href="/shorts" className="btn btn-outline" style={{ fontSize: '0.8rem', width: '100%' }}>
-                ▶️ Play Video Teardown
-              </Link>
+          {/* Video Teardown CTA */}
+          <div className="card" style={{ background: '#0F172A', color: '#FFFFFF', padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div style={{ fontSize: '0.75rem', color: '#38BDF8', fontWeight: 800, textTransform: 'uppercase' }}>Lab Bench Teardown</div>
+              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#FFFFFF' }}>Watch Real Load Test & Wiring Guide</div>
             </div>
-          )}
+            <Link href="/shorts" className="btn btn-primary btn-sm">
+              ▶️ Play Lab Video
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* List Yours Supplier Banner */}
-      <section
-        className="card"
-        style={{
-          marginBottom: '3rem',
-          background: confirmedOffers.length === 0 ? 'linear-gradient(135deg, #ECFDF5 0%, #EFF6FF 100%)' : '#F8FAFC',
-          border: confirmedOffers.length === 0 ? '2px solid #34D399' : '1px solid var(--border)',
-          padding: '2rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1.5rem',
-        }}
-      >
-        <div>
-          <span className="badge badge-green" style={{ marginBottom: '0.5rem' }}>
-            🏪 Stock this Master Product?
-          </span>
-          <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#064E3B', marginBottom: '0.25rem' }}>
-            {confirmedOffers.length === 0
-              ? 'Be the First Verified Local Merchant to Confirm Stock'
-              : 'Are you a merchant stocking this product? List your offer'}
-          </h2>
-          <p style={{ color: '#334155', fontSize: '0.9rem', maxWidth: '650px' }}>
-            Set your price, link your stall / shop, and receive direct WhatsApp customer inquiries with zero transaction fees.
-          </p>
-        </div>
+      {/* 1. CONFIRMED OFFERS SECTION (First-Party Merchant Verified) */}
+      <section style={{ marginBottom: '3.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
+              <h2 className="section-title" style={{ margin: 0 }}>
+                📦 Confirmed Live Suppliers ({confirmedOffers.length})
+              </h2>
+              <span className="badge badge-green">Direct Merchant Verified</span>
+            </div>
+            <p className="section-desc">Real-time stock confirmed by physical stores across South Africa with 0% middleman markups.</p>
+          </div>
 
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <Link
             href={`/merchant/claim?variantId=${product.canonicalId}&title=${encodeURIComponent(product.title)}`}
-            className="btn btn-whatsapp"
-            style={{ fontSize: '0.95rem', padding: '0.75rem 1.5rem' }}
+            className="btn btn-whatsapp btn-sm"
           >
-            ➕ List as Verified Supplier
+            + List Your Store Here
           </Link>
         </div>
-      </section>
-
-      {/* 1. CONFIRMED OFFERS SECTION (First-Party Merchant Verified) */}
-      <section style={{ marginBottom: '3rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-          <h2 className="section-title" style={{ margin: 0 }}>
-            ✅ Confirmed Offers ({confirmedOffers.length})
-          </h2>
-          <span className="badge badge-green" style={{ fontSize: '0.75rem' }}>
-            Direct Merchant Verified
-          </span>
-        </div>
-        <p className="section-desc" style={{ marginBottom: '1.5rem' }}>
-          Active commercial propositions confirmed directly by local merchants. Verified stock, location, and direct WhatsApp contact.
-        </p>
 
         {confirmedOffers.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -241,58 +221,42 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     flexWrap: 'wrap',
-                    gap: '1rem',
+                    gap: '1.25rem',
                     background: '#FFFFFF',
-                    border: '1px solid #10B981',
                     borderLeft: '5px solid #10B981',
+                    padding: '1.25rem 1.5rem',
                   }}
                 >
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
-                      <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0 }}>
-                        <Link href={`/m/${merchant?.id}`} style={{ color: '#0F172A', textDecoration: 'none' }}>
-                          {merchant?.name || 'Local Merchant'}
-                        </Link>
+                  <div style={{ flex: 1, minWidth: '280px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
+                      <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: 'var(--slate-900)' }}>
+                        <Link href={`/m/${merchant?.id}`}>{merchant?.name || 'Local Merchant'}</Link>
                       </h3>
                       <span className="badge badge-green">✓ Stock Confirmed</span>
                       {merchant?.googleRating && (
-                        <a
-                          href={merchant.googleReviewsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(merchant.name + ' ' + merchant.addressText)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ fontSize: '0.8rem', color: '#D97706', fontWeight: 700, textDecoration: 'none' }}
-                        >
-                          ★ {merchant.googleRating} ({merchant.googleReviewsCount || 10}+ Google Reviews) &nearr;
-                        </a>
+                        <span style={{ fontSize: '0.8rem', color: '#D97706', fontWeight: 700 }}>
+                          ★ {merchant.googleRating} ({merchant.googleReviewsCount || 10}+ reviews)
+                        </span>
                       )}
                     </div>
 
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '0.25rem 0' }}>
-                      📍{' '}
-                      <a
-                        href={merchant?.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(merchant?.addressText || '')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: 'inherit', textDecoration: 'underline' }}
-                      >
-                        {merchant?.addressText}
-                      </a>{' '}
-                      · <span style={{ color: '#475569', fontWeight: 600 }}>{offer.stallRef || 'Direct Shop Unit'}</span>
+                    <p style={{ color: 'var(--slate-600)', fontSize: '0.85rem', margin: '0.25rem 0' }}>
+                      📍 {merchant?.addressText} · <span style={{ color: 'var(--slate-800)', fontWeight: 600 }}>{offer.stallRef || 'Main Trade Concourse'}</span>
                     </p>
 
                     {passport && (
-                      <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', margin: 0 }}>
-                        🛡️ Trust Passport: {passport.score}/100 · Responds in ~{passport.medianResponseMinutes}m
+                      <p style={{ color: 'var(--slate-500)', fontSize: '0.75rem', margin: 0 }}>
+                        🛡️ Trust Score: <strong>{passport.score}/100</strong> · Median Reply: <strong>~{passport.medianResponseMinutes}m</strong>
                       </p>
                     )}
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent-green)' }}>
-                        R{offer.price.amount?.toLocaleString()}
+                      <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#059669', fontVariantNumeric: 'tabular-nums' }}>
+                        R {offer.price.amount?.toLocaleString()}
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--slate-400)' }}>
                         Confirmed {new Date(offer.freshness.lastConfirmedAt).toLocaleDateString()}
                       </div>
                     </div>
@@ -302,9 +266,9 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                       className="btn btn-whatsapp"
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ padding: '0.6rem 1.25rem', fontWeight: 600 }}
+                      style={{ padding: '0.65rem 1.25rem' }}
                     >
-                      💬 WhatsApp Merchant
+                      💬 WhatsApp Store
                     </a>
                   </div>
                 </div>
@@ -312,127 +276,108 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             })}
           </div>
         ) : (
-          <div className="card" style={{ background: '#F8FAFC', padding: '1.5rem', textAlign: 'center' }}>
-            <p style={{ color: '#64748B', margin: 0 }}>
-              No direct merchant has confirmed local stock yet. Discover available web listings below or claim as a supplier.
+          <div className="card" style={{ background: '#F8FAFC', padding: '2.5rem', textAlign: 'center' }}>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--slate-900)' }}>
+              No direct merchant has confirmed local stock online yet.
+            </h3>
+            <p style={{ color: 'var(--slate-600)', fontSize: '0.9rem', maxWidth: 500, margin: '0 auto 1.5rem' }}>
+              Are you a merchant stocking this product? Claim this listing in 60 seconds with 0% commission.
             </p>
+            <Link
+              href={`/merchant/claim?variantId=${product.canonicalId}&title=${encodeURIComponent(product.title)}`}
+              className="btn btn-whatsapp"
+            >
+              ➕ List as First Verified Supplier
+            </Link>
           </div>
         )}
       </section>
 
-      {/* 2. DISCOVERED OFFERS SECTION (External Public Web & Retailer Discovery) */}
-      <section style={{ marginBottom: '3rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-          <h2 className="section-title" style={{ margin: 0 }}>
-            🌐 Discovered Offers ({discoveredOffers.length})
-          </h2>
-          <span className="badge badge-gray" style={{ fontSize: '0.75rem' }}>
-            External Web & Catalog Sweep
-          </span>
-        </div>
-        <p className="section-desc" style={{ marginBottom: '1.5rem' }}>
-          Public product offers discovered externally from retailer websites, distributors, and open marketplace feeds. Awaiting direct merchant confirmation.
-        </p>
+      {/* 2. DISCOVERED WEB OFFERS SECTION */}
+      {discoveredOffers.length > 0 && (
+        <section style={{ marginBottom: '3.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+            <h2 className="section-title" style={{ margin: 0 }}>
+              🌐 Discovered Web Listings ({discoveredOffers.length})
+            </h2>
+            <span className="badge badge-gray">Automated Sweep</span>
+          </div>
+          <p className="section-desc" style={{ marginBottom: '1.25rem' }}>
+            Public offers discovered across external retailer websites and feeds.
+          </p>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {discoveredOffers.map((disc) => (
-            <div
-              key={disc.id}
-              className="card"
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '1rem',
-                background: '#FAFAFA',
-                border: '1px solid #E2E8F0',
-                borderLeft: '5px solid #94A3B8',
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#1E293B' }}>
-                    {disc.merchantName}
-                  </h3>
-                  <span className="badge badge-gray" style={{ fontSize: '0.7rem' }}>
-                    🌐 {disc.sourceWebsite}
-                  </span>
-                  <span className="badge badge-blue" style={{ fontSize: '0.7rem' }}>
-                    Confidence: {Math.round(disc.confidenceScore * 100)}%
-                  </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {discoveredOffers.map((disc) => (
+              <div
+                key={disc.id}
+                className="card"
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '1rem',
+                  background: '#FAFAFA',
+                  borderLeft: '5px solid #94A3B8',
+                  padding: '1rem 1.25rem',
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
+                    <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>{disc.merchantName}</h4>
+                    <span className="badge badge-gray" style={{ fontSize: '0.65rem' }}>🌐 {disc.sourceWebsite}</span>
+                  </div>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--slate-500)', margin: 0 }}>
+                    📦 {disc.availabilityText} · SKU: {disc.sku}
+                  </p>
                 </div>
 
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '0.25rem 0' }}>
-                  📦 {disc.availabilityText} · <span style={{ color: '#64748B' }}>{disc.locationHint}</span>
-                </p>
-
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', margin: 0 }}>
-                  Swept on {new Date(disc.discoveredAt).toLocaleDateString()} via {disc.discoverySource.replace(/_/g, ' ')} · SKU: {disc.sku}
-                </p>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#334155' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                  <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--slate-700)' }}>
                     {disc.discoveredPrice.rawPriceText || `R ${disc.discoveredPrice.amount.toLocaleString()}`}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>
-                    Discovered Price
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <a
                     href={disc.sourceUrl}
-                    className="btn btn-outline"
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+                    className="btn btn-outline btn-sm"
                   >
-                    View on {disc.sourceWebsite} &nearr;
+                    View Source &nearr;
                   </a>
-                  <Link
-                    href={`/merchant/claim?variantId=${product.canonicalId}&source=${encodeURIComponent(disc.sourceWebsite)}`}
-                    className="btn btn-outline"
-                    style={{ padding: '0.5rem 0.75rem', fontSize: '0.8rem', background: '#F1F5F9' }}
-                  >
-                    Claim Listing
-                  </Link>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Load-Shedding Runtime Calculator (Energy / Solar Products) */}
       {product.categoryRef === 'solar_energy' && (
-        <section className="card" style={{ marginBottom: '3rem', background: '#F8FAFC', padding: '2rem' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+        <section className="card" style={{ marginBottom: '3.5rem', background: '#F8FAFC', padding: '2rem' }}>
+          <h2 style={{ fontSize: '1.35rem', fontWeight: 900, marginBottom: '0.35rem', color: 'var(--slate-900)' }}>
             🔋 Load-Shedding Backup Runtime Calculator (5.12kWh Battery)
           </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+          <p style={{ color: 'var(--slate-600)', fontSize: '0.875rem', marginBottom: '1.75rem' }}>
             Estimated continuous backup duration during power outages based on typical household consumption.
           </p>
 
           <div className="grid grid-cols-2" style={{ gap: '1.5rem' }}>
-            <div className="card" style={{ background: '#FFFFFF' }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Essential Load (450W)</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent-green)', margin: '0.25rem 0' }}>
+            <div className="card" style={{ background: '#FFFFFF', border: '1.5px solid #10B981' }}>
+              <div style={{ fontSize: '0.8rem', color: '#047857', fontWeight: 800, textTransform: 'uppercase' }}>Essential Load (450W)</div>
+              <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#064E3B', margin: '0.25rem 0' }}>
                 {runtime450W.formattedRuntime}
               </div>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+              <p style={{ fontSize: '0.8rem', color: 'var(--slate-600)', margin: 0 }}>
                 Wi-Fi Router, Smart TV, Refrigerator, LED Lighting & Phone Charging.
               </p>
             </div>
 
-            <div className="card" style={{ background: '#FFFFFF' }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Moderate / Work Load (1,200W)</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent-blue)', margin: '0.25rem 0' }}>
+            <div className="card" style={{ background: '#FFFFFF', border: '1.5px solid #2563EB' }}>
+              <div style={{ fontSize: '0.8rem', color: '#1E40AF', fontWeight: 800, textTransform: 'uppercase' }}>Moderate / Work Load (1,200W)</div>
+              <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#1E3A8A', margin: '0.25rem 0' }}>
                 {runtime1200W.formattedRuntime}
               </div>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+              <p style={{ fontSize: '0.8rem', color: 'var(--slate-600)', margin: 0 }}>
                 Home Office PCs, Multiple Monitors, Entertainment & Intermittent Microwave.
               </p>
             </div>
@@ -442,13 +387,13 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
       {/* Verified Reviews, Pros & Cons */}
       {product.reviewsSummary && (
-        <section style={{ marginBottom: '3rem' }}>
+        <section>
           <h2 className="section-title">⭐ Verified Community & Engineer Reviews</h2>
-          <p className="section-desc">Real-world performance feedback from verified South African installations.</p>
+          <p className="section-desc" style={{ marginBottom: '1.5rem' }}>Real-world performance feedback from verified South African installations.</p>
 
           <div className="grid grid-cols-2" style={{ gap: '1.5rem', marginBottom: '2rem' }}>
             <div className="card" style={{ background: '#ECFDF5', border: '1px solid #A7F3D0' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#047857', marginBottom: '0.75rem' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#047857', marginBottom: '0.75rem' }}>
                 👍 Verified Strengths (Pros)
               </h3>
               <ul style={{ paddingLeft: '1.25rem', fontSize: '0.85rem', color: '#064E3B', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
@@ -459,7 +404,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </div>
 
             <div className="card" style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#B45309', marginBottom: '0.75rem' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#B45309', marginBottom: '0.75rem' }}>
                 ⚠️ Installation Considerations (Cons)
               </h3>
               <ul style={{ paddingLeft: '1.25rem', fontSize: '0.85rem', color: '#78350F', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
@@ -468,22 +413,6 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 ))}
               </ul>
             </div>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {product.reviewsSummary.reviews.map((rev) => (
-              <div key={rev.id} className="card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{rev.authorName} · {rev.authorLocation}</div>
-                  <div style={{ color: '#F59E0B' }}>★★★★★</div>
-                </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--accent-green)', fontWeight: 600, marginBottom: '0.5rem' }}>
-                  ✓ Verified Buyer Installation ({rev.usageContext})
-                </div>
-                <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.4rem' }}>&quot;{rev.title}&quot;</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>{rev.comment}</p>
-              </div>
-            ))}
           </div>
         </section>
       )}
