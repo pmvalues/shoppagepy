@@ -25,9 +25,9 @@ def shoppage_global_context(request):
     from apps.core.seo import site_url
 
     try:
-        from apps.core.seo import jsonld_script, web_site_jsonld, organization_jsonld
+        from apps.core.seo import jsonld_script, web_site_jsonld
 
-        site_jsonld = jsonld_script([web_site_jsonld(request), organization_jsonld(request)])
+        site_jsonld = jsonld_script(web_site_jsonld(request))
     except Exception:
         site_jsonld = ''
 

@@ -444,10 +444,15 @@
           <div x-show="activeTab === 'compliance'" class="pdp-panel pdp-panel--compliance">
             <div style="font-weight: 800; margin-bottom: 0.5rem; font-size: 0.9rem;">🛡️ Recorded certifications</div>
             <div>
+              {% if product.compliance and product.compliance.nrs097Certified %}
+              <div>✓ NRS 097-2-1 Grid Certified</div>
+              {% endif %}
               {% for label, value in compliance_items %}
               <div>✓ {{ label }}{% if value %}: {{ value }}{% endif %}</div>
               {% empty %}
+              {% if not product.compliance or not product.compliance.nrs097Certified %}
               <div style="color: var(--text-muted);">No certification has been recorded for this product yet.</div>
+              {% endif %}
               {% endfor %}
             </div>
           </div>
@@ -637,7 +642,7 @@
       <h3 style="font-size: 0.95rem; margin-bottom: 0.5rem;">⚙️ Verified specifications &amp; compliance</h3>
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.6rem;">
         {% if product.compliance and product.compliance.nrs097Certified %}
-        <span class="badge badge-green">✓ NRS 097-2-1 grid certified</span>
+        <span class="badge badge-green">✓ NRS 097-2-1 Grid Certified</span>
         {% endif %}
         {% if product.compliance and product.compliance.sabsApproved %}
         <span class="badge badge-blue">✓ SABS safety standard</span>
@@ -908,7 +913,7 @@
   {% endif %}
 
   <!-- Load-shedding runtime estimator -->
-  {% if 'solar' in product.category_ref %}
+  {% if 'solar' in product.category_ref or 'inverter' in product.category_ref or 'battery' in product.category_ref or 'solar' in product.title|lower or 'inverter' in product.title|lower %}
   <section class="card" style="margin-bottom: 3rem; background: var(--bg-primary);" x-data="{
     batteryKwh: 5.12,
     dod: 0.90,
@@ -924,7 +929,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
       <div>
         <span class="badge badge-green" style="margin-bottom: 0.3rem;">🔋 Interactive estimator</span>
-        <h2 style="font-size: 1.3rem; margin: 0;">Load-shedding backup calculator</h2>
+        <h2 style="font-size: 1.3rem; margin: 0;">Continuous Backup Calculator</h2>
       </div>
       <div class="calc-result">
         <span style="font-size: 0.75rem; color: #065f46; font-weight: 600;">Estimated runtime</span><br>
