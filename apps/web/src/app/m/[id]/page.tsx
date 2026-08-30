@@ -25,9 +25,7 @@ function synthesizeFallbackMerchant(id: string): Merchant {
     googleRating: 4.8,
     googleReviewsCount: 34,
     operatingHours: 'Mon-Fri 08:00 - 17:00 · Sat 08:00 - 13:00',
-    cipcEnterpriseNumber: `K2024/${Math.floor(100000 + Math.random() * 900000)}/07`,
-    taxCompliancePin: `TAX-${Math.floor(10000000 + Math.random() * 90000000)}`,
-    medianResponseMinutes: 10,
+            medianResponseMinutes: 10,
     verificationState: 'fully_verified',
     contacts: {
       telephone: '+27110001001',
@@ -69,7 +67,7 @@ export default function MerchantProfilePage({ params }: { params: { id: string }
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.5rem' }}>
           <div>
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.75rem' }}>
-              <span className="badge badge-green">✓ CIPC Verified Enterprise</span>
+              <span className="badge badge-green">✓ Verified Storefront</span>
               <span className="badge badge-blue">Trust Score: {passport.score}/100</span>
               {merchant.googleRating && (
                 <span className="badge badge-amber">★ {merchant.googleRating} ({merchant.googleReviewsCount || 30}+ reviews)</span>
@@ -117,23 +115,23 @@ export default function MerchantProfilePage({ params }: { params: { id: string }
           </div>
         </div>
 
-        {/* Public Trust & Verification Matrix (Confidential statutory numbers kept in internal verification store) */}
+        {/* Storefront Trust & Verification Matrix */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
           <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Statutory Business Status</div>
-            <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>✓ Registered & Verified Entity</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Storefront Verification</div>
+            <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>✓ Verified Active Store</div>
           </div>
           <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Tax Standing & Good Standing</div>
-            <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>✓ Tax Compliance Active</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Customer Rating</div>
+            <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>★ {merchant.googleRating || '4.8'} Verified Reviews</div>
           </div>
           <div>
             <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Platform Trade Fee</div>
             <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>0% Take Rate (Direct Trade)</div>
           </div>
           <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Technical & Trade Credentials</div>
-            <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>✓ Certified Trade Stockist</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Stock & Supply</div>
+            <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>✓ Confirmed Stockist</div>
           </div>
         </div>
       </div>

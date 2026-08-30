@@ -210,7 +210,7 @@ export default function RootLayout({
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.85rem', color: '#64748B' }}>
                   <span>✓ SABS & NRS 097 Certified Inverters</span>
-                  <span>✓ CIPC Statutory Entity Validation</span>
+                  <span>✓ Verified Business Stockists</span>
                   <span>✓ Direct Multi-Channel Inquiries</span>
                   <span>✓ 0% Middleman Take Rate</span>
                 </div>

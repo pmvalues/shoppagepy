@@ -55,7 +55,7 @@ export default function MerchantsDirectoryPage({
           All South African Stores & Suppliers
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', maxWidth: '720px', margin: '0 auto' }}>
-          Swept from Google Maps, OpenStreetMap, Bing Places, and CIPC. Direct WhatsApp and phone contacts across all 9 provinces.
+          Swept from Google Maps, OpenStreetMap, Bing Places, and verified trade registries. Direct WhatsApp and phone contacts across all 9 provinces.
         </p>
       </div>
 

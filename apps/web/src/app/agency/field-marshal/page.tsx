@@ -196,13 +196,13 @@ export default function FieldMarshalPage() {
 
             <div className="form-group">
               <label style={{ fontSize: '0.85rem', fontWeight: 700, display: 'block', marginBottom: '0.35rem' }}>
-                CIPC / Tax PIN (Optional)
+                Store Verification Note (Optional)
               </label>
               <input
                 type="text"
                 value={formData.cipcNumber}
                 onChange={(e) => setFormData({ ...formData, cipcNumber: e.target.value })}
-                placeholder="K2021/123456/07"
+                placeholder="e.g. Ground floor flagship store, verified tenant"
                 style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid var(--border)' }}
               />
             </div>
@@ -210,7 +210,7 @@ export default function FieldMarshalPage() {
 
           <button
             type="submit"
-            className="btn btn-whatsapp"
+            className="btn btn-primary"
             style={{ padding: '0.75rem', fontSize: '0.95rem', fontWeight: 800, marginTop: '0.5rem' }}
           >
             🚀 Submit Ground Verification & Claim Bounty

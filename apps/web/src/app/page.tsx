@@ -326,7 +326,7 @@ export default function HomePage() {
                 <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
                   <span style={{ fontSize: '1.25rem' }}>🏢</span>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>CIPC & SARS Verification</div>
+                    <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Official Storefront Verification</div>
                     <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>Legitimate registered physical entities only.</div>
                   </div>
                 </div>

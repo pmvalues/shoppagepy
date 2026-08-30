@@ -123,7 +123,7 @@ export default function MerchantDashboardPage() {
         {[
           { id: 'discovered', label: `📦 1-Click Discovered Stock (${discoveredStock.filter(s => s.status === 'pending').length} New)`, icon: '✨' },
           { id: 'active_offers', label: '⚡ Confirmed Live Offers', icon: '🛍️' },
-          { id: 'trust', label: '🛡️ Trust Passport & CIPC', icon: '🏢' },
+          { id: 'trust', label: '🛡️ Trust & Verification', icon: '🏢' },
           { id: 'gmc', label: '🛒 Google Shopping XML Feed', icon: '📡' },
           { id: 'gbp', label: '⭐ Google Business & Reviews', icon: '💬' },
           { id: 'qr', label: '📱 Stall QR & Counter Kit', icon: '🖨️' },
@@ -298,15 +298,15 @@ export default function MerchantDashboardPage() {
         </div>
       )}
 
-      {/* TAB 3: TRUST PASSPORT */}
+      {/* TAB 3: TRUST & VERIFICATION */}
       {activeTab === 'trust' && (
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
-              <span className="badge badge-green">Internal Statutory Verification</span>
-              <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: '0.25rem 0' }}>Merchant Verification & Trust Score</h2>
+              <span className="badge badge-green">Verified Merchant Profile</span>
+              <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: '0.25rem 0' }}>Merchant Trust Score & Badges</h2>
               <p style={{ color: 'var(--slate-600)', fontSize: '0.85rem' }}>
-                Confidential statutory records (CIPC, SARS PINs, wireman licenses) are strictly encrypted for internal validation and never exposed on the public forefront.
+                Maintain responsive customer communication and accurate stock levels to earn top placement in national search results.
               </p>
             </div>
             <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#059669', fontFamily: 'var(--font-display)' }}>
@@ -316,15 +316,15 @@ export default function MerchantDashboardPage() {
 
           <div className="grid grid-cols-3" style={{ gap: '1rem', marginBottom: '2rem' }}>
             <div className="card" style={{ background: '#F8FAFC' }}>
-              <div style={{ fontSize: '0.8rem', color: '#64748B' }}>CIPC Entity Status</div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: '0.25rem 0' }}>Verified Enterprise</div>
-              <span className="badge badge-green" style={{ fontSize: '0.7rem' }}>🔒 Internal Only</span>
+              <div style={{ fontSize: '0.8rem', color: '#64748B' }}>Storefront Status</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: '0.25rem 0' }}>Verified Stockist</div>
+              <span className="badge badge-green" style={{ fontSize: '0.7rem' }}>✓ Active Verified</span>
             </div>
 
             <div className="card" style={{ background: '#F8FAFC' }}>
-              <div style={{ fontSize: '0.8rem', color: '#64748B' }}>SARS Tax PIN</div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: '0.25rem 0' }}>Compliant / Active</div>
-              <span className="badge badge-green" style={{ fontSize: '0.7rem' }}>🔒 Internal Only</span>
+              <div style={{ fontSize: '0.8rem', color: '#64748B' }}>Catalog In-Stock Ratio</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: '0.25rem 0' }}>100% Confirmed</div>
+              <span className="badge badge-green" style={{ fontSize: '0.7rem' }}>✓ Live Catalog</span>
             </div>
 
             <div className="card" style={{ background: '#F8FAFC' }}>

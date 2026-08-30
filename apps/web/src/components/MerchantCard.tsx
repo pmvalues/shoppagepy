@@ -36,7 +36,7 @@ export default function MerchantCard({ merchant }: { merchant: Merchant }) {
         </p>
 
         <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
-          <span className="badge badge-green" style={{ fontSize: '0.65rem' }}>✓ CIPC Verified</span>
+          <span className="badge badge-green" style={{ fontSize: '0.65rem' }}>✓ Verified Store</span>
           <span className="badge badge-blue" style={{ fontSize: '0.65rem' }}>⚡ Direct Inquiries</span>
         </div>
       </div>
