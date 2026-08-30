@@ -22,7 +22,7 @@ export default function GoogleHeader({ currentQuery = '', currentTab = 'all' }: 
   const tabs = [
     { id: 'all', label: 'All', icon: '🔍' },
     { id: 'shopping', label: 'Shopping', icon: '🛍️' },
-    { id: 'stores', label: 'Nearby Stores & Malls', icon: '📍' },
+    { id: 'stores', label: 'Nearby Stores', icon: '📍' },
     { id: 'za_spec', label: 'South African Spec', icon: '🇿🇦' },
     { id: 'shorts', label: 'Proof Shorts', icon: '🎬' },
     { id: 'rfq', label: 'Buyer RFQs', icon: '📋' },
@@ -135,7 +135,7 @@ export default function GoogleHeader({ currentQuery = '', currentTab = 'all' }: 
           <strong>President Park AH, Midrand</strong>
           <span>·</span>
           <Link href="/malls?province=Gauteng" style={{ color: '#1A0DAB', textDecoration: 'none' }}>
-            Choose area & malls
+            Choose area
           </Link>
           <span>⋮</span>
         </div>

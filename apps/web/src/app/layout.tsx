@@ -81,30 +81,15 @@ export default function RootLayout({
               <LiveSearch />
             </div>
 
-            {/* Navigation Right Actions */}
-            <nav style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
-              <Link href="/search" className="btn btn-outline btn-sm" style={{ border: 'none' }}>
-                Catalog
-              </Link>
-              <Link href="/malls" className="btn btn-outline btn-sm" style={{ border: 'none' }}>
-                Malls
-              </Link>
-              <Link href="/merchants" className="btn btn-outline btn-sm" style={{ border: 'none' }}>
-                Stores
-              </Link>
-              <Link href="/requests" className="btn btn-outline btn-sm" style={{ border: 'none' }}>
-                RFQs
-              </Link>
-
-              <div style={{ width: '1px', height: '24px', background: 'var(--border)', margin: '0 0.25rem' }}></div>
-
-              <Link href="/merchant/dashboard" className="btn btn-dark btn-sm">
+            {/* Header Right Actions */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexShrink: 0 }}>
+              <Link href="/merchant/dashboard" className="btn btn-dark btn-sm" style={{ padding: '0.45rem 1rem', borderRadius: '8px' }}>
                 Merchant OS
               </Link>
-              <Link href="/merchant/claim" className="btn btn-primary btn-sm">
+              <Link href="/merchant/claim" className="btn btn-primary btn-sm" style={{ padding: '0.45rem 1rem', borderRadius: '8px' }}>
                 + List Store
               </Link>
-            </nav>
+            </div>
           </div>
         </header>
 
