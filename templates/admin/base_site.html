@@ -8,10 +8,30 @@
   <link rel="stylesheet" href="{% static 'css/admin_portal.css' %}">
 {% endblock %}
 
+{% block extrahead %}
+  {{ block.super }}
+  <script>
+    (function() {
+      try {
+        if (localStorage.getItem('sp-admin-sidebar-folded') === '1') {
+          document.documentElement.classList.add('sp-sidebar-folded');
+        }
+      } catch (e) {}
+    })();
+  </script>
+{% endblock %}
+
 {% block bodyclass %}{{ block.super }} sp-admin sp-theme-light{% endblock %}
 
 {% block branding %}
 <div class="sp-brand-container">
+  <button type="button" class="sp-sidebar-toggle-btn" id="sp-sidebar-toggle" title="Toggle Sidebar (Ctrl+B / ⌘B)" aria-label="Toggle Sidebar">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
   <a href="{% url 'admin:index' %}" class="sp-brand">
     <span class="sp-brand-icon">⚡</span>
     <span class="sp-brand-logo">

@@ -45,6 +45,45 @@
   }
 
   /* ------------------------------------------------------------------
+   * Sidebar Fold / Collapse Toggle (Persisted in localStorage)
+   * ------------------------------------------------------------------ */
+  var SIDEBAR_KEY = 'sp-admin-sidebar-folded';
+  var sidebarToggleBtn = document.getElementById('sp-sidebar-toggle');
+
+  function setSidebarFolded(folded) {
+    if (folded) {
+      document.documentElement.classList.add('sp-sidebar-folded');
+      body.classList.add('sp-sidebar-folded');
+    } else {
+      document.documentElement.classList.remove('sp-sidebar-folded');
+      body.classList.remove('sp-sidebar-folded');
+    }
+    try { localStorage.setItem(SIDEBAR_KEY, folded ? '1' : '0'); } catch (e) {}
+  }
+
+  try {
+    if (localStorage.getItem(SIDEBAR_KEY) === '1') {
+      setSidebarFolded(true);
+    }
+  } catch (e) {}
+
+  if (sidebarToggleBtn) {
+    sidebarToggleBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      var isFolded = document.documentElement.classList.contains('sp-sidebar-folded') || body.classList.contains('sp-sidebar-folded');
+      setSidebarFolded(!isFolded);
+    });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+      e.preventDefault();
+      var isFolded = document.documentElement.classList.contains('sp-sidebar-folded') || body.classList.contains('sp-sidebar-folded');
+      setSidebarFolded(!isFolded);
+    }
+  });
+
+  /* ------------------------------------------------------------------
    * Sidebar section collapse
    * ------------------------------------------------------------------ */
   var sectionToggles = document.querySelectorAll('.sp-nav-section-toggle');
