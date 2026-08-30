@@ -19,22 +19,27 @@
 
   <header class="mc-topbar">
     <button type="button" class="mc-menu-btn" id="mc-menu-btn" aria-label="Toggle navigation" aria-expanded="false">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <a class="mc-logo" href="/merchant/dashboard/">
       <span class="mc-logo-badge" aria-hidden="true">⚡</span>
-      <span class="mc-logo-word">Merchant Centre<small>Shoppage</small></span>
+      <span class="mc-logo-word">Merchant Centre<small>Shoppage OS</small></span>
     </a>
     {% if merchant %}
     <span class="mc-store-chip" title="{{ merchant.name }}">
-      <span class="dot" aria-hidden="true"></span>{{ merchant.name }}
+      <span class="dot" aria-hidden="true" style="background:#34A853;"></span>
+      <strong style="color:#202124;">{{ merchant.name }}</strong>
     </span>
+    <a href="/api/feeds/google-merchant-center/{{ merchant.canonical_id }}/" target="_blank" rel="noopener" class="badge badge-green" style="text-decoration:none; font-size:11px; padding:3px 8px; margin-left:4px;" title="Live Google Shopping XML Feed">
+      ● Live GMC Feed
+    </a>
     {% endif %}
-    <div class="mc-topbar-right">
+
+    <div class="mc-topbar-right" x-data="{ appsOpen: false }">
       {% if merchant %}
-      <a class="mc-topbar-link" href="/m/{{ merchant.canonical_id }}/" target="_blank" rel="noopener">
+      <a class="mc-topbar-link" href="/m/{{ merchant.canonical_id }}/" target="_blank" rel="noopener" title="View Public Storefront">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        <span class="long">Storefront</span>
+        <span class="long">Storefront ↗</span>
       </a>
       {% if merchant.whatsapp_number %}
       <a class="mc-topbar-link mc-wa" href="https://wa.me/{{ merchant.whatsapp_number }}" target="_blank" rel="noopener">
@@ -42,6 +47,62 @@
       </a>
       {% endif %}
       {% endif %}
+
+      <!-- 9-Dot Google Apps Launcher -->
+      <div style="position: relative;">
+        <button
+          type="button"
+          @click="appsOpen = !appsOpen"
+          @click.away="appsOpen = false"
+          title="Google-Style Commerce Apps"
+          aria-label="Google Suite Ecosystem Apps"
+          style="background: transparent; border: none; cursor: pointer; padding: 6px 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: #5f6368;"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="5" r="2.5"/><circle cx="12" cy="5" r="2.5"/><circle cx="19" cy="5" r="2.5"/>
+            <circle cx="5" cy="12" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="19" cy="12" r="2.5"/>
+            <circle cx="5" cy="19" r="2.5"/><circle cx="12" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/>
+          </svg>
+        </button>
+
+        <!-- Apps Modal Dropdown -->
+        <div
+          x-show="appsOpen"
+          x-transition
+          style="display: none; position: absolute; right: 0; top: 40px; width: 280px; background: #FFFFFF; border: 1px solid #DADCE0; border-radius: 12px; box-shadow: 0 8px 24px rgba(60,64,67,0.2); padding: 0.85rem; z-index: 9999;"
+        >
+          <div style="font-size: 0.72rem; font-weight: 700; color: #5F6368; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6rem; padding-left: 0.25rem;">
+            Google Commerce Apps
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; text-align: center;">
+            <a href="/search/" style="text-decoration: none; padding: 0.5rem 0.2rem; border-radius: 8px; transition: background 0.15s;" onmouseover="this.style.background='#F1F3F4'" onmouseout="this.style.background='transparent'">
+              <div style="font-size: 1.35rem; margin-bottom: 0.2rem;">🔍</div>
+              <div style="font-size: 0.7rem; font-weight: 600; color: #202124;">Search</div>
+            </a>
+            <a href="/search/?tab=shopping" style="text-decoration: none; padding: 0.5rem 0.2rem; border-radius: 8px; transition: background 0.15s;" onmouseover="this.style.background='#F1F3F4'" onmouseout="this.style.background='transparent'">
+              <div style="font-size: 1.35rem; margin-bottom: 0.2rem;">🛍️</div>
+              <div style="font-size: 0.7rem; font-weight: 600; color: #202124;">Shopping</div>
+            </a>
+            <a href="/merchants" style="text-decoration: none; padding: 0.5rem 0.2rem; border-radius: 8px; transition: background 0.15s;" onmouseover="this.style.background='#F1F3F4'" onmouseout="this.style.background='transparent'">
+              <div style="font-size: 1.35rem; margin-bottom: 0.2rem;">📍</div>
+              <div style="font-size: 0.7rem; font-weight: 600; color: #202124;">My Business</div>
+            </a>
+            <a href="/merchant/dashboard/" style="text-decoration: none; padding: 0.5rem 0.2rem; border-radius: 8px; background:#E8F0FE;">
+              <div style="font-size: 1.35rem; margin-bottom: 0.2rem;">🏬</div>
+              <div style="font-size: 0.7rem; font-weight: 700; color: #1A73E8;">Merchant OS</div>
+            </a>
+            <a href="/analytics/" style="text-decoration: none; padding: 0.5rem 0.2rem; border-radius: 8px; transition: background 0.15s;" onmouseover="this.style.background='#F1F3F4'" onmouseout="this.style.background='transparent'">
+              <div style="font-size: 1.35rem; margin-bottom: 0.2rem;">📊</div>
+              <div style="font-size: 0.7rem; font-weight: 600; color: #202124;">Analytics</div>
+            </a>
+            <a href="/requests" style="text-decoration: none; padding: 0.5rem 0.2rem; border-radius: 8px; transition: background 0.15s;" onmouseover="this.style.background='#F1F3F4'" onmouseout="this.style.background='transparent'">
+              <div style="font-size: 1.35rem; margin-bottom: 0.2rem;">📋</div>
+              <div style="font-size: 0.7rem; font-weight: 600; color: #202124;">Buyer RFQs</div>
+            </a>
+          </div>
+        </div>
+      </div>
+
       {% if request.user.is_authenticated %}
       <a class="mc-user" href="/merchant/settings/" title="Account &amp; settings">
         <span class="avatar" aria-hidden="true">{{ request.user.username|make_list|first|upper }}</span>{{ request.user.get_short_name|default:request.user.username }}

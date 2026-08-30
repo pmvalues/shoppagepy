@@ -178,10 +178,10 @@
 <!-- ══════════════════════════════════════════════════════════════════════
      LIVE OFFERS & PRICE MATRIX
      ══════════════════════════════════════════════════════════════════════ -->
-<section class="mc-panel" data-panel="offers" hidden>
+<section class="mc-panel" data-panel="offers" hidden x-data="{ filterText: '', stockFilter: 'all' }">
   <div class="mc-page-head">
     <div>
-      <p class="mc-eyebrow">Sell</p>
+      <p class="mc-eyebrow">Sell · Inventory Management</p>
       <h1 class="mc-h1">Live Offers &amp; Price Matrix</h1>
       <p class="mc-sub">Your confirmed propositions, indexed across the national grid. Saving a price re-confirms it and refreshes the validity window.</p>
     </div>
@@ -190,8 +190,38 @@
     </div>
   </div>
 
+  <!-- Shopify / GMC Real-Time Filter Bar -->
+  <div class="mc-card" style="margin-bottom: 1.25rem; padding: 0.75rem 1rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+    <div style="flex: 1; min-width: 240px; position: relative;">
+      <input
+        type="text"
+        class="mc-input"
+        placeholder="🔍 Filter {{ offers|length }} products by title, model, or GTIN..."
+        x-model="filterText"
+        style="width: 100%; height: 38px;"
+      />
+    </div>
+    <div style="display: flex; gap: 0.4rem; align-items: center;">
+      <button
+        type="button"
+        class="mc-btn mc-btn-sm"
+        :class="stockFilter === 'all' ? 'mc-btn-primary' : 'mc-btn-ghost'"
+        @click="stockFilter = 'all'"
+      >All ({{ offers|length }})</button>
+      <button
+        type="button"
+        class="mc-btn mc-btn-sm"
+        :class="stockFilter === 'attention' ? 'mc-btn-primary' : 'mc-btn-ghost'"
+        @click="stockFilter = 'attention'"
+      >Needs Attention</button>
+    </div>
+  </div>
+
   {% for offer in offers %}
-  <div class="mc-offer{% if offer.diag_needs_attention %} needs-attention{% endif %}">
+  <div
+    class="mc-offer{% if offer.diag_needs_attention %} needs-attention{% endif %}"
+    x-show="(stockFilter === 'all' || (stockFilter === 'attention' && {% if offer.diag_needs_attention %}true{% else %}false{% endif %})) && (!filterText || '{{ offer.variant.title|escapejs }} {{ offer.variant.canonical_id|escapejs }} {{ offer.stall_ref|default:''|escapejs }}'.toLowerCase().includes(filterText.toLowerCase()))"
+  >
     <div style="flex:1;min-width:260px;">
       <div class="mc-offer-tags" style="margin-bottom:.35rem;">
         <span class="mc-badge mc-badge-blue">{{ offer.get_sla_class_display }}</span>
