@@ -12,6 +12,7 @@ import {
   SA_CANONICAL_PRODUCTS,
 } from '@shoppage/kernel';
 import type { MasterProduct, Offer } from '@shoppage/contracts';
+import ProductStudioStage from '@/components/ProductStudioStage';
 
 function synthesizeFallbackProduct(id: string): MasterProduct {
   const clean = id.replace(/^(?:ext_|var_|p_)/, '').replace(/_/g, ' ');
@@ -116,27 +117,23 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem', marginBottom: '3.5rem' }}>
         {/* Left: Studio Stage */}
         <div>
-          <div className="card" style={{ padding: '3rem 2rem', textAlign: 'center', background: 'radial-gradient(circle at 50% 50%, #F8FAFC 0%, #EDF2F7 100%)', border: '1px solid #E2E8F0', borderRadius: 'var(--radius-xl)' }}>
-            <div style={{ fontSize: '5.5rem', marginBottom: '1.5rem' }}>
-              {isSolar ? '⚡' : product.categoryRef === 'smartphones' ? '📱' : product.categoryRef === 'hardware' ? '🧱' : '📦'}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-              {product.compliance?.nrs097Certified && (
-                <span className="badge badge-green" style={{ fontSize: '0.75rem', padding: '0.35rem 0.75rem' }}>
-                  ✓ NRS 097 Certified
-                </span>
-              )}
-              {product.compliance?.sabsApproved && (
-                <span className="badge badge-blue" style={{ fontSize: '0.75rem', padding: '0.35rem 0.75rem' }}>
-                  ✓ SABS Approved
-                </span>
-              )}
-              {product.compliance?.warrantyYears && (
-                <span className="badge badge-purple" style={{ fontSize: '0.75rem', padding: '0.35rem 0.75rem' }}>
-                  🛡️ {product.compliance.warrantyYears} Year Warranty
-                </span>
-              )}
-            </div>
+          <ProductStudioStage product={product} variant="detail" />
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+            {product.compliance?.nrs097Certified && (
+              <span className="badge badge-green" style={{ fontSize: '0.75rem', padding: '0.35rem 0.75rem' }}>
+                ✓ NRS 097 Certified
+              </span>
+            )}
+            {product.compliance?.sabsApproved && (
+              <span className="badge badge-blue" style={{ fontSize: '0.75rem', padding: '0.35rem 0.75rem' }}>
+                ✓ SABS Approved
+              </span>
+            )}
+            {product.compliance?.warrantyYears && (
+              <span className="badge badge-purple" style={{ fontSize: '0.75rem', padding: '0.35rem 0.75rem' }}>
+                🛡️ {product.compliance.warrantyYears} Year Warranty
+              </span>
+            )}
           </div>
         </div>
 

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ProductVariant, Offer } from '@shoppage/contracts';
+import ProductStudioStage from './ProductStudioStage';
 
 export default function ProductCard({
   product,
@@ -30,38 +31,9 @@ export default function ProductCard({
       }}
     >
       <div>
-        {/* Studio Image / Category Stage */}
-        <div
-          style={{
-            position: 'relative',
-            width: '100%',
-            aspectRatio: '1 / 1',
-            borderRadius: '10px',
-            background: 'linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%)',
-            border: '1px solid var(--border-subtle)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '3.25rem',
-            marginBottom: '1rem',
-            overflow: 'hidden',
-          }}
-        >
-          {product.categoryRef === 'solar_energy' ? '⚡' : product.categoryRef === 'smartphones' ? '📱' : product.categoryRef === 'hardware' ? '🧱' : '📦'}
-          
-          {offers.length > 0 ? (
-            <span className="badge badge-green" style={{ position: 'absolute', top: 8, right: 8, fontSize: '0.65rem' }}>
-              ✓ {offers.length} Confirmed {offers.length === 1 ? 'Store' : 'Stores'}
-            </span>
-          ) : (
-            <span className="badge badge-gray" style={{ position: 'absolute', top: 8, right: 8, fontSize: '0.65rem' }}>
-              Master SKU
-            </span>
-          )}
-
-          <span className="badge badge-blue" style={{ position: 'absolute', bottom: 8, left: 8, fontSize: '0.65rem' }}>
-            {product.brand}
-          </span>
+        {/* Full-Bleed Studio Stage Placeholder */}
+        <div style={{ marginBottom: '1rem' }}>
+          <ProductStudioStage product={product} variant="card" />
         </div>
 
         {/* Product Title */}
