@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
-import { MasterProductStore, SA_FLAGSHIP_OFFERS } from '@shoppage/kernel';
+import { semanticSearch } from '@/lib/intelligence';
 import ProductCard from '@/components/ProductCard';
 
 export default function SearchPage({
@@ -14,17 +14,11 @@ export default function SearchPage({
   const brand = searchParams.brand;
   const currentPage = parseInt(searchParams.page || '1', 10);
   const pageSize = 24;
-  const offset = (currentPage - 1) * pageSize;
 
-  const searchResults = MasterProductStore.searchProducts({
-    query: query || category || brand || '',
-    category,
-    brand,
+  const searchResults = semanticSearch(query || category || brand || 'solar inverter', {
     limit: pageSize,
-    offset,
+    offset: (currentPage - 1) * pageSize,
   });
-
-  const totalPages = Math.ceil(searchResults.total / pageSize);
 
   const categories = [
     { id: 'solar_energy', label: '☀️ Solar & Inverters' },
@@ -36,21 +30,41 @@ export default function SearchPage({
   ];
 
   return (
-    <div className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
+    <div className="container" style={{ paddingTop: '2rem', paddingBottom: '5rem' }}>
       {/* Search Header Status Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '1rem', borderBottom: '1px solid var(--border)', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '1rem', borderBottom: '1px solid var(--border)', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <div style={{ fontSize: '0.825rem', color: 'var(--slate-500)', marginBottom: '0.25rem' }}>
-            <Link href="/" style={{ color: 'var(--slate-500)' }}>Home</Link> &gt; <span>Catalog Search</span>
+            <Link href="/" style={{ color: 'var(--slate-500)' }}>Home</Link> &gt; <span>Catalog & Live Grid Search</span>
           </div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--slate-900)', margin: 0 }}>
+          <h1 style={{ fontSize: '1.85rem', fontWeight: 900, color: 'var(--slate-900)', margin: 0 }}>
             {query ? `Results for "${query}"` : category ? `${category.replace(/_/g, ' ').toUpperCase()}` : 'National Master Catalog'}
           </h1>
         </div>
-        <div style={{ fontSize: '0.85rem', color: 'var(--slate-500)' }}>
-          Showing <strong>{searchResults.items.length}</strong> of <strong>{searchResults.total.toLocaleString()}</strong> verified products
+        <div style={{ fontSize: '0.85rem', color: 'var(--slate-600)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span className="badge badge-green">✓ 100% Coverage</span>
+          <span>Showing <strong>{searchResults.products.length}</strong> verified items</span>
         </div>
       </div>
+
+      {/* AI Overview & External Live Web Complement Banner */}
+      {searchResults.overview && (
+        <div className="card" style={{ background: 'linear-gradient(135deg, #EFF6FF 0%, #FAF5FF 100%)', border: '1.5px solid #BFDBFE', marginBottom: '1.75rem', padding: '1rem 1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#1E40AF', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              ✨ AI Intelligence & Live Sweep Grid
+            </span>
+            {searchResults.externalComplemented && (
+              <span className="badge badge-purple" style={{ fontSize: '0.65rem' }}>
+                🌐 Complemented with Live Retailer Feeds (Takealot / Makro / Builders)
+              </span>
+            )}
+          </div>
+          <p style={{ margin: 0, fontSize: '0.875rem', color: '#1E293B', lineHeight: 1.5 }}>
+            {searchResults.overview}
+          </p>
+        </div>
+      )}
 
       {/* Category Filter Pills */}
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
@@ -74,55 +88,62 @@ export default function SearchPage({
       </div>
 
       {/* Results Grid */}
-      {searchResults.items.length > 0 ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '3rem' }}>
-          {searchResults.items.map((variant) => {
-            const productOffers = SA_FLAGSHIP_OFFERS.filter((o) => o.variantRef === variant.canonicalId);
-            return <ProductCard key={variant.canonicalId} product={variant} offers={productOffers} />;
-          })}
-        </div>
-      ) : (
-        <div className="card" style={{ textAlign: 'center', padding: '4rem 2rem', background: '#FFFFFF', marginBottom: '3rem' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
-          <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '0.5rem' }}>
-            No master products matched &quot;{query}&quot;
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '3rem' }}>
+        {searchResults.products.map((variant) => {
+          const productOffers = searchResults.offersByProduct[variant.canonicalId] || [];
+          return <ProductCard key={variant.canonicalId} product={variant} offers={productOffers} />;
+        })}
+      </div>
+
+      {/* Merchant Spotlight for this query */}
+      {searchResults.merchants.length > 0 && (
+        <section className="card" style={{ background: '#F8FAFC', padding: '1.75rem', marginBottom: '3rem' }}>
+          <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '0.35rem', color: 'var(--slate-900)' }}>
+            🏪 Verified Physical Suppliers Stocking In This Category
           </h3>
-          <p style={{ color: 'var(--slate-500)', maxWidth: 500, margin: '0 auto 1.5rem' }}>
-            Try searching for a broader term (e.g. Deye, Sunsynk, Inverter, Solar) or browse all categories.
+          <p style={{ color: 'var(--slate-600)', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
+            Direct WhatsApp counter contact with zero middleman markups.
           </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <Link href="/search" className="btn btn-primary">Browse All Master Products</Link>
-            <Link href="/requests" className="btn btn-outline">Post Sourcing Need (RFQ)</Link>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+            {searchResults.merchants.slice(0, 3).map((merchant) => (
+              <div key={merchant.id} className="card" style={{ background: '#FFFFFF' }}>
+                <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--slate-900)' }}>{merchant.name}</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--slate-500)', margin: '0.2rem 0 0.75rem 0' }}>📍 {merchant.addressText}</div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <Link href={`/m/${merchant.id}`} className="btn btn-outline btn-sm" style={{ flex: 1 }}>View Store</Link>
+                  {merchant.contacts?.whatsapp && (
+                    <a
+                      href={`https://wa.me/${merchant.contacts.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${merchant.name}, I am looking for a quote on products found on Shoppage.`)}`}
+                      className="btn btn-whatsapp btn-sm"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      💬 WhatsApp
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        </section>
       )}
 
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.75rem', marginTop: '2rem' }}>
-          {currentPage > 1 && (
-            <Link
-              href={`/search?${query ? `q=${encodeURIComponent(query)}&` : ''}${category ? `category=${category}&` : ''}page=${currentPage - 1}`}
-              className="btn btn-outline btn-sm"
-            >
-              &larr; Previous Page
-            </Link>
-          )}
-
-          <span style={{ fontSize: '0.85rem', color: 'var(--slate-600)', fontWeight: 700 }}>
-            Page {currentPage} of {totalPages}
-          </span>
-
-          {currentPage < totalPages && (
-            <Link
-              href={`/search?${query ? `q=${encodeURIComponent(query)}&` : ''}${category ? `category=${category}&` : ''}page=${currentPage + 1}`}
-              className="btn btn-outline btn-sm"
-            >
-              Next Page &rarr;
-            </Link>
-          )}
+      {/* Sourcing Callout */}
+      <div className="card" style={{ background: '#0F172A', color: '#FFFFFF', padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
+        <div>
+          <span className="badge badge-green" style={{ marginBottom: '0.4rem' }}>Need Bulk or Wholesale Pricing?</span>
+          <h3 style={{ fontSize: '1.35rem', fontWeight: 800, margin: '0.2rem 0', color: '#FFFFFF' }}>
+            Broadcast your exact specifications to 3.1M verified suppliers
+          </h3>
+          <p style={{ color: '#94A3B8', fontSize: '0.875rem', margin: 0 }}>
+            Post a free sourcing RFQ and receive quotes directly on WhatsApp.
+          </p>
         </div>
-      )}
+        <Link href="/requests" className="btn btn-whatsapp" style={{ fontWeight: 800, padding: '0.75rem 1.5rem' }}>
+          📋 Post Free Buyer RFQ
+        </Link>
+      </div>
     </div>
   );
 }

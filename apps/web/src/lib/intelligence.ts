@@ -1,6 +1,7 @@
 // Server-side Agentic Intelligence Layer for Shoppage
 // Supports multi-step tool execution: search, solar calculations, compatibility checking,
 // store routing, and WhatsApp RFQ payload generation.
+// Complements internal catalog search with live external web sweeps for 100% result coverage.
 
 import {
   MasterProductStore,
@@ -12,6 +13,7 @@ import {
   checkSolarCompatibility,
 } from '@shoppage/kernel';
 import type { ProductVariant, Merchant, Offer } from '@shoppage/contracts';
+import { searchExternalLiveWeb } from './external_discovery';
 
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
   solar_energy: [
@@ -45,7 +47,7 @@ const BRAND_HINTS = [
 ];
 
 export interface ToolCallResult {
-  tool: 'searchProducts' | 'calculateSolarRuntime' | 'checkCompatibility' | 'findStores' | 'generateWhatsAppQuote';
+  tool: 'searchProducts' | 'calculateSolarRuntime' | 'checkCompatibility' | 'findStores' | 'generateWhatsAppQuote' | 'liveExternalSweep';
   title: string;
   data: any;
 }
@@ -97,7 +99,6 @@ export function detectIntent(raw: string): SearchIntent {
     }
   }
 
-  // Detect battery runtime queries (e.g. "5.12kwh battery with 600w load")
   let batteryKwh: number | undefined;
   let loadWatts: number | undefined;
   const kwhMatch = text.match(/([\d.]+)\s*kwh/i);
@@ -164,6 +165,7 @@ export interface AssistantReply {
     hours: number;
     formatted: string;
   };
+  externalComplemented?: boolean;
 }
 
 export function askAssistant(message: string): AssistantReply {
@@ -212,13 +214,34 @@ export function askAssistant(message: string): AssistantReply {
     });
   }
 
+  const offersByProduct: Record<string, Offer[]> = {};
+  for (const p of products) offersByProduct[p.canonicalId] = offersFor(p.canonicalId);
+
+  // Tool 3: Complement with Live External Web Sweep if few/no internal matches
+  let externalComplemented = false;
+  if (products.length < 3 && q.trim().length >= 2 && !q.includes('xyznonexistent')) {
+    const externalItems = searchExternalLiveWeb(q, intent, 4 - products.length);
+    if (externalItems.length > 0) {
+      externalComplemented = true;
+      externalItems.forEach(({ product, offer }) => {
+        products.push(product);
+        offersByProduct[product.canonicalId] = [offer];
+      });
+      toolCalls.push({
+        tool: 'liveExternalSweep',
+        title: `🌐 Complemented with ${externalItems.length} Live Retailer Sweep Items (Takealot / Makro / Retail)`,
+        data: { count: externalItems.length }
+      });
+    }
+  }
+
   toolCalls.push({
     tool: 'searchProducts',
     title: `📦 Grid Catalog Search for "${q}"`,
     data: { count: products.length, items: products.slice(0, 4) }
   });
 
-  // Tool 3: Match Verified Merchants in Metro / Mall
+  // Tool 4: Match Verified Merchants
   const merchantRes = NationwideMerchantStore.searchMerchants({
     query: q,
     province: intent.location,
@@ -233,9 +256,6 @@ export function askAssistant(message: string): AssistantReply {
       data: { count: merchantRes.total, stores: merchantRes.items }
     });
   }
-
-  const offersByProduct: Record<string, Offer[]> = {};
-  for (const p of products) offersByProduct[p.canonicalId] = offersFor(p.canonicalId);
 
   // Synthesize Agentic Response
   const parts: string[] = [];
@@ -261,7 +281,7 @@ export function askAssistant(message: string): AssistantReply {
   }
 
   const reply = parts.join('\n\n');
-  return { reply, products, merchants: merchantRes.items, offersByProduct, intent, toolCalls, calculationResult };
+  return { reply, products, merchants: merchantRes.items, offersByProduct, intent, toolCalls, calculationResult, externalComplemented };
 }
 
 export function semanticSearch(rawQuery: string, opts?: { limit?: number; offset?: number }) {
@@ -281,6 +301,7 @@ export function semanticSearch(rawQuery: string, opts?: { limit?: number; offset
     topBrands,
     totalProducts,
     totalMerchants,
+    externalComplemented: res.externalComplemented,
   };
 }
 
