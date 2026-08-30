@@ -8,6 +8,19 @@ if not SECRET_KEY:
     import hashlib
     SECRET_KEY = hashlib.sha256(b'shoppage-production-deterministic-salt-2026-v8.2').hexdigest()
 
+# Reverse proxy & SSL headers (Traefik / Dokploy / Cloudflare / Nginx)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+
+# CSRF & Session Security
+CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'False').lower() == 'true'
+SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False
+CSRF_USE_SESSIONS = False
+
 # Production hosts configuration (supporting domain, Dokploy subdomains, and wildcard fallback)
 hosts_env = os.environ.get('ALLOWED_HOSTS', '').strip()
 if hosts_env:
@@ -17,24 +30,51 @@ if hosts_env:
 else:
     ALLOWED_HOSTS = ['*']
 
-# CSRF Trusted Origins for Dokploy Domains, sslip.io, and custom domains
+# Comprehensive CSRF Trusted Origins
+trusted_origins = [
+    'https://shoppage.co.za',
+    'https://www.shoppage.co.za',
+    'http://shoppage.co.za',
+    'http://www.shoppage.co.za',
+    'https://*.shoppage.co.za',
+    'http://*.shoppage.co.za',
+    'https://*.dokploy.app',
+    'http://*.dokploy.app',
+    'https://*.sslip.io',
+    'http://*.sslip.io',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'http://localhost',
+    'http://127.0.0.1',
+]
+
+# Merge any environment variable origins
 csrf_env = os.environ.get('CSRF_TRUSTED_ORIGINS', '').strip()
 if csrf_env:
-    CSRF_TRUSTED_ORIGINS = [o.strip() for o in csrf_env.split(',') if o.strip()]
-else:
-    CSRF_TRUSTED_ORIGINS = [
-        'https://*.sslip.io',
-        'http://*.sslip.io',
-        'https://*.dokploy.app',
-        'http://*.dokploy.app',
-        'https://*.shoppage.co.za',
-        'https://shoppage.co.za',
-        'http://shoppage.co.za',
-        'http://localhost:8000',
-        'http://127.0.0.1:8000',
-        'https://*',
-        'http://*',
-    ]
+    for item in csrf_env.split(','):
+        item = item.strip().rstrip('/')
+        if item and item not in ('*', 'http://*', 'https://*'):
+            if not item.startswith('http://') and not item.startswith('https://'):
+                trusted_origins.append(f'https://{item}')
+                trusted_origins.append(f'http://{item}')
+            else:
+                trusted_origins.append(item)
+
+# Merge allowed hosts as trusted origins
+for host in ALLOWED_HOSTS:
+    if host and host not in ('*', 'localhost', '127.0.0.1'):
+        clean_host = host.strip().lstrip('.').rstrip('/')
+        if not clean_host.startswith('http://') and not clean_host.startswith('https://'):
+            trusted_origins.append(f'https://{clean_host}')
+            trusted_origins.append(f'http://{clean_host}')
+            trusted_origins.append(f'https://*.{clean_host}')
+            trusted_origins.append(f'http://*.{clean_host}')
+
+# Deduplicate while preserving order and filtering out any invalid bare wildcards
+CSRF_TRUSTED_ORIGINS = [
+    o for o in list(dict.fromkeys(trusted_origins))
+    if o not in ('https://*', 'http://*', '*')
+]
 
 # WhiteNoise production static file serving (graceful fallback if not present)
 try:
@@ -45,13 +85,10 @@ try:
 except ImportError:
     pass
 
-# SSL and Proxy Headers (for Traefik/Dokploy/Cloudflare reverse proxy)
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'False').lower() == 'true'
-SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
-CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'False').lower() == 'true'
 
 try:
     from .local import *  # type: ignore
 except ImportError:
     pass
+

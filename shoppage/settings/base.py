@@ -217,6 +217,29 @@ SHOPPAGE_PUBLIC_ORIGIN = os.environ.get('SHOPPAGE_PUBLIC_ORIGIN', 'https://shopp
 GOOGLE_SITE_VERIFICATION = os.environ.get('GOOGLE_SITE_VERIFICATION', '')
 BING_SITE_VERIFICATION = os.environ.get('BING_SITE_VERIFICATION', '')
 
+# Reverse proxy & SSL headers (Traefik / Dokploy / Cloudflare / Nginx)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+
+# CSRF Trusted Origins
+CSRF_TRUSTED_ORIGINS = [
+    'https://shoppage.co.za',
+    'https://www.shoppage.co.za',
+    'http://shoppage.co.za',
+    'http://www.shoppage.co.za',
+    'https://*.shoppage.co.za',
+    'http://*.shoppage.co.za',
+    'https://*.dokploy.app',
+    'http://*.dokploy.app',
+    'https://*.sslip.io',
+    'http://*.sslip.io',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'http://localhost',
+    'http://127.0.0.1',
+]
+
 # CORS — restrict to known first-party origins (constitution: no open public surface)
 CORS_ALLOWED_ORIGINS = [
     SHOPPAGE_PUBLIC_ORIGIN,
