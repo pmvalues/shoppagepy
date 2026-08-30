@@ -1,29 +1,15 @@
-# ==============================================================================
-# Shoppage v7.0 Frontend Dockerfile (Next.js 14 + Monorepo Workspaces)
-# ==============================================================================
-
-FROM node:20-alpine AS base
+FROM node:20-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 
-# 1. Install Dependencies
-FROM base AS deps
-COPY package.json package-lock.json ./
-COPY packages/ ./packages/
-COPY apps/web/package.json ./apps/web/
-RUN npm ci
-
-# 2. Build Workspace Packages & Next.js App
-FROM deps AS builder
-WORKDIR /app
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+RUN npm install
 RUN npm run build
 
-# 3. Production Runner
-FROM base AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
