@@ -50,19 +50,21 @@
 </style>
 {% endblock %}
 
-{% block content_title %}
+{% block content_title %}{% endblock %}
+
+{% block content %}
 <div class="sp-dashboard-header">
   <div>
     <h1 class="sp-page-title">{{ greeting }}, {{ request.user.get_short_name|default:request.user.username }}</h1>
     <p class="sp-page-subtitle">South Africa Commercial Operations &amp; Registry Control</p>
   </div>
   <div class="sp-dashboard-actions">
-    <button class="sp-btn sp-btn-secondary" id="sp-cmd-trigger">
+    <button class="sp-btn sp-btn-secondary" id="sp-cmd-trigger" type="button">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       Search
       <span class="sp-palette-kbd">⌘K</span>
     </button>
-    <button class="sp-btn sp-btn-secondary" id="sp-crawl-btn" title="Run a catalog health check">
+    <button class="sp-btn sp-btn-secondary" id="sp-crawl-btn" type="button" title="Run a catalog health check">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
       Crawl Check
     </button>
@@ -72,17 +74,13 @@
     </a>
   </div>
 </div>
-{% endblock %}
 
-{% block content %}
-<div class="sp-content-wrapper">
-  <main class="sp-main-content">
-    {% if portal_stats %}
+{% if portal_stats %}
 
-    <!-- ================================================================
-         CHARTS ROW
-         ================================================================ -->
-    <div class="sp-chart-grid">
+<!-- ================================================================
+     CHARTS ROW
+     ================================================================ -->
+<div class="sp-chart-grid">
       <div class="sp-chart-card">
         <div class="sp-chart-head">
           <div>
@@ -260,8 +258,6 @@
       </div>
     </section>
     {% endif %}
-  </main>
-</div>
 
 <!-- ================================================================
      COMMAND PALETTE

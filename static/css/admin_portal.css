@@ -1,237 +1,303 @@
-/*
- * Shoppage Admin Portal v2 — Modern design system
- *
- * Layered on top of the existing admin_theme.css (which handles Django's
- * internal table/form/changelist styles). This file adds the new portal
- * layout: sidebar, topbar, dashboard, dark mode, and modern components.
- */
+/* ==========================================================================
+   Shoppage National Commercial Intelligence Grid — Enterprise Admin OS
+   Modern Google / Stripe Command Center UI Architecture
+   ========================================================================== */
 
-/* --------------------------------------------------------------------------
- * Design tokens
- * -------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 :root {
-  /* Brand */
-  --sp-indigo: #6366f1;
-  --sp-indigo-light: #818cf8;
-  --sp-indigo-dark: #4f46e5;
+  /* Google / Stripe Palette */
+  --sp-primary: #1A73E8;
+  --sp-primary-hover: #1557B0;
+  --sp-primary-bg: #E8F0FE;
+  --sp-primary-border: #D2E3FC;
 
-  /* Neutral */
-  --sp-slate-50: #f8fafc;
-  --sp-slate-100: #f1f5f9;
-  --sp-slate-200: #e2e8f0;
-  --sp-slate-300: #cbd5e1;
-  --sp-slate-400: #94a3b8;
-  --sp-slate-500: #64748b;
-  --sp-slate-600: #475569;
-  --sp-slate-700: #334155;
-  --sp-slate-800: #1e293b;
-  --sp-slate-900: #0f172a;
-  --sp-slate-950: #020617;
+  --sp-success: #137333;
+  --sp-success-hover: #0d5424;
+  --sp-success-bg: #E6F4EA;
+  --sp-success-border: #CEEAD6;
 
-  /* Semantic */
-  --sp-success: #10b981;
-  --sp-success-bg: rgba(16, 185, 129, 0.1);
-  --sp-warning: #f59e0b;
-  --sp-warning-bg: rgba(245, 158, 11, 0.1);
-  --sp-danger: #ef4444;
-  --sp-danger-bg: rgba(239, 68, 68, 0.1);
-  --sp-info: #3b82f6;
-  --sp-info-bg: rgba(59, 130, 246, 0.1);
+  --sp-warning: #B06000;
+  --sp-warning-bg: #FEF7E0;
+  --sp-warning-border: #FEEFC3;
 
-  /* Typography */
-  --sp-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --sp-font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  --sp-danger: #C5221F;
+  --sp-danger-bg: #FCE8E6;
+  --sp-danger-border: #FAD2CF;
 
-  /* Radius */
+  --sp-indigo: #6366F1;
+  --sp-indigo-bg: #EEF2FF;
+
+  /* Surfaces & Backgrounds */
+  --sp-bg-canvas: #F8FAFC;
+  --sp-bg-surface: #FFFFFF;
+  --sp-bg-surface-alt: #F1F5F9;
+  --sp-bg-sidebar: #FFFFFF;
+  --sp-bg-topbar: #FFFFFF;
+
+  /* Typography Colors */
+  --sp-text-primary: #202124;
+  --sp-text-secondary: #5F6368;
+  --sp-text-tertiary: #80868B;
+  --sp-text-muted: #9AA0A6;
+
+  /* Borders */
+  --sp-border: #DADCE0;
+  --sp-border-light: #F1F3F4;
+
+  /* Shadows */
+  --sp-shadow-xs: 0 1px 2px rgba(60, 64, 67, 0.04);
+  --sp-shadow-sm: 0 1px 3px rgba(60, 64, 67, 0.08), 0 1px 2px rgba(60, 64, 67, 0.04);
+  --sp-shadow-md: 0 4px 6px -1px rgba(60, 64, 67, 0.1), 0 2px 4px -2px rgba(60, 64, 67, 0.06);
+  --sp-shadow-lg: 0 10px 15px -3px rgba(60, 64, 67, 0.1), 0 4px 6px -4px rgba(60, 64, 67, 0.05);
+  --sp-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.06);
+
+  /* Layout Measurements */
+  --sp-sidebar-width: 250px;
+  --sp-topbar-height: 60px;
   --sp-radius-sm: 6px;
   --sp-radius-md: 10px;
   --sp-radius-lg: 14px;
 
-  /* Shadows */
-  --sp-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
-  --sp-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --sp-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-  --sp-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-
-  /* Layout */
-  --sp-sidebar-width: 264px;
-  --sp-sidebar-collapsed: 64px;
-  --sp-topbar-height: 56px;
+  --sp-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --sp-font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
-/* --------------------------------------------------------------------------
- * Light theme (default)
- * -------------------------------------------------------------------------- */
-.sp-theme-light {
-  --sp-bg-body: var(--sp-slate-50);
-  --sp-bg-surface: #ffffff;
-  --sp-bg-surface-alt: var(--sp-slate-100);
-  --sp-bg-sidebar: #ffffff;
-  --sp-bg-sidebar-hover: var(--sp-slate-100);
-  --sp-bg-sidebar-active: var(--sp-indigo);
-  --sp-bg-topbar: #ffffff;
-
-  --sp-text-primary: var(--sp-slate-900);
-  --sp-text-secondary: var(--sp-slate-500);
-  --sp-text-tertiary: var(--sp-slate-400);
-  --sp-text-inverse: #ffffff;
-  --sp-text-sidebar: var(--sp-slate-600);
-  --sp-text-sidebar-hover: var(--sp-slate-900);
-  --sp-text-sidebar-active: #ffffff;
-
-  --sp-border: var(--sp-slate-200);
-  --sp-border-light: var(--sp-slate-100);
-
-  --sp-kpi-gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --sp-kpi-gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --sp-kpi-gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --sp-kpi-gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-}
-
-/* --------------------------------------------------------------------------
- * Dark theme
- * -------------------------------------------------------------------------- */
+/* ==========================================================================
+   Dark Theme Overrides
+   ========================================================================== */
 .sp-theme-dark {
-  --sp-bg-body: var(--sp-slate-950);
-  --sp-bg-surface: var(--sp-slate-900);
-  --sp-bg-surface-alt: var(--sp-slate-800);
-  --sp-bg-sidebar: #0a0e1a;
-  --sp-bg-sidebar-hover: var(--sp-slate-800);
-  --sp-bg-sidebar-active: var(--sp-indigo);
-  --sp-bg-topbar: var(--sp-slate-900);
+  --sp-bg-canvas: #0F172A;
+  --sp-bg-surface: #1E293B;
+  --sp-bg-surface-alt: #334155;
+  --sp-bg-sidebar: #1E293B;
+  --sp-bg-topbar: #1E293B;
 
-  --sp-text-primary: var(--sp-slate-50);
-  --sp-text-secondary: var(--sp-slate-400);
-  --sp-text-tertiary: var(--sp-slate-500);
-  --sp-text-inverse: var(--sp-slate-900);
-  --sp-text-sidebar: var(--sp-slate-500);
-  --sp-text-sidebar-hover: #ffffff;
-  --sp-text-sidebar-active: #ffffff;
+  --sp-text-primary: #F8FAFC;
+  --sp-text-secondary: #CBD5E1;
+  --sp-text-tertiary: #94A3B8;
+  --sp-text-muted: #64748B;
 
-  --sp-border: var(--sp-slate-800);
-  --sp-border-light: var(--sp-slate-800);
+  --sp-border: #334155;
+  --sp-border-light: #1E293B;
+
+  --sp-primary-bg: rgba(26, 115, 232, 0.2);
+  --sp-success-bg: rgba(19, 115, 51, 0.2);
+  --sp-warning-bg: rgba(176, 96, 0, 0.2);
+  --sp-danger-bg: rgba(197, 34, 31, 0.2);
 }
 
-/* --------------------------------------------------------------------------
- * Base body
- * -------------------------------------------------------------------------- */
-.sp-admin {
-  font-family: var(--sp-font-sans);
+/* ==========================================================================
+   Global Reset & Base Typography
+   ========================================================================== */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--sp-font-sans) !important;
+  background-color: var(--sp-bg-canvas) !important;
+  color: var(--sp-text-primary) !important;
   font-size: 14px;
-  line-height: 1.6;
-  color: var(--sp-text-primary);
-  background: var(--sp-bg-body);
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.sp-admin * {
+*, *::before, *::after {
   box-sizing: border-box;
 }
 
-/* --------------------------------------------------------------------------
- * Branding (topbar)
- * -------------------------------------------------------------------------- */
+/* Neutralize Django built-in chrome */
+#nav-sidebar, .toggle-nav-sidebar, #user-tools {
+  display: none !important;
+}
+
+/* ==========================================================================
+   Top Header Navigation Bar
+   ========================================================================== */
 #header {
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: var(--sp-topbar-height) !important;
   background: var(--sp-bg-topbar) !important;
-  border-bottom: 1px solid var(--sp-border);
-  padding: 0 1.5rem;
-  height: var(--sp-topbar-height);
-  display: flex;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  border-bottom: 1px solid var(--sp-border) !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 0 1.5rem !important;
+  z-index: 1000 !important;
+  box-shadow: var(--sp-shadow-xs) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
 }
 
-.sp-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  text-decoration: none;
-  color: var(--sp-text-primary);
-  font-weight: 700;
-  padding: 0.4rem 0;
+#header #branding {
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-.sp-brand-mark {
-  font-size: 1.4rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, var(--sp-indigo), #a855f7);
-  color: white;
-  border-radius: var(--sp-radius-sm);
-  font-size: 1rem;
-}
-
-.sp-brand-name {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-
-.sp-brand-title {
-  font-size: 0.95rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-}
-
-.sp-brand-subtitle {
-  font-size: 0.68rem;
-  font-weight: 500;
-  color: var(--sp-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.sp-version-pill {
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: var(--sp-indigo);
-  color: white;
-  letter-spacing: 0.02em;
-}
-
-.sp-env-pill {
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 999px;
-  letter-spacing: 0.04em;
-}
-
-.sp-env-dev {
-  background: var(--sp-warning-bg);
-  color: var(--sp-warning);
-}
-
-.sp-env-live {
-  background: var(--sp-success-bg);
-  color: var(--sp-success);
-}
-
-/* --------------------------------------------------------------------------
- * Topbar right
- * -------------------------------------------------------------------------- */
-.sp-topbar-right {
+.sp-brand-container {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-left: auto;
+  white-space: nowrap;
+}
+
+.sp-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--sp-text-primary);
+}
+
+.sp-brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--sp-primary);
+  color: #FFFFFF;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 900;
+  box-shadow: 0 2px 4px rgba(26, 115, 232, 0.25);
+  flex-shrink: 0;
+}
+
+.sp-brand-logo {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.sp-brand-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--sp-primary);
+  background: var(--sp-primary-bg);
+  border: 1px solid var(--sp-primary-border);
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sp-brand-status {
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: var(--sp-success-bg);
+  color: var(--sp-success);
+  border: 1px solid var(--sp-success-border);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.sp-topbar-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.6rem !important;
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+}
+
+.sp-topbar-search-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--sp-bg-surface-alt);
+  border: 1px solid var(--sp-border);
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--sp-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sp-topbar-search-btn:hover {
+  background: var(--sp-border);
+  color: var(--sp-text-primary);
+}
+
+.sp-search-kbd {
+  background: var(--sp-bg-surface);
+  border: 1px solid var(--sp-border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.65rem;
+  font-family: var(--sp-font-mono);
+  color: var(--sp-text-tertiary);
+}
+
+.sp-topbar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--sp-bg-surface);
+  border: 1px solid var(--sp-border);
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--sp-text-primary);
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.sp-topbar-link:hover {
+  background: var(--sp-bg-surface-alt);
+  border-color: var(--sp-border);
+}
+
+.sp-topbar-link-primary {
+  background: var(--sp-primary) !important;
+  border-color: var(--sp-primary) !important;
+  color: #FFFFFF !important;
+}
+
+.sp-topbar-link-primary:hover {
+  background: var(--sp-primary-hover) !important;
+  border-color: var(--sp-primary-hover) !important;
+}
+
+.sp-grid-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  background: var(--sp-success-bg);
+  border: 1px solid var(--sp-success-border);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--sp-success);
+}
+
+.sp-grid-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sp-success);
+  display: inline-block;
 }
 
 .sp-icon-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: var(--sp-radius-sm);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   border: 1px solid var(--sp-border);
   background: var(--sp-bg-surface);
   color: var(--sp-text-secondary);
@@ -248,132 +314,82 @@
 .sp-theme-dark .sp-theme-toggle .sp-icon-sun { display: none; }
 .sp-theme-dark .sp-theme-toggle .sp-icon-moon { display: block; }
 
-.sp-topbar-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--sp-text-secondary);
-  text-decoration: none;
-  padding: 0.35rem 0.7rem;
-  border-radius: var(--sp-radius-sm);
-  border: 1px solid var(--sp-border);
-  transition: all 0.15s ease;
-}
-
-.sp-topbar-link:hover {
-  color: var(--sp-text-primary);
-  background: var(--sp-bg-surface-alt);
-}
-
-.sp-engine-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--sp-success);
-  background: var(--sp-success-bg);
-  padding: 4px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.sp-engine-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--sp-success);
-  box-shadow: 0 0 6px var(--sp-success);
-  animation: sp-pulse 2s ease-in-out infinite;
-}
-
-@keyframes sp-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-/* --------------------------------------------------------------------------
- * User dropdown
- * -------------------------------------------------------------------------- */
+/* User Menu */
 .sp-user-menu {
   position: relative;
 }
 
 .sp-user-btn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: none;
+  gap: 0.45rem;
+  background: var(--sp-bg-surface-alt);
   border: 1px solid var(--sp-border);
-  border-radius: var(--sp-radius-sm);
-  padding: 0.3rem 0.6rem 0.3rem 0.3rem;
+  border-radius: 20px;
+  padding: 3px 10px 3px 4px;
   cursor: pointer;
-  color: var(--sp-text-primary);
-  font-size: 0.82rem;
-  font-weight: 600;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease;
 }
 
 .sp-user-btn:hover {
-  background: var(--sp-bg-surface-alt);
+  background: var(--sp-border);
 }
 
 .sp-user-avatar {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--sp-indigo), #a855f7);
-  color: white;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.72rem;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--sp-primary);
+  color: #FFFFFF;
   font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.sp-user-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--sp-text-primary);
 }
 
 .sp-user-dropdown {
   position: absolute;
-  top: calc(100% + 0.5rem);
   right: 0;
-  min-width: 220px;
+  top: calc(100% + 8px);
+  width: 220px;
   background: var(--sp-bg-surface);
   border: 1px solid var(--sp-border);
   border-radius: var(--sp-radius-md);
-  box-shadow: var(--sp-shadow-lg);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-4px);
-  transition: all 0.15s ease;
-  z-index: 200;
+  box-shadow: var(--sp-shadow-xl);
+  display: none;
+  z-index: 1100;
+  padding: 0.5rem 0;
 }
 
-.sp-user-menu:hover .sp-user-dropdown,
 .sp-user-dropdown.is-open {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
+  display: block;
 }
 
 .sp-user-header {
   display: flex;
-  gap: 0.75rem;
   align-items: center;
-  padding: 0.85rem 1rem;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
 }
 
 .sp-user-avatar-lg {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--sp-indigo), #a855f7);
-  color: white;
+  background: var(--sp-primary);
+  color: #FFFFFF;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem;
   font-weight: 700;
+  font-size: 1rem;
 }
 
 .sp-user-dropdown-name {
@@ -385,13 +401,12 @@
 .sp-user-dropdown-email {
   font-size: 0.72rem;
   color: var(--sp-text-secondary);
-  margin-top: 1px;
 }
 
 .sp-user-divider {
   height: 1px;
-  background: var(--sp-border-light);
-  margin: 0.25rem 0;
+  background: var(--sp-border);
+  margin: 0.4rem 0;
 }
 
 .sp-user-dropdown-item {
@@ -413,66 +428,68 @@
   color: var(--sp-danger);
 }
 
-/* --------------------------------------------------------------------------
- * Sidebar
- * -------------------------------------------------------------------------- */
+/* ==========================================================================
+   Collapsible Sidebar Navigation
+   ========================================================================== */
 .sp-sidebar {
-  position: fixed;
-  top: var(--sp-topbar-height);
-  left: 0;
-  bottom: 0;
-  width: var(--sp-sidebar-width);
-  background: var(--sp-bg-sidebar);
-  border-right: 1px solid var(--sp-border);
-  overflow-y: auto;
-  overflow-x: hidden;
-  z-index: 50;
+  position: fixed !important;
+  top: var(--sp-topbar-height) !important;
+  left: 0 !important;
+  bottom: 0 !important;
+  width: var(--sp-sidebar-width) !important;
+  background: var(--sp-bg-sidebar) !important;
+  border-right: 1px solid var(--sp-border) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  z-index: 100 !important;
   scrollbar-width: thin;
-  scrollbar-color: var(--sp-slate-300) transparent;
+  scrollbar-color: var(--sp-border) transparent;
+  padding: 0.75rem 0.5rem !important;
+  box-sizing: border-box !important;
 }
 
 .sp-sidebar::-webkit-scrollbar {
-  width: 5px;
+  width: 4px;
 }
 
 .sp-sidebar::-webkit-scrollbar-thumb {
-  background: var(--sp-slate-300);
+  background: var(--sp-border);
   border-radius: 4px;
 }
 
 .sp-sidebar-nav {
-  padding: 0.75rem 0;
-}
-
-.sp-nav-section {
-  margin-bottom: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .sp-nav-section-toggle {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   width: 100%;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.6rem;
   background: none;
   border: none;
-  color: var(--sp-text-sidebar);
-  font-size: 0.7rem;
+  color: var(--sp-text-secondary);
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   cursor: pointer;
-  transition: color 0.15s ease;
+  border-radius: var(--sp-radius-sm);
+  transition: color 0.15s ease, background 0.15s ease;
   text-align: left;
 }
 
 .sp-nav-section-toggle:hover {
-  color: var(--sp-text-sidebar-hover);
+  color: var(--sp-text-primary);
+  background: var(--sp-bg-surface-alt);
 }
 
 .sp-nav-icon {
   flex-shrink: 0;
-  opacity: 0.7;
+  opacity: 0.75;
 }
 
 .sp-nav-section-label {
@@ -493,76 +510,62 @@
 }
 
 .sp-nav-items {
-  padding: 0.15rem 0 0.4rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 0.15rem 0 0.35rem 0;
 }
 
 .sp-nav-item {
   display: flex;
   align-items: center;
-  padding: 0.45rem 1rem 0.45rem 2.75rem;
+  padding: 0.45rem 0.75rem 0.45rem 1.85rem;
   font-size: 0.82rem;
   font-weight: 500;
-  color: var(--sp-text-sidebar);
+  color: var(--sp-text-secondary);
   text-decoration: none;
+  border-radius: var(--sp-radius-sm);
   transition: all 0.12s ease;
-  border-left: 2px solid transparent;
 }
 
 .sp-nav-item:hover {
-  color: var(--sp-text-sidebar-hover);
-  background: var(--sp-bg-sidebar-hover);
+  color: var(--sp-text-primary);
+  background: var(--sp-bg-surface-alt);
 }
 
 .sp-nav-item.sp-nav-active {
-  color: var(--sp-text-sidebar-active);
-  background: var(--sp-bg-sidebar-active);
-  border-left-color: transparent;
-  font-weight: 600;
+  color: var(--sp-primary) !important;
+  background: var(--sp-primary-bg) !important;
+  font-weight: 700 !important;
 }
 
-/* --------------------------------------------------------------------------
- * Django built-in chrome neutralized — the portal sidebar replaces it
- * -------------------------------------------------------------------------- */
-.sp-admin #nav-sidebar,
-.sp-admin .toggle-nav-sidebar {
-  display: none !important;
+/* ==========================================================================
+   Main Content Layout
+   ========================================================================== */
+#main,
+#content,
+.sp-content-wrapper,
+#container > nav,
+.sp-breadcrumbs {
+  margin-left: var(--sp-sidebar-width) !important;
+  box-sizing: border-box !important;
 }
 
-/* Its contents (welcome msg, userlinks, color toggle) are removed in
-   base_site.html; the custom sp-topbar-right replaces them. */
-.sp-admin #user-tools {
-  display: none !important;
+.sp-main-content {
+  padding: 1.75rem 2rem !important;
+  max-width: 1400px !important;
+  margin: 0 auto !important;
 }
 
-/* Django's .main flexbox (built for #nav-sidebar) would squeeze #content */
-.sp-admin #main {
-  display: block !important;
-}
-
-/* --------------------------------------------------------------------------
- * Content offset — everything below the header must clear the fixed sidebar
- * -------------------------------------------------------------------------- */
-.sp-admin #container > nav,
-.sp-admin main#content-start {
-  padding-left: var(--sp-sidebar-width);
-}
-
-.sp-content-wrapper {
-  min-height: calc(100vh - var(--sp-topbar-height));
-}
-
-/* --------------------------------------------------------------------------
- * Breadcrumbs
- * -------------------------------------------------------------------------- */
 .sp-breadcrumbs {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
   padding: 0.75rem 2rem;
   font-size: 0.78rem;
   color: var(--sp-text-secondary);
-  background: var(--sp-bg-body);
-  border-bottom: 1px solid var(--sp-border-light);
+  background: var(--sp-bg-surface);
+  border-bottom: 1px solid var(--sp-border);
 }
 
 .sp-breadcrumb-link {
@@ -572,7 +575,7 @@
 }
 
 .sp-breadcrumb-link:hover {
-  color: var(--sp-indigo);
+  color: var(--sp-primary);
 }
 
 .sp-breadcrumb-sep {
@@ -584,99 +587,9 @@
   font-weight: 600;
 }
 
-/* --------------------------------------------------------------------------
- * Main content
- * -------------------------------------------------------------------------- */
-.sp-main-content {
-  padding: 2rem;
-  max-width: 1400px;
-}
-
-.sp-page-title {
-  font-size: 1.6rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--sp-text-primary);
-  margin: 0 0 0.5rem 0;
-  line-height: 1.3;
-}
-
-/* --------------------------------------------------------------------------
- * Messages
- * -------------------------------------------------------------------------- */
-.sp-messages {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.sp-message {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.7rem 1rem;
-  border-radius: var(--sp-radius-sm);
-  font-size: 0.82rem;
-  font-weight: 500;
-  border-left: 3px solid;
-}
-
-.sp-message-success {
-  background: var(--sp-success-bg);
-  color: #065f46;
-  border-left-color: var(--sp-success);
-}
-
-.sp-message-error {
-  background: var(--sp-danger-bg);
-  color: #991b1b;
-  border-left-color: var(--sp-danger);
-}
-
-.sp-message-warning {
-  background: var(--sp-warning-bg);
-  color: #92400e;
-  border-left-color: var(--sp-warning);
-}
-
-.sp-message-info {
-  background: var(--sp-info-bg);
-  color: #1e40af;
-  border-left-color: var(--sp-info);
-}
-
-.sp-theme-dark .sp-message-success { color: #6ee7b7; }
-.sp-theme-dark .sp-message-error { color: #fca5a5; }
-.sp-theme-dark .sp-message-warning { color: #fcd34d; }
-.sp-theme-dark .sp-message-info { color: #93c5fd; }
-
-/* --------------------------------------------------------------------------
- * Responsive
- * -------------------------------------------------------------------------- */
-@media (max-width: 1024px) {
-  .sp-sidebar {
-    transform: translateX(-100%);
-    transition: transform 0.2s ease;
-  }
-
-  .sp-sidebar.is-open {
-    transform: translateX(0);
-  }
-
-  .sp-admin #container > nav,
-  .sp-admin main#content-start {
-    padding-left: 0;
-  }
-
-  .sp-content-wrapper {
-    margin-left: 0;
-  }
-}
-
-/* --------------------------------------------------------------------------
- * Dashboard header
- * -------------------------------------------------------------------------- */
+/* ==========================================================================
+   Dashboard Page Styling
+   ========================================================================== */
 .sp-dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -686,15 +599,24 @@
   margin-bottom: 1.5rem;
 }
 
+.sp-page-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--sp-text-primary);
+  margin: 0 0 0.25rem 0;
+  line-height: 1.2;
+}
+
 .sp-page-subtitle {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--sp-text-secondary);
-  margin: 0.25rem 0 0 0;
+  margin: 0;
 }
 
 .sp-dashboard-actions {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
 }
 
@@ -702,9 +624,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.5rem 0.9rem;
+  padding: 0.45rem 0.85rem;
   border-radius: var(--sp-radius-sm);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-decoration: none;
   border: 1px solid var(--sp-border);
@@ -719,25 +641,64 @@
 }
 
 .sp-btn-primary {
-  background: var(--sp-indigo);
-  border-color: var(--sp-indigo);
-  color: white;
+  background: var(--sp-primary);
+  border-color: var(--sp-primary);
+  color: #FFFFFF;
 }
 
 .sp-btn-primary:hover {
-  background: var(--sp-indigo-dark);
-  border-color: var(--sp-indigo-dark);
+  background: var(--sp-primary-hover);
+  border-color: var(--sp-primary-hover);
 }
 
-.sp-btn-secondary {
+/* Charts Grid */
+.sp-chart-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sp-chart-card {
   background: var(--sp-bg-surface);
+  border: 1px solid var(--sp-border);
+  border-radius: var(--sp-radius-md);
+  padding: 1.25rem;
+  box-shadow: var(--sp-shadow-xs);
 }
 
-/* --------------------------------------------------------------------------
- * Sections
- * -------------------------------------------------------------------------- */
+.sp-chart-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.sp-chart-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--sp-text-primary);
+}
+
+.sp-chart-sub {
+  font-size: 0.75rem;
+  color: var(--sp-text-secondary);
+}
+
+.sp-chart-canvas-wrap {
+  position: relative;
+  height: 260px;
+}
+
+@media (max-width: 900px) {
+  .sp-chart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* National Telemetry KPI Bento Grid */
 .sp-section {
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
 }
 
 .sp-section-head {
@@ -746,11 +707,11 @@
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 .sp-section-title {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 800;
   letter-spacing: -0.01em;
   margin: 0 0 0.2rem 0;
@@ -758,7 +719,7 @@
 }
 
 .sp-section-sub {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--sp-text-secondary);
   margin: 0;
 }
@@ -776,15 +737,12 @@
 .sp-chip-danger {
   background: var(--sp-danger-bg);
   color: var(--sp-danger);
-  border-color: rgba(239, 68, 68, 0.3);
+  border-color: var(--sp-danger-border);
 }
 
-/* --------------------------------------------------------------------------
- * KPI cards
- * -------------------------------------------------------------------------- */
 .sp-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: 1rem;
 }
 
@@ -795,12 +753,13 @@
   border-radius: var(--sp-radius-md);
   padding: 1.1rem 1.2rem;
   overflow: hidden;
+  box-shadow: var(--sp-shadow-xs);
   transition: all 0.15s ease;
 }
 
 .sp-kpi-card:hover {
-  border-color: var(--sp-indigo-light);
-  box-shadow: var(--sp-shadow-md);
+  border-color: var(--sp-primary);
+  box-shadow: var(--sp-shadow-sm);
   transform: translateY(-1px);
 }
 
@@ -808,13 +767,13 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.5rem;
 }
 
 .sp-kpi-icon-wrap {
   width: 28px;
   height: 28px;
-  border-radius: var(--sp-radius-sm);
+  border-radius: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -822,30 +781,26 @@
   flex-shrink: 0;
 }
 
-.sp-kpi-icon {
-  line-height: 1;
-}
-
 .sp-kpi-label {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   color: var(--sp-text-secondary);
 }
 
 .sp-kpi-value {
-  font-size: 1.8rem;
+  font-size: 1.75rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.1;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.25rem;
 }
 
 .sp-kpi-sub {
   font-size: 0.72rem;
   color: var(--sp-text-secondary);
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 .sp-kpi-bar {
@@ -854,12 +809,10 @@
   left: 0;
   right: 0;
   height: 3px;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
-/* --------------------------------------------------------------------------
- * Pulse strip
- * -------------------------------------------------------------------------- */
+/* Pulse Strip */
 .sp-pulse-strip {
   display: flex;
   flex-wrap: wrap;
@@ -882,20 +835,14 @@
 }
 
 .sp-pulse-highlight {
-  background: var(--sp-indigo-bg, rgba(99, 102, 241, 0.1));
-  color: var(--sp-indigo);
+  background: var(--sp-primary-bg);
+  color: var(--sp-primary);
   padding: 2px 8px;
   border-radius: 999px;
   font-weight: 600;
 }
 
-.sp-pulse-highlight strong {
-  color: var(--sp-indigo);
-}
-
-/* --------------------------------------------------------------------------
- * Queue cards
- * -------------------------------------------------------------------------- */
+/* Triage Queues */
 .sp-queue-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -906,28 +853,17 @@
   background: var(--sp-bg-surface);
   border: 1px solid var(--sp-border);
   border-radius: var(--sp-radius-md);
-  padding: 1rem;
+  padding: 1rem 1.15rem;
+  box-shadow: var(--sp-shadow-xs);
   display: flex;
   flex-direction: column;
-  transition: all 0.15s ease;
-}
-
-.sp-queue-card:hover {
-  border-color: var(--sp-indigo-light);
-  box-shadow: var(--sp-shadow-md);
-}
-
-.sp-queue-card.sp-queue-clear {
-  opacity: 0.7;
 }
 
 .sp-queue-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.6rem;
-  min-height: 28px;
+  margin-bottom: 0.75rem;
 }
 
 .sp-queue-title {
@@ -937,16 +873,17 @@
 }
 
 .sp-queue-count {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 2px 7px;
   border-radius: 999px;
-  background: var(--sp-warning-bg);
-  color: var(--sp-warning);
+  background: var(--sp-primary-bg);
+  color: var(--sp-primary);
 }
 
 .sp-queue-count-warn {
-  background: rgba(245, 158, 11, 0.2);
+  background: var(--sp-warning-bg);
+  color: var(--sp-warning);
 }
 
 .sp-queue-count-critical {
@@ -955,104 +892,90 @@
 }
 
 .sp-queue-clear-badge {
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--sp-success-bg);
   color: var(--sp-success);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .sp-queue-body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.4rem;
   margin-bottom: 0.75rem;
-  min-height: 60px;
-}
-
-.sp-queue-item {
-  font-size: 0.78rem;
-  padding: 0.25rem 0;
-  border-bottom: 1px solid var(--sp-border-light);
-}
-
-.sp-queue-item:last-child {
-  border-bottom: none;
 }
 
 .sp-queue-item a {
-  color: var(--sp-indigo);
+  font-size: 0.78rem;
+  color: var(--sp-primary);
   text-decoration: none;
-  font-weight: 500;
+  line-height: 1.4;
 }
 
 .sp-queue-item a:hover {
   text-decoration: underline;
-  color: var(--sp-indigo-dark);
 }
 
 .sp-queue-empty {
   font-size: 0.75rem;
   color: var(--sp-text-tertiary);
-  font-style: italic;
   padding: 0.5rem 0;
 }
 
 .sp-queue-footer {
   border-top: 1px solid var(--sp-border-light);
-  padding-top: 0.6rem;
+  padding-top: 0.5rem;
 }
 
 .sp-queue-open {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: var(--sp-indigo);
+  color: var(--sp-text-secondary);
   text-decoration: none;
 }
 
 .sp-queue-open:hover {
-  color: var(--sp-indigo-dark);
-  text-decoration: underline;
+  color: var(--sp-primary);
 }
 
-/* --------------------------------------------------------------------------
- * Actions grid
- * -------------------------------------------------------------------------- */
+/* Quick Actions Grid */
 .sp-actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1rem;
 }
 
 .sp-action-card {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 1.1rem;
+  padding: 1rem 1.15rem;
   background: var(--sp-bg-surface);
   border: 1px solid var(--sp-border);
   border-radius: var(--sp-radius-md);
   text-decoration: none;
-  color: var(--sp-text-primary);
+  box-shadow: var(--sp-shadow-xs);
   transition: all 0.15s ease;
 }
 
 .sp-action-card:hover {
-  border-color: var(--sp-indigo-light);
-  box-shadow: var(--sp-shadow-md);
-  transform: translateY(-2px);
+  border-color: var(--sp-primary);
+  box-shadow: var(--sp-shadow-sm);
+  transform: translateY(-1px);
 }
 
 .sp-action-icon {
   font-size: 1.4rem;
-  line-height: 1;
+  margin-bottom: 0.4rem;
 }
 
 .sp-action-label {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--sp-text-primary);
+  margin-bottom: 0.2rem;
 }
 
 .sp-action-sub {
@@ -1060,98 +983,317 @@
   color: var(--sp-text-secondary);
 }
 
-.sp-action-blue { border-left: 3px solid var(--sp-info); }
-.sp-action-green { border-left: 3px solid var(--sp-success); }
-.sp-action-slate { border-left: 3px solid var(--sp-slate-400); }
-.sp-action-indigo { border-left: 3px solid var(--sp-indigo); }
-
-/* --------------------------------------------------------------------------
- * Queue row (sidebar of top-queues card)
- * -------------------------------------------------------------------------- */
-.sp-queue-row {
-  transition: background 0.12s ease;
-}
-
-.sp-queue-row:hover {
+/* ==========================================================================
+   Django Changelist Tables & Actions (Google Material Style)
+   ========================================================================== */
+#toolbar {
   background: var(--sp-bg-surface) !important;
+  border: 1px solid var(--sp-border) !important;
+  border-radius: var(--sp-radius-md) !important;
+  padding: 0.75rem 1rem !important;
+  margin-bottom: 1.25rem !important;
+  box-shadow: var(--sp-shadow-xs) !important;
 }
 
-/* --------------------------------------------------------------------------
- * Admin base overrides — make Django's default module lists look nicer
- * -------------------------------------------------------------------------- */
-.sp-admin #content {
-  padding: 0;
+#changelist-search {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
 }
 
-.sp-admin .module {
-  background: var(--sp-bg-surface);
-  border: 1px solid var(--sp-border);
-  border-radius: var(--sp-radius-md);
-  box-shadow: var(--sp-shadow-sm);
+#changelist-search label {
+  display: none !important;
 }
 
-.sp-admin #changelist {
-  background: var(--sp-bg-surface);
-  border: 1px solid var(--sp-border);
-  border-radius: var(--sp-radius-md);
-  padding: 1rem;
+#searchbar {
+  background: var(--sp-bg-surface) !important;
+  color: var(--sp-text-primary) !important;
+  border: 1px solid var(--sp-border) !important;
+  border-radius: 8px !important;
+  padding: 0.55rem 0.85rem !important;
+  font-size: 0.85rem !important;
+  min-width: 320px !important;
 }
 
-.sp-admin .submit-row {
-  background: var(--sp-bg-surface);
-  border: 1px solid var(--sp-border);
-  border-radius: var(--sp-radius-md);
-  padding: 0.75rem 1rem;
+#searchbar:focus {
+  border-color: var(--sp-primary) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px var(--sp-primary-bg) !important;
 }
 
-.sp-admin fieldset.module {
-  background: var(--sp-bg-surface);
+#changelist-search input[type="submit"] {
+  background: var(--sp-primary) !important;
+  color: #FFFFFF !important;
+  padding: 0.55rem 1.1rem !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  border: none !important;
+  cursor: pointer !important;
 }
 
-/* --------------------------------------------------------------------------
- * Django object-tools: make them look like buttons
- * -------------------------------------------------------------------------- */
-.sp-admin .object-tools li a {
-  background: var(--sp-indigo);
-  color: white;
-  border-radius: var(--sp-radius-sm);
-  padding: 0.4rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 600;
+.actions {
+  background: var(--sp-bg-surface) !important;
+  border: 1px solid var(--sp-border) !important;
+  border-radius: var(--sp-radius-sm) !important;
+  padding: 0.65rem 1rem !important;
+  color: var(--sp-text-primary) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  margin-bottom: 1rem !important;
 }
 
-.sp-admin .object-tools li a:hover {
-  background: var(--sp-indigo-dark);
+.actions select {
+  background: var(--sp-bg-surface) !important;
+  color: var(--sp-text-primary) !important;
+  border: 1px solid var(--sp-border) !important;
+  border-radius: 6px !important;
+  padding: 0.4rem 0.75rem !important;
+  font-weight: 500 !important;
 }
 
-.sp-admin .object-tools a.addlink {
-  background: var(--sp-success);
+.actions .button {
+  background: var(--sp-primary) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 0.45rem 0.85rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
 }
 
-/* --------------------------------------------------------------------------
- * Header link colors — Django's `#header a` paints these white-on-white
- * now that our header surface is light. Beat it with id-level specificity.
- * -------------------------------------------------------------------------- */
-.sp-admin #header .sp-brand:link,
-.sp-admin #header .sp-brand:visited {
-  color: var(--sp-text-primary);
+#changelist {
+  display: flex !important;
+  flex-direction: row-reverse !important;
+  gap: 1.5rem !important;
+  align-items: flex-start !important;
 }
 
-.sp-admin #header .sp-topbar-link:link,
-.sp-admin #header .sp-topbar-link:visited {
-  color: var(--sp-text-secondary);
+#changelist #changelist-form {
+  flex: 1 !important;
+  min-width: 0 !important;
 }
 
-.sp-admin #header .sp-topbar-link:hover {
-  color: var(--sp-text-primary);
+#changelist table {
+  background: var(--sp-bg-surface) !important;
+  border-radius: var(--sp-radius-md) !important;
+  border: 1px solid var(--sp-border) !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  box-shadow: var(--sp-shadow-xs) !important;
 }
 
-.sp-admin #header .sp-user-dropdown-item:link,
-.sp-admin #header .sp-user-dropdown-item:visited {
-  color: var(--sp-text-primary);
+#changelist table thead th {
+  background: var(--sp-bg-surface-alt) !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: var(--sp-text-secondary) !important;
+  border-bottom: 1px solid var(--sp-border) !important;
 }
 
-.sp-admin #header .sp-user-dropdown-item.sp-user-dropdown-danger:link,
-.sp-admin #header .sp-user-dropdown-item.sp-user-dropdown-danger:visited {
-  color: var(--sp-danger);
+#changelist table thead th a:link,
+#changelist table thead th a:visited {
+  color: var(--sp-text-secondary) !important;
+  text-decoration: none !important;
+}
+
+#changelist table tbody tr {
+  background: var(--sp-bg-surface) !important;
+  transition: background-color 0.12s ease !important;
+}
+
+#changelist table tbody tr:hover {
+  background: var(--sp-bg-surface-alt) !important;
+}
+
+#changelist table tbody td,
+#changelist table tbody th {
+  padding: 0.75rem 1rem !important;
+  font-size: 0.82rem !important;
+  border-bottom: 1px solid var(--sp-border-light) !important;
+  color: var(--sp-text-primary) !important;
+}
+
+#changelist table tbody td a:link,
+#changelist table tbody td a:visited {
+  color: var(--sp-primary) !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+}
+
+#changelist table tbody td a:hover {
+  text-decoration: underline !important;
+}
+
+#changelist-filter {
+  background: var(--sp-bg-surface) !important;
+  border: 1px solid var(--sp-border) !important;
+  border-radius: var(--sp-radius-md) !important;
+  width: 240px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  box-shadow: var(--sp-shadow-xs) !important;
+}
+
+#changelist-filter h2 {
+  background: var(--sp-bg-surface-alt) !important;
+  color: var(--sp-text-primary) !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  padding: 0.75rem 1rem !important;
+  border-bottom: 1px solid var(--sp-border) !important;
+  margin: 0 !important;
+}
+
+#changelist-filter h3 {
+  color: var(--sp-text-secondary) !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 0.75rem 1rem 0.25rem 1rem !important;
+  margin: 0 !important;
+}
+
+#changelist-filter ul {
+  padding: 0 1rem 0.75rem 1rem !important;
+  margin: 0 !important;
+  list-style: none !important;
+}
+
+#changelist-filter ul li {
+  padding: 0.25rem 0 !important;
+  font-size: 0.8rem !important;
+}
+
+#changelist-filter ul li a {
+  color: var(--sp-text-secondary) !important;
+  text-decoration: none !important;
+}
+
+#changelist-filter ul li.selected a {
+  color: var(--sp-primary) !important;
+  font-weight: 700 !important;
+}
+
+/* Paginator */
+.paginator {
+  background: var(--sp-bg-surface) !important;
+  border: 1px solid var(--sp-border) !important;
+  border-radius: var(--sp-radius-sm) !important;
+  padding: 0.6rem 1rem !important;
+  margin-top: 1rem !important;
+  font-size: 0.8rem !important;
+  color: var(--sp-text-secondary) !important;
+}
+
+/* ==========================================================================
+   Django Changeform & Fieldsets (Clean SaaS Style)
+   ========================================================================== */
+fieldset {
+  background: var(--sp-bg-surface) !important;
+  border: 1px solid var(--sp-border) !important;
+  border-radius: var(--sp-radius-md) !important;
+  padding: 1.25rem !important;
+  margin-bottom: 1.5rem !important;
+  box-shadow: var(--sp-shadow-xs) !important;
+}
+
+fieldset h2 {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: var(--sp-text-primary) !important;
+  padding-bottom: 0.5rem !important;
+  border-bottom: 1px solid var(--sp-border) !important;
+  margin-bottom: 1rem !important;
+}
+
+.form-row {
+  padding: 0.75rem 0 !important;
+  border-bottom: 1px solid var(--sp-border-light) !important;
+}
+
+.form-row label {
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  color: var(--sp-text-secondary) !important;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="url"],
+input[type="number"],
+textarea,
+select {
+  background: var(--sp-bg-surface) !important;
+  color: var(--sp-text-primary) !important;
+  border: 1px solid var(--sp-border) !important;
+  border-radius: 6px !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.85rem !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--sp-primary) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px var(--sp-primary-bg) !important;
+}
+
+.submit-row {
+  background: var(--sp-bg-surface) !important;
+  border: 1px solid var(--sp-border) !important;
+  border-radius: var(--sp-radius-md) !important;
+  padding: 0.85rem 1.25rem !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  margin-top: 1.5rem !important;
+}
+
+.submit-row input[type="submit"] {
+  background: var(--sp-primary) !important;
+  color: #FFFFFF !important;
+  padding: 0.55rem 1.2rem !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  border: none !important;
+  cursor: pointer !important;
+}
+
+.submit-row input[type="submit"]:hover {
+  background: var(--sp-primary-hover) !important;
+}
+
+.submit-row a.deletelink {
+  background: var(--sp-danger-bg) !important;
+  color: var(--sp-danger) !important;
+  border: 1px solid var(--sp-danger-border) !important;
+  border-radius: 8px !important;
+  padding: 0.55rem 1rem !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+}
+
+/* ==========================================================================
+   Responsive Adaptations
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .sp-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+
+  .sp-sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  #main, #content, .sp-content-wrapper, #container > nav, .sp-breadcrumbs {
+    margin-left: 0 !important;
+  }
 }
