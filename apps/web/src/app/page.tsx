@@ -91,51 +91,54 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* 1. HERO CENTERPIECE: INSTITUTIONAL COMMERCE GRID */}
+      {/* 1. HERO CENTERPIECE: SHOPPAGE TIME & REAL-TIME COMMERCE TIMELINE */}
       <section
         style={{
-          background: 'radial-gradient(ellipse 1000px 480px at 50% -10%, rgba(37, 99, 235, 0.12) 0%, rgba(16, 185, 129, 0.05) 45%, #FFFFFF 100%)',
+          background: 'radial-gradient(ellipse 1000px 480px at 50% -10%, rgba(37, 99, 235, 0.14) 0%, rgba(16, 185, 129, 0.06) 45%, #FFFFFF 100%)',
           borderBottom: '1px solid #E2E8F0',
-          padding: '4.5rem 1rem 3.5rem',
+          padding: '4rem 1rem 3rem',
           textAlign: 'center',
           position: 'relative',
         }}
       >
         <div className="container">
-          {/* Institutional Grid Badge */}
-          <div
+          {/* Live Shoppage Time Badge */}
+          <Link
+            href="/time"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.6rem',
-              background: '#ECFDF5',
-              border: '1px solid #A7F3D0',
-              padding: '0.4rem 1rem',
+              background: '#EFF6FF',
+              border: '1.5px solid #BFDBFE',
+              padding: '0.4rem 1.15rem',
               borderRadius: '9999px',
-              fontSize: '0.78rem',
+              fontSize: '0.8rem',
               fontWeight: 800,
-              color: '#065F46',
-              letterSpacing: '0.04em',
+              color: '#1E40AF',
+              letterSpacing: '0.03em',
               marginBottom: '1.5rem',
-              boxShadow: '0 1px 3px rgba(16, 185, 129, 0.1)',
+              textDecoration: 'none',
+              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.12)',
             }}
           >
             <span
               style={{
                 display: 'inline-block',
-                width: '7px',
-                height: '7px',
+                width: '8px',
+                height: '8px',
                 borderRadius: '50%',
-                background: '#10B981',
-                boxShadow: '0 0 8px #10B981',
+                background: '#EF4444',
+                boxShadow: '0 0 8px #EF4444',
+                animation: 'pulse 1.5s infinite',
               }}
             ></span>
-            <span>NATIONAL COMMERCE GRID · {totalMerchantsCount.toLocaleString()} VERIFIED STORES · 1,000,000+ PRODUCTS</span>
-          </div>
+            <span>⚡ SHOPPAGE TIME · REAL-TIME COMMERCIAL WIRE & TRADE PULSE (LIVE)</span>
+          </Link>
 
           <h1
             style={{
-              fontSize: '3.4rem',
+              fontSize: '3.5rem',
               fontWeight: 900,
               letterSpacing: '-0.04em',
               lineHeight: 1.12,
@@ -143,7 +146,7 @@ export default function HomePage() {
               color: '#0F172A',
             }}
           >
-            The Distributed Commerce Grid<br />
+            Shoppage Time<br />
             <span
               style={{
                 background: 'linear-gradient(135deg, #2563EB 0%, #059669 100%)',
@@ -151,7 +154,7 @@ export default function HomePage() {
                 WebkitTextFillColor: 'transparent',
               }}
             >
-              for South African Physical Retail & B2B.
+              The Real-Time Commercial Timeline for South Africa.
             </span>
           </h1>
 
@@ -159,26 +162,33 @@ export default function HomePage() {
             style={{
               color: '#475569',
               fontSize: '1.08rem',
-              maxWidth: '680px',
+              maxWidth: '720px',
               margin: '0 auto 2.25rem auto',
               lineHeight: 1.6,
             }}
           >
-            Search products, compare multi-seller BuyBoxes, and trade directly with <strong>74,000+ verified local stores</strong> via Phone, Email, Showroom Visit, or Direct Message with <strong>0% middleman commission</strong>.
+            Stream live price drops, swept Facebook group clearance deals, Twitter / X trade alerts, and contractor sourcing RFQs across <strong>74,000+ verified local stores</strong> with <strong>0% middleman commission</strong>.
           </p>
 
           <LiveSearch />
 
           {/* Quick Action Navigation Buttons */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1.75rem' }}>
+            <Link
+              href="/time"
+              className="btn btn-primary"
+              style={{ borderRadius: '8px', fontWeight: 800, background: '#2563EB', borderColor: '#2563EB', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+            >
+              <span>⚡</span> Open Shoppage Time Wire
+            </Link>
             <Link href="/search?q=inverter" className="btn btn-outline" style={{ borderRadius: '8px', fontWeight: 700 }}>
               🔍 Search Catalog
             </Link>
             <Link href="/markets" className="btn btn-outline" style={{ borderRadius: '8px', fontWeight: 700 }}>
-              🌐 Virtual B2B Markets
+              👥 5,200+ Virtual Markets & Groups
             </Link>
-            <Link href="/search?tab=shopping" className="btn btn-outline" style={{ borderRadius: '8px', fontWeight: 700 }}>
-              🛍️ National Product Matrix
+            <Link href="/shorts" className="btn btn-outline" style={{ borderRadius: '8px', fontWeight: 700 }}>
+              📱 Proof Shorts
             </Link>
             <Link href="/requests" className="btn btn-outline" style={{ borderRadius: '8px', fontWeight: 700 }}>
               📋 Post Buyer RFQ
@@ -194,55 +204,156 @@ export default function HomePage() {
 
           {/* Popular Search Intent Pills */}
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginTop: '2rem' }}>
-            <span style={{ fontSize: '0.775rem', color: '#94A3B8', fontWeight: 700 }}>Popular Searches:</span>
-            <Link href="/search?q=Mitrend" className="badge badge-blue" style={{ textDecoration: 'none' }}>
-              🏨 Mitrend Products (Midrand)
+            <span style={{ fontSize: '0.775rem', color: '#94A3B8', fontWeight: 700 }}>Popular on Shoppage Time:</span>
+            <Link href="/search?q=Mitrend" className="badge badge-purple" style={{ textDecoration: 'none' }}>
+              🏨 Mitrend Products (Midrand Factory)
+            </Link>
+            <Link href="/search?q=Deye+8kW" className="badge badge-amber" style={{ textDecoration: 'none' }}>
+              ⚡ Deye 8kW Hybrid Inverters
+            </Link>
+            <Link href="/search?q=Dyness+5.12kWh" className="badge badge-blue" style={{ textDecoration: 'none' }}>
+              🔋 Dyness 5.12kWh Lithium Batteries
+            </Link>
+            <Link href="/search?q=cement" className="badge badge-gray" style={{ textDecoration: 'none' }}>
+              🧱 SABS 42.5N Cement Wholesale
             </Link>
             <Link href="/search?q=hotel+hanger" className="badge badge-green" style={{ textDecoration: 'none' }}>
               👔 Anti-Theft Hotel Hangers
-            </Link>
-            <Link href="/search?q=measuring+spoon" className="badge badge-amber" style={{ textDecoration: 'none' }}>
-              🥄 Measuring Dosage Spoons
-            </Link>
-            <Link href="/search?q=silicone+lid" className="badge badge-gray" style={{ textDecoration: 'none' }}>
-              🥣 Food Packaging Containers
-            </Link>
-            <Link href="/search?q=Deye+8kW" className="badge badge-amber" style={{ textDecoration: 'none' }}>
-              ⚡ Deye 8kW Hybrid Inverter
-            </Link>
-            <Link href="/search?q=Dyness+5.12kWh" className="badge badge-blue" style={{ textDecoration: 'none' }}>
-              🔋 Dyness 5.12kWh Battery
             </Link>
           </div>
         </div>
       </section>
 
-      {/* 2. REAL-TIME NATIONAL GRID TELEMETRY */}
+      {/* 2. REAL-TIME SHOPPAGE TIME TICKER & LIVE SOCIAL WIRE */}
       <section style={{ padding: '2.5rem 0', background: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
-            <div className="stat-box" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '1.5rem', borderRadius: '12px' }}>
-              <div className="stat-number" style={{ color: '#2563EB', fontSize: '2.2rem', fontWeight: 900 }}>{totalMerchantsCount.toLocaleString()}</div>
-              <div className="stat-label" style={{ fontWeight: 700, color: '#475569' }}>Verified Physical Stores</div>
-              <div style={{ fontSize: '0.75rem', color: '#10B981', marginTop: '0.35rem', fontWeight: 600 }}>Active Across 9 Provinces</div>
+          {/* Header Row */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <span style={{ display: 'inline-block', width: '9px', height: '9px', borderRadius: '50%', background: '#10B981', animation: 'pulse 1.5s infinite' }} />
+              <div>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', margin: 0, letterSpacing: '-0.01em' }}>
+                  Live on Shoppage Time
+                </h2>
+                <div style={{ fontSize: '0.8rem', color: '#64748B' }}>
+                  Sweeping 5,200+ Facebook Groups, Twitter / X streams, and 74,000+ Trade Counters
+                </div>
+              </div>
             </div>
 
-            <div className="stat-box" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '1.5rem', borderRadius: '12px' }}>
-              <div className="stat-number" style={{ color: '#059669', fontSize: '2.2rem', fontWeight: 900 }}>{totalCatalogCount.toLocaleString()}</div>
-              <div className="stat-label" style={{ fontWeight: 700, color: '#475569' }}>Canonical Master SKUs</div>
-              <div style={{ fontSize: '0.75rem', color: '#10B981', marginTop: '0.35rem', fontWeight: 600 }}>GS1 GTIN-13 Deduplicated</div>
+            <Link
+              href="/time"
+              className="btn btn-outline btn-sm"
+              style={{ fontWeight: 800, color: '#2563EB', borderColor: '#BFDBFE', background: '#EFF6FF', borderRadius: '8px' }}
+            >
+              Explore Full Shoppage Time Wire &rarr;
+            </Link>
+          </div>
+
+          {/* 4 Live Ticker Cards (Twitter/X Style Real-Time Drops) */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
+            {/* Card 1 */}
+            <div
+              className="card card-interactive"
+              style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '1.25rem', borderRadius: '14px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748B', marginBottom: '0.4rem' }}>
+                  <span style={{ fontWeight: 800, color: '#2563EB' }}>🛍️ SunPower Crown Mines</span>
+                  <span>1m ago</span>
+                </div>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.35rem 0', lineHeight: 1.35 }}>
+                  Deye 5kW Hybrid Inverter (SUN-5K-SG03)
+                </h3>
+                <p style={{ fontSize: '0.8rem', color: '#475569', margin: '0 0 0.75rem 0', lineHeight: 1.4 }}>
+                  NRS 097 grid certified. 14 units left for same-day counter collection.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.65rem', borderTop: '1px solid #E2E8F0' }}>
+                <span style={{ fontSize: '1.15rem', fontWeight: 900, color: '#047857' }}>R 14,850</span>
+                <Link href="/search?q=Deye+5kW" className="btn btn-primary btn-sm" style={{ fontSize: '0.75rem', padding: '0.25rem 0.65rem', borderRadius: '6px' }}>
+                  BuyBox &rarr;
+                </Link>
+              </div>
             </div>
 
-            <div className="stat-box" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '1.5rem', borderRadius: '12px' }}>
-              <div className="stat-number" style={{ color: '#D97706', fontSize: '2.2rem', fontWeight: 900 }}>{totalMallsCount.toLocaleString()}</div>
-              <div className="stat-label" style={{ fontWeight: 700, color: '#475569' }}>Shopping Centres & Malls</div>
-              <div style={{ fontSize: '0.75rem', color: '#D97706', marginTop: '0.35rem', fontWeight: 600 }}>GPS Geofenced Footprint</div>
+            {/* Card 2 */}
+            <div
+              className="card card-interactive"
+              style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '1.25rem', borderRadius: '14px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748B', marginBottom: '0.4rem' }}>
+                  <span style={{ fontWeight: 800, color: '#1877F2' }}>📘 Sandton FB Group (142k)</span>
+                  <span>4m ago</span>
+                </div>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.35rem 0', lineHeight: 1.35 }}>
+                  Dyness 5.12kWh LiFePO4 Lithium Battery
+                </h3>
+                <p style={{ fontSize: '0.8rem', color: '#475569', margin: '0 0 0.75rem 0', lineHeight: 1.4 }}>
+                  12 crates sealed stock from commercial over-order. Invoicing ready.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.65rem', borderTop: '1px solid #E2E8F0' }}>
+                <span style={{ fontSize: '1.15rem', fontWeight: 900, color: '#047857' }}>R 16,900</span>
+                <Link href="/search?q=Dyness" className="btn btn-primary btn-sm" style={{ fontSize: '0.75rem', padding: '0.25rem 0.65rem', borderRadius: '6px' }}>
+                  BuyBox &rarr;
+                </Link>
+              </div>
             </div>
 
-            <div className="stat-box" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '1.5rem', borderRadius: '12px' }}>
-              <div className="stat-number" style={{ color: '#7C3AED', fontSize: '2.2rem', fontWeight: 900 }}>0.00%</div>
-              <div className="stat-label" style={{ fontWeight: 700, color: '#475569' }}>Middleman Take Rate</div>
-              <div style={{ fontSize: '0.75rem', color: '#7C3AED', marginTop: '0.35rem', fontWeight: 600 }}>Direct Omnichannel Trade</div>
+            {/* Card 3 */}
+            <div
+              className="card card-interactive"
+              style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '1.25rem', borderRadius: '14px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748B', marginBottom: '0.4rem' }}>
+                  <span style={{ fontWeight: 800, color: '#000000' }}>𝕏 @MitrendPackaging</span>
+                  <span>9m ago</span>
+                </div>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.35rem 0', lineHeight: 1.35 }}>
+                  500ml Tamper-Evident Food Tubs (Box 250)
+                </h3>
+                <p style={{ fontSize: '0.8rem', color: '#475569', margin: '0 0 0.75rem 0', lineHeight: 1.4 }}>
+                  Food-grade polypropylene certified direct from Midrand factory floor.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.65rem', borderTop: '1px solid #E2E8F0' }}>
+                <span style={{ fontSize: '1.15rem', fontWeight: 900, color: '#047857' }}>R 185 /box</span>
+                <Link href="/search?q=Mitrend" className="btn btn-primary btn-sm" style={{ fontSize: '0.75rem', padding: '0.25rem 0.65rem', borderRadius: '6px' }}>
+                  BuyBox &rarr;
+                </Link>
+              </div>
+            </div>
+
+            {/* Card 4 */}
+            <div
+              className="card card-interactive"
+              style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '1.25rem', borderRadius: '14px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748B', marginBottom: '0.4rem' }}>
+                  <span style={{ fontWeight: 800, color: '#D97706' }}>📋 Western Cape RFQ</span>
+                  <span>16m ago</span>
+                </div>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.35rem 0', lineHeight: 1.35 }}>
+                  80x 550W Tier-1 Mono Solar Panels
+                </h3>
+                <p style={{ fontSize: '0.8rem', color: '#475569', margin: '0 0 0.75rem 0', lineHeight: 1.4 }}>
+                  Commercial contractor seeking stock in Cape Town for Monday pickup.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.65rem', borderTop: '1px solid #E2E8F0' }}>
+                <span style={{ fontSize: '1.15rem', fontWeight: 900, color: '#2563EB' }}>R 1,750 /ea</span>
+                <Link href="/requests" className="btn btn-outline btn-sm" style={{ fontSize: '0.75rem', padding: '0.25rem 0.65rem', borderRadius: '6px' }}>
+                  Quote RFQ &rarr;
+                </Link>
+              </div>
             </div>
           </div>
         </div>
