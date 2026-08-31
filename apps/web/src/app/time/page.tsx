@@ -31,14 +31,16 @@ interface TimelineItem {
   replyCount: number;
   contactPhone?: string;
   mediaImage?: string;
+  isVideo?: boolean;
+  videoDuration?: string;
 }
 
 const INITIAL_TIMELINE: TimelineItem[] = [
   {
     id: 'time_001',
-    source: 'shoppage_catalog',
-    sourceLabel: 'SunPower Crown Mines · Official Showroom',
-    sourceIcon: '🛍️',
+    source: 'video_short',
+    sourceLabel: 'SunPower Crown Mines · Official Video Proof',
+    sourceIcon: '🎬',
     authorName: 'SunPower Solutions',
     authorHandle: '@SunPowerCrownMines',
     authorLocation: 'Crown Mines Wholesale Hub, JHB',
@@ -55,7 +57,9 @@ const INITIAL_TIMELINE: TimelineItem[] = [
     repostsCount: 22,
     replyCount: 9,
     contactPhone: '+27 11 884 1234',
-    mediaImage: 'https://images.unsplash.com/photo-1508873696983-2df57046475a?w=600&h=350&fit=crop',
+    mediaImage: 'https://images.unsplash.com/photo-1508873696983-2df57046475a?w=800&auto=format&fit=crop&q=80',
+    isVideo: true,
+    videoDuration: '0:48',
   },
   {
     id: 'time_002',
@@ -79,6 +83,7 @@ const INITIAL_TIMELINE: TimelineItem[] = [
     repostsCount: 16,
     replyCount: 12,
     contactPhone: '+27 82 555 4321',
+    mediaImage: 'https://images.unsplash.com/photo-1558441719-8b489c6340c0?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: 'time_003',
@@ -102,7 +107,7 @@ const INITIAL_TIMELINE: TimelineItem[] = [
     repostsCount: 31,
     replyCount: 14,
     contactPhone: '+27 11 314 0000',
-    mediaImage: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&h=350&fit=crop',
+    mediaImage: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: 'time_004',
@@ -123,6 +128,7 @@ const INITIAL_TIMELINE: TimelineItem[] = [
     likesCount: 27,
     repostsCount: 14,
     replyCount: 21,
+    mediaImage: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: 'time_005',
@@ -145,6 +151,9 @@ const INITIAL_TIMELINE: TimelineItem[] = [
     repostsCount: 45,
     replyCount: 19,
     contactPhone: '+27 11 838 5000',
+    mediaImage: 'https://images.unsplash.com/photo-1613665813446-82a78c468a1d?w=800&auto=format&fit=crop&q=80',
+    isVideo: true,
+    videoDuration: '1:14',
   },
 ];
 
@@ -440,10 +449,78 @@ export default function ShoppageTimePage() {
                     {item.text}
                   </p>
 
-                  {/* Optional Media Image */}
+                  {/* X-Style Media Stage (Photo / Video Short) */}
                   {item.mediaImage && (
-                    <div style={{ borderRadius: '12px', overflow: 'hidden', maxHeight: '300px', border: '1px solid #E2E8F0' }}>
-                      <img src={item.mediaImage} alt={item.productTitle || 'Media'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <div
+                      style={{
+                        position: 'relative',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        maxHeight: '260px',
+                        border: '1px solid #E2E8F0',
+                        background: '#0F172A',
+                      }}
+                    >
+                      <img
+                        src={item.mediaImage}
+                        alt={item.productTitle || 'Media'}
+                        style={{ width: '100%', height: '240px', objectFit: 'cover', display: 'block' }}
+                      />
+
+                      {/* Video Play Overlay */}
+                      {item.isVideo && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            background: 'rgba(0,0,0,0.3)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => alert(`Playing live video proof short for ${item.productTitle || item.authorName}...`)}
+                        >
+                          <div
+                            style={{
+                              width: '52px',
+                              height: '52px',
+                              borderRadius: '50%',
+                              background: 'rgba(37, 99, 235, 0.95)',
+                              color: '#FFFFFF',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '1.25rem',
+                              paddingLeft: '3px',
+                              boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                            }}
+                          >
+                            ▶
+                          </div>
+
+                          {item.videoDuration && (
+                            <div
+                              style={{
+                                position: 'absolute',
+                                bottom: '10px',
+                                left: '10px',
+                                background: 'rgba(15, 23, 42, 0.85)',
+                                color: '#FFFFFF',
+                                padding: '0.2rem 0.55rem',
+                                borderRadius: '4px',
+                                fontSize: '0.72rem',
+                                fontWeight: 800,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.35rem',
+                              }}
+                            >
+                              <span>🎬</span> {item.videoDuration} Proof Short
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
 

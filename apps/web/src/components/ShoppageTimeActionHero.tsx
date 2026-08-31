@@ -2,11 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import LiveSearch from './LiveSearch';
 
 interface ActionFeedItem {
   id: string;
-  sourceType: 'showroom' | 'facebook' | 'twitter_x' | 'rfq';
+  sourceType: 'showroom' | 'facebook' | 'twitter_x' | 'rfq' | 'video_short';
   sourceLabel: string;
   sourceIcon: string;
   author: string;
@@ -15,6 +14,9 @@ interface ActionFeedItem {
   timeAgo: string;
   title: string;
   text: string;
+  mediaType: 'photo' | 'video';
+  mediaUrl: string;
+  videoDuration?: string;
   priceZar?: number;
   regularPriceZar?: number;
   stockStatus: string;
@@ -30,15 +32,18 @@ interface ActionFeedItem {
 const INITIAL_HERO_FEED: ActionFeedItem[] = [
   {
     id: 'hero_1',
-    sourceType: 'showroom',
-    sourceLabel: 'SunPower Crown Mines · Official Showroom',
-    sourceIcon: '🛍️',
+    sourceType: 'video_short',
+    sourceLabel: 'SunPower Crown Mines · Video Proof Teardown',
+    sourceIcon: '🎬',
     author: 'SunPower Solutions',
     handle: '@SunPowerCrownMines',
     location: 'Crown Mines Wholesale Hub, JHB',
     timeAgo: '1m ago',
     title: 'Deye 5kW Hybrid Inverter (SUN-5K-SG03LP1-EU)',
-    text: '⚡ FLASH TRADE CLEARANCE: Pallet clearance for Gauteng solar contractors. Full NRS 097 grid certified & 5-yr warranty. Counter pickup or same-day dispatch.',
+    text: '⚡ Live Video Proof: Pallet staging & NRS 097 grid certificate teardown for Gauteng contractors. Counter pickup or same-day delivery.',
+    mediaType: 'video',
+    mediaUrl: 'https://images.unsplash.com/photo-1508873696983-2df57046475a?w=800&auto=format&fit=crop&q=80',
+    videoDuration: '0:48',
     priceZar: 14850,
     regularPriceZar: 18500,
     stockStatus: '14 Units Left',
@@ -53,7 +58,7 @@ const INITIAL_HERO_FEED: ActionFeedItem[] = [
   {
     id: 'hero_2',
     sourceType: 'facebook',
-    sourceLabel: 'via Sandton & Bryanston Buy, Sell & Trade (142k Members)',
+    sourceLabel: 'via Sandton & Bryanston Buy & Sell (142k Members)',
     sourceIcon: '📘',
     author: 'David Van Der Merwe',
     handle: '@DavidInstallSA',
@@ -61,10 +66,12 @@ const INITIAL_HERO_FEED: ActionFeedItem[] = [
     timeAgo: '3m ago',
     title: 'Dyness 5.12kWh LiFePO4 Lithium Battery BX51100',
     text: 'Clearing 12x Dyness 5.12kWh Lithium Batteries from commercial project over-order. Sealed in crates with tax invoice.',
+    mediaType: 'photo',
+    mediaUrl: 'https://images.unsplash.com/photo-1558441719-8b489c6340c0?w=800&auto=format&fit=crop&q=80',
     priceZar: 16900,
     regularPriceZar: 19500,
     stockStatus: '12 Crates Sealed',
-    badge: '✓ Swept FB Deal',
+    badge: '✓ Swept Deal',
     badgeBg: '#EFF6FF',
     badgeColor: '#1E40AF',
     href: '/search?q=Dyness',
@@ -83,6 +90,8 @@ const INITIAL_HERO_FEED: ActionFeedItem[] = [
     timeAgo: '7m ago',
     title: '500ml Tamper-Evident Clear Food Tubs (Box of 250)',
     text: '📦 Direct factory stock drop: Food-grade polypropylene containers with snap-lock seal for catering & takeout kitchens.',
+    mediaType: 'photo',
+    mediaUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&auto=format&fit=crop&q=80',
     priceZar: 185,
     regularPriceZar: 230,
     stockStatus: 'Bulk Stock Ready',
@@ -105,9 +114,11 @@ const INITIAL_HERO_FEED: ActionFeedItem[] = [
     timeAgo: '12m ago',
     title: '80x 550W Tier-1 Mono Solar Panels',
     text: '🚨 URGENT SOURCING: Contractor seeking 80x 550W Mono PERC panels in Cape Town / Paarden Eiland for Monday installation.',
+    mediaType: 'photo',
+    mediaUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=800&auto=format&fit=crop&q=80',
     priceZar: 1750,
     stockStatus: 'Buyer Seeking Stock',
-    badge: '📋 High Priority RFQ',
+    badge: '📋 Urgent RFQ',
     badgeBg: '#FEF3C7',
     badgeColor: '#92400E',
     href: '/requests',
@@ -120,16 +131,16 @@ const INITIAL_HERO_FEED: ActionFeedItem[] = [
 export default function ShoppageTimeActionHero() {
   const [feed, setFeed] = useState<ActionFeedItem[]>(INITIAL_HERO_FEED);
   const [activeFilter, setActiveFilter] = useState<'all' | 'solar' | 'packaging' | 'rfqs' | 'social'>('all');
+  const [pulseCount, setPulseCount] = useState(1425);
+  const [showPostModal, setShowPostModal] = useState(false);
   const [broadcastText, setBroadcastText] = useState('');
   const [broadcastPrice, setBroadcastPrice] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [pulseCount, setPulseCount] = useState(1420);
 
-  // Live Simulated Pulse Counter
   useEffect(() => {
     const timer = setInterval(() => {
-      setPulseCount((prev) => prev + Math.floor(Math.random() * 3) + 1);
-    }, 8000);
+      setPulseCount((prev) => prev + Math.floor(Math.random() * 2) + 1);
+    }, 9000);
     return () => clearInterval(timer);
   }, []);
 
@@ -142,15 +153,17 @@ export default function ShoppageTimeActionHero() {
       sourceType: 'showroom',
       sourceLabel: 'Shoppage Time · Live Verified Broadcast',
       sourceIcon: '⚡',
-      author: 'You (Verified Merchant Passport)',
+      author: 'You (Verified Trader)',
       handle: '@VerifiedTrader',
       location: 'South Africa Commercial Grid',
       timeAgo: 'Just now',
       title: 'Direct Stock Clearance / Trade Drop',
       text: broadcastText.trim(),
+      mediaType: 'photo',
+      mediaUrl: 'https://images.unsplash.com/photo-1508873696983-2df57046475a?w=800&auto=format&fit=crop&q=80',
       priceZar: broadcastPrice ? parseInt(broadcastPrice) : 14850,
-      stockStatus: 'Live Counter Ready',
-      badge: '⚡ Live Broadcast',
+      stockStatus: 'Immediate Pickup',
+      badge: '⚡ Live Drop',
       badgeBg: '#EFF6FF',
       badgeColor: '#1E40AF',
       href: '/search',
@@ -162,14 +175,9 @@ export default function ShoppageTimeActionHero() {
     setFeed([newItem, ...feed]);
     setBroadcastText('');
     setBroadcastPrice('');
-    setToastMessage('⚡ Deal broadcasted live to Shoppage Time, Facebook Groups & Twitter / X!');
+    setShowPostModal(false);
+    setToastMessage('⚡ Deal broadcast live to Shoppage Time, Facebook & 𝕏!');
     setTimeout(() => setToastMessage(null), 3500);
-  };
-
-  const handleLike = (id: string) => {
-    setFeed((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, likes: item.likes + 1 } : item))
-    );
   };
 
   const filteredFeed = feed.filter((item) => {
@@ -182,15 +190,8 @@ export default function ShoppageTimeActionHero() {
   });
 
   return (
-    <section
-      style={{
-        background: 'radial-gradient(ellipse 1200px 600px at 50% -10%, rgba(37, 99, 235, 0.09) 0%, rgba(16, 185, 129, 0.05) 40%, #F8FAFC 100%)',
-        color: '#0F172A',
-        padding: '2.5rem 1rem 3.5rem',
-        borderBottom: '1px solid #E2E8F0',
-      }}
-    >
-      {/* Toast Notification */}
+    <section style={{ background: '#FFFFFF', padding: '1.5rem 0 2.5rem', borderBottom: '1px solid #E2E8F0' }}>
+      {/* Toast Alert */}
       {toastMessage && (
         <div
           style={{
@@ -200,113 +201,197 @@ export default function ShoppageTimeActionHero() {
             transform: 'translateX(-50%)',
             background: '#059669',
             color: '#FFFFFF',
-            padding: '0.65rem 1.5rem',
+            padding: '0.6rem 1.4rem',
             borderRadius: '9999px',
             fontWeight: 800,
             fontSize: '0.85rem',
             zIndex: 9999,
-            boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+            boxShadow: '0 8px 20px rgba(0,0,0,0.18)',
           }}
         >
           {toastMessage}
         </div>
       )}
 
-      <div className="container" style={{ maxWidth: '1280px' }}>
-        {/* TOP COMMAND & TELEMETRY STRIP */}
+      {/* Broadcast Modal */}
+      {showPostModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.6)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9998,
+            padding: '1rem',
+          }}
+        >
+          <div
+            style={{
+              background: '#FFFFFF',
+              borderRadius: '16px',
+              padding: '1.75rem',
+              maxWidth: '520px',
+              width: '100%',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
+                ⚡ Post to Shoppage Time
+              </h3>
+              <button
+                onClick={() => setShowPostModal(false)}
+                style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#64748B' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleBroadcast} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              <textarea
+                rows={3}
+                required
+                value={broadcastText}
+                onChange={(e) => setBroadcastText(e.target.value)}
+                placeholder="Describe your stock drop, clearance deal, or contractor sourcing RFQ..."
+                style={{
+                  width: '100%',
+                  background: '#F8FAFC',
+                  border: '1px solid #CBD5E1',
+                  borderRadius: '10px',
+                  padding: '0.75rem',
+                  fontSize: '0.9rem',
+                  outline: 'none',
+                }}
+              />
+              <input
+                type="number"
+                placeholder="Price in ZAR (Optional)"
+                value={broadcastPrice}
+                onChange={(e) => setBroadcastPrice(e.target.value)}
+                style={{
+                  width: '100%',
+                  background: '#F8FAFC',
+                  border: '1px solid #CBD5E1',
+                  borderRadius: '8px',
+                  padding: '0.6rem 0.75rem',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#64748B' }}>
+                <span>✓ Auto-syndicate to FB Groups & 𝕏</span>
+                <span style={{ color: '#059669', fontWeight: 800 }}>0% Take Rate</span>
+              </div>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ borderRadius: '8px', fontWeight: 800, padding: '0.65rem', background: '#2563EB', borderColor: '#2563EB' }}
+              >
+                ⚡ Broadcast Deal Now
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <div className="container" style={{ maxWidth: '1240px' }}>
+        {/* COMPACT CLEAN LIVE PULSE STRIP */}
         <div
           style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             flexWrap: 'wrap',
-            gap: '1rem',
-            paddingBottom: '1.25rem',
-            borderBottom: '1px solid #E2E8F0',
-            marginBottom: '1.5rem',
+            gap: '0.75rem',
+            background: '#F8FAFC',
+            border: '1px solid #E2E8F0',
+            borderRadius: '12px',
+            padding: '0.65rem 1.15rem',
+            marginBottom: '1.25rem',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
             <div
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.4rem',
+                gap: '0.35rem',
                 background: '#EF4444',
                 color: '#FFFFFF',
-                padding: '0.25rem 0.65rem',
-                borderRadius: '6px',
-                fontSize: '0.72rem',
+                padding: '0.15rem 0.5rem',
+                borderRadius: '4px',
+                fontSize: '0.68rem',
                 fontWeight: 900,
-                letterSpacing: '0.05em',
-                boxShadow: '0 2px 6px rgba(239, 68, 68, 0.3)',
+                letterSpacing: '0.04em',
               }}
             >
-              <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#FFFFFF', animation: 'pulse 1s infinite' }} />
+              <span style={{ display: 'inline-block', width: '5px', height: '5px', borderRadius: '50%', background: '#FFFFFF', animation: 'pulse 1s infinite' }} />
               LIVE
             </div>
 
-            <div style={{ fontSize: '1.2rem', fontWeight: 900, letterSpacing: '-0.02em', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <span style={{ color: '#2563EB' }}>⚡</span> Shoppage Time Wire
-            </div>
+            <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0F172A' }}>
+              Shoppage Time Wire
+            </span>
 
-            <div style={{ fontSize: '0.8rem', color: '#64748B', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <span>•</span>
-              <span style={{ color: '#059669', fontWeight: 800 }}>● {pulseCount.toLocaleString()} Trades/hr</span>
-              <span>•</span>
-              <span>5,200+ Facebook Groups</span>
-              <span>•</span>
-              <span>𝕏 Commercial Stream</span>
-              <span>•</span>
-              <span style={{ color: '#059669', fontWeight: 700 }}>0% Take Rate</span>
-            </div>
+            <span style={{ color: '#CBD5E1' }}>|</span>
+
+            <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 800 }}>
+              ● {pulseCount.toLocaleString()} Trades/hr
+            </span>
+
+            <span style={{ fontSize: '0.78rem', color: '#64748B' }}>
+              · Sweeping 5,200+ Facebook Groups, 𝕏 Twitter & 74k Showrooms
+            </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <Link
-              href="/time"
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button
+              onClick={() => setShowPostModal(true)}
               className="btn btn-sm"
               style={{
-                background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                background: '#2563EB',
                 color: '#FFFFFF',
-                borderRadius: '8px',
-                fontWeight: 800,
-                fontSize: '0.8rem',
-                padding: '0.45rem 1.15rem',
-                textDecoration: 'none',
                 border: 'none',
-                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
+                borderRadius: '6px',
+                fontWeight: 800,
+                fontSize: '0.75rem',
+                padding: '0.35rem 0.75rem',
+                cursor: 'pointer',
               }}
             >
-              Explore Full Timeline &rarr;
+              + Post Trade / Drop
+            </button>
+            <Link
+              href="/time"
+              style={{
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                color: '#2563EB',
+                textDecoration: 'none',
+              }}
+            >
+              Full Timeline &rarr;
             </Link>
           </div>
         </div>
 
-        {/* COMPACT SEARCH DISCOVERY OMNIBOX */}
-        <div style={{ marginBottom: '1.75rem' }}>
-          <LiveSearch />
-        </div>
-
-        {/* 2-COLUMN REAL-TIME ACTION TERMINAL */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0, 1.45fr) minmax(320px, 0.95fr)',
-            gap: '1.5rem',
-            alignItems: 'start',
-          }}
-        >
-          {/* LEFT: THE LIVE STREAMING FEED (TWITTER / X STYLE) */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {/* Feed Filter Strip */}
-            <div style={{ display: 'flex', gap: '0.4rem', overflowX: 'auto', paddingBottom: '0.25rem' }}>
+        {/* 2-COLUMN SLEEK STREAM GRID */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.6fr) minmax(300px, 0.9fr)', gap: '1.25rem', alignItems: 'start' }}>
+          
+          {/* LEFT: LIVE STREAM FEED */}
+          <div>
+            {/* Filter Pills */}
+            <div style={{ display: 'flex', gap: '0.35rem', overflowX: 'auto', marginBottom: '0.85rem' }}>
               {[
-                { id: 'all', label: '⚡ All Real-Time Drops' },
-                { id: 'solar', label: '⚡ Solar & Batteries' },
+                { id: 'all', label: '⚡ All Drops' },
+                { id: 'solar', label: '⚡ Solar & Inverters' },
                 { id: 'packaging', label: '🍽️ Mitrend Packaging' },
                 { id: 'rfqs', label: '📋 Contractor RFQs' },
-                { id: 'social', label: '📘 FB & 𝕏 Swept Feeds' },
+                { id: 'social', label: '📘 FB & 𝕏 Feeds' },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -315,15 +400,13 @@ export default function ShoppageTimeActionHero() {
                     background: activeFilter === tab.id ? '#0F172A' : '#FFFFFF',
                     color: activeFilter === tab.id ? '#FFFFFF' : '#475569',
                     border: '1px solid',
-                    borderColor: activeFilter === tab.id ? '#0F172A' : '#CBD5E1',
-                    borderRadius: '20px',
-                    padding: '0.35rem 0.85rem',
-                    fontSize: '0.78rem',
+                    borderColor: activeFilter === tab.id ? '#0F172A' : '#E2E8F0',
+                    borderRadius: '16px',
+                    padding: '0.3rem 0.75rem',
+                    fontSize: '0.75rem',
                     fontWeight: 700,
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
-                    transition: 'all 0.15s ease',
-                    boxShadow: activeFilter === tab.id ? '0 2px 6px rgba(15, 23, 42, 0.2)' : '0 1px 2px rgba(0,0,0,0.02)',
                   }}
                 >
                   {tab.label}
@@ -331,34 +414,33 @@ export default function ShoppageTimeActionHero() {
               ))}
             </div>
 
-            {/* Live Feed Cards */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            {/* Cards Stream */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
               {filteredFeed.map((item) => (
                 <article
                   key={item.id}
                   style={{
                     background: '#FFFFFF',
                     border: '1px solid #E2E8F0',
-                    borderRadius: '16px',
-                    padding: '1.35rem',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                    borderRadius: '14px',
+                    padding: '1.15rem',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '0.65rem',
-                    transition: 'all 0.15s ease',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
                   }}
                 >
-                  {/* Origin & Timestamp */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#64748B' }}>
+                  {/* Origin */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748B' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800 }}>
                       <span>{item.sourceIcon}</span>
                       <span style={{ color: item.sourceType === 'facebook' ? '#1877F2' : item.sourceType === 'twitter_x' ? '#0F172A' : '#2563EB' }}>
                         {item.sourceLabel}
                       </span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                       {item.badge && (
-                        <span style={{ background: item.badgeBg || '#EFF6FF', color: item.badgeColor || '#1E40AF', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.7rem' }}>
+                        <span style={{ background: item.badgeBg || '#EFF6FF', color: item.badgeColor || '#1E40AF', padding: '0.1rem 0.4rem', borderRadius: '4px', fontWeight: 800, fontSize: '0.65rem' }}>
                           {item.badge}
                         </span>
                       )}
@@ -366,73 +448,134 @@ export default function ShoppageTimeActionHero() {
                     </div>
                   </div>
 
-                  {/* Author Header */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
-                    <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#0F172A', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.825rem' }}>
-                      {item.author.charAt(0)}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#0F172A' }}>
-                        {item.author} <span style={{ color: '#10B981', fontSize: '0.8rem' }} title="CIPC Verified">✓</span>
-                      </div>
-                      <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
-                        {item.handle} · 📍 {item.location}
-                      </div>
-                    </div>
+                  {/* Author & Text */}
+                  <div>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 900, color: '#0F172A' }}>{item.author}</span>
+                    <span style={{ fontSize: '0.72rem', color: '#64748B', marginLeft: '0.4rem' }}>{item.handle}</span>
+                    <p style={{ fontSize: '0.875rem', color: '#334155', lineHeight: 1.45, margin: '0.25rem 0 0 0' }}>
+                      {item.text}
+                    </p>
                   </div>
 
-                  {/* Body Text */}
-                  <p style={{ fontSize: '0.9rem', color: '#334155', lineHeight: 1.5, margin: 0 }}>
-                    {item.text}
-                  </p>
+                  {/* X-STYLE RICH PHOTO / VIDEO STAGE */}
+                  {item.mediaUrl && (
+                    <div
+                      style={{
+                        position: 'relative',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        border: '1px solid #E2E8F0',
+                        maxHeight: '220px',
+                        background: '#0F172A',
+                      }}
+                    >
+                      <img
+                        src={item.mediaUrl}
+                        alt={item.title}
+                        style={{
+                          width: '100%',
+                          height: '200px',
+                          objectFit: 'cover',
+                          display: 'block',
+                        }}
+                      />
 
-                  {/* EMBEDDED IN-FEED BUYBOX / RFQ STRIP */}
-                  <div
-                    style={{
-                      background: '#F8FAFC',
-                      border: '1.5px solid #E2E8F0',
-                      borderRadius: '12px',
-                      padding: '0.85rem 1.15rem',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      flexWrap: 'wrap',
-                      gap: '0.6rem',
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A' }}>
-                        {item.title}
-                      </div>
-                      <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700 }}>
-                        ✓ {item.stockStatus} · Direct Counter Trade
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      {item.priceZar && (
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#047857' }}>
-                            R {item.priceZar.toLocaleString()}
+                      {/* Video Play Overlay */}
+                      {item.mediaType === 'video' && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            background: 'rgba(0,0,0,0.28)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => alert(`Playing live video proof short for ${item.title}...`)}
+                        >
+                          <div
+                            style={{
+                              width: '46px',
+                              height: '46px',
+                              borderRadius: '50%',
+                              background: 'rgba(37, 99, 235, 0.95)',
+                              color: '#FFFFFF',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '1.15rem',
+                              paddingLeft: '3px',
+                              boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
+                            }}
+                          >
+                            ▶
                           </div>
-                          {item.regularPriceZar && (
-                            <div style={{ fontSize: '0.68rem', color: '#94A3B8', textDecoration: 'line-through' }}>
-                              R {item.regularPriceZar.toLocaleString()}
+
+                          {item.videoDuration && (
+                            <div
+                              style={{
+                                position: 'absolute',
+                                bottom: '8px',
+                                left: '8px',
+                                background: 'rgba(15, 23, 42, 0.85)',
+                                color: '#FFFFFF',
+                                padding: '0.2rem 0.5rem',
+                                borderRadius: '4px',
+                                fontSize: '0.7rem',
+                                fontWeight: 800,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.3rem',
+                              }}
+                            >
+                              <span>🎬</span> {item.videoDuration} Proof Short
                             </div>
                           )}
                         </div>
                       )}
+                    </div>
+                  )}
 
+                  {/* Embedded Compact BuyBox Strip */}
+                  <div
+                    style={{
+                      background: '#F8FAFC',
+                      border: '1px solid #E2E8F0',
+                      borderRadius: '8px',
+                      padding: '0.65rem 0.85rem',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      gap: '0.5rem',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: '0.825rem', fontWeight: 800, color: '#0F172A' }}>
+                        {item.title}
+                      </div>
+                      <div style={{ fontSize: '0.68rem', color: '#059669', fontWeight: 700 }}>
+                        ✓ {item.stockStatus} · Direct Counter Trade
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                      {item.priceZar && (
+                        <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#047857' }}>
+                          R {item.priceZar.toLocaleString()}
+                        </div>
+                      )}
                       <Link
                         href={item.href}
                         className="btn btn-sm"
                         style={{
                           background: item.sourceType === 'rfq' ? '#0F172A' : '#2563EB',
                           color: '#FFFFFF',
-                          borderRadius: '8px',
+                          borderRadius: '6px',
                           fontWeight: 800,
-                          fontSize: '0.75rem',
-                          padding: '0.4rem 0.85rem',
+                          fontSize: '0.72rem',
+                          padding: '0.35rem 0.7rem',
                           textDecoration: 'none',
                           border: 'none',
                         }}
@@ -442,32 +585,31 @@ export default function ShoppageTimeActionHero() {
                     </div>
                   </div>
 
-                  {/* Actions Bar */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.45rem', borderTop: '1px solid #F1F5F9', fontSize: '0.75rem', color: '#64748B' }}>
+                  {/* Action Micro-Bar */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.35rem', borderTop: '1px solid #F1F5F9', fontSize: '0.72rem', color: '#64748B' }}>
                     <button
-                      onClick={() => alert(`Opening instant direct RFQ inquiry with ${item.author}...`)}
-                      style={{ background: 'none', border: 'none', color: '#64748B', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                      onClick={() => alert(`Opening inquiry for ${item.title}...`)}
+                      style={{ background: 'none', border: 'none', color: '#64748B', fontWeight: 700, cursor: 'pointer' }}
                     >
-                      <span>💬</span> {item.rfqs} RFQs
+                      💬 {item.rfqs} RFQs
                     </button>
-
                     <button
                       onClick={() => {
-                        setToastMessage('🔁 Trade deal syndicated to your commercial network!');
+                        setToastMessage('🔁 Trade deal syndicated to your network!');
                         setTimeout(() => setToastMessage(null), 3000);
                       }}
-                      style={{ background: 'none', border: 'none', color: '#059669', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                      style={{ background: 'none', border: 'none', color: '#059669', fontWeight: 700, cursor: 'pointer' }}
                     >
-                      <span>🔁</span> {item.reposts} Reposts
+                      🔁 {item.reposts} Reposts
                     </button>
-
                     <button
-                      onClick={() => handleLike(item.id)}
-                      style={{ background: 'none', border: 'none', color: '#DC2626', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                      onClick={() => {
+                        setFeed((prev) => prev.map((x) => x.id === item.id ? { ...x, likes: x.likes + 1 } : x));
+                      }}
+                      style={{ background: 'none', border: 'none', color: '#DC2626', fontWeight: 700, cursor: 'pointer' }}
                     >
-                      <span>❤️</span> {item.likes}
+                      ❤️ {item.likes}
                     </button>
-
                     <Link href="/search" style={{ color: '#2563EB', textDecoration: 'none', fontWeight: 700 }}>
                       Compare 4 Sellers &rarr;
                     </Link>
@@ -477,103 +619,22 @@ export default function ShoppageTimeActionHero() {
             </div>
           </div>
 
-          {/* RIGHT: 1-CLICK BROADCAST STUDIO & LIVE TRADE RADAR */}
-          <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            {/* 1-Click Broadcast Studio */}
+          {/* RIGHT: COMPACT TRENDS & CHANNELS */}
+          <aside style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            {/* Trending SA Topics */}
             <div
               style={{
                 background: '#FFFFFF',
                 border: '1px solid #E2E8F0',
-                borderRadius: '16px',
-                padding: '1.35rem',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                borderRadius: '12px',
+                padding: '1.15rem',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.75rem' }}>
-                <span style={{ fontSize: '1.1rem' }}>✍️</span>
-                <h3 style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-                  1-Click Live Trade Broadcast
-                </h3>
-              </div>
-
-              <form onSubmit={handleBroadcast} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <textarea
-                  rows={3}
-                  required
-                  value={broadcastText}
-                  onChange={(e) => setBroadcastText(e.target.value)}
-                  placeholder="Drop a stock clearance, price cut, or contractor sourcing RFQ live to South Africa..."
-                  style={{
-                    width: '100%',
-                    background: '#F8FAFC',
-                    border: '1px solid #CBD5E1',
-                    borderRadius: '8px',
-                    color: '#0F172A',
-                    padding: '0.65rem',
-                    fontSize: '0.825rem',
-                    outline: 'none',
-                    resize: 'none',
-                  }}
-                />
-
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <input
-                    type="number"
-                    placeholder="Price (ZAR)"
-                    value={broadcastPrice}
-                    onChange={(e) => setBroadcastPrice(e.target.value)}
-                    style={{
-                      flex: 1,
-                      background: '#F8FAFC',
-                      border: '1px solid #CBD5E1',
-                      borderRadius: '6px',
-                      color: '#0F172A',
-                      padding: '0.4rem 0.6rem',
-                      fontSize: '0.78rem',
-                      fontWeight: 700,
-                    }}
-                  />
-                  <button
-                    type="submit"
-                    className="btn btn-primary btn-sm"
-                    style={{
-                      background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontWeight: 900,
-                      fontSize: '0.78rem',
-                      padding: '0.45rem 1rem',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    ⚡ Broadcast Live
-                  </button>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: '#64748B', paddingTop: '0.35rem' }}>
-                  <span style={{ color: '#2563EB', fontWeight: 700 }}>✓ Shoppage Time</span>
-                  <span style={{ color: '#1877F2', fontWeight: 700 }}>✓ FB Groups</span>
-                  <span style={{ color: '#0F172A', fontWeight: 700 }}>✓ 𝕏 Twitter</span>
-                  <span style={{ color: '#059669', fontWeight: 800 }}>0% Take Rate</span>
-                </div>
-              </form>
-            </div>
-
-            {/* Trending SA Topics & Deals */}
-            <div
-              style={{
-                background: '#FFFFFF',
-                border: '1px solid #E2E8F0',
-                borderRadius: '16px',
-                padding: '1.35rem',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-              }}
-            >
-              <h3 style={{ fontSize: '0.9rem', fontWeight: 900, color: '#0F172A', margin: '0 0 0.85rem 0' }}>
+              <h3 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0F172A', margin: '0 0 0.65rem 0' }}>
                 Trending on Shoppage Time 🇿🇦
               </h3>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {[
                   { tag: '#Stage6Inverters', desc: '14.2K trades · Deye & Sunsynk' },
                   { tag: '#MitrendPackaging', desc: '8.4K orders · Midrand Factory' },
@@ -588,39 +649,33 @@ export default function ShoppageTimeActionHero() {
                       justifyContent: 'space-between',
                       alignItems: 'center',
                       textDecoration: 'none',
-                      padding: '0.35rem 0',
-                      borderBottom: '1px solid #F1F5F9',
+                      padding: '0.2rem 0',
                     }}
                   >
                     <div>
-                      <div style={{ fontSize: '0.825rem', fontWeight: 800, color: '#2563EB' }}>{t.tag}</div>
-                      <div style={{ fontSize: '0.68rem', color: '#64748B' }}>{t.desc}</div>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#2563EB' }}>{t.tag}</div>
+                      <div style={{ fontSize: '0.65rem', color: '#64748B' }}>{t.desc}</div>
                     </div>
-                    <span style={{ color: '#94A3B8', fontSize: '0.75rem' }}>↗</span>
+                    <span style={{ color: '#94A3B8', fontSize: '0.7rem' }}>↗</span>
                   </Link>
                 ))}
               </div>
             </div>
 
-            {/* Fast Channel Navigation Matrix */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '0.5rem',
-              }}
-            >
+            {/* Fast Channel Navigation Pills */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem' }}>
               <Link
                 href="/markets"
                 className="btn btn-outline btn-sm"
                 style={{
                   color: '#0F172A',
-                  borderColor: '#CBD5E1',
+                  borderColor: '#E2E8F0',
                   background: '#FFFFFF',
-                  borderRadius: '8px',
-                  fontSize: '0.75rem',
+                  borderRadius: '6px',
+                  fontSize: '0.72rem',
                   fontWeight: 700,
                   justifyContent: 'center',
+                  padding: '0.4rem',
                 }}
               >
                 👥 5,200+ Markets
@@ -630,12 +685,13 @@ export default function ShoppageTimeActionHero() {
                 className="btn btn-outline btn-sm"
                 style={{
                   color: '#0F172A',
-                  borderColor: '#CBD5E1',
+                  borderColor: '#E2E8F0',
                   background: '#FFFFFF',
-                  borderRadius: '8px',
-                  fontSize: '0.75rem',
+                  borderRadius: '6px',
+                  fontSize: '0.72rem',
                   fontWeight: 700,
                   justifyContent: 'center',
+                  padding: '0.4rem',
                 }}
               >
                 📱 Proof Shorts
@@ -645,12 +701,13 @@ export default function ShoppageTimeActionHero() {
                 className="btn btn-outline btn-sm"
                 style={{
                   color: '#0F172A',
-                  borderColor: '#CBD5E1',
+                  borderColor: '#E2E8F0',
                   background: '#FFFFFF',
-                  borderRadius: '8px',
-                  fontSize: '0.75rem',
+                  borderRadius: '6px',
+                  fontSize: '0.72rem',
                   fontWeight: 700,
                   justifyContent: 'center',
+                  padding: '0.4rem',
                 }}
               >
                 📋 Buyer RFQs
@@ -661,11 +718,12 @@ export default function ShoppageTimeActionHero() {
                 style={{
                   color: '#FFFFFF',
                   background: '#059669',
-                  borderRadius: '8px',
-                  fontSize: '0.75rem',
+                  borderRadius: '6px',
+                  fontSize: '0.72rem',
                   fontWeight: 800,
                   justifyContent: 'center',
                   border: 'none',
+                  padding: '0.4rem',
                 }}
               >
                 + List Store
