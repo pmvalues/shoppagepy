@@ -12,7 +12,6 @@ import {
 import LiveSearch from '@/components/LiveSearch';
 import ProductCard from '@/components/ProductCard';
 import ShortsRail from '@/components/ShortsRail';
-import MerchantCard from '@/components/MerchantCard';
 
 export default function HomePage() {
   // Featured Trending Master Products (Solar, Hardware & Mitrend Packaging)
@@ -24,16 +23,76 @@ export default function HomePage() {
   const totalCatalogCount = MasterProductStore.getTotalProductsCount();
   const totalMallsCount = SouthAfricaMallsStore.getTotalCount();
   const totalMerchantsCount = NationwideMerchantStore.getTotalCount();
-  const provinceMallCounts = SouthAfricaMallsStore.getProvinceCounts();
 
-  const topMerchants = NationwideMerchantStore.searchMerchants({ limit: 6, offset: 0 }).items;
+  const categories = [
+    {
+      id: 'solar',
+      name: 'Solar & Load-Shedding',
+      icon: '⚡',
+      skus: '48,000+ SKUs',
+      href: '/search?q=inverter',
+      bg: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)',
+      color: '#1E40AF',
+      tag: 'NRS 097 Certified',
+    },
+    {
+      id: 'packaging',
+      name: 'Packaging & Catering',
+      icon: '🍽️',
+      skus: '157 Mitrend SKUs',
+      href: '/search?q=Mitrend',
+      bg: 'linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)',
+      color: '#6B21A8',
+      tag: 'SABS Food Grade',
+    },
+    {
+      id: 'hardware',
+      name: 'Building & Hardware',
+      icon: '🧱',
+      skus: '120,000+ SKUs',
+      href: '/search?q=cement',
+      bg: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+      color: '#92400E',
+      tag: 'SABS 42.5N Quality',
+    },
+    {
+      id: 'phones',
+      name: 'Smartphones & Tech',
+      icon: '📱',
+      skus: '85,000+ SKUs',
+      href: '/search?q=samsung',
+      bg: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
+      color: '#065F46',
+      tag: 'ICASA Approved',
+    },
+    {
+      id: 'auto',
+      name: 'Automotive & Spares',
+      icon: '🚗',
+      skus: '95,000+ SKUs',
+      href: '/search?q=battery',
+      bg: 'linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 100%)',
+      color: '#9F1239',
+      tag: 'Direct Spares Importers',
+    },
+    {
+      id: 'fmcg',
+      name: 'Wholesale FMCG & Spaza',
+      icon: '🛒',
+      skus: '310,000+ SKUs',
+      href: '/search?q=wholesale',
+      bg: 'linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)',
+      color: '#166534',
+      tag: 'Bulk Case Pricing',
+    },
+  ];
 
   return (
     <div>
       {/* 1. HERO CENTERPIECE: INSTITUTIONAL COMMERCE GRID */}
       <section
         style={{
-          background: 'radial-gradient(ellipse 1000px 460px at 50% -10%, rgba(37, 99, 235, 0.1) 0%, rgba(16, 185, 129, 0.04) 45%, #FFFFFF 100%)',
+          background: 'radial-gradient(ellipse 1000px 480px at 50% -10%, rgba(37, 99, 235, 0.12) 0%, rgba(16, 185, 129, 0.05) 45%, #FFFFFF 100%)',
           borderBottom: '1px solid #E2E8F0',
           padding: '4.5rem 1rem 3.5rem',
           textAlign: 'center',
@@ -98,12 +157,12 @@ export default function HomePage() {
             style={{
               color: '#475569',
               fontSize: '1.08rem',
-              maxWidth: '660px',
+              maxWidth: '680px',
               margin: '0 auto 2.25rem auto',
               lineHeight: 1.6,
             }}
           >
-            Search products, compare multi-seller BuyBoxes, and trade directly with verified local stores via WhatsApp, Phone, or In-Store with <strong>0% middleman commission</strong>.
+            Search products, compare multi-seller BuyBoxes, and trade directly with <strong>74,000+ verified local stores</strong> via WhatsApp, Phone, or In-Store with <strong>0% middleman commission</strong>.
           </p>
 
           <LiveSearch />
@@ -184,13 +243,79 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 3. FEATURED FLAGSHIP SPOTLIGHTS (Mitrend & SunPower) */}
+      {/* 3. INTERACTIVE CATEGORY DISCOVERY RAIL */}
       <section style={{ padding: '3.5rem 0', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
         <div className="container">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
+              <span className="badge badge-purple" style={{ marginBottom: '0.35rem' }}>🗂️ Strategic Industry Rails</span>
+              <h2 className="section-title" style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0F172A' }}>Explore South Africa&apos;s Core Sectors</h2>
+              <p className="section-desc">Direct factory trade counters, SABS approved manufacturers, and local stockists.</p>
+            </div>
+            <Link href="/search" className="btn btn-outline btn-sm">
+              Explore All Categories &rarr;
+            </Link>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
+            {categories.map((c) => (
+              <Link
+                key={c.id}
+                href={c.href}
+                className="card card-interactive"
+                style={{
+                  padding: '1.25rem',
+                  borderRadius: '12px',
+                  border: '1px solid #E2E8F0',
+                  background: '#FFFFFF',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      width: '44px',
+                      height: '44px',
+                      borderRadius: '10px',
+                      background: c.bg,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1.5rem',
+                      marginBottom: '0.75rem',
+                    }}
+                  >
+                    {c.icon}
+                  </div>
+                  <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.25rem' }}>
+                    {c.name}
+                  </h3>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>
+                    {c.skus}
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid #F1F5F9' }}>
+                  <span style={{ fontSize: '0.65rem', fontWeight: 800, color: c.color, textTransform: 'uppercase' }}>
+                    {c.tag}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. FEATURED FLAGSHIP SPOTLIGHTS (Mitrend & SunPower) */}
+      <section style={{ padding: '3.5rem 0', background: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>
+        <div className="container">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
               <span className="badge badge-blue" style={{ marginBottom: '0.35rem' }}>🏨 Flagship Showrooms</span>
-              <h2 className="section-title" style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0F172A' }}>Verified Manufacturers & Wholesalers</h2>
+              <h2 className="section-title" style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0F172A' }}>Verified Manufacturers & Master Stockists</h2>
               <p className="section-desc">Direct factory pricing, SABS compliance certificates, and immediate trade counter collection.</p>
             </div>
             <Link href="/merchants" className="btn btn-outline btn-sm">
@@ -229,7 +354,7 @@ export default function HomePage() {
                 </div>
 
                 <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.5, marginBottom: '1rem' }}>
-                  Commercial food packaging, tamper-evident tubs, measuring spoons, hotel anti-theft hangers, and catering displayware.
+                  Commercial food packaging, tamper-evident tubs, measuring dosage spoons, hotel anti-theft hangers, and catering displayware.
                 </p>
 
                 <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
@@ -322,8 +447,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 4. MASTER PRODUCT SHOWCASE (GS1 Canonical Products) */}
-      <section style={{ padding: '3.5rem 0', background: '#FFFFFF' }}>
+      {/* 5. MASTER PRODUCT SHOWCASE (GS1 Canonical Products) */}
+      <section style={{ padding: '3.5rem 0', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
         <div className="container">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
@@ -345,7 +470,66 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. PROOF SHORTS & VIDEO COMMERCE */}
+      {/* 6. THE 0% TAKE-RATE MOAT BENTO */}
+      <section style={{ padding: '4rem 0', background: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+            <span className="badge badge-green" style={{ marginBottom: '0.5rem' }}>
+              🛡️ The Zero-Commission Advantage
+            </span>
+            <h2 style={{ fontSize: '2.1rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>
+              Why Buyers & Physical Merchants Choose Shoppage
+            </h2>
+            <p style={{ color: '#64748B', fontSize: '1rem', maxWidth: '600px', margin: '0 auto' }}>
+              Counter-positioning against high marketplace fees to enable frictionless direct commerce.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
+            <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#F8FAFC' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>💸</div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.5rem' }}>
+                0% Middleman Markups
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.55 }}>
+                Legacy marketplaces charge merchants 15%–25% commissions. On Shoppage, prices are direct from warehouse counters with zero toll-booth fees.
+              </p>
+            </div>
+
+            <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#F8FAFC' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>💬</div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.5rem' }}>
+                Direct WhatsApp Quotes
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.55 }}>
+                Chat directly with store managers, request pallet discounts, negotiate payment terms, and confirm stock in real time.
+              </p>
+            </div>
+
+            <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#F8FAFC' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🏬</div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.5rem' }}>
+                Immediate Counter Collection
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.55 }}>
+                Locate confirmed stock in 3,296 geofenced shopping centres and wholesale markets for same-day walk-in pickup.
+              </p>
+            </div>
+
+            <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#F8FAFC' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🏛️</div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.5rem' }}>
+                CIPC & SABS Verification
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.55 }}>
+                Every merchant is verified against CIPC business registration data, ensuring high-trust transactions with legitimate businesses.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. PROOF SHORTS & VIDEO COMMERCE */}
       <section style={{ background: '#0F172A', padding: '3.5rem 0', color: '#FFFFFF' }}>
         <div className="container">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.75rem' }}>
@@ -360,7 +544,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 6. SPATIAL SHOPPING HUBS & MALLS */}
+      {/* 8. SPATIAL SHOPPING HUBS & MALLS */}
       <section style={{ padding: '3.5rem 0', background: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}>
         <div className="container">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.75rem' }}>

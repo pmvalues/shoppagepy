@@ -82,6 +82,17 @@ export default function ProductCard({
               >
                 Inquire
               </a>
+            ) : product.brand === 'Mitrend Products' ? (
+              <a
+                href={`https://wa.me/27105007670?text=${encodeURIComponent(`Hi Mitrend, I am inquiring about price and stock for ${product.title} on Shoppage.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-whatsapp btn-sm"
+                style={{ padding: '0.35rem 0.65rem' }}
+                title="WhatsApp Direct Quote"
+              >
+                💬 Quote
+              </a>
             ) : (
               <Link
                 href={`/merchant/claim?variantId=${product.canonicalId}&title=${encodeURIComponent(product.title)}`}
