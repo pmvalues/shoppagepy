@@ -23,7 +23,7 @@ export default function AdminLoginPage() {
       if (activeTab === 'merchant') {
         router.push(`/merchant/dashboard?store=${selectedStore}`);
       } else {
-        router.push('/merchant/dashboard?role=superadmin');
+        router.push('/admin/dashboard');
       }
     }, 600);
   };
@@ -37,7 +37,7 @@ export default function AdminLoginPage() {
       } else if (role === 'sunpower') {
         router.push('/merchant/dashboard?store=loc_sunpower_crownmines');
       } else {
-        router.push('/merchant/dashboard?role=superadmin');
+        router.push('/admin/dashboard');
       }
     }, 400);
   };
