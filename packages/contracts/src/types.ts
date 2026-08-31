@@ -356,13 +356,38 @@ export interface MarketSubZone {
   description?: string;
 }
 
+export interface CommunityAutoPostRule {
+  enabled: boolean;
+  frequency: 'instant_on_publish' | 'daily_digest' | 'price_drops_only';
+  templateFormat: 'compact_price_drop' | 'full_specs_with_buybox' | 'rfq_broadcast';
+  includeCipcBadge: boolean;
+  lastSyncedAt?: string;
+  totalBroadcastsCount: number;
+}
+
+export interface InboundGroupListing {
+  id: string;
+  postAuthor: string;
+  postTime: string;
+  content: string;
+  extractedTitle: string;
+  extractedPriceZar?: number;
+  extractedPhone?: string;
+  verifiedMerchantStatus: boolean;
+  status: 'published' | 'pending_verification' | 'archived';
+}
+
 export interface CommunityGroupMeta {
   groupCategory: 'suburb_buy_sell' | 'b2b_contractor_network' | 'wholesale_importers' | 'solar_inverter_exchange' | 'farming_livestock' | 'auto_parts_spares' | 'fmcg_spaza_trade';
   memberCount: number;
   dailyPostVolume: number;
   cityOrTown: string;
   sourcePlatform?: string;
+  externalCommunityUrl?: string; // Direct Public Facebook Group / Community Link
+  facebookGroupId?: string;
   moderationType: 'open_public' | 'vetted_trade_only' | 'cipc_verified_merchants';
+  autoPostRule?: CommunityAutoPostRule;
+  inboundFeed?: InboundGroupListing[];
 }
 
 export interface VirtualMarketMeta {

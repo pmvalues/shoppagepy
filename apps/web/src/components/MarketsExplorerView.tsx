@@ -259,14 +259,36 @@ export default function MarketsExplorerView({
                   </Link>
                 </div>
 
-                <div style={{ marginTop: '0.5rem' }}>
+                <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.4rem' }}>
                   <Link
                     href={`/market/${market.id}`}
                     className="btn btn-outline btn-sm"
-                    style={{ width: '100%', justifyContent: 'center', borderRadius: '8px', fontSize: '0.78rem' }}
+                    style={{ flex: 1, justifyContent: 'center', borderRadius: '8px', fontSize: '0.78rem' }}
                   >
-                    Explore Trading Floor &rarr;
+                    Trading Floor &rarr;
                   </Link>
+
+                  {market.communityGroupMeta?.externalCommunityUrl && (
+                    <a
+                      href={market.communityGroupMeta.externalCommunityUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-sm"
+                      style={{
+                        background: '#1877F2',
+                        color: '#FFFFFF',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontWeight: 700,
+                        fontSize: '0.75rem',
+                        padding: '0.35rem 0.65rem',
+                        textDecoration: 'none',
+                      }}
+                      title="Visit Public Group / Community Link"
+                    >
+                      🔗 Group
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
