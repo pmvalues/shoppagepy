@@ -82,10 +82,13 @@ export default function ProductStudioStage({
       {/* Main Image or Industrial SVG Illustration */}
       <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
         {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={imageUrl}
             alt={product.title}
+            loading="lazy"
+            decoding="async"
+            fetchPriority={isDetail ? 'high' : 'low'}
+            sizes={isDetail ? '(max-width: 768px) 90vw, 360px' : '(max-width: 640px) 90vw, 230px'}
             style={{
               maxHeight: isDetail ? '300px' : '150px',
               maxWidth: '90%',

@@ -184,7 +184,15 @@ a {
 }
 
 .card-interactive:hover img, .card:hover img {
-  transform: scale(1.04);
+  transform: scale(1.02);
+  will-change: transform;
+}
+/* Focus ring — institutional a11y */
+.card-interactive:focus-visible,
+.live-result:focus-visible,
+.btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 /* Badges & Status Chips */
@@ -221,7 +229,7 @@ a {
 
 .badge-amber {
   background: #FFFBEB;
-  color: #B45309;
+  color: #92400E; /* WCAG AA 4.6:1 on #FFFBEB (was #B45309 3.2:1) */
   border: 1px solid #FDE68A;
 }
 
