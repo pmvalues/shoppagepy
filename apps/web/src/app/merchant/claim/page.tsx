@@ -53,7 +53,7 @@ export default function MerchantClaimWizardPage({
           List Your Store & Inventory
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-          Join 3.1M+ verified suppliers across 3,296 shopping centres. 0% commission, direct WhatsApp leads, and automated Google Shopping feeds.
+          Join 3.1M+ verified suppliers across 3,296 shopping centres. Direct WhatsApp leads and automated XML product catalog feeds.
         </p>
       </div>
 
@@ -336,7 +336,7 @@ export default function MerchantClaimWizardPage({
             <div style={{ fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
               <div>✓ <strong>Product Detail Page:</strong> Listed as Verified Confirmed Supplier</div>
               <div>✓ <strong>Direct WhatsApp:</strong> Connected to {formData.whatsappPhone}</div>
-              <div>✓ <strong>Google Merchant Center:</strong> XML product feed live</div>
+              <div>✓ <strong>Product Feed:</strong> Automated XML product catalog feed live</div>
               <div>✓ <strong>Local Mall Roster:</strong> Mapped to {formData.stallNumber || 'Main Trade Concourse'}</div>
             </div>
           </div>

@@ -8,7 +8,7 @@
   <div>
     <p class="mc-eyebrow">Account</p>
     <h1 class="mc-h1">Business Settings &amp; Promotions</h1>
-    <p class="mc-sub">Contact details, hours, shipping and tax flow straight into your Google Merchant feed and public storefront profile.</p>
+    <p class="mc-sub">Contact details, hours, shipping and tax flow straight into your product feed and public storefront profile.</p>
   </div>
   <a class="mc-btn" href="/m/{{ merchant.canonical_id }}/" target="_blank" rel="noopener">View public profile ↗</a>
 </div>
@@ -44,7 +44,7 @@
   <form method="post" action="/merchant/settings/?merchantId={{ merchant.canonical_id }}" class="mc-card mc-span-5">
     {% csrf_token %}
     <h2 class="mc-h2">Feed shipping &amp; tax</h2>
-    <p class="mc-sub" style="margin:0 0 1.1rem;">Emitted as <code style="font-family:var(--mc-font-mono);font-size:.8em;">g:shipping</code> / <code style="font-family:var(--mc-font-mono);font-size:.8em;">g:tax</code> in your Google Merchant feed.</p>
+    <p class="mc-sub" style="margin:0 0 1.1rem;">Emitted as <code style="font-family:var(--mc-font-mono);font-size:.8em;">g:shipping</code> / <code style="font-family:var(--mc-font-mono);font-size:.8em;">g:tax</code> in your XML product feed.</p>
     <div class="mc-grid-2">
       <div class="mc-field"><label for="ms-ship-service">Shipping service</label><input id="ms-ship-service" class="mc-input" type="text" name="shipping_service" value="{{ merchant.shipping_service|default:'' }}" placeholder="Standard Courier"></div>
       <div class="mc-field"><label for="ms-ship-price">Shipping price (R)</label><input id="ms-ship-price" class="mc-input" type="number" step="0.01" min="0" name="shipping_price" value="{{ merchant.shipping_price|default:'' }}" placeholder="e.g. 99.00"></div>

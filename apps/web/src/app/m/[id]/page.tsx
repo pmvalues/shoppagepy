@@ -126,8 +126,8 @@ export default function MerchantProfilePage({ params }: { params: { id: string }
             <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>★ {merchant.googleRating || '4.8'} Verified Reviews</div>
           </div>
           <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Platform Trade Fee</div>
-            <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>0% Take Rate (Direct Trade)</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Merchant Status</div>
+            <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>✓ Verified Direct Merchant</div>
           </div>
           <div>
             <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Stock & Supply</div>
