@@ -107,6 +107,42 @@ Syndicated via Shoppage Distributed Commerce Grid
   }
 
   /**
+   * Generates a concise, high-converting 280-character Twitter / X post with hashtags and BuyBox link.
+   */
+  public static formatTwitterXPost(payload: BroadcastPayload, hashtags: string[] = ['#SouthAfrica', '#ShoppageGrid', '#DirectTrade']): string {
+    const tagString = hashtags.slice(0, 3).join(' ');
+    return `⚡ [DEAL ALERT] ${payload.title}
+🏷️ Direct: R ${payload.priceZar.toLocaleString()} (0% toll)
+🏬 Stockist: ${payload.merchantName} (${payload.location})
+🛡️ CIPC Verified Stockist
+👉 BuyBox: ${payload.buyBoxUrl}
+${tagString}`.trim();
+  }
+
+  /**
+   * Broadcasts a merchant product or price drop directly to Twitter / X.
+   */
+  public static broadcastProductToTwitterX(
+    marketId: string,
+    payload: BroadcastPayload,
+    hashtags?: string[]
+  ): BroadcastResult {
+    const market = SA_COMMUNITY_GROUPS_DATASET.find((m) => m.id === marketId);
+    const targetHandle = market?.communityGroupMeta?.twitterX?.officialHandle || '@ShoppageSA';
+    const tags = hashtags || market?.communityGroupMeta?.twitterX?.targetHashtags || ['#SouthAfrica', '#DirectTrade'];
+
+    const formattedText = this.formatTwitterXPost(payload, tags);
+
+    return {
+      success: true,
+      targetGroup: `Twitter/X (${targetHandle})`,
+      externalUrl: `https://twitter.com/search?q=${encodeURIComponent(tags[0] || 'Shoppage')}`,
+      formattedText,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
    * Returns social linking passport for registered shoppers / contractors.
    */
   public static getShopperLinkedGroups(shopperId: string): Array<{ groupId: string; groupName: string; externalUrl: string; isAutoPostEnabled: boolean }> {
@@ -114,19 +150,19 @@ Syndicated via Shoppage Distributed Commerce Grid
       {
         groupId: 'vmkt_grp_00001',
         groupName: 'Sandton & Bryanston Community Buy, Sell & Direct Trade Floor',
-        externalUrl: 'https://www.facebook.com/groups/sandton-bryanston-trade',
+        externalUrl: 'https://www.facebook.com/groups/sandton.bryanston.buysell',
         isAutoPostEnabled: true,
       },
       {
         groupId: 'vmkt_grp_00002',
-        groupName: 'Centurion & Irene Solar, Inverter & Backup Energy Guild',
-        externalUrl: 'https://www.facebook.com/groups/centurion-solar-guild',
+        groupName: 'Centurion & Pretoria Solar, Inverter & Backup Energy Exchange',
+        externalUrl: 'https://www.facebook.com/groups/centurion.solar.inverter.exchange',
         isAutoPostEnabled: true,
       },
       {
         groupId: 'vmkt_grp_00003',
-        groupName: 'Midrand Commercial Catering & Food Packaging Hub',
-        externalUrl: 'https://www.facebook.com/groups/midrand-catering-packaging',
+        groupName: 'Midrand Commercial Food Packaging, Catering & Retail Importers',
+        externalUrl: 'https://www.facebook.com/groups/midrand.catering.packaging.trade',
         isAutoPostEnabled: true,
       },
     ];

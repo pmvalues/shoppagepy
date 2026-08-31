@@ -377,6 +377,29 @@ export interface InboundGroupListing {
   status: 'published' | 'pending_verification' | 'archived';
 }
 
+export interface TwitterXPost {
+  id: string;
+  authorHandle: string;
+  authorName: string;
+  authorAvatar?: string;
+  isVerified: boolean;
+  timestamp: string;
+  text: string;
+  likesCount: number;
+  retweetsCount: number;
+  hashtags: string[];
+  attachedProductSku?: string;
+  attachedPriceZar?: number;
+}
+
+export interface TwitterXMeta {
+  officialHandle?: string;
+  targetHashtags: string[];
+  autoTweetOnPriceDrop: boolean;
+  totalTweetsSyndicated: number;
+  liveFeed?: TwitterXPost[];
+}
+
 export interface CommunityGroupMeta {
   groupCategory: 'suburb_buy_sell' | 'b2b_contractor_network' | 'wholesale_importers' | 'solar_inverter_exchange' | 'farming_livestock' | 'auto_parts_spares' | 'fmcg_spaza_trade';
   memberCount: number;
@@ -385,9 +408,11 @@ export interface CommunityGroupMeta {
   sourcePlatform?: string;
   externalCommunityUrl?: string; // Direct Public Facebook Group / Community Link
   facebookGroupId?: string;
+  facebookGroupName?: string;
   moderationType: 'open_public' | 'vetted_trade_only' | 'cipc_verified_merchants';
   autoPostRule?: CommunityAutoPostRule;
   inboundFeed?: InboundGroupListing[];
+  twitterX?: TwitterXMeta;
 }
 
 export interface VirtualMarketMeta {

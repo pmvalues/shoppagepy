@@ -286,9 +286,29 @@ export default function MarketsExplorerView({
                       }}
                       title="Visit Public Group / Community Link"
                     >
-                      🔗 Group
+                      📘 FB
                     </a>
                   )}
+
+                  <a
+                    href={`https://twitter.com/search?q=${encodeURIComponent(market.name)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-sm"
+                    style={{
+                      background: '#000000',
+                      color: '#FFFFFF',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: 700,
+                      fontSize: '0.75rem',
+                      padding: '0.35rem 0.55rem',
+                      textDecoration: 'none',
+                    }}
+                    title="View Twitter / X Live Stream"
+                  >
+                    𝕏
+                  </a>
                 </div>
               </div>
             </div>
