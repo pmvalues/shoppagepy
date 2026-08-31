@@ -12,6 +12,7 @@ import {
 import { PayloadMerchantCmsService } from '@/cms';
 import ProductStudioStage from '@/components/ProductStudioStage';
 import { SHORTS } from '@/lib/media';
+import { MERCHANT_PLAN_TIERS } from '@/cms/types';
 
 export default function MerchantDashboardPage() {
   const [selectedMerchantId, setSelectedMerchantId] = useState('loc_sunpower_crownmines');
@@ -27,6 +28,10 @@ export default function MerchantDashboardPage() {
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<any | null>(null);
   const [customerNoteText, setCustomerNoteText] = useState('');
+
+  // Plan entitlements gating (P0) — default business_pro shows live studio, switch to 'free' to test gate
+  const [planTier, setPlanTier] = useState<'free' | 'business' | 'business_pro' | 'enterprise'>('business_pro');
+  const entitlements = MERCHANT_PLAN_TIERS[planTier];
 
   // Studio Sub-Tabs & States
   const [studioSubTab, setStudioSubTab] = useState<'shorts' | 'photo_studio' | 'live_stream'>('shorts');
@@ -2127,8 +2132,21 @@ export default function MerchantDashboardPage() {
                 </div>
               )}
 
-              {/* SUB-TAB 3: SHOWROOM LIVE BROADCAST DECK */}
-              {studioSubTab === 'live_stream' && (
+              {/* SUB-TAB 3: SHOWROOM LIVE BROADCAST DECK — gated on Business Pro */}
+              {studioSubTab === 'live_stream' && !entitlements.hasLiveBroadcastStudio && (
+                <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '12px', padding: '2rem', textAlign: 'center' }}>
+                  <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🔒</div>
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#92400E', marginBottom: '0.5rem' }}>Live Broadcast requires Business Pro</h3>
+                  <p style={{ fontSize: '0.85rem', color: '#78350F', marginBottom: '1.25rem', maxWidth: '520px', margin: '0 auto 1.25rem auto' }}>
+                    Your current plan <strong>{entitlements.name} ({planTier})</strong> does not include Live Studio. Upgrade to <strong>Business Pro R499/mo</strong> (10 branches, Live Broadcast, RFQ Tender Desk) to go live from your showroom.
+                  </p>
+                  <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+                    <button onClick={() => setPlanTier('business_pro')} className="btn btn-primary" style={{ background: '#92400E', borderColor: '#92400E' }}>Upgrade to Business Pro — R499/mo</button>
+                    <button onClick={() => setStudioSubTab('shorts')} className="btn btn-outline">Back to Shorts</button>
+                  </div>
+                </div>
+              )}
+              {studioSubTab === 'live_stream' && entitlements.hasLiveBroadcastStudio && (
                 <div style={{ background: '#0F172A', color: '#FFFFFF', borderRadius: '12px', padding: '2rem' }}>
                   <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center' }}>
                     <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.2)', border: '2px solid #EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.75rem', margin: '0 auto 1rem auto' }}>

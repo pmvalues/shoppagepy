@@ -14,6 +14,7 @@ import LiveSearch from '@/components/LiveSearch';
 import ProductCard from '@/components/ProductCard';
 import ShortsRail from '@/components/ShortsRail';
 import ShoppageTimeActionHero from '@/components/ShoppageTimeActionHero';
+import styles from './page.module.css';
 
 export default function HomePage() {
   // Featured Trending Master Products (Solar, Hardware & Mitrend Packaging)
@@ -109,7 +110,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
+          <div className={styles.categoryGrid}>
             {categories.map((c) => (
               <Link
                 key={c.id}
@@ -175,7 +176,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem' }}>
+          <div className={styles.flagshipGrid}>
             {/* Mitrend Card */}
             <div
               className="card"
@@ -309,7 +310,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+          <div className={styles.virtualGrid}>
             {virtualMarkets.map((vm) => (
               <div
                 key={vm.id}
@@ -381,7 +382,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))', gap: '1.25rem' }}>
+          <div className={styles.productGrid}>
             {masterProducts.map((p) => {
               const productOffers = SA_FLAGSHIP_OFFERS.filter((o) => o.variantRef === p.canonicalId);
               return <ProductCard key={p.canonicalId} product={p} offers={productOffers} />;
@@ -405,7 +406,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
+          <div className={styles.bentoGrid}>
             <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
               <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>💸</div>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.5rem' }}>
@@ -476,7 +477,7 @@ export default function HomePage() {
             <Link href="/malls" className="btn btn-outline btn-sm">View all 3,296 malls &rarr;</Link>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
+          <div className={styles.mallGrid}>
             {flagshipMarkets.map((m) => (
               <div key={m.id} className="card" style={{ padding: '1.5rem', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>

@@ -165,21 +165,20 @@ function LiveSearchContent() {
 
           <button
             type="button"
-            onClick={() => {
-              if (typeof window !== 'undefined') {
-                alert('🎙️ Voice Search activated. Speak your query now...');
-              }
-            }}
+            disabled
+            aria-disabled="true"
             style={{
               background: 'none',
               border: 'none',
-              cursor: 'pointer',
+              cursor: 'not-allowed',
               padding: '0.25rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              opacity: 0.45,
             }}
-            title="Search by voice"
+            title="Voice search — coming Q4 (sweep backlog)"
+            aria-label="Voice search coming soon"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 15C13.66 15 15 13.66 15 12V6C15 4.34 13.66 3 12 3C10.34 3 9 4.34 9 6V12C9 13.66 10.34 15 12 15Z" fill="#4285F4" />
@@ -189,17 +188,20 @@ function LiveSearchContent() {
 
           <button
             type="button"
-            onClick={() => alert('📷 Visual Search & Google Lens mode ready. Upload or drop an image.')}
+            disabled
+            aria-disabled="true"
             style={{
               background: 'none',
               border: 'none',
-              cursor: 'pointer',
+              cursor: 'not-allowed',
               padding: '0.25rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              opacity: 0.45,
             }}
-            title="Search by image (Lens)"
+            title="Visual search (Lens) — coming Q4"
+            aria-label="Visual search coming soon"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" fill="#4285F4" />
@@ -230,7 +232,7 @@ function LiveSearchContent() {
       </form>
 
       {open && (overview || results.length > 0 || loading) && (
-        <div className="live-search-panel" style={{ zIndex: 50 }}>
+        <div className="live-search-panel" style={{ zIndex: 50 }} role="listbox" aria-label="Search suggestions">
           {loading && !overview && (
             <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', padding: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⚡</span>
@@ -244,7 +246,7 @@ function LiveSearchContent() {
             </div>
           )}
           {results.length > 0 && (
-            <div style={{ display: 'grid', gap: 6 }}>
+            <div style={{ display: 'grid', gap: 6 }} role="presentation">
               {results.map((p, idx) => {
                 const isSelected = selectedIndex === idx;
                 const estPrice = (p.attributes as Record<string, unknown>)?.estimatedPriceZar;
@@ -253,6 +255,8 @@ function LiveSearchContent() {
                     key={p.canonicalId}
                     href={`/p/${p.canonicalId}`}
                     className="live-result"
+                    role="option"
+                    aria-selected={isSelected}
                     style={{
                       background: isSelected ? '#EFF6FF' : undefined,
                       borderColor: isSelected ? '#3B82F6' : undefined,
