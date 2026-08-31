@@ -9,6 +9,7 @@ import {
   MITREND_MERCHANT,
   MITREND_PRODUCTS,
 } from '@shoppage/kernel';
+import { PayloadMerchantCmsService } from '@/cms';
 
 export default function MerchantDashboardPage() {
   const [selectedMerchantId, setSelectedMerchantId] = useState('loc_sunpower_crownmines');
@@ -488,11 +489,41 @@ export default function MerchantDashboardPage() {
     const priceNum = parseFloat(newProduct.price) || 999;
     const saleNum = newProduct.salePrice ? parseFloat(newProduct.salePrice) : null;
     const stockQtyNum = parseInt(newProduct.stockQty) || 10;
+    const skuVal = newProduct.sku || `SKU-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    // Sync to Payload CMS Collections
+    PayloadMerchantCmsService.createProduct({
+      merchantId: selectedMerchantId,
+      sku: skuVal,
+      title: newProduct.title,
+      brand: newProduct.brand || 'Custom Brand',
+      category: newProduct.category,
+      price: priceNum,
+      regularPrice: priceNum,
+      salePrice: saleNum,
+      taxStatus: newProduct.taxStatus as any,
+      taxClass: newProduct.taxClass as any,
+      inStock: stockQtyNum > 0,
+      stockQty: stockQtyNum,
+      lowStockThreshold: parseInt(newProduct.lowStockThreshold) || 2,
+      backorders: newProduct.backorders as any,
+      warranty: newProduct.warranty,
+      specs: `${newProduct.voltage || ''} ${newProduct.capacity || ''}`.trim() || 'Commercial Standard',
+      description: newProduct.longDescription || newProduct.shortDescription || newProduct.title,
+      featuredImage: newProduct.featuredImage || 'https://images.unsplash.com/photo-1508873696983-2df57046475a?w=500&h=400&fit=crop',
+      galleryImages: [newProduct.featuredImage || 'https://images.unsplash.com/photo-1508873696983-2df57046475a?w=500&h=400&fit=crop'],
+      compliance: {
+        sabsApproved: true,
+        nrs097Certified: newProduct.category.includes('Solar'),
+        warrantyYears: parseInt(newProduct.warranty) || 1,
+      },
+      feedStatus: 'Active',
+    });
 
     setProductsList([
       {
         id: `prod_${Date.now()}`,
-        sku: newProduct.sku || `SKU-${Math.floor(1000 + Math.random() * 9000)}`,
+        sku: skuVal,
         title: newProduct.title,
         brand: newProduct.brand || 'Custom Brand',
         category: newProduct.category,
@@ -700,6 +731,27 @@ export default function MerchantDashboardPage() {
           >
             <span>🔔</span>
             <span style={{ color: '#72AEE6' }}>{processingOrdersCount} Orders</span>
+          </div>
+
+          {/* Payload CMS Multi-Tenant Status Badge */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              background: 'rgba(56, 189, 248, 0.12)',
+              color: '#38BDF8',
+              border: '1px solid rgba(56, 189, 248, 0.35)',
+              padding: '0.2rem 0.6rem',
+              borderRadius: '6px',
+              fontSize: '0.72rem',
+              fontWeight: 800,
+              letterSpacing: '0.02em',
+            }}
+            title="Payload CMS Active · Multi-Tenant Collections (Products, Media, Orders, CRM, Settings)"
+          >
+            <span>⚡</span>
+            <span>Payload CMS</span>
           </div>
 
           {/* Low Stock Alert */}
