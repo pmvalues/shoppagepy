@@ -24,58 +24,13 @@ export default function AppNavbar({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {/* Top Radar Ticker: Live National Grid Status */}
-      <div
-        style={{
-          background: '#090D16',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
-          padding: '0.45rem 1rem',
-          fontSize: '0.75rem',
-          color: '#94A3B8',
-        }}
-      >
-        <div
-          className="container"
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '0.5rem',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <span
-              style={{
-                display: 'inline-block',
-                width: '6px',
-                height: '6px',
-                borderRadius: '50%',
-                background: '#10B981',
-                boxShadow: '0 0 8px #10B981',
-              }}
-            ></span>
-            <strong style={{ color: '#F1F5F9', letterSpacing: '0.04em' }}>LIVE NATIONAL COMMERCE GRID</strong>
-            <span style={{ color: '#475569' }}>|</span>
-            <span>3,296 Malls · 3.1M Stores · Direct Multi-Channel Inquiries</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#94A3B8' }}>
-            <span>Verified Stockists Network</span>
-            <span>•</span>
-            <Link href="/requests" style={{ color: '#38BDF8', textDecoration: 'none', fontWeight: 600 }}>
-              📋 Post Buyer RFQ
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Sticky Frosted Header with Omnibox for Discovery */}
+      {/* Sticky Frosted Header: Single Row Navbar */}
       <header
         style={{
           position: 'sticky',
           top: 0,
           zIndex: 100,
-          background: 'rgba(255, 255, 255, 0.95)',
+          background: 'rgba(255, 255, 255, 0.96)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
           borderBottom: '1px solid #E2E8F0',
@@ -87,8 +42,8 @@ export default function AppNavbar({ children }: { children: React.ReactNode }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '1.5rem',
-            height: '74px',
+            gap: '1.25rem',
+            height: '70px',
           }}
         >
           {/* Brand Logo */}
@@ -184,30 +139,6 @@ export default function AppNavbar({ children }: { children: React.ReactNode }) {
               style={{ padding: '0.45rem 1rem', borderRadius: '8px' }}
             >
               + List Store
-            </Link>
-          </div>
-        </div>
-
-        {/* Secondary Sub-Bar: Rapid Navigation */}
-        <div style={{ background: '#F8FAFC', borderTop: '1px solid #E2E8F0', padding: '0.35rem 1rem', fontSize: '0.8rem' }}>
-          <div className="container" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', overflowX: 'auto' }}>
-            <Link href="/time" style={{ fontWeight: 800, color: '#2563EB', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem', whiteSpace: 'nowrap' }}>
-              ⚡ Shoppage Time Wire
-            </Link>
-            <Link href="/markets" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}>
-              👥 5,200+ Virtual Markets & Groups
-            </Link>
-            <Link href="/shorts" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}>
-              📱 Proof Shorts
-            </Link>
-            <Link href="/shows" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}>
-              📺 Original Shows
-            </Link>
-            <Link href="/requests" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}>
-              📋 Buyer RFQ Desk
-            </Link>
-            <Link href="/search" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}>
-              🛍️ Master Catalog Matrix
             </Link>
           </div>
         </div>

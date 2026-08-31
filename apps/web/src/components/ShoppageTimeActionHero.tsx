@@ -257,21 +257,17 @@ export default function ShoppageTimeActionHero() {
               }}
             >
               <span style={{ display: 'inline-block', width: '5px', height: '5px', borderRadius: '50%', background: '#FFFFFF', animation: 'pulse 1s infinite' }} />
-              LIVE
+              LIVE FEED
             </div>
-
-            <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0F172A' }}>
-              Shoppage Time Wire
-            </span>
-
-            <span style={{ color: '#CBD5E1' }}>|</span>
 
             <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 800 }}>
               ● {pulseCount.toLocaleString()} Trades/hr
             </span>
 
+            <span style={{ color: '#CBD5E1' }}>|</span>
+
             <span style={{ fontSize: '0.78rem', color: '#64748B' }}>
-              · Live Web Scraper Active ({lastScrapedAt})
+              Real-time Showroom & Web Scraper ({lastScrapedAt})
             </span>
           </div>
 
@@ -581,7 +577,7 @@ export default function ShoppageTimeActionHero() {
               }}
             >
               <h3 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0F172A', margin: '0 0 0.65rem 0' }}>
-                Trending on Shoppage Time 🇿🇦
+                🔥 Trending Commercial Topics 🇿🇦
               </h3>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
