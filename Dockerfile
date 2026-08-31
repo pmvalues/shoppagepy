@@ -18,6 +18,9 @@ RUN npm install
 # Copy source files
 COPY . .
 
+# Ensure public folder exists
+RUN mkdir -p apps/web/public
+
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
@@ -38,6 +41,9 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+
+# Ensure public folder exists in runner
+RUN mkdir -p apps/web/public
 
 # Copy only production runtime artifacts
 COPY --from=builder /app/package.json ./
