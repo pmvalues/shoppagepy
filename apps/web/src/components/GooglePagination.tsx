@@ -7,19 +7,19 @@ export default function GooglePagination({ currentPage = 1, query = '' }: { curr
 
   return (
     <div style={{ textAlign: 'center', padding: '3rem 0', borderTop: '1px solid #E2E8F0' }}>
-      {/* Colorful Logo Header */}
+      {/* Colorful Logo Header: ShoppageTime */}
       <div style={{ display: 'inline-flex', alignItems: 'center', gap: '1px', fontSize: '2.5rem', fontWeight: 900, fontFamily: 'var(--font-display)', marginBottom: '1rem' }}>
         <span style={{ color: '#4285F4' }}>S</span>
         <span style={{ color: '#EA4335' }}>h</span>
-        <span style={{ color: '#FBBC05' }}>o</span>
-        <span style={{ color: '#4285F4' }}>o</span>
-        <span style={{ color: '#34A853' }}>o</span>
-        <span style={{ color: '#EA4335' }}>o</span>
         <span style={{ color: '#FBBC05' }}>o</span>
         <span style={{ color: '#4285F4' }}>p</span>
         <span style={{ color: '#34A853' }}>p</span>
         <span style={{ color: '#EA4335' }}>a</span>
         <span style={{ color: '#FBBC05' }}>g</span>
+        <span style={{ color: '#4285F4' }}>e</span>
+        <span style={{ color: '#34A853' }}>T</span>
+        <span style={{ color: '#EA4335' }}>i</span>
+        <span style={{ color: '#FBBC05' }}>m</span>
         <span style={{ color: '#4285F4' }}>e</span>
         <span style={{ color: '#4285F4', fontSize: '1.75rem', marginLeft: '0.5rem' }}>›</span>
       </div>

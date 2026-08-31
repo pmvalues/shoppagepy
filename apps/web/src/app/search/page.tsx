@@ -61,7 +61,7 @@ export default function SearchPage({
           </div>
         )}
 
-        {/* Shooooooooppage Google-Style Pagination Footer */}
+        {/* ShoppageTime Pagination Footer */}
         <GooglePagination currentPage={currentPage} query={query} />
       </main>
     </div>
