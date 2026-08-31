@@ -79,6 +79,20 @@ export default function ShortsPage() {
       thumbnailUrl: 'https://images.unsplash.com/photo-1548611716-ad381335b2e0?w=480&h=854&fit=crop',
       summary: 'Auxiliary load port configuration for geysers and smart generator integration.',
     },
+    {
+      id: 'sh_05',
+      title: '🍽️ Unboxing 157 Commercial Food Packaging & Catering Items in Midrand Showroom',
+      productTitle: 'Mitrend Catering & Packaging Range',
+      productRef: 'p_mitrend_001',
+      merchantName: 'Mitrend Products (Pty) Ltd',
+      merchantWhatsApp: '27105007670',
+      views: 31200,
+      likes: 1450,
+      shares: 310,
+      duration: '0:55',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1577937927133-66ef06acdf18?w=480&h=854&fit=crop',
+      summary: 'Tour of SABS food-grade portioning spoons, tamper-evident containers, and hotel display smalls.',
+    },
   ];
 
   const handleLike = (id: string, initialLikes: number) => {

@@ -10,6 +10,7 @@ import {
   calculateBackupRuntime,
   SA_FLAGSHIP_OFFERS,
   SA_CANONICAL_PRODUCTS,
+  MITREND_MERCHANT,
 } from '@shoppage/kernel';
 import type { MasterProduct, Offer } from '@shoppage/contracts';
 import ProductStudioStage from '@/components/ProductStudioStage';
@@ -69,19 +70,22 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const confirmedOffers = SA_FLAGSHIP_OFFERS.filter((o) => o.variantRef === product.canonicalId);
   const discoveredOffers = DiscoveredOffersStore.getDiscoveredOffersByProduct(product.canonicalId);
 
+  const isMitrend = params.id.toLowerCase().includes('mitrend');
+  const defaultMerchantRef = isMitrend ? 'loc_mitrend_midrand' : 'loc_sunpower_crownmines';
+
   const displayOffers: Offer[] = confirmedOffers.length > 0 ? confirmedOffers : [
     {
       id: `off_${product.canonicalId}_1`,
       variantRef: product.canonicalId,
-      merchantRef: 'loc_sunpower_crownmines',
-      stallRef: 'Crown Mines Main Concourse',
+      merchantRef: defaultMerchantRef,
+      stallRef: isMitrend ? 'Midrand Showroom Counter' : 'Crown Mines Main Concourse',
       destinationType: 'retailer_website',
       actionTarget: {
         type: 'url',
-        destinationUrl: 'https://sunpower.co.za',
+        destinationUrl: isMitrend ? 'https://mitrend.co.za' : 'https://sunpower.co.za',
       },
       price: {
-        amount: Number((product.attributes as any)?.estimatedPriceZar) || 1250,
+        amount: Number((product.attributes as any)?.estimatedPriceZar) || (isMitrend ? 45 : 1250),
         currency: 'ZAR',
         sourceTimestamp: new Date().toISOString(),
       },
@@ -222,13 +226,15 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </thead>
             <tbody>
               {displayOffers.map((offer) => {
-                const merchant = SA_FLAGSHIP_MERCHANTS.find((m) => m.id === offer.merchantRef) || {
-                  id: offer.merchantRef,
-                  name: 'SunPower Solutions (Crown Mines)',
-                  addressText: 'Crown Mines Wholesale Hub, Johannesburg',
-                  contacts: { telephone: '+27110001001', website: 'https://sunpower.co.za' },
-                  googleRating: 4.9,
-                };
+                const merchant = (offer.merchantRef === 'loc_mitrend_midrand' || isMitrend)
+                  ? (MITREND_MERCHANT as any)
+                  : SA_FLAGSHIP_MERCHANTS.find((m) => m.id === offer.merchantRef) || {
+                      id: offer.merchantRef,
+                      name: 'SunPower Solutions (Crown Mines)',
+                      addressText: 'Crown Mines Wholesale Hub, Johannesburg',
+                      contacts: { telephone: '+27110001001', website: 'https://sunpower.co.za' },
+                      googleRating: 4.9,
+                    };
 
                 return (
                   <tr key={offer.id} style={{ borderBottom: '1px solid var(--border)' }}>

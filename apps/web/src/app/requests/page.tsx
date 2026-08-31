@@ -61,6 +61,17 @@ export default function RequestsPage() {
       responsesCount: 2,
       buyerPhoneMasked: '+27 73 ••• ••67',
     },
+    {
+      id: 'req_05',
+      title: '500x Tamper-Proof Food Containers 500ml + Tasting Spoons for Event',
+      category: 'Packaging & Catering',
+      metro: 'Midrand / Sandton, Gauteng',
+      budgetZar: 4500,
+      urgency: 'Immediate (Today)',
+      timeAgo: '15 minutes ago',
+      responsesCount: 3,
+      buyerPhoneMasked: '+27 83 ••• ••45',
+    },
   ]);
 
   const [form, setForm] = useState({
@@ -156,6 +167,7 @@ export default function RequestsPage() {
                 className="form-control"
               >
                 <option value="Solar & Energy">☀️ Solar & Energy</option>
+                <option value="Packaging & Catering">🍽️ Food Packaging & Catering</option>
                 <option value="Tech & Phones">📱 Tech & Smartphones</option>
                 <option value="Building Materials">🧱 Building & Hardware</option>
                 <option value="Food & Groceries">🛒 Wholesale Food & FMCG</option>
