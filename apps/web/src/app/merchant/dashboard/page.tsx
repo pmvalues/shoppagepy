@@ -400,11 +400,18 @@ export default function MerchantDashboardPage() {
     },
   ]);
 
+  const isMitrendSelected = selectedMerchantId === 'loc_mitrend_midrand';
   const dashboard = ShoppageMerchantCentreService.getUnifiedDashboard(
     selectedMerchantId,
     typeof window !== 'undefined' ? window.location.origin : 'https://shoppage.co.za'
   );
-  const { merchant, googleMerchantCenter } = dashboard;
+  const merchant = isMitrendSelected ? (MITREND_MERCHANT as any) : dashboard.merchant;
+  const googleMerchantCenter = {
+    ...dashboard.googleMerchantCenter,
+    feedUrl: `${typeof window !== 'undefined' ? window.location.origin : 'https://shoppage.co.za'}/api/feeds/google-merchant-center/${selectedMerchantId}`,
+    totalProducts: isMitrendSelected ? 157 : dashboard.googleMerchantCenter.totalProducts,
+    approvedProducts: isMitrendSelected ? 157 : dashboard.googleMerchantCenter.approvedProducts,
+  };
 
   const handleConfirmStock = (id: string) => {
     setDiscoveredStock((prev) =>
@@ -555,8 +562,6 @@ export default function MerchantDashboardPage() {
   const pendingDiscoveredCount = discoveredStock.filter((s) => s.status === 'pending').length;
   const processingOrdersCount = ordersList.filter((o) => o.status === 'processing').length;
 
-  const isMitrendSelected = selectedMerchantId === 'loc_mitrend_midrand';
-
   const activeMerchantProducts = isMitrendSelected
     ? MITREND_PRODUCTS.map((p) => ({
         id: p.id,
@@ -701,7 +706,13 @@ export default function MerchantDashboardPage() {
                 outline: 'none',
               }}
             >
-              {SA_FLAGSHIP_MERCHANTS.map((m) => (
+              <option value="loc_sunpower_crownmines">
+                SunPower Solutions (Crown Mines Wholesale Hub)
+              </option>
+              <option value="loc_mitrend_midrand">
+                Mitrend Products (Pty) Ltd (Midrand Showroom - 157 SKUs)
+              </option>
+              {SA_FLAGSHIP_MERCHANTS.filter((m) => m.id !== 'loc_sunpower_crownmines' && m.id !== 'loc_mitrend_midrand').map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.name} ({m.province || 'SA'})
                 </option>
