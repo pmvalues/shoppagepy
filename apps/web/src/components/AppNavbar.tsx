@@ -141,6 +141,29 @@ export default function AppNavbar({ children }: { children: React.ReactNode }) {
           {/* Header Right Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexShrink: 0 }}>
             <Link
+              href="/time"
+              className="btn btn-sm"
+              style={{
+                background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                color: '#FFFFFF',
+                padding: '0.45rem 0.95rem',
+                borderRadius: '8px',
+                fontWeight: 900,
+                fontSize: '0.825rem',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                border: 'none',
+              }}
+              title="Shoppage Time · Real-Time Commercial Timeline"
+            >
+              <span>⚡</span>
+              <span>Shoppage Time</span>
+              <span style={{ background: '#EF4444', color: '#FFF', fontSize: '0.62rem', padding: '0.1rem 0.35rem', borderRadius: '4px', fontWeight: 900 }}>LIVE</span>
+            </Link>
+
+            <Link
               href="/admin"
               className="btn btn-outline btn-sm"
               style={{ padding: '0.45rem 0.85rem', borderRadius: '8px', fontWeight: 700 }}
@@ -161,6 +184,30 @@ export default function AppNavbar({ children }: { children: React.ReactNode }) {
               style={{ padding: '0.45rem 1rem', borderRadius: '8px' }}
             >
               + List Store
+            </Link>
+          </div>
+        </div>
+
+        {/* Secondary Sub-Bar: Rapid Navigation */}
+        <div style={{ background: '#F8FAFC', borderTop: '1px solid #E2E8F0', padding: '0.35rem 1rem', fontSize: '0.8rem' }}>
+          <div className="container" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', overflowX: 'auto' }}>
+            <Link href="/time" style={{ fontWeight: 800, color: '#2563EB', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem', whiteSpace: 'nowrap' }}>
+              ⚡ Shoppage Time Wire
+            </Link>
+            <Link href="/markets" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}>
+              👥 5,200+ Virtual Markets & Groups
+            </Link>
+            <Link href="/shorts" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}>
+              📱 Proof Shorts
+            </Link>
+            <Link href="/shows" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}>
+              📺 Original Shows
+            </Link>
+            <Link href="/requests" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}>
+              📋 Buyer RFQ Desk
+            </Link>
+            <Link href="/search" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}>
+              🛍️ Master Catalog Matrix
             </Link>
           </div>
         </div>
@@ -215,11 +262,14 @@ export default function AppNavbar({ children }: { children: React.ReactNode }) {
                 Commercial Grid
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.85rem' }}>
+                <Link href="/time" style={{ color: '#38BDF8', fontWeight: 700 }}>
+                  ⚡ Shoppage Time Wire (Live)
+                </Link>
                 <Link href="/search" style={{ color: '#94A3B8' }}>
                   Master Product Matrix
                 </Link>
                 <Link href="/markets" style={{ color: '#94A3B8' }}>
-                  Virtual B2B Markets & Exchanges
+                  Virtual B2B Markets & Groups (5,200+)
                 </Link>
                 <Link href="/malls" style={{ color: '#94A3B8' }}>
                   3,296 Shopping Centres
