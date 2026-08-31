@@ -89,7 +89,7 @@ export default function AppNavbar({ children }: { children: React.ReactNode }) {
           </Link>
 
           {/* Prominent Search Bar */}
-          <div style={{ flex: 1, maxWidth: '780px' }}>
+          <div style={{ flex: 1, maxWidth: '880px' }}>
             <LiveSearch />
           </div>
 
@@ -118,14 +118,6 @@ export default function AppNavbar({ children }: { children: React.ReactNode }) {
               <span style={{ background: '#EF4444', color: '#FFF', fontSize: '0.62rem', padding: '0.1rem 0.35rem', borderRadius: '4px', fontWeight: 900 }}>LIVE</span>
             </Link>
 
-            <Link
-              href="/admin"
-              className="btn btn-outline btn-sm"
-              style={{ padding: '0.45rem 0.85rem', borderRadius: '8px', fontWeight: 700 }}
-              title="Merchant & Platform Admin Login"
-            >
-              🔐 Admin Login
-            </Link>
             <Link
               href="/merchant/dashboard"
               className="btn btn-dark btn-sm"

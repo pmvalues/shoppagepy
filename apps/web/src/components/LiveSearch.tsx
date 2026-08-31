@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useRef, useEffect, FormEvent, KeyboardEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useRef, useEffect, Suspense, FormEvent, KeyboardEvent } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import type { ProductVariant } from '@shoppage/contracts';
 
-export default function LiveSearch() {
+function LiveSearchContent() {
   const router = useRouter();
-  const [q, setQ] = useState('');
+  const searchParams = useSearchParams();
+  const initialQ = searchParams?.get('q') || '';
+  const [q, setQ] = useState(initialQ);
   const [overview, setOverview] = useState('');
   const [results, setResults] = useState<ProductVariant[]>([]);
   const [open, setOpen] = useState(false);
@@ -15,6 +17,13 @@ export default function LiveSearch() {
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const debounceRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Sync state if URL query changes
+  useEffect(() => {
+    if (initialQ && initialQ !== q) {
+      setQ(initialQ);
+    }
+  }, [initialQ]);
 
   useEffect(() => {
     if (!q.trim()) {
@@ -81,7 +90,7 @@ export default function LiveSearch() {
     e.preventDefault();
     if (q.trim()) {
       setOpen(false);
-      router.push(`/search?q=${encodeURIComponent(q)}`);
+      router.push(`/search?q=${encodeURIComponent(q.trim())}`);
     }
   };
 
@@ -95,57 +104,129 @@ export default function LiveSearch() {
 
   return (
     <div ref={containerRef} style={{ position: 'relative', width: '100%', margin: '0 auto' }}>
-      <form onSubmit={submit} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+      <form
+        onSubmit={submit}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          background: '#FFFFFF',
+          borderRadius: '24px',
+          border: '1px solid #DFE1E5',
+          boxShadow: '0 1px 6px rgba(32, 33, 36, 0.22)',
+          padding: '0 0.85rem 0 1.25rem',
+          height: '44px',
+          transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
+      >
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onFocus={() => q && setOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder="Search products, brands, malls, stores in South Africa..."
-          className="live-search-input"
+          style={{
+            flex: 1,
+            border: 'none',
+            outline: 'none',
+            background: 'transparent',
+            fontSize: '0.975rem',
+            color: '#1E293B',
+            fontWeight: 500,
+          }}
           aria-label="Search"
           autoComplete="off"
         />
 
-        {q && (
+        {/* Right Google-Style Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
+          {q && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#70757A',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                padding: '0.2rem 0.4rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              aria-label="Clear search"
+              title="Clear"
+            >
+              ✕
+            </button>
+          )}
+
+          <span style={{ width: '1px', height: '20px', background: '#DFE1E5', margin: '0 0.15rem' }}></span>
+
           <button
             type="button"
-            onClick={clearSearch}
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                alert('🎙️ Voice Search activated. Speak your query now...');
+              }
+            }}
             style={{
-              position: 'absolute',
-              right: '110px',
-              top: '50%',
-              transform: 'translateY(-50%)',
               background: 'none',
               border: 'none',
-              color: '#94A3B8',
               cursor: 'pointer',
-              fontSize: '1.1rem',
               padding: '0.25rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
-            aria-label="Clear search"
+            title="Search by voice"
           >
-            ✕
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 15C13.66 15 15 13.66 15 12V6C15 4.34 13.66 3 12 3C10.34 3 9 4.34 9 6V12C9 13.66 10.34 15 12 15Z" fill="#4285F4" />
+              <path d="M19 12C19 15.53 16.14 18.4 12.67 18.93V21H11.33V18.93C7.86 18.4 5 15.53 5 12H7C7 14.76 9.24 17 12 17C14.76 17 17 14.76 17 12H19Z" fill="#34A853" />
+            </svg>
           </button>
-        )}
 
-        <button
-          type="submit"
-          className="btn btn-primary"
-          style={{
-            position: 'absolute',
-            right: 5,
-            top: 5,
-            bottom: 5,
-            height: '38px',
-            borderRadius: 9999,
-            padding: '0 1.25rem',
-            fontWeight: 800,
-            fontSize: '0.875rem',
-          }}
-        >
-          Search
-        </button>
+          <button
+            type="button"
+            onClick={() => alert('📷 Visual Search & Google Lens mode ready. Upload or drop an image.')}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '0.25rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            title="Search by image (Lens)"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" fill="#4285F4" />
+              <path d="M9 3L7.17 5H4C2.9 5 2 5.9 2 7V19C2 20.1 2.9 21 4 21H20C21.1 21 22 20.1 22 19V7C22 5.9 21.1 5 20 5H16.83L15 3H9ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17Z" fill="#EA4335" />
+            </svg>
+          </button>
+
+          <button
+            type="submit"
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '0.25rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            title="Search"
+            aria-label="Submit search"
+          >
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#4285F4" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+        </div>
       </form>
 
       {open && (overview || results.length > 0 || loading) && (
@@ -210,5 +291,28 @@ export default function LiveSearch() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function LiveSearch() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            background: '#FFFFFF',
+            borderRadius: '24px',
+            border: '1px solid #DFE1E5',
+            boxShadow: '0 1px 6px rgba(32, 33, 36, 0.22)',
+            height: '44px',
+            padding: '0 1.25rem',
+          }}
+        />
+      }
+    >
+      <LiveSearchContent />
+    </Suspense>
   );
 }
