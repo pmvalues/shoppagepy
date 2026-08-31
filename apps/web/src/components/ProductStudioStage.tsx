@@ -78,9 +78,21 @@ export default function ProductStudioStage({
         }}
       />
 
-      {/* Main Industrial SVG Illustration (Light Aesthetic) */}
-      <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        {isSolar && !isBattery && (
+      {/* Main Image or Industrial SVG Illustration */}
+      <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+        {product.media?.gallery?.[0]?.url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={product.media.gallery[0].url}
+            alt={product.media.gallery[0].altText || product.title}
+            style={{
+              maxHeight: isDetail ? '300px' : '150px',
+              maxWidth: '90%',
+              objectFit: 'contain',
+              borderRadius: '6px',
+            }}
+          />
+        ) : isSolar && !isBattery ? (
           <svg
             width={isDetail ? 220 : 110}
             height={isDetail ? 180 : 90}
@@ -110,9 +122,7 @@ export default function ProductStudioStage({
             <rect x="108" y="115" width="50" height="16" rx="3" fill="#ECFDF5" stroke="#10B981" />
             <text x="133" y="127" fill="#059669" fontSize="8" fontFamily="sans-serif" fontWeight="bold" textAnchor="middle">NRS 097</text>
           </svg>
-        )}
-
-        {isBattery && (
+        ) : isBattery ? (
           <svg
             width={isDetail ? 220 : 110}
             height={isDetail ? 180 : 90}
@@ -140,9 +150,7 @@ export default function ProductStudioStage({
             {/* Bus Specs */}
             <text x="145" y="99" fill="#64748B" fontSize="10" fontFamily="sans-serif" fontWeight="bold">51.2V 100Ah</text>
           </svg>
-        )}
-
-        {isTech && (
+        ) : isTech ? (
           <svg
             width={isDetail ? 200 : 100}
             height={isDetail ? 180 : 90}
@@ -156,9 +164,7 @@ export default function ProductStudioStage({
             <circle cx="80" cy="80" r="22" fill="#C7D2FE" opacity="0.6" />
             <text x="80" y="85" fill="#4338CA" fontSize="10" fontFamily="sans-serif" fontWeight="bold" textAnchor="middle">5G OCTA</text>
           </svg>
-        )}
-
-        {!isSolar && !isBattery && !isTech && (
+        ) : (
           <svg
             width={isDetail ? 200 : 100}
             height={isDetail ? 180 : 90}

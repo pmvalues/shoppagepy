@@ -62,6 +62,14 @@ export const GOOGLE_PRODUCT_TAXONOMY_SEEDS: GoogleCategoryNode[] = [
   { id: 413, name: 'Beverages', fullPath: 'Food, Beverages & Tobacco > Beverages', parentId: 412, level: 2, slug: 'beverages' },
   { id: 414, name: 'Food Items', fullPath: 'Food, Beverages & Tobacco > Food Items', parentId: 412, level: 2, slug: 'food-items' },
   { id: 415, name: 'Cooking Oil & Essentials', fullPath: 'Food, Beverages & Tobacco > Food Items > Cooking Oil & Essentials', parentId: 414, level: 3, slug: 'cooking-oil' },
+
+  // Commercial Catering, Food Packaging & Hospitality Supplies (Mitrend & B2B Wholesale)
+  { id: 600001, name: 'Food Service & Catering Equipment', fullPath: 'Business & Industrial > Food Service & Catering Equipment', parentId: 111, level: 2, slug: 'food-service-equipment' },
+  { id: 600002, name: 'Food Packaging - Tubs, Containers & Lids', fullPath: 'Business & Industrial > Food Packaging - Tubs, Containers & Lids', parentId: 111, level: 2, slug: 'packaging-lids-and-tubs' },
+  { id: 600003, name: 'Anti-Theft & Security Hotel Hangers', fullPath: 'Business & Industrial > Hospitality Supplies > Anti-Theft & Security Hotel Hangers', parentId: 111, level: 3, slug: 'anti-theft-security-hotel-hangers' },
+  { id: 600004, name: 'Quality Control & Portioning Equipment', fullPath: 'Business & Industrial > Quality Control & Portioning Equipment', parentId: 111, level: 2, slug: 'testing-measuring-packaging-weighing' },
+  { id: 600005, name: 'Measuring Scoops & Dosage Spoons', fullPath: 'Business & Industrial > Measuring Scoops & Dosage Spoons', parentId: 111, level: 2, slug: 'measuring-and-packaging-scoops-spoons' },
+  { id: 600006, name: 'Buffet & Displayware Equipment', fullPath: 'Business & Industrial > Buffet & Displayware Equipment', parentId: 111, level: 2, slug: 'buffet-and-displayware-catering-equipment' },
 ];
 
 /**

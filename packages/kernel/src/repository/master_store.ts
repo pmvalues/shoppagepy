@@ -121,14 +121,25 @@ export class MasterProductStore {
 
     // Search seed flagship items first (instant memory match)
     let seedMatches = SA_CANONICAL_PRODUCTS.filter((p) => {
-      if (options.category && p.categoryRef !== options.category) return false;
+      if (options.category) {
+        const catLower = options.category.toLowerCase();
+        const matchesCategory =
+          p.categoryRef.toLowerCase().includes(catLower) ||
+          (p.attributes?.category as string)?.toLowerCase().includes(catLower);
+        if (!matchesCategory) return false;
+      }
       if (options.brand && p.brand.toLowerCase() !== options.brand.toLowerCase()) return false;
       if (searchTokens.length === 0) return true;
       return searchTokens.every((tok) =>
         p.title.toLowerCase().includes(tok) ||
         p.brand.toLowerCase().includes(tok) ||
         p.categoryRef.toLowerCase().includes(tok) ||
-        p.identifiers.gtin13?.includes(tok)
+        (p.attributes?.category as string)?.toLowerCase().includes(tok) ||
+        (p.attributes?.specs as string)?.toLowerCase().includes(tok) ||
+        (p.attributes?.description as string)?.toLowerCase().includes(tok) ||
+        p.identifiers.mpn?.toLowerCase().includes(tok) ||
+        p.identifiers.gtin13?.includes(tok) ||
+        p.aliases?.some((a) => a.phrase.toLowerCase().includes(tok))
       );
     });
 

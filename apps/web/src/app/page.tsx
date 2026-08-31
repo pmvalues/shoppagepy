@@ -17,7 +17,11 @@ import ShowsRail from '@/components/ShowsRail';
 import MerchantCard from '@/components/MerchantCard';
 
 export default function HomePage() {
-  const masterProducts = SA_CANONICAL_PRODUCTS.slice(0, 8);
+  // Featured Trending Master Products (Solar, Hardware & Mitrend Packaging)
+  const masterProducts = [
+    ...SA_CANONICAL_PRODUCTS.filter((p) => p.brand !== 'Mitrend Products').slice(0, 4),
+    ...SA_CANONICAL_PRODUCTS.filter((p) => p.brand === 'Mitrend Products').slice(0, 8),
+  ];
   const flagshipMarkets = SA_FLAGSHIP_MARKETS.slice(0, 6);
   const totalCatalogCount = MasterProductStore.getTotalProductsCount();
   const totalMallsCount = SouthAfricaMallsStore.getTotalCount();
@@ -92,11 +96,12 @@ export default function HomePage() {
           {/* Popular Search Pills */}
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginTop: '1.75rem' }}>
             <span style={{ fontSize: '0.775rem', color: 'var(--slate-400)', fontWeight: 700 }}>Popular:</span>
+            <Link href="/search?q=Mitrend" className="badge badge-blue">🏨 Mitrend Products (Midrand)</Link>
+            <Link href="/search?q=hotel+hanger" className="badge badge-green">👔 Anti-Theft Hotel Hangers</Link>
+            <Link href="/search?q=measuring+spoon" className="badge badge-amber">🥄 Measuring Dosage Spoons</Link>
+            <Link href="/search?q=silicone+lid" className="badge badge-gray">🥣 Food Packaging & Lids</Link>
             <Link href="/search?q=Deye+8kW" className="badge badge-amber">⚡ Deye 8kW Inverter</Link>
             <Link href="/search?q=Dyness+5.12kWh" className="badge badge-blue">🔋 Dyness 5.12kWh</Link>
-            <Link href="/search?q=Tier+1+Solar+Panels" className="badge badge-green">☀️ Solar Panels</Link>
-            <Link href="/search?q=PPC+Surebuild+Cement" className="badge badge-gray">🧱 PPC Cement 50kg</Link>
-            <Link href="/malls?province=Gauteng" className="badge badge-blue">🏬 Mall of Africa</Link>
           </div>
         </div>
       </section>

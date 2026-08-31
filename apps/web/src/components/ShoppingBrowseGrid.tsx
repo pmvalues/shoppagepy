@@ -11,13 +11,13 @@ export default function ShoppingBrowseGrid({ products }: { products: MasterProdu
   const [priceMax, setPriceMax] = useState('');
 
   const filterChips = [
+    { id: 'all', label: 'All Categories' },
+    { id: 'mitrend', label: '🏨 Mitrend Packaging & Spoons' },
+    { id: 'hangers', label: '👔 Hotel Security Hangers' },
+    { id: 'catering', label: '🔪 Catering & Utensils' },
     { id: 'inverters', label: '⚡ Power Inverters' },
-    { id: 'lights', label: '☀️ Solar Lights' },
     { id: 'batteries', label: '🔋 Household Batteries' },
-    { id: 'sale', label: '🏷️ On sale' },
-    { id: 'generators', label: '🔌 Generators' },
-    { id: 'geysers', label: '♨️ Water Heaters' },
-    { id: 'security', label: '📹 Security Cameras' },
+    { id: 'panels', label: '☀️ Solar Panels' },
   ];
 
   return (
@@ -111,7 +111,7 @@ export default function ShoppingBrowseGrid({ products }: { products: MasterProdu
             <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#202124', marginBottom: '0.5rem' }}>
               Brand
             </div>
-            {['Deye', 'Dyness', 'JA Solar', 'Canadian Solar', 'Victron energy'].map((brand) => (
+            {['Mitrend Products', 'Deye', 'Dyness', 'JA Solar', 'Canadian Solar', 'Victron energy'].map((brand) => (
               <div key={brand} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem', fontSize: '0.825rem', color: '#3C4043' }}>
                 <input type="checkbox" id={brand} />
                 <label htmlFor={brand}>{brand}</label>
@@ -124,7 +124,7 @@ export default function ShoppingBrowseGrid({ products }: { products: MasterProdu
             <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#202124', marginBottom: '0.5rem' }}>
               Shops
             </div>
-            {['takealot.com', 'Builders Warehouse', 'Leroy Merlin', 'Makro', 'SunPower SA'].map((shop) => (
+            {['Mitrend Products (Midrand)', 'SunPower SA', 'takealot.com', 'Builders Warehouse', 'Leroy Merlin', 'Makro'].map((shop) => (
               <div key={shop} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem', fontSize: '0.825rem', color: '#3C4043' }}>
                 <input type="checkbox" id={shop} />
                 <label htmlFor={shop}>{shop}</label>
@@ -146,6 +146,7 @@ export default function ShoppingBrowseGrid({ products }: { products: MasterProdu
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.25rem' }}>
             {products.map((product, idx) => {
+              const isMitrend = product.brand === 'Mitrend Products' || product.canonicalId.startsWith('mit_');
               const price = (product.attributes?.estimatedPriceZar as number) || (idx === 0 ? 1590 : idx === 1 ? 1151.95 : idx === 2 ? 1386 : 28499);
               return (
                 <div
@@ -173,14 +174,14 @@ export default function ShoppingBrowseGrid({ products }: { products: MasterProdu
                     <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#202124', margin: '0.35rem 0 0.2rem 0' }}>
                       R {price.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: '#15803D', fontWeight: 700, marginBottom: '0.2rem' }}>
-                      ⚡ SunPower SA & 4 more
+                    <div style={{ fontSize: '0.75rem', color: isMitrend ? '#7F54B3' : '#15803D', fontWeight: 700, marginBottom: '0.2rem' }}>
+                      {isMitrend ? '🏨 Mitrend Products · Midrand' : '⚡ SunPower SA & 4 more'}
                     </div>
                     <div style={{ fontSize: '0.72rem', color: '#5F6368' }}>
-                      Nearby, 14 km · 30-day returns
+                      {isMitrend ? 'Warehouse Collection · Courier SA' : 'Nearby, 14 km · 30-day returns'}
                     </div>
                     <div style={{ fontSize: '0.72rem', color: '#D97706', fontWeight: 700, marginTop: '0.2rem' }}>
-                      ★ 4,7 (16 reviews)
+                      ★ 4,9 (48 reviews)
                     </div>
                   </div>
                 </div>

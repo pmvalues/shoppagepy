@@ -39,11 +39,19 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
   automotive: [
     'car', 'auto', 'spare', 'tyre', 'tire', 'engine oil', 'brake', 'vehicle', 'car battery', 'alternator'
   ],
+  packaging_catering: [
+    'packaging', 'catering', 'mitrend', 'hanger', 'hotel hanger', 'anti-theft hanger', 'anti theft',
+    'spoon', 'measuring spoon', 'dosage spoon', 'teaspoon', 'grater', 'cleaver', 'meat cleaver',
+    'knife', 'oyster knife', 'shears', 'poultry shears', 'lid', 'silicone lid', 'clip-on lid',
+    'tub', 'container', 'portioning', 'sampling cup', 'tasting cup', 'gelato spoon', 'tasting spoon',
+    'buffet', 'displayware', 'hotel equipment', 'kitchen smalls', 'cutting board'
+  ],
 };
 
 const BRAND_HINTS = [
   'deye', 'sunsynk', 'dyness', 'samsung', 'apple', 'huawei', 'lg', 'sony', 'oraimo',
-  'xis', 'victron', 'growatt', 'pylontech', 'hubble', 'must', 'ja solar', 'canadian solar'
+  'xis', 'victron', 'growatt', 'pylontech', 'hubble', 'must', 'ja solar', 'canadian solar',
+  'mitrend', 'mitrend products'
 ];
 
 export interface ToolCallResult {
@@ -168,8 +176,10 @@ export interface AssistantReply {
   externalComplemented?: boolean;
 }
 
-export function askAssistant(message: string): AssistantReply {
+export function askAssistant(message: string, opts?: { limit?: number; offset?: number }): AssistantReply {
   const intent = detectIntent(message);
+  const limit = opts?.limit || 24;
+  const offset = opts?.offset || 0;
   const toolCalls: ToolCallResult[] = [];
   let calculationResult: AssistantReply['calculationResult'];
 
@@ -199,8 +209,8 @@ export function askAssistant(message: string): AssistantReply {
     query: q,
     category: intent.category,
     brand: intent.brand,
-    limit: 8,
-    offset: 0,
+    limit,
+    offset,
   });
 
   let products = productRes.items;
@@ -285,7 +295,7 @@ export function askAssistant(message: string): AssistantReply {
 }
 
 export function semanticSearch(rawQuery: string, opts?: { limit?: number; offset?: number }) {
-  const res = askAssistant(rawQuery);
+  const res = askAssistant(rawQuery, opts);
   const totalProducts = res.products.length;
   const totalMerchants = res.merchants.length;
   const topBrands = Array.from(new Set(res.products.map((p) => p.brand))).slice(0, 5);

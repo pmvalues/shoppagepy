@@ -155,15 +155,24 @@ export class NationwideMerchantStore {
     const cat = options.category?.trim() || '';
     const mkt = options.marketId?.trim() || '';
 
+    // Search flagship verified merchants first
+    const flagshipMatches = SA_FLAGSHIP_MERCHANTS.filter((m) => {
+      if (prov && !m.addressText.includes(prov) && m.province !== prov) return false;
+      if (cat && m.category !== cat) return false;
+      if (mkt && m.marketId !== mkt) return false;
+      if (q && !m.name.toLowerCase().includes(q) && !m.addressText.toLowerCase().includes(q)) return false;
+      return true;
+    });
+
     const db = getMerchantSqliteDb();
     if (!db) {
-      const filtered = SA_NATIONWIDE_MERCHANTS.filter((m) => {
+      const filtered = [...flagshipMatches, ...SA_NATIONWIDE_MERCHANTS.filter((m) => {
         if (prov && !m.addressText.includes(prov)) return false;
         if (cat && m.category !== cat) return false;
         if (mkt && m.marketId !== mkt) return false;
         if (q && !m.name.toLowerCase().includes(q) && !m.addressText.toLowerCase().includes(q)) return false;
         return true;
-      });
+      })];
       return {
         items: filtered.slice(offset, offset + limit),
         total: filtered.length,
@@ -206,13 +215,14 @@ export class NationwideMerchantStore {
               ftsParams.push(cat);
             }
             ftsSql += ' LIMIT ? OFFSET ?';
-            ftsParams.push(limit, offset);
+            ftsParams.push(limit, Math.max(0, offset - flagshipMatches.length));
 
             const ftsStmt = db.prepare(ftsSql);
             const rows: any[] = ftsStmt.all(...ftsParams);
+            const dbMerchants = rows.map(rowToMerchant);
             return {
-              items: rows.map(rowToMerchant),
-              total: Math.max(rows.length, 100),
+              items: offset === 0 ? [...flagshipMatches, ...dbMerchants].slice(0, limit) : dbMerchants,
+              total: Math.max(rows.length + flagshipMatches.length, 100),
             };
           } catch (ftsErr) {
             // Fall back to B-tree name prefix or exact
@@ -228,15 +238,16 @@ export class NationwideMerchantStore {
       const selectStmt = db.prepare(
         `SELECT * FROM swept_merchants ${whereClause} LIMIT ? OFFSET ?`
       );
-      const rows: any[] = selectStmt.all(...params, limit, offset);
+      const rows: any[] = selectStmt.all(...params, limit, Math.max(0, offset - flagshipMatches.length));
+      const dbMerchants = rows.map(rowToMerchant);
 
       return {
-        items: rows.map(rowToMerchant),
-        total: prov && cachedProvinceCounts?.[prov] ? cachedProvinceCounts[prov] : (cachedTotalMerchantCount || 3109299),
+        items: offset === 0 ? [...flagshipMatches, ...dbMerchants].slice(0, limit) : dbMerchants,
+        total: (prov && cachedProvinceCounts?.[prov] ? cachedProvinceCounts[prov] : (cachedTotalMerchantCount || 3109299)) + flagshipMatches.length,
       };
     } catch (err) {
       console.error('[MerchantStore] Search error:', err);
-      return { items: [], total: 0 };
+      return { items: flagshipMatches.slice(0, limit), total: flagshipMatches.length };
     }
   }
 

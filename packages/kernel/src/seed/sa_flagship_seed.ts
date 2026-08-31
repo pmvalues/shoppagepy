@@ -248,10 +248,13 @@ const RAW_CANONICAL_PRODUCTS: ProductVariant[] = [
   },
 ];
 
+import { MITREND_CANONICAL_PRODUCTS, MITREND_OFFERS } from './mitrend_dataset';
+
 // Enrich canonical products with media, guides, reviews, and compliance certifications
-export const SA_CANONICAL_PRODUCTS: ProductVariant[] = RAW_CANONICAL_PRODUCTS.map((p) =>
-  enrichProductVariant(p)
-);
+export const SA_CANONICAL_PRODUCTS: ProductVariant[] = [
+  ...RAW_CANONICAL_PRODUCTS.map((p) => enrichProductVariant(p)),
+  ...MITREND_CANONICAL_PRODUCTS,
+];
 
 export const SA_FLAGSHIP_MERCHANTS: Merchant[] = [
   {
@@ -385,6 +388,7 @@ export const SA_FLAGSHIP_OFFERS: Offer[] = [
       lastConfirmedAt: new Date().toISOString(),
     },
   },
+  ...MITREND_OFFERS,
 ];
 
 export const SA_FLAGSHIP_PASSPORTS: Record<string, TrustPassport> = {
@@ -404,6 +408,15 @@ export const SA_FLAGSHIP_PASSPORTS: Record<string, TrustPassport> = {
     medianResponseMinutes: 8,
     complaintCountLast90d: 0,
     score: 96,
+    state: 'VERIFIED_ACTIVE',
+  },
+  loc_mitrend_midrand: {
+    merchantId: 'loc_mitrend_midrand',
+    merchantName: 'Mitrend Products (Pty) Ltd',
+    freshOffersTodayCount: 157,
+    medianResponseMinutes: 5,
+    complaintCountLast90d: 0,
+    score: 98,
     state: 'VERIFIED_ACTIVE',
   },
 };
