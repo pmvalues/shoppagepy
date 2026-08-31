@@ -33,3 +33,5 @@ export * from './repository/db_resolver';
 export * from './seed/mitrend_dataset';
 export * from './graph/sa_community_groups_dataset';
 export * from './services/community_group_autoposter_service';
+export * from './services/live_data_scraper_service';
+

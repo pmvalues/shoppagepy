@@ -161,6 +161,8 @@ export default function ShoppageTimePage() {
   const [timeline, setTimeline] = useState<TimelineItem[]>(INITIAL_TIMELINE);
   const [activeFilter, setActiveFilter] = useState<'all' | 'deals' | 'rfqs' | 'facebook' | 'twitter_x'>('all');
   const [livePulseTick, setLivePulseTick] = useState(0);
+  const [isScraping, setIsScraping] = useState(false);
+  const [lastScrapedTime, setLastScrapedTime] = useState<string>('Live scraper ready');
 
   // Compose State
   const [composeText, setComposeText] = useState('');
@@ -170,6 +172,54 @@ export default function ShoppageTimePage() {
   const [postToFacebook, setPostToFacebook] = useState(true);
   const [postToTwitterX, setPostToTwitterX] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Live Scraper Fetch
+  const fetchLiveScrapedFeed = async (filter: string = 'all') => {
+    setIsScraping(true);
+    try {
+      const res = await fetch(`/api/v1/scraper/live?filter=${filter}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.feed && data.feed.length > 0) {
+          const formatted: TimelineItem[] = data.feed.map((i: any) => ({
+            id: i.id,
+            source: i.sourceType?.includes('twitter') ? 'twitter_x' : i.sourceType?.includes('facebook') ? 'facebook_group' : 'shoppage_catalog',
+            sourceLabel: i.sourceLabel,
+            sourceIcon: i.sourceIcon || '⚡',
+            sourceUrl: i.sourceUrl,
+            authorName: i.authorName || i.author || 'Verified Stockist',
+            authorHandle: i.authorHandle || i.handle || '@VerifiedTrader',
+            authorLocation: i.authorLocation || i.location || 'South Africa',
+            isVerifiedMerchant: !i.isPlaceholder,
+            timestamp: i.timestamp || 'Live Scraped',
+            text: i.text,
+            hashtags: i.hashtags || ['#ShoppageTime'],
+            productTitle: i.productTitle,
+            productSku: i.productSku,
+            priceZar: i.priceZar,
+            regularPriceZar: i.regularPriceZar,
+            stockStatus: i.stockStatus,
+            likesCount: i.likes || 12,
+            repostsCount: i.reposts || 5,
+            replyCount: i.rfqs || 3,
+            mediaImage: i.mediaUrl,
+            isVideo: i.mediaType === 'video',
+            videoDuration: i.videoDuration,
+          }));
+          setTimeline(formatted);
+          setLastScrapedTime(new Date().toLocaleTimeString());
+        }
+      }
+    } catch (err) {
+      console.warn('Scraper fetch:', err);
+    } finally {
+      setIsScraping(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLiveScrapedFeed(activeFilter);
+  }, [activeFilter]);
 
   // Dynamic Telemetry Pulse
   useEffect(() => {
@@ -203,6 +253,7 @@ export default function ShoppageTimePage() {
       repostsCount: 0,
       replyCount: 0,
       contactPhone: '+27 82 123 4567',
+      mediaImage: 'https://images.unsplash.com/photo-1508873696983-2df57046475a?w=800&auto=format&fit=crop&q=80',
     };
 
     setTimeline([newItem, ...timeline]);
