@@ -141,6 +141,14 @@ export default function AppNavbar({ children }: { children: React.ReactNode }) {
           {/* Header Right Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexShrink: 0 }}>
             <Link
+              href="/admin"
+              className="btn btn-outline btn-sm"
+              style={{ padding: '0.45rem 0.85rem', borderRadius: '8px', fontWeight: 700 }}
+              title="Merchant & Platform Admin Login"
+            >
+              🔐 Admin Login
+            </Link>
+            <Link
               href="/merchant/dashboard"
               className="btn btn-dark btn-sm"
               style={{ padding: '0.45rem 1rem', borderRadius: '8px' }}
