@@ -134,12 +134,23 @@ a {
   border-radius: var(--radius-lg);
   padding: 1.25rem;
   box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease;
+  overflow: hidden;
 }
 
 .card:hover, .sp-card:hover {
   border-color: var(--border-strong);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
+}
+
+.stat-box {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease;
+}
+
+.stat-box:hover {
+  transform: translateY(-3px);
+  border-color: #93C5FD !important;
+  box-shadow: 0 12px 24px -4px rgba(37, 99, 235, 0.1), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
 }
 
 .card-elevated {
@@ -148,16 +159,31 @@ a {
   border-radius: var(--radius-xl);
   padding: 1.75rem;
   box-shadow: var(--shadow-lg);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-elevated:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 35px -6px rgba(15, 23, 42, 0.12), 0 8px 16px -4px rgba(15, 23, 42, 0.06);
 }
 
 .card-interactive {
   cursor: pointer;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.24s ease;
 }
 
 .card-interactive:hover {
-  transform: translateY(-2px);
-  border-color: var(--primary);
-  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  transform: translateY(-4px) scale(1.008);
+  border-color: #93C5FD !important;
+  box-shadow: 0 16px 32px -8px rgba(37, 99, 235, 0.16), 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.card-interactive img, .card img {
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-interactive:hover img, .card:hover img {
+  transform: scale(1.04);
 }
 
 /* Badges & Status Chips */
@@ -171,6 +197,13 @@ a {
   font-weight: 700;
   letter-spacing: 0.02em;
   white-space: nowrap;
+  transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+}
+
+.badge:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.95);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .badge-blue {
@@ -221,8 +254,12 @@ a {
   font-weight: 700;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: all var(--transition-fast);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.18s ease, border-color 0.18s ease;
   white-space: nowrap;
+}
+
+.btn:active {
+  transform: translateY(0.5px) scale(0.99) !important;
 }
 
 .btn-sm {
@@ -241,25 +278,28 @@ a {
   background: #2563EB;
   color: #FFFFFF;
   border-color: #1D4ED8;
-  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.2);
 }
 
 .btn-primary:hover {
   background: #1D4ED8;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.38);
+  transform: translateY(-2px);
 }
 
 .btn-outline {
   background: #FFFFFF;
   color: var(--slate-700);
   border-color: var(--border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .btn-outline:hover {
   background: var(--slate-50);
   border-color: var(--slate-400);
   color: var(--slate-900);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1.5px);
 }
 
 .btn-whatsapp {
@@ -267,24 +307,26 @@ a {
   color: #FFFFFF;
   border-color: #20BA56;
   font-weight: 800;
-  box-shadow: 0 1px 2px rgba(37, 211, 102, 0.2);
+  box-shadow: 0 1px 3px rgba(37, 211, 102, 0.2);
 }
 
 .btn-whatsapp:hover {
   background: #20BA56;
-  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.38);
+  transform: translateY(-2px);
 }
 
 .btn-dark {
   background: #0F172A;
   color: #FFFFFF;
   border-color: #020617;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
 }
 
 .btn-dark:hover {
   background: #1E293B;
-  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.35);
+  transform: translateY(-2px);
 }
 
 /* Grids & Layouts */
@@ -411,13 +453,38 @@ a {
   padding: 0.6rem 0.85rem;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
-  transition: all var(--transition-fast);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
   text-decoration: none;
 }
 
 .live-result:hover {
-  background: var(--slate-50);
-  border-color: var(--border);
+  background: #EFF6FF;
+  border-color: #93C5FD;
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+}
+
+/* Global Table Row Hover */
+table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+table tbody tr:hover td {
+  background-color: #F8FAFC;
+}
+
+/* Image Zoom Container */
+.img-zoom-container {
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}
+
+.img-zoom-container img {
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.img-zoom-container:hover img {
+  transform: scale(1.05);
 }
 
 /* AI Assistant Drawer & FAB */
