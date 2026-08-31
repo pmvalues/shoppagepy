@@ -604,3 +604,33 @@ table tbody tr:hover td {
 .assistant-input:focus {
   border-color: var(--primary);
 }
+
+/* Skip link — institutional a11y */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #0F172A;
+  color: #FFFFFF;
+  padding: 0.5rem 1rem;
+  z-index: 9999;
+  border-radius: 0 0 8px 0;
+  font-weight: 700;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: 0;
+}
+
+/* Reduced motion — WCAG 2.1 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card-interactive:hover, .card:hover, .btn:hover {
+    transform: none !important;
+  }
+}

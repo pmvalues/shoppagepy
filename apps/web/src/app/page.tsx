@@ -112,47 +112,17 @@ export default function HomePage() {
 
           <div className={styles.categoryGrid}>
             {categories.map((c) => (
-              <Link
-                key={c.id}
-                href={c.href}
-                className="card card-interactive"
-                style={{
-                  padding: '1.25rem',
-                  borderRadius: '12px',
-                  border: '1px solid #E2E8F0',
-                  background: '#FFFFFF',
-                  textDecoration: 'none',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                }}
-              >
+              <Link key={c.id} href={c.href} className={`card card-interactive ${styles.categoryCard}`}>
                 <div>
-                  <div
-                    style={{
-                      width: '44px',
-                      height: '44px',
-                      borderRadius: '10px',
-                      background: c.bg,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '1.5rem',
-                      marginBottom: '0.75rem',
-                    }}
-                  >
+                  <div className={styles.categoryIcon} style={{ background: c.bg }} aria-hidden="true">
                     {c.icon}
                   </div>
-                  <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.25rem' }}>
-                    {c.name}
-                  </h3>
-                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>
-                    {c.skus}
-                  </div>
+                  <h3 className={styles.categoryName}>{c.name}</h3>
+                  <div className={styles.categorySkus}>{c.skus}</div>
                 </div>
 
-                <div style={{ marginTop: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid #F1F5F9' }}>
-                  <span style={{ fontSize: '0.65rem', fontWeight: 800, color: c.color, textTransform: 'uppercase' }}>
+                <div className={styles.categoryTagRow}>
+                  <span className={styles.categoryTag} style={{ color: c.color }}>
                     {c.tag}
                   </span>
                 </div>
@@ -178,19 +148,7 @@ export default function HomePage() {
 
           <div className={styles.flagshipGrid}>
             {/* Mitrend Card */}
-            <div
-              className="card"
-              style={{
-                background: '#FFFFFF',
-                borderRadius: '16px',
-                padding: '1.75rem',
-                border: '1.5px solid #E2E8F0',
-                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.03)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-              }}
-            >
+            <div className={`card ${styles.flagshipCard}`}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
                   <div>
@@ -236,19 +194,7 @@ export default function HomePage() {
             </div>
 
             {/* SunPower Card */}
-            <div
-              className="card"
-              style={{
-                background: '#FFFFFF',
-                borderRadius: '16px',
-                padding: '1.75rem',
-                border: '1.5px solid #E2E8F0',
-                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.03)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-              }}
-            >
+            <div className={`card ${styles.flagshipCard}`}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
                   <div>
@@ -312,19 +258,7 @@ export default function HomePage() {
 
           <div className={styles.virtualGrid}>
             {virtualMarkets.map((vm) => (
-              <div
-                key={vm.id}
-                className="card card-interactive"
-                style={{
-                  borderRadius: '16px',
-                  padding: '1.5rem',
-                  border: '1.5px solid #BFDBFE',
-                  background: 'linear-gradient(180deg, #FFFFFF 0%, #EFF6FF 100%)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                }}
-              >
+              <div key={vm.id} className={`card card-interactive ${styles.virtualCard}`}>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                     <span className="badge badge-blue" style={{ fontSize: '0.68rem' }}>
@@ -407,8 +341,8 @@ export default function HomePage() {
           </div>
 
           <div className={styles.bentoGrid}>
-            <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>💸</div>
+            <div className={`card ${styles.bentoCard}`}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }} aria-hidden="true">💸</div>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.5rem' }}>
                 0% Middleman Markups
               </h3>
@@ -417,8 +351,8 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>📞</div>
+            <div className={`card ${styles.bentoCard}`}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }} aria-hidden="true">📞</div>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.5rem' }}>
                 Omnichannel Direct Trade
               </h3>
@@ -427,8 +361,8 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🏬</div>
+            <div className={`card ${styles.bentoCard}`}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }} aria-hidden="true">🏬</div>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.5rem' }}>
                 Immediate Counter Collection
               </h3>
@@ -437,8 +371,8 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🏛️</div>
+            <div className={`card ${styles.bentoCard}`}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }} aria-hidden="true">🏛️</div>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.5rem' }}>
                 CIPC & SABS Verification
               </h3>
@@ -479,7 +413,7 @@ export default function HomePage() {
 
           <div className={styles.mallGrid}>
             {flagshipMarkets.map((m) => (
-              <div key={m.id} className="card" style={{ padding: '1.5rem', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+              <div key={m.id} className={`card ${styles.mallCard}`}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                   <span className="badge badge-gray" style={{ fontSize: '0.7rem' }}>
                     {m.marketType.replace(/_/g, ' ').toUpperCase()}
@@ -510,3 +444,4 @@ export default function HomePage() {
     </div>
   );
 }
+
