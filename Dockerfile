@@ -11,7 +11,7 @@ COPY packages/eval/package.json ./packages/eval/
 COPY packages/config/package.json ./packages/config/
 COPY apps/web/package.json ./apps/web/
 
-RUN npm install
+RUN npm install --no-audit --no-fund && npm cache clean --force
 
 # Copy source files
 COPY . .
@@ -21,12 +21,13 @@ RUN mkdir -p apps/web/public
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV CI=1
 
 # Compile monorepo packages and Next.js 16 App Router
 RUN npm run build
 
 # Strip builder caches and prune devDependencies to keep image size small
-RUN rm -rf apps/web/.next/cache /root/.npm
+RUN rm -rf apps/web/.next/cache /root/.npm /root/.cache
 RUN npm prune --production
 
 FROM node:20-slim AS runner

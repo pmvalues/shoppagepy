@@ -9,6 +9,9 @@ const nextConfig = {
   ],
   turbopack: {},
   webpack: (config, { isServer }) => {
+    // Disable disk cache in production/docker build to prevent ENOSPC disk exhaustion
+    config.cache = false;
+
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
