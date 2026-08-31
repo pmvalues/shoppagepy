@@ -10,11 +10,13 @@ import {
   MITREND_PRODUCTS,
 } from '@shoppage/kernel';
 import { PayloadMerchantCmsService } from '@/cms';
+import ProductStudioStage from '@/components/ProductStudioStage';
+import { SHORTS } from '@/lib/media';
 
 export default function MerchantDashboardPage() {
   const [selectedMerchantId, setSelectedMerchantId] = useState('loc_sunpower_crownmines');
   const [activeSection, setActiveSection] = useState<
-    'overview' | 'orders' | 'products' | 'discovered' | 'customers' | 'marketing' | 'coupons' | 'analytics' | 'feeds' | 'settings' | 'status'
+    'overview' | 'orders' | 'products' | 'discovered' | 'customers' | 'marketing' | 'studio' | 'coupons' | 'analytics' | 'feeds' | 'settings' | 'status'
   >('overview');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [copiedFeed, setCopiedFeed] = useState(false);
@@ -25,6 +27,22 @@ export default function MerchantDashboardPage() {
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<any | null>(null);
   const [customerNoteText, setCustomerNoteText] = useState('');
+
+  // Studio Sub-Tabs & States
+  const [studioSubTab, setStudioSubTab] = useState<'shorts' | 'photo_studio' | 'live_stream'>('shorts');
+  const [studioBg, setStudioBg] = useState<'white' | 'solar' | 'warehouse' | 'hospitality'>('white');
+  const [studioWatermark, setStudioWatermark] = useState<'sabs' | 'nrs097' | 'cipc' | 'none'>('sabs');
+  const [studioSelectedSku, setStudioSelectedSku] = useState('DEYE-5K-SG03');
+  const [showUploadShortModal, setShowUploadShortModal] = useState(false);
+  const [merchantShorts, setMerchantShorts] = useState(SHORTS);
+  const [newShortVideo, setNewShortVideo] = useState({
+    title: '',
+    videoUrl: '',
+    duration: '0:58',
+    linkedSku: 'DEYE-5K-SG03',
+    priceZar: '14850',
+    summary: '',
+  });
 
   // Settings Sub-Tabs
   const [settingsSubTab, setSettingsSubTab] = useState<
@@ -845,6 +863,7 @@ export default function MerchantDashboardPage() {
             { id: 'overview', label: 'Home / Dashboard', icon: '🏠' },
             { id: 'orders', label: 'Orders', icon: '🛒', badge: processingOrdersCount > 0 ? processingOrdersCount : null },
             { id: 'products', label: 'Products', icon: '📦' },
+            { id: 'studio', label: 'Media & Video Studio', icon: '🎬', badge: 'Creator' },
             { id: 'discovered', label: 'Discovered Stock', icon: '✨', badge: pendingDiscoveredCount > 0 ? pendingDiscoveredCount : null },
             { id: 'customers', label: 'Customers (Mini-CRM)', icon: '👥' },
             { id: 'marketing', label: 'Marketing & Ads', icon: '📢' },
@@ -1748,6 +1767,525 @@ export default function MerchantDashboardPage() {
                       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
                         <button type="button" onClick={() => setShowCreateCampaignModal(false)} style={{ background: '#F0F0F1', border: '1px solid #DCDCDE', borderRadius: '4px', padding: '0.45rem 1rem', cursor: 'pointer' }}>Cancel</button>
                         <button type="submit" style={{ background: '#1A73E8', color: '#FFFFFF', border: 'none', borderRadius: '4px', padding: '0.45rem 1.25rem', fontWeight: 800, cursor: 'pointer' }}>Launch Campaign</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB: MEDIA & VIDEO STUDIO (BAKED INTO MERCHANT OS) */}
+          {activeSection === 'studio' && (
+            <div style={{ background: '#FFFFFF', border: '1px solid #DCDCDE', borderRadius: '8px', padding: '1.5rem' }}>
+              {/* Studio Header & Sub-Tabs */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid #F0F0F1', paddingBottom: '1rem' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                    <span style={{ fontSize: '1.5rem' }}>🎬</span>
+                    <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#1D2327', margin: 0 }}>
+                      Shoppage Creator & Product Media Studio
+                    </h2>
+                    <span style={{ background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 800 }}>
+                      Studio Pro v7.0
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.85rem', color: '#646970', margin: 0 }}>
+                    Produce verified unboxing shorts, SABS-watermarked 360 product photography, and live trade counter walkthroughs.
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {[
+                    { id: 'shorts', label: '🎬 Proof Shorts & Video Hub', icon: '⚡' },
+                    { id: 'photo_studio', label: '📸 360 Product Staging & SABS Stamp', icon: '✨' },
+                    { id: 'live_stream', label: '📡 Showroom Live Broadcast', icon: '🔴' },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setStudioSubTab(tab.id as any)}
+                      style={{
+                        background: studioSubTab === tab.id ? '#2563EB' : '#F0F0F1',
+                        color: studioSubTab === tab.id ? '#FFFFFF' : '#2C3338',
+                        border: '1px solid',
+                        borderColor: studioSubTab === tab.id ? '#1D4ED8' : '#DCDCDE',
+                        borderRadius: '6px',
+                        padding: '0.45rem 0.95rem',
+                        fontSize: '0.825rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.4rem',
+                      }}
+                    >
+                      <span>{tab.icon}</span>
+                      <span>{tab.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* SUB-TAB 1: PROOF SHORTS & VIDEO CREATOR */}
+              {studioSubTab === 'shorts' && (
+                <div>
+                  {/* Top Creator Performance KPIs */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.75rem' }}>
+                    <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                      <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 800, textTransform: 'uppercase' }}>TOTAL VIDEO VIEWS</div>
+                      <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0F172A', margin: '0.2rem 0' }}>148,200</div>
+                      <div style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 700 }}>+28.4% this month</div>
+                    </div>
+
+                    <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                      <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 800, textTransform: 'uppercase' }}>BUYBOX ENGAGEMENT</div>
+                      <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#2563EB', margin: '0.2rem 0' }}>6,420 Likes</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>980 Shares</div>
+                    </div>
+
+                    <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                      <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 800, textTransform: 'uppercase' }}>DIRECT INQUIRIES & RFQS</div>
+                      <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#059669', margin: '0.2rem 0' }}>412 RFQs</div>
+                      <div style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 700 }}>0% Commission Kept</div>
+                    </div>
+
+                    <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                      <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 800, textTransform: 'uppercase' }}>SYNDICATED SURFACE</div>
+                      <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#7C3AED', margin: '0.2rem 0' }}>/shorts & Catalog</div>
+                      <div style={{ fontSize: '0.75rem', color: '#7C3AED', fontWeight: 600 }}>1-Click National Feed</div>
+                    </div>
+                  </div>
+
+                  {/* Header & Upload Trigger */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#1D2327', margin: 0 }}>
+                      Published Store Proof Shorts ({merchantShorts.length})
+                    </h3>
+                    <button
+                      onClick={() => setShowUploadShortModal(true)}
+                      className="btn btn-primary btn-sm"
+                      style={{ borderRadius: '6px', fontWeight: 800, background: '#2563EB', borderColor: '#2563EB' }}
+                    >
+                      + Record / Upload New Short
+                    </button>
+                  </div>
+
+                  {/* Merchant Shorts Grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                    {merchantShorts.map((short) => (
+                      <div
+                        key={short.id}
+                        style={{
+                          background: '#FFFFFF',
+                          border: '1px solid #E2E8F0',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                        }}
+                      >
+                        <div style={{ position: 'relative', width: '100%', height: '160px', background: '#000000' }}>
+                          <img
+                            src={short.thumbnailUrl}
+                            alt={short.title}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }}
+                          />
+                          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%)' }} />
+                          <span style={{ position: 'absolute', top: 8, left: 8, background: '#059669', color: '#FFFFFF', padding: '0.15rem 0.45rem', borderRadius: '4px', fontSize: '0.68rem', fontWeight: 800 }}>
+                            ✓ Live on /shorts
+                          </span>
+                          <span style={{ position: 'absolute', bottom: 8, right: 8, background: 'rgba(0,0,0,0.7)', color: '#FFFFFF', padding: '0.15rem 0.45rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 700 }}>
+                            {short.duration}
+                          </span>
+                        </div>
+
+                        <div style={{ padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                          <div>
+                            <h4 style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0F172A', lineHeight: 1.35, marginBottom: '0.4rem' }}>
+                              {short.title}
+                            </h4>
+                            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                              <span style={{ background: '#EFF6FF', color: '#1E40AF', border: '1px solid #BFDBFE', padding: '0.15rem 0.45rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 700 }}>
+                                SKU: {short.productRef || 'ALL'}
+                              </span>
+                              {short.priceZar && (
+                                <span style={{ background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', padding: '0.15rem 0.45rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800 }}>
+                                  R {short.priceZar.toLocaleString()}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.5rem', borderTop: '1px solid #F1F5F9', fontSize: '0.75rem', color: '#64748B' }}>
+                            <span>👁️ {short.views.toLocaleString()}</span>
+                            <span>❤️ {short.likes?.toLocaleString() || 120}</span>
+                            <Link href="/shorts" style={{ color: '#2563EB', fontWeight: 700, textDecoration: 'none' }}>
+                              Preview &rarr;
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* SUB-TAB 2: 360 PRODUCT STAGING & SABS STAMP */}
+              {studioSubTab === 'photo_studio' && (
+                <div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.2fr) 1fr', gap: '1.5rem', alignItems: 'start' }}>
+                    {/* Live Preview Canvas Stage */}
+                    <div style={{ background: '#F8FAFC', border: '1.5px solid #E2E8F0', borderRadius: '14px', padding: '1.5rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                        <div style={{ fontSize: '0.825rem', fontWeight: 800, color: '#0F172A' }}>
+                          Live 360 Visual Studio Canvas
+                        </div>
+                        <span style={{ fontSize: '0.75rem', color: '#64748B' }}>
+                          Mode: <strong>{studioBg.toUpperCase()}</strong>
+                        </span>
+                      </div>
+
+                      {/* Rendered Studio Canvas */}
+                      <div style={{ position: 'relative' }}>
+                        {activeMerchantProducts.find((p) => p.sku === studioSelectedSku) ? (
+                          <ProductStudioStage
+                            product={{
+                              canonicalId: 'studio_preview',
+                              title: activeMerchantProducts.find((p) => p.sku === studioSelectedSku)?.title || 'Product Visual',
+                              brand: activeMerchantProducts.find((p) => p.sku === studioSelectedSku)?.brand || 'Brand',
+                              gtin13: '6001234567890',
+                              categoryRef: studioBg === 'solar' ? 'solar_energy' : studioBg === 'hospitality' ? 'smartphones' : 'hardware',
+                              description: 'High resolution product asset',
+                              media: {
+                                gallery: [
+                                  {
+                                    id: 'med_preview',
+                                    altText: 'Product Studio Preview',
+                                    url: activeMerchantProducts.find((p) => p.sku === studioSelectedSku)?.image || 'https://images.unsplash.com/photo-1508873696983-2df57046475a?w=500&h=400&fit=crop',
+                                    type: 'image',
+                                  },
+                                ],
+                                videos: [],
+                                documents: [],
+                              },
+                              complianceStandards: ['SABS_APPROVED', 'NRS_097_CERTIFIED'],
+                            } as any}
+                            variant="detail"
+                          />
+                        ) : null}
+
+                        {/* Watermark Overlay Stamp */}
+                        {studioWatermark !== 'none' && (
+                          <div
+                            style={{
+                              position: 'absolute',
+                              top: '16px',
+                              right: '16px',
+                              background: 'rgba(255, 255, 255, 0.95)',
+                              border: '1.5px solid #10B981',
+                              borderRadius: '8px',
+                              padding: '0.35rem 0.65rem',
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                              zIndex: 10,
+                            }}
+                          >
+                            <span style={{ fontSize: '0.9rem' }}>🛡️</span>
+                            <div>
+                              <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#065F46', textTransform: 'uppercase', lineHeight: 1.1 }}>
+                                {studioWatermark === 'sabs' ? 'SABS APPROVED' : studioWatermark === 'nrs097' ? 'NRS 097 CERTIFIED' : 'CIPC VERIFIED'}
+                              </div>
+                              <div style={{ fontSize: '0.58rem', color: '#64748B', fontWeight: 700 }}>
+                                Shoppage Trust Passport
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Export & Action Buttons */}
+                      <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
+                        <button
+                          onClick={() => alert('High-Resolution 4K Asset with SABS Watermark exported to your Catalog.')}
+                          className="btn btn-primary btn-sm"
+                          style={{ flex: 1, justifyContent: 'center', fontWeight: 800, borderRadius: '6px' }}
+                        >
+                          💾 Save & Apply to Master Catalog
+                        </button>
+                        <button
+                          onClick={() => alert('GS1 GTIN-13 Barcode generated.')}
+                          className="btn btn-outline btn-sm"
+                          style={{ borderRadius: '6px', fontWeight: 700 }}
+                        >
+                          🏷️ Print GS1 Barcode
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Staging Controls Panel */}
+                    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '14px', padding: '1.5rem' }}>
+                      <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0F172A', marginBottom: '1.25rem' }}>
+                        Studio Staging Controls
+                      </h3>
+
+                      {/* SKU Selector */}
+                      <div style={{ marginBottom: '1.25rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: '0.35rem' }}>
+                          Select Catalog Product to Stage:
+                        </label>
+                        <select
+                          value={studioSelectedSku}
+                          onChange={(e) => setStudioSelectedSku(e.target.value)}
+                          style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.825rem', fontWeight: 600 }}
+                        >
+                          {activeMerchantProducts.map((p) => (
+                            <option key={p.sku} value={p.sku}>
+                              {p.title} (R {p.price.toLocaleString()})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Background Environment Selector */}
+                      <div style={{ marginBottom: '1.25rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: '0.35rem' }}>
+                          Stage Lighting & Background:
+                        </label>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                          {[
+                            { id: 'white', label: 'Studio White (GS1)', icon: '💡' },
+                            { id: 'solar', label: 'Clean Energy & Solar', icon: '☀️' },
+                            { id: 'warehouse', label: 'Trade Counter & Hub', icon: '🏬' },
+                            { id: 'hospitality', label: 'Hospitality Smalls', icon: '🍽️' },
+                          ].map((env) => (
+                            <button
+                              key={env.id}
+                              type="button"
+                              onClick={() => setStudioBg(env.id as any)}
+                              style={{
+                                padding: '0.5rem',
+                                borderRadius: '6px',
+                                border: '1.5px solid',
+                                borderColor: studioBg === env.id ? '#2563EB' : '#E2E8F0',
+                                background: studioBg === env.id ? '#EFF6FF' : '#FFFFFF',
+                                color: studioBg === env.id ? '#1E40AF' : '#475569',
+                                fontSize: '0.78rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                textAlign: 'left',
+                              }}
+                            >
+                              {env.icon} {env.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Compliance Watermark Selector */}
+                      <div style={{ marginBottom: '1.25rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: '0.35rem' }}>
+                          Stamp Compliance Watermark:
+                        </label>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                          {[
+                            { id: 'sabs', label: '✓ SABS Approved Standard (Food & Cement)', color: '#047857' },
+                            { id: 'nrs097', label: '✓ NRS 097-2-1 Grid Certified (Inverters)', color: '#1D4ED8' },
+                            { id: 'cipc', label: '✓ CIPC Registered Business Guarantee', color: '#6D28D9' },
+                            { id: 'none', label: 'No Watermark Stamp', color: '#64748B' },
+                          ].map((wm) => (
+                            <label
+                              key={wm.id}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                fontSize: '0.8rem',
+                                color: '#1E293B',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                background: studioWatermark === wm.id ? '#F8FAFC' : 'transparent',
+                                padding: '0.35rem 0.5rem',
+                                borderRadius: '6px',
+                              }}
+                            >
+                              <input
+                                type="radio"
+                                name="studioWatermark"
+                                checked={studioWatermark === wm.id}
+                                onChange={() => setStudioWatermark(wm.id as any)}
+                              />
+                              <span style={{ color: wm.color, fontWeight: 700 }}>{wm.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SUB-TAB 3: SHOWROOM LIVE BROADCAST DECK */}
+              {studioSubTab === 'live_stream' && (
+                <div style={{ background: '#0F172A', color: '#FFFFFF', borderRadius: '12px', padding: '2rem' }}>
+                  <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center' }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.2)', border: '2px solid #EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.75rem', margin: '0 auto 1rem auto' }}>
+                      📡
+                    </div>
+                    <h3 style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: '0.5rem' }}>
+                      Trade Counter Live Broadcast Deck
+                    </h3>
+                    <p style={{ fontSize: '0.9rem', color: '#94A3B8', lineHeight: 1.5, marginBottom: '1.75rem' }}>
+                      Stream live product unboxings directly from your physical showroom to thousands of local buyers and wholesale contractors.
+                    </p>
+
+                    <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '10px', padding: '1.25rem', marginBottom: '1.75rem', textAlign: 'left' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                        <span style={{ fontSize: '0.8rem', color: '#94A3B8' }}>Broadcast Status:</span>
+                        <span style={{ color: '#10B981', fontWeight: 800, fontSize: '0.8rem' }}>● Ready to Go Live</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                        <span style={{ fontSize: '0.8rem', color: '#94A3B8' }}>Syndicated Channels:</span>
+                        <span style={{ color: '#60A5FA', fontWeight: 700, fontSize: '0.8rem' }}>Shoppage Live + Shows Hub</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '0.8rem', color: '#94A3B8' }}>Take Rate on Live Orders:</span>
+                        <span style={{ color: '#34D399', fontWeight: 800, fontSize: '0.8rem' }}>0.00% (Direct Buyer RFQ)</span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+                      <button
+                        onClick={() => alert('Starting live stream broadcast from your showroom camera.')}
+                        className="btn btn-primary btn-lg"
+                        style={{ borderRadius: '8px', fontWeight: 800, background: '#EF4444', borderColor: '#EF4444' }}
+                      >
+                        🔴 Go Live Now (Showroom Camera)
+                      </button>
+                      <button
+                        onClick={() => alert('Live broadcast scheduled for tomorrow 10:00 AM.')}
+                        className="btn btn-outline btn-lg"
+                        style={{ borderRadius: '8px', fontWeight: 700, color: '#FFFFFF', borderColor: '#475569' }}
+                      >
+                        📅 Schedule Trade Counter Live
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Upload / Link Short Modal */}
+              {showUploadShortModal && (
+                <div
+                  style={{
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'rgba(0,0,0,0.7)',
+                    backdropFilter: 'blur(6px)',
+                    zIndex: 9999,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '1rem',
+                  }}
+                >
+                  <div
+                    style={{
+                      background: '#FFFFFF',
+                      borderRadius: '12px',
+                      padding: '1.75rem',
+                      width: '100%',
+                      maxWidth: '540px',
+                      boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                      <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1D2327', margin: 0 }}>
+                        Upload / Link Product Video Short
+                      </h3>
+                      <button onClick={() => setShowUploadShortModal(false)} style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer' }}>✕</button>
+                    </div>
+
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        const newEntry = {
+                          id: `sh_${Date.now()}`,
+                          type: 'short' as const,
+                          title: newShortVideo.title,
+                          productTitle: activeMerchantProducts.find((p) => p.sku === newShortVideo.linkedSku)?.title || newShortVideo.title,
+                          productRef: newShortVideo.linkedSku,
+                          priceZar: parseInt(newShortVideo.priceZar) || 14850,
+                          category: 'solar' as const,
+                          merchantName: merchant.name,
+                          merchantPhone: '+27 11 884 1234',
+                          views: 1,
+                          likes: 0,
+                          shares: 0,
+                          duration: newShortVideo.duration,
+                          thumbnailUrl: 'https://images.unsplash.com/photo-1508873696983-2df57046475a?w=480&h=854&fit=crop',
+                          videoUrl: newShortVideo.videoUrl || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                          summary: newShortVideo.summary || 'Verified product teardown and showroom demonstration.',
+                        };
+                        setMerchantShorts([newEntry, ...merchantShorts]);
+                        setShowUploadShortModal(false);
+                        alert('Video Short successfully linked and syndicated to /shorts feed!');
+                      }}
+                    >
+                      <div style={{ marginBottom: '1rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.25rem' }}>Video Title</label>
+                        <input
+                          type="text"
+                          required
+                          value={newShortVideo.title}
+                          onChange={(e) => setNewShortVideo({ ...newShortVideo, title: e.target.value })}
+                          placeholder="e.g. Deye 5kW Real Stage 6 Load Test & Teardown"
+                          style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.825rem' }}
+                        />
+                      </div>
+
+                      <div style={{ marginBottom: '1rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.25rem' }}>Video URL (MP4, YouTube Shorts, or TikTok)</label>
+                        <input
+                          type="url"
+                          required
+                          value={newShortVideo.videoUrl}
+                          onChange={(e) => setNewShortVideo({ ...newShortVideo, videoUrl: e.target.value })}
+                          placeholder="https://..."
+                          style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.825rem' }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.25rem' }}>Link to Catalog SKU</label>
+                          <select
+                            value={newShortVideo.linkedSku}
+                            onChange={(e) => setNewShortVideo({ ...newShortVideo, linkedSku: e.target.value })}
+                            style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.825rem' }}
+                          >
+                            {activeMerchantProducts.map((p) => (
+                              <option key={p.sku} value={p.sku}>{p.title}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.25rem' }}>In-Video Price (ZAR)</label>
+                          <input
+                            type="number"
+                            value={newShortVideo.priceZar}
+                            onChange={(e) => setNewShortVideo({ ...newShortVideo, priceZar: e.target.value })}
+                            style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.825rem' }}
+                          />
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1.25rem' }}>
+                        <button type="button" onClick={() => setShowUploadShortModal(false)} className="btn btn-outline btn-sm">Cancel</button>
+                        <button type="submit" className="btn btn-primary btn-sm" style={{ fontWeight: 800 }}>Publish to /shorts & Catalog</button>
                       </div>
                     </form>
                   </div>
