@@ -21,13 +21,12 @@ export default function GoogleHeader({ currentQuery = '', currentTab = 'all' }: 
 
   const tabs = [
     { id: 'all', label: 'All', icon: '🔍' },
-    { id: 'shopping', label: 'Shopping', icon: '🛍️' },
+    { id: 'shopping', label: 'Catalog Matrix', icon: '🛍️' },
     { id: 'stores', label: 'Nearby Stores', icon: '📍' },
-    { id: 'za_spec', label: 'South African Spec', icon: '🇿🇦' },
+    { id: 'markets', label: 'Virtual Markets', icon: '🌐' },
+    { id: 'za_spec', label: 'SABS & Standards', icon: '🇿🇦' },
     { id: 'shorts', label: 'Proof Shorts', icon: '🎬' },
     { id: 'rfq', label: 'Buyer RFQs', icon: '📋' },
-    { id: 'news', label: 'News', icon: '📰' },
-    { id: 'images', label: 'Images', icon: '🖼️' },
   ];
 
   return (
@@ -35,16 +34,11 @@ export default function GoogleHeader({ currentQuery = '', currentTab = 'all' }: 
       <div className="container">
         {/* Top Search Row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-          {/* Google / Shoppage Logo */}
-          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: '2px' }}>
-            <span style={{ fontSize: '1.85rem', fontWeight: 900, color: '#4285F4', letterSpacing: '-0.04em', fontFamily: 'var(--font-display)' }}>S</span>
-            <span style={{ fontSize: '1.85rem', fontWeight: 900, color: '#EA4335', letterSpacing: '-0.04em', fontFamily: 'var(--font-display)' }}>h</span>
-            <span style={{ fontSize: '1.85rem', fontWeight: 900, color: '#FBBC05', letterSpacing: '-0.04em', fontFamily: 'var(--font-display)' }}>o</span>
-            <span style={{ fontSize: '1.85rem', fontWeight: 900, color: '#4285F4', letterSpacing: '-0.04em', fontFamily: 'var(--font-display)' }}>p</span>
-            <span style={{ fontSize: '1.85rem', fontWeight: 900, color: '#34A853', letterSpacing: '-0.04em', fontFamily: 'var(--font-display)' }}>p</span>
-            <span style={{ fontSize: '1.85rem', fontWeight: 900, color: '#EA4335', letterSpacing: '-0.04em', fontFamily: 'var(--font-display)' }}>a</span>
-            <span style={{ fontSize: '1.85rem', fontWeight: 900, color: '#FBBC05', letterSpacing: '-0.04em', fontFamily: 'var(--font-display)' }}>g</span>
-            <span style={{ fontSize: '1.85rem', fontWeight: 900, color: '#4285F4', letterSpacing: '-0.04em', fontFamily: 'var(--font-display)' }}>e</span>
+          {/* Native Shoppage Logo */}
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.04em', fontFamily: 'var(--font-display)' }}>
+              Shoppage<span style={{ color: '#10B981' }}>.</span>
+            </span>
           </Link>
 
           {/* Omnibox Search Input */}

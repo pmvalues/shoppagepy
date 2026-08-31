@@ -668,20 +668,20 @@ export default function MerchantDashboardPage() {
                 width: '26px',
                 height: '26px',
                 borderRadius: '6px',
-                background: '#7F54B3',
+                background: '#2563EB',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: 900,
                 fontSize: '0.85rem',
-                boxShadow: '0 2px 4px rgba(127, 84, 179, 0.4)',
+                boxShadow: '0 2px 4px rgba(37, 99, 235, 0.4)',
               }}
             >
-              W
+              S
             </div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem' }}>
               <span style={{ fontSize: '0.9rem', fontWeight: 800, letterSpacing: '-0.01em' }}>
-                WooCommerce <span style={{ color: '#96588A', fontWeight: 600 }}>Merchant Centre</span>
+                Shoppage <span style={{ color: '#38BDF8', fontWeight: 600 }}>Merchant OS</span>
               </span>
             </div>
           </Link>
@@ -837,7 +837,7 @@ export default function MerchantDashboardPage() {
                 padding: '0.25rem 0.65rem 0.5rem',
               }}
             >
-              WooCommerce Admin
+              Merchant Command Center
             </div>
           )}
 
@@ -951,7 +951,7 @@ export default function MerchantDashboardPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
                   <h1 style={{ fontSize: '1.65rem', fontWeight: 800, color: '#1D2327', margin: 0 }}>
-                    WooCommerce Dashboard
+                    Merchant Overview
                   </h1>
                   <p style={{ color: '#646970', fontSize: '0.85rem', margin: '0.2rem 0 0 0' }}>
                     Welcome back, <strong>{merchant.name}</strong>. Store activity and revenue metrics.
@@ -1340,7 +1340,7 @@ export default function MerchantDashboardPage() {
                     ✨ AI Discovered Catalog Sync
                   </h2>
                   <p style={{ fontSize: '0.825rem', color: '#646970', margin: '0.2rem 0 0 0' }}>
-                    Automatically extracted from your website and inventory listings. Confirm prices and items to add them directly into your WooCommerce product catalog.
+                    Automatically extracted from your website and inventory listings. Confirm prices and items to add them directly into your live store catalog.
                   </p>
                 </div>
               </div>
@@ -1599,7 +1599,7 @@ export default function MerchantDashboardPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
                   <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1D2327', margin: 0 }}>
-                    Campaigns & Ad Manager (Google Ads Style)
+                    Local Showroom & Catalog Ad Manager
                   </h2>
                   <p style={{ fontSize: '0.825rem', color: '#646970', margin: '0.2rem 0 0 0' }}>
                     Create search ads, local showroom radius campaigns, and sponsored video shorts promotions.
@@ -1815,7 +1815,7 @@ export default function MerchantDashboardPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
                   <div>
                     <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1D2327', margin: 0 }}>
-                      WooCommerce Store Analytics
+                      Store Commercial Analytics
                     </h2>
                     <p style={{ fontSize: '0.825rem', color: '#646970', margin: '0.2rem 0 0 0' }}>
                       Comprehensive store metrics, revenue time-series, and customer purchase channels.
@@ -1931,11 +1931,11 @@ export default function MerchantDashboardPage() {
             </div>
           )}
 
-          {/* TAB 10: FULLY FLEDGED WOOCOMMERCE STORE SETTINGS */}
+          {/* TAB 10: FULLY FLEDGED STORE SETTINGS */}
           {activeSection === 'settings' && (
             <div style={{ background: '#FFFFFF', border: '1px solid #DCDCDE', borderRadius: '8px', padding: '1.5rem' }}>
               <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1D2327', margin: '0 0 1rem 0' }}>
-                WooCommerce Store Settings
+                Merchant Store Settings
               </h2>
 
               {/* Settings 7 Sub-Tabs */}
@@ -2162,7 +2162,7 @@ export default function MerchantDashboardPage() {
               {settingsSubTab === 'integration' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '640px' }}>
                   <div>
-                    <label style={{ fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>WooCommerce REST API Consumer Key</label>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>Store REST API Key</label>
                     <input type="text" readOnly defaultValue="ck_9f88d16e5a777c928471" style={{ width: '100%', padding: '0.45rem', fontFamily: 'monospace', borderRadius: '4px', border: '1px solid #DCDCDE' }} />
                   </div>
                   <div>
@@ -2178,7 +2178,7 @@ export default function MerchantDashboardPage() {
           {activeSection === 'status' && (
             <div style={{ background: '#FFFFFF', border: '1px solid #DCDCDE', borderRadius: '8px', padding: '1.5rem' }}>
               <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1D2327', margin: '0 0 0.5rem 0' }}>
-                🩺 WooCommerce System Status
+                🩺 Store Diagnostic Status
               </h2>
               <p style={{ fontSize: '0.825rem', color: '#646970', marginBottom: '1.5rem' }}>
                 Technical environment details, feed health, and database connection.
@@ -2187,8 +2187,8 @@ export default function MerchantDashboardPage() {
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.84rem' }}>
                 <tbody>
                   <tr style={{ borderBottom: '1px solid #E0E0E0' }}>
-                    <td style={{ padding: '0.65rem', fontWeight: 700 }}>WooCommerce Platform Version</td>
-                    <td style={{ padding: '0.65rem', color: '#7F54B3', fontWeight: 800 }}>8.9.2 (Unified Merchant Core)</td>
+                    <td style={{ padding: '0.65rem', fontWeight: 700 }}>Shoppage OS Version</td>
+                    <td style={{ padding: '0.65rem', color: '#2563EB', fontWeight: 800 }}>7.0.0 (Unified Merchant Core)</td>
                   </tr>
                   <tr style={{ borderBottom: '1px solid #E0E0E0' }}>
                     <td style={{ padding: '0.65rem', fontWeight: 700 }}>Database Status</td>
@@ -2209,7 +2209,7 @@ export default function MerchantDashboardPage() {
         </main>
       </div>
 
-      {/* FULLY FLEDGED WOOCOMMERCE "ADD NEW PRODUCT" MODAL */}
+      {/* ADD NEW PRODUCT MODAL */}
       {showAddProductModal && (
         <div
           style={{
@@ -2238,7 +2238,7 @@ export default function MerchantDashboardPage() {
           >
             {/* Modal Header */}
             <div style={{ background: '#1D2327', color: '#FFFFFF', padding: '0.85rem 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <strong style={{ fontSize: '1rem' }}>Add New Product — WooCommerce Catalog</strong>
+              <strong style={{ fontSize: '1rem' }}>Add New Product — Live Store Catalog</strong>
               <button
                 onClick={() => setShowAddProductModal(false)}
                 style={{ background: 'none', border: 'none', color: '#FFFFFF', fontSize: '1.1rem', cursor: 'pointer' }}
@@ -2453,7 +2453,7 @@ export default function MerchantDashboardPage() {
                   type="submit"
                   style={{ background: '#7F54B3', color: '#FFFFFF', border: 'none', borderRadius: '4px', padding: '0.45rem 1.25rem', fontWeight: 800, cursor: 'pointer' }}
                 >
-                  Publish to WooCommerce Catalog
+                  Publish to Live Store Catalog
                 </button>
               </div>
             </form>

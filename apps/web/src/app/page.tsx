@@ -5,6 +5,7 @@ import {
   MasterProductStore,
   SouthAfricaMallsStore,
   NationwideMerchantStore,
+  SA_COMPREHENSIVE_MARKETS,
   SA_FLAGSHIP_MARKETS,
   SA_FLAGSHIP_OFFERS,
   SA_CANONICAL_PRODUCTS,
@@ -20,6 +21,7 @@ export default function HomePage() {
     ...SA_CANONICAL_PRODUCTS.filter((p) => p.brand === 'Mitrend Products').slice(0, 8),
   ];
   const flagshipMarkets = SA_FLAGSHIP_MARKETS.slice(0, 6);
+  const virtualMarkets = SA_COMPREHENSIVE_MARKETS.filter((m) => m.marketType.startsWith('virtual_')).slice(0, 4);
   const totalCatalogCount = MasterProductStore.getTotalProductsCount();
   const totalMallsCount = SouthAfricaMallsStore.getTotalCount();
   const totalMerchantsCount = NationwideMerchantStore.getTotalCount();
@@ -162,7 +164,7 @@ export default function HomePage() {
               lineHeight: 1.6,
             }}
           >
-            Search products, compare multi-seller BuyBoxes, and trade directly with <strong>74,000+ verified local stores</strong> via WhatsApp, Phone, or In-Store with <strong>0% middleman commission</strong>.
+            Search products, compare multi-seller BuyBoxes, and trade directly with <strong>74,000+ verified local stores</strong> via Phone, Email, Showroom Visit, or Direct Message with <strong>0% middleman commission</strong>.
           </p>
 
           <LiveSearch />
@@ -172,8 +174,11 @@ export default function HomePage() {
             <Link href="/search?q=inverter" className="btn btn-outline" style={{ borderRadius: '8px', fontWeight: 700 }}>
               🔍 Search Catalog
             </Link>
+            <Link href="/markets" className="btn btn-outline" style={{ borderRadius: '8px', fontWeight: 700 }}>
+              🌐 Virtual B2B Markets
+            </Link>
             <Link href="/search?tab=shopping" className="btn btn-outline" style={{ borderRadius: '8px', fontWeight: 700 }}>
-              🛍️ Google Shopping Grid
+              🛍️ National Product Matrix
             </Link>
             <Link href="/requests" className="btn btn-outline" style={{ borderRadius: '8px', fontWeight: 700 }}>
               📋 Post Buyer RFQ
@@ -237,7 +242,7 @@ export default function HomePage() {
             <div className="stat-box" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '1.5rem', borderRadius: '12px' }}>
               <div className="stat-number" style={{ color: '#7C3AED', fontSize: '2.2rem', fontWeight: 900 }}>0.00%</div>
               <div className="stat-label" style={{ fontWeight: 700, color: '#475569' }}>Middleman Take Rate</div>
-              <div style={{ fontSize: '0.75rem', color: '#7C3AED', marginTop: '0.35rem', fontWeight: 600 }}>Direct WhatsApp & In-Store Trade</div>
+              <div style={{ fontSize: '0.75rem', color: '#7C3AED', marginTop: '0.35rem', fontWeight: 600 }}>Direct Omnichannel Trade</div>
             </div>
           </div>
         </div>
@@ -359,7 +364,7 @@ export default function HomePage() {
 
                 <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
                   <span className="badge badge-green" style={{ fontSize: '0.7rem' }}>✓ SABS Food Grade</span>
-                  <span className="badge badge-blue" style={{ fontSize: '0.7rem' }}>⚡ Direct WhatsApp Quotes</span>
+                  <span className="badge badge-blue" style={{ fontSize: '0.7rem' }}>⚡ Direct Inquiries & RFQs</span>
                   <span className="badge badge-purple" style={{ fontSize: '0.7rem' }}>📍 Midrand Showroom</span>
                 </div>
               </div>
@@ -372,15 +377,13 @@ export default function HomePage() {
                 >
                   Enter Digital Flagship &rarr;
                 </Link>
-                <a
-                  href="https://wa.me/27105007670?text=Hi%20Mitrend%2C%20I%20am%20inquiring%20about%20your%20catering%20and%20packaging%20products%20on%20Shoppage."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-whatsapp btn-sm"
+                <Link
+                  href="/m/loc_mitrend_midrand?tab=rfq"
+                  className="btn btn-outline btn-sm"
                   style={{ fontWeight: 800, fontSize: '0.85rem' }}
                 >
-                  💬 WhatsApp
-                </a>
+                  ✉️ Direct RFQ
+                </Link>
               </div>
             </div>
 
@@ -432,23 +435,93 @@ export default function HomePage() {
                 >
                   Enter Digital Flagship &rarr;
                 </Link>
-                <a
-                  href="https://wa.me/27110001001?text=Hi%20SunPower%2C%20I%20am%20inquiring%20about%20Deye%20and%20Dyness%20inverter%20stock%20on%20Shoppage."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-whatsapp btn-sm"
+                <Link
+                  href="/m/loc_sunpower_crownmines?tab=rfq"
+                  className="btn btn-outline btn-sm"
                   style={{ fontWeight: 800, fontSize: '0.85rem' }}
                 >
-                  💬 WhatsApp
-                </a>
+                  ✉️ Direct RFQ
+                </Link>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 5. MASTER PRODUCT SHOWCASE (GS1 Canonical Products) */}
+      {/* 5. VIRTUAL B2B TRADING EXCHANGES & GUILDS */}
       <section style={{ padding: '3.5rem 0', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+        <div className="container">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <span className="badge badge-blue" style={{ marginBottom: '0.35rem' }}>🌐 High-Volume B2B Floors</span>
+              <h2 className="section-title" style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0F172A' }}>Massive Virtual Trading Floors & Industry Guilds</h2>
+              <p className="section-desc">Join trading floors as a verified merchant or follow catalog drops as a contractor or corporate buyer.</p>
+            </div>
+            <Link href="/markets" className="btn btn-outline btn-sm">
+              Explore All Virtual Markets &rarr;
+            </Link>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+            {virtualMarkets.map((vm) => (
+              <div
+                key={vm.id}
+                className="card card-interactive"
+                style={{
+                  borderRadius: '16px',
+                  padding: '1.5rem',
+                  border: '1.5px solid #BFDBFE',
+                  background: 'linear-gradient(180deg, #FFFFFF 0%, #EFF6FF 100%)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                    <span className="badge badge-blue" style={{ fontSize: '0.68rem' }}>
+                      B2B TRADING EXCHANGE
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 800 }}>
+                      {((vm as any).activeMerchantsCount || 1000).toLocaleString()}+ Suppliers
+                    </span>
+                  </div>
+
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', margin: '0.35rem 0 0.5rem 0' }}>
+                    <Link href={`/market/${vm.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                      {vm.name}
+                    </Link>
+                  </h3>
+
+                  <p style={{ fontSize: '0.825rem', color: '#475569', lineHeight: 1.5, marginBottom: '1rem' }}>
+                    {(vm as any).virtualMeta?.operationalModel || 'Direct B2B wholesale clearinghouse and direct supplier network.'}
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.75rem', borderTop: '1px solid #DBEAFE' }}>
+                  <Link
+                    href={`/market/${vm.id}`}
+                    className="btn btn-outline btn-sm"
+                    style={{ flex: 1, justifyContent: 'center', borderRadius: '6px', fontSize: '0.8rem' }}
+                  >
+                    Explore Floor
+                  </Link>
+                  <Link
+                    href={`/merchant/claim?marketId=${vm.id}&marketName=${encodeURIComponent(vm.name)}`}
+                    className="btn btn-primary btn-sm"
+                    style={{ justifyContent: 'center', borderRadius: '6px', fontWeight: 800, fontSize: '0.8rem' }}
+                  >
+                    + Join Floor
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. MASTER PRODUCT SHOWCASE (GS1 Canonical Products) */}
+      <section style={{ padding: '3.5rem 0', background: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>
         <div className="container">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
@@ -470,8 +543,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 6. THE 0% TAKE-RATE MOAT BENTO */}
-      <section style={{ padding: '4rem 0', background: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>
+      {/* 7. THE 0% TAKE-RATE MOAT BENTO */}
+      <section style={{ padding: '4rem 0', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
             <span className="badge badge-green" style={{ marginBottom: '0.5rem' }}>
@@ -486,7 +559,7 @@ export default function HomePage() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
-            <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#F8FAFC' }}>
+            <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
               <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>💸</div>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.5rem' }}>
                 0% Middleman Markups
@@ -496,17 +569,17 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#F8FAFC' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>💬</div>
+            <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>📞</div>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.5rem' }}>
-                Direct WhatsApp Quotes
+                Omnichannel Direct Trade
               </h3>
               <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.55 }}>
-                Chat directly with store managers, request pallet discounts, negotiate payment terms, and confirm stock in real time.
+                Connect directly via Phone, Official Email RFQ, In-Store Showroom Visit, or Direct Message to negotiate volume discounts and confirm stock in real time.
               </p>
             </div>
 
-            <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#F8FAFC' }}>
+            <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
               <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🏬</div>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.5rem' }}>
                 Immediate Counter Collection
@@ -516,7 +589,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#F8FAFC' }}>
+            <div className="card" style={{ padding: '1.75rem', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
               <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🏛️</div>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.5rem' }}>
                 CIPC & SABS Verification
@@ -529,7 +602,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 7. PROOF SHORTS & VIDEO COMMERCE */}
+      {/* 8. PROOF SHORTS & VIDEO COMMERCE */}
       <section style={{ background: '#0F172A', padding: '3.5rem 0', color: '#FFFFFF' }}>
         <div className="container">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.75rem' }}>
@@ -544,8 +617,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 8. SPATIAL SHOPPING HUBS & MALLS */}
-      <section style={{ padding: '3.5rem 0', background: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}>
+      {/* 9. SPATIAL SHOPPING HUBS & MALLS */}
+      <section style={{ padding: '3.5rem 0', background: '#FFFFFF', borderTop: '1px solid #E2E8F0' }}>
         <div className="container">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.75rem' }}>
             <div>
@@ -558,7 +631,7 @@ export default function HomePage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
             {flagshipMarkets.map((m) => (
-              <div key={m.id} className="card" style={{ padding: '1.5rem', background: '#FFFFFF', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+              <div key={m.id} className="card" style={{ padding: '1.5rem', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                   <span className="badge badge-gray" style={{ fontSize: '0.7rem' }}>
                     {m.marketType.replace(/_/g, ' ').toUpperCase()}
@@ -575,7 +648,7 @@ export default function HomePage() {
                 <p style={{ fontSize: '0.825rem', color: '#64748B', marginBottom: '1rem', lineHeight: 1.4 }}>
                   📍 {m.geo?.streetAddress || `${m.metro}, ${m.province}`}
                 </p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid #F1F5F9' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid #E2E8F0' }}>
                   <span style={{ fontSize: '0.78rem', color: '#94A3B8' }}>GLA: {((m as any).glaSquareMeters) ? `${(m as any).glaSquareMeters.toLocaleString()} m²` : 'Regional Hub'}</span>
                   <Link href={`/market/${m.id}`} className="btn btn-outline btn-sm" style={{ padding: '0.35rem 0.75rem' }}>
                     Browse Stores &rarr;

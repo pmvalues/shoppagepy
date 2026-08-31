@@ -218,11 +218,14 @@ export default function AppNavbar({ children }: { children: React.ReactNode }) {
                 <Link href="/search" style={{ color: '#94A3B8' }}>
                   Master Product Matrix
                 </Link>
+                <Link href="/markets" style={{ color: '#94A3B8' }}>
+                  Virtual B2B Markets & Exchanges
+                </Link>
                 <Link href="/malls" style={{ color: '#94A3B8' }}>
                   3,296 Shopping Centres
                 </Link>
                 <Link href="/merchants" style={{ color: '#94A3B8' }}>
-                  3.1M Verified Stores
+                  74,000+ Verified Stores
                 </Link>
                 <Link href="/requests" style={{ color: '#94A3B8' }}>
                   Buyer RFQ Desk

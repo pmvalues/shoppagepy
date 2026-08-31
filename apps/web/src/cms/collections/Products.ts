@@ -1,4 +1,4 @@
-// Payload CMS Collection: Products (WooCommerce-Style Product Management)
+// Payload CMS Collection: Products (Shoppage Native Store Catalog Management)
 export const ProductsCollection = {
   slug: 'products',
   admin: {

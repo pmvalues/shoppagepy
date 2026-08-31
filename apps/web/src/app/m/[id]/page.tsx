@@ -1124,7 +1124,7 @@ export default function MerchantProfilePage({ params }: { params: { id: string }
                   fontSize: '0.8rem',
                 }}
               >
-                🗺️ Open in Google Maps
+                🗺️ GPS Directions & Navigation
               </a>
             </div>
           </div>
