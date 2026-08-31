@@ -55,6 +55,7 @@ export const SHORTS: MediaItem[] = [
     category: 'solar',
     merchantName: 'SolarBros Sandton',
     merchantPhone: '+27 11 884 1234',
+    merchantWhatsApp: '+27118841234',
     views: 48500,
     likes: 2140,
     shares: 520,

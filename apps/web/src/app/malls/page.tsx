@@ -3,15 +3,16 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { SouthAfricaMallsStore } from '@shoppage/kernel';
 
-export default function AllMallsExplorerPage({
+export default async function AllMallsExplorerPage({
   searchParams,
 }: {
-  searchParams: { province?: string; type?: string; q?: string; page?: string };
+  searchParams: Promise<{ province?: string; type?: string; q?: string; page?: string }>;
 }) {
-  const province = searchParams.province || '';
-  const marketType = searchParams.type || '';
-  const query = searchParams.q || '';
-  const page = parseInt(searchParams.page || '1', 10);
+  const resolvedSearchParams = await searchParams;
+  const province = resolvedSearchParams.province || '';
+  const marketType = resolvedSearchParams.type || '';
+  const query = resolvedSearchParams.q || '';
+  const page = parseInt(resolvedSearchParams.page || '1', 10);
   const limit = 24;
   const offset = (page - 1) * limit;
 

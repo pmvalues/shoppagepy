@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import {
   SA_COMPREHENSIVE_MARKETS,
@@ -83,12 +83,13 @@ function synthesizeFallbackMarket(id: string) {
   };
 }
 
-export default function MarketDetailPage({ params }: { params: { id: string } }) {
+export default function MarketDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
   const allKnownMarkets = [...SA_COMPREHENSIVE_MARKETS, ...SA_COMMUNITY_GROUPS_DATASET];
   const market =
-    allKnownMarkets.find((m) => m.id === params.id) ||
-    SouthAfricaMallsStore.getMallById(params.id) ||
-    synthesizeFallbackMarket(params.id);
+    allKnownMarkets.find((m) => m.id === resolvedParams.id) ||
+    SouthAfricaMallsStore.getMallById(resolvedParams.id) ||
+    synthesizeFallbackMarket(resolvedParams.id);
 
   const { items: merchantsInMarket } = NationwideMerchantStore.getMerchantsByMarket(market.id, 24);
   const displayMerchants = merchantsInMarket.length > 0 ? merchantsInMarket : NationwideMerchantStore.getAllMerchants().slice(0, 6);

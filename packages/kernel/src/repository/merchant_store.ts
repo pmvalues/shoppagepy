@@ -155,6 +155,18 @@ export class NationwideMerchantStore {
     const cat = options.category?.trim() || '';
     const mkt = options.marketId?.trim() || '';
 
+function ensureMerchantUrls(m: Merchant): Merchant {
+  return {
+    ...m,
+    googleReviewsUrl: m.googleReviewsUrl || (m.googlePlaceId
+      ? `https://search.google.com/local/reviews?placeid=${m.googlePlaceId}`
+      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + ' ' + m.addressText)}`),
+    googleMapsUrl: m.googleMapsUrl || (m.coordinates
+      ? `https://www.google.com/maps/search/?api=1&query=${m.coordinates.lat},${m.coordinates.lng}`
+      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + ' ' + m.addressText)}`),
+  };
+}
+
     // Search flagship verified merchants first
     const flagshipMatches = SA_FLAGSHIP_MERCHANTS.filter((m) => {
       if (prov && !m.addressText.includes(prov) && m.province !== prov) return false;
@@ -162,7 +174,7 @@ export class NationwideMerchantStore {
       if (mkt && m.marketId !== mkt) return false;
       if (q && !m.name.toLowerCase().includes(q) && !m.addressText.toLowerCase().includes(q)) return false;
       return true;
-    });
+    }).map(ensureMerchantUrls);
 
     const db = getMerchantSqliteDb();
     if (!db) {
@@ -172,7 +184,7 @@ export class NationwideMerchantStore {
         if (mkt && m.marketId !== mkt) return false;
         if (q && !m.name.toLowerCase().includes(q) && !m.addressText.toLowerCase().includes(q)) return false;
         return true;
-      })];
+      }).map(ensureMerchantUrls)];
       return {
         items: filtered.slice(offset, offset + limit),
         total: filtered.length,

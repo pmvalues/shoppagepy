@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, use } from 'react';
 import Link from 'next/link';
 import {
   NationwideMerchantStore,
@@ -48,8 +48,10 @@ interface CartItem {
   image: string;
 }
 
-export default function MerchantProfilePage({ params }: { params: { id: string } }) {
-  const merchant = NationwideMerchantStore.getMerchantById(params.id) || synthesizeFallbackMerchant(params.id);
+export default function MerchantProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
+  const merchant = NationwideMerchantStore.getMerchantById(resolvedParams.id) || synthesizeFallbackMerchant(resolvedParams.id);
+  const isMitrend = resolvedParams.id.toLowerCase().includes('mitrend');
 
   // Active Store Tabs
   const [activeTab, setActiveTab] = useState<'shop' | 'live' | 'shorts' | 'shows' | 'about' | 'reviews' | 'rfq'>('shop');
@@ -77,8 +79,6 @@ export default function MerchantProfilePage({ params }: { params: { id: string }
     complaintCountLast90d: 0,
     state: 'VERIFIED_ACTIVE',
   };
-
-  const isMitrend = params.id.toLowerCase().includes('mitrend');
 
   // High-Resolution Product Photography & Catalog
   const solarProducts = [

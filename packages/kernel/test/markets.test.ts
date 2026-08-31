@@ -56,12 +56,12 @@ describe('Markets-in-Markets Graph Engine', () => {
     const virtualMarkets = SA_COMPREHENSIVE_MARKETS.filter((m) => m.marketType.startsWith('virtual_'));
     expect(virtualMarkets.length).toBeGreaterThanOrEqual(5);
 
-    const takealot = virtualMarkets.find((m) => m.id === 'vmkt_takealot');
-    expect(takealot).toBeDefined();
-    expect(takealot?.virtualMeta?.platformUrl).toBe('https://www.takealot.com');
+    const solarGuild = virtualMarkets.find((m) => m.id === 'vmkt_renewable_energy');
+    expect(solarGuild).toBeDefined();
+    expect(solarGuild?.virtualMeta?.platformUrl).toBe('/markets/vmkt_renewable_energy');
 
-    const flash = virtualMarkets.find((m) => m.id === 'vmkt_flash_network');
-    expect(flash).toBeDefined();
-    expect(flash?.marketType).toBe('virtual_spaza_fintech');
+    const packagingGuild = virtualMarkets.find((m) => m.id === 'vmkt_packaging_hospitality');
+    expect(packagingGuild).toBeDefined();
+    expect(packagingGuild?.marketType).toBe('virtual_b2b_network');
   });
 });

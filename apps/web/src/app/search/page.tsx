@@ -10,14 +10,15 @@ import PeopleAlsoSearch from '@/components/PeopleAlsoSearch';
 import GooglePagination from '@/components/GooglePagination';
 import ShoppingBrowseGrid from '@/components/ShoppingBrowseGrid';
 
-export default function SearchPage({
+export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: { q?: string; category?: string; brand?: string; page?: string; tab?: string };
+  searchParams: Promise<{ q?: string; category?: string; brand?: string; page?: string; tab?: string }>;
 }) {
-  const query = searchParams.q || searchParams.category || 'solar';
-  const currentTab = searchParams.tab || 'all';
-  const currentPage = parseInt(searchParams.page || '1', 10);
+  const resolvedSearchParams = await searchParams;
+  const query = resolvedSearchParams.q || resolvedSearchParams.category || 'solar';
+  const currentTab = resolvedSearchParams.tab || 'all';
+  const currentPage = parseInt(resolvedSearchParams.page || '1', 10);
   const pageSize = 24;
 
   const searchResults = semanticSearch(query, {
@@ -30,7 +31,7 @@ export default function SearchPage({
   return (
     <div style={{ background: '#FFFFFF', minHeight: '100vh', color: '#202124' }}>
       {/* Top Google/Shoppage SERP Header Bar */}
-      <GoogleHeader currentQuery={searchParams.q || ''} currentTab={currentTab} />
+      <GoogleHeader currentQuery={resolvedSearchParams.q || ''} currentTab={currentTab} />
 
       <main className="container" style={{ paddingTop: '1.75rem', paddingBottom: '4rem' }}>
         {/* Top Sponsored Products Row (Present in both All and Shopping mode) */}

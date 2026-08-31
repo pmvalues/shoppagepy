@@ -64,13 +64,14 @@ function synthesizeFallbackProduct(id: string): MasterProduct {
   };
 }
 
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
-  const product = MasterProductStore.getProductById(params.id) || synthesizeFallbackProduct(params.id);
+export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const product = MasterProductStore.getProductById(resolvedParams.id) || synthesizeFallbackProduct(resolvedParams.id);
 
   const confirmedOffers = SA_FLAGSHIP_OFFERS.filter((o) => o.variantRef === product.canonicalId);
   const discoveredOffers = DiscoveredOffersStore.getDiscoveredOffersByProduct(product.canonicalId);
 
-  const isMitrend = params.id.toLowerCase().includes('mitrend');
+  const isMitrend = resolvedParams.id.toLowerCase().includes('mitrend');
   const defaultMerchantRef = isMitrend ? 'loc_mitrend_midrand' : 'loc_sunpower_crownmines';
 
   const displayOffers: Offer[] = confirmedOffers.length > 0 ? confirmedOffers : [

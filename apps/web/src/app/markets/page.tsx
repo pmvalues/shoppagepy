@@ -3,11 +3,12 @@ export const dynamic = 'force-dynamic';
 import { SA_COMPREHENSIVE_MARKETS, SA_COMMUNITY_GROUPS_DATASET } from '@shoppage/kernel';
 import MarketsExplorerView from '@/components/MarketsExplorerView';
 
-export default function MarketsExplorerPage({
+export default async function MarketsExplorerPage({
   searchParams,
 }: {
-  searchParams: { type?: string; province?: string; q?: string };
+  searchParams: Promise<{ type?: string; province?: string; q?: string }>;
 }) {
+  const resolvedSearchParams = await searchParams;
   const allMarkets = [...SA_COMPREHENSIVE_MARKETS, ...SA_COMMUNITY_GROUPS_DATASET];
   const physicalCount = allMarkets.filter((m) => !m.marketType.startsWith('virtual_')).length;
   const communityCount = allMarkets.filter((m) => m.marketType === 'virtual_community_group').length;
@@ -45,7 +46,7 @@ export default function MarketsExplorerPage({
 
       <MarketsExplorerView
         initialMarkets={allMarkets}
-        initialType={searchParams.type}
+        initialType={resolvedSearchParams.type}
       />
     </div>
   );

@@ -7,6 +7,7 @@ const nextConfig = {
     '@shoppage/adapters',
     '@shoppage/eval',
   ],
+  turbopack: {},
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {

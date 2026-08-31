@@ -10,9 +10,10 @@ import { buildWhatsAppActionLink } from '@shoppage/adapters';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { universalId: string } }
+  { params }: { params: Promise<{ universalId: string }> }
 ) {
-  const universalId = params.universalId;
+  const resolvedParams = await params;
+  const universalId = resolvedParams.universalId;
   const searchParams = request.nextUrl.searchParams;
   const sourceCampaign = searchParams.get('utm_campaign') || undefined;
   const sourceAssetQrId = searchParams.get('qr_id') || undefined;

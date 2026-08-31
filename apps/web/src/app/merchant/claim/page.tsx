@@ -1,16 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, use } from 'react';
 import Link from 'next/link';
 import { SA_CANONICAL_PRODUCTS, SA_FLAGSHIP_MARKETS } from '@shoppage/kernel';
 
 export default function MerchantClaimWizardPage({
   searchParams,
 }: {
-  searchParams?: { variantId?: string; title?: string; source?: string };
+  searchParams?: Promise<{ variantId?: string; title?: string; source?: string }>;
 }) {
-  const initialVariantId = searchParams?.variantId || '';
-  const initialTitle = searchParams?.title || '';
+  const resolvedSearchParams = searchParams ? use(searchParams) : undefined;
+  const initialVariantId = resolvedSearchParams?.variantId || '';
+  const initialTitle = resolvedSearchParams?.title || '';
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [formData, setFormData] = useState({

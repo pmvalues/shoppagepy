@@ -19,16 +19,17 @@ const PROVINCES = [
   'Northern Cape',
 ];
 
-export default function MerchantsDirectoryPage({
+export default async function MerchantsDirectoryPage({
   searchParams,
 }: {
-  searchParams: { category?: string; marketId?: string; province?: string; q?: string; page?: string };
+  searchParams: Promise<{ category?: string; marketId?: string; province?: string; q?: string; page?: string }>;
 }) {
-  const categoryFilter = searchParams.category;
-  const marketIdFilter = searchParams.marketId;
-  const provinceFilter = searchParams.province;
-  const query = searchParams.q?.toLowerCase() || '';
-  const currentPage = parseInt(searchParams.page || '1', 10);
+  const resolvedSearchParams = await searchParams;
+  const categoryFilter = resolvedSearchParams.category;
+  const marketIdFilter = resolvedSearchParams.marketId;
+  const provinceFilter = resolvedSearchParams.province;
+  const query = resolvedSearchParams.q?.toLowerCase() || '';
+  const currentPage = parseInt(resolvedSearchParams.page || '1', 10);
   const pageSize = 24;
   const offset = (currentPage - 1) * pageSize;
 

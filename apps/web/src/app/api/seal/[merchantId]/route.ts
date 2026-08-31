@@ -8,9 +8,10 @@ import { generateLiveTrustSealSvg } from '@shoppage/adapters';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { merchantId: string } }
+  { params }: { params: Promise<{ merchantId: string }> }
 ) {
-  const merchantId = params.merchantId;
+  const resolvedParams = await params;
+  const merchantId = resolvedParams.merchantId;
   let passport = SA_FLAGSHIP_PASSPORTS[merchantId];
 
   if (!passport) {
