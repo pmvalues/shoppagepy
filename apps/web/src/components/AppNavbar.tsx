@@ -273,12 +273,38 @@ export default function AppNavbar({ children }: { children: React.ReactNode }) {
                   marginBottom: '1rem',
                 }}
               >
+                Media & Video Commerce
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.85rem' }}>
+                <Link href="/shorts" style={{ color: '#94A3B8' }}>
+                  🎬 Video Proof Shorts Feed
+                </Link>
+                <Link href="/shows" style={{ color: '#94A3B8' }}>
+                  📺 Market Walk Shows Series
+                </Link>
+                <Link href="/shorts" style={{ color: '#94A3B8' }}>
+                  + Submit Merchant Video
+                </Link>
+              </div>
+            </div>
+
+            <div>
+              <div
+                style={{
+                  fontSize: '0.85rem',
+                  fontWeight: 800,
+                  color: '#FFFFFF',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  marginBottom: '1rem',
+                }}
+              >
                 Compliance & Standards
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.85rem', color: '#64748B' }}>
                 <span>✓ SABS & NRS 097 Certified Inverters</span>
                 <span>✓ Verified Business Stockists</span>
-                <span>✓ Direct Multi-Channel Inquiries</span>
+                <span>✓ Direct Omnichannel Trade (0% Take Rate)</span>
                 <span>✓ Verified Merchant Standards</span>
               </div>
             </div>

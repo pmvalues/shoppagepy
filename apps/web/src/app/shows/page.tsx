@@ -2,197 +2,406 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-
-interface ShowEpisode {
-  id: string;
-  title: string;
-  series: string;
-  duration: string;
-  marketName: string;
-  views: number;
-  featuredProductsCount: number;
-  videoThumbUrl: string;
-  description: string;
-}
+import { SHOWS, MediaItem } from '@/lib/media';
 
 export default function ShowsPage() {
   const [activeSeries, setActiveSeries] = useState<string>('all');
-  const [selectedEpisode, setSelectedEpisode] = useState<ShowEpisode | null>(null);
+  const [selectedEpisode, setSelectedEpisode] = useState<MediaItem | null>(null);
+  const [activeChapterIndex, setActiveChapterIndex] = useState<number>(0);
 
-  const episodes: ShowEpisode[] = [
-    {
-      id: 'ep_01',
-      title: 'Dragon City Wholesale Walk: Exploring Building 2 Solar & Inverter Importers',
-      series: 'Market Walk South Africa',
-      duration: '14:20',
-      marketName: 'Dragon City Wholesale Mall, Crown Mines',
-      views: 48200,
-      featuredProductsCount: 12,
-      videoThumbUrl: 'https://images.unsplash.com/photo-1567449303078-57ad995bd301?w=800&h=450&fit=crop',
-      description: 'We walk through Dragon City Wholesale with local traders, comparing bulk prices for 5kW Deye and Sunsynk inverters directly from verified importers.',
-    },
-    {
-      id: 'ep_02',
-      title: 'Sandton City Diamond Walk & Level 2 Tech: Premium Solar & Computing Showcases',
-      series: 'Market Walk South Africa',
-      duration: '18:45',
-      marketName: 'Sandton City, Johannesburg',
-      views: 62100,
-      featuredProductsCount: 8,
-      videoThumbUrl: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800&h=450&fit=crop',
-      description: 'Visiting authorized distributors and specialist clean-energy retail studios in Sandton City Nelson Mandela Square concourses.',
-    },
-    {
-      id: 'ep_03',
-      title: 'Deye 8kW vs Sunsynk 8kW: Lab Load Benchmarks & Auxiliary Generator Switching',
-      series: 'Product Battles: Solar & Tech',
-      duration: '22:10',
-      marketName: 'Shoppage Engineering Lab',
-      views: 94500,
-      featuredProductsCount: 4,
-      videoThumbUrl: 'https://images.unsplash.com/photo-1508873696983-2df57046475a?w=800&h=450&fit=crop',
-      description: 'Comprehensive side-by-side electrical test: MPPT efficiency, fan noise under 8000W load, and smart BMS communication with Dyness lithium batteries.',
-    },
-    {
-      id: 'ep_04',
-      title: 'Oriental Plaza Grand Bazaar: Tech Gadgets, Battery Packs & Bargain Hunting',
-      series: 'Market Walk South Africa',
-      duration: '16:05',
-      marketName: 'Oriental Plaza Fordsburg, Johannesburg',
-      views: 53800,
-      featuredProductsCount: 15,
-      videoThumbUrl: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=450&fit=crop',
-      description: 'Navigating the Grand Bazaar at Oriental Plaza for cellular accessories, portable power stations, and wholesale electronics.',
-    },
+  const seriesList = [
+    'all',
+    'Market Walk South Africa',
+    'Product Battles: Solar & Tech',
+    'Factory & Warehouse Tours',
   ];
 
-  const filtered = activeSeries === 'all' ? episodes : episodes.filter((e) => e.series === activeSeries);
+  const filteredEpisodes = activeSeries === 'all'
+    ? SHOWS
+    : SHOWS.filter((e) => e.series === activeSeries);
+
+  const heroEpisode = SHOWS[0];
 
   return (
-    <div className="container" style={{ paddingTop: '2.5rem', paddingBottom: '5rem' }}>
-      {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#ECFDF5', border: '1px solid #A7F3D0', padding: '0.35rem 0.85rem', borderRadius: '9999px', marginBottom: '0.75rem' }}>
-          <span style={{ fontSize: '0.85rem' }}>📺</span>
-          <span style={{ fontSize: '0.8rem', color: '#047857', fontWeight: 700 }}>
-            Original Video Programming
-          </span>
+    <div style={{ background: '#0B0F19', minHeight: '100vh', color: '#FFFFFF', paddingBottom: '6rem' }}>
+      {/* 1. CINEMATIC HERO SPOTLIGHT */}
+      <section
+        style={{
+          position: 'relative',
+          padding: '6rem 1rem 5rem',
+          background: `linear-gradient(to right, rgba(11, 15, 25, 0.98) 0%, rgba(11, 15, 25, 0.8) 50%, rgba(11, 15, 25, 0.4) 100%), url(${heroEpisode.thumbnailUrl}) center/cover no-repeat`,
+          borderBottom: '1px solid #1E293B',
+        }}
+      >
+        <div className="container">
+          <div style={{ maxWidth: '680px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', padding: '0.35rem 0.85rem', borderRadius: '9999px', marginBottom: '1.25rem' }}>
+              <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444' }}></span>
+              <span style={{ fontSize: '0.78rem', color: '#FCA5A5', fontWeight: 800 }}>
+                ORIGINAL SERIES SPOTLIGHT · {heroEpisode.series}
+              </span>
+            </div>
+
+            <h1 style={{ fontSize: '3rem', fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1.15, color: '#FFFFFF', marginBottom: '1rem' }}>
+              {heroEpisode.title}
+            </h1>
+
+            <p style={{ color: '#94A3B8', fontSize: '1.05rem', lineHeight: 1.6, marginBottom: '2rem' }}>
+              {heroEpisode.description}
+            </p>
+
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <button
+                onClick={() => setSelectedEpisode(heroEpisode)}
+                className="btn btn-primary btn-lg"
+                style={{ borderRadius: '12px', fontWeight: 800, padding: '0.85rem 2rem', fontSize: '1rem', background: '#2563EB', borderColor: '#2563EB' }}
+              >
+                ▶ Watch Full Episode ({heroEpisode.duration})
+              </button>
+              <Link
+                href="/shorts"
+                className="btn btn-outline btn-lg"
+                style={{ borderRadius: '12px', fontWeight: 700, color: '#CBD5E1', borderColor: '#334155' }}
+              >
+                📱 Watch Proof Shorts &rarr;
+              </Link>
+            </div>
+          </div>
         </div>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 800, margin: '0.25rem 0 0.5rem 0', color: '#0F172A' }}>
-          Market Walk & Product Battle Series
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', maxWidth: '640px', margin: '0 auto' }}>
-          Structured multi-episode tours of South Africa&apos;s commercial hubs, teardowns, and verified merchant stock.
-        </p>
-      </div>
+      </section>
 
-      {/* Series Filter Tabs */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
-        {['all', 'Market Walk South Africa', 'Product Battles: Solar & Tech'].map((s) => (
-          <button
-            key={s}
-            onClick={() => setActiveSeries(s)}
-            className={`btn ${activeSeries === s ? 'btn-primary' : 'btn-outline'}`}
-            style={{ borderRadius: '9999px', fontSize: '0.85rem' }}
-          >
-            {s === 'all' ? 'All Original Series' : s}
-          </button>
-        ))}
-      </div>
+      {/* 2. SERIES SELECTION TABS */}
+      <section style={{ padding: '2.5rem 0 1.5rem', background: '#0F172A', borderBottom: '1px solid #1E293B' }}>
+        <div className="container">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              {seriesList.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setActiveSeries(s)}
+                  style={{
+                    background: activeSeries === s ? '#2563EB' : '#1E293B',
+                    color: activeSeries === s ? '#FFFFFF' : '#94A3B8',
+                    border: activeSeries === s ? '1px solid #3B82F6' : '1px solid #334155',
+                    padding: '0.5rem 1.25rem',
+                    borderRadius: '9999px',
+                    fontWeight: 700,
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {s === 'all' ? 'All Original Series' : s}
+                </button>
+              ))}
+            </div>
 
-      {/* Episode Modal */}
-      {selectedEpisode && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-          <div style={{ background: '#FFFFFF', borderRadius: '16px', maxWidth: '800px', width: '100%', overflow: 'hidden', boxShadow: 'var(--shadow-xl)' }}>
-            <div style={{ position: 'relative', width: '100%', height: '400px', background: '#000000' }}>
-              <img src={selectedEpisode.videoThumbUrl} alt={selectedEpisode.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(37,99,235,0.9)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.75rem', cursor: 'pointer' }}>
-                  ▶
+            <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 700 }}>
+              Showing {filteredEpisodes.length} Episodes
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. EPISODES GRID */}
+      <section style={{ padding: '3.5rem 0' }}>
+        <div className="container">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2rem' }}>
+            {filteredEpisodes.map((ep) => (
+              <div
+                key={ep.id}
+                className="card card-interactive"
+                onClick={() => setSelectedEpisode(ep)}
+                style={{
+                  background: '#1E293B',
+                  border: '1px solid #334155',
+                  borderRadius: '16px',
+                  padding: 0,
+                  overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                }}
+              >
+                <div>
+                  {/* Thumbnail Video Canvas */}
+                  <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9', background: '#000000', overflow: 'hidden' }}>
+                    <img
+                      src={ep.thumbnailUrl}
+                      alt={ep.title}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(15, 23, 42, 0.9) 0%, transparent 60%)' }} />
+
+                    {/* Duration Badge */}
+                    <span style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)', color: '#FFFFFF', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 800 }}>
+                      {ep.duration}
+                    </span>
+
+                    <span style={{ position: 'absolute', bottom: 10, left: 10, color: '#94A3B8', fontSize: '0.75rem', fontWeight: 700 }}>
+                      👁️ {ep.views.toLocaleString()} views
+                    </span>
+
+                    {/* Play Button Overlay */}
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span
+                        style={{
+                          width: '54px',
+                          height: '54px',
+                          borderRadius: '50%',
+                          background: 'rgba(37, 99, 235, 0.9)',
+                          color: '#FFFFFF',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '1.4rem',
+                          boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+                        }}
+                      >
+                        ▶
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Body Content */}
+                  <div style={{ padding: '1.25rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <span style={{ fontSize: '0.72rem', color: '#60A5FA', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        {ep.series}
+                      </span>
+                      {ep.marketName && (
+                        <span style={{ fontSize: '0.72rem', color: '#94A3B8', fontWeight: 600 }}>
+                          📍 {ep.marketName.slice(0, 24)}...
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#FFFFFF', lineHeight: 1.35, marginBottom: '0.65rem' }}>
+                      {ep.title}
+                    </h3>
+
+                    <p style={{ fontSize: '0.85rem', color: '#94A3B8', lineHeight: 1.5, marginBottom: '1rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {ep.description}
+                    </p>
+
+                    {/* Featured Products Pills */}
+                    {ep.featuredProducts && ep.featuredProducts.length > 0 && (
+                      <div style={{ paddingTop: '0.75rem', borderTop: '1px solid #334155', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        {ep.featuredProducts.map((p, pIdx) => (
+                          <span
+                            key={pIdx}
+                            style={{
+                              background: '#0F172A',
+                              border: '1px solid #334155',
+                              padding: '0.2rem 0.5rem',
+                              borderRadius: '4px',
+                              fontSize: '0.72rem',
+                              color: '#34D399',
+                              fontWeight: 700,
+                            }}
+                          >
+                            🛍️ {p.title} (R {p.price.toLocaleString()})
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
+
+                <div style={{ padding: '0.85rem 1.25rem', background: '#0F172A', borderTop: '1px solid #334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.78rem', color: '#94A3B8' }}>
+                    {ep.chapters?.length || 4} Chapters Available
+                  </span>
+                  <span style={{ fontSize: '0.8rem', color: '#60A5FA', fontWeight: 800 }}>
+                    Watch Episode &rarr;
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. CINEMATIC LONG-FORM VIDEO & CHAPTERS MODAL */}
+      {selectedEpisode && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.94)',
+            backdropFilter: 'blur(16px)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1.5rem',
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedEpisode(null);
+          }}
+        >
+          <div
+            style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '1080px',
+              maxHeight: '92vh',
+              background: '#0F172A',
+              border: '1px solid #334155',
+              borderRadius: '20px',
+              overflow: 'hidden',
+              boxShadow: '0 25px 70px rgba(0,0,0,0.8)',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{ padding: '1rem 1.5rem', background: '#1E293B', borderBottom: '1px solid #334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <span style={{ fontSize: '0.75rem', color: '#60A5FA', fontWeight: 800, textTransform: 'uppercase' }}>
+                  {selectedEpisode.series} · {selectedEpisode.duration}
+                </span>
+                <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#FFFFFF', margin: '0.1rem 0 0 0' }}>
+                  {selectedEpisode.title}
+                </h2>
               </div>
               <button
                 onClick={() => setSelectedEpisode(null)}
-                style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'rgba(0,0,0,0.7)', color: '#FFFFFF', border: 'none', width: '36px', height: '36px', borderRadius: '50%', fontSize: '1.25rem', cursor: 'pointer' }}
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: 'none',
+                  color: '#FFFFFF',
+                  fontSize: '1.25rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
               >
                 ✕
               </button>
             </div>
 
-            <div style={{ padding: '1.75rem' }}>
-              <span className="badge badge-blue" style={{ marginBottom: '0.5rem' }}>{selectedEpisode.series}</span>
-              <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: '0.25rem 0', color: '#0F172A' }}>
-                {selectedEpisode.title}
-              </h2>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.5rem 0 1.25rem 0', lineHeight: 1.5 }}>
-                {selectedEpisode.description}
-              </p>
+            {/* Video Player + Sidebar Layout */}
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', overflow: 'auto', flex: 1 }}>
+              {/* Main Player Canvas */}
+              <div style={{ background: '#000000', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9', background: '#000000' }}>
+                  <video
+                    src={selectedEpisode.videoUrl}
+                    controls
+                    autoPlay
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-                <span style={{ fontSize: '0.85rem', color: '#64748B' }}>
-                  📍 {selectedEpisode.marketName} · ⏱️ {selectedEpisode.duration}
-                </span>
+                <div style={{ padding: '1.25rem', flex: 1, background: '#0F172A' }}>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#FFFFFF', marginBottom: '0.5rem' }}>
+                    Episode Overview
+                  </h3>
+                  <p style={{ fontSize: '0.85rem', color: '#94A3B8', lineHeight: 1.6 }}>
+                    {selectedEpisode.description}
+                  </p>
+                </div>
+              </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <Link href="/search?category=solar_energy" className="btn btn-primary" style={{ fontSize: '0.85rem' }}>
-                    View Featured Products ({selectedEpisode.featuredProductsCount}) &rarr;
-                  </Link>
-                  <button onClick={() => setSelectedEpisode(null)} className="btn btn-outline" style={{ fontSize: '0.85rem' }}>
-                    Close
-                  </button>
+              {/* Sidebar: Chapters & Featured Products */}
+              <div style={{ background: '#1E293B', borderLeft: '1px solid #334155', padding: '1.25rem', overflowY: 'auto' }}>
+                {/* Chapters */}
+                {selectedEpisode.chapters && selectedEpisode.chapters.length > 0 && (
+                  <div style={{ marginBottom: '1.75rem' }}>
+                    <h3 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#CBD5E1', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.75rem' }}>
+                      📋 Episode Chapters
+                    </h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                      {selectedEpisode.chapters.map((ch, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setActiveChapterIndex(idx)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.65rem',
+                            background: activeChapterIndex === idx ? '#2563EB' : '#0F172A',
+                            border: activeChapterIndex === idx ? '1px solid #3B82F6' : '1px solid #334155',
+                            color: '#FFFFFF',
+                            padding: '0.5rem 0.75rem',
+                            borderRadius: '8px',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            fontSize: '0.78rem',
+                          }}
+                        >
+                          <span style={{ fontWeight: 800, color: activeChapterIndex === idx ? '#FFFFFF' : '#60A5FA' }}>
+                            {ch.time}
+                          </span>
+                          <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {ch.title}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Featured Products BuyBox Roster */}
+                <div>
+                  <h3 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#CBD5E1', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.75rem' }}>
+                    🛍️ Products in this Episode
+                  </h3>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {(selectedEpisode.featuredProducts || [
+                      { title: 'Featured Wholesale Unit', price: 14850, stockist: 'Verified Importer', link: '/search' },
+                    ]).map((prod, pIdx) => (
+                      <div
+                        key={pIdx}
+                        style={{
+                          background: '#0F172A',
+                          border: '1px solid #334155',
+                          borderRadius: '10px',
+                          padding: '0.85rem',
+                        }}
+                      >
+                        <div style={{ fontSize: '0.75rem', color: '#60A5FA', fontWeight: 700, marginBottom: '0.2rem' }}>
+                          🏬 {prod.stockist}
+                        </div>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#FFFFFF', marginBottom: '0.35rem' }}>
+                          {prod.title}
+                        </div>
+                        <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#34D399', marginBottom: '0.65rem' }}>
+                          R {prod.price.toLocaleString()}
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '0.4rem' }}>
+                          <Link
+                            href={prod.link}
+                            className="btn btn-primary btn-sm"
+                            style={{ flex: 1, justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, borderRadius: '6px' }}
+                          >
+                            Compare &rarr;
+                          </Link>
+                          <Link
+                            href="/requests"
+                            className="btn btn-outline btn-sm"
+                            style={{ fontSize: '0.75rem', fontWeight: 800, borderRadius: '6px', color: '#FFFFFF', borderColor: '#475569' }}
+                          >
+                            ✉️ RFQ
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       )}
-
-      {/* Episodes Grid */}
-      <div className="grid grid-cols-2" style={{ gap: '2rem' }}>
-        {filtered.map((ep) => (
-          <div key={ep.id} className="card" style={{ padding: '0', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#FFFFFF' }}>
-            <div style={{ position: 'relative', width: '100%', height: '240px', background: '#000000', cursor: 'pointer' }} onClick={() => setSelectedEpisode(ep)}>
-              <img src={ep.videoThumbUrl} alt={ep.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%)' }} />
-
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(37,99,235,0.9)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
-                  ▶
-                </div>
-              </div>
-
-              <span style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(0,0,0,0.8)', color: '#FFFFFF', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700 }}>
-                {ep.duration}
-              </span>
-
-              <span style={{ position: 'absolute', bottom: '12px', left: '12px', color: '#F1F5F9', fontSize: '0.75rem' }}>
-                👁️ {ep.views.toLocaleString()} views
-              </span>
-            </div>
-
-            <div style={{ padding: '1.5rem' }}>
-              <span className="badge badge-blue" style={{ marginBottom: '0.4rem', fontSize: '0.7rem' }}>
-                {ep.series}
-              </span>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: '0.25rem 0 0.5rem 0', color: '#0F172A', lineHeight: 1.35 }}>
-                {ep.title}
-              </h3>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', lineHeight: 1.4 }}>
-                {ep.description}
-              </p>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid #F1F5F9' }}>
-                <span style={{ fontSize: '0.8rem', color: '#64748B' }}>
-                  📍 {ep.marketName.slice(0, 30)}...
-                </span>
-                <button onClick={() => setSelectedEpisode(ep)} className="btn btn-outline" style={{ fontSize: '0.8rem' }}>
-                  Watch Episode &rarr;
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
