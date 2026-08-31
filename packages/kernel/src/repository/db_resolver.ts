@@ -36,6 +36,11 @@ export function getSqliteDatabase(filename: string, options: { readOnly?: boolea
       for (const p of possiblePaths) {
         if (fs.existsSync(p)) {
           const db = new DatabaseSync(p, { open: true, readOnly: options.readOnly ?? true });
+          try {
+            db.exec('PRAGMA busy_timeout = 5000;');
+          } catch {
+            // Read-only PRAGMA fallback
+          }
           dbCache.set(cacheKey, db);
           return db;
         }
