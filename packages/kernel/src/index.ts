@@ -31,3 +31,4 @@ export * from './services/youtube_shorts_service';
 export * from './services/shoppage_merchant_centre';
 export * from './repository/db_resolver';
 export * from './seed/mitrend_dataset';
+export * from './graph/sa_community_groups_dataset';

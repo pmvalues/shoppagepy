@@ -1,5 +1,6 @@
 import { Market, CommercialLocation } from '@shoppage/contracts';
 import { SA_COMPREHENSIVE_MARKETS } from './sa_markets_dataset';
+import { SA_COMMUNITY_GROUPS_DATASET } from './sa_community_groups_dataset';
 import * as path from 'path';
 
 import { getSqliteDatabase } from '../repository/db_resolver';
@@ -102,6 +103,10 @@ export class SouthAfricaMallsStore {
       }
       return flagship;
     }
+
+    // 3. Check 5,000+ public community trading markets dataset
+    const communityMarket = SA_COMMUNITY_GROUPS_DATASET.find((m) => m.id === id);
+    if (communityMarket) return communityMarket;
 
     return null;
   }

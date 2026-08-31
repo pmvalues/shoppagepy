@@ -356,9 +356,18 @@ export interface MarketSubZone {
   description?: string;
 }
 
+export interface CommunityGroupMeta {
+  groupCategory: 'suburb_buy_sell' | 'b2b_contractor_network' | 'wholesale_importers' | 'solar_inverter_exchange' | 'farming_livestock' | 'auto_parts_spares' | 'fmcg_spaza_trade';
+  memberCount: number;
+  dailyPostVolume: number;
+  cityOrTown: string;
+  sourcePlatform?: string;
+  moderationType: 'open_public' | 'vetted_trade_only' | 'cipc_verified_merchants';
+}
+
 export interface VirtualMarketMeta {
   platformUrl: string;
-  portalType: 'open_marketplace' | 'b2b_trade_portal' | 'spaza_fintech_switch' | 'classifieds_network' | 'energy_portal';
+  portalType: 'open_marketplace' | 'b2b_trade_portal' | 'spaza_fintech_switch' | 'classifieds_network' | 'energy_portal' | 'community_group_exchange';
   merchantOnboardingUrl?: string;
   buyerAppUrl?: string;
   apiIntegrationType?: 'rest_webhook' | 'csv_catalog_sync' | 'whatsapp_bot_agent';
@@ -386,10 +395,12 @@ export interface Market {
     | 'virtual_marketplace'
     | 'virtual_b2b_network'
     | 'virtual_social_commerce'
-    | 'virtual_spaza_fintech';
+    | 'virtual_spaza_fintech'
+    | 'virtual_community_group';
   geo?: MarketGeo;
   zones?: MarketSubZone[];
   virtualMeta?: VirtualMarketMeta;
+  communityGroupMeta?: CommunityGroupMeta;
   landmarks?: string[];
   safetyNotices?: string[];
   operatingHours?: string;

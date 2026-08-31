@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { SA_COMPREHENSIVE_MARKETS } from '@shoppage/kernel';
+import { SA_COMPREHENSIVE_MARKETS, SA_COMMUNITY_GROUPS_DATASET } from '@shoppage/kernel';
 import MarketsExplorerView from '@/components/MarketsExplorerView';
 
 export default function MarketsExplorerPage({
@@ -8,8 +8,10 @@ export default function MarketsExplorerPage({
 }: {
   searchParams: { type?: string; province?: string; q?: string };
 }) {
-  const physicalCount = SA_COMPREHENSIVE_MARKETS.filter((m) => !m.marketType.startsWith('virtual_')).length;
-  const virtualCount = SA_COMPREHENSIVE_MARKETS.filter((m) => m.marketType.startsWith('virtual_')).length;
+  const allMarkets = [...SA_COMPREHENSIVE_MARKETS, ...SA_COMMUNITY_GROUPS_DATASET];
+  const physicalCount = allMarkets.filter((m) => !m.marketType.startsWith('virtual_')).length;
+  const communityCount = allMarkets.filter((m) => m.marketType === 'virtual_community_group').length;
+  const virtualExchangeCount = allMarkets.filter((m) => m.marketType.startsWith('virtual_') && m.marketType !== 'virtual_community_group').length;
 
   return (
     <div className="container" style={{ paddingTop: '3rem' }}>
@@ -30,19 +32,19 @@ export default function MarketsExplorerPage({
             marginBottom: '1rem',
           }}
         >
-          <span>🌐 NATIONAL COMMERCE GRAPH · {physicalCount} PHYSICAL HUBS & {virtualCount} VIRTUAL TRADING EXCHANGES</span>
+          <span>🌐 NATIONAL COMMERCE GRAPH · {allMarkets.length.toLocaleString()} HUBS, GUILDS & COMMUNITY TRADING GROUPS</span>
         </div>
 
         <h1 style={{ fontSize: '2.75rem', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '0.75rem', color: '#0F172A' }}>
-          Physical & Virtual Trading Floors
+          Physical Malls & Community Trading Groups
         </h1>
-        <p style={{ color: '#475569', fontSize: '1.05rem', maxWidth: '720px', margin: '0 auto', lineHeight: 1.6 }}>
-          Join high-volume industry guilds, follow live wholesale catalog drops, and discover verified physical suppliers across South Africa.
+        <p style={{ color: '#475569', fontSize: '1.05rem', maxWidth: '740px', margin: '0 auto', lineHeight: 1.6 }}>
+          Discover <strong>5,000+ local public buy/sell groups</strong>, regional contractor guilds, and wholesale commodity trading circles across South Africa.
         </p>
       </div>
 
       <MarketsExplorerView
-        initialMarkets={SA_COMPREHENSIVE_MARKETS}
+        initialMarkets={allMarkets}
         initialType={searchParams.type}
       />
     </div>
