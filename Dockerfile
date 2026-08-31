@@ -1,23 +1,52 @@
 FROM node:20-alpine AS builder
+
 WORKDIR /app
+
 RUN apk add --no-cache libc6-compat
 
+# Copy workspace package manifests for cached dependency installation
+COPY package.json package-lock.json ./
+COPY packages/contracts/package.json ./packages/contracts/
+COPY packages/kernel/package.json ./packages/kernel/
+COPY packages/adapters/package.json ./packages/adapters/
+COPY packages/eval/package.json ./packages/eval/
+COPY packages/config/package.json ./packages/config/
+COPY apps/web/package.json ./apps/web/
+
+RUN npm install
+
+# Copy source files
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
 
-RUN npm install
+# Compile monorepo packages and Next.js 16 App Router
 RUN npm run build
 
+# Strip builder caches and prune devDependencies to keep image size small
+RUN rm -rf apps/web/.next/cache /root/.npm
+RUN npm prune --production
+
 FROM node:20-alpine AS runner
+
 WORKDIR /app
+
+RUN apk add --no-cache libc6-compat
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-COPY --from=builder /app ./
+# Copy only production runtime artifacts
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/apps/web/package.json ./apps/web/
+COPY --from=builder /app/apps/web/public ./apps/web/public
+COPY --from=builder /app/apps/web/.next ./apps/web/.next
+COPY --from=builder /app/apps/web/next.config.mjs ./apps/web/
 
 EXPOSE 3000
 
