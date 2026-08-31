@@ -5,6 +5,9 @@ import { OffersCollection } from './collections/Offers.js';
 import { RightsSourcesCollection } from './collections/RightsSources.js';
 import { ShowsCollection } from './collections/Shows.js';
 import { ShortsCollection } from './collections/Shorts.js';
+import { SubscriptionsCollection } from './collections/Subscriptions.js';
+import { InvoicesCollection } from './collections/Invoices.js';
+import { CampaignsCollection } from './collections/Campaigns.js';
 
 /**
  * Payload CMS 3 Configuration
@@ -26,6 +29,9 @@ export const payloadConfig = {
     RightsSourcesCollection,
     ShowsCollection,
     ShortsCollection,
+    SubscriptionsCollection,
+    InvoicesCollection,
+    CampaignsCollection,
   ],
   typescript: {
     outputFile: './src/payload-types.ts',

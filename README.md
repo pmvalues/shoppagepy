@@ -103,14 +103,24 @@ npm run start
 
 ---
 
-## 💼 Commercial Model (0% Take-Rate)
+## 💼 Commercial Model (0% Take-Rate + High-Margin Ads & SaaS)
 
-Shoppage counter-positions against legacy marketplace toll-booths by charging **0% commission** on merchant transactions. Transaction checkout occurs merchant-to-buyer directly (via WhatsApp Quick Cart or merchant direct gateways). Monetization is achieved via high-margin B2B software and advertising streams:
+Shoppage counter-positions against legacy marketplace toll-booths by charging **0% commission** on merchant transactions (zero take-rate on buyer-merchant trade). Transaction checkout occurs merchant-to-buyer directly (via WhatsApp Quick Cart, showroom visits, or direct store gateways). 
 
-1. **Merchant OS SaaS Subscriptions** (R499 – R2,499/month): Automated Google Merchant Center XML syndication, advanced CRM, multi-branch inventory.
-2. **Local Showroom Geo-Ads**: 25km radius keyword bidding for local physical store walk-ins.
-3. **CIPC Verified Trust Seals**: Enterprise compliance verification and priority SERP BuyBox placement.
-4. **Wholesale RFQ Lead Matching**: Commercial procurement fees for verified contractor matchmaking.
+Platform income is generated through a high-margin dual monetization engine: **Digital Advertising & Sponsored Placements** and **Tiered Merchant OS SaaS Subscriptions**:
+
+1. **Digital Advertising & Sponsored Discovery (Core Income Engine)**:
+   * **Local Showroom Geo-Ads**: 25km radius geofenced keyword bidding driving walk-ins and local customer footfall.
+   * **Sponsored SERP Top-Rail & BuyBox Boosts**: Cost-per-click (CPC) and impression bidding for prominent product search placement.
+   * **9:16 Video Short Sponsored Discovery**: Video studio ad placements across consumer discovery feeds.
+   * **Brand & Category Takeovers**: Co-op supplier and manufacturer brand sponsorships across 5,500+ category taxonomy nodes.
+2. **Merchant OS SaaS Plans**:
+   * **Free Starter (R0/month)**: 1 branch, standard search indexing, WhatsApp direct chat, basic Merchant Centre dashboard.
+   * **Business (R199/month)**: Up to 3 branches, CIPC Verified Trust Badge, Google Merchant Center XML feed syndication, priority SERP placement.
+   * **Business Pro (R499/month)**: Up to 10 branches, 9:16 video studio live broadcast, automated multi-channel inventory sync, priority BuyBox placement.
+   * **Enterprise (Quote-based)**: Unlimited branches, multi-mall flagship syndication, wholesale RFQ tender desk, dedicated Key Account Manager, custom API integration.
+3. **CIPC Verified Trust Seals**: Enterprise statutory compliance verification and priority SERP placement.
+4. **Wholesale RFQ Match Fees**: Commercial procurement lead-matching fees for verified contractor tenders.
 
 ---
 
