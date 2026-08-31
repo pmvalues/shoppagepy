@@ -9,9 +9,9 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Security
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-shoppage-v8-1-commerce-intelligence-platform-key')
-DEBUG = True
-ALLOWED_HOSTS = ['*']
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-shoppage-dev-environment-key')
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1')
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if h.strip()]
 
 # Application definition
 INSTALLED_APPS = [

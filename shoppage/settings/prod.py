@@ -3,10 +3,9 @@ import os
 from .base import *
 
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY') or os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY') or os.environ.get('SECRET_KEY', '')
 if not SECRET_KEY:
-    import hashlib
-    SECRET_KEY = hashlib.sha256(b'shoppage-production-deterministic-salt-2026-v8.2').hexdigest()
+    raise RuntimeError("DJANGO_SECRET_KEY environment variable is required in production.")
 
 # Reverse proxy & SSL headers (Traefik / Dokploy / Cloudflare / Nginx)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -14,21 +13,19 @@ USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 
 # CSRF & Session Security
-CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'False').lower() == 'true'
-SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
+CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'True').lower() == 'true'
+SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'True').lower() == 'true'
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_HTTPONLY = False
 CSRF_USE_SESSIONS = False
 
-# Production hosts configuration (supporting domain, Dokploy subdomains, and wildcard fallback)
+# Production hosts configuration (strict host matching)
 hosts_env = os.environ.get('ALLOWED_HOSTS', '').strip()
 if hosts_env:
-    ALLOWED_HOSTS = [h.strip() for h in hosts_env.split(',') if h.strip()]
-    if '*' not in ALLOWED_HOSTS:
-        ALLOWED_HOSTS.append('*')
+    ALLOWED_HOSTS = [h.strip() for h in hosts_env.split(',') if h.strip() and h.strip() != '*']
 else:
-    ALLOWED_HOSTS = ['*']
+    ALLOWED_HOSTS = ['shoppage.co.za', 'www.shoppage.co.za']
 
 # Comprehensive CSRF Trusted Origins
 trusted_origins = [
