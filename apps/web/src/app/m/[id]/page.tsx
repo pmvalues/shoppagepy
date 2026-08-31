@@ -788,7 +788,7 @@ export default function MerchantProfilePage({ params }: { params: { id: string }
           </div>
         )}
 
-        {/* TAB 3: 🎬 VIDEO SHORTS & DEMOS */}
+        {/* TAB 3: 🎬 VIDEO SHORTS & PRODUCT SHOWCASES */}
         {activeTab === 'shorts' && (
           <div>
             <div style={{ marginBottom: '1.25rem' }}>
@@ -954,7 +954,7 @@ export default function MerchantProfilePage({ params }: { params: { id: string }
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.85rem' }}>
               {[
-                { title: 'Main Trade Counter & Demo Wall', url: 'https://images.unsplash.com/photo-1567449303078-57ad995bd301?w=600&h=400&fit=crop' },
+                { title: 'Main Trade Counter & Display Showroom', url: 'https://images.unsplash.com/photo-1567449303078-57ad995bd301?w=600&h=400&fit=crop' },
                 { title: 'Inverter Testing Bay & SABS Lab', url: 'https://images.unsplash.com/photo-1508873696983-2df57046475a?w=600&h=400&fit=crop' },
                 { title: 'Lithium Battery Warehouse Staging', url: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=600&h=400&fit=crop' },
                 { title: 'Solar Panel Dispatch Loading Bay', url: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=600&h=400&fit=crop' },

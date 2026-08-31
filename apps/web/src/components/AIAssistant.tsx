@@ -28,6 +28,7 @@ interface Msg {
 
 const SUGGESTIONS = [
   '⚡ 5.12kWh battery with 450W load runtime?',
+  '🍽️ Mitrend food packaging & catering supplies',
   '☀️ 5kW hybrid inverter under R20000',
   '🔋 Dyness vs Pylontech 48V battery',
   '🧱 PPC cement 50kg in Sandton',
