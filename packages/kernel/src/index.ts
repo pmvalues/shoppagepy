@@ -30,3 +30,4 @@ export * from './services/google_trends_service';
 export * from './services/youtube_shorts_service';
 export * from './services/shoppage_merchant_centre';
 export * from './repository/db_resolver';
+export * from './seed/mitrend_dataset';

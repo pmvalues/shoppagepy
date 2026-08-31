@@ -6,11 +6,16 @@ import {
   NationwideMerchantStore,
   SA_CANONICAL_PRODUCTS,
   SA_FLAGSHIP_PASSPORTS,
+  MITREND_MERCHANT,
+  MITREND_PRODUCTS,
 } from '@shoppage/kernel';
 import type { Merchant } from '@shoppage/contracts';
 import { SHORTS, SHOWS, type MediaItem } from '@/lib/media';
 
 function synthesizeFallbackMerchant(id: string): Merchant {
+  if (id.toLowerCase().includes('mitrend')) {
+    return MITREND_MERCHANT as Merchant;
+  }
   const clean = id.replace(/^(?:mer_ext_|loc_|mer_)/, '').replace(/_/g, ' ');
   const name = clean.split(' ').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
@@ -73,8 +78,10 @@ export default function MerchantProfilePage({ params }: { params: { id: string }
     state: 'VERIFIED_ACTIVE',
   };
 
-  // High-Resolution Placeholder Product Photography & Catalog
-  const storeProducts = [
+  const isMitrend = params.id.toLowerCase().includes('mitrend');
+
+  // High-Resolution Product Photography & Catalog
+  const solarProducts = [
     {
       id: 'prod_deye_5kw',
       title: 'Deye 5kW Hybrid Inverter 48V (SUN-5K-SG03LP1-EU)',
@@ -195,6 +202,31 @@ export default function MerchantProfilePage({ params }: { params: { id: string }
       specs: 'TUV Certified 1500V DC · Double Insulated XLPO · Halogen Free · UV & Ozone Resistant',
       image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&h=400&fit=crop',
     },
+  ];
+
+  const storeProducts = isMitrend
+    ? MITREND_PRODUCTS.map((p) => ({
+        id: p.id,
+        title: p.title,
+        brand: p.brand,
+        sku: p.sku,
+        category: p.category,
+        categoryLabel: p.category,
+        price: p.price,
+        salePrice: p.salePrice,
+        inStock: p.inStock,
+        stockQty: p.stockQty,
+        warranty: p.warranty,
+        specs: p.specs,
+        image: p.image,
+      }))
+    : solarProducts;
+
+  // Dynamic Categories from the store products
+  const uniqueCategories = Array.from(new Set(storeProducts.map((p) => p.category)));
+  const categoryFilterList = [
+    { id: 'all', label: 'All Items' },
+    ...uniqueCategories.slice(0, 6).map((c) => ({ id: c, label: c })),
   ];
 
   const filteredProducts = storeProducts.filter((p) => {
@@ -435,13 +467,7 @@ export default function MerchantProfilePage({ params }: { params: { id: string }
             >
               {/* Category Pills */}
               <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
-                {[
-                  { id: 'all', label: 'All Items' },
-                  { id: 'inverters', label: '⚡ Hybrid Inverters' },
-                  { id: 'batteries', label: '🔋 Lithium Batteries' },
-                  { id: 'panels', label: '☀️ Solar Panels' },
-                  { id: 'cables', label: '🔌 Protection & Cables' },
-                ].map((cat) => {
+                {categoryFilterList.map((cat) => {
                   const isSelected = productCategory === cat.id;
                   return (
                     <button

@@ -307,6 +307,21 @@ export const SA_FLAGSHIP_MERCHANTS: Merchant[] = [
     verificationState: 'fully_verified',
     country: 'ZA',
   },
+  {
+    id: 'loc_mitrend_midrand',
+    marketId: 'mkt_midrand_commercial',
+    stallIdentifier: 'Warehouse ERF710',
+    name: 'Mitrend Products (Pty) Ltd',
+    addressText: 'ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng',
+    contacts: {
+      whatsapp: '+27105007670',
+      telephone: '+27105007670',
+      email: 'sales@mitrend.co.za',
+      website: 'https://mitrend.co.za',
+    },
+    verificationState: 'fully_verified',
+    country: 'ZA',
+  },
 ];
 
 export const SA_FLAGSHIP_OFFERS: Offer[] = [

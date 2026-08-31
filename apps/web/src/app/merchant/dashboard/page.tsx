@@ -6,6 +6,8 @@ import {
   ShoppageMerchantCentreService,
   SA_FLAGSHIP_MERCHANTS,
   SA_CANONICAL_PRODUCTS,
+  MITREND_MERCHANT,
+  MITREND_PRODUCTS,
 } from '@shoppage/kernel';
 
 export default function MerchantDashboardPage() {
@@ -522,12 +524,32 @@ export default function MerchantDashboardPage() {
   const pendingDiscoveredCount = discoveredStock.filter((s) => s.status === 'pending').length;
   const processingOrdersCount = ordersList.filter((o) => o.status === 'processing').length;
 
+  const isMitrendSelected = selectedMerchantId === 'loc_mitrend_midrand';
+
+  const activeMerchantProducts = isMitrendSelected
+    ? MITREND_PRODUCTS.map((p) => ({
+        id: p.id,
+        sku: p.sku,
+        title: p.title,
+        brand: p.brand,
+        category: p.category,
+        price: p.price,
+        salePrice: p.salePrice,
+        inStock: p.inStock,
+        stockQty: p.stockQty,
+        feedStatus: 'Active',
+        views: 120 + Math.floor(p.price * 10),
+        salesCount: Math.max(1, Math.floor(100 / (p.price || 1))),
+        image: p.image,
+      }))
+    : productsList;
+
   const filteredOrders = ordersList.filter((o) => {
     if (orderStatusFilter === 'all') return true;
     return o.status === orderStatusFilter;
   });
 
-  const filteredProducts = productsList.filter((p) => {
+  const filteredProducts = activeMerchantProducts.filter((p) => {
     if (productCategoryFilter === 'all') return true;
     return p.category === productCategoryFilter;
   });
@@ -953,7 +975,7 @@ export default function MerchantDashboardPage() {
                     ACTIVE STORE SKUs
                   </div>
                   <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#00A32A', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <span>{productsList.filter((p) => p.inStock).length} / {productsList.length}</span>
+                    <span>{activeMerchantProducts.filter((p) => p.inStock).length} / {activeMerchantProducts.length}</span>
                   </div>
                   <div style={{ fontSize: '0.75rem', color: '#646970', marginTop: '0.25rem' }}>
                     Catalog Synced & In Stock
@@ -1129,7 +1151,7 @@ export default function MerchantDashboardPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
                   <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1D2327', margin: 0 }}>
-                    Products ({productsList.length})
+                    Products ({activeMerchantProducts.length})
                   </h2>
                   <p style={{ fontSize: '0.825rem', color: '#646970', margin: '0.2rem 0 0 0' }}>
                     Manage catalog pricing, stock status, and product syndication.
