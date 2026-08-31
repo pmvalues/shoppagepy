@@ -19,6 +19,7 @@ export default function ProductStudioStage({
 
   const isDetail = variant === 'detail';
   const stageHeight = isDetail ? '360px' : '180px';
+  const imageUrl = product.media?.gallery?.[0]?.url || (product as any).image || (product as any).featuredImage;
 
   return (
     <div
@@ -80,11 +81,11 @@ export default function ProductStudioStage({
 
       {/* Main Image or Industrial SVG Illustration */}
       <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
-        {product.media?.gallery?.[0]?.url ? (
+        {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={product.media.gallery[0].url}
-            alt={product.media.gallery[0].altText || product.title}
+            src={imageUrl}
+            alt={product.title}
             style={{
               maxHeight: isDetail ? '300px' : '150px',
               maxWidth: '90%',
@@ -112,120 +113,98 @@ export default function ProductStudioStage({
             <circle cx="45" cy="80" r="4" fill="#10B981" />
             <circle cx="60" cy="80" r="4" fill="#0284C7" />
             <circle cx="75" cy="80" r="4" fill="#F59E0B" />
-            {/* Cooling Grille */}
-            <line x1="100" y1="75" x2="160" y2="75" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" />
-            <line x1="100" y1="83" x2="160" y2="83" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" />
-            <line x1="100" y1="91" x2="160" y2="91" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" />
-            {/* DC / AC Connection Ports */}
-            <rect x="40" y="115" width="22" height="16" rx="3" fill="#F1F5F9" stroke="#94A3B8" />
-            <rect x="70" y="115" width="22" height="16" rx="3" fill="#F1F5F9" stroke="#94A3B8" />
-            <rect x="108" y="115" width="50" height="16" rx="3" fill="#ECFDF5" stroke="#10B981" />
-            <text x="133" y="127" fill="#059669" fontSize="8" fontFamily="sans-serif" fontWeight="bold" textAnchor="middle">NRS 097</text>
+            <text x="95" y="83" fill="#64748B" fontSize="9" fontWeight="600" fontFamily="sans-serif">NORMAL / GRID / FAULT</text>
+            {/* Vents & Wiring Ports */}
+            <line x1="45" y1="105" x2="155" y2="105" stroke="#E2E8F0" strokeWidth="3" strokeLinecap="round" />
+            <line x1="45" y1="115" x2="155" y2="115" stroke="#E2E8F0" strokeWidth="3" strokeLinecap="round" />
+            <line x1="45" y1="125" x2="155" y2="125" stroke="#E2E8F0" strokeWidth="3" strokeLinecap="round" />
+            <rect x="55" y="142" width="18" height="6" rx="2" fill="#334155" />
+            <rect x="80" y="142" width="18" height="6" rx="2" fill="#DC2626" />
+            <rect x="105" y="142" width="18" height="6" rx="2" fill="#0284C7" />
+            <rect x="130" y="142" width="18" height="6" rx="2" fill="#334155" />
           </svg>
         ) : isBattery ? (
           <svg
-            width={isDetail ? 220 : 110}
-            height={isDetail ? 180 : 90}
-            viewBox="0 0 200 160"
+            width={isDetail ? 200 : 100}
+            height={isDetail ? 160 : 80}
+            viewBox="0 0 180 140"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            {/* Rack Battery White/Slate Chassis */}
-            <rect x="20" y="25" width="160" height="110" rx="8" fill="#FFFFFF" stroke="#0284C7" strokeWidth="2" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.06))" />
-            {/* Rack Mounting Handles */}
-            <rect x="10" y="45" width="10" height="70" rx="3" fill="#94A3B8" />
-            <rect x="180" y="45" width="10" height="70" rx="3" fill="#94A3B8" />
-            {/* Battery Level Indicators */}
-            <rect x="35" y="40" width="80" height="20" rx="4" fill="#F8FAFC" stroke="#CBD5E1" />
-            <rect x="38" y="43" width="15" height="14" rx="2" fill="#10B981" />
-            <rect x="55" y="43" width="15" height="14" rx="2" fill="#10B981" />
-            <rect x="72" y="43" width="15" height="14" rx="2" fill="#10B981" />
-            <rect x="89" y="43" width="15" height="14" rx="2" fill="#10B981" />
-            <text x="145" y="55" fill="#059669" fontSize="11" fontFamily="monospace" fontWeight="bold">100%</text>
-            {/* High Current Terminals */}
-            <circle cx="50" cy="95" r="10" fill="#EF4444" />
-            <text x="50" y="99" fill="#FFFFFF" fontSize="11" fontWeight="bold" textAnchor="middle">+</text>
-            <circle cx="85" cy="95" r="10" fill="#334155" stroke="#CBD5E1" strokeWidth="1.5" />
-            <text x="85" y="99" fill="#FFFFFF" fontSize="11" fontWeight="bold" textAnchor="middle">-</text>
-            {/* Bus Specs */}
-            <text x="145" y="99" fill="#64748B" fontSize="10" fontFamily="sans-serif" fontWeight="bold">51.2V 100Ah</text>
+            {/* Rack / Wall Mount Lithium Battery Enclosure */}
+            <rect x="15" y="20" width="150" height="100" rx="8" fill="#1E293B" stroke="#38BDF8" strokeWidth="1.5" />
+            {/* BMS Screen & Battery Bar */}
+            <rect x="30" y="35" width="60" height="15" rx="3" fill="#0F172A" stroke="#0284C7" strokeWidth="1" />
+            <text x="60" y="46" fill="#38BDF8" fontSize="9" fontFamily="monospace" fontWeight="bold" textAnchor="middle">51.2V 100Ah</text>
+            <rect x="100" y="36" width="50" height="12" rx="2" fill="#0F172A" />
+            <rect x="102" y="38" width="40" height="8" rx="1" fill="#10B981" />
+            {/* Terminals & Breaker */}
+            <circle cx="35" cy="75" r="7" fill="#DC2626" />
+            <circle cx="35" cy="75" r="3" fill="#FFFFFF" />
+            <circle cx="60" cy="75" r="7" fill="#0F172A" stroke="#475569" />
+            <circle cx="60" cy="75" r="3" fill="#FFFFFF" />
+            <rect x="85" y="65" width="22" height="20" rx="3" fill="#0F172A" stroke="#64748B" />
+            <rect x="91" y="68" width="10" height="14" rx="2" fill="#F59E0B" />
+            {/* Handles */}
+            <path d="M15 45 H8 V95 H15" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M165 45 H172 V95 H165" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round" />
           </svg>
         ) : isTech ? (
           <svg
-            width={isDetail ? 200 : 100}
-            height={isDetail ? 180 : 90}
-            viewBox="0 0 160 160"
+            width={isDetail ? 160 : 80}
+            height={isDetail ? 200 : 100}
+            viewBox="0 0 120 160"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <rect x="35" y="15" width="90" height="130" rx="16" fill="#FFFFFF" stroke="#6366F1" strokeWidth="2" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.06))" />
-            <rect x="42" y="24" width="76" height="112" rx="10" fill="#EEF2FF" />
-            <circle cx="80" cy="20" r="3" fill="#6366F1" />
-            <circle cx="80" cy="80" r="22" fill="#C7D2FE" opacity="0.6" />
-            <text x="80" y="85" fill="#4338CA" fontSize="10" fontFamily="sans-serif" fontWeight="bold" textAnchor="middle">5G OCTA</text>
+            {/* Modern Slim Smartphone Chassis */}
+            <rect x="25" y="10" width="70" height="140" rx="14" fill="#0F172A" stroke="#6366F1" strokeWidth="1.5" />
+            <rect x="29" y="14" width="62" height="132" rx="10" fill="#1E1B4B" />
+            {/* Camera Punchole & Display Wallpaper Glow */}
+            <circle cx="60" cy="22" r="3" fill="#000000" />
+            <circle cx="60" cy="80" r="24" fill="url(#techGlow)" fillOpacity="0.4" />
+            <defs>
+              <radialGradient id="techGlow" cx="0.5" cy="0.5" r="0.5">
+                <stop offset="0%" stopColor="#818CF8" />
+                <stop offset="100%" stopColor="#312E81" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+          </svg>
+        ) : isHardware ? (
+          <svg
+            width={isDetail ? 180 : 90}
+            height={isDetail ? 160 : 80}
+            viewBox="0 0 160 140"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            {/* Hardware Cement Sack / Industrial Supply */}
+            <path d="M40 25 C50 20, 110 20, 120 25 L130 115 C120 125, 40 125, 30 115 Z" fill="#D97706" stroke="#92400E" strokeWidth="2" />
+            <rect x="50" y="45" width="60" height="45" rx="4" fill="#FEF3C7" stroke="#B45309" strokeWidth="1" />
+            <text x="80" y="65" fill="#92400E" fontSize="10" fontFamily="sans-serif" fontWeight="900" textAnchor="middle">SABS 42.5N</text>
+            <text x="80" y="78" fill="#78350F" fontSize="8" fontFamily="sans-serif" fontWeight="bold" textAnchor="middle">50KG NET</text>
           </svg>
         ) : (
-          <svg
-            width={isDetail ? 200 : 100}
-            height={isDetail ? 180 : 90}
-            viewBox="0 0 160 160"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <rect x="30" y="30" width="100" height="100" rx="10" fill="#FFFFFF" stroke="#D97706" strokeWidth="2" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.06))" />
-            <line x1="30" y1="30" x2="130" y2="130" stroke="#E2E8F0" strokeWidth="1.5" />
-            <line x1="130" y1="30" x2="30" y2="130" stroke="#E2E8F0" strokeWidth="1.5" />
-            <rect x="55" y="55" width="50" height="50" rx="6" fill="#FEF3C7" stroke="#D97706" strokeWidth="1.5" />
-            <text x="80" y="85" fill="#B45309" fontSize="11" fontFamily="sans-serif" fontWeight="bold" textAnchor="middle">
-              {isHardware ? 'HEAVY' : 'MASTER'}
-            </text>
-          </svg>
+          <div style={{ fontSize: isDetail ? '4rem' : '2rem' }}>📦</div>
         )}
       </div>
 
-      {/* Top Floating Badge (Clean Light Frosted Pill) */}
-      <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 3, display: 'flex', gap: '0.4rem' }}>
-        <span
-          style={{
-            fontSize: '0.65rem',
-            fontWeight: 800,
-            padding: '0.25rem 0.55rem',
-            borderRadius: '9999px',
-            background: 'rgba(255, 255, 255, 0.95)',
-            color: 'var(--slate-800)',
-            border: '1px solid #E2E8F0',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-            backdropFilter: 'blur(8px)',
-          }}
-        >
-          {product.brand || 'OFFICIAL SKU'}
-        </span>
-      </div>
-
-      {/* Bottom Floating Barcode & Certification Overlay (Light) */}
+      {/* GS1 Standard Watermark Badge (Subtle Technical Accent) */}
       <div
         style={{
           position: 'absolute',
-          bottom: 10,
-          left: 10,
-          right: 10,
-          zIndex: 3,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          bottom: '8px',
+          right: '10px',
           fontSize: '0.65rem',
-          color: 'var(--slate-600)',
+          fontWeight: 800,
+          color: '#94A3B8',
+          letterSpacing: '0.06em',
+          textTransform: 'uppercase',
           fontFamily: 'var(--font-mono)',
+          zIndex: 3,
         }}
       >
-        <span style={{ background: 'rgba(255, 255, 255, 0.92)', padding: '0.2rem 0.5rem', borderRadius: '4px', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(0,0,0,0.04)', fontWeight: 600 }}>
-          GS1 · {product.identifiers?.gtin13 || '600980012019'}
-        </span>
-        {isDetail && (
-          <span style={{ color: '#059669', fontWeight: 800, background: '#ECFDF5', padding: '0.2rem 0.5rem', borderRadius: '4px', border: '1px solid #A7F3D0' }}>
-            ✓ 3D Studio Spec
-          </span>
-        )}
+        GS1 {product.identifiers?.mpn || 'CANONICAL'}
       </div>
     </div>
   );
