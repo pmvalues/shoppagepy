@@ -13,6 +13,7 @@ import { PayloadMerchantCmsService } from '@/cms';
 import ProductStudioStage from '@/components/ProductStudioStage';
 import { SHORTS } from '@/lib/media';
 import { MERCHANT_PLAN_TIERS } from '@/cms/types';
+import { showToast } from '@/lib/toast';
 
 export default function MerchantDashboardPage() {
   const [selectedMerchantId, setSelectedMerchantId] = useState('loc_sunpower_crownmines');
@@ -2014,14 +2015,14 @@ export default function MerchantDashboardPage() {
                       {/* Export & Action Buttons */}
                       <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
                         <button
-                          onClick={() => alert('High-Resolution 4K Asset with SABS Watermark exported to your Catalog.')}
+                          onClick={() => showToast('High-Resolution 4K Asset with SABS Watermark exported to your Catalog.', 'success')}
                           className="btn btn-primary btn-sm"
                           style={{ flex: 1, justifyContent: 'center', fontWeight: 800, borderRadius: '6px' }}
                         >
                           💾 Save & Apply to Master Catalog
                         </button>
                         <button
-                          onClick={() => alert('GS1 GTIN-13 Barcode generated.')}
+                          onClick={() => showToast('GS1 GTIN-13 Barcode generated.', 'success')}
                           className="btn btn-outline btn-sm"
                           style={{ borderRadius: '6px', fontWeight: 700 }}
                         >
@@ -2176,14 +2177,14 @@ export default function MerchantDashboardPage() {
 
                     <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
                       <button
-                        onClick={() => alert('Starting live stream broadcast from your showroom camera.')}
+                        onClick={() => showToast('Starting live stream broadcast from your showroom camera.', 'success')}
                         className="btn btn-primary btn-lg"
                         style={{ borderRadius: '8px', fontWeight: 800, background: '#EF4444', borderColor: '#EF4444' }}
                       >
                         🔴 Go Live Now (Showroom Camera)
                       </button>
                       <button
-                        onClick={() => alert('Live broadcast scheduled for tomorrow 10:00 AM.')}
+                        onClick={() => showToast('Live broadcast scheduled for tomorrow 10:00 AM.', 'success')}
                         className="btn btn-outline btn-lg"
                         style={{ borderRadius: '8px', fontWeight: 700, color: '#FFFFFF', borderColor: '#475569' }}
                       >
@@ -2249,7 +2250,7 @@ export default function MerchantDashboardPage() {
                         };
                         setMerchantShorts([newEntry, ...merchantShorts]);
                         setShowUploadShortModal(false);
-                        alert('Video Short successfully linked and syndicated to /shorts feed!');
+                        showToast('Video Short successfully linked and syndicated to /shorts feed!', 'success');
                       }}
                     >
                       <div style={{ marginBottom: '1rem' }}>

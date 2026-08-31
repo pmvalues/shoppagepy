@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { showToast } from '@/lib/toast';
 import {
   SA_CANONICAL_PRODUCTS,
   SA_FLAGSHIP_MERCHANTS,
@@ -530,7 +531,7 @@ export default function ShoppageTimePage() {
                             justifyContent: 'center',
                             cursor: 'pointer',
                           }}
-                          onClick={() => alert(`Playing live video proof short for ${item.productTitle || item.authorName}...`)}
+                          onClick={() => showToast(`Playing live video proof short for ${item.productTitle || item.authorName}...`)}
                         >
                           <div
                             style={{
@@ -636,7 +637,7 @@ export default function ShoppageTimePage() {
                   {/* ACTION BAR (TWITTER / X STYLE) */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.65rem', borderTop: '1px solid #F1F5F9', fontSize: '0.78rem', color: '#64748B' }}>
                     <button
-                      onClick={() => alert(`Opening instant RFQ chat with ${item.authorName}...`)}
+                      onClick={() => showToast(`Opening instant RFQ chat with ${item.authorName}...`)}
                       style={{ background: 'none', border: 'none', color: '#64748B', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                     >
                       <span>💬</span> {item.replyCount} RFQs
@@ -722,7 +723,7 @@ export default function ShoppageTimePage() {
                       <div style={{ fontSize: '0.7rem', color: '#64748B' }}>{s.handle} · {s.location}</div>
                     </div>
                     <button
-                      onClick={() => alert(`Following ${s.name} on Shoppage Time!`)}
+                      onClick={() => showToast(`Following ${s.name} on Shoppage Time!`)}
                       className="btn btn-outline btn-sm"
                       style={{ borderRadius: '20px', fontWeight: 800, fontSize: '0.72rem', padding: '0.25rem 0.65rem' }}
                     >

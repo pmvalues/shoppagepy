@@ -1,5 +1,7 @@
 'use client';
 
+import { showToast } from '@/lib/toast';
+
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import {
@@ -876,7 +878,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 onClick={() => {
                   setIsAccountLinked(true);
                   setShowLinkModal(false);
-                  alert('Facebook Profile & Twitter/X handle successfully connected!');
+                  showToast('Facebook Profile & Twitter/X handle successfully connected!', 'success');
                 }}
                 className="btn btn-primary"
                 style={{ background: '#1877F2', borderColor: '#1877F2', fontWeight: 800, padding: '0.75rem', borderRadius: '8px' }}
@@ -888,7 +890,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 onClick={() => {
                   setIsAccountLinked(true);
                   setShowLinkModal(false);
-                  alert('Twitter / X handle successfully connected!');
+                  showToast('Twitter / X handle successfully connected!', 'success');
                 }}
                 className="btn btn-primary"
                 style={{ background: '#000000', borderColor: '#000000', fontWeight: 800, padding: '0.75rem', borderRadius: '8px' }}
@@ -900,7 +902,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 onClick={() => {
                   setIsAccountLinked(true);
                   setShowLinkModal(false);
-                  alert('Shoppage Member ID linked.');
+                  showToast('Shoppage Member ID linked.', 'success');
                 }}
                 className="btn btn-outline"
                 style={{ fontWeight: 700, padding: '0.75rem', borderRadius: '8px' }}

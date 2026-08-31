@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { showToast } from '@/lib/toast';
 
 interface ActionFeedItem {
   id: string;
@@ -437,7 +438,7 @@ export default function ShoppageTimeActionHero() {
                               justifyContent: 'center',
                               cursor: 'pointer',
                             }}
-                            onClick={() => alert(`Playing live video proof short for ${productTitle}...`)}
+                            onClick={() => showToast(`Playing live video proof short for ${productTitle}...`)}
                           >
                             <div
                               style={{
@@ -533,7 +534,7 @@ export default function ShoppageTimeActionHero() {
                     {/* Action Micro-Bar */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.35rem', borderTop: '1px solid #F1F5F9', fontSize: '0.72rem', color: '#64748B' }}>
                       <button
-                        onClick={() => alert(`Opening RFQ inquiry for ${productTitle}...`)}
+                        onClick={() => showToast(`Opening RFQ inquiry for ${productTitle}...`)}
                         style={{ background: 'none', border: 'none', color: '#64748B', fontWeight: 700, cursor: 'pointer' }}
                       >
                         💬 {item.rfqs || 8} RFQs

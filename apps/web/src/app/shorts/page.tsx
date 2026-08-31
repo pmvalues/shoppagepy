@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { SHORTS, MediaItem } from '@/lib/media';
+import { showToast } from '@/lib/toast';
 
 export default function ShortsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -285,7 +286,7 @@ export default function ShortsPage() {
               Attach TikTok, YouTube Shorts, or MP4 unboxings directly to your store catalog. Zero listing fee.
             </p>
 
-            <form onSubmit={(e) => { e.preventDefault(); alert('Video submitted successfully! Pending CIPC merchant verification.'); setActiveTab('feed'); }}>
+            <form onSubmit={(e) => { e.preventDefault(); showToast('Video submitted successfully! Pending CIPC merchant verification.', 'success'); setActiveTab('feed'); }}>
               <div style={{ marginBottom: '1.25rem' }}>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#CBD5E1', marginBottom: '0.4rem' }}>
                   Video URL (YouTube Shorts, TikTok, or MP4)
