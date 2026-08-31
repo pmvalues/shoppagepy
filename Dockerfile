@@ -1,8 +1,6 @@
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /app
-
-RUN apk add --no-cache libc6-compat
 
 # Copy workspace package manifests for cached dependency installation
 COPY package.json package-lock.json ./
@@ -31,11 +29,9 @@ RUN npm run build
 RUN rm -rf apps/web/.next/cache /root/.npm
 RUN npm prune --production
 
-FROM node:20-alpine AS runner
+FROM node:20-slim AS runner
 
 WORKDIR /app
-
-RUN apk add --no-cache libc6-compat
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
