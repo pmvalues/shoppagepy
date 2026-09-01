@@ -14,6 +14,8 @@ import ProductStudioStage from '@/components/ProductStudioStage';
 import { SHORTS } from '@/lib/media';
 import { MERCHANT_PLAN_TIERS } from '@/cms/types';
 import { showToast } from '@/lib/toast';
+import WooButton from '@/components/WooButton';
+import WhatsAppCTA from '@/components/WhatsAppCTA';
 
 export default function MerchantDashboardPage() {
   const [selectedMerchantId, setSelectedMerchantId] = useState('loc_sunpower_crownmines');
@@ -605,11 +607,11 @@ export default function MerchantDashboardPage() {
   };
 
   // WhatsApp Dispatch Generator
-  const generateWhatsAppDispatchUrl = (order: any) => {
+  const getWhatsAppDispatch = (order: any) => {
     const cleanPhone = (order.phone || '').replace(/\D/g, '');
     const phone = cleanPhone.startsWith('0') ? '27' + cleanPhone.slice(1) : cleanPhone;
-    const msg = `Hi ${order.customer}, thank you for your order ${order.id} with ${merchant.name}!\n\nStatus: ${order.status.toUpperCase()}\nItems: ${order.items}\nTotal: R ${Number(order.total).toLocaleString('en-ZA', { minimumFractionDigits: 2 })}\nCarrier: ${order.carrier || 'The Courier Guy'}\nTracking: ${order.trackingNumber || 'In transit'}\n\nTrack your live delivery: https://shoppage.co.za/orders/${order.id.replace('#', '')}\nThank you for choosing ${merchant.name}!`;
-    return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+    const message = `Hi ${order.customer}, thank you for your order ${order.id} with ${merchant.name}!\n\nStatus: ${order.status.toUpperCase()}\nItems: ${order.items}\nTotal: R ${Number(order.total).toLocaleString('en-ZA', { minimumFractionDigits: 2 })}\nCarrier: ${order.carrier || 'The Courier Guy'}\nTracking: ${order.trackingNumber || 'In transit'}\n\nTrack your live delivery: https://shoppage.co.za/orders/${order.id.replace('#', '')}\nThank you for choosing ${merchant.name}!`;
+    return { phone, message };
   };
 
   // Bulk Actions
@@ -1639,20 +1641,12 @@ export default function MerchantDashboardPage() {
                       </td>
                       <td style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
                         <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'flex-end' }}>
-                          <a
-                            href={generateWhatsAppDispatchUrl(order)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ background: '#25D366', color: '#FFFFFF', textDecoration: 'none', padding: '0.25rem 0.55rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700 }}
-                          >
-                            💬 WhatsApp
-                          </a>
-                          <button
-                            onClick={() => { setInvoiceOrder(order); setShowInvoiceModal(true); }}
-                            style={{ background: '#F0F0F1', border: '1px solid #DCDCDE', padding: '0.25rem 0.55rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
-                          >
+                          {(() => { const d = getWhatsAppDispatch(order); return (
+                            <WhatsAppCTA phone={d.phone} message={d.message} label="WhatsApp" size="sm" />
+                          ); })()}
+                          <WooButton variant="secondary" size="sm" onClick={() => { setInvoiceOrder(order); setShowInvoiceModal(true); }}>
                             📄 Invoice
-                          </button>
+                          </WooButton>
                         </div>
                       </td>
                     </tr>
@@ -2044,20 +2038,10 @@ export default function MerchantDashboardPage() {
                       <td style={{ padding: '0.85rem 0.75rem', color: '#646970' }}>{cust.lastOrder}</td>
                       <td style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
                         <div style={{ display: 'inline-flex', gap: '0.35rem' }}>
-                          <button
-                            onClick={() => setSelectedCustomer(cust)}
-                            style={{ background: '#F0F0F1', border: '1px solid #DCDCDE', borderRadius: '4px', padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
-                          >
+                          <WooButton variant="secondary" size="sm" onClick={() => setSelectedCustomer(cust)}>
                             CRM Profile
-                          </button>
-                          <a
-                            href={`https://wa.me/${cust.phone.replace(/[^0-9]/g, '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ background: '#25D366', color: '#FFF', textDecoration: 'none', borderRadius: '4px', padding: '0.3rem 0.55rem', fontSize: '0.75rem', fontWeight: 700 }}
-                          >
-                            💬 WhatsApp
-                          </a>
+                          </WooButton>
+                          <WhatsAppCTA phone={cust.phone} message={`Hello ${cust.name}, this is ${merchant.name} following up on your order.`} label="WhatsApp" size="sm" />
                         </div>
                       </td>
                     </tr>

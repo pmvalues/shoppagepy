@@ -338,6 +338,20 @@ a {
   transform: translateY(-2px);
 }
 
+/* WP-admin secondary (neutral grey) — used throughout the merchant dashboard */
+.btn-secondary {
+  background: #F0F0F1;
+  color: #2C3338;
+  border-color: #DCDCDE;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.btn-secondary:hover {
+  background: #DBDBDD;
+  border-color: #C6C6C6;
+  color: #1D2327;
+  transform: translateY(-1px);
+}
+
 /* Grids & Layouts */
 .grid {
   display: grid;
@@ -643,6 +657,23 @@ table tbody tr:hover td {
 .breadcrumb a:hover { color: var(--primary); text-decoration: underline; }
 .breadcrumb .sep { color: var(--border-strong); }
 .breadcrumb .current { color: var(--text-primary); font-weight: 600; }
+
+/* Dark-context breadcrumb (merchant storefront header) */
+.breadcrumb--dark { color: #94A3B8; }
+.breadcrumb--dark a { color: #93C5FD; }
+.breadcrumb--dark a:hover { color: #BFDBFE; text-decoration: underline; }
+.breadcrumb--dark .sep { color: #475569; }
+.breadcrumb--dark .current { color: #E2E8F0; font-weight: 600; }
+
+/* Button utilities (shared WooCommerce system) */
+.btn-success { background: #10B981; color: #FFFFFF; border-color: #059669; box-shadow: 0 1px 3px rgba(16,185,129,0.2); }
+.btn-success:hover { background: #059669; box-shadow: 0 6px 16px rgba(16,185,129,0.38); transform: translateY(-2px); }
+.btn-danger { background: #DC2626; color: #FFFFFF; border-color: #B91C1C; box-shadow: 0 1px 3px rgba(220,38,38,0.2); }
+.btn-danger:hover { background: #B91C1C; box-shadow: 0 6px 16px rgba(220,38,38,0.38); transform: translateY(-2px); }
+.btn-block { display: flex; width: 100%; }
+.btn-icon { padding: 0.6rem; border-radius: var(--radius-md); }
+.btn-icon.btn-sm { padding: 0.4rem; }
+.btn-icon.btn-lg { padding: 0.8rem; }
 
 /* Product Detail (single product) */
 .pdp-grid {

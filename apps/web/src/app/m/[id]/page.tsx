@@ -11,6 +11,9 @@ import {
 } from '@shoppage/kernel';
 import type { Merchant } from '@shoppage/contracts';
 import { SHORTS, SHOWS, type MediaItem } from '@/lib/media';
+import Breadcrumb from '@/components/Breadcrumb';
+import WooButton from '@/components/WooButton';
+import WhatsAppCTA from '@/components/WhatsAppCTA';
 
 function synthesizeFallbackMerchant(id: string): Merchant {
   if (id.toLowerCase().includes('mitrend')) {
@@ -282,6 +285,14 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
       {/* 1. STREAMLINED COMPACT STORE IDENTITY HEADER (NO EMPTY TOP BANNER) */}
       <header style={{ background: '#0F172A', color: '#FFFFFF', borderBottom: '1px solid #1E293B' }}>
         <div className="container" style={{ padding: '1rem 1rem 0.5rem' }}>
+          <Breadcrumb
+            onDark
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Stores', href: '/search?mode=shopping' },
+              { label: merchant.name },
+            ]}
+          />
           {/* Top Identity Row: Logo, Name, Badges, & Actions */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
@@ -325,59 +336,25 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
 
             {/* Quick Contact Buttons */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <a
-                href={`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(`Hello ${merchant.name}, I am viewing your online store on Shoppage and would like to inquire about your products.`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  background: '#25D366',
-                  color: '#FFFFFF',
-                  textDecoration: 'none',
-                  borderRadius: '6px',
-                  padding: '0.45rem 0.9rem',
-                  fontWeight: 800,
-                  fontSize: '0.8rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                }}
-              >
-                <span>💬 WhatsApp</span>
-              </a>
+              <WhatsAppCTA
+                phone={whatsappPhone}
+                message={`Hello ${merchant.name}, I am viewing your online store on Shoppage and would like to inquire about your products.`}
+                label="WhatsApp"
+                size="sm"
+              />
 
               {merchant.contacts?.telephone && (
                 <a
                   href={`tel:${merchant.contacts.telephone.replace(/[^0-9+]/g, '')}`}
-                  style={{
-                    background: '#1E293B',
-                    color: '#CBD5E1',
-                    border: '1px solid #334155',
-                    textDecoration: 'none',
-                    borderRadius: '6px',
-                    padding: '0.45rem 0.85rem',
-                    fontWeight: 700,
-                    fontSize: '0.8rem',
-                  }}
+                  className="btn btn-dark btn-sm"
                 >
                   📞 Call
                 </a>
               )}
 
-              <button
-                onClick={() => setActiveTab('rfq')}
-                style={{
-                  background: '#2563EB',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '0.45rem 0.95rem',
-                  fontWeight: 800,
-                  fontSize: '0.8rem',
-                  cursor: 'pointer',
-                }}
-              >
+              <WooButton variant="primary" size="sm" onClick={() => setActiveTab('rfq')}>
                 📋 Get RFQ Quote
-              </button>
+              </WooButton>
             </div>
           </div>
 

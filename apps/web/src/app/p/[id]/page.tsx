@@ -14,6 +14,8 @@ import type { MasterProduct, Offer } from '@shoppage/contracts';
 import ProductStudioStage from '@/components/ProductStudioStage';
 import ProductCard from '@/components/ProductCard';
 import ProductTabs from '@/components/ProductTabs';
+import Breadcrumb from '@/components/Breadcrumb';
+import WhatsAppCTA from '@/components/WhatsAppCTA';
 import { resolveExternalProduct } from '@/lib/external_discovery';
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -150,9 +152,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                   <td style={{ textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                       <Link href={`/m/${merchant.id}`} className="btn btn-outline btn-sm">View Store</Link>
-                      <a href={`https://wa.me/${waPhone.replace(/[^0-9]/g, '')}?text=${waMsg}`} target="_blank" rel="noopener noreferrer" className="btn btn-whatsapp btn-sm">
-                        WhatsApp Direct
-                      </a>
+                      <WhatsAppCTA phone={waPhone} message={waMsg} label="WhatsApp Direct" size="sm" />
                     </div>
                   </td>
                 </tr>
@@ -296,15 +296,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             )}
 
             <div className="pdp-cta-row">
-              <a
-                href={`https://wa.me/27105007670?text=${encodeURIComponent(`Hi Shoppage, I want to buy or quote ${product.title} (R ${minPrice.toLocaleString()}). Is it in stock?`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-whatsapp btn-lg"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-                Buy via WhatsApp
-              </a>
+              <WhatsAppCTA
+                phone="27105007670"
+                message={`Hi Shoppage, I want to buy or quote ${product.title} (R ${minPrice.toLocaleString()}). Is it in stock?`}
+                label="Buy via WhatsApp"
+                size="lg"
+              />
               <Link href="/requests" className="btn btn-primary btn-lg">Post Buyer RFQ</Link>
               <a href="#offers" className="btn btn-outline pdp-cta-icon" title="Compare merchant offers" aria-label="Compare merchant offers">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
