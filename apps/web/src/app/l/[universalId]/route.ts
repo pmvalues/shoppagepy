@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { buildReferralActionEvent } from '@shoppage/kernel';
 import { SA_FLAGSHIP_OFFERS, SA_CANONICAL_PRODUCTS, SA_FLAGSHIP_MERCHANTS } from '@shoppage/kernel';
 import { buildWhatsAppActionLink } from '@shoppage/adapters';
+import { resolveExternalProduct } from '@/lib/external_discovery';
 
 
 /**
@@ -20,15 +21,24 @@ export async function GET(
   const sessionFingerprint = request.headers.get('user-agent') || 'anonymous_client';
 
   // Lookup offer by universalId (or fallback to variant)
-  const offer = SA_FLAGSHIP_OFFERS.find((o) => o.id === universalId);
-  const variant = SA_CANONICAL_PRODUCTS.find((p) => p.canonicalId === universalId || p.canonicalId === offer?.variantRef);
+  let offer = SA_FLAGSHIP_OFFERS.find((o) => o.id === universalId);
+  let variant = SA_CANONICAL_PRODUCTS.find((p) => p.canonicalId === universalId || p.canonicalId === offer?.variantRef);
+
+  if (!offer && !variant) {
+    // Check external discovery resolution
+    const extMatch = resolveExternalProduct(universalId);
+    if (extMatch) {
+      offer = extMatch.offer;
+      variant = extMatch.product;
+    }
+  }
 
   if (!offer && !variant) {
     return NextResponse.redirect(new URL('/search?not_found=1', request.url));
   }
 
   const merchant = SA_FLAGSHIP_MERCHANTS.find((m) => m.id === offer?.merchantRef);
-  const merchantRef = merchant?.id || 'unknown_merchant';
+  const merchantRef = merchant?.id || offer?.merchantRef || 'unknown_merchant';
 
   // 1. Emit Action Ledger Event (referral / intent logging)
   const referralEvent = buildReferralActionEvent({

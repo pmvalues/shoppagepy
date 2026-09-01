@@ -27,37 +27,47 @@ function getDeterministicSku(productId: string, retailer: string): string {
 }
 
 export function buildDirectProductUrl(website: string, productTitle: string, productId: string): string {
-  const slug = slugify(productTitle);
-  const sku = getDeterministicSku(productId, website);
+  const cleanTitle = productTitle
+    .replace(/\s*\(South Africa Spec\)/i, '')
+    .replace(/\s*·\s*High Performance Commercial Edition/i, '')
+    .replace(/\s*·\s*SABS Approved Standard/i, '')
+    .replace(/\s*\[Official Distributor Stock\]/i, '')
+    .trim();
+  const encodedQuery = encodeURIComponent(cleanTitle);
 
   if (website.includes('takealot.com')) {
-    return `https://www.takealot.com/${slug}/PLID${sku}`;
+    return `https://www.takealot.com/all?_sb=1&_sort=relevance&q=${encodedQuery}`;
   } else if (website.includes('makro.co.za')) {
-    return `https://www.makro.co.za/electronics-appliances/generators-solar-power/inverters/${slug}-p-${sku.slice(0, 6)}_EA`;
+    return `https://www.makro.co.za/search?text=${encodedQuery}`;
   } else if (website.includes('builders.co.za')) {
-    return `https://www.builders.co.za/Solar-Power-and-Generators/Inverters/${slug}/p/000000000000${sku.slice(0, 6)}`;
+    return `https://www.builders.co.za/search/?text=${encodedQuery}`;
   } else if (website.includes('leroymerlin.co.za')) {
-    return `https://leroymerlin.co.za/${slug}-${sku}.html`;
+    return `https://leroymerlin.co.za/catalogsearch/result/?q=${encodedQuery}`;
+  } else if (website.includes('solaradvice.co.za')) {
+    return `https://solaradvice.co.za/?s=${encodedQuery}&post_type=product`;
   } else if (website.includes('solartechdirect.co.za')) {
-    return `https://solartechdirect.co.za/products/${slug}`;
+    return `https://solartechdirect.co.za/?s=${encodedQuery}&post_type=product`;
   } else if (website.includes('inverterwarehouse.co.za')) {
-    return `https://inverterwarehouse.co.za/products/${slug}`;
+    return `https://inverterwarehouse.co.za/?s=${encodedQuery}&post_type=product`;
   } else if (website.includes('checkers.co.za')) {
-    return `https://www.checkers.co.za/p/${slug}-${sku.slice(0, 7)}`;
+    return `https://www.checkers.co.za/search/all?q=${encodedQuery}`;
   } else if (website.includes('woolworths.co.za')) {
-    return `https://www.woolworths.co.za/prod/Food/Pantry/${slug}/_/A-${sku.slice(0, 7)}`;
+    return `https://www.woolworths.co.za/cat?Ntt=${encodedQuery}`;
   } else if (website.includes('dischem.co.za')) {
-    return `https://www.dischem.co.za/${slug}-${sku.slice(0, 6)}`;
+    return `https://www.dischem.co.za/catalogsearch/result/?q=${encodedQuery}`;
   } else if (website.includes('clicks.co.za')) {
-    return `https://clicks.co.za/${slug}/p/${sku.slice(0, 6)}`;
+    return `https://clicks.co.za/search/?text=${encodedQuery}`;
   } else if (website.includes('incredible.co.za')) {
-    return `https://www.incredible.co.za/${slug}-${sku.slice(0, 7)}`;
+    return `https://www.incredible.co.za/catalogsearch/result/?q=${encodedQuery}`;
+  } else if (website.includes('hirschs.co.za')) {
+    return `https://www.hirschs.co.za/catalogsearch/result/?q=${encodedQuery}`;
   } else if (website.includes('pricecheck.co.za')) {
-    return `https://www.pricecheck.co.za/offers/${sku}/${slug}`;
-  } else if (website.includes('google.co.za/shopping')) {
-    return `https://www.google.co.za/shopping/product/${sku}?q=${slug}`;
+    return `https://www.pricecheck.co.za/search?search=${encodedQuery}`;
+  } else if (website.includes('google.co.za/shopping') || website.includes('google.com')) {
+    return `https://www.google.co.za/search?tbm=shop&q=${encodedQuery}`;
   } else {
-    return `https://www.${website}/products/${slug}`;
+    const cleanDomain = website.replace(/^https?:\/\//, '').replace(/^www\./, '');
+    return `https://www.${cleanDomain}/search?q=${encodedQuery}`;
   }
 }
 
@@ -162,6 +172,14 @@ export const PUBLIC_RETAILERS: Array<{
   },
 ];
 
+function sanitizeSourceUrl(sourceUrl: string, sourceWebsite: string, masterProductRef: string): string {
+  if (!sourceUrl || sourceUrl.includes('PLID') || sourceUrl.includes('_EA') || sourceUrl.includes('000000000000')) {
+    const title = masterProductRef.replace(/^(?:var_|ext_|p_|disc_)/, '').replace(/_/g, ' ');
+    return buildDirectProductUrl(sourceWebsite || 'takealot.com', title, masterProductRef);
+  }
+  return sourceUrl;
+}
+
 function rowToDiscoveredOffer(row: any): DiscoveredOffer {
   return {
     id: row.id,
@@ -169,7 +187,7 @@ function rowToDiscoveredOffer(row: any): DiscoveredOffer {
     merchantRef: row.merchant_ref || undefined,
     merchantName: row.merchant_name,
     sourceWebsite: row.source_website,
-    sourceUrl: row.source_url,
+    sourceUrl: sanitizeSourceUrl(row.source_url, row.source_website, row.master_product_ref),
     discoveredPrice: {
       amount: row.discovered_price_zar,
       currency: 'ZAR',

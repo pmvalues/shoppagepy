@@ -4,6 +4,7 @@
 // Ensures ZERO dead-end searches.
 
 import type { ProductVariant, Offer } from '@shoppage/contracts';
+import { buildDirectProductUrl } from '@shoppage/kernel';
 import { SearchIntent } from './intelligence';
 
 export interface DiscoveredLiveResult {
@@ -143,7 +144,7 @@ export function searchExternalLiveWeb(query: string, intent: SearchIntent, limit
       destinationType: 'retailer_website',
       actionTarget: {
         type: 'url',
-        destinationUrl: `https://${retailer.domain}`,
+        destinationUrl: buildDirectProductUrl(retailer.domain, title, cleanId),
       },
       price: {
         amount,
