@@ -137,6 +137,7 @@ export default function AppNavbar({
   const [scrolled, setScrolled] = React.useState(false);
   const [theme, setTheme] = React.useState<'light' | 'dark' | null>(null);
   const [railCollapsed, setRailCollapsed] = React.useState(false);
+  const [navCollapsed, setNavCollapsed] = React.useState(false);
 
   React.useEffect(() => {
     try {
@@ -175,6 +176,15 @@ export default function AppNavbar({
     }
   }, []);
 
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem('shoppage_nav_collapsed');
+      if (stored === 'true') setNavCollapsed(true);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
     setTheme(next);
@@ -191,6 +201,16 @@ export default function AppNavbar({
     setRailCollapsed(next);
     try {
       localStorage.setItem('shoppage_rail_collapsed', String(next));
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const toggleNav = () => {
+    const next = !navCollapsed;
+    setNavCollapsed(next);
+    try {
+      localStorage.setItem('shoppage_nav_collapsed', String(next));
     } catch {
       /* ignore */
     }
@@ -215,6 +235,24 @@ export default function AppNavbar({
     <>
       <header className={`topbar${scrolled ? ' is-scrolled' : ''}`}>
         <div className="topbar-inner">
+          <button
+            type="button"
+            className="icon-btn nav-toggle-btn"
+            onClick={toggleNav}
+            aria-label={navCollapsed ? 'Expand sidebar' : 'Collapse sidebar to left'}
+            title={navCollapsed ? 'Expand sidebar' : 'Collapse sidebar to left'}
+          >
+            <svg {...iconProps} width={18} height={18} viewBox="0 0 24 24">
+              <rect x="3" y="3" width="18" height="18" rx="3" />
+              <path d="M9 3v18" />
+              {navCollapsed ? (
+                <path d="M13 12l4-3v6z" fill="currentColor" stroke="none" />
+              ) : (
+                <path d="M16 12l-4-3v6z" fill="currentColor" stroke="none" />
+              )}
+            </svg>
+          </button>
+
           <Link href="/" className="brand" aria-label="Shoppage home">
             <span className="brand-mark" aria-hidden="true">
               S
@@ -233,8 +271,8 @@ export default function AppNavbar({
               type="button"
               className="icon-btn"
               onClick={toggleRail}
-              aria-label={railCollapsed ? 'Expand side panel' : 'Collapse side panel'}
-              title={railCollapsed ? 'Expand side panel' : 'Collapse side panel'}
+              aria-label={railCollapsed ? 'Expand right panel' : 'Collapse right panel'}
+              title={railCollapsed ? 'Expand right panel' : 'Collapse right panel'}
             >
               <svg {...iconProps} width={18} height={18} viewBox="0 0 24 24">
                 {railCollapsed ? (
@@ -296,30 +334,68 @@ export default function AppNavbar({
         </div>
       </header>
 
-      <div className={`app-shell${railCollapsed ? ' is-rail-collapsed' : ''}`}>
-        <nav className="rail-nav" aria-label="Primary">
+      <div
+        className={`app-shell${navCollapsed ? ' is-nav-collapsed' : ''}${
+          railCollapsed ? ' is-rail-collapsed' : ''
+        }`}
+      >
+        <nav
+          className={`rail-nav${navCollapsed ? ' is-collapsed' : ''}`}
+          aria-label="Primary"
+        >
+          <div className="rail-nav-head">
+            {!navCollapsed && <span className="rail-nav-heading">Menu</span>}
+            <button
+              type="button"
+              className="rail-collapse-btn"
+              onClick={toggleNav}
+              aria-label={navCollapsed ? 'Expand sidebar' : 'Close sidebar (indent to left)'}
+              title={navCollapsed ? 'Expand sidebar' : 'Close sidebar (indent to left)'}
+            >
+              <svg {...iconProps} width={16} height={16} viewBox="0 0 24 24">
+                {navCollapsed ? (
+                  <path d="M9 18l6-6-6-6" />
+                ) : (
+                  <path d="M15 18l-6-6 6-6" />
+                )}
+              </svg>
+              {!navCollapsed && <span className="collapse-text">Close</span>}
+            </button>
+          </div>
+
           {NAV_ITEMS.map(({ href, label, Icon, exact, live }) => (
             <Link
               key={href}
               href={href}
               className={`nav-item${isActive(href, exact) ? ' is-active' : ''}`}
               aria-current={isActive(href, exact) ? 'page' : undefined}
+              title={navCollapsed ? (live ? `${label} (LIVE)` : label) : undefined}
             >
               <span className="nav-icon">
                 <Icon />
               </span>
               <span className="nav-label">{label}</span>
-              {live && <span className="nav-badge">LIVE</span>}
+              {live && (
+                <span className="nav-badge">
+                  {navCollapsed ? '' : 'LIVE'}
+                </span>
+              )}
             </Link>
           ))}
 
-          <Link href="/merchant/claim" className="nav-post-btn">
-            List my store
+          <Link
+            href="/merchant/claim"
+            className="nav-post-btn"
+            title={navCollapsed ? 'List my store (0% take-rate)' : undefined}
+          >
+            {navCollapsed ? '+' : 'List my store'}
           </Link>
 
-          <div className="rail-foot">
-            0% take-rate. Direct trade, always.
-          </div>
+          {!navCollapsed && (
+            <div className="rail-foot">
+              0% take-rate. Direct trade, always.
+            </div>
+          )}
         </nav>
 
         <div className="feed-column">{children}</div>

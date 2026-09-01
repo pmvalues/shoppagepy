@@ -63,3 +63,4 @@ htmlcov/
 # OS metadata
 .DS_Store
 Thumbs.db
+.playwright-mcp/

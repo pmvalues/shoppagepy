@@ -131,6 +131,7 @@
   --nav-height: 64px;
   --feed-width: 640px;
   --rail-left: 232px;
+  --rail-left-collapsed: 68px;
   --rail-right: 280px;
 
   color-scheme: light;
