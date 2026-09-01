@@ -9,6 +9,11 @@ export const metadata: Metadata = {
   description:
     'South Africa’s commercial grid. Live price drops, restocks and video proof from verified merchants — direct trade at 0% commission.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || 'https://shoppage.co.za'),
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
   openGraph: {
     title: 'Shoppage — National Commerce Intelligence Grid',
     description: 'Live price drops and verified stock from South African trade counters. 0% take-rate.',
@@ -22,7 +27,7 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#0B0F14',
+  themeColor: '#10B981',
 };
 
 // Applies the stored theme before first paint so dark mode never flashes white.

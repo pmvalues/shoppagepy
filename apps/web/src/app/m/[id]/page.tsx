@@ -494,14 +494,13 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                 <div
                   key={product.id}
                   style={{
-                    background: '#FFFFFF',
-                    border: '1px solid #E2E8F0',
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border)',
                     borderRadius: '10px',
                     overflow: 'hidden',
                     display: 'flex',
                     flexDirection: 'column',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                    transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+                    transition: 'transform 0.15s ease, border-color 0.15s ease',
                   }}
                 >
                   {/* Product Image Stage */}

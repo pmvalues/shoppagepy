@@ -94,7 +94,6 @@ export default function MarketsExplorerView({
             padding: '0.85rem 1.25rem',
             borderRadius: '9999px',
             fontSize: '0.95rem',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
             border: '1.5px solid #CBD5E1',
           }}
         />
@@ -114,7 +113,6 @@ export default function MarketsExplorerView({
             fontSize: '0.88rem',
             color: '#0F172A',
             cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
           }}
         >
           {provinces.map((p) => (
@@ -186,7 +184,6 @@ export default function MarketsExplorerView({
                 padding: '1.5rem',
                 border: isCommunityGroup ? '1.5px solid #C7D2FE' : isVirtual ? '1.5px solid #BFDBFE' : '1px solid #E2E8F0',
                 background: isCommunityGroup ? 'linear-gradient(180deg, #FFFFFF 0%, #EEF2FF 100%)' : isVirtual ? 'linear-gradient(180deg, #F8FAFC 0%, #EFF6FF 100%)' : '#FFFFFF',
-                boxShadow: isVirtual ? '0 4px 12px rgba(37, 99, 235, 0.05)' : 'none',
               }}
             >
               <div>

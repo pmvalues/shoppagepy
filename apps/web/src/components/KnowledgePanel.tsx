@@ -136,11 +136,10 @@ export default function KnowledgePanel({ query = 'Product', products = [] }: { q
   return (
     <div
       style={{
-        border: '1px solid #DADCE0',
+        border: '1px solid var(--border)',
         borderRadius: '12px',
-        background: '#FFFFFF',
+        background: 'var(--bg-surface)',
         padding: '1.25rem',
-        boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
       }}
     >
       {/* Top Media Banner */}

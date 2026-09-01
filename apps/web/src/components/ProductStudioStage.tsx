@@ -43,10 +43,7 @@ export default function ProductStudioStage({
           : isHardware
           ? 'linear-gradient(135deg, #FFFFFF 0%, #FFFBEB 60%, #F5F5F4 100%)'
           : 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 60%, #EDF2F7 100%)',
-        border: '1px solid #E2E8F0',
-        boxShadow: isDetail
-          ? '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03)'
-          : '0 1px 3px rgba(0, 0, 0, 0.02)',
+        border: '1px solid var(--border)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -102,7 +99,6 @@ export default function ProductStudioStage({
               maxWidth: '92%',
               objectFit: 'cover',
               borderRadius: '8px',
-              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.08)',
             }}
           />
         ) : isSolar && !isBattery ? (

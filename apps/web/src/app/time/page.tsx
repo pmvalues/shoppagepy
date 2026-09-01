@@ -325,19 +325,19 @@ export default function ShoppageTimePage() {
           {/* CENTER FEED COLUMN */}
           <main>
             {/* Header Title */}
-            <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '1.5rem 2rem', marginBottom: '1.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+            <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '16px', padding: '1.5rem 2rem', marginBottom: '1.25rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
                     <span style={{ fontSize: '1.6rem' }}>⚡</span>
-                    <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
+                    <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.02em' }}>
                       Shoppage Time
                     </h1>
                     <span style={{ background: '#EF4444', color: '#FFFFFF', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.68rem', fontWeight: 900, letterSpacing: '0.05em' }}>
                       LIVE WIRE
                     </span>
                   </div>
-                  <p style={{ fontSize: '0.875rem', color: '#64748B', margin: 0 }}>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: 0 }}>
                     The Real-Time Commercial Timeline across South Africa. Aggregating 5,200+ Facebook Groups, Twitter / X, and Verified Showrooms with 0% middleman toll.
                   </p>
                 </div>
@@ -352,7 +352,7 @@ export default function ShoppageTimePage() {
             </div>
 
             {/* COMPOSE TRADE TWEET BOX (TWITTER / X STYLE) */}
-            <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '1.5rem', marginBottom: '1.5rem', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+            <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '16px', padding: '1.5rem', marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                 <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#2563EB', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.1rem', flexShrink: 0 }}>
                   S
@@ -457,11 +457,10 @@ export default function ShoppageTimePage() {
                 <article
                   key={item.id}
                   style={{
-                    background: '#FFFFFF',
-                    border: '1px solid #E2E8F0',
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border)',
                     borderRadius: '16px',
                     padding: '1.5rem',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '0.85rem',

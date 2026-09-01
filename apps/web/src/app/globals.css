@@ -332,33 +332,48 @@ button { font-family: inherit; }
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.25rem;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.22s var(--ease-out-expo), box-shadow 0.22s var(--ease-out-expo), border-color 0.22s ease, background-color 0.3s var(--ease-out-expo);
+  box-shadow: none !important;
+  transition: transform 0.2s var(--ease-out-expo), border-color 0.2s ease, background-color 0.2s ease;
   overflow: hidden;
 }
 .card:hover, .sp-card:hover {
   border-color: var(--border-strong);
-  box-shadow: var(--shadow-lg);
+  box-shadow: none !important;
 }
 
-.stat-box { transition: transform 0.22s var(--ease-out-expo), box-shadow 0.22s var(--ease-out-expo), border-color 0.22s ease; }
-.stat-box:hover { transform: translateY(-3px); border-color: var(--signal) !important; box-shadow: 0 12px 24px -4px var(--signal-glow); }
+.stat-box {
+  box-shadow: none !important;
+  transition: transform 0.2s var(--ease-out-expo), border-color 0.2s ease;
+}
+.stat-box:hover {
+  transform: translateY(-2px);
+  border-color: var(--signal) !important;
+  box-shadow: none !important;
+}
 
 .card-elevated {
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   padding: 1.75rem;
-  box-shadow: var(--shadow-lg);
-  transition: transform 0.25s var(--ease-out-expo), box-shadow 0.25s var(--ease-out-expo);
+  box-shadow: none !important;
+  transition: transform 0.2s var(--ease-out-expo), border-color 0.2s ease;
 }
-.card-elevated:hover { transform: translateY(-4px); box-shadow: var(--shadow-xl); }
+.card-elevated:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: none !important;
+}
 
-.card-interactive { cursor: pointer; transition: transform 0.24s var(--ease-out-expo), box-shadow 0.24s var(--ease-out-expo), border-color 0.24s ease; }
+.card-interactive {
+  cursor: pointer;
+  box-shadow: none !important;
+  transition: transform 0.2s var(--ease-out-expo), border-color 0.2s ease;
+}
 .card-interactive:hover {
-  transform: translateY(-4px) scale(1.008);
+  transform: translateY(-2px);
   border-color: var(--signal) !important;
-  box-shadow: 0 16px 32px -8px var(--signal-glow), 0 4px 12px rgba(11, 15, 20, 0.06);
+  box-shadow: none !important;
 }
 .card-interactive img, .card img { transition: transform 0.38s var(--ease-out-expo); }
 .card-interactive:hover img, .card:hover img { transform: scale(1.02); will-change: transform; }

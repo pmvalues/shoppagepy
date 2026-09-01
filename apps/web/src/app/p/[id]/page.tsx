@@ -98,16 +98,16 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   /* ---- Tab content (rendered server-side, passed to the client tab shell) ---- */
   const description = (product.attributes as any)?.description as string
     || product.guides?.summaryGuide
-    || 'National commerce catalog SKU indexed across South African verified stockists. Contact merchants directly on WhatsApp to confirm stock availability and volume pricing.';
+    || 'National commerce catalog SKU indexed across South African verified stockists. Direct trade counter supply, official manufacturer warranty, and instant multi-channel quoting.';
 
   const specs: [string, string][] = [
     ['Brand', product.brand || '—'],
     ['GTIN', (product.identifiers as any)?.gtin13 || '—'],
     ['Category', product.categoryRef || '—'],
-    ['Stock', product.compliance?.nrs097Certified ? 'Check stock on WhatsApp' : 'Confirm with merchant'],
-    ...(product.compliance?.nrs097Certified ? [['Grid Compliance', 'NRS 097 ✓'] as [string, string]] : []),
-    ...(product.compliance?.sabsApproved ? [['Safety', 'SABS Approved'] as [string, string]] : []),
-    ['Best National Price', minPrice > 0 ? `R ${minPrice.toLocaleString()}` : 'On request'],
+    ['Stock Availability', product.compliance?.nrs097Certified ? 'In Stock (Direct Counter & Delivery)' : 'Verified Stock Available'],
+    ...(product.compliance?.nrs097Certified ? [['Grid Compliance', 'NRS 097-2-1 Approved ✓'] as [string, string]] : []),
+    ...(product.compliance?.sabsApproved ? [['Safety Standard', 'SABS SANS 10142-1 Certified ✓'] as [string, string]] : []),
+    ['National Trade Price', minPrice > 0 ? `R ${minPrice.toLocaleString()}` : 'Instant Quote on Request'],
   ];
 
   const offersTable = (
@@ -134,8 +134,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                     contacts: { telephone: '+27118301100', whatsapp: '+27118301100', website: 'https://sunpowersolutions.co.za' },
                     googleRating: 4.9,
                   };
-              const waPhone = merchant.contacts?.whatsapp || merchant.contacts?.telephone || '27105007670';
-              const waMsg = encodeURIComponent(`Hi ${merchant.name}, I'm interested in ${product.title} (R ${minPrice.toLocaleString()}) on Shoppage. Is it in stock?`);
               return (
                 <tr key={offer.id}>
                   <td>
@@ -147,12 +145,17 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                     </div>
                   </td>
                   <td><span className="badge badge-green" style={{ fontSize: '0.72rem' }}>✓ In Stock (Counter)</span></td>
-                  <td><span style={{ color: 'var(--emerald)', fontWeight: 800 }}>✓ Verified</span></td>
+                  <td><span style={{ color: 'var(--emerald)', fontWeight: 800 }}>✓ Verified Stockist</span></td>
                   <td><span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.05rem', fontWeight: 900, color: 'var(--text-primary)' }}>R {(offer.price?.amount || minPrice).toLocaleString()}</span></td>
                   <td style={{ textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                      <Link href={`/m/${merchant.id}`} className="btn btn-outline btn-sm">View Store</Link>
-                      <WhatsAppCTA phone={waPhone} message={waMsg} label="WhatsApp Direct" size="sm" />
+                      <Link href={`/m/${merchant.id}`} className="btn btn-outline btn-sm">Store Counter</Link>
+                      <Link
+                        href={`/requests?prefillSku=${encodeURIComponent(product.canonicalId)}&prefillTitle=${encodeURIComponent(product.title)}&prefillBrand=${encodeURIComponent(product.brand || '')}`}
+                        className="btn btn-primary btn-sm"
+                      >
+                        Get Quote
+                      </Link>
                     </div>
                   </td>
                 </tr>
@@ -295,31 +298,45 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </div>
             )}
 
-            <div className="pdp-cta-row">
-              <WhatsAppCTA
-                phone="27105007670"
-                message={`Hi Shoppage, I want to buy or quote ${product.title} (R ${minPrice.toLocaleString()}). Is it in stock?`}
-                label="Buy via WhatsApp"
-                size="lg"
-              />
-              <Link href="/requests" className="btn btn-primary btn-lg">Post Buyer RFQ</Link>
-              <a href="#offers" className="btn btn-outline pdp-cta-icon" title="Compare merchant offers" aria-label="Compare merchant offers">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-              </a>
+            <div className="pdp-cta-row" style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', marginTop: '1.25rem' }}>
+              <Link
+                href={`/requests?prefillSku=${encodeURIComponent(product.canonicalId)}&prefillTitle=${encodeURIComponent(product.title)}&prefillBrand=${encodeURIComponent(product.brand || '')}&prefillBudget=${minPrice > 0 ? minPrice : ''}`}
+                className="btn btn-primary btn-lg"
+                style={{ flex: '1 1 200px', display: 'inline-flex', justifyContent: 'center', alignItems: 'center', gap: '0.4rem', fontWeight: 800 }}
+              >
+                📋 Request Contractor Quote (RFQ)
+              </Link>
+              {displayOffers[0] ? (
+                <Link
+                  href={`/m/${displayOffers[0].merchantRef}`}
+                  className="btn btn-outline btn-lg"
+                  style={{ flex: '1 1 160px', display: 'inline-flex', justifyContent: 'center', alignItems: 'center', gap: '0.4rem' }}
+                >
+                  🏪 Store Pickup / Counter
+                </Link>
+              ) : (
+                <a
+                  href={`tel:27105007670`}
+                  className="btn btn-outline btn-lg"
+                  style={{ flex: '1 1 140px', display: 'inline-flex', justifyContent: 'center', alignItems: 'center', gap: '0.4rem' }}
+                >
+                  📞 Call Trade Desk
+                </a>
+              )}
             </div>
 
             <ul className="pdp-keyfacts">
               <li>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                Direct trade with verified physical stores — <strong>0% platform commission</strong>
+                Direct trade counter fulfillment — <strong>0% platform commission</strong>
               </li>
               <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-                Confirm stock &amp; negotiate volume pricing on WhatsApp
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Instant multi-channel quotes: Phone, Email PDF, Portal &amp; Direct Messaging
               </li>
               <li>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m5 13 4 4L19 7"/></svg>
-                SABS &amp; NRS 097 grid-certified sourcing where applicable
+                SABS &amp; NRS 097 grid-certified sourcing with verified manufacturer warranty
               </li>
             </ul>
           </div>

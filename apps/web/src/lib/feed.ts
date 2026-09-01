@@ -298,18 +298,13 @@ function buildProductPost(product: ProductVariant): FeedPost | null {
     }. Direct from the counter, 0% platform commission.`;
   }
 
-  const cta: FeedCTA = merchant?.contacts?.whatsapp
-    ? {
-        label: 'WhatsApp',
-        href: `https://wa.me/${merchant.contacts.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-          `Hi ${merchant.name}, I saw ${product.title} at ${formatZar(priceNow as number)} on Shoppage. Is it still available?`,
-        )}`,
-        whatsapp: true,
-        external: true,
-      }
-    : best?.href
-      ? { label: 'View offer', href: best.href, external: true }
-      : { label: 'Compare', href: `/p/${product.canonicalId}` };
+  const cta: FeedCTA = best?.href && best.href.startsWith('http')
+    ? { label: 'View Stockist', href: best.href, external: true }
+    : kind === 'price_drop'
+    ? { label: 'View Deal', href: `/p/${product.canonicalId}` }
+    : kind === 'restock'
+    ? { label: 'Direct Order', href: `/p/${product.canonicalId}` }
+    : { label: 'Compare Offers', href: `/p/${product.canonicalId}` };
 
   return {
     id,

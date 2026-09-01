@@ -68,8 +68,12 @@ export default function ProductCard({
           </div>
 
           <div style={{ display: 'flex', gap: '0.35rem' }}>
-            <Link href={`/p/${product.canonicalId}`} className="btn btn-outline btn-sm" style={{ padding: '0.35rem 0.65rem' }}>
-              Compare
+            <Link
+              href={`/p/${product.canonicalId}`}
+              className="btn btn-outline btn-sm"
+              style={{ padding: '0.35rem 0.65rem' }}
+            >
+              View Offers
             </Link>
             {firstOffer ? (
               <a
@@ -78,29 +82,17 @@ export default function ProductCard({
                 rel="noopener noreferrer"
                 className="btn btn-primary btn-sm"
                 style={{ padding: '0.35rem 0.65rem' }}
-                title="Direct Store Inquiries & Quotes"
+                title="Direct Store Stock & Order"
               >
-                Inquire
-              </a>
-            ) : product.brand === 'Mitrend Products' ? (
-              <a
-                href={`https://wa.me/27105007670?text=${encodeURIComponent(`Hi Mitrend, I am inquiring about price and stock for ${product.title} on Shoppage.`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-whatsapp btn-sm"
-                style={{ padding: '0.35rem 0.65rem' }}
-                title="WhatsApp Direct Quote"
-              >
-                💬 Quote
+                Buy Direct
               </a>
             ) : (
               <Link
-                href={`/merchant/claim?variantId=${product.canonicalId}&title=${encodeURIComponent(product.title)}`}
-                className="btn btn-outline btn-sm"
-                style={{ padding: '0.35rem 0.65rem', background: '#F8FAFC' }}
-                title="List your store for this product"
+                href={`/p/${product.canonicalId}`}
+                className="btn btn-primary btn-sm"
+                style={{ padding: '0.35rem 0.65rem' }}
               >
-                + List
+                Get Quote
               </Link>
             )}
           </div>

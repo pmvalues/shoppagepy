@@ -445,9 +445,9 @@
   overflow: hidden;
   background: var(--bg-page);
   margin-top: 0.2rem;
-  transition: border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
 }
-.post-product:hover { border-color: var(--signal); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.post-product:hover { border-color: var(--signal); transform: translateY(-1px); }
 .post-product-media {
   width: 116px; flex-shrink: 0;
   background: var(--bg-surface);
@@ -534,10 +534,10 @@
   border-radius: var(--radius-full);
   background: var(--slate-900); color: #fff;
   font-size: 0.78rem; font-weight: 800;
-  border: none; cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+  border: 1px solid transparent; cursor: pointer;
+  transition: transform var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
 }
-.post-cta:hover { transform: translateY(-1.5px); box-shadow: 0 4px 14px rgba(11,15,20,0.25); }
+.post-cta:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.2); }
 :root[data-theme='dark'] .post-cta { background: var(--signal); color: var(--signal-ink); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .post-cta { background: var(--signal); color: var(--signal-ink); } }
 

@@ -366,14 +366,13 @@ export default function ShoppageTimeActionHero() {
                   <article
                     key={item.id}
                     style={{
-                      background: '#FFFFFF',
-                      border: '1px solid #E2E8F0',
+                      background: 'var(--bg-surface)',
+                      border: '1px solid var(--border)',
                       borderRadius: '14px',
                       padding: '1.15rem',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '0.65rem',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
                     }}
                   >
                     {/* Origin */}
