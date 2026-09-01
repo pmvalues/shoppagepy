@@ -18,17 +18,57 @@ import { showToast } from '@/lib/toast';
 export default function MerchantDashboardPage() {
   const [selectedMerchantId, setSelectedMerchantId] = useState('loc_sunpower_crownmines');
   const [activeSection, setActiveSection] = useState<
-    'overview' | 'orders' | 'products' | 'discovered' | 'customers' | 'marketing' | 'studio' | 'coupons' | 'analytics' | 'feeds' | 'settings' | 'status'
+    'overview' | 'orders' | 'products' | 'pos' | 'discovered' | 'customers' | 'marketing' | 'studio' | 'coupons' | 'analytics' | 'feeds' | 'settings' | 'status'
   >('overview');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [copiedFeed, setCopiedFeed] = useState(false);
   const [copiedSeal, setCopiedSeal] = useState(false);
-  const [orderStatusFilter, setOrderStatusFilter] = useState<'all' | 'processing' | 'completed' | 'on_hold' | 'pending'>('all');
+  const [orderStatusFilter, setOrderStatusFilter] = useState<'all' | 'processing' | 'completed' | 'on_hold' | 'pending' | 'cancelled' | 'refunded'>('all');
   const [productCategoryFilter, setProductCategoryFilter] = useState('all');
+  const [productStockFilter, setProductStockFilter] = useState<'all' | 'in_stock' | 'low_stock' | 'out_of_stock'>('all');
+  const [productSearchQuery, setProductSearchQuery] = useState('');
   const [customerSegmentFilter, setCustomerSegmentFilter] = useState('all');
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<any | null>(null);
   const [customerNoteText, setCustomerNoteText] = useState('');
+
+  // Selected Products for Bulk / Batch Actions
+  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
+  const [bulkAction, setBulkAction] = useState<'price_pct' | 'stock_status' | 'export_csv' | ''>('');
+  const [bulkActionValue, setBulkActionValue] = useState('');
+
+  // Quick Edit Product Modal State
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
+
+  // Detailed Order Modal & Invoicing State
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [invoiceOrder, setInvoiceOrder] = useState<any | null>(null);
+  const [orderCarrier, setOrderCarrier] = useState('The Courier Guy');
+  const [orderTrackingNumber, setOrderTrackingNumber] = useState('');
+  const [newOrderNote, setNewOrderNote] = useState('');
+
+  // Point of Sale (POS) Cashier Mode State
+  const [posCart, setPosCart] = useState<Array<{ id: string; sku: string; title: string; price: number; qty: number }>>([]);
+  const [posCustomerTier, setPosCustomerTier] = useState<number>(0); // 0% retail, 10% contractor, 15% wholesale, 20% VIP
+  const [posSearchTerm, setPosSearchTerm] = useState('');
+  const [posPaymentMethod, setPosPaymentMethod] = useState<'cash' | 'yoco' | 'ozow' | 'whatsapp'>('cash');
+  const [posCashTendered, setPosCashTendered] = useState<string>('');
+  const [showPosReceiptModal, setShowPosReceiptModal] = useState(false);
+  const [lastPosSale, setLastPosSale] = useState<any | null>(null);
+
+  // Add Coupon Modal State
+  const [showAddCouponModal, setShowAddCouponModal] = useState(false);
+  const [newCoupon, setNewCoupon] = useState({
+    code: '',
+    type: 'Percentage discount' as 'Percentage discount' | 'Fixed cart discount' | 'Free shipping',
+    amount: '10',
+    minSpend: '1000',
+    maxSpend: '',
+    usageLimit: '100',
+    expiry: '31 Dec 2026',
+    excludeSaleItems: true,
+  });
 
   // Plan entitlements gating (P0) — default business_pro shows live studio, switch to 'free' to test gate
   const [planTier, setPlanTier] = useState<'free' | 'business' | 'business_pro' | 'enterprise'>('business_pro');
@@ -178,7 +218,22 @@ export default function MerchantDashboardPage() {
   ]);
 
   // WooCommerce Products State
-  const [productsList, setProductsList] = useState([
+  const [productsList, setProductsList] = useState<Array<{
+    id: string;
+    sku: string;
+    title: string;
+    brand: string;
+    category: string;
+    price: number;
+    salePrice: number | null;
+    inStock: boolean;
+    stockQty: number;
+    lowStockThreshold?: number;
+    feedStatus: string;
+    views: number;
+    salesCount: number;
+    image: string;
+  }>>([
     {
       id: 'prod_deye_5kw',
       sku: 'DEYE-5K-SG03',
@@ -189,6 +244,7 @@ export default function MerchantDashboardPage() {
       salePrice: 17999,
       inStock: true,
       stockQty: 14,
+      lowStockThreshold: 3,
       feedStatus: 'Active',
       views: 3420,
       salesCount: 18,
@@ -478,10 +534,166 @@ export default function MerchantDashboardPage() {
     );
   };
 
-  const handleUpdateOrderStatus = (orderId: string, newStatus: 'processing' | 'completed' | 'on_hold' | 'pending') => {
+  // POS Handlers
+  const handleAddToPosCart = (product: any) => {
+    setPosCart((prev) => {
+      const existing = prev.find((item) => item.id === product.id);
+      if (existing) {
+        return prev.map((item) => (item.id === product.id ? { ...item, qty: item.qty + 1 } : item));
+      }
+      return [
+        ...prev,
+        {
+          id: product.id,
+          sku: product.sku,
+          title: product.title,
+          price: product.salePrice || product.price,
+          qty: 1,
+        },
+      ];
+    });
+    showToast(`Added ${product.title} to POS Cart`);
+  };
+
+  const handleUpdatePosQty = (id: string, delta: number) => {
+    setPosCart((prev) =>
+      prev
+        .map((item) => (item.id === id ? { ...item, qty: item.qty + delta } : item))
+        .filter((item) => item.qty > 0)
+    );
+  };
+
+  const posSubtotalGross = posCart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const posDiscountAmount = Math.round(posSubtotalGross * (posCustomerTier / 100));
+  const posNetTotal = posSubtotalGross - posDiscountAmount;
+  const posVatAmount = Math.round(posNetTotal - posNetTotal / 1.15);
+  const posSubtotalExVat = posNetTotal - posVatAmount;
+
+  const handleCompletePosSale = () => {
+    if (posCart.length === 0) {
+      showToast('POS Cart is empty');
+      return;
+    }
+
+    const orderId = `#POS-${Math.floor(10000 + Math.random() * 90000)}`;
+    const newOrder = {
+      id: orderId,
+      customer: posCustomerTier > 0 ? 'Trade Contractor (POS Walk-in)' : 'Showroom Walk-in Customer',
+      phone: '082 000 0000',
+      email: 'pos-counter@shoppage.co.za',
+      items: posCart.map((i) => `${i.qty}x ${i.title}`).join(', '),
+      lineItems: posCart.map((i) => ({ title: i.title, sku: i.sku, qty: i.qty, price: i.price })),
+      itemCount: posCart.reduce((sum, i) => sum + i.qty, 0),
+      subtotal: posSubtotalExVat,
+      vatAmount: posVatAmount,
+      total: posNetTotal,
+      paymentMethod: posPaymentMethod === 'cash' ? 'Cash Tendered' : posPaymentMethod === 'yoco' ? 'Yoco Card Terminal' : posPaymentMethod === 'ozow' ? 'Ozow Instant EFT' : 'WhatsApp Payment Link',
+      date: 'Just now (POS)',
+      status: 'completed' as const,
+      shippingAddress: 'Counter Collection (Direct)',
+      carrier: 'In-Store Counter Pickup',
+      trackingNumber: 'PICKUP-' + Math.floor(1000 + Math.random() * 9000),
+      notes: ['POS Sale completed at store counter.'],
+    };
+
+    setOrdersList([newOrder, ...ordersList]);
+    setLastPosSale(newOrder);
+    setShowPosReceiptModal(true);
+    setPosCart([]);
+    setPosCashTendered('');
+    showToast(`Sale completed! ${orderId}`);
+  };
+
+  // WhatsApp Dispatch Generator
+  const generateWhatsAppDispatchUrl = (order: any) => {
+    const cleanPhone = (order.phone || '').replace(/\D/g, '');
+    const phone = cleanPhone.startsWith('0') ? '27' + cleanPhone.slice(1) : cleanPhone;
+    const msg = `Hi ${order.customer}, thank you for your order ${order.id} with ${merchant.name}!\n\nStatus: ${order.status.toUpperCase()}\nItems: ${order.items}\nTotal: R ${Number(order.total).toLocaleString('en-ZA', { minimumFractionDigits: 2 })}\nCarrier: ${order.carrier || 'The Courier Guy'}\nTracking: ${order.trackingNumber || 'In transit'}\n\nTrack your live delivery: https://shoppage.co.za/orders/${order.id.replace('#', '')}\nThank you for choosing ${merchant.name}!`;
+    return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+  };
+
+  // Bulk Actions
+  const handleBulkActionExecute = () => {
+    if (selectedProductIds.size === 0) {
+      showToast('Please select products first');
+      return;
+    }
+
+    if (bulkAction === 'export_csv') {
+      const selected = productsList.filter((p) => selectedProductIds.has(p.id));
+      const csv = 'SKU,Title,Brand,Category,Price,SalePrice,StockQty,Status\n' +
+        selected.map((p) => `"${p.sku}","${p.title}","${p.brand}","${p.category}",${p.price},${p.salePrice || ''},${p.stockQty},"${p.inStock ? 'In Stock' : 'Out of Stock'}"`).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `shoppage_products_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast(`Exported ${selected.length} products to CSV`);
+      return;
+    }
+
+    if (bulkAction === 'price_pct') {
+      const pct = parseFloat(bulkActionValue);
+      if (isNaN(pct)) {
+        showToast('Enter a valid percentage');
+        return;
+      }
+      setProductsList((prev) =>
+        prev.map((p) => {
+          if (!selectedProductIds.has(p.id)) return p;
+          const newPrice = Math.round(p.price * (1 + pct / 100));
+          return { ...p, price: newPrice };
+        })
+      );
+      showToast(`Adjusted prices by ${pct}% on ${selectedProductIds.size} products`);
+      setSelectedProductIds(new Set());
+      setBulkAction('');
+      setBulkActionValue('');
+      return;
+    }
+
+    if (bulkAction === 'stock_status') {
+      const inStock = bulkActionValue === 'in_stock';
+      setProductsList((prev) =>
+        prev.map((p) => {
+          if (!selectedProductIds.has(p.id)) return p;
+          return { ...p, inStock, stockQty: inStock ? (p.stockQty || 10) : 0 };
+        })
+      );
+      showToast(`Updated stock status on ${selectedProductIds.size} products`);
+      setSelectedProductIds(new Set());
+      setBulkAction('');
+      setBulkActionValue('');
+    }
+  };
+
+  const handleUpdateOrderStatus = (orderId: string, newStatus: any) => {
     setOrdersList((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
     );
+    showToast(`Order ${orderId} status updated to ${newStatus}`);
+  };
+
+  const handleAddCouponSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCoupon.code.trim()) return;
+    setCouponsList([
+      {
+        code: newCoupon.code.toUpperCase().trim(),
+        type: newCoupon.type,
+        amount: newCoupon.type === 'Percentage discount' ? `${newCoupon.amount}%` : `R ${newCoupon.amount}`,
+        usage: `0 / ${newCoupon.usageLimit}`,
+        expiry: newCoupon.expiry || 'No expiry',
+        status: 'Active',
+      },
+      ...couponsList,
+    ]);
+    setShowAddCouponModal(false);
+    showToast(`Coupon ${newCoupon.code.toUpperCase()} created!`);
+    setNewCoupon({ code: '', type: 'Percentage discount', amount: '10', minSpend: '1000', maxSpend: '', usageLimit: '100', expiry: '31 Dec 2026', excludeSaleItems: true });
   };
 
   const toggleCampaignStatus = (id: string) => {
@@ -522,7 +734,6 @@ export default function MerchantDashboardPage() {
     const stockQtyNum = parseInt(newProduct.stockQty) || 10;
     const skuVal = newProduct.sku || `SKU-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    // Sync to Payload CMS Collections
     PayloadMerchantCmsService.createProduct({
       merchantId: selectedMerchantId,
       sku: skuVal,
@@ -562,6 +773,7 @@ export default function MerchantDashboardPage() {
         salePrice: saleNum,
         inStock: stockQtyNum > 0,
         stockQty: stockQtyNum,
+        lowStockThreshold: parseInt(newProduct.lowStockThreshold) || 2,
         feedStatus: 'Active',
         views: 0,
         salesCount: 0,
@@ -597,6 +809,7 @@ export default function MerchantDashboardPage() {
         salePrice: p.salePrice,
         inStock: p.inStock,
         stockQty: p.stockQty,
+        lowStockThreshold: 5,
         feedStatus: 'Active',
         views: 120 + Math.floor(p.price * 10),
         salesCount: Math.max(1, Math.floor(100 / (p.price || 1))),
@@ -610,8 +823,15 @@ export default function MerchantDashboardPage() {
   });
 
   const filteredProducts = activeMerchantProducts.filter((p) => {
-    if (productCategoryFilter === 'all') return true;
-    return p.category === productCategoryFilter;
+    if (productCategoryFilter !== 'all' && p.category !== productCategoryFilter) return false;
+    if (productStockFilter === 'in_stock' && (!p.inStock || p.stockQty <= 0)) return false;
+    if (productStockFilter === 'low_stock' && (p.stockQty > (p.lowStockThreshold || 3) || p.stockQty <= 0)) return false;
+    if (productStockFilter === 'out_of_stock' && (p.inStock && p.stockQty > 0)) return false;
+    if (productSearchQuery.trim()) {
+      const q = productSearchQuery.toLowerCase();
+      return p.title.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q);
+    }
+    return true;
   });
 
   const filteredCustomers = customersList.filter((c) => {
@@ -867,14 +1087,15 @@ export default function MerchantDashboardPage() {
 
           {[
             { id: 'overview', label: 'Home / Dashboard', icon: '🏠' },
-            { id: 'orders', label: 'Orders', icon: '🛒', badge: processingOrdersCount > 0 ? processingOrdersCount : null },
-            { id: 'products', label: 'Products', icon: '📦' },
+            { id: 'pos', label: 'POS Counter Mode', icon: '💳', badge: 'Live' },
+            { id: 'orders', label: 'Orders & Dispatch', icon: '🛒', badge: processingOrdersCount > 0 ? processingOrdersCount : null },
+            { id: 'products', label: 'Products & Stock', icon: '📦' },
             { id: 'studio', label: 'Media & Video Studio', icon: '🎬', badge: 'Creator' },
             { id: 'discovered', label: 'Discovered Stock', icon: '✨', badge: pendingDiscoveredCount > 0 ? pendingDiscoveredCount : null },
-            { id: 'customers', label: 'Customers (Mini-CRM)', icon: '👥' },
+            { id: 'customers', label: 'Customers (CRM)', icon: '👥' },
             { id: 'marketing', label: 'Marketing & Ads', icon: '📢' },
             { id: 'coupons', label: 'Coupons & Vouchers', icon: '🏷️' },
-            { id: 'analytics', label: 'Analytics', icon: '📊' },
+            { id: 'analytics', label: 'Financial Analytics', icon: '📊' },
             { id: 'feeds', label: 'Feeds & Syndication', icon: '📤' },
             { id: 'settings', label: 'Store Settings', icon: '⚙️' },
             { id: 'status', label: 'System Status', icon: '🩺' },
@@ -1101,11 +1322,222 @@ export default function MerchantDashboardPage() {
             </div>
           )}
 
-          {/* TAB 2: WOOCOMMERCE ORDERS MANAGEMENT */}
+          {/* TAB 2: POINT-OF-SALE (POS) CASHIER COUNTER MODE */}
+          {activeSection === 'pos' && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) 420px', gap: '1.5rem', alignItems: 'flex-start' }}>
+              {/* Left: Product Catalog & Quick Add */}
+              <div style={{ background: '#FFFFFF', border: '1px solid #DCDCDE', borderRadius: '8px', padding: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+                  <div>
+                    <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1D2327', margin: 0 }}>
+                      💳 Counter Point of Sale (POS)
+                    </h2>
+                    <p style={{ fontSize: '0.8rem', color: '#646970', margin: '0.15rem 0 0 0' }}>
+                      Fast checkout for walk-in showroom customers & trade contractors.
+                    </p>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="🔍 Scan barcode or search SKU / name..."
+                    value={posSearchTerm}
+                    onChange={(e) => setPosSearchTerm(e.target.value)}
+                    style={{ padding: '0.45rem 0.85rem', borderRadius: '6px', border: '1px solid #CBD5E1', width: '280px', fontSize: '0.85rem' }}
+                  />
+                </div>
+
+                {/* Product Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem', maxHeight: '600px', overflowY: 'auto', paddingRight: '0.25rem' }}>
+                  {activeMerchantProducts
+                    .filter((p) => {
+                      if (!posSearchTerm.trim()) return true;
+                      const q = posSearchTerm.toLowerCase();
+                      return p.title.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q);
+                    })
+                    .map((product) => (
+                      <div
+                        key={product.id}
+                        onClick={() => handleAddToPosCart(product)}
+                        style={{
+                          border: '1px solid #E2E8F0',
+                          borderRadius: '8px',
+                          padding: '0.75rem',
+                          background: '#FFFFFF',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                          transition: 'transform 0.1s, border-color 0.1s',
+                        }}
+                        onMouseOver={(e) => (e.currentTarget.style.borderColor = '#059669')}
+                        onMouseOut={(e) => (e.currentTarget.style.borderColor = '#E2E8F0')}
+                      >
+                        <div>
+                          <img src={product.image} alt={product.title} style={{ width: '100%', height: '110px', objectFit: 'cover', borderRadius: '6px', marginBottom: '0.5rem' }} />
+                          <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 700 }}>{product.sku}</div>
+                          <h4 style={{ fontSize: '0.825rem', fontWeight: 700, color: '#1E293B', margin: '0.2rem 0', lineHeight: 1.3, height: '2.6em', overflow: 'hidden' }}>
+                            {product.title}
+                          </h4>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem', paddingTop: '0.4rem', borderTop: '1px solid #F1F5F9' }}>
+                          <span style={{ fontWeight: 900, color: '#059669', fontSize: '0.95rem' }}>
+                            R {(product.salePrice || product.price).toLocaleString()}
+                          </span>
+                          <span style={{ background: '#059669', color: '#FFFFFF', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800 }}>
+                            + Add
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+
+              {/* Right: Counter Cart & Checkout Tender */}
+              <div style={{ background: '#FFFFFF', border: '1px solid #DCDCDE', borderRadius: '8px', padding: '1.25rem' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1D2327', margin: '0 0 0.75rem 0' }}>
+                  🛒 Current Counter Receipt ({posCart.reduce((s, i) => s + i.qty, 0)} items)
+                </h3>
+
+                {/* Customer / Trade Discount Selector */}
+                <div style={{ background: '#F8FAFC', padding: '0.65rem', borderRadius: '6px', border: '1px solid #E2E8F0', marginBottom: '0.85rem' }}>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '0.25rem' }}>
+                    Customer Price Book / Trade Tier:
+                  </label>
+                  <select
+                    value={posCustomerTier}
+                    onChange={(e) => setPosCustomerTier(Number(e.target.value))}
+                    style={{ width: '100%', padding: '0.35rem', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '0.8rem', fontWeight: 600 }}
+                  >
+                    <option value={0}>Walk-in Consumer (Retail Price)</option>
+                    <option value={10}>Electrical Contractor (-10% Trade)</option>
+                    <option value={15}>VIP Gold Wholesale Installer (-15%)</option>
+                    <option value={20}>Pallet Distributor Tier (-20%)</option>
+                  </select>
+                </div>
+
+                {/* Cart Items List */}
+                <div style={{ minHeight: '160px', maxHeight: '240px', overflowY: 'auto', marginBottom: '1rem', borderBottom: '1px solid #E2E8F0', paddingBottom: '0.5rem' }}>
+                  {posCart.length === 0 ? (
+                    <div style={{ textAlign: 'center', color: '#94A3B8', padding: '2rem 0', fontSize: '0.85rem' }}>
+                      Cart is empty. Scan or click items on the left to add.
+                    </div>
+                  ) : (
+                    posCart.map((item) => (
+                      <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.4rem 0', borderBottom: '1px dashed #F1F5F9', fontSize: '0.825rem' }}>
+                        <div style={{ flex: 1, paddingRight: '0.5rem' }}>
+                          <div style={{ fontWeight: 700, color: '#1E293B' }}>{item.title}</div>
+                          <div style={{ fontSize: '0.72rem', color: '#64748B' }}>{item.sku} · R {item.price.toLocaleString()} ea</div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          <button onClick={() => handleUpdatePosQty(item.id, -1)} style={{ width: '22px', height: '22px', borderRadius: '4px', border: '1px solid #CBD5E1', background: '#F1F5F9', cursor: 'pointer', fontWeight: 800 }}>-</button>
+                          <span style={{ fontWeight: 800, minWidth: '18px', textAlign: 'center' }}>{item.qty}</span>
+                          <button onClick={() => handleUpdatePosQty(item.id, 1)} style={{ width: '22px', height: '22px', borderRadius: '4px', border: '1px solid #CBD5E1', background: '#F1F5F9', cursor: 'pointer', fontWeight: 800 }}>+</button>
+                        </div>
+                        <div style={{ fontWeight: 800, minWidth: '70px', textAlign: 'right', color: '#0F172A' }}>
+                          R {(item.price * item.qty).toLocaleString()}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Financial Summary with 15% VAT */}
+                <div style={{ background: '#F1F5F9', borderRadius: '6px', padding: '0.75rem', marginBottom: '1rem', fontSize: '0.825rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                    <span style={{ color: '#64748B' }}>Gross Subtotal:</span>
+                    <span style={{ fontWeight: 700 }}>R {posSubtotalGross.toLocaleString()}</span>
+                  </div>
+                  {posDiscountAmount > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#059669', marginBottom: '0.25rem' }}>
+                      <span>Trade Discount ({posCustomerTier}%):</span>
+                      <span style={{ fontWeight: 700 }}>- R {posDiscountAmount.toLocaleString()}</span>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748B', marginBottom: '0.25rem' }}>
+                    <span>Included 15% VAT:</span>
+                    <span>R {posVatAmount.toLocaleString()}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.15rem', fontWeight: 900, color: '#0F172A', borderTop: '1.5px solid #CBD5E1', paddingTop: '0.4rem', marginTop: '0.4rem' }}>
+                    <span>TOTAL PAYABLE:</span>
+                    <span style={{ color: '#059669' }}>R {posNetTotal.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>
+                  </div>
+                </div>
+
+                {/* Tender Method Selector */}
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '0.35rem' }}>
+                    Payment Tender:
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem' }}>
+                    {[
+                      { id: 'cash', label: '💵 Cash', bg: '#F0FDF4' },
+                      { id: 'yoco', label: '💳 Yoco Terminal', bg: '#EFF6FF' },
+                      { id: 'ozow', label: '⚡ Ozow Instant EFT', bg: '#FAF5FF' },
+                      { id: 'whatsapp', label: '💬 WhatsApp Link', bg: '#ECFDF5' },
+                    ].map((m) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => setPosPaymentMethod(m.id as any)}
+                        style={{
+                          padding: '0.5rem',
+                          borderRadius: '6px',
+                          border: posPaymentMethod === m.id ? '2px solid #059669' : '1px solid #CBD5E1',
+                          background: posPaymentMethod === m.id ? '#D1FAE5' : m.bg,
+                          fontWeight: 700,
+                          fontSize: '0.78rem',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {m.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {posPaymentMethod === 'cash' && (
+                    <div style={{ marginTop: '0.6rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <input
+                        type="number"
+                        placeholder="Cash Tendered (e.g. 20000)"
+                        value={posCashTendered}
+                        onChange={(e) => setPosCashTendered(e.target.value)}
+                        style={{ flex: 1, padding: '0.4rem 0.6rem', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '0.85rem' }}
+                      />
+                      {parseFloat(posCashTendered) >= posNetTotal && (
+                        <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#059669' }}>
+                          Change: R {(parseFloat(posCashTendered) - posNetTotal).toLocaleString()}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Complete Sale Action */}
+                <button
+                  onClick={handleCompletePosSale}
+                  style={{
+                    width: '100%',
+                    background: '#059669',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '0.75rem',
+                    fontSize: '1rem',
+                    fontWeight: 900,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 4px rgba(5, 150, 105, 0.3)',
+                  }}
+                >
+                  ✓ Complete Sale & Print Receipt
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: ORDERS MANAGEMENT & LIVE DISPATCH */}
           {activeSection === 'orders' && (
             <div style={{ background: '#FFFFFF', border: '1px solid #DCDCDE', borderRadius: '8px', padding: '1.5rem' }}>
               <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1D2327', margin: '0 0 1rem 0' }}>
-                Orders ({ordersList.length})
+                Orders & Live Dispatch ({ordersList.length})
               </h2>
 
               {/* Status Filter Chips */}
@@ -1146,11 +1578,10 @@ export default function MerchantDashboardPage() {
                     <th style={{ padding: '0.75rem' }}>Order</th>
                     <th style={{ padding: '0.75rem' }}>Date</th>
                     <th style={{ padding: '0.75rem' }}>Status</th>
-                    <th style={{ padding: '0.75rem' }}>Customer & Contact</th>
+                    <th style={{ padding: '0.75rem' }}>Customer & Destination</th>
                     <th style={{ padding: '0.75rem' }}>Items Ordered</th>
-                    <th style={{ padding: '0.75rem' }}>Payment</th>
                     <th style={{ padding: '0.75rem' }}>Total (ZAR)</th>
-                    <th style={{ padding: '0.75rem', textAlign: 'right' }}>Actions</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'right' }}>Dispatch & Invoice</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1203,28 +1634,26 @@ export default function MerchantDashboardPage() {
                       <td style={{ padding: '0.85rem 0.75rem', color: '#475569', maxWidth: '240px' }}>
                         {order.items}
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem', color: '#646970', fontSize: '0.78rem' }}>
-                        {order.paymentMethod}
-                      </td>
                       <td style={{ padding: '0.85rem 0.75rem', fontWeight: 800, color: '#1D2327' }}>
                         R {order.total.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
                       </td>
                       <td style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
-                        <button
-                          onClick={() => handleUpdateOrderStatus(order.id, order.status === 'completed' ? 'processing' : 'completed')}
-                          style={{
-                            background: order.status === 'completed' ? '#F0F0F1' : '#00A32A',
-                            color: order.status === 'completed' ? '#2C3338' : '#FFFFFF',
-                            border: 'none',
-                            borderRadius: '4px',
-                            padding: '0.3rem 0.65rem',
-                            fontSize: '0.75rem',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          {order.status === 'completed' ? 'Reopen' : '✓ Complete'}
-                        </button>
+                        <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'flex-end' }}>
+                          <a
+                            href={generateWhatsAppDispatchUrl(order)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ background: '#25D366', color: '#FFFFFF', textDecoration: 'none', padding: '0.25rem 0.55rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700 }}
+                          >
+                            💬 WhatsApp
+                          </a>
+                          <button
+                            onClick={() => { setInvoiceOrder(order); setShowInvoiceModal(true); }}
+                            style={{ background: '#F0F0F1', border: '1px solid #DCDCDE', padding: '0.25rem 0.55rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                          >
+                            📄 Invoice
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -1233,13 +1662,13 @@ export default function MerchantDashboardPage() {
             </div>
           )}
 
-          {/* TAB 3: WOOCOMMERCE PRODUCTS CATALOG */}
+          {/* TAB 4: WOOCOMMERCE PRODUCTS CATALOG & BATCH INVENTORY */}
           {activeSection === 'products' && (
             <div style={{ background: '#FFFFFF', border: '1px solid #DCDCDE', borderRadius: '8px', padding: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
                   <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1D2327', margin: 0 }}>
-                    Products ({activeMerchantProducts.length})
+                    Products & Inventory ({activeMerchantProducts.length})
                   </h2>
                   <p style={{ fontSize: '0.825rem', color: '#646970', margin: '0.2rem 0 0 0' }}>
                     Manage catalog pricing, stock status, and product syndication.
@@ -1261,96 +1690,170 @@ export default function MerchantDashboardPage() {
                 </div>
               </div>
 
-              {/* Filter Bar */}
-              <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <span style={{ fontSize: '0.78rem', color: '#646970' }}>Category:</span>
+              {/* Bulk Actions & Filter Bar */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem', background: '#F8FAFC', padding: '0.65rem', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
+                {/* Bulk Actions Controls */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <select
-                    value={productCategoryFilter}
-                    onChange={(e) => setProductCategoryFilter(e.target.value)}
-                    style={{ padding: '0.35rem 0.65rem', borderRadius: '4px', border: '1px solid #DCDCDE', fontSize: '0.8rem' }}
+                    value={bulkAction}
+                    onChange={(e) => setBulkAction(e.target.value as any)}
+                    style={{ padding: '0.35rem 0.5rem', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '0.8rem', fontWeight: 600 }}
                   >
-                    <option value="all">All Categories</option>
-                    <option value="Inverters & Solar">Inverters & Solar</option>
-                    <option value="Batteries & Storage">Batteries & Storage</option>
-                    <option value="Solar Panels">Solar Panels</option>
+                    <option value="">Bulk Actions</option>
+                    <option value="price_pct">Adjust Price by % (+/-)</option>
+                    <option value="stock_status">Set Stock Status</option>
+                    <option value="export_csv">Export Selected to CSV</option>
                   </select>
+
+                  {bulkAction === 'price_pct' && (
+                    <input
+                      type="number"
+                      placeholder="e.g. 5 or -10"
+                      value={bulkActionValue}
+                      onChange={(e) => setBulkActionValue(e.target.value)}
+                      style={{ width: '100px', padding: '0.35rem', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '0.8rem' }}
+                    />
+                  )}
+
+                  {bulkAction === 'stock_status' && (
+                    <select
+                      value={bulkActionValue}
+                      onChange={(e) => setBulkActionValue(e.target.value)}
+                      style={{ padding: '0.35rem', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '0.8rem' }}
+                    >
+                      <option value="in_stock">In Stock (10 units)</option>
+                      <option value="out_of_stock">Out of Stock</option>
+                    </select>
+                  )}
+
+                  <button
+                    onClick={handleBulkActionExecute}
+                    style={{ background: '#2271B1', color: '#FFFFFF', border: 'none', borderRadius: '4px', padding: '0.35rem 0.75rem', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    Apply ({selectedProductIds.size})
+                  </button>
+                </div>
+
+                {/* Filter & Search */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <select
+                    value={productStockFilter}
+                    onChange={(e) => setProductStockFilter(e.target.value as any)}
+                    style={{ padding: '0.35rem 0.5rem', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '0.8rem' }}
+                  >
+                    <option value="all">All Stock Status</option>
+                    <option value="in_stock">In Stock</option>
+                    <option value="low_stock">Low Stock Alerts</option>
+                    <option value="out_of_stock">Out of Stock</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Search product / SKU..."
+                    value={productSearchQuery}
+                    onChange={(e) => setProductSearchQuery(e.target.value)}
+                    style={{ padding: '0.35rem 0.65rem', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '0.8rem', width: '180px' }}
+                  />
                 </div>
               </div>
-
-              {/* Products Table with Photos */}
+              {/* Products Table with Multi-Select Checkboxes */}
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.84rem' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #DCDCDE', textAlign: 'left', color: '#646970', background: '#F6F7F7' }}>
+                    <th style={{ padding: '0.65rem', width: '32px' }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedProductIds.size === filteredProducts.length && filteredProducts.length > 0}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedProductIds(new Set(filteredProducts.map((p) => p.id)));
+                          } else {
+                            setSelectedProductIds(new Set());
+                          }
+                        }}
+                      />
+                    </th>
                     <th style={{ padding: '0.75rem', width: '60px' }}>Image</th>
                     <th style={{ padding: '0.75rem' }}>SKU</th>
                     <th style={{ padding: '0.75rem' }}>Product Name</th>
                     <th style={{ padding: '0.75rem' }}>Category</th>
                     <th style={{ padding: '0.75rem' }}>Stock Status</th>
                     <th style={{ padding: '0.75rem' }}>Price (ZAR)</th>
-                    <th style={{ padding: '0.75rem' }}>Feed Sync</th>
-                    <th style={{ padding: '0.75rem' }}>Views</th>
+                    <th style={{ padding: '0.75rem' }}>Google Feed</th>
                     <th style={{ padding: '0.75rem', textAlign: 'right' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredProducts.map((p) => (
-                    <tr key={p.id} style={{ borderBottom: '1px solid #F0F0F1' }}>
-                      <td style={{ padding: '0.65rem 0.75rem' }}>
-                        <img src={p.image} alt={p.title} style={{ width: '48px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #DCDCDE' }} />
-                      </td>
-                      <td style={{ padding: '0.85rem 0.75rem', fontFamily: 'monospace', color: '#646970', fontWeight: 600 }}>
-                        {p.sku}
-                      </td>
-                      <td style={{ padding: '0.85rem 0.75rem', fontWeight: 700, color: '#1D2327' }}>
-                        <Link href={`/p/${p.id}`} target="_blank" style={{ color: '#1D2327', textDecoration: 'none' }}>
-                          {p.title}
-                        </Link>
-                        <div style={{ fontSize: '0.72rem', color: '#8C8F94' }}>Brand: {p.brand}</div>
-                      </td>
-                      <td style={{ padding: '0.85rem 0.75rem', color: '#646970' }}>{p.category}</td>
-                      <td style={{ padding: '0.85rem 0.75rem' }}>
-                        <button
-                          onClick={() => toggleProductStock(p.id)}
-                          style={{
-                            background: p.inStock ? '#E5F6E7' : '#FCE8E6',
-                            color: p.inStock ? '#00A32A' : '#D63638',
-                            border: 'none',
-                            borderRadius: '4px',
-                            padding: '0.2rem 0.6rem',
-                            fontSize: '0.75rem',
-                            fontWeight: 800,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          {p.inStock ? `✓ In stock (${p.stockQty})` : '✕ Out of stock'}
-                        </button>
-                      </td>
-                      <td style={{ padding: '0.85rem 0.75rem', fontWeight: 800, color: '#1D2327' }}>
-                        {p.salePrice ? (
-                          <div>
-                            <span style={{ color: '#7F54B3' }}>R {p.salePrice.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>{' '}
-                            <span style={{ fontSize: '0.75rem', color: '#8C8F94', textDecoration: 'line-through' }}>
-                              R {p.price.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
-                            </span>
-                          </div>
-                        ) : (
-                          `R ${p.price.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}`
-                        )}
-                      </td>
-                      <td style={{ padding: '0.85rem 0.75rem' }}>
-                        <span style={{ background: '#F0F6FC', color: '#2271B1', padding: '0.15rem 0.45rem', borderRadius: '3px', fontSize: '0.72rem', fontWeight: 700 }}>
-                          ✓ Active
-                        </span>
-                      </td>
-                      <td style={{ padding: '0.85rem 0.75rem', color: '#646970' }}>{p.views.toLocaleString()}</td>
-                      <td style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
-                        <Link href={`/p/${p.id}`} target="_blank" style={{ color: '#7F54B3', textDecoration: 'none', fontWeight: 700 }}>
-                          View ↗
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
+                  {filteredProducts.map((p) => {
+                    const isSelected = selectedProductIds.has(p.id);
+                    return (
+                      <tr key={p.id} style={{ borderBottom: '1px solid #F0F0F1', background: isSelected ? '#F0F9FF' : 'transparent' }}>
+                        <td style={{ padding: '0.65rem' }}>
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => {
+                              const next = new Set(selectedProductIds);
+                              if (e.target.checked) next.add(p.id);
+                              else next.delete(p.id);
+                              setSelectedProductIds(next);
+                            }}
+                          />
+                        </td>
+                        <td style={{ padding: '0.65rem 0.75rem' }}>
+                          <img src={p.image} alt={p.title} style={{ width: '48px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #DCDCDE' }} />
+                        </td>
+                        <td style={{ padding: '0.85rem 0.75rem', fontFamily: 'monospace', color: '#646970', fontWeight: 600 }}>
+                          {p.sku}
+                        </td>
+                        <td style={{ padding: '0.85rem 0.75rem', fontWeight: 700, color: '#1D2327' }}>
+                          <Link href={`/p/${p.id}`} target="_blank" style={{ color: '#1D2327', textDecoration: 'none' }}>
+                            {p.title}
+                          </Link>
+                          <div style={{ fontSize: '0.72rem', color: '#8C8F94' }}>Brand: {p.brand}</div>
+                        </td>
+                        <td style={{ padding: '0.85rem 0.75rem', color: '#646970' }}>{p.category}</td>
+                        <td style={{ padding: '0.85rem 0.75rem' }}>
+                          <button
+                            onClick={() => toggleProductStock(p.id)}
+                            style={{
+                              background: p.inStock ? '#E5F6E7' : '#FCE8E6',
+                              color: p.inStock ? '#00A32A' : '#D63638',
+                              border: 'none',
+                              borderRadius: '4px',
+                              padding: '0.2rem 0.6rem',
+                              fontSize: '0.75rem',
+                              fontWeight: 800,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {p.inStock ? `✓ In stock (${p.stockQty})` : '✕ Out of stock'}
+                          </button>
+                        </td>
+                        <td style={{ padding: '0.85rem 0.75rem', fontWeight: 800, color: '#1D2327' }}>
+                          {p.salePrice ? (
+                            <div>
+                              <span style={{ color: '#7F54B3' }}>R {p.salePrice.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>{' '}
+                              <span style={{ fontSize: '0.75rem', color: '#8C8F94', textDecoration: 'line-through' }}>
+                                R {p.price.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
+                              </span>
+                            </div>
+                          ) : (
+                            `R ${p.price.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}`
+                          )}
+                        </td>
+                        <td style={{ padding: '0.85rem 0.75rem' }}>
+                          <span style={{ background: '#F0F6FC', color: '#2271B1', padding: '0.15rem 0.45rem', borderRadius: '3px', fontSize: '0.72rem', fontWeight: 700 }}>
+                            ✓ Active
+                          </span>
+                        </td>
+                        <td style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
+                          <Link href={`/p/${p.id}`} target="_blank" style={{ color: '#7F54B3', textDecoration: 'none', fontWeight: 700, fontSize: '0.78rem' }}>
+                            View ↗
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -3011,6 +3514,243 @@ export default function MerchantDashboardPage() {
                   style={{ background: '#7F54B3', color: '#FFFFFF', border: 'none', borderRadius: '4px', padding: '0.45rem 1.25rem', fontWeight: 800, cursor: 'pointer' }}
                 >
                   Publish to Live Store Catalog
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 1: SARS COMPLIANT TAX INVOICE PRINT MODAL */}
+      {showInvoiceModal && invoiceOrder && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1rem' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '8px', maxWidth: '720px', width: '100%', padding: '2rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #1D2327', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+              <div>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1D2327', margin: 0 }}>TAX INVOICE</h2>
+                <div style={{ fontSize: '0.8rem', color: '#64748B', marginTop: '0.2rem' }}>
+                  SABS & SARS 15% VAT Compliant Tax Document
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#7F54B3' }}>{invoiceOrder.id}</div>
+                <div style={{ fontSize: '0.78rem', color: '#64748B' }}>Date: {invoiceOrder.date}</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem', fontSize: '0.825rem' }}>
+              <div>
+                <div style={{ fontWeight: 800, color: '#1D2327', marginBottom: '0.25rem' }}>ISSUED BY (SUPPLIER):</div>
+                <div style={{ fontWeight: 700 }}>{merchant.name}</div>
+                <div>{merchant.addressText || 'Gauteng, South Africa'}</div>
+                <div>VAT No: <strong>ZA4920194821</strong> · CIPC: <strong>2021/109481/07</strong></div>
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, color: '#1D2327', marginBottom: '0.25rem' }}>BILLED TO (CUSTOMER):</div>
+                <div style={{ fontWeight: 700 }}>{invoiceOrder.customer}</div>
+                <div>📍 {invoiceOrder.shippingAddress}</div>
+                <div>📞 {invoiceOrder.phone}</div>
+              </div>
+            </div>
+
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.84rem', marginBottom: '1.5rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid #CBD5E1', background: '#F8FAFC', textAlign: 'left' }}>
+                  <th style={{ padding: '0.5rem' }}>Item Description</th>
+                  <th style={{ padding: '0.5rem', textAlign: 'center' }}>Qty</th>
+                  <th style={{ padding: '0.5rem', textAlign: 'right' }}>Unit Price (Excl. VAT)</th>
+                  <th style={{ padding: '0.5rem', textAlign: 'right' }}>Total (Incl. VAT)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(invoiceOrder.lineItems || [{ title: invoiceOrder.items, qty: invoiceOrder.itemCount || 1, price: invoiceOrder.total }]).map((item: any, i: number) => (
+                  <tr key={i} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                    <td style={{ padding: '0.5rem', fontWeight: 600 }}>{item.title}</td>
+                    <td style={{ padding: '0.5rem', textAlign: 'center' }}>{item.qty}</td>
+                    <td style={{ padding: '0.5rem', textAlign: 'right' }}>R {(item.price / 1.15).toFixed(2)}</td>
+                    <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 800 }}>R {(item.price * item.qty).toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
+              <div style={{ width: '280px', background: '#F8FAFC', padding: '0.75rem', borderRadius: '6px', fontSize: '0.85rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                  <span>Subtotal (Excl. VAT):</span>
+                  <span>R {invoiceOrder.subtotal ? Number(invoiceOrder.subtotal).toFixed(2) : (invoiceOrder.total / 1.15).toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                  <span>VAT @ 15%:</span>
+                  <span>R {invoiceOrder.vatAmount ? Number(invoiceOrder.vatAmount).toFixed(2) : (invoiceOrder.total - invoiceOrder.total / 1.15).toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 900, fontSize: '1rem', borderTop: '1px solid #CBD5E1', paddingTop: '0.4rem' }}>
+                  <span>TOTAL (ZAR):</span>
+                  <span style={{ color: '#059669' }}>R {Number(invoiceOrder.total).toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+              <button
+                onClick={() => setShowInvoiceModal(false)}
+                style={{ background: '#F0F0F1', border: '1px solid #DCDCDE', padding: '0.45rem 1rem', borderRadius: '4px', fontWeight: 700, cursor: 'pointer' }}
+              >
+                Close
+              </button>
+              <button
+                onClick={() => window.print()}
+                style={{ background: '#059669', color: '#FFFFFF', border: 'none', padding: '0.45rem 1.25rem', borderRadius: '4px', fontWeight: 800, cursor: 'pointer' }}
+              >
+                🖨️ Print Tax Invoice
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: POS THERMAL RECEIPT MODAL */}
+      {showPosReceiptModal && lastPosSale && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1rem' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '8px', maxWidth: '380px', width: '100%', padding: '1.5rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)', fontFamily: 'monospace' }}>
+            <div style={{ textAlign: 'center', borderBottom: '1px dashed #000', paddingBottom: '0.75rem', marginBottom: '0.75rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{merchant.name}</h3>
+              <div style={{ fontSize: '0.75rem' }}>{merchant.addressText}</div>
+              <div style={{ fontSize: '0.75rem' }}>VAT: ZA4920194821</div>
+              <div style={{ fontSize: '0.75rem', marginTop: '0.35rem' }}>RECEIPT: {lastPosSale.id}</div>
+              <div style={{ fontSize: '0.75rem' }}>{lastPosSale.date}</div>
+            </div>
+
+            <div style={{ borderBottom: '1px dashed #000', paddingBottom: '0.5rem', marginBottom: '0.5rem', fontSize: '0.8rem' }}>
+              {lastPosSale.lineItems.map((item: any, i: number) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
+                  <span>{item.qty}x {item.title.slice(0, 18)}..</span>
+                  <span>R {(item.price * item.qty).toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Subtotal (Excl. VAT):</span>
+                <span>R {lastPosSale.subtotal.toFixed(2)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>15% VAT:</span>
+                <span>R {lastPosSale.vatAmount.toFixed(2)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 900, fontSize: '1rem', marginTop: '0.35rem' }}>
+                <span>TOTAL:</span>
+                <span>R {lastPosSale.total.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#646970', marginTop: '0.2rem' }}>
+                <span>Tender:</span>
+                <span>{lastPosSale.paymentMethod}</span>
+              </div>
+            </div>
+
+            <div style={{ textAlign: 'center', fontSize: '0.72rem', color: '#646970', borderTop: '1px dashed #000', paddingTop: '0.5rem' }}>
+              Thank you for shopping local with Shoppage!
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+              <button
+                onClick={() => setShowPosReceiptModal(false)}
+                style={{ flex: 1, padding: '0.45rem', borderRadius: '4px', border: '1px solid #CBD5E1', background: '#F1F5F9', fontWeight: 700, cursor: 'pointer' }}
+              >
+                Done
+              </button>
+              <button
+                onClick={() => window.print()}
+                style={{ flex: 1, padding: '0.45rem', borderRadius: '4px', border: 'none', background: '#059669', color: '#FFFFFF', fontWeight: 800, cursor: 'pointer' }}
+              >
+                🖨️ Print
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: ADD COUPON MODAL */}
+      {showAddCouponModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1rem' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '8px', maxWidth: '480px', width: '100%', padding: '1.5rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)' }}>
+            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800 }}>+ Create Coupon / Voucher</h3>
+            <form onSubmit={handleAddCouponSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              <div>
+                <label style={{ fontSize: '0.78rem', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>Coupon Code *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. FLASH20"
+                  value={newCoupon.code}
+                  onChange={(e) => setNewCoupon({ ...newCoupon, code: e.target.value })}
+                  style={{ width: '100%', padding: '0.45rem', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '0.85rem', textTransform: 'uppercase' }}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>Discount Type</label>
+                  <select
+                    value={newCoupon.type}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, type: e.target.value as any })}
+                    style={{ width: '100%', padding: '0.45rem', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '0.85rem' }}
+                  >
+                    <option value="Percentage discount">Percentage discount</option>
+                    <option value="Fixed cart discount">Fixed cart discount (ZAR)</option>
+                    <option value="Free shipping">Free shipping</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>Amount (% or R)</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="10"
+                    value={newCoupon.amount}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, amount: e.target.value })}
+                    style={{ width: '100%', padding: '0.45rem', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '0.85rem' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>Minimum Spend (R)</label>
+                  <input
+                    type="number"
+                    placeholder="1000"
+                    value={newCoupon.minSpend}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, minSpend: e.target.value })}
+                    style={{ width: '100%', padding: '0.45rem', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '0.85rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>Usage Limit</label>
+                  <input
+                    type="number"
+                    placeholder="100"
+                    value={newCoupon.usageLimit}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, usageLimit: e.target.value })}
+                    style={{ width: '100%', padding: '0.45rem', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '0.85rem' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowAddCouponModal(false)}
+                  style={{ background: '#F0F0F1', border: '1px solid #DCDCDE', borderRadius: '4px', padding: '0.45rem 1rem', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{ background: '#7F54B3', color: '#FFFFFF', border: 'none', borderRadius: '4px', padding: '0.45rem 1.25rem', fontWeight: 800, cursor: 'pointer' }}
+                >
+                  Create Coupon
                 </button>
               </div>
             </form>
