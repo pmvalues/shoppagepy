@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import type { ProductVariant, Merchant } from '@shoppage/contracts';
+import { buildDirectProductUrl } from '@shoppage/kernel';
 
 interface OrganicResult {
   url: string;
@@ -9,48 +11,87 @@ interface OrganicResult {
   snippet: string;
   date?: string;
   thumbnailEmoji?: string;
+  isInternal?: boolean;
 }
 
-export default function OrganicWebResults({ query = 'solar' }: { query?: string }) {
-  const organicResults: OrganicResult[] = [
+export default function OrganicWebResults({
+  query = 'all',
+  products = [],
+  merchants = [],
+}: {
+  query?: string;
+  products?: ProductVariant[];
+  merchants?: Merchant[];
+}) {
+  const qClean = query.trim();
+  const qLower = qClean.toLowerCase();
+
+  const organicResults: OrganicResult[] = [];
+
+  // 1. Matched Canonical / Master Products
+  products.slice(0, 4).forEach((p) => {
+    const priceEst = (p.attributes as any)?.estimatedPriceZar;
+    const priceText = priceEst ? `From R ${Number(priceEst).toLocaleString()} · ` : '';
+    const brand = p.brand ? `${p.brand} · ` : '';
+
+    organicResults.push({
+      url: `/p/${p.canonicalId}`,
+      domain: `shoppage.co.za › catalog › ${p.categoryRef}`,
+      title: p.title,
+      snippet: `${brand}${priceText}Verified specifications, local supplier stock, and SABS / compliance passport. Compare quotes and order via WhatsApp or direct counter dispatch.`,
+      thumbnailEmoji: p.categoryRef === 'solar_energy' ? '⚡' : p.categoryRef === 'smartphones' ? '📱' : p.categoryRef === 'hardware' ? '🧱' : '📦',
+      isInternal: true,
+    });
+  });
+
+  // 2. Matched Merchants & Suppliers
+  merchants.slice(0, 2).forEach((m) => {
+    organicResults.push({
+      url: `/m/${m.id}`,
+      domain: `shoppage.co.za › merchants › ${m.id}`,
+      title: `${m.name} · Verified Physical Storefront`,
+      snippet: `Official counter location: ${m.addressText || 'Gauteng, South Africa'}. Contact directly via WhatsApp (${m.contacts.whatsapp || m.contacts.telephone || 'Verified'}) for live counter quotes and stock confirmation.`,
+      thumbnailEmoji: '🏪',
+      isInternal: true,
+    });
+  });
+
+  // 3. Major Retailer Live Channels (Tailored to query)
+  const isCementOrHardware = qLower.includes('cement') || qLower.includes('hardware') || qLower.includes('tool') || qLower.includes('brick') || qLower.includes('drill');
+  const isSolar = qLower.includes('solar') || qLower.includes('inverter') || qLower.includes('battery');
+  const isTech = qLower.includes('phone') || qLower.includes('samsung') || qLower.includes('iphone') || qLower.includes('laptop');
+
+  const retailerEntries = [
     {
-      url: 'https://mall.yep.co.za/solar-panel/services',
-      domain: 'mall.yep.co.za › solar-panel › services',
-      title: 'Go Off-Grid with Yep Solar Solutions',
-      snippet: 'Affordable Solar Setups | Connect high-output solar panels to your DB board. Book accredited solar pros across Gauteng and Western Cape with 0% middleman markups.',
-      thumbnailEmoji: '☀️',
+      name: 'Takealot Marketplace',
+      website: 'takealot.com',
+      snippet: `Buy ${qClean} online at Takealot.com. Fast, reliable delivery to your door across South Africa or collect from nationwide pickup points.`,
+      emoji: '🛒',
     },
     {
-      url: 'https://www.sinetech.co.za',
-      domain: 'sinetech.co.za',
-      title: 'Sinetech – The Power of Choice (Official Supply & Distribution)',
-      snippet: 'Sinetech are specialists in the supply and installation of PV Solar Power Systems, UPS Systems, DC & AC Power Backup Systems, Solar Components, Inverters & LiFePO4 batteries.',
-      date: '10 Aug 2026',
-      thumbnailEmoji: '⚡',
+      name: isCementOrHardware ? 'Builders Warehouse South Africa' : isSolar ? 'SolarAdvice South Africa' : isTech ? 'Incredible Connection' : 'Makro South Africa',
+      website: isCementOrHardware ? 'builders.co.za' : isSolar ? 'solaradvice.co.za' : isTech ? 'incredible.co.za' : 'makro.co.za',
+      snippet: `Find live prices, specifications, and in-store stock for ${qClean} at official South African distribution outlets.`,
+      emoji: isCementOrHardware ? '🧱' : isSolar ? '☀️' : '🏬',
     },
     {
-      url: 'https://approvedsolar.co.za',
-      domain: 'approvedsolar.co.za',
-      title: 'Approved Solar: Leading Solar Power Solutions Provider',
-      snippet: 'Experts in Solar Power and Renewable Energy Solutions for homes and businesses in Gauteng with quality solar products at competitive counter prices.',
-      thumbnailEmoji: '🔋',
-    },
-    {
-      url: 'https://gcsolar.co.za',
-      domain: 'gcsolar.co.za',
-      title: 'GC Solar – Bringing Green Energy To Life',
-      snippet: 'GC Solar is your one-stop destination for finding and shopping the best solar products across South Africa. With a commitment to providing high-quality Tier-1 panels and certified inverters.',
-      thumbnailEmoji: '🏬',
-    },
-    {
-      url: 'https://ember-energy.org/insights',
-      domain: 'ember-energy.org › Latest Insights',
-      title: 'The take-off in African solar that official statistics can’t yet see',
-      snippet: 'South Africa installs a record 17 GW of rooftop and commercial solar in 2026 — three-quarters of it is distributed solar on factories, malls, and residences.',
-      date: '4 days ago',
-      thumbnailEmoji: '📈',
+      name: isCementOrHardware ? 'Leroy Merlin South Africa' : 'Makro Commercial',
+      website: isCementOrHardware ? 'leroymerlin.co.za' : 'makro.co.za',
+      snippet: `Explore genuine ${qClean} deals and commercial bulk supply options with SABS quality assurance.`,
+      emoji: '🏷️',
     },
   ];
+
+  retailerEntries.forEach((ret) => {
+    organicResults.push({
+      url: buildDirectProductUrl(ret.website, qClean, qClean),
+      domain: `${ret.website} › search › ${qLower.replace(/\s+/g, '-')}`,
+      title: `${qClean} — ${ret.name} (Official Live Stock)`,
+      snippet: ret.snippet,
+      thumbnailEmoji: ret.emoji,
+      isInternal: false,
+    });
+  });
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginBottom: '3rem' }}>
@@ -66,9 +107,15 @@ export default function OrganicWebResults({ query = 'solar' }: { query?: string 
 
             {/* Clickable Blue Link Title */}
             <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#1A0DAB', margin: '0 0 0.35rem 0', lineHeight: 1.3 }}>
-              <a href={res.url} target="_blank" rel="noopener noreferrer" style={{ color: '#1A0DAB', textDecoration: 'none' }} className="hover-underline">
-                {res.title}
-              </a>
+              {res.isInternal ? (
+                <Link href={res.url} style={{ color: '#1A0DAB', textDecoration: 'none' }} className="hover-underline">
+                  {res.title}
+                </Link>
+              ) : (
+                <a href={res.url} target="_blank" rel="noopener noreferrer" style={{ color: '#1A0DAB', textDecoration: 'none' }} className="hover-underline">
+                  {res.title}
+                </a>
+              )}
             </h3>
 
             {/* Snippet Description */}

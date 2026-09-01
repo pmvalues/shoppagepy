@@ -5,6 +5,29 @@ import Link from 'next/link';
 import type { MasterProduct } from '@shoppage/contracts';
 import ProductStudioStage from './ProductStudioStage';
 
+function getStoreName(product: MasterProduct, idx: number): string {
+  const cat = (product.categoryRef || '').toLowerCase();
+  const title = (product.title || '').toLowerCase();
+
+  if (title.includes('cement') || cat.includes('hardware') || cat.includes('building')) {
+    const hwStores = ['Builders Warehouse', 'Leroy Merlin', 'Cashbuild', 'Takealot.com', 'Makro'];
+    return hwStores[idx % hwStores.length];
+  }
+  if (cat.includes('solar') || title.includes('solar') || title.includes('inverter') || title.includes('battery')) {
+    const solarStores = ['SunPower Solutions', 'SolarBros Sandton', 'Takealot.com', 'SolarAdvice SA', 'Inverter Warehouse'];
+    return solarStores[idx % solarStores.length];
+  }
+  if (cat.includes('smartphones') || title.includes('phone') || title.includes('samsung') || title.includes('iphone')) {
+    const techStores = ['TechHub Oriental', 'Takealot.com', 'Incredible Connection', 'Makro Commercial'];
+    return techStores[idx % techStores.length];
+  }
+  if (title.includes('mitrend') || cat.includes('catering') || cat.includes('packaging')) {
+    return 'Mitrend Products (Midrand DC)';
+  }
+  const generalStores = ['Takealot.com', 'Makro Commercial', 'Builders Warehouse', 'Checkers Sixty60'];
+  return generalStores[idx % generalStores.length];
+}
+
 export default function SponsoredCarousel({ products }: { products: MasterProduct[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -14,9 +37,9 @@ export default function SponsoredCarousel({ products }: { products: MasterProduc
     }
   };
 
-  const sponsoredList = products.slice(0, 8);
+  if (!products || products.length === 0) return null;
 
-  const stores = ['takealot.com', 'Amazon.co.za', 'Freshtec Energy', 'Lekkervolt', 'Bigfisch Projects', 'Builders', 'Leroy Merlin', 'Makro'];
+  const sponsoredList = products.slice(0, 8);
 
   return (
     <section style={{ marginBottom: '2.5rem' }}>
@@ -76,8 +99,8 @@ export default function SponsoredCarousel({ products }: { products: MasterProduc
         }}
       >
         {sponsoredList.map((product, idx) => {
-          const storeName = stores[idx % stores.length];
-          const price = (product.attributes?.estimatedPriceZar as number) || (idx === 0 ? 1999 : idx === 1 ? 46403 : idx === 2 ? 24200 : 153200);
+          const storeName = getStoreName(product, idx);
+          const price = (product.attributes?.estimatedPriceZar as number) || 115;
 
           return (
             <div

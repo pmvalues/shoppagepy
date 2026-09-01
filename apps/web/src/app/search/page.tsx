@@ -51,7 +51,11 @@ export default async function SearchPage({
               </div>
 
               {/* Organic Web Search Listings */}
-              <OrganicWebResults query={query} />
+              <OrganicWebResults
+                query={query}
+                products={searchResults.products}
+                merchants={searchResults.merchants}
+              />
 
               {/* 2-Column People Also Search For Grid */}
               <PeopleAlsoSearch query={query} />
@@ -59,7 +63,7 @@ export default async function SearchPage({
 
             {/* Right-Hand Knowledge Panel / Entity Box */}
             <aside style={{ position: 'sticky', top: '100px', minHeight: '380px' }}>
-              <KnowledgePanel query={query} />
+              <KnowledgePanel query={query} products={searchResults.products} />
             </aside>
           </div>
         )}
