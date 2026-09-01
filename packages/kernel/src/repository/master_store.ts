@@ -79,19 +79,32 @@ export class MasterProductStore {
    * Look up any canonical product by canonical ID
    */
   public static getProductById(id: string): ProductVariant | null {
-    // 1. Check Flagship Seed Products
+    if (!id) return null;
+
+    // 1. Check Flagship Seed Products (Exact canonicalId)
     const seed = SA_CANONICAL_PRODUCTS.find((p) => p.canonicalId === id);
     if (seed) return seed;
 
-    // 2. Check SQLite 1,000,000 Store
+    // 2. Check Identifier / Model / MPN / Slug Match on Seed Products
+    const idClean = id.replace(/^(?:prod_|var_|ext_|p_)/, '').toLowerCase();
+    const altSeed = SA_CANONICAL_PRODUCTS.find((p) => {
+      if (p.modelNumber === id || p.identifiers.mpn === id || p.identifiers.gtin13 === id) return true;
+      const pClean = p.canonicalId.replace(/^(?:prod_|var_|ext_|p_)/, '').toLowerCase();
+      if (pClean === idClean) return true;
+      if (p.aliases?.some((a) => a.phrase.toLowerCase() === id.toLowerCase())) return true;
+      return false;
+    });
+    if (altSeed) return altSeed;
+
+    // 3. Check SQLite 1,000,000 Store
     const db = getSqliteDb();
     if (db) {
       const origId = id.replace(/_/g, ':');
       try {
         const stmt = db.prepare(
-          'SELECT * FROM global_master_product WHERE master_product_id = ? OR master_product_id = ? LIMIT 1'
+          'SELECT * FROM global_master_product WHERE master_product_id = ? OR master_product_id = ? OR gtin = ? LIMIT 1'
         );
-        const row = stmt.get(origId, id);
+        const row = stmt.get(origId, id, id);
         if (row) {
           return rowToProductVariant(row);
         }

@@ -12,10 +12,20 @@ import {
 } from '@shoppage/kernel';
 import type { MasterProduct, Offer } from '@shoppage/contracts';
 import ProductStudioStage from '@/components/ProductStudioStage';
+import { resolveExternalProduct } from '@/lib/external_discovery';
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  const product = MasterProductStore.getProductById(resolvedParams.id);
+  let product = MasterProductStore.getProductById(resolvedParams.id);
+  let resolvedExternalOffer: Offer | null = null;
+
+  if (!product) {
+    const extMatch = resolveExternalProduct(resolvedParams.id);
+    if (extMatch) {
+      product = extMatch.product;
+      resolvedExternalOffer = extMatch.offer;
+    }
+  }
 
   if (!product) {
     notFound();
@@ -23,7 +33,37 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   const confirmedOffers = SA_FLAGSHIP_OFFERS.filter((o) => o.variantRef === product.canonicalId);
   const discoveredOffers = DiscoveredOffersStore.getDiscoveredOffersByProduct(product.canonicalId);
-  const displayOffers: Offer[] = confirmedOffers.length > 0 ? confirmedOffers : [];
+  const mappedDiscoveredOffers: Offer[] = discoveredOffers.map((d) => ({
+    id: d.id,
+    variantRef: product.canonicalId,
+    merchantRef: d.merchantRef || `mer_ext_${d.sourceWebsite.replace(/\./g, '_')}`,
+    stallRef: d.merchantName,
+    destinationType: 'retailer_website',
+    actionTarget: {
+      type: 'url',
+      destinationUrl: d.sourceUrl,
+    },
+    price: {
+      amount: d.discoveredPrice.amount,
+      currency: d.discoveredPrice.currency,
+      sourceTimestamp: d.discoveredAt,
+    },
+    availabilityState: 'fresh',
+    updateType: 'api_feed_update',
+    freshness: {
+      slaClass: 'fast_moving_24h',
+      expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+      lastConfirmedAt: d.discoveredAt,
+    },
+  }));
+
+  const displayOffers: Offer[] = confirmedOffers.length > 0
+    ? confirmedOffers
+    : mappedDiscoveredOffers.length > 0
+    ? mappedDiscoveredOffers
+    : resolvedExternalOffer
+    ? [resolvedExternalOffer]
+    : [];
 
   const isMitrend = resolvedParams.id.toLowerCase().includes('mitrend');
   const hasOffers = displayOffers.length > 0;

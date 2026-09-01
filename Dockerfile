@@ -50,6 +50,7 @@ COPY --from=builder /app/apps/web/package.json ./apps/web/
 COPY --from=builder /app/apps/web/public ./apps/web/public
 COPY --from=builder /app/apps/web/.next ./apps/web/.next
 COPY --from=builder /app/apps/web/next.config.mjs ./apps/web/
+COPY --from=builder /app/shoppage-commerce-intelligence-foundation ./shoppage-commerce-intelligence-foundation
 
 EXPOSE 3000
 

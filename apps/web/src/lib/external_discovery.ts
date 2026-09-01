@@ -164,3 +164,21 @@ export function searchExternalLiveWeb(query: string, intent: SearchIntent, limit
 
   return results;
 }
+
+/**
+ * Resolves or reconstitutes a dynamically discovered external product by its canonicalId
+ */
+export function resolveExternalProduct(id: string): DiscoveredLiveResult | null {
+  if (!id || (!id.startsWith('ext_') && !id.startsWith('prod_'))) return null;
+  const clean = id.replace(/^(?:ext_|prod_|var_|p_)/, '').replace(/_/g, ' ');
+  const parts = clean.split(' ');
+  const query = parts.slice(0, parts.length > 1 && /^\d+$/.test(parts[parts.length - 1]) ? -1 : undefined).join(' ');
+  const results = searchExternalLiveWeb(query || clean, {
+    normalizedQuery: query || clean,
+    isSolarCalculation: false,
+    wantsVideo: false,
+    wantsCompare: false,
+  }, 4);
+  const matched = results.find((r) => r.product.canonicalId === id) || results[0];
+  return matched || null;
+}
