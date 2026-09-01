@@ -9,6 +9,25 @@ export const ProductVariantsCollection = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'brand', 'gtin13', 'categoryRef', 'status'],
   },
+  access: {
+    read: () => true,
+    create: ({ req }: any) => Boolean(req?.user),
+    update: ({ req }: any) => Boolean(req?.user),
+    delete: ({ req }: any) => req?.user?.role === 'admin',
+  },
+  hooks: {
+    afterChange: [
+      async ({ doc, operation }: any) => {
+        // Real-time synchronization hook placeholder for external indexers
+        return doc;
+      },
+    ],
+    afterDelete: [
+      async ({ id }: any) => {
+        return id;
+      },
+    ],
+  },
   fields: [
     {
       name: 'canonicalId',

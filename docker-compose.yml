@@ -1,48 +1,23 @@
 version: '3.8'
 
 # ==============================================================================
-# Shoppage v7.0 Production Stack (Next.js 14 Frontend + Django 5 Backend)
+# Shoppage Platform Production Stack (Next.js 16 + Payload CMS 3)
 # ==============================================================================
 
 services:
-  # 1. Next.js 14 Modern Customer Front-End (Google Hybrid UI, Search, PDP, Storefronts)
-  frontend:
+  # 1. Unified Next.js 16 + Payload CMS 3 Customer Front-End & Admin OS
+  web:
     build:
       context: .
-      dockerfile: Dockerfile.frontend
-    container_name: shoppage-frontend
+      dockerfile: Dockerfile
+    container_name: shoppage-web
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - DJANGO_API_URL=http://backend:8000
-    depends_on:
-      - backend
-    networks:
-      - shoppage-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.shoppage-web.rule=Host(`${DOMAIN:-shoppage.co.za}`, `www.${DOMAIN:-shoppage.co.za}`)"
-      - "traefik.http.routers.shoppage-web.entrypoints=websecure"
-      - "traefik.http.routers.shoppage-web.tls=true"
-      - "traefik.http.routers.shoppage-web.tls.certresolver=letsencrypt"
-      - "traefik.http.services.shoppage-web.loadbalancer.server.port=3000"
-
-  # 2. Django 5 Master API & Admin Backend
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: shoppage-backend
-    restart: unless-stopped
-    ports:
-      - "8000:8000"
-    environment:
-      - DJANGO_SETTINGS_MODULE=shoppage.settings.prod
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-shoppage_super_secure_django_secret_key_50chars}
-      - ALLOWED_HOSTS=${DOMAIN:-shoppage.co.za},www.${DOMAIN:-shoppage.co.za},backend,localhost,127.0.0.1
+      - PAYLOAD_SECRET=${PAYLOAD_SECRET:-shoppage_super_secure_payload_secret_32chars}
       - DATABASE_URI=postgres://${POSTGRES_USER:-shoppage}:${POSTGRES_PASSWORD:-shoppage_secure_pass}@postgres:5432/${POSTGRES_DB:-shoppage_db}
       - REDIS_URL=redis://:${REDIS_PASSWORD:-shoppage_redis_pass}@redis:6379/0
       - TYPESENSE_URL=http://typesense:8108
@@ -56,11 +31,11 @@ services:
       - shoppage-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.shoppage-api.rule=Host(`${DOMAIN:-shoppage.co.za}`) && (PathPrefix(`/api/v1`) || PathPrefix(`/admin`) || PathPrefix(`/django-static`))"
-      - "traefik.http.routers.shoppage-api.entrypoints=websecure"
-      - "traefik.http.routers.shoppage-api.tls=true"
-      - "traefik.http.routers.shoppage-api.tls.certresolver=letsencrypt"
-      - "traefik.http.services.shoppage-api.loadbalancer.server.port=8000"
+      - "traefik.http.routers.shoppage-web.rule=Host(`${DOMAIN:-shoppage.co.za}`, `www.${DOMAIN:-shoppage.co.za}`)"
+      - "traefik.http.routers.shoppage-web.entrypoints=websecure"
+      - "traefik.http.routers.shoppage-web.tls=true"
+      - "traefik.http.routers.shoppage-web.tls.certresolver=letsencrypt"
+      - "traefik.http.services.shoppage-web.loadbalancer.server.port=3000"
 
   # 3. PostgreSQL 16 + pgvector Database
   postgres:

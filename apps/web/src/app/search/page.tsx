@@ -44,9 +44,11 @@ export default async function SearchPage({
           /* Google All Mode: Left Organic Results + Nearby Places Map, Right Knowledge Panel */
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 360px', gap: '3rem', alignItems: 'flex-start' }}>
             {/* Left Main Stream */}
-            <div>
+            <div style={{ minWidth: 0 }}>
               {/* Collapsible Local Places / Map Component (DEFAULT CLOSED) */}
-              <CollapsibleLocalMap merchants={searchResults.merchants} />
+              <div style={{ minHeight: '44px' }}>
+                <CollapsibleLocalMap merchants={searchResults.merchants} />
+              </div>
 
               {/* Organic Web Search Listings */}
               <OrganicWebResults query={query} />
@@ -56,7 +58,7 @@ export default async function SearchPage({
             </div>
 
             {/* Right-Hand Knowledge Panel / Entity Box */}
-            <aside style={{ position: 'sticky', top: '100px' }}>
+            <aside style={{ position: 'sticky', top: '100px', minHeight: '380px' }}>
               <KnowledgePanel query={query} />
             </aside>
           </div>

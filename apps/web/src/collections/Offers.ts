@@ -9,6 +9,24 @@ export const OffersCollection = {
     useAsTitle: 'id',
     defaultColumns: ['id', 'variantRef', 'merchantRef', 'price', 'availabilityState', 'updatedAt'],
   },
+  access: {
+    read: () => true,
+    create: ({ req }: any) => Boolean(req?.user),
+    update: ({ req }: any) => Boolean(req?.user),
+    delete: ({ req }: any) => Boolean(req?.user),
+  },
+  hooks: {
+    afterChange: [
+      async ({ doc, operation }: any) => {
+        return doc;
+      },
+    ],
+    afterDelete: [
+      async ({ id }: any) => {
+        return id;
+      },
+    ],
+  },
   fields: [
     {
       name: 'variantRef',

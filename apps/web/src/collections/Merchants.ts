@@ -9,6 +9,15 @@ export const MerchantsCollection = {
     useAsTitle: 'publicName',
     defaultColumns: ['publicName', 'country', 'claimState', 'verificationState', 'updatedAt'],
   },
+  access: {
+    read: () => true,
+    create: ({ req }: any) => Boolean(req?.user),
+    update: ({ req }: any) => {
+      if (req?.user?.role === 'admin') return true;
+      return Boolean(req?.user);
+    },
+    delete: ({ req }: any) => req?.user?.role === 'admin',
+  },
   fields: [
     {
       name: 'canonicalId',

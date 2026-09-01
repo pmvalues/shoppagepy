@@ -15,6 +15,7 @@ import { CampaignsCollection } from './collections/Campaigns.js';
  */
 export const payloadConfig = {
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000',
+  secret: process.env.PAYLOAD_SECRET || 'shoppage-secure-payload-cms-secret-key-32-chars',
   admin: {
     user: 'users',
     meta: {

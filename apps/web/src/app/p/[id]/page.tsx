@@ -1,106 +1,35 @@
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import {
   MasterProductStore,
   DiscoveredOffersStore,
   SA_FLAGSHIP_MERCHANTS,
-  SA_FLAGSHIP_PASSPORTS,
-  checkSolarCompatibility,
   calculateBackupRuntime,
   SA_FLAGSHIP_OFFERS,
-  SA_CANONICAL_PRODUCTS,
   MITREND_MERCHANT,
 } from '@shoppage/kernel';
 import type { MasterProduct, Offer } from '@shoppage/contracts';
 import ProductStudioStage from '@/components/ProductStudioStage';
 
-function synthesizeFallbackProduct(id: string): MasterProduct {
-  const clean = id.replace(/^(?:ext_|var_|p_)/, '').replace(/_/g, ' ');
-  const title = clean.split(' ').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-  const isSolar = /inverter|battery|solar|kwh|kw|hybrid|lifepo4/i.test(clean);
-
-  return {
-    canonicalId: id,
-    familyRef: isSolar ? 'fam_solar' : 'fam_general',
-    modelNumber: `MOD-${clean.toUpperCase().slice(0, 6)}`,
-    title: `${title} (South Africa Spec)`,
-    brand: 'Verified Brand',
-    categoryRef: isSolar ? 'solar_energy' : 'general_commerce',
-    identifiers: {
-      gtin13: `600${Math.floor(1000000000 + Math.random() * 9000000000)}`,
-      mpn: `SA-${clean.toUpperCase().slice(0, 4)}-01`,
-    },
-    attributes: {
-      estimatedPriceZar: isSolar ? 18500 : 1450,
-      isExternalLiveDiscovered: true,
-      ratedPowerWatts: isSolar ? 5000 : 0,
-      batteryCapacityKwh: isSolar ? 5.12 : 0,
-    },
-    compliance: {
-      nrs097Certified: isSolar,
-      sabsApproved: true,
-      warrantyYears: isSolar ? 5 : 1,
-    },
-    media: {
-      gallery: [],
-      videos: [],
-      documents: [],
-    },
-    aliases: [
-      { phrase: clean.toLowerCase(), locale: 'en', confidence: 0.9, source: 'ai_normalized' },
-      { phrase: `${clean.toLowerCase()} sonkrag`, locale: 'af', confidence: 0.8, source: 'ai_normalized' },
-    ],
-    compatibilityEdgeCount: 0,
-    status: 'active',
-    countryScope: ['ZA'],
-    provenance: {
-      sourceRef: 'live_web_sweeper',
-      rightsClass: 'OPEN_DATA_COMMERCIAL',
-      confidence: 0.92,
-      fieldOwner: 'system',
-      validFrom: new Date().toISOString(),
-    },
-  };
-}
-
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  const product = MasterProductStore.getProductById(resolvedParams.id) || synthesizeFallbackProduct(resolvedParams.id);
+  const product = MasterProductStore.getProductById(resolvedParams.id);
+
+  if (!product) {
+    notFound();
+  }
 
   const confirmedOffers = SA_FLAGSHIP_OFFERS.filter((o) => o.variantRef === product.canonicalId);
   const discoveredOffers = DiscoveredOffersStore.getDiscoveredOffersByProduct(product.canonicalId);
+  const displayOffers: Offer[] = confirmedOffers.length > 0 ? confirmedOffers : [];
 
   const isMitrend = resolvedParams.id.toLowerCase().includes('mitrend');
-  const defaultMerchantRef = isMitrend ? 'loc_mitrend_midrand' : 'loc_sunpower_crownmines';
-
-  const displayOffers: Offer[] = confirmedOffers.length > 0 ? confirmedOffers : [
-    {
-      id: `off_${product.canonicalId}_1`,
-      variantRef: product.canonicalId,
-      merchantRef: defaultMerchantRef,
-      stallRef: isMitrend ? 'Midrand Showroom Counter' : 'Crown Mines Main Concourse',
-      destinationType: 'retailer_website',
-      actionTarget: {
-        type: 'url',
-        destinationUrl: isMitrend ? 'https://mitrend.co.za' : 'https://sunpower.co.za',
-      },
-      price: {
-        amount: Number((product.attributes as any)?.estimatedPriceZar) || (isMitrend ? 45 : 1250),
-        currency: 'ZAR',
-        sourceTimestamp: new Date().toISOString(),
-      },
-      availabilityState: 'fresh',
-      updateType: 'stock_confirmed',
-      freshness: {
-        slaClass: 'fast_moving_24h',
-        expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
-        lastConfirmedAt: new Date().toISOString(),
-      },
-    }
-  ];
-
-  const minPrice = Math.min(...displayOffers.map((o) => o.price.amount || 999999));
+  const hasOffers = displayOffers.length > 0;
+  const minPrice = hasOffers
+    ? Math.min(...displayOffers.map((o) => o.price?.amount || 999999))
+    : Number((product.attributes as any)?.estimatedPriceZar) || 0;
   const isSolar = product.categoryRef === 'solar_energy' || Boolean(product.compliance?.nrs097Certified);
   const batteryKwh = Number((product.attributes as any)?.batteryCapacityKwh) || 5.12;
 
@@ -153,10 +82,14 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginBottom: '1.5rem' }}>
             <span style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--slate-900)', fontFamily: 'var(--font-mono)' }}>
-              R {minPrice.toLocaleString()}
+              {minPrice > 0 ? `R ${minPrice.toLocaleString()}` : 'Price on request'}
             </span>
             <span style={{ fontSize: '0.875rem', color: 'var(--slate-500)' }}>
-              Starting verified price ({displayOffers.length} confirmed stockists)
+              {hasOffers
+                ? `Starting verified price (${displayOffers.length} confirmed stockist${displayOffers.length > 1 ? 's' : ''})`
+                : minPrice > 0
+                ? 'Estimated catalogue price · Request quote from stockists'
+                : 'Direct seller quote required'}
             </span>
           </div>
 
@@ -212,81 +145,93 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           🏪 Verified South African Stockists ({displayOffers.length})
         </h2>
         <p style={{ color: 'var(--slate-600)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
-          Prices confirmed directly with merchants. Direct phone, web, and in-store inquiries available.
+          {displayOffers.length > 0
+            ? 'Prices confirmed directly with merchants. Direct phone, web, and in-store inquiries available.'
+            : 'No live merchant quotes listed yet for this product. You can request a quote from verified suppliers.'}
         </p>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-            <thead>
-              <tr style={{ borderBottom: '2px solid var(--border)', textAlign: 'left' }}>
-                <th style={{ padding: '0.75rem' }}>Merchant / Location</th>
-                <th style={{ padding: '0.75rem' }}>Availability</th>
-                <th style={{ padding: '0.75rem' }}>Price (ZAR)</th>
-                <th style={{ padding: '0.75rem', textAlign: 'right' }}>Direct Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayOffers.map((offer) => {
-                const merchant = (offer.merchantRef === 'loc_mitrend_midrand' || isMitrend)
-                  ? (MITREND_MERCHANT as any)
-                  : SA_FLAGSHIP_MERCHANTS.find((m) => m.id === offer.merchantRef) || {
-                      id: offer.merchantRef,
-                      name: 'SunPower Solutions (Crown Mines)',
-                      addressText: 'Crown Mines Wholesale Hub, Johannesburg',
-                      contacts: { telephone: '+27110001001', website: 'https://sunpower.co.za' },
-                      googleRating: 4.9,
-                    };
+        {displayOffers.length > 0 ? (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid var(--border)', textAlign: 'left' }}>
+                  <th style={{ padding: '0.75rem' }}>Merchant / Location</th>
+                  <th style={{ padding: '0.75rem' }}>Availability</th>
+                  <th style={{ padding: '0.75rem' }}>Price (ZAR)</th>
+                  <th style={{ padding: '0.75rem', textAlign: 'right' }}>Direct Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {displayOffers.map((offer) => {
+                  const merchant = (offer.merchantRef === 'loc_mitrend_midrand' || isMitrend)
+                    ? (MITREND_MERCHANT as any)
+                    : SA_FLAGSHIP_MERCHANTS.find((m) => m.id === offer.merchantRef) || {
+                        id: offer.merchantRef,
+                        name: 'SunPower Solutions (Crown Mines)',
+                        addressText: 'Crown Mines Wholesale Hub, Johannesburg',
+                        contacts: { telephone: '+27110001001', website: 'https://sunpower.co.za' },
+                        googleRating: 4.9,
+                      };
 
-                return (
-                  <tr key={offer.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '1rem 0.75rem' }}>
-                      <Link href={`/m/${merchant.id}`} style={{ fontWeight: 800, color: 'var(--slate-900)', textDecoration: 'none' }}>
-                        {merchant.name}
-                      </Link>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)', marginTop: '0.15rem' }}>
-                        📍 {merchant.addressText} · ★ {merchant.googleRating || '4.8'}
-                      </div>
-                    </td>
-                    <td style={{ padding: '1rem 0.75rem' }}>
-                      <span className="badge badge-green" style={{ fontSize: '0.75rem' }}>✓ In Stock</span>
-                    </td>
-                    <td style={{ padding: '1rem 0.75rem', fontWeight: 900, fontFamily: 'var(--font-mono)', fontSize: '1.1rem', color: 'var(--slate-900)' }}>
-                      R {(offer.price.amount || minPrice).toLocaleString()}
-                    </td>
-                    <td style={{ padding: '1rem 0.75rem', textAlign: 'right' }}>
-                      <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'flex-end' }}>
-                        <Link href={`/m/${merchant.id}`} className="btn btn-outline btn-sm">
-                          View Store
+                  return (
+                    <tr key={offer.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '1rem 0.75rem' }}>
+                        <Link href={`/m/${merchant.id}`} style={{ fontWeight: 800, color: 'var(--slate-900)', textDecoration: 'none' }}>
+                          {merchant.name}
                         </Link>
-                        {merchant.contacts?.telephone && (
-                          <a
-                            href={`tel:${merchant.contacts.telephone}`}
-                            className="btn btn-primary btn-sm"
-                            title="Call Seller"
-                          >
-                            📞 Call
-                          </a>
-                        )}
-                        {merchant.contacts?.website && (
-                          <a
-                            href={merchant.contacts.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-dark btn-sm"
-                            title="Visit Website"
-                          >
-                            🌐 Web
-                          </a>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </section>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)', marginTop: '0.15rem' }}>
+                          📍 {merchant.addressText} · ★ {merchant.googleRating || '4.8'}
+                        </div>
+                      </td>
+                      <td style={{ padding: '1rem 0.75rem' }}>
+                        <span className="badge badge-green" style={{ fontSize: '0.75rem' }}>✓ In Stock</span>
+                      </td>
+                      <td style={{ padding: '1rem 0.75rem', fontWeight: 900, fontFamily: 'var(--font-mono)', fontSize: '1.1rem', color: 'var(--slate-900)' }}>
+                        R {(offer.price?.amount || minPrice).toLocaleString()}
+                      </td>
+                      <td style={{ padding: '1rem 0.75rem', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'flex-end' }}>
+                          <Link href={`/m/${merchant.id}`} className="btn btn-outline btn-sm">
+                            View Store
+                          </Link>
+                          {merchant.contacts?.telephone && (
+                            <a
+                              href={`tel:${merchant.contacts.telephone}`}
+                              className="btn btn-primary btn-sm"
+                              title="Call Seller"
+                            >
+                              📞 Call
+                            </a>
+                          )}
+                          {merchant.contacts?.website && (
+                            <a
+                              href={merchant.contacts.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-dark btn-sm"
+                              title="Visit Website"
+                            >
+                              🌐 Web
+                            </a>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div style={{ textAlign: 'center', padding: '2rem', background: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+            <p style={{ color: 'var(--slate-600)', marginBottom: '1rem' }}>
+              Are you a merchant stocking this product? Claim your listing or submit a verified quote.
+            </p>
+            <Link href="/merchant/dashboard" className="btn btn-primary btn-sm">
+              🏬 Submit Merchant Quote
+            </Link>
+          </div>
+        )}
     </div>
   );
 }
