@@ -232,6 +232,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             </Link>
           </div>
         )}
+      </section>
     </div>
   );
 }
