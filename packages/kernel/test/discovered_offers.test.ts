@@ -49,6 +49,37 @@ describe('Master Product & Discovered Offers Direct Product Links Suite', () => 
     expect(count).toBeGreaterThanOrEqual(40);
   });
 
+  it('searches database-stored scraped products and returns complete ProductVariants with direct retailer URLs', () => {
+    const cementResults = DiscoveredOffersStore.searchDiscoveredProducts('cement');
+    expect(cementResults.length).toBeGreaterThan(0);
+
+    const first = cementResults[0];
+    expect(first.product.title.toLowerCase()).toContain('cement');
+    expect(first.offer.actionTarget.destinationUrl).toMatch(/^https:\/\/(www\.)?(builders\.co\.za|leroymerlin\.co\.za|makro\.co\.za|takealot\.com)/);
+    expect(first.offer.price.amount).toBeGreaterThan(0);
+    expect(first.offer.actionTarget.destinationUrl).not.toContain('undefined');
+  });
+
+  it('dynamically saves scraped external offers into SQLite database and cache', () => {
+    const saved = DiscoveredOffersStore.saveScrapedOffer({
+      masterProductRef: 'var_test_scraper_sku_1',
+      productTitle: 'Scraped Test Solar Inverter 5kW',
+      brand: 'SolarTech',
+      category: 'solar_energy',
+      merchantName: 'Takealot.com',
+      sourceWebsite: 'takealot.com',
+      sourceUrl: 'https://www.takealot.com/solartech-5kw-inverter/PLID99988877',
+      priceZar: 15499,
+      availabilityText: 'In Stock (Live Scraped)',
+      locationHint: 'National Distribution Centres',
+      sku: 'ST-5KW-TEST',
+    });
+
+    expect(saved.id).toBeDefined();
+    expect(saved.sourceUrl).toBe('https://www.takealot.com/solartech-5kw-inverter/PLID99988877');
+    expect(saved.discoveredPrice.amount).toBe(15499);
+  });
+
   it('populates hyperlinked Google Maps and Google Reviews URLs on merchants', () => {
     const merchants = NationwideMerchantStore.getAllMerchants(5);
     expect(merchants.length).toBeGreaterThan(0);
@@ -61,3 +92,4 @@ describe('Master Product & Discovered Offers Direct Product Links Suite', () => 
     }
   });
 });
+

@@ -81,40 +81,26 @@ export default function OrganicWebResults({
       });
     });
   } else {
-    // Fallback verified major retailer live channels
-    const isCementOrHardware = qLower.includes('cement') || qLower.includes('hardware') || qLower.includes('tool') || qLower.includes('brick') || qLower.includes('drill');
-    const isSolar = qLower.includes('solar') || qLower.includes('inverter') || qLower.includes('battery');
-    const isTech = qLower.includes('phone') || qLower.includes('samsung') || qLower.includes('iphone') || qLower.includes('laptop');
+    // Fallback to top verified national offers from SQLite database
+    const allDbOffers = DiscoveredOffersStore.getAllDiscoveredOffers();
+    allDbOffers.slice(0, 3).forEach((disc) => {
+      const isSolar = disc.masterProductRef.includes('solar') || disc.masterProductRef.includes('deye') || disc.masterProductRef.includes('sunsynk') || disc.masterProductRef.includes('victron') || disc.masterProductRef.includes('dyness');
+      const isHard = disc.masterProductRef.includes('cement') || disc.masterProductRef.includes('ppc') || disc.masterProductRef.includes('surebuild');
+      const isTech = disc.masterProductRef.includes('samsung') || disc.masterProductRef.includes('iphone') || disc.masterProductRef.includes('a16');
+      const emoji = isSolar ? '⚡' : isHard ? '🧱' : isTech ? '📱' : '🛒';
 
-    const retailerEntries = [
-      {
-        name: 'Takealot Marketplace',
-        website: 'takealot.com',
-        snippet: `Buy ${qClean} online at Takealot.com. Fast, reliable delivery to your door across South Africa or collect from nationwide pickup points.`,
-        emoji: '🛒',
-      },
-      {
-        name: isCementOrHardware ? 'Builders Warehouse South Africa' : isSolar ? 'SolarAdvice South Africa' : isTech ? 'Incredible Connection' : 'Makro South Africa',
-        website: isCementOrHardware ? 'builders.co.za' : isSolar ? 'solaradvice.co.za' : isTech ? 'incredible.co.za' : 'makro.co.za',
-        snippet: `Find live prices, specifications, and in-store stock for ${qClean} at official South African distribution outlets.`,
-        emoji: isCementOrHardware ? '🧱' : isSolar ? '☀️' : '🏬',
-      },
-      {
-        name: isCementOrHardware ? 'Leroy Merlin South Africa' : 'Makro Commercial',
-        website: isCementOrHardware ? 'leroymerlin.co.za' : 'makro.co.za',
-        snippet: `Explore genuine ${qClean} deals and commercial bulk supply options with SABS quality assurance.`,
-        emoji: '🏷️',
-      },
-    ];
+      const domainPath = disc.sourceWebsite.replace(/^https?:\/\//, '');
+      const prodName = disc.masterProductRef.replace(/^(?:var_|za_hard_|za_fmcg_|disc_)/, '').replace(/_/g, ' ');
 
-    retailerEntries.forEach((ret) => {
       organicResults.push({
-        url: buildDirectProductUrl(ret.website, qClean, qClean),
-        domain: `${ret.website} › catalog › ${qLower.replace(/\s+/g, '-')}`,
-        title: `${qClean} — ${ret.name} (Official Live Stock)`,
-        snippet: ret.snippet,
-        thumbnailEmoji: ret.emoji,
+        url: disc.sourceUrl,
+        domain: `${domainPath} › product › ${disc.sku || 'live'}`,
+        title: `${disc.merchantName} — ${disc.discoveredPrice.rawPriceText} (${disc.availabilityText || 'In Stock'})`,
+        snippet: `Verified South African retailer live stock for ${prodName.toUpperCase()}. Real direct product checkout URL.`,
+        thumbnailEmoji: emoji,
         isInternal: false,
+        priceText: disc.discoveredPrice.rawPriceText,
+        retailerBadge: disc.merchantName,
       });
     });
   }
