@@ -17,7 +17,7 @@ export default function GooglePagination({ currentPage = 1, query = '' }: { curr
         <span style={{ color: '#EA4335' }}>a</span>
         <span style={{ color: '#FBBC05' }}>g</span>
         <span style={{ color: '#4285F4' }}>e</span>
-        <span style={{ color: '#34A853' }}>T</span>
+        <span style={{ color: '#34A853' }}>t</span>
         <span style={{ color: '#EA4335' }}>i</span>
         <span style={{ color: '#FBBC05' }}>m</span>
         <span style={{ color: '#4285F4' }}>e</span>
