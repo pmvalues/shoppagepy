@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import ShoppageTimeActionHero from '@/components/ShoppageTimeActionHero';
 import { showToast } from '@/lib/toast';
 import {
   SA_CANONICAL_PRODUCTS,
@@ -292,7 +293,9 @@ export default function ShoppageTimePage() {
   });
 
   return (
-    <div style={{ background: '#F8FAFC', minHeight: '100vh', paddingTop: '2rem', paddingBottom: '6rem' }}>
+    <div style={{ background: 'var(--bg-page)', minHeight: '100vh', paddingTop: '2rem', paddingBottom: '6rem' }}>
+      <ShoppageTimeActionHero />
+
       {/* Toast Alert */}
       {toastMessage && (
         <div

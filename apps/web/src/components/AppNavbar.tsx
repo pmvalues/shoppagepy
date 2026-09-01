@@ -6,10 +6,136 @@ import { usePathname } from 'next/navigation';
 import LiveSearch from './LiveSearch';
 import AIAssistant from './AIAssistant';
 
-export default function AppNavbar({ children }: { children: React.ReactNode }) {
+/* ── Icons ─────────────────────────────────────────────────────────────── */
+
+const iconProps = {
+  width: 22,
+  height: 22,
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 2,
+  strokeLinecap: 'round' as const,
+  strokeLinejoin: 'round' as const,
+  'aria-hidden': true,
+};
+
+function FeedIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M4 6h16M4 12h16M4 18h10" />
+    </svg>
+  );
+}
+function SearchIcon() {
+  return (
+    <svg {...iconProps}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="M20 20l-3.5-3.5" />
+    </svg>
+  );
+}
+function ShortsIcon() {
+  return (
+    <svg {...iconProps}>
+      <rect x="2" y="3" width="20" height="18" rx="3" />
+      <path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function MarketsIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M3 9l1.5-5h15L21 9" />
+      <path d="M4 9v11h16V9" />
+      <path d="M9 20v-6h6v6" />
+    </svg>
+  );
+}
+function MallsIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M3 21V8l9-5 9 5v13" />
+      <path d="M9 21v-6h6v6" />
+    </svg>
+  );
+}
+function StoresIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M20 21H4a1 1 0 0 1-1-1V8l2-4h14l2 4v12a1 1 0 0 1-1 1z" />
+      <path d="M8 21v-6h8v6" />
+    </svg>
+  );
+}
+function RfqIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+      <path d="M14 3v5h5" />
+      <path d="M9 13h6M9 17h4" />
+    </svg>
+  );
+}
+function BoltIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M13 2L4 14h7l-1 8 9-12h-7z" />
+    </svg>
+  );
+}
+function SunIcon() {
+  return (
+    <svg {...iconProps} width="18" height="18">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </svg>
+  );
+}
+function MoonIcon() {
+  return (
+    <svg {...iconProps} width="18" height="18">
+      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+    </svg>
+  );
+}
+
+/* ── Nav model ─────────────────────────────────────────────────────────── */
+
+const NAV_ITEMS = [
+  { href: '/', label: 'Feed', Icon: FeedIcon, exact: true },
+  { href: '/search', label: 'Search', Icon: SearchIcon },
+  { href: '/shorts', label: 'Shorts', Icon: ShortsIcon },
+  { href: '/markets', label: 'Markets', Icon: MarketsIcon },
+  { href: '/malls', label: 'Malls', Icon: MallsIcon },
+  { href: '/merchants', label: 'Stores', Icon: StoresIcon },
+  { href: '/requests', label: 'RFQ Desk', Icon: RfqIcon },
+  { href: '/time', label: 'Shoppage Time', Icon: BoltIcon, live: true },
+];
+
+const MOBILE_TABS = [
+  { href: '/', label: 'Feed', Icon: FeedIcon, exact: true },
+  { href: '/search', label: 'Search', Icon: SearchIcon },
+  { href: '/shorts', label: 'Shorts', Icon: ShortsIcon },
+  { href: '/requests', label: 'RFQ', Icon: RfqIcon },
+  { href: '/time', label: 'Time', Icon: BoltIcon },
+];
+
+/* ── Shell ─────────────────────────────────────────────────────────────── */
+
+export default function AppNavbar({
+  children,
+  aside,
+}: {
+  children: React.ReactNode;
+  aside?: React.ReactNode;
+}) {
   const pathname = usePathname() || '';
   const isMerchantOS = pathname.startsWith('/merchant/dashboard');
+  const isAdminOS = pathname.startsWith('/admin');
   const [isLoggedInMerchant, setIsLoggedInMerchant] = React.useState(false);
+  const [scrolled, setScrolled] = React.useState(false);
+  const [theme, setTheme] = React.useState<'light' | 'dark' | null>(null);
 
   React.useEffect(() => {
     try {
@@ -19,12 +145,42 @@ export default function AppNavbar({ children }: { children: React.ReactNode }) {
         setIsLoggedInMerchant(true);
       }
     } catch {
-      // Fallback
+      /* storage unavailable */
     }
   }, [pathname]);
 
-  // When inside Merchant OS, suppress public search bar, consumer ticker, and consumer footer
-  if (isMerchantOS) {
+  React.useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Read the theme the inline bootstrap script already applied to <html>.
+  React.useEffect(() => {
+    const current = document.documentElement.getAttribute('data-theme');
+    if (current === 'dark' || current === 'light') setTheme(current);
+    else {
+      setTheme(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    document.documentElement.setAttribute('data-theme', next);
+    try {
+      localStorage.setItem('shoppage_theme', next);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const isActive = (href: string, exact?: boolean) =>
+    exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
+
+  // Merchant OS keeps its own full-bleed chrome.
+  if (isMerchantOS || isAdminOS) {
     return (
       <>
         <main style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -37,105 +193,65 @@ export default function AppNavbar({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {/* Sticky Frosted Header: Single Row Navbar */}
-      <header
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-          background: 'rgba(255, 255, 255, 0.96)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          borderBottom: '1px solid #E2E8F0',
-        }}
-      >
-        <div
-          className="container"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '1.25rem',
-            height: '70px',
-          }}
-        >
-          {/* Brand Logo */}
-          <Link
-            href="/"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.6rem',
-              textDecoration: 'none',
-              flexShrink: 0,
-            }}
-          >
-            <div
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '10px',
-                background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#FFFFFF',
-                fontWeight: 900,
-                fontSize: '1.35rem',
-                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.25)',
-              }}
-            >
+      <header className={`topbar${scrolled ? ' is-scrolled' : ''}`}>
+        <div className="topbar-inner">
+          <Link href="/" className="brand" aria-label="Shoppage home">
+            <span className="brand-mark" aria-hidden="true">
               S
-            </div>
-            <div>
-              <span
-                style={{
-                  fontSize: '1.35rem',
-                  fontWeight: 900,
-                  letterSpacing: '-0.03em',
-                  color: 'var(--slate-950)',
-                }}
-              >
-                Shoppage<span style={{ color: '#059669' }}>.</span>
-              </span>
-            </div>
+            </span>
+            <span className="brand-word">
+              Shoppage<span className="dot">.</span>
+            </span>
           </Link>
 
-          {/* Prominent Expanded Search Bar */}
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="topbar-search">
             <LiveSearch />
           </div>
 
-          {/* Header Right Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexShrink: 0 }}>
+          <div className="topbar-actions">
+            <button
+              type="button"
+              className="icon-btn"
+              onClick={toggleTheme}
+              aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+              title="Toggle theme"
+            >
+              {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+            </button>
+
             <Link
               href="/time"
-              className="btn btn-sm"
+              className="btn btn-sm hide-sm"
               style={{
-                background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                background: 'var(--slate-900)',
                 color: '#FFFFFF',
-                padding: '0.45rem 0.95rem',
-                borderRadius: '8px',
-                fontWeight: 900,
-                fontSize: '0.825rem',
-                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
+                borderRadius: 'var(--radius-full)',
+                fontWeight: 800,
                 gap: '0.35rem',
-                border: 'none',
               }}
-              title="Shoppage Time · Real-Time Commercial Timeline"
+              title="Shoppage Time · Real-time commercial timeline"
             >
-              <span>⚡</span>
-              <span>Shoppage Time</span>
-              <span style={{ background: '#EF4444', color: '#FFF', fontSize: '0.62rem', padding: '0.1rem 0.35rem', borderRadius: '4px', fontWeight: 900 }}>LIVE</span>
+              <BoltIcon />
+              <span>Time</span>
+              <span
+                style={{
+                  background: 'var(--live)',
+                  color: '#FFF',
+                  fontSize: '0.6rem',
+                  padding: '0.08rem 0.32rem',
+                  borderRadius: '4px',
+                  fontWeight: 900,
+                }}
+              >
+                LIVE
+              </span>
             </Link>
 
             {!isLoggedInMerchant && (
               <Link
                 href="/merchant/claim"
-                className="btn btn-primary btn-sm"
-                style={{ padding: '0.45rem 1rem', borderRadius: '8px' }}
+                className="btn btn-signal btn-sm"
+                style={{ borderRadius: 'var(--radius-full)' }}
               >
                 + List Store
               </Link>
@@ -144,177 +260,84 @@ export default function AppNavbar({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Main Application Body */}
-      <main>{children}</main>
+      <div className="app-shell">
+        <nav className="rail-nav" aria-label="Primary">
+          {NAV_ITEMS.map(({ href, label, Icon, exact, live }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`nav-item${isActive(href, exact) ? ' is-active' : ''}`}
+              aria-current={isActive(href, exact) ? 'page' : undefined}
+            >
+              <span className="nav-icon">
+                <Icon />
+              </span>
+              <span className="nav-label">{label}</span>
+              {live && <span className="nav-badge">LIVE</span>}
+            </Link>
+          ))}
 
-      {/* Global Autonomous AI Shopping Copilot Widget */}
+          <Link href="/merchant/claim" className="nav-post-btn">
+            List my store
+          </Link>
+
+          <div className="rail-foot">
+            0% take-rate. Direct trade, always.
+          </div>
+        </nav>
+
+        <div className="feed-column">{children}</div>
+
+        {aside ? <aside className="rail-aside" aria-label="Commerce intelligence">{aside}</aside> : null}
+      </div>
+
+      <nav className="mobile-tabbar" aria-label="Primary mobile">
+        {MOBILE_TABS.map(({ href, label, Icon, exact }) => (
+          <Link
+            key={href}
+            href={href}
+            className={`mobile-tab${isActive(href, exact) ? ' is-active' : ''}`}
+            aria-current={isActive(href, exact) ? 'page' : undefined}
+          >
+            <span className="mt-icon">
+              <Icon />
+            </span>
+            <span>{label}</span>
+          </Link>
+        ))}
+      </nav>
+
       <AIAssistant />
 
-      {/* Modern Pro Deep Slate Footer */}
       <footer
         style={{
-          background: '#0B0F19',
-          color: '#94A3B8',
-          borderTop: '1px solid #1E293B',
-          paddingTop: '4rem',
-          paddingBottom: '3rem',
-          marginTop: '6rem',
+          background: 'var(--slate-900)',
+          color: 'var(--slate-500)',
+          borderTop: '1px solid var(--border)',
+          padding: '2.5rem 0 3rem',
+          marginTop: '2rem',
         }}
       >
         <div className="container">
           <div
             style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '2.5rem',
-              marginBottom: '3.5rem',
-            }}
-          >
-            <div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#FFFFFF', marginBottom: '0.75rem' }}>
-                Shoppage<span style={{ color: '#10B981' }}>.</span>
-              </div>
-              <p style={{ fontSize: '0.85rem', lineHeight: 1.6, color: '#64748B' }}>
-                South Africa&apos;s National Commercial Grid. 3,296 shopping centres, 3.1M verified merchants, and direct omnichannel inquiries.
-              </p>
-            </div>
-
-            <div>
-              <div
-                style={{
-                  fontSize: '0.85rem',
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  marginBottom: '1rem',
-                }}
-              >
-                Commercial Grid
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.85rem' }}>
-                <Link href="/time" style={{ color: '#38BDF8', fontWeight: 700 }}>
-                  ⚡ Shoppage Time Wire (Live)
-                </Link>
-                <Link href="/search" style={{ color: '#94A3B8' }}>
-                  Master Product Matrix
-                </Link>
-                <Link href="/markets" style={{ color: '#94A3B8' }}>
-                  Virtual B2B Markets & Groups (5,200+)
-                </Link>
-                <Link href="/malls" style={{ color: '#94A3B8' }}>
-                  3,296 Shopping Centres
-                </Link>
-                <Link href="/merchants" style={{ color: '#94A3B8' }}>
-                  74,000+ Verified Stores
-                </Link>
-                <Link href="/requests" style={{ color: '#94A3B8' }}>
-                  Buyer RFQ Desk
-                </Link>
-              </div>
-            </div>
-
-            <div>
-              <div
-                style={{
-                  fontSize: '0.85rem',
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  marginBottom: '1rem',
-                }}
-              >
-                Merchant & Field Ops
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.85rem' }}>
-                <Link href="/merchant/claim" style={{ color: '#94A3B8' }}>
-                  1-Click Claim Store
-                </Link>
-                <Link href="/merchant/dashboard" style={{ color: '#94A3B8' }}>
-                  Merchant Centre Dashboard
-                </Link>
-                <Link href="/agency/field-marshal" style={{ color: '#94A3B8' }}>
-                  Field Marshal Ground Portal
-                </Link>
-                <Link href="/agency" style={{ color: '#94A3B8' }}>
-                  Agency Multi-Client Hub
-                </Link>
-              </div>
-            </div>
-
-            <div>
-              <div
-                style={{
-                  fontSize: '0.85rem',
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  marginBottom: '1rem',
-                }}
-              >
-                Media & Video Commerce
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.85rem' }}>
-                <Link href="/shorts" style={{ color: '#94A3B8' }}>
-                  🎬 Video Proof Shorts Feed
-                </Link>
-                <Link href="/shows" style={{ color: '#94A3B8' }}>
-                  📺 Market Walk Shows Series
-                </Link>
-                <Link href="/shorts" style={{ color: '#94A3B8' }}>
-                  + Submit Merchant Video
-                </Link>
-              </div>
-            </div>
-
-            <div>
-              <div
-                style={{
-                  fontSize: '0.85rem',
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  marginBottom: '1rem',
-                }}
-              >
-                Compliance & Standards
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.85rem', color: '#64748B' }}>
-                <span>✓ SABS & NRS 097 Certified Inverters</span>
-                <span>✓ Verified Business Stockists</span>
-                <span>✓ Direct Omnichannel Trade (0% Take Rate)</span>
-                <span>✓ Verified Merchant Standards</span>
-              </div>
-            </div>
-          </div>
-
-          <div
-            style={{
-              borderTop: '1px solid #1E293B',
-              paddingTop: '2rem',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
               flexWrap: 'wrap',
               gap: '1rem',
               fontSize: '0.8rem',
-              color: '#475569',
             }}
           >
-            <div>© 2026 Shoppage Platform Ltd. All rights reserved.</div>
-            <div style={{ display: 'flex', gap: '1.5rem' }}>
-              <Link href="/privacy" style={{ color: '#64748B' }}>
-                Privacy Policy
-              </Link>
-              <Link href="/terms" style={{ color: '#64748B' }}>
-                Terms of Service
-              </Link>
-              <Link href="/security" style={{ color: '#64748B' }}>
-                Security & Trust
-              </Link>
+            <div>
+              © 2026 Shoppage Platform Ltd. South Africa&apos;s commercial grid at 0% commission.
+            </div>
+            <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap' }}>
+              <Link href="/privacy" className="hover-underline">Privacy</Link>
+              <Link href="/terms" className="hover-underline">Terms</Link>
+              <Link href="/security" className="hover-underline">Security</Link>
+              <Link href="/merchants" className="hover-underline">Stores</Link>
+              <Link href="/shows" className="hover-underline">Shows</Link>
             </div>
           </div>
         </div>
