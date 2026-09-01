@@ -150,11 +150,11 @@ Platform income is generated through a high-margin dual monetization engine: **D
 
 ---
 
-## 🏛️ Architecture Note: Evolution from Django Prototype
+## 🏛️ Architecture Note: Single Runtime
 
-During early platform development (v1–v6), a Python/Django prototype was used for initial domain modeling. To achieve **sub-1ms search latency**, eliminate microservice serialization overhead, and deliver unified real-time search with Next.js 16 streaming UI, the entire core data kernel, canonical GTIN check-digit resolution, and operations admin were migrated into **TypeScript / @shoppage/kernel and Payload CMS 3.0**.
+Early platform versions (v1–v6) were prototyped in Python/Django. The entire data kernel, canonical GTIN check-digit resolution and operations admin were subsequently migrated to TypeScript to achieve **sub-1ms in-process search latency** and eliminate cross-service serialization.
 
-The active production stack is 100% TypeScript/Node.js, validated by 117 automated specs and hardened with standard HTTP security headers and isolated credential management.
+The Django prototype has been **removed from this repository**. The runtime is 100% TypeScript/Node.js (Next.js 16 + Payload CMS 3.0), validated by the automated spec suite and hardened with standard HTTP security headers. Python survives only as a standalone data-engineering toolkit under `scripts/` (ingestion, scraping, index analytics) — it is not part of the web runtime.
 
 ---
 

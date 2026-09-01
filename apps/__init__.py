@@ -1,3 +1,0 @@
-"""
-Shoppage Django Apps Package
-"""
