@@ -22,7 +22,9 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <a class="mc-logo" href="/merchant/dashboard/">
-      <span class="mc-logo-badge" aria-hidden="true">⚡</span>
+      <span class="mc-logo-badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+      </span>
       <span class="mc-logo-word">Merchant Centre<small>Shoppage OS</small></span>
     </a>
     {% if merchant %}
@@ -43,20 +45,21 @@
       </a>
       {% if merchant.whatsapp_number %}
       <a class="mc-topbar-link mc-wa" href="https://wa.me/{{ merchant.whatsapp_number }}" target="_blank" rel="noopener">
-        <span aria-hidden="true">💬</span><span class="long">WhatsApp</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        <span class="long">WhatsApp</span>
       </a>
       {% endif %}
       {% endif %}
 
       <!-- 9-Dot Commerce Apps Launcher -->
-      <div style="position: relative;">
+      <div class="mc-apps-wrap">
         <button
           type="button"
+          class="mc-apps-trigger"
           @click="appsOpen = !appsOpen"
           @click.away="appsOpen = false"
           title="Commerce Ecosystem Apps"
           aria-label="Commerce Ecosystem Apps"
-          style="background: transparent; border: none; cursor: pointer; padding: 6px 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: #5f6368;"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="5" cy="5" r="2.5"/><circle cx="12" cy="5" r="2.5"/><circle cx="19" cy="5" r="2.5"/>
@@ -65,39 +68,49 @@
           </svg>
         </button>
 
-        <!-- Apps Modal Dropdown -->
         <div
+          class="mc-apps-menu"
           x-show="appsOpen"
-          x-transition
-          style="display: none; position: absolute; right: 0; top: 40px; width: 280px; background: #FFFFFF; border: 1px solid #DADCE0; border-radius: 12px; box-shadow: 0 8px 24px rgba(60,64,67,0.2); padding: 0.85rem; z-index: 9999;"
+          x-transition.opacity.duration.150ms
+          style="display: none;"
         >
-          <div style="font-size: 0.72rem; font-weight: 700; color: #5F6368; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6rem; padding-left: 0.25rem;">
-            Commerce Apps
-          </div>
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; text-align: center;">
-            <a href="/search/" style="text-decoration: none; padding: 0.5rem 0.2rem; border-radius: 8px; transition: background 0.15s;" onmouseover="this.style.background='#F1F3F4'" onmouseout="this.style.background='transparent'">
-              <div style="font-size: 1.35rem; margin-bottom: 0.2rem;">🔍</div>
-              <div style="font-size: 0.7rem; font-weight: 600; color: #202124;">Search</div>
+          <div class="mc-apps-head">Commerce Apps</div>
+          <div class="mc-apps-grid">
+            <a href="/search/" class="mc-apps-item">
+              <span class="mc-apps-icon" style="color:#1a73e8; background:#e8f0fe;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              </span>
+              <span class="mc-apps-label">Search</span>
             </a>
-            <a href="/search/?tab=shopping" style="text-decoration: none; padding: 0.5rem 0.2rem; border-radius: 8px; transition: background 0.15s;" onmouseover="this.style.background='#F1F3F4'" onmouseout="this.style.background='transparent'">
-              <div style="font-size: 1.35rem; margin-bottom: 0.2rem;">🛍️</div>
-              <div style="font-size: 0.7rem; font-weight: 600; color: #202124;">Shopping</div>
+            <a href="/search/?tab=shopping" class="mc-apps-item">
+              <span class="mc-apps-icon" style="color:#188038; background:#e6f4ea;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              </span>
+              <span class="mc-apps-label">Shopping</span>
             </a>
-            <a href="/merchants" style="text-decoration: none; padding: 0.5rem 0.2rem; border-radius: 8px; transition: background 0.15s;" onmouseover="this.style.background='#F1F3F4'" onmouseout="this.style.background='transparent'">
-              <div style="font-size: 1.35rem; margin-bottom: 0.2rem;">📍</div>
-              <div style="font-size: 0.7rem; font-weight: 600; color: #202124;">My Business</div>
+            <a href="/merchants" class="mc-apps-item">
+              <span class="mc-apps-icon" style="color:#d93025; background:#fce8e6;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </span>
+              <span class="mc-apps-label">My Business</span>
             </a>
-            <a href="/merchant/dashboard/" style="text-decoration: none; padding: 0.5rem 0.2rem; border-radius: 8px; background:#E8F0FE;">
-              <div style="font-size: 1.35rem; margin-bottom: 0.2rem;">🏬</div>
-              <div style="font-size: 0.7rem; font-weight: 700; color: #1A73E8;">Merchant OS</div>
+            <a href="/merchant/dashboard/" class="mc-apps-item" style="background:#e8f0fe; border-radius:10px;">
+              <span class="mc-apps-icon" style="color:#1a73e8; background:#d2e3fc;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M8 10h.01M12 10h.01M16 10h.01"/></svg>
+              </span>
+              <span class="mc-apps-label" style="color:#1a73e8; font-weight:700;">Merchant OS</span>
             </a>
-            <a href="/analytics/" style="text-decoration: none; padding: 0.5rem 0.2rem; border-radius: 8px; transition: background 0.15s;" onmouseover="this.style.background='#F1F3F4'" onmouseout="this.style.background='transparent'">
-              <div style="font-size: 1.35rem; margin-bottom: 0.2rem;">📊</div>
-              <div style="font-size: 0.7rem; font-weight: 600; color: #202124;">Analytics</div>
+            <a href="/analytics/" class="mc-apps-item">
+              <span class="mc-apps-icon" style="color:#7627bb; background:#f3e8fd;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15v-4M12 15V7M17 15v-7"/></svg>
+              </span>
+              <span class="mc-apps-label">Analytics</span>
             </a>
-            <a href="/requests" style="text-decoration: none; padding: 0.5rem 0.2rem; border-radius: 8px; transition: background 0.15s;" onmouseover="this.style.background='#F1F3F4'" onmouseout="this.style.background='transparent'">
-              <div style="font-size: 1.35rem; margin-bottom: 0.2rem;">📋</div>
-              <div style="font-size: 0.7rem; font-weight: 600; color: #202124;">Buyer RFQs</div>
+            <a href="/requests" class="mc-apps-item">
+              <span class="mc-apps-icon" style="color:#b06000; background:#fef7e0;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+              </span>
+              <span class="mc-apps-label">Buyer RFQs</span>
             </a>
           </div>
         </div>
@@ -121,54 +134,54 @@
     <div class="mc-nav-section">
       <div class="mc-nav-label">Overview</div>
       <a class="mc-nav-item" href="/merchant/dashboard/#glance" data-nav="glance">
-        <span class="nav-ico" aria-hidden="true">🧭</span>At a Glance
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>At a Glance
       </a>
     </div>
     <div class="mc-nav-section">
       <div class="mc-nav-label">Sell</div>
       <a class="mc-nav-item" href="/merchant/dashboard/#offers" data-nav="offers">
-        <span class="nav-ico" aria-hidden="true">🏷️</span>Live Offers
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v5l9 9 7-7-9-9H3z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></span>Live Offers
       </a>
       <a class="mc-nav-item" href="/merchant/campaigns/" data-page="/merchant/campaigns">
-        <span class="nav-ico" aria-hidden="true">📈</span>Campaigns
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 3-3 3 3 5-6"/></svg></span>Campaigns
       </a>
       <a class="mc-nav-item" href="/merchant/dashboard/#feeds" data-nav="feeds">
-        <span class="nav-ico" aria-hidden="true">📤</span>Feeds &amp; Syndication
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/></svg></span>Feeds &amp; Syndication
       </a>
     </div>
     <div class="mc-nav-section">
       <div class="mc-nav-label">Automate</div>
       <a class="mc-nav-item" href="/merchant/dashboard/#agent" data-nav="agent">
-        <span class="nav-ico" aria-hidden="true">🤖</span>Agent Console
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg></span>Agent Console
       </a>
       <a class="mc-nav-item" href="/merchant/dashboard/#drafts" data-nav="drafts">
-        <span class="nav-ico" aria-hidden="true">📝</span>Draft Review
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span>Draft Review
         {% if drafts %}<span class="mc-nav-count">{{ drafts|length }}</span>{% endif %}
       </a>
     </div>
     <div class="mc-nav-section">
       <div class="mc-nav-label">Grow</div>
       <a class="mc-nav-item" href="/merchant/dashboard/#demands" data-nav="demands">
-        <span class="nav-ico" aria-hidden="true">📡</span>Demand Radar
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span>Demand Radar
       </a>
       <a class="mc-nav-item" href="/merchant/dashboard/#performance" data-nav="performance">
-        <span class="nav-ico" aria-hidden="true">📊</span>Performance
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15v-4M12 15V7M17 15v-7"/></svg></span>Performance
       </a>
     </div>
     <div class="mc-nav-section">
       <div class="mc-nav-label">Trust &amp; Quality</div>
       <a class="mc-nav-item" href="/merchant/dashboard/#health" data-nav="health">
-        <span class="nav-ico" aria-hidden="true">🩺</span>Catalog Health
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg></span>Catalog Health
         {% if catalog_health.failed %}<span class="mc-nav-count warn">{{ catalog_health.failed }}</span>{% endif %}
       </a>
       <a class="mc-nav-item" href="/merchant/dashboard/#trust" data-nav="trust">
-        <span class="nav-ico" aria-hidden="true">🛡️</span>Trust Passport
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3 9 8 11 5-2 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/></svg></span>Trust Passport
       </a>
     </div>
     <div class="mc-nav-section">
       <div class="mc-nav-label">Account</div>
       <a class="mc-nav-item" href="/merchant/settings/" data-page="/merchant/settings">
-        <span class="nav-ico" aria-hidden="true">⚙️</span>Business Settings
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.2 4.2l2.8 2.8M17 17l2.8 2.8M1 12h4M19 12h4M4.2 19.8l2.8-2.8M17 7l2.8-2.8"/></svg></span>Business Settings
       </a>
     </div>
 

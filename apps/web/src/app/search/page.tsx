@@ -39,7 +39,39 @@ export default async function SearchPage({
 
         {isShoppingMode ? (
           /* Google Shopping Mode: 5-Column Grid with Refine Left Drawer */
-          <ShoppingBrowseGrid products={searchResults.products} />
+          <>
+            <div className="shop-toolbar">
+              <div className="shop-toolbar-count">
+                Showing <strong>{searchResults.products.length}</strong> products
+                {query ? <> for “<strong>{query}</strong>”</> : null}
+              </div>
+              <div className="shop-toolbar-right">
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Sort:</span>
+                <select
+                  defaultValue="relevance"
+                  onChange={(e) => {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('sort', e.target.value);
+                    window.location.href = url.toString();
+                  }}
+                >
+                  <option value="relevance">Relevance / Rank</option>
+                  <option value="price_asc">Price (Low to High)</option>
+                  <option value="price_desc">Price (High to Low)</option>
+                  <option value="rating">Top Rated</option>
+                </select>
+                <div className="shop-view-toggle" role="group" aria-label="View mode">
+                  <button type="button" className="is-active" title="Grid view" aria-label="Grid view">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                  </button>
+                  <button type="button" title="List view" aria-label="List view">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <ShoppingBrowseGrid products={searchResults.products} />
+          </>
         ) : (
           /* Google All Mode: Left Organic Results + Nearby Places Map, Right Knowledge Panel */
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 360px', gap: '3rem', alignItems: 'flex-start' }}>

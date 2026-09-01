@@ -623,6 +623,164 @@ table tbody tr:hover td {
 }
 
 /* Reduced motion — WCAG 2.1 */
+/* ══════════════════════════════════════════════════════════════════════════
+   WOOCOMMERCE LAYER — shared single-product, shop & tabs treatment
+   Reused by product detail, search/shop and merchant storefronts so the
+   whole platform speaks one consistent WooCommerce visual language.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Breadcrumb */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.825rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.breadcrumb a { color: var(--text-muted); }
+.breadcrumb a:hover { color: var(--primary); text-decoration: underline; }
+.breadcrumb .sep { color: var(--border-strong); }
+.breadcrumb .current { color: var(--text-primary); font-weight: 600; }
+
+/* Product Detail (single product) */
+.pdp-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 2.75rem;
+  margin-bottom: 3.5rem;
+  align-items: start;
+}
+@media (max-width: 860px) { .pdp-grid { grid-template-columns: 1fr; gap: 1.75rem; } }
+
+.pdp-gallery { position: sticky; top: 96px; }
+@media (max-width: 860px) { .pdp-gallery { position: static; } }
+
+.pdp-stage {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+.pdp-thumbs { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
+.pdp-thumb {
+  width: 64px; height: 64px; border-radius: var(--radius-md);
+  border: 1px solid var(--border); background: var(--bg-surface);
+  overflow: hidden; cursor: pointer; padding: 0;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.pdp-thumb img { width: 100%; height: 100%; object-fit: contain; }
+.pdp-thumb.is-active { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+
+.pdp-summary { min-width: 0; }
+.pdp-eyebrow {
+  font-size: 0.8rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--primary); margin-bottom: 0.35rem;
+}
+.pdp-title {
+  font-family: var(--font-display); font-weight: 900; font-size: 2.1rem;
+  line-height: 1.15; letter-spacing: -0.02em; color: var(--text-primary);
+  margin-bottom: 0.85rem;
+}
+.pdp-rating { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem; }
+.pdp-rating .stars { color: #F59E0B; font-weight: 800; }
+.pdp-rating a { color: var(--text-muted); text-decoration: underline; }
+
+/* Buy box */
+.pdp-buybox {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.5rem;
+}
+.pdp-buybox-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; margin-bottom: 0.35rem; }
+.pdp-price-row { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+.pdp-price { font-family: var(--font-mono); font-size: 2.25rem; font-weight: 900; color: var(--text-primary); }
+.pdp-price-was { font-size: 1rem; color: var(--text-muted); text-decoration: line-through; }
+.pdp-save {
+  font-size: 0.72rem; font-weight: 800; color: var(--emerald);
+  background: var(--emerald-light); border: 1px solid #A7F3D0; padding: 0.15rem 0.5rem; border-radius: var(--radius-full);
+}
+.pdp-cta-row { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1.1rem; align-items: center; }
+.pdp-cta-icon { padding: 0.6rem; }
+
+.pdp-keyfacts { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.6rem; }
+.pdp-keyfacts li { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.875rem; color: var(--text-secondary); }
+.pdp-keyfacts svg { flex-shrink: 0; color: var(--primary); margin-top: 2px; }
+
+.pdp-trust-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.25rem; }
+.pdp-trust {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 0.6rem 0.85rem; flex: 1; min-width: 180px;
+}
+.pdp-trust svg { color: var(--emerald); flex-shrink: 0; }
+.pdp-trust--blue svg { color: var(--primary); }
+.pdp-trust .t-title { font-weight: 700; font-size: 0.8rem; color: var(--text-primary); }
+.pdp-trust .t-sub { font-size: 0.72rem; color: var(--text-muted); }
+
+/* Tabs */
+.pdp-tabs { margin-top: 1rem; }
+.pdp-tablist { display: flex; gap: 0.25rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; flex-wrap: wrap; }
+.pdp-tab {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: transparent; border: none; cursor: pointer;
+  padding: 0.75rem 1rem; font-size: 0.9rem; font-weight: 700; color: var(--text-muted);
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+.pdp-tab:hover { color: var(--text-primary); }
+.pdp-tab.is-active { color: var(--primary); border-bottom-color: var(--primary); }
+.pdp-tabpanel { animation: fadeUp 0.25s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.pdp-overview { color: var(--text-secondary); line-height: 1.7; font-size: 0.95rem; }
+.pdp-specs { width: 100%; border-collapse: collapse; }
+.pdp-specs th, .pdp-specs td { text-align: left; padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
+.pdp-specs th { color: var(--text-muted); font-weight: 600; width: 220px; }
+.pdp-specs td { color: var(--text-primary); font-weight: 600; }
+
+/* Offer / price matrix table */
+.pdp-table { width: 100%; border-collapse: collapse; }
+.pdp-table th, .pdp-table td { text-align: left; padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
+.pdp-table th { color: var(--text-muted); font-weight: 600; background: var(--bg-subtle); }
+.pdp-table tbody tr:hover { background: var(--bg-subtle); }
+
+/* Related rail */
+.related-rail { margin-top: 3.5rem; }
+.related-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.25rem; }
+
+/* Shop toolbar (WooCommerce archive) */
+.shop-toolbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 0.85rem 1.1rem; margin-bottom: 1.5rem;
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-xs); flex-wrap: wrap;
+}
+.shop-toolbar-count { font-size: 0.875rem; color: var(--text-secondary); }
+.shop-toolbar-count strong { color: var(--text-primary); }
+.shop-toolbar-right { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.shop-toolbar select {
+  border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.4rem 0.6rem;
+  font-size: 0.825rem; color: var(--text-primary); background: var(--bg-surface); cursor: pointer;
+}
+.shop-view-toggle { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.shop-view-toggle button {
+  display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 34px;
+  background: var(--bg-surface); border: none; cursor: pointer; color: var(--text-muted);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+.shop-view-toggle button + button { border-left: 1px solid var(--border); }
+.shop-view-toggle button.is-active { background: var(--primary-light); color: var(--primary); }
+
+/* Facet card (sidebar refiner) */
+.facet-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.2rem; box-shadow: var(--shadow-xs); }
+.facet-card + .facet-card { margin-top: 1rem; }
+.facet-card-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-primary); margin-bottom: 0.75rem; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
