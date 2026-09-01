@@ -136,6 +136,7 @@ export default function AppNavbar({
   const [isLoggedInMerchant, setIsLoggedInMerchant] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
   const [theme, setTheme] = React.useState<'light' | 'dark' | null>(null);
+  const [railCollapsed, setRailCollapsed] = React.useState(false);
 
   React.useEffect(() => {
     try {
@@ -165,12 +166,31 @@ export default function AppNavbar({
     }
   }, []);
 
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem('shoppage_rail_collapsed');
+      if (stored === 'true') setRailCollapsed(true);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
     setTheme(next);
     document.documentElement.setAttribute('data-theme', next);
     try {
       localStorage.setItem('shoppage_theme', next);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const toggleRail = () => {
+    const next = !railCollapsed;
+    setRailCollapsed(next);
+    try {
+      localStorage.setItem('shoppage_rail_collapsed', String(next));
     } catch {
       /* ignore */
     }
@@ -209,6 +229,22 @@ export default function AppNavbar({
           </div>
 
           <div className="topbar-actions">
+            <button
+              type="button"
+              className="icon-btn"
+              onClick={toggleRail}
+              aria-label={railCollapsed ? 'Expand side panel' : 'Collapse side panel'}
+              title={railCollapsed ? 'Expand side panel' : 'Collapse side panel'}
+            >
+              <svg {...iconProps} width={18} height={18} viewBox="0 0 24 24">
+                {railCollapsed ? (
+                  <path d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                ) : (
+                  <path d="M11 19l-7-7 7-7M19 19l-7-7 7-7" />
+                )}
+              </svg>
+            </button>
+
             <button
               type="button"
               className="icon-btn"
@@ -260,7 +296,7 @@ export default function AppNavbar({
         </div>
       </header>
 
-      <div className="app-shell">
+      <div className={`app-shell${railCollapsed ? ' is-rail-collapsed' : ''}`}>
         <nav className="rail-nav" aria-label="Primary">
           {NAV_ITEMS.map(({ href, label, Icon, exact, live }) => (
             <Link

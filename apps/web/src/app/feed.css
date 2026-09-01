@@ -21,6 +21,19 @@
   .app-shell { grid-template-columns: var(--rail-left) minmax(0, 720px); }
   .rail-aside { display: none !important; }
 }
+
+/* Collapsed right rail — feed widens, rail hides */
+.app-shell.is-rail-collapsed {
+  grid-template-columns: var(--rail-left) minmax(0, 1fr) 0px;
+}
+.app-shell.is-rail-collapsed .rail-aside {
+  display: none !important;
+}
+
+/* Hide rail-collapse toggle when rail is already hidden by breakpoint */
+@media (max-width: 1200px) {
+  .topbar-actions .icon-btn[aria-label*="side panel"] { display: none; }
+}
 @media (max-width: 900px) {
   .app-shell { grid-template-columns: minmax(0, 1fr); }
   .rail-nav { display: none !important; }
