@@ -21,6 +21,11 @@ export default function AdminLoginPage() {
     setTimeout(() => {
       setIsLoading(false);
       if (activeTab === 'merchant') {
+        try {
+          localStorage.setItem('shoppage_merchant_session', 'true');
+          localStorage.setItem('shoppage_merchant_store', selectedStore);
+          document.cookie = 'merchant_session=true; path=/; max-age=86400';
+        } catch {}
         router.push(`/merchant/dashboard?store=${selectedStore}`);
       } else {
         router.push('/admin/dashboard');
@@ -33,8 +38,18 @@ export default function AdminLoginPage() {
     setTimeout(() => {
       setIsLoading(false);
       if (role === 'mitrend') {
+        try {
+          localStorage.setItem('shoppage_merchant_session', 'true');
+          localStorage.setItem('shoppage_merchant_store', 'loc_mitrend_midrand');
+          document.cookie = 'merchant_session=true; path=/; max-age=86400';
+        } catch {}
         router.push('/merchant/dashboard?store=loc_mitrend_midrand');
       } else if (role === 'sunpower') {
+        try {
+          localStorage.setItem('shoppage_merchant_session', 'true');
+          localStorage.setItem('shoppage_merchant_store', 'loc_sunpower_crownmines');
+          document.cookie = 'merchant_session=true; path=/; max-age=86400';
+        } catch {}
         router.push('/merchant/dashboard?store=loc_sunpower_crownmines');
       } else {
         router.push('/admin/dashboard');

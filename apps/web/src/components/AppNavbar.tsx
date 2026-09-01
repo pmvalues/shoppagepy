@@ -9,6 +9,19 @@ import AIAssistant from './AIAssistant';
 export default function AppNavbar({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || '';
   const isMerchantOS = pathname.startsWith('/merchant/dashboard');
+  const [isLoggedInMerchant, setIsLoggedInMerchant] = React.useState(false);
+
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem('shoppage_merchant_session');
+      const hasCookie = document.cookie.includes('merchant_session=true');
+      if (stored === 'true' || hasCookie || pathname.startsWith('/merchant/')) {
+        setIsLoggedInMerchant(true);
+      }
+    } catch {
+      // Fallback
+    }
+  }, [pathname]);
 
   // When inside Merchant OS, suppress public search bar, consumer ticker, and consumer footer
   if (isMerchantOS) {
@@ -88,8 +101,8 @@ export default function AppNavbar({ children }: { children: React.ReactNode }) {
             </div>
           </Link>
 
-          {/* Prominent Search Bar */}
-          <div style={{ flex: 1, maxWidth: '880px' }}>
+          {/* Prominent Expanded Search Bar */}
+          <div style={{ flex: 1, minWidth: 0 }}>
             <LiveSearch />
           </div>
 
@@ -118,20 +131,15 @@ export default function AppNavbar({ children }: { children: React.ReactNode }) {
               <span style={{ background: '#EF4444', color: '#FFF', fontSize: '0.62rem', padding: '0.1rem 0.35rem', borderRadius: '4px', fontWeight: 900 }}>LIVE</span>
             </Link>
 
-            <Link
-              href="/merchant/dashboard"
-              className="btn btn-dark btn-sm"
-              style={{ padding: '0.45rem 1rem', borderRadius: '8px' }}
-            >
-              Merchant OS
-            </Link>
-            <Link
-              href="/merchant/claim"
-              className="btn btn-primary btn-sm"
-              style={{ padding: '0.45rem 1rem', borderRadius: '8px' }}
-            >
-              + List Store
-            </Link>
+            {!isLoggedInMerchant && (
+              <Link
+                href="/merchant/claim"
+                className="btn btn-primary btn-sm"
+                style={{ padding: '0.45rem 1rem', borderRadius: '8px' }}
+              >
+                + List Store
+              </Link>
+            )}
           </div>
         </div>
       </header>
