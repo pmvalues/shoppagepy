@@ -48,6 +48,7 @@ export interface FeedProductRef {
   title: string;
   brand: string;
   emoji: string;
+  imageUrl?: string;
   href: string;
   priceNow?: number;
   priceWas?: number;
@@ -261,7 +262,11 @@ function buildProductPost(product: ProductVariant): FeedPost | null {
     ? marketNameById.get(confirmedOffer.marketRef)
     : author.marketName;
 
-  const id = `post_${product.canonicalId}`;
+    const id = `post_${product.canonicalId}`;
+  const imageUrl =
+    product.media?.gallery?.[0]?.url ||
+    (product as any).image ||
+    (product as any).featuredImage;
 
   let kind: FeedKind;
   let text: string;
@@ -317,6 +322,7 @@ function buildProductPost(product: ProductVariant): FeedPost | null {
       title: product.title,
       brand: product.brand,
       emoji: emojiFor(product),
+      imageUrl,
       href: `/p/${product.canonicalId}`,
       priceNow,
       priceWas,
@@ -369,6 +375,7 @@ function buildShortPost(short: MediaItem): FeedPost {
             title: short.productTitle,
             brand: short.merchantName ?? 'Shoppage',
             emoji: '🎬',
+            imageUrl: short.thumbnailUrl,
             href: short.productRef ? `/p/${short.productRef}` : '/shorts',
             priceNow: short.priceZar,
             sellerCount: short.featuredProductsCount ?? 1,

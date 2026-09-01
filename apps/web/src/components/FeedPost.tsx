@@ -171,7 +171,27 @@ export default function FeedPostCard({ post, index = 0 }: { post: FeedPost; inde
         {post.product && (
           <Link href={post.product.href} className="post-product">
             <div className="post-product-media" aria-hidden="true">
-              <span className="post-product-emoji">{post.product.emoji}</span>
+              {post.product.imageUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={post.product.imageUrl}
+                  alt={post.product.title}
+                  loading="lazy"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.style.display = 'none';
+                    if (target.parentElement) {
+                      const span = document.createElement('span');
+                      span.className = 'post-product-emoji';
+                      span.innerText = post.product?.emoji || '📦';
+                      target.parentElement.appendChild(span);
+                    }
+                  }}
+                />
+              ) : (
+                <span className="post-product-emoji">{post.product.emoji}</span>
+              )}
             </div>
             <div className="post-product-info">
               <div className="post-product-title">{post.product.title}</div>

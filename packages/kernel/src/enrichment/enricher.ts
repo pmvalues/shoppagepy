@@ -28,6 +28,73 @@ export function calculateBackupRuntime(batteryKwh: number, loadWatts: number, de
   };
 }
 
+const CANONICAL_PRODUCT_IMAGES: Record<string, string[]> = {
+  var_deye_5kw_hybrid: [
+    'https://images.unsplash.com/photo-1508873696983-2df57046475a?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
+  ],
+  var_sunsynk_8kw_hybrid: [
+    'https://images.unsplash.com/photo-1548611716-ad381335b2e0?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
+  ],
+  var_dyness_5kwh_battery: [
+    'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1558441719-aa34bbe5f347?auto=format&fit=crop&w=800&q=80',
+  ],
+  var_ja_solar_550w: [
+    'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1508873696983-2df57046475a?auto=format&fit=crop&w=800&q=80',
+  ],
+  var_freedom_won_10kwh: [
+    'https://images.unsplash.com/photo-1558441719-aa34bbe5f347?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=800&q=80',
+  ],
+  var_samsung_a16_128gb: [
+    'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=800&q=80',
+  ],
+  var_samsung_s24_ultra_256gb: [
+    'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80',
+  ],
+  var_apple_iphone_15_128gb: [
+    'https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=800&q=80',
+  ],
+  var_ppc_surebuild_50kg: [
+    'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
+  ],
+  var_tesla_cybertruck_ref: [
+    'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=800&q=80',
+  ],
+};
+
+function getProductImages(variant: ProductVariant): string[] {
+  if (CANONICAL_PRODUCT_IMAGES[variant.canonicalId]) {
+    return CANONICAL_PRODUCT_IMAGES[variant.canonicalId];
+  }
+  const cat = variant.categoryRef?.toLowerCase() || '';
+  const title = variant.title.toLowerCase();
+
+  if (cat.includes('solar') || title.includes('solar') || title.includes('inverter') || title.includes('panel') || title.includes('battery')) {
+    return ['https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80'];
+  }
+  if (cat.includes('smartphones') || cat.includes('phone') || title.includes('phone') || title.includes('samsung') || title.includes('iphone')) {
+    return ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80'];
+  }
+  if (cat.includes('hardware') || title.includes('cement') || title.includes('brick') || title.includes('paint')) {
+    return ['https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=800&q=80'];
+  }
+  if (cat.includes('packaging') || cat.includes('catering') || title.includes('tub') || title.includes('spoon')) {
+    return ['https://images.unsplash.com/photo-1577937927133-66ef06acdf18?auto=format&fit=crop&w=800&q=80'];
+  }
+  if (cat.includes('auto') || title.includes('car') || title.includes('tesla')) {
+    return ['https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=800&q=80'];
+  }
+  return ['https://images.unsplash.com/photo-1508873696983-2df57046475a?auto=format&fit=crop&w=800&q=80'];
+}
+
 /**
  * Automated Enrichment Engine:
  * Injects structured media, technical guides, troubleshooting codes, and verified reviews
@@ -45,30 +112,17 @@ export function enrichProductVariant(
   }
 ): ProductVariant {
   const enriched: ProductVariant = { ...variant };
+  const imgs = getProductImages(variant);
 
   enriched.media = {
-    gallery: options?.gallery || [
-      {
-        id: `img_${variant.canonicalId}_1`,
-        type: 'packshot',
-        url: `https://cdn.shoppage.co.za/products/${variant.canonicalId}/hero.webp`,
-        thumbnailUrl: `https://cdn.shoppage.co.za/products/${variant.canonicalId}/hero_thumb.webp`,
-        altText: `${variant.title} - Front View`,
-        isPrimary: true,
-      },
-      {
-        id: `img_${variant.canonicalId}_2`,
-        type: 'diagram',
-        url: `https://cdn.shoppage.co.za/products/${variant.canonicalId}/dimensions.webp`,
-        altText: `${variant.title} - Technical Dimensions & Port Diagram`,
-      },
-      {
-        id: `img_${variant.canonicalId}_3`,
-        type: 'installation',
-        url: `https://cdn.shoppage.co.za/products/${variant.canonicalId}/installed.webp`,
-        altText: `${variant.title} - Wall-mounted Installation View`,
-      },
-    ],
+    gallery: options?.gallery || imgs.map((url, idx) => ({
+      id: `img_${variant.canonicalId}_${idx + 1}`,
+      type: idx === 0 ? ('packshot' as const) : ('image' as const),
+      url,
+      thumbnailUrl: url,
+      altText: `${variant.title} - Image ${idx + 1}`,
+      isPrimary: idx === 0,
+    })),
     videos: options?.videos || [
       {
         id: `vid_${variant.canonicalId}_1`,

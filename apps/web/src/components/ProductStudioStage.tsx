@@ -1,3 +1,6 @@
+'use client';
+
+import React, { useState } from 'react';
 import type { MasterProduct } from '@shoppage/contracts';
 
 interface ProductStudioStageProps {
@@ -11,6 +14,8 @@ export default function ProductStudioStage({
   variant = 'card',
   className = '',
 }: ProductStudioStageProps) {
+  const [imgFailed, setImgFailed] = useState(false);
+
   const cat = product.categoryRef || 'general';
   const isSolar = cat === 'solar_energy' || /inverter|solar|panel|battery|hybrid|lifepo4|ups/i.test(product.title);
   const isBattery = /battery|lifepo4|lithium|kwh|5.12|10kwh/i.test(product.title);
@@ -19,7 +24,8 @@ export default function ProductStudioStage({
 
   const isDetail = variant === 'detail';
   const stageHeight = isDetail ? '360px' : '180px';
-  const imageUrl = product.media?.gallery?.[0]?.url || (product as any).image || (product as any).featuredImage;
+  const rawImageUrl = product.media?.gallery?.[0]?.url || (product as any).image || (product as any).featuredImage;
+  const imageUrl = !imgFailed && rawImageUrl ? rawImageUrl : null;
 
   return (
     <div
@@ -80,20 +86,23 @@ export default function ProductStudioStage({
       />
 
       {/* Main Image or Industrial SVG Illustration */}
-      <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+      <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', padding: '0.5rem' }}>
         {imageUrl ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={imageUrl}
             alt={product.title}
             loading="lazy"
             decoding="async"
             fetchPriority={isDetail ? 'high' : 'low'}
+            onError={() => setImgFailed(true)}
             sizes={isDetail ? '(max-width: 768px) 90vw, 360px' : '(max-width: 640px) 90vw, 230px'}
             style={{
-              maxHeight: isDetail ? '300px' : '150px',
-              maxWidth: '90%',
-              objectFit: 'contain',
-              borderRadius: '6px',
+              maxHeight: isDetail ? '320px' : '160px',
+              maxWidth: '92%',
+              objectFit: 'cover',
+              borderRadius: '8px',
+              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.08)',
             }}
           />
         ) : isSolar && !isBattery ? (
