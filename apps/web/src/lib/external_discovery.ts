@@ -83,25 +83,20 @@ export function searchExternalLiveWeb(query: string, intent: SearchIntent, limit
     const amount = Math.round(basePrice * (1 + priceVariance));
     const cleanId = `ext_${rawClean.toLowerCase().replace(/\s+/g, '_').slice(0, 20)}_${i + 1}`;
 
-    const titleVariants = [
-      `${titleCase(rawClean)} (South Africa Spec)`,
-      `${brand} ${titleCase(rawClean)} · High Performance Commercial Edition`,
-      `${titleCase(rawClean)} · SABS Approved Standard`,
-      `Original ${titleCase(rawClean)} [Official Distributor Stock]`,
-    ];
-
-    const title = titleVariants[i % titleVariants.length];
+    const cleanTitle = titleCase(rawClean);
+    const title = brand && !cleanTitle.toLowerCase().includes(brand.toLowerCase())
+      ? `${brand} ${cleanTitle}`
+      : cleanTitle;
 
     const product: ProductVariant = {
       canonicalId: cleanId,
       familyRef: `fam_${category}`,
-      modelNumber: `MOD-${rawClean.toUpperCase().slice(0, 6)}-00${i + 1}`,
+      modelNumber: `EXT-${rawClean.toUpperCase().slice(0, 8)}`,
       title,
       brand,
       categoryRef: category,
       identifiers: {
-        gtin13: `600${Math.floor(1000000000 + Math.random() * 9000000000)}`,
-        mpn: `${brand.toUpperCase()}-${rawClean.toUpperCase().slice(0, 4)}-${i + 1}`,
+        mpn: `${brand.toUpperCase()}-${rawClean.toUpperCase().slice(0, 6)}`,
       },
       attributes: {
         estimatedPriceZar: amount,

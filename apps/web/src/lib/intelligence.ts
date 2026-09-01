@@ -141,7 +141,6 @@ export function cleanSearchQuery(text: string): string {
   return text
     .replace(/(?:under|below|less than|cheaper than|max|up to|over|above|more than|min|from)\s*(?:r\s*)?[\d,.]+\s*(?:k|grand)?/gi, ' ')
     .replace(/\b(?:i\s+need|i\s+want|looking\s+for|give\s+me|find\s+me|show\s+me|where\s+to\s+buy|price\s+of|prices\s+for|can\s+i\s+get|please|how\s+long\s+will|how\s+much\s+is)\b/gi, ' ')
-    .replace(/\b\d[\d,]*\b/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
