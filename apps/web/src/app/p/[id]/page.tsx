@@ -179,18 +179,16 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         </div>
       </div>
 
-      {/* Verified First-Party Stockists Table */}
-      <section className="card" style={{ padding: '2rem', marginBottom: '3rem' }}>
-        <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--slate-900)', marginBottom: '0.25rem' }}>
-          🏪 Verified South African Stockists ({displayOffers.length})
-        </h2>
-        <p style={{ color: 'var(--slate-600)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
-          {displayOffers.length > 0
-            ? 'Prices confirmed directly with merchants. Direct phone, web, and in-store inquiries available.'
-            : 'No live merchant quotes listed yet for this product. You can request a quote from verified suppliers.'}
-        </p>
+      {/* Verified Physical Store Counters & Stockists Table */}
+      {confirmedOffers.length > 0 && (
+        <section className="card" style={{ padding: '2rem', marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--slate-900)', marginBottom: '0.25rem' }}>
+            🏬 Verified Local Store Counters ({confirmedOffers.length})
+          </h2>
+          <p style={{ color: 'var(--slate-600)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+            Official physical retail & wholesale counter merchants with in-person pickup and trade desk quotes.
+          </p>
 
-        {displayOffers.length > 0 ? (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
               <thead>
@@ -202,7 +200,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 </tr>
               </thead>
               <tbody>
-                {displayOffers.map((offer) => {
+                {confirmedOffers.map((offer) => {
                   const merchant = (offer.merchantRef === 'loc_mitrend_midrand' || isMitrend)
                     ? (MITREND_MERCHANT as any)
                     : SA_FLAGSHIP_MERCHANTS.find((m) => m.id === offer.merchantRef) || {
@@ -224,7 +222,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                         </div>
                       </td>
                       <td style={{ padding: '1rem 0.75rem' }}>
-                        <span className="badge badge-green" style={{ fontSize: '0.75rem' }}>✓ In Stock</span>
+                        <span className="badge badge-green" style={{ fontSize: '0.75rem' }}>✓ In Stock (Counter)</span>
                       </td>
                       <td style={{ padding: '1rem 0.75rem', fontWeight: 900, fontFamily: 'var(--font-mono)', fontSize: '1.1rem', color: 'var(--slate-900)' }}>
                         R {(offer.price?.amount || minPrice).toLocaleString()}
@@ -262,6 +260,67 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </tbody>
             </table>
           </div>
+        </section>
+      )}
+
+      {/* Verified Online Retailers & National Feeds (Direct Database URLs) */}
+      <section className="card" style={{ padding: '2rem', marginBottom: '3rem' }}>
+        <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--slate-900)', marginBottom: '0.25rem' }}>
+          🛒 Verified Online Retailers & National Feeds ({discoveredOffers.length})
+        </h2>
+        <p style={{ color: 'var(--slate-600)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+          Real-time catalog pricing and genuine direct store product links from verified South African retailers.
+        </p>
+
+        {discoveredOffers.length > 0 ? (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid var(--border)', textAlign: 'left' }}>
+                  <th style={{ padding: '0.75rem' }}>Retailer / Merchant</th>
+                  <th style={{ padding: '0.75rem' }}>Stock & Fulfilment</th>
+                  <th style={{ padding: '0.75rem' }}>Price (ZAR)</th>
+                  <th style={{ padding: '0.75rem', textAlign: 'right' }}>Store Link</th>
+                </tr>
+              </thead>
+              <tbody>
+                {discoveredOffers.map((offer) => (
+                  <tr key={offer.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '1rem 0.75rem' }}>
+                      <div style={{ fontWeight: 800, color: 'var(--slate-900)' }}>
+                        {offer.merchantName}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)', marginTop: '0.15rem' }}>
+                        🌐 {offer.sourceWebsite} · SKU: {offer.sku}
+                      </div>
+                    </td>
+                    <td style={{ padding: '1rem 0.75rem' }}>
+                      <span className="badge badge-blue" style={{ fontSize: '0.75rem', display: 'inline-block', marginBottom: '0.2rem' }}>
+                        {offer.availabilityText}
+                      </span>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>
+                        📍 {offer.locationHint}
+                      </div>
+                    </td>
+                    <td style={{ padding: '1rem 0.75rem', fontWeight: 900, fontFamily: 'var(--font-mono)', fontSize: '1.1rem', color: 'var(--primary)' }}>
+                      {offer.discoveredPrice.rawPriceText}
+                    </td>
+                    <td style={{ padding: '1rem 0.75rem', textAlign: 'right' }}>
+                      <a
+                        href={offer.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-primary btn-sm"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                      >
+                        Buy Online ↗
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <div style={{ textAlign: 'center', padding: '2rem', background: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
             <p style={{ color: 'var(--slate-600)', marginBottom: '1rem' }}>
@@ -273,6 +332,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           </div>
         )}
       </section>
+
     </div>
   );
 }

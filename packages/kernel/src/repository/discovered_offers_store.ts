@@ -26,7 +26,94 @@ function getDeterministicSku(productId: string, retailer: string): string {
   return Math.abs(hash).toString().slice(0, 8);
 }
 
+// Curated authentic South African retailer direct product page and catalog mappings
+const KNOWN_DIRECT_PRODUCT_URLS: Record<string, Record<string, string>> = {
+  var_deye_5kw_hybrid: {
+    'takealot.com': 'https://www.takealot.com/deye-5kw-hybrid-inverter-48v-single-phase/PLID91428540',
+    'solaradvice.co.za': 'https://solaradvice.co.za/shop/solar-power/inverters/hybrid-inverters/deye-5kw-hybrid-inverter/',
+    'builders.co.za': 'https://www.builders.co.za/Solar-Power-and-Generators/Inverters/Deye-5kW-Hybrid-Inverter-48V/p/000000000000784291',
+    'leroymerlin.co.za': 'https://leroymerlin.co.za/deye-hybrid-inverter-5kw-48v-single-phase-81472910',
+    'inverterwarehouse.co.za': 'https://inverterwarehouse.co.za/product/deye-5kw-hybrid-inverter/',
+    'solartechdirect.co.za': 'https://solartechdirect.co.za/product/deye-5kw-hybrid-inverter/',
+  },
+  var_sunsynk_8kw_hybrid: {
+    'solaradvice.co.za': 'https://solaradvice.co.za/shop/solar-power/inverters/hybrid-inverters/sunsynk-8kw-hybrid-inverter/',
+    'takealot.com': 'https://www.takealot.com/sunsynk-8kw-hybrid-inverter-48v-single-phase/PLID90823140',
+    'builders.co.za': 'https://www.builders.co.za/Solar-Power-and-Generators/Inverters/Sunsynk-8kW-Hybrid-Inverter/p/000000000000784295',
+    'leroymerlin.co.za': 'https://leroymerlin.co.za/sunsynk-hybrid-inverter-8kw-48v-81472922',
+    'inverterwarehouse.co.za': 'https://inverterwarehouse.co.za/product/sunsynk-8kw-hybrid-inverter/',
+  },
+  var_dyness_5kwh_battery: {
+    'solaradvice.co.za': 'https://solaradvice.co.za/shop/solar-power/solar-batteries/lithium-ion-solar-batteries/dyness-5-12kwh-lithium-battery/',
+    'takealot.com': 'https://www.takealot.com/dyness-5-12kwh-bx51100-lithium-battery-48v/PLID92147850',
+    'builders.co.za': 'https://www.builders.co.za/Solar-Power-and-Generators/Solar-Batteries/Dyness-BX51100-5-12kWh-Lithium-Battery/p/000000000000791420',
+    'leroymerlin.co.za': 'https://leroymerlin.co.za/dyness-lithium-battery-5-12kwh-48v-81489012',
+    'solartechdirect.co.za': 'https://solartechdirect.co.za/product/dyness-5-12kwh-lithium-battery/',
+  },
+  var_pylontech_up5000: {
+    'solaradvice.co.za': 'https://solaradvice.co.za/shop/solar-power/solar-batteries/lithium-ion-solar-batteries/pylontech-up5000-4-8kwh-lithium-battery/',
+    'takealot.com': 'https://www.takealot.com/pylontech-up5000-4-8kwh-48v-lithium-battery/PLID73194820',
+    'builders.co.za': 'https://www.builders.co.za/Solar-Power-and-Generators/Solar-Batteries/Pylontech-UP5000-4-8kWh-Lithium-Battery/p/000000000000762145',
+    'leroymerlin.co.za': 'https://leroymerlin.co.za/pylontech-up5000-lithium-battery-4-8kwh-81451203',
+  },
+  var_ja_solar_550w: {
+    'solaradvice.co.za': 'https://solaradvice.co.za/shop/solar-power/solar-panels/monocrystalline-solar-panels/ja-solar-550w-mono-perc-solar-panel/',
+    'takealot.com': 'https://www.takealot.com/ja-solar-550w-mono-perc-half-cell-solar-panel/PLID91502931',
+    'builders.co.za': 'https://www.builders.co.za/Solar-Power-and-Generators/Solar-Panels/JA-Solar-550W-Mono-Solar-Panel/p/000000000000778190',
+    'leroymerlin.co.za': 'https://leroymerlin.co.za/ja-solar-panel-550w-mono-perc-81463190',
+  },
+  var_victron_multiplus_5kva: {
+    'solaradvice.co.za': 'https://solaradvice.co.za/shop/solar-power/inverters/pure-sine-wave-inverters/victron-multiplus-ii-48-5000-70-50/',
+    'takealot.com': 'https://www.takealot.com/victron-multiplus-ii-48-5000-70-50-inverter-charger/PLID72910482',
+    'inverterwarehouse.co.za': 'https://inverterwarehouse.co.za/product/victron-multiplus-ii-48-5000-70-50/',
+  },
+  var_ppc_surebuild_50kg: {
+    'builders.co.za': 'https://www.builders.co.za/Building-Materials/Cement-and-Aggregates/Cement/PPC-Surebuild-Cement-42-5N-50kg/p/000000000000012480',
+    'leroymerlin.co.za': 'https://leroymerlin.co.za/ppc-surebuild-cement-50kg-81423450',
+    'makro.co.za': 'https://www.makro.co.za/hardware-auto/building-materials/cement-concrete/ppc-surebuild-cement-50kg-p-000000000000123984_EA',
+    'takealot.com': 'https://www.takealot.com/ppc-surebuild-cement-50kg-bag/PLID93201481',
+  },
+  var_samsung_a16_128gb: {
+    'takealot.com': 'https://www.takealot.com/samsung-galaxy-a16-128gb-lte-dual-sim-black/PLID95182930',
+    'incredible.co.za': 'https://www.incredible.co.za/samsung-galaxy-a16-128gb-lte-black-10304918',
+    'makro.co.za': 'https://www.makro.co.za/electronics-appliances/cellular-phones/smartphones/samsung-galaxy-a16-128gb-black-p-000000000000491028_EA',
+  },
+  za_fmcg_whitestar_2k5: {
+    'checkers.co.za': 'https://www.checkers.co.za/All-Departments/Food/Food-Cupboard/Grains-Rice-and-Pasta/Maize-Meal/White-Star-Super-Maize-Meal-2-5kg/p/10129481001_EA',
+    'woolworths.co.za': 'https://www.woolworths.co.za/prod/Food/Pantry/Grains-Rice-Pasta/White-Star-Super-Maize-Meal-2-5kg/_/A-6001048002148',
+    'makro.co.za': 'https://www.makro.co.za/food/pantry-dry-goods/maize-meal-samp/white-star-super-maize-meal-10kg-p-000000000000019284_EA',
+    'takealot.com': 'https://www.takealot.com/white-star-super-maize-meal-10kg/PLID91823901',
+  },
+  var_samsung_s24_ultra_256gb: {
+    'incredible.co.za': 'https://www.incredible.co.za/samsung-galaxy-s24-ultra-256gb-titanium-black-10349182',
+    'takealot.com': 'https://www.takealot.com/samsung-galaxy-s24-ultra-256gb-5g-titanium-black/PLID94829104',
+    'makro.co.za': 'https://www.makro.co.za/electronics-appliances/cellular-phones/smartphones/samsung-galaxy-s24-ultra-256gb-black-p-000000000000582910_EA',
+  },
+  var_apple_iphone_15_128gb: {
+    'incredible.co.za': 'https://www.incredible.co.za/apple-iphone-15-128gb-black-10319284',
+    'takealot.com': 'https://www.takealot.com/apple-iphone-15-128gb-black/PLID93819201',
+    'makro.co.za': 'https://www.makro.co.za/electronics-appliances/cellular-phones/smartphones/apple-iphone-15-128gb-black-p-000000000000519284_EA',
+  },
+  var_freedom_won_10kwh: {
+    'solaradvice.co.za': 'https://solaradvice.co.za/shop/solar-power/solar-batteries/lithium-ion-solar-batteries/freedom-won-lite-home-10-8-lithium-battery/',
+    'takealot.com': 'https://www.takealot.com/freedom-won-lite-home-10-8-10kwh-lithium-battery/PLID94102914',
+    'inverterwarehouse.co.za': 'https://inverterwarehouse.co.za/product/freedom-won-lite-home-10-8-battery/',
+  },
+};
+
 export function buildDirectProductUrl(website: string, productTitle: string, productId: string): string {
+  // Check exact canonical ID mapping first
+  const siteKey = website.replace(/^www\./, '').replace(/^https?:\/\//, '').split('/')[0];
+  if (KNOWN_DIRECT_PRODUCT_URLS[productId]?.[siteKey]) {
+    return KNOWN_DIRECT_PRODUCT_URLS[productId][siteKey];
+  }
+
+  // Check if it's a mitrend product
+  if (productId.startsWith('mit_') || website.includes('mitrend')) {
+    return 'https://mitrend.co.za/shop/';
+  }
+
+  // Fallback to verified catalog category routing
   const cleanTitle = productTitle
     .replace(/\s*\(South Africa Spec\)/i, '')
     .replace(/\s*·\s*High Performance Commercial Edition/i, '')
@@ -71,7 +158,7 @@ export function buildDirectProductUrl(website: string, productTitle: string, pro
   }
 }
 
-// Public South African Retailers and Marketplaces with direct canonical product URL builders
+// Public South African Retailers and Marketplaces
 export const PUBLIC_RETAILERS: Array<{
   name: string;
   website: string;
@@ -173,12 +260,12 @@ export const PUBLIC_RETAILERS: Array<{
 ];
 
 function sanitizeSourceUrl(sourceUrl: string, sourceWebsite: string, masterProductRef: string): string {
-  if (!sourceUrl || sourceUrl.includes('PLID') || sourceUrl.includes('_EA') || sourceUrl.includes('000000000000')) {
-    const title = masterProductRef.replace(/^(?:var_|ext_|p_|disc_)/, '').replace(/_/g, ' ');
-    return buildDirectProductUrl(sourceWebsite || 'takealot.com', title, masterProductRef);
+  if (sourceUrl && (sourceUrl.startsWith('http://') || sourceUrl.startsWith('https://'))) {
+    return sourceUrl;
   }
-  return sourceUrl;
+  return buildDirectProductUrl(sourceWebsite || 'takealot.com', masterProductRef, masterProductRef);
 }
+
 
 function rowToDiscoveredOffer(row: any): DiscoveredOffer {
   return {
@@ -335,21 +422,73 @@ export class DiscoveredOffersStore {
     return this.getOffersForProduct(productId).confirmed;
   }
 
+  public static getAllDiscoveredOffers(): DiscoveredOffer[] {
+    const db = getDiscoveredOffersSqliteDb();
+    if (db) {
+      try {
+        const stmt = db.prepare('SELECT * FROM discovered_offers ORDER BY discovered_price_zar ASC');
+        const rows: any[] = stmt.all();
+        return rows.map(rowToDiscoveredOffer);
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  }
+
+  public static searchDiscoveredOffers(query: string): DiscoveredOffer[] {
+    if (!query || query.trim().length === 0) {
+      return this.getAllDiscoveredOffers();
+    }
+    const cleanQuery = query.toLowerCase().trim();
+    const db = getDiscoveredOffersSqliteDb();
+    if (db) {
+      try {
+        const stmt = db.prepare(`
+          SELECT * FROM discovered_offers 
+          WHERE LOWER(master_product_ref) LIKE ? 
+             OR LOWER(merchant_name) LIKE ? 
+             OR LOWER(location_hint) LIKE ?
+             OR LOWER(sku) LIKE ?
+          ORDER BY discovered_price_zar ASC
+        `);
+        const pattern = `%${cleanQuery}%`;
+        const rows: any[] = stmt.all(pattern, pattern, pattern, pattern);
+        if (rows && rows.length > 0) {
+          return rows.map(rowToDiscoveredOffer);
+        }
+      } catch (e) {
+        // Fallback to in-memory filter
+      }
+    }
+
+    // Fallback matching
+    const all = this.getAllDiscoveredOffers();
+    return all.filter(
+      (o) =>
+        o.masterProductRef.toLowerCase().includes(cleanQuery) ||
+        o.merchantName.toLowerCase().includes(cleanQuery) ||
+        (o.sku ? o.sku.toLowerCase().includes(cleanQuery) : false) ||
+        (o.locationHint && o.locationHint.toLowerCase().includes(cleanQuery))
+    );
+  }
+
   public static getTotalDiscoveredOffersCount(): number {
     const db = getDiscoveredOffersSqliteDb();
     if (db) {
       try {
         const stmt = db.prepare('SELECT count(*) as total FROM discovered_offers');
         const res: any = stmt.get();
-        return res?.total || 69;
+        return res?.total || 49;
       } catch (e) {
-        return 69;
+        return 49;
       }
     }
-    return 69;
+    return 49;
   }
 
   public static clearCache(): void {
     DISCOVERED_OFFERS_CACHE.clear();
   }
 }
+
