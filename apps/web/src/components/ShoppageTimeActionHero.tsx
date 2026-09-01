@@ -6,7 +6,7 @@ import { showToast } from '@/lib/toast';
 
 interface ActionFeedItem {
   id: string;
-  sourceType: 'showroom' | 'facebook' | 'twitter_x' | 'rfq' | 'video_short' | 'twitter_x_live' | 'facebook_group_live' | 'verified_catalog' | 'placeholder_template';
+  sourceType: 'showroom' | 'facebook' | 'twitter_x' | 'rfq' | 'video_short' | 'twitter_x_live' | 'facebook_group_live' | 'verified_catalog' | 'contractor_rfq';
   sourceLabel: string;
   sourceIcon: string;
   sourceUrl?: string;

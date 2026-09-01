@@ -80,8 +80,8 @@ function ensureInitialized() {
       medianResponseMinutes: m.medianResponseMinutes || 10,
       verificationState: m.verificationState,
       contacts: {
-        telephone: m.contacts.telephone || '+27110001001',
-        whatsapp: m.contacts.whatsapp || '+27820001001',
+        telephone: m.contacts.telephone || '+27105007670',
+        whatsapp: m.contacts.whatsapp || '+27105007670',
         email: m.contacts.email || 'info@shoppage.co.za',
         website: m.contacts.website || 'https://shoppage.co.za',
       },
@@ -300,8 +300,8 @@ export class PayloadMerchantCmsService {
       medianResponseMinutes: 10,
       verificationState: 'fully_verified' as const,
       contacts: {
-        telephone: updates.contacts?.telephone || '+27100000000',
-        whatsapp: updates.contacts?.whatsapp || '+27820000000',
+        telephone: updates.contacts?.telephone || '+27105007670',
+        whatsapp: updates.contacts?.whatsapp || '+27105007670',
         email: updates.contacts?.email || 'store@shoppage.co.za',
       },
       createdAt: new Date().toISOString(),

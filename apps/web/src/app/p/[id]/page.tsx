@@ -130,11 +130,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 : SA_FLAGSHIP_MERCHANTS.find((m) => m.id === offer.merchantRef) || {
                     id: offer.merchantRef,
                     name: 'SunPower Solutions (Crown Mines)',
-                    addressText: 'Crown Mines Wholesale Hub, Johannesburg',
-                    contacts: { telephone: '+27110001001', website: 'https://sunpower.co.za' },
+                    addressText: 'Dragon City Wholesale Mall, Building 2 Shop B-18, Crown Mines, Johannesburg, 2092',
+                    contacts: { telephone: '+27118301100', whatsapp: '+27118301100', website: 'https://sunpowersolutions.co.za' },
                     googleRating: 4.9,
                   };
-              const waPhone = merchant.contacts?.whatsapp || merchant.contacts?.telephone || '27800000000';
+              const waPhone = merchant.contacts?.whatsapp || merchant.contacts?.telephone || '27105007670';
               const waMsg = encodeURIComponent(`Hi ${merchant.name}, I'm interested in ${product.title} (R ${minPrice.toLocaleString()}) on Shoppage. Is it in stock?`);
               return (
                 <tr key={offer.id}>

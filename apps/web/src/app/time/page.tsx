@@ -58,7 +58,7 @@ const INITIAL_TIMELINE: TimelineItem[] = [
     likesCount: 54,
     repostsCount: 22,
     replyCount: 9,
-    contactPhone: '+27 11 884 1234',
+    contactPhone: '+27 11 830 1100',
     mediaImage: 'https://images.unsplash.com/photo-1508873696983-2df57046475a?w=800&auto=format&fit=crop&q=80',
     isVideo: true,
     videoDuration: '0:48',
@@ -84,7 +84,7 @@ const INITIAL_TIMELINE: TimelineItem[] = [
     likesCount: 39,
     repostsCount: 16,
     replyCount: 12,
-    contactPhone: '+27 82 555 4321',
+    contactPhone: '+27 11 784 1000',
     mediaImage: 'https://images.unsplash.com/photo-1558441719-8b489c6340c0?w=800&auto=format&fit=crop&q=80',
   },
   {
@@ -108,7 +108,7 @@ const INITIAL_TIMELINE: TimelineItem[] = [
     likesCount: 88,
     repostsCount: 31,
     replyCount: 14,
-    contactPhone: '+27 11 314 0000',
+    contactPhone: '+27 10 500 7670',
     mediaImage: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&auto=format&fit=crop&q=80',
   },
   {
@@ -152,7 +152,7 @@ const INITIAL_TIMELINE: TimelineItem[] = [
     likesCount: 142,
     repostsCount: 45,
     replyCount: 19,
-    contactPhone: '+27 11 838 5000',
+    contactPhone: '+27 11 838 5800',
     mediaImage: 'https://images.unsplash.com/photo-1613665813446-82a78c468a1d?w=800&auto=format&fit=crop&q=80',
     isVideo: true,
     videoDuration: '1:14',
@@ -254,7 +254,7 @@ export default function ShoppageTimePage() {
       likesCount: 1,
       repostsCount: 0,
       replyCount: 0,
-      contactPhone: '+27 82 123 4567',
+      contactPhone: '+27 10 500 7670',
       mediaImage: 'https://images.unsplash.com/photo-1508873696983-2df57046475a?w=800&auto=format&fit=crop&q=80',
     };
 

@@ -35,7 +35,8 @@ function synthesizeFallbackMerchant(id: string): Merchant {
     medianResponseMinutes: 10,
     verificationState: 'fully_verified',
     contacts: {
-      telephone: '+27110001001',
+      telephone: '+27105007670',
+      whatsapp: '+27105007670',
       email: `sales@${clean.replace(/\s+/g, '')}.co.za`,
       website: `https://${clean.replace(/\s+/g, '')}.co.za`,
     },

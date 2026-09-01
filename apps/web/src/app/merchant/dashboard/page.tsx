@@ -2726,7 +2726,7 @@ export default function MerchantDashboardPage() {
                           priceZar: parseInt(newShortVideo.priceZar) || 14850,
                           category: 'solar' as const,
                           merchantName: merchant.name,
-                          merchantPhone: '+27 11 884 1234',
+                          merchantPhone: merchant.contacts.telephone || merchant.contacts.whatsapp || '+27 10 500 7670',
                           views: 1,
                           likes: 0,
                           shares: 0,
