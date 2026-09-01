@@ -1,4 +1,4 @@
-{# Canonical Master Product Card — Bento Grade #}
+{# Canonical Master Product Card — Bento Grade (v4) #}
 {% load humanize %}
 
 <div class="sp-card">
@@ -11,10 +11,18 @@
     {% with photo_count=product.images.all|length %}
       {% if photo_count or product.compatibility_edge_count %}
       <span class="sp-card-stats">
-        {% if photo_count %}<span>📷 {{ photo_count }} photo{{ photo_count|pluralize }}</span>{% endif %}
+        {% if photo_count %}
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.8-3.8a2 2 0 0 0-2.8 0L6 20"/></svg>
+            {{ photo_count }} photo{{ photo_count|pluralize }}
+          </span>
+        {% endif %}
         {% if product.compatibility_edge_count %}
           <span>•</span>
-          <span>⚡ {{ product.compatibility_edge_count }} compatible</span>
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+            {{ product.compatibility_edge_count }} compatible
+          </span>
         {% endif %}
       </span>
       {% endif %}
@@ -27,7 +35,10 @@
       {% if product.shoppage_merchant_name %}
         <span class="sp-card-merchant">{{ product.shoppage_merchant_name }}</span>
         {% if product.shoppage_merchant_trust > 80 %}
-          <span class="sp-card-verified">✓ Verified</span>
+          <span class="sp-card-verified">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>
+            Verified
+          </span>
         {% endif %}
       {% endif %}
     </div>
@@ -54,7 +65,10 @@
 
     <div class="sp-card-facts">
       {% if product.shoppage_in_stock %}
-        <span class="sp-pill sp-pill-instock">In stock</span>
+        <span class="sp-pill sp-pill-instock">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>
+          In stock
+        </span>
       {% else %}
         <span class="sp-pill sp-pill-check">Check stock</span>
       {% endif %}
@@ -77,6 +91,8 @@
 
   <div class="sp-card-actions">
     <a class="btn btn-primary btn-sm" style="flex: 1;" href="/p/{{ product.seo_handle }}/">Compare prices</a>
-    <a class="btn btn-outline btn-sm" href="/p/{{ product.seo_handle }}/#price-alert" title="Set a price alert" aria-label="Set a price alert for {{ product.title }}">🔔</a>
+    <a class="sp-card-alert" href="/p/{{ product.seo_handle }}/#price-alert" title="Set a price alert" aria-label="Set a price alert for {{ product.title }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+    </a>
   </div>
 </div>
