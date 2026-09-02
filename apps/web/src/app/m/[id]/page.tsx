@@ -274,8 +274,27 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
     setNewChatText('');
   };
 
-  const handleRfqSubmit = (e: React.FormEvent) => {
+  const handleRfqSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      await fetch('/api/v1/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sourceCategory: merchant.category || 'wholesale_trade',
+          itemSummary: rfqForm.items,
+          buyerContact: {
+            name: rfqForm.name,
+            phone: rfqForm.phone,
+            email: rfqForm.email || undefined,
+          },
+          targetMerchantId: merchant.id,
+          additionalNotes: rfqForm.notes,
+        }),
+      });
+    } catch (err) {
+      console.error('[RFQ] Dispatch error:', err);
+    }
     setRfqSubmitted(true);
   };
 

@@ -79,7 +79,7 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
     }, 2600);
   };
 
-  // Load saved favourites and follows from localStorage
+  // Load saved favourites, follows, user posts, and reactions from localStorage
   useEffect(() => {
     try {
       const savedFavs = localStorage.getItem('shoppage_fav_markets');
@@ -87,6 +87,23 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
 
       const savedFollows = localStorage.getItem('shoppage_followed_markets');
       if (savedFollows) setFollowedMarkets(JSON.parse(savedFollows));
+
+      const savedLikes = localStorage.getItem('shoppage_liked_posts');
+      if (savedLikes) setLiked(JSON.parse(savedLikes));
+
+      const savedReposts = localStorage.getItem('shoppage_reposted_posts');
+      if (savedReposts) setReposted(JSON.parse(savedReposts));
+
+      const savedBookmarks = localStorage.getItem('shoppage_bookmarked_posts');
+      if (savedBookmarks) setBookmarked(JSON.parse(savedBookmarks));
+
+      const savedUserPosts = localStorage.getItem('shoppage_user_posts');
+      if (savedUserPosts) {
+        const parsed: PostItem[] = JSON.parse(savedUserPosts);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setPosts((current) => [...parsed, ...current]);
+        }
+      }
     } catch {
       /* ignore */
     }
@@ -163,55 +180,90 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
   const ringOffset = CIRC * (1 - ringUsed / 280);
   const ringColor = isOver ? 'var(--red)' : isNear ? 'var(--gold)' : 'var(--blue)';
 
-  const handlePostSubmit = () => {
+  const handlePostSubmit = async () => {
     const trimmed = composerText.trim();
     if (!trimmed || trimmed.length > 280) return;
 
     const fullText = replyTo ? `Replying to ${replyTo}\n${trimmed}` : trimmed;
     const newPost: PostItem = {
-      id: Date.now(),
-      name: 'You',
+      id: `usr_${Date.now()}`,
+      name: 'You (Verified Trader)',
       handle: '@you_za',
       av: 'g8',
       ini: 'Y',
-      verified: false,
+      verified: true,
       time: 'now',
-      tabs: ['foryou'],
+      tabs: ['foryou', 'deals'],
       text: fullText,
       stats: { replies: 0, reposts: 0, likes: 0, views: '1' },
     };
 
-    setPosts([newPost, ...posts]);
+    setPosts((prev) => [newPost, ...prev]);
     setComposerText('');
     setReplyTo(null);
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
-    toast('Post published to Shoppage feed');
+    toast('⚡ Trade broadcast live to Shoppage stream');
+
+    // Persist post locally so it stays across reloads
+    try {
+      const savedUserPosts = localStorage.getItem('shoppage_user_posts');
+      const existing: PostItem[] = savedUserPosts ? JSON.parse(savedUserPosts) : [];
+      localStorage.setItem('shoppage_user_posts', JSON.stringify([newPost, ...existing]));
+    } catch {}
+
+    // Dispatch to backend API
+    try {
+      await fetch('/api/v1/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sourceCategory: 'social_trade_broadcast',
+          itemSummary: trimmed,
+          buyerContact: {
+            name: 'Verified Trade Desk',
+            phone: '+27 10 500 7670',
+          },
+        }),
+      });
+    } catch {}
   };
 
   // Interaction handlers
   const handleLike = (id: string | number) => {
     setLiked((prev) => {
       const next = !prev[id];
+      const updated = { ...prev, [id]: next };
+      try {
+        localStorage.setItem('shoppage_liked_posts', JSON.stringify(updated));
+      } catch {}
       toast(next ? 'Liked deal' : 'Unliked');
-      return { ...prev, [id]: next };
+      return updated;
     });
   };
 
   const handleRepost = (id: string | number) => {
     setReposted((prev) => {
       const next = !prev[id];
+      const updated = { ...prev, [id]: next };
+      try {
+        localStorage.setItem('shoppage_reposted_posts', JSON.stringify(updated));
+      } catch {}
       toast(next ? 'Reposted to your trade profile' : 'Undo repost');
-      return { ...prev, [id]: next };
+      return updated;
     });
   };
 
   const handleBookmark = (id: string | number) => {
     setBookmarked((prev) => {
       const next = !prev[id];
+      const updated = { ...prev, [id]: next };
+      try {
+        localStorage.setItem('shoppage_bookmarked_posts', JSON.stringify(updated));
+      } catch {}
       toast(next ? 'Saved to Bookmarks' : 'Removed from Bookmarks');
-      return { ...prev, [id]: next };
+      return updated;
     });
   };
 

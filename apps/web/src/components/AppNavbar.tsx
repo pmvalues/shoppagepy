@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import AIAssistant from './AIAssistant';
+import TradeCartDrawer from './TradeCartDrawer';
 
 const THEMES = ['dark', 'dim', 'light'];
 const THEME_NAMES: Record<string, string> = {
@@ -26,10 +27,24 @@ function ShoppageLogoMark({ size = 32 }: { size?: number }) {
         </linearGradient>
       </defs>
       <rect width="32" height="32" rx="8" fill="url(#sp-brand-grad)" />
-      <rect x="1.5" y="1.5" width="29" height="29" rx="6.5" fill="none" stroke="#34D399" strokeWidth="1" opacity="0.6" />
-      <path d="M12 11V9C12 6.79086 13.7909 5 16 5C18.2091 5 20 6.79086 20 9V11" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
-      <path d="M7.5 11H24.5L23.2 26C23.1 27.1 22.2 28 21.1 28H10.9C9.8 28 8.9 27.1 8.8 26L7.5 11Z" fill="#FFFFFF" />
-      <path d="M16.5 13.5L13 19H16L15.5 24.5L19.5 18H16.5L18 13.5H16.5Z" fill="url(#sp-bolt-grad)" />
+      {/* Shopping Tote Body */}
+      <path
+        d="M8.5 12C8.5 10.8954 9.39543 10 10.5 10H21.5C22.6046 10 23.5 10.8954 23.5 12L24.5 24C24.5 25.1046 23.6046 26 22.5 26H9.5C8.39543 26 7.5 25.1046 7.5 24L8.5 12Z"
+        fill="#FFFFFF"
+      />
+      {/* Bag Handle */}
+      <path
+        d="M12 10V7.5C12 5.567 13.567 4 15.5 4H16.5C18.433 4 20 5.567 20 7.5V10"
+        fill="none"
+        stroke="#FFFFFF"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+      {/* Golden Lightning Bolt */}
+      <path
+        d="M17 12L12 18H16L15 24L20 17H16.2L17 12Z"
+        fill="url(#sp-bolt-grad)"
+      />
     </svg>
   );
 }
@@ -42,29 +57,36 @@ export default function AppNavbar({
   aside?: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const [themeIdx, setThemeIdx] = useState(0);
   const [collapsed, setCollapsed] = useState(false);
+  const [themeIdx, setThemeIdx] = useState(0);
+  const [cartCount, setCartCount] = useState(0);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [unreadNotifs, setUnreadNotifs] = useState(3);
-  const [cartCount, setCartCount] = useState(0);
 
-  // Initialize theme and collapse state from storage
+  // Initialize theme, nav collapse and cart count from localStorage
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('shoppage_theme');
-      if (stored && THEMES.includes(stored)) {
-        const idx = THEMES.indexOf(stored);
-        setThemeIdx(idx);
-        document.body.setAttribute('data-theme', stored);
-        document.documentElement.setAttribute('data-theme', stored);
-      } else {
-        document.body.setAttribute('data-theme', 'dark');
-        document.documentElement.setAttribute('data-theme', 'dark');
+      const storedTheme = localStorage.getItem('shoppage_theme');
+      if (storedTheme) {
+        const idx = THEMES.indexOf(storedTheme);
+        if (idx !== -1) {
+          setThemeIdx(idx);
+          document.body.setAttribute('data-theme', storedTheme);
+          document.documentElement.setAttribute('data-theme', storedTheme);
+        }
       }
 
       const storedNav = localStorage.getItem('shoppage_nav_collapsed');
       if (storedNav === 'true') {
         setCollapsed(true);
+      }
+
+      const storedCart = localStorage.getItem('shoppage_cart_items');
+      if (storedCart) {
+        const parsed = JSON.parse(storedCart);
+        const count = Array.isArray(parsed) ? parsed.reduce((sum: number, it: any) => sum + (it.quantity || 1), 0) : 0;
+        setCartCount(count);
       }
     } catch {
       /* ignore */
@@ -76,8 +98,18 @@ export default function AppNavbar({
         setCartCount((c) => c + 1);
       }
     };
+    const onCartSync = (e: CustomEvent) => {
+      if (typeof e.detail?.count === 'number') {
+        setCartCount(e.detail.count);
+      }
+    };
+
     window.addEventListener('shoppage-cart' as any, onCartEvent);
-    return () => window.removeEventListener('shoppage-cart' as any, onCartEvent);
+    window.addEventListener('shoppage-cart-sync' as any, onCartSync);
+    return () => {
+      window.removeEventListener('shoppage-cart' as any, onCartEvent);
+      window.removeEventListener('shoppage-cart-sync' as any, onCartSync);
+    };
   }, []);
 
   const toggleCollapse = () => {
@@ -285,13 +317,7 @@ export default function AppNavbar({
             <button
               type="button"
               className="nav-item"
-              onClick={() => {
-                alert(
-                  cartCount > 0
-                    ? `🛒 ${cartCount} trade deal${cartCount > 1 ? 's' : ''} in your cart`
-                    : 'Your cart is empty. Tap “Get deal” on any post.',
-                );
-              }}
+              onClick={() => setIsCartOpen(true)}
               title={collapsed ? 'Cart' : undefined}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -497,6 +523,7 @@ export default function AppNavbar({
       </button>
 
       <AIAssistant />
+      <TradeCartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );
 }

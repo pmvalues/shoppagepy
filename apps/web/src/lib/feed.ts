@@ -409,7 +409,7 @@ export interface MarketItem {
 }
 
 export function getMarkets(): MarketItem[] {
-  return [
+  const markets: MarketItem[] = [
     {
       id: 'market_dragon_city',
       name: 'Dragon City Wholesale Mall',
@@ -457,20 +457,6 @@ export function getMarkets(): MarketItem[] {
       isFavouredDefault: true,
     },
     {
-      id: 'market_china_mall_amalgam',
-      name: 'China Mall Amalgam',
-      handle: '@chinamall_amalgam',
-      initials: 'CM',
-      avatarClass: 'g4',
-      type: 'wholesale_plaza',
-      typeLabel: 'Import Wholesale',
-      province: 'Gauteng',
-      location: 'Amalgam, Johannesburg',
-      stalls: 280,
-      description: 'Bulk wholesale lighting, security hardware, packaging supplies, and homeware directly from factory importers.',
-      href: '/market/market_china_mall_amalgam',
-    },
-    {
       id: 'group_jhb_spaza_fmcg',
       name: 'Joburg FMCG & Spaza Bulk Buyers Syndicate',
       handle: '@fmcg_spaza_syndicate',
@@ -486,48 +472,62 @@ export function getMarkets(): MarketItem[] {
       whatsappGroup: 'https://chat.whatsapp.com/fmcg-spaza-syndicate',
     },
     {
-      id: 'market_pretoria_showgrounds',
-      name: 'Pretoria Showgrounds Trade Mart',
-      handle: '@pta_trademart',
-      initials: 'PT',
-      avatarClass: 'g5',
-      type: 'wholesale_plaza',
-      typeLabel: 'Wholesale Mart',
-      province: 'Gauteng',
-      location: 'Pretoria West, Tshwane',
-      stalls: 190,
-      description: 'Northern Gauteng industrial and building trade counter hub with high-volume contractor rates.',
-      href: '/market/market_pretoria_showgrounds',
-    },
-    {
-      id: 'market_maitland_precinct',
-      name: 'Maitland Wholesale & Industrial Precinct',
-      handle: '@maitland_trade',
-      initials: 'MP',
-      avatarClass: 'g7',
-      type: 'wholesale_plaza',
-      typeLabel: 'Industrial Mart',
+      id: 'group_cape_builders',
+      name: 'Western Cape Master Builders & Electrical Guild',
+      handle: '@wc_builders_guild',
+      initials: 'BG',
+      avatarClass: 'g4',
+      type: 'community_group',
+      typeLabel: 'Contractor Trade Guild',
       province: 'Western Cape',
-      location: 'Maitland, Cape Town',
-      stalls: 140,
-      description: 'Cape Peninsula hub for electrical wholesalers, marine trade fittings, fasteners, and workshop equipment.',
-      href: '/market/market_maitland_precinct',
+      location: 'Cape Town & Paarl',
+      membersCount: '1,420 Contractors',
+      description: 'Contractor exchange for cement pallets, electrical DB boards, scaffolding hire, and municipal compliance CoC signoffs.',
+      href: '/requests',
+      whatsappGroup: 'https://chat.whatsapp.com/wc-builders-guild',
     },
     {
-      id: 'mall_sandton_city',
-      name: 'Sandton City Commercial Hub',
-      handle: '@sandtoncity_trade',
-      initials: 'SC',
-      avatarClass: 'g8',
-      type: 'mega_mall',
-      typeLabel: 'Commercial Hub',
-      province: 'Gauteng',
-      location: 'Sandton Central, Johannesburg',
-      stalls: 300,
-      description: 'Africa’s flagship retail and corporate destination with nationwide brand flagships, tech service centres, and direct showrooms.',
-      href: '/malls',
+      id: 'group_kzn_hardware',
+      name: 'KZN Trade & Durban Port Importers Network',
+      handle: '@kzn_port_trade',
+      initials: 'KP',
+      avatarClass: 'g5',
+      type: 'community_group',
+      typeLabel: 'Port Clearance Network',
+      province: 'KwaZulu-Natal',
+      location: 'Durban Harbour & Pinetown',
+      membersCount: '1,190 Traders',
+      description: 'Direct port clearance deals for container tools, solar racking, copper cabling, and hardware fittings.',
+      href: '/requests',
+      whatsappGroup: 'https://chat.whatsapp.com/kzn-port-trade',
     },
   ];
+
+  // Dynamically add all 31 wholesale trade markets from SA_COMPREHENSIVE_MARKETS
+  SA_COMPREHENSIVE_MARKETS.forEach((m, idx) => {
+    if (markets.some((ex) => ex.id === m.id || ex.id === `market_${m.id}`)) return;
+    const stallCount = m.zones?.reduce((s, z) => s + (z.stallCount || 0), 0) || 120;
+    const isMall = m.marketType === 'formal_mega_mall';
+    markets.push({
+      id: m.id.startsWith('market_') ? m.id : `market_${m.id}`,
+      name: m.name,
+      handle: `@${m.name.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 16)}`,
+      initials: getInitials(m.name),
+      avatarClass: `g${(idx % 8) + 1}`,
+      type: isMall ? 'mega_mall' : 'wholesale_plaza',
+      typeLabel: isMall ? 'Commercial Hub' : 'Wholesale Plaza',
+      province: m.province || 'Gauteng',
+      location: m.metro || `${m.name}, South Africa`,
+      stalls: stallCount,
+      description: m.landmarks?.length
+        ? `Major commercial trade precinct near ${m.landmarks.slice(0, 2).join(' and ')}. High-volume verified counters with zero middleman toll.`
+        : 'Active South African commercial trade interchange with verified trade desks.',
+      href: `/market/${m.id}`,
+      isFavouredDefault: idx < 2,
+    });
+  });
+
+  return markets;
 }
 
 export interface ProductCatalogItem {
