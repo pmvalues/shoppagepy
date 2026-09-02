@@ -1,13 +1,32 @@
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import FeedPostCard from './FeedPost';
-import { getShorts, type PostItem } from '@/lib/feed';
+import {
+  getShorts,
+  getMarkets,
+  getProductsCatalog,
+  formatZar,
+  type PostItem,
+  type MarketItem,
+  type ProductCatalogItem,
+} from '@/lib/feed';
 
-type TabType = 'foryou' | 'deals' | 'new' | 'shorts';
+type TabType = 'foryou' | 'products' | 'deals' | 'markets' | 'shorts';
 type ViewType = 'home' | 'bookmarks';
 
 const CIRC = 62.83;
+
+const PRODUCT_CATEGORIES = [
+  { id: 'all', label: 'All Categories' },
+  { id: 'solar', label: '⚡ Solar & Power' },
+  { id: 'electronics', label: '📱 Phones & Tech' },
+  { id: 'packaging', label: '📦 Packaging & Catering' },
+  { id: 'hardware', label: '🧱 Building & Hardware' },
+  { id: 'automotive', label: '🚗 Automotive Spares' },
+  { id: 'fmcg', label: '🛒 Wholesale FMCG' },
+];
 
 export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem[] }) {
   const [posts, setPosts] = useState<PostItem[]>(initialPosts);
@@ -16,6 +35,24 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
   const [search, setSearch] = useState('');
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [composerText, setComposerText] = useState('');
+
+  // Products tab state
+  const [prodSearch, setProdSearch] = useState('');
+  const [prodCategory, setProdCategory] = useState('all');
+  const [prodSort, setProdSort] = useState<'drop' | 'price_asc' | 'price_desc' | 'sellers'>('drop');
+
+  // Markets tab state
+  const [marketSubFilter, setMarketSubFilter] = useState<'all' | 'fav' | 'wholesale' | 'groups'>('all');
+  const [marketSearch, setMarketSearch] = useState('');
+  const [favMarkets, setFavMarkets] = useState<Record<string, boolean>>({
+    market_dragon_city: true,
+    market_oriental_plaza: true,
+    group_gauteng_solar: true,
+  });
+  const [followedMarkets, setFollowedMarkets] = useState<Record<string, boolean>>({
+    market_dragon_city: true,
+    group_gauteng_solar: true,
+  });
 
   // Reaction states
   const [liked, setLiked] = useState<Record<string | number, boolean>>({});
@@ -30,6 +67,8 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const shorts = useMemo(() => getShorts(), []);
+  const allMarkets = useMemo(() => getMarkets(), []);
+  const allProducts = useMemo(() => getProductsCatalog(), []);
 
   const toast = (msg: string) => {
     setToastMsg(msg);
@@ -40,12 +79,25 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
     }, 2600);
   };
 
+  // Load saved favourites and follows from localStorage
+  useEffect(() => {
+    try {
+      const savedFavs = localStorage.getItem('shoppage_fav_markets');
+      if (savedFavs) setFavMarkets(JSON.parse(savedFavs));
+
+      const savedFollows = localStorage.getItem('shoppage_followed_markets');
+      if (savedFollows) setFollowedMarkets(JSON.parse(savedFollows));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   // Sync with window events from navbar or commerce rail
   useEffect(() => {
     const handleCustomEvent = (e: CustomEvent) => {
       const { type, query } = e.detail || {};
       if (type === 'tab') {
-        setTab(query);
+        setTab(query as TabType);
         setView('home');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else if (type === 'bookmarks') {
@@ -53,15 +105,45 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else if (type === 'search') {
         setSearch(query || '');
+        if (tab === 'products') {
+          setProdSearch(query || '');
+        }
       } else if (type === 'focus-composer') {
-        textareaRef.current?.focus();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (tab === 'products' || tab === 'markets' || tab === 'shorts') {
+          setTab('foryou');
+        }
+        setTimeout(() => {
+          textareaRef.current?.focus();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 50);
       }
     };
 
     window.addEventListener('shoppage-nav' as any, handleCustomEvent);
     return () => window.removeEventListener('shoppage-nav' as any, handleCustomEvent);
-  }, []);
+  }, [tab]);
+
+  // Toggle market favourite
+  const toggleFavMarket = (id: string, name: string) => {
+    const next = !favMarkets[id];
+    const updated = { ...favMarkets, [id]: next };
+    setFavMarkets(updated);
+    try {
+      localStorage.setItem('shoppage_fav_markets', JSON.stringify(updated));
+    } catch {}
+    toast(next ? `⭐ Added ${name} to your favoured markets` : `Removed ${name} from favourites`);
+  };
+
+  // Toggle market follow
+  const toggleFollowMarket = (id: string, name: string) => {
+    const next = !followedMarkets[id];
+    const updated = { ...followedMarkets, [id]: next };
+    setFollowedMarkets(updated);
+    try {
+      localStorage.setItem('shoppage_followed_markets', JSON.stringify(updated));
+    } catch {}
+    toast(next ? `Following ${name}` : `Unfollowed ${name}`);
+  };
 
   // Textarea resizing
   const handleComposerInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -102,33 +184,33 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
     setPosts([newPost, ...posts]);
     setComposerText('');
     setReplyTo(null);
-    if (textareaRef.current) textareaRef.current.style.height = 'auto';
-    setView('home');
-    setTab('foryou');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    toast('Your post was sent');
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+    toast('Post published to Shoppage feed');
   };
 
-  // Post Actions
-  const handleLike = (id: number | string) => {
+  // Interaction handlers
+  const handleLike = (id: string | number) => {
     setLiked((prev) => {
       const next = !prev[id];
+      toast(next ? 'Liked deal' : 'Unliked');
       return { ...prev, [id]: next };
     });
   };
 
-  const handleRepost = (id: number | string) => {
+  const handleRepost = (id: string | number) => {
     setReposted((prev) => {
       const next = !prev[id];
-      toast(next ? 'Reposted to your followers' : 'Repost removed');
+      toast(next ? 'Reposted to your trade profile' : 'Undo repost');
       return { ...prev, [id]: next };
     });
   };
 
-  const handleBookmark = (id: number | string) => {
+  const handleBookmark = (id: string | number) => {
     setBookmarked((prev) => {
       const next = !prev[id];
-      toast(next ? 'Added to your Bookmarks' : 'Removed from Bookmarks');
+      toast(next ? 'Saved to Bookmarks' : 'Removed from Bookmarks');
       return { ...prev, [id]: next };
     });
   };
@@ -140,69 +222,116 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
   };
 
   const handleGetDeal = (post: PostItem) => {
-    window.dispatchEvent(new CustomEvent('shoppage-cart', { detail: { action: 'add', item: post } }));
-    toast(`🛒 ${post.product?.name || 'Deal'} — price locked for 24h`);
+    window.dispatchEvent(
+      new CustomEvent('shoppage-cart', {
+        detail: { action: 'add', item: post.product },
+      }),
+    );
+    toast(`Added "${post.product?.name}" to Cart`);
   };
 
-  // Filtering
-  const q = search.trim().toLowerCase();
-
+  // Filter timeline posts
   const filteredPosts = useMemo(() => {
+    let list = posts;
+
     if (view === 'bookmarks') {
-      return posts.filter((p) => {
-        if (!bookmarked[p.id]) return false;
-        if (!q) return true;
-        return (p.text + p.name + p.handle).toLowerCase().includes(q);
-      });
+      return list.filter((p) => bookmarked[p.id]);
     }
 
-    return posts.filter((p) => {
-      if (tab === 'deals' && !p.badge) return false;
-      if (tab === 'new' && !p.tabs.includes('new')) return false;
-      if (!q) return true;
-      const haystack = (
-        p.text +
-        ' ' +
-        p.name +
-        ' ' +
-        p.handle +
-        ' ' +
-        (p.product?.name || '') +
-        ' ' +
-        (p.cat || '')
-      ).toLowerCase();
-      return haystack.includes(q);
-    });
-  }, [posts, tab, view, bookmarked, q]);
+    if (tab === 'deals') {
+      list = list.filter((p) => p.tabs.includes('deals'));
+    } else if (tab === 'foryou') {
+      list = list.filter((p) => p.tabs.includes('foryou'));
+    }
 
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.text.toLowerCase().includes(q) ||
+          p.name.toLowerCase().includes(q) ||
+          p.handle.toLowerCase().includes(q) ||
+          (p.product && p.product.name.toLowerCase().includes(q)),
+      );
+    }
+
+    return list;
+  }, [posts, tab, view, search, bookmarked]);
+
+  // Filter products catalog
+  const filteredProducts = useMemo(() => {
+    let list = allProducts;
+
+    if (prodCategory !== 'all') {
+      list = list.filter((p) => p.categoryRef === prodCategory);
+    }
+
+    if (prodSearch.trim()) {
+      const q = prodSearch.toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.title.toLowerCase().includes(q) ||
+          p.brand.toLowerCase().includes(q) ||
+          p.specs.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q),
+      );
+    }
+
+    // Sort
+    return list.slice().sort((a, b) => {
+      if (prodSort === 'price_asc') return a.price - b.price;
+      if (prodSort === 'price_desc') return b.price - a.price;
+      if (prodSort === 'sellers') return b.sellerCount - a.sellerCount;
+      // Default 'drop'
+      return (b.dropPct || 0) - (a.dropPct || 0);
+    });
+  }, [allProducts, prodCategory, prodSearch, prodSort]);
+
+  // Filter markets & groups
+  const filteredMarkets = useMemo(() => {
+    let list = allMarkets;
+
+    if (marketSubFilter === 'fav') {
+      list = list.filter((m) => favMarkets[m.id]);
+    } else if (marketSubFilter === 'wholesale') {
+      list = list.filter((m) => m.type === 'wholesale_plaza');
+    } else if (marketSubFilter === 'groups') {
+      list = list.filter((m) => m.type === 'community_group');
+    }
+
+    if (marketSearch.trim()) {
+      const q = marketSearch.toLowerCase();
+      list = list.filter(
+        (m) =>
+          m.name.toLowerCase().includes(q) ||
+          m.location.toLowerCase().includes(q) ||
+          m.province.toLowerCase().includes(q) ||
+          m.description.toLowerCase().includes(q),
+      );
+    }
+
+    return list;
+  }, [allMarkets, marketSubFilter, marketSearch, favMarkets]);
+
+  // Filter shorts
   const filteredShorts = useMemo(() => {
-    if (!q) return shorts;
+    if (!search.trim()) return shorts;
+    const q = search.toLowerCase();
     return shorts.filter((s) => s.title.toLowerCase().includes(q));
-  }, [shorts, q]);
+  }, [shorts, search]);
 
   return (
     <>
-      {/* ── TOPBAR ────────────────────────────────────────────────────────── */}
+      {/* ── TOPBAR TABS ────────────────────────────────────────────────────── */}
       <div className="topbar">
-        {/* Mobile brand header row */}
-        <div className="row1">
-          <svg viewBox="0 0 24 24">
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.451-6.231z" />
-          </svg>
-          <div className="avatar g8" style={{ width: 32, height: 32, fontSize: 13 }}>
-            Y
+        {view === 'bookmarks' ? (
+          <div className="viewtitle on">
+            <h2>Bookmarks</h2>
+            <p>Saved deals, price drops, and video proofs</p>
           </div>
-        </div>
-
-        {/* Bookmarks view title */}
-        <div className={`viewtitle${view === 'bookmarks' ? ' on' : ''}`}>
-          <h2>Bookmarks</h2>
-          <p>Deals you saved for later</p>
-        </div>
-
-        {/* Timeline Tabs */}
-        {view === 'home' && (
-          <div className="tabs" role="tablist">
+        ) : (
+          <div className="tabs">
+            {/* 1. For You */}
             <button
               type="button"
               className={`tab${tab === 'foryou' ? ' on' : ''}`}
@@ -213,6 +342,20 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
             >
               For You
             </button>
+
+            {/* 2. Products (Search & Filter) */}
+            <button
+              type="button"
+              className={`tab${tab === 'products' ? ' on' : ''}`}
+              onClick={() => {
+                setTab('products');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            >
+              Products
+            </button>
+
+            {/* 3. Deals */}
             <button
               type="button"
               className={`tab${tab === 'deals' ? ' on' : ''}`}
@@ -223,16 +366,20 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
             >
               Deals
             </button>
+
+            {/* 4. My Markets (Favoured / Followed Hubs & Groups) */}
             <button
               type="button"
-              className={`tab${tab === 'new' ? ' on' : ''}`}
+              className={`tab${tab === 'markets' ? ' on' : ''}`}
               onClick={() => {
-                setTab('new');
+                setTab('markets');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
             >
-              New &amp; Restocked
+              My Markets
             </button>
+
+            {/* 5. Shorts */}
             <button
               type="button"
               className={`tab${tab === 'shorts' ? ' on' : ''}`}
@@ -247,8 +394,8 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
         )}
       </div>
 
-      {/* ── COMPOSER (Home view only) ─────────────────────────────────────── */}
-      {view === 'home' && tab !== 'shorts' && (
+      {/* ── COMPOSER (Home view & For You / Deals only) ────────────────────── */}
+      {view === 'home' && (tab === 'foryou' || tab === 'deals') && (
         <div className="composer">
           <div className="avatar g8">Y</div>
           <div className="cbody">
@@ -330,8 +477,8 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
 
                 <button
                   type="button"
-                  className="send"
-                  disabled={charLen === 0 || isOver}
+                  className="postb"
+                  disabled={!composerText.trim() || isOver}
                   onClick={handlePostSubmit}
                 >
                   Post
@@ -342,75 +489,340 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
         </div>
       )}
 
-      {/* ── FEED OR SHORTS ────────────────────────────────────────────────── */}
-      <div id="feed">
-        {tab === 'shorts' && view === 'home' ? (
-          filteredShorts.length > 0 ? (
-            <div className="shorts">
-              {filteredShorts.map((s) => {
-                const isPlaying = playingShortId === s.id;
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    className={`short${isPlaying ? ' playing' : ''}`}
-                    style={{ backgroundImage: `url('${s.img}')` }}
-                    onClick={() => setPlayingShortId(isPlaying ? null : s.id)}
-                  >
-                    <span className="play">
-                      <svg className="p" viewBox="0 0 24 24">
-                        <path d={isPlaying ? 'M6 19h4V5H6v14zm8-14v14h4V5h-4z' : 'M8 5v14l11-7z'} />
-                      </svg>
-                    </span>
-                    <span className="dur">{s.dur}</span>
-                    <span className="smeta">
-                      <h4>{s.title}</h4>
-                      <span>{s.views}</span>
-                    </span>
-                    <span className="prog" />
-                  </button>
-                );
-              })}
+      {/* ── PRODUCTS TAB: SEARCH & FILTER + CATALOG ───────────────────────── */}
+      {view === 'home' && tab === 'products' && (
+        <div className="products-view">
+          <div className="stream-header">
+            <h2>Products &amp; Trade Catalog</h2>
+            <p>
+              Live master catalog with verified South African stockists, wholesale pricing, and SABS / NRS 097 grid compliance.
+            </p>
+          </div>
+
+          <div className="stream-tools">
+            {/* Search input */}
+            <div className="stream-search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                type="search"
+                placeholder="Search 1,000,000+ products (e.g. Deye 5kW, Cement, Hangers, Phones)..."
+                value={prodSearch}
+                onChange={(e) => setProdSearch(e.target.value)}
+              />
+              {prodSearch && (
+                <button
+                  type="button"
+                  onClick={() => setProdSearch('')}
+                  style={{ color: 'var(--text2)', fontSize: '13px', cursor: 'pointer' }}
+                >
+                  ✕
+                </button>
+              )}
             </div>
-          ) : (
-            <div className="empty">
-              <h3>No Shorts found</h3>
-              <p>Try a different search query.</p>
+
+            {/* Category filter pills */}
+            <div className="chips-scroll">
+              {PRODUCT_CATEGORIES.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  className={`chip-pill${prodCategory === c.id ? ' active' : ''}`}
+                  onClick={() => setProdCategory(c.id)}
+                >
+                  {c.label}
+                </button>
+              ))}
             </div>
-          )
-        ) : filteredPosts.length > 0 ? (
-          filteredPosts.map((post) => (
-            <FeedPostCard
-              key={post.id}
-              post={post}
-              isLiked={liked[post.id]}
-              isReposted={reposted[post.id]}
-              isBookmarked={bookmarked[post.id]}
-              onLike={handleLike}
-              onRepost={handleRepost}
-              onBookmark={handleBookmark}
-              onReply={handleReply}
-              onGetDeal={handleGetDeal}
-            />
-          ))
-        ) : (
-          <div className="empty">
-            {view === 'bookmarks' ? (
-              <>
-                <h3>Save deals for later</h3>
-                <p>Tap the bookmark icon on any post and it will land here.</p>
-              </>
+
+            {/* Sub-row: count and sort */}
+            <div className="stream-subrow">
+              <span>
+                <b>{filteredProducts.length}</b> canonical products found
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>Sort by:</span>
+                <select
+                  value={prodSort}
+                  onChange={(e) => setProdSort(e.target.value as any)}
+                >
+                  <option value="drop">Biggest Price Drop</option>
+                  <option value="price_asc">Price: Low to High</option>
+                  <option value="price_desc">Price: High to Low</option>
+                  <option value="sellers">Most Verified Stockists</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Products List */}
+          <div className="products-list">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((p) => (
+                <div key={p.id} className="prod-card">
+                  <div className="prod-thumb">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={p.image} alt={p.title} loading="lazy" />
+                  </div>
+                  <div className="prod-content">
+                    <div>
+                      <div className="prod-head">
+                        <h3>
+                          <Link href={p.href}>{p.title}</Link>
+                        </h3>
+                        {p.dropPct && <span className="prod-drop">-{p.dropPct}%</span>}
+                      </div>
+                      <p className="prod-specs">{p.specs}</p>
+                      <p className="prod-location">
+                        🏢 {p.sellerCount} verified stockists · {p.stockistLocation}
+                      </p>
+                    </div>
+
+                    <div>
+                      <div className="prod-price-row">
+                        <span className="prod-price">{formatZar(p.price)}</span>
+                        {p.oldPrice && (
+                          <span className="prod-old">{formatZar(p.oldPrice)}</span>
+                        )}
+                      </div>
+
+                      <div className="prod-actions">
+                        <Link href={p.href} className="btn-stockists">
+                          View Stockists
+                        </Link>
+                        <button
+                          type="button"
+                          className="btn-cart"
+                          onClick={() => {
+                            window.dispatchEvent(
+                              new CustomEvent('shoppage-cart', {
+                                detail: {
+                                  action: 'add',
+                                  item: { name: p.title, price: formatZar(p.price) },
+                                },
+                              }),
+                            );
+                            toast(`Locked ${p.brand} deal into Cart`);
+                          }}
+                        >
+                          Lock Deal ⚡
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
             ) : (
-              <>
-                <h3>Nothing here yet</h3>
-                <p>
-                  No posts match &quot;{search}&quot; in this stream. Try the For You timeline.
-                </p>
-              </>
+              <div className="empty">
+                <h3>No products matched your criteria</h3>
+                <p>Try clearing search keywords or selecting All Categories.</p>
+              </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* ── MY MARKETS TAB: HUBS, WHOLESALE PLAZAS & CONTRACTOR GROUPS ───── */}
+      {view === 'home' && tab === 'markets' && (
+        <div className="markets-view">
+          <div className="stream-header">
+            <h2>My Markets &amp; Trade Hubs</h2>
+            <p>
+              Follow and favourite wholesale malls, regional trade plazas, and contractor networks across South Africa.
+            </p>
+          </div>
+
+          <div className="stream-tools">
+            {/* Search in markets */}
+            <div className="stream-search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                type="search"
+                placeholder="Search markets or groups (e.g. Dragon City, Oriental Plaza, Solar Hub)..."
+                value={marketSearch}
+                onChange={(e) => setMarketSearch(e.target.value)}
+              />
+            </div>
+
+            {/* Sub-filter pills */}
+            <div className="chips-scroll">
+              <button
+                type="button"
+                className={`chip-pill${marketSubFilter === 'all' ? ' active' : ''}`}
+                onClick={() => setMarketSubFilter('all')}
+              >
+                All Hubs ({allMarkets.length})
+              </button>
+              <button
+                type="button"
+                className={`chip-pill${marketSubFilter === 'fav' ? ' active' : ''}`}
+                onClick={() => setMarketSubFilter('fav')}
+              >
+                ⭐ Favoured ({Object.values(favMarkets).filter(Boolean).length})
+              </button>
+              <button
+                type="button"
+                className={`chip-pill${marketSubFilter === 'wholesale' ? ' active' : ''}`}
+                onClick={() => setMarketSubFilter('wholesale')}
+              >
+                🏢 Wholesale Plazas
+              </button>
+              <button
+                type="button"
+                className={`chip-pill${marketSubFilter === 'groups' ? ' active' : ''}`}
+                onClick={() => setMarketSubFilter('groups')}
+              >
+                💬 Contractor Networks
+              </button>
+            </div>
+          </div>
+
+          {/* Markets List */}
+          <div className="markets-list">
+            {filteredMarkets.length > 0 ? (
+              filteredMarkets.map((m) => {
+                const isFav = !!favMarkets[m.id];
+                const isFollowed = !!followedMarkets[m.id];
+                return (
+                  <div key={m.id} className="market-card">
+                    <div className={`avatar ${m.avatarClass}`}>{m.initials}</div>
+                    <div className="market-content">
+                      <div className="market-header">
+                        <div>
+                          <h3 className="market-title">
+                            <Link href={m.href}>{m.name}</Link>
+                          </h3>
+                          <p className="market-meta">
+                            {m.handle} · <span className="chip">{m.typeLabel}</span>
+                          </p>
+                        </div>
+                      </div>
+
+                      <p className="market-desc">{m.description}</p>
+
+                      <p className="market-meta" style={{ marginTop: '6px' }}>
+                        📍 {m.location} ·{' '}
+                        <b>{m.stalls ? `${m.stalls}+ Active Stalls` : m.membersCount}</b>
+                      </p>
+
+                      <div className="market-actions">
+                        <button
+                          type="button"
+                          className={`fav-btn${isFav ? ' active' : ''}`}
+                          onClick={() => toggleFavMarket(m.id, m.name)}
+                          title={isFav ? 'Remove favourite' : 'Add to favourites'}
+                        >
+                          {isFav ? '★ Favoured' : '⭐ Favourite'}
+                        </button>
+
+                        <button
+                          type="button"
+                          className={`follow-btn${isFollowed ? ' active' : ''}`}
+                          onClick={() => toggleFollowMarket(m.id, m.name)}
+                        >
+                          {isFollowed ? 'Following' : 'Follow'}
+                        </button>
+
+                        <Link href={m.href} className="visit-btn">
+                          {m.type === 'community_group' ? 'Open Desk 💬' : 'Browse Stalls 🏢'}
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="empty">
+                <h3>No markets match this filter</h3>
+                <p>Try switching to &quot;All Hubs&quot; or clearing your search term.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── TIMELINE POSTS & SHORTS (For You, Deals, Bookmarks, Shorts) ───── */}
+      {(view === 'bookmarks' || tab === 'foryou' || tab === 'deals' || tab === 'shorts') && (
+        <div id="feed">
+          {tab === 'shorts' && view === 'home' ? (
+            filteredShorts.length > 0 ? (
+              <div className="shorts">
+                {filteredShorts.map((s) => {
+                  const isPlaying = playingShortId === s.id;
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      className={`short${isPlaying ? ' playing' : ''}`}
+                      style={{ backgroundImage: `url('${s.img}')` }}
+                      onClick={() => setPlayingShortId(isPlaying ? null : s.id)}
+                    >
+                      <span className="play">
+                        <svg className="p" viewBox="0 0 24 24">
+                          <path
+                            d={
+                              isPlaying
+                                ? 'M6 19h4V5H6v14zm8-14v14h4V5h-4z'
+                                : 'M8 5v14l11-7z'
+                            }
+                          />
+                        </svg>
+                      </span>
+                      <span className="dur">{s.dur}</span>
+                      <span className="smeta">
+                        <h4>{s.title}</h4>
+                        <span>{s.views}</span>
+                      </span>
+                      <span className="prog" />
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="empty">
+                <h3>No Shorts found</h3>
+                <p>Try a different search query.</p>
+              </div>
+            )
+          ) : filteredPosts.length > 0 ? (
+            filteredPosts.map((post) => (
+              <FeedPostCard
+                key={post.id}
+                post={post}
+                isLiked={liked[post.id]}
+                isReposted={reposted[post.id]}
+                isBookmarked={bookmarked[post.id]}
+                onLike={handleLike}
+                onRepost={handleRepost}
+                onBookmark={handleBookmark}
+                onReply={handleReply}
+                onGetDeal={handleGetDeal}
+              />
+            ))
+          ) : (
+            <div className="empty">
+              {view === 'bookmarks' ? (
+                <>
+                  <h3>Save deals for later</h3>
+                  <p>Tap the bookmark icon on any post and it will land here.</p>
+                </>
+              ) : (
+                <>
+                  <h3>Nothing here yet</h3>
+                  <p>
+                    No posts match &quot;{search}&quot; in this stream. Try the For You timeline.
+                  </p>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── TOAST NOTIFICATION ────────────────────────────────────────────── */}
       <div className={`toast${toastOn ? ' on' : ''}`}>{toastMsg}</div>
