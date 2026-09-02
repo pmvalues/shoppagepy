@@ -59,20 +59,20 @@ export default function CommerceRail() {
         </form>
       </div>
 
-      {/* ── PROMO CARD: SHOPPAGE VERIFIED ──────────────────────────────── */}
+      {/* ── PROMO CARD: SHOPPAGE MERCHANT OS ────────────────────────────── */}
       <div className="rcard promo">
-        <h3>Shoppage Verified</h3>
+        <h3>Shoppage Merchant OS</h3>
         <p>
-          Subscribe to unlock direct supplier messaging, instant price sweep alerts and verified trade badges.
+          0% take-rate. Claim your verified CIPC trade counter, list wholesale stock, and trade directly on WhatsApp.
         </p>
         <Link href="/merchant/claim" className="follow" style={{ display: 'inline-block', textAlign: 'center' }}>
-          Subscribe
+          Claim your store
         </Link>
       </div>
 
       {/* ── TRENDS CARD ─────────────────────────────────────────────────── */}
       <div className="rcard">
-        <h3>What&apos;s happening</h3>
+        <h3>South Africa Trade Trends</h3>
         {trends.map((t) => (
           <div
             key={t.tag}

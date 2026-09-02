@@ -89,10 +89,10 @@ const INITIAL_TIMELINE: TimelineItem[] = [
   },
   {
     id: 'time_003',
-    source: 'twitter_x',
-    sourceLabel: 'via 𝕏 Twitter Trade Feed (@MitrendPackaging)',
-    sourceIcon: '𝕏',
-    sourceUrl: 'https://twitter.com/MitrendPackaging',
+    source: 'shoppage_catalog',
+    sourceLabel: 'via Mitrend Verified Warehouse Feed',
+    sourceIcon: '🏭',
+    sourceUrl: '/m/mitrend-midrand',
     authorName: 'Mitrend Products (Pty) Ltd',
     authorHandle: '@MitrendPackaging',
     authorLocation: 'Midrand Factory Concourse, Gauteng',
@@ -261,7 +261,7 @@ export default function ShoppageTimePage() {
     setTimeline([newItem, ...timeline]);
     setComposeText('');
     setComposePrice('');
-    setToastMessage('⚡ Successfully broadcast to Shoppage Time, Facebook Groups & Twitter / X!');
+    setToastMessage('⚡ Successfully broadcast to Shoppage Time & Verified Trade Groups!');
     setTimeout(() => setToastMessage(null), 4000);
   };
 
@@ -338,7 +338,7 @@ export default function ShoppageTimePage() {
                     </span>
                   </div>
                   <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: 0 }}>
-                    The Real-Time Commercial Timeline across South Africa. Aggregating 5,200+ Facebook Groups, Twitter / X, and Verified Showrooms with 0% middleman toll.
+                    The Real-Time Commercial Timeline across South Africa. Aggregating 5,200+ Contractor Networks, Community Trade Hubs, and Verified Showrooms with 0% middleman toll.
                   </p>
                 </div>
 
@@ -387,9 +387,9 @@ export default function ShoppageTimePage() {
                         <input type="checkbox" checked={postToFacebook} onChange={(e) => setPostToFacebook(e.target.checked)} />
                         <span>📘 FB Groups</span>
                       </label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#000000', cursor: 'pointer' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#10B981', cursor: 'pointer' }}>
                         <input type="checkbox" checked={postToTwitterX} onChange={(e) => setPostToTwitterX(e.target.checked)} />
-                        <span>𝕏 Twitter / X</span>
+                        <span>🛒 Shoppage Catalog</span>
                       </label>
                     </div>
 
@@ -421,14 +421,14 @@ export default function ShoppageTimePage() {
               </div>
             </div>
 
-            {/* TIMELINE FILTER TABS (TWITTER / X STYLE) */}
+            {/* TIMELINE FILTER TABS (COMMERCIAL STREAM) */}
             <div style={{ display: 'flex', gap: '0.4rem', borderBottom: '2px solid #E2E8F0', paddingBottom: '0.4rem', marginBottom: '1.25rem', overflowX: 'auto' }}>
               {[
                 { id: 'all', label: '⚡ For You (All Sources)' },
                 { id: 'deals', label: '🔥 Price Drops & Clearance' },
                 { id: 'rfqs', label: '📋 Contractor RFQs' },
                 { id: 'facebook', label: '📘 Facebook Groups' },
-                { id: 'twitter_x', label: '𝕏 Twitter / X Feed' },
+                { id: 'twitter_x', label: '🛒 Verified Stockists' },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -503,7 +503,7 @@ export default function ShoppageTimePage() {
                     {item.text}
                   </p>
 
-                  {/* X-Style Media Stage (Photo / Video Short) */}
+                  {/* Media Stage (Photo / Video Short) */}
                   {item.mediaImage && (
                     <div
                       style={{

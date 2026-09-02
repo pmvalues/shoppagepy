@@ -287,25 +287,23 @@ export default function MarketsExplorerView({
                     </a>
                   )}
 
-                  <a
-                    href={`https://twitter.com/search?q=${encodeURIComponent(market.name)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    href={`/market/${market.id}`}
                     className="btn btn-sm"
                     style={{
-                      background: '#000000',
+                      background: '#10B981',
                       color: '#FFFFFF',
                       border: 'none',
                       borderRadius: '8px',
                       fontWeight: 700,
                       fontSize: '0.75rem',
-                      padding: '0.35rem 0.55rem',
+                      padding: '0.35rem 0.65rem',
                       textDecoration: 'none',
                     }}
-                    title="View Twitter / X Live Stream"
+                    title="View Market Trade Desk"
                   >
-                    𝕏
-                  </a>
+                    ⚡ Trade Desk
+                  </Link>
                 </div>
               </div>
             </div>

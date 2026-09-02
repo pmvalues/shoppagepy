@@ -113,7 +113,7 @@ export default function ShoppageTimeActionHero() {
     setBroadcastText('');
     setBroadcastPrice('');
     setShowPostModal(false);
-    setToastMessage('⚡ Deal broadcast live to Shoppage Time, Facebook & 𝕏!');
+    setToastMessage('⚡ Deal broadcast live to Shoppage Time & Contractor Networks!');
     setTimeout(() => setToastMessage(null), 3500);
   };
 
@@ -211,7 +211,7 @@ export default function ShoppageTimeActionHero() {
                 }}
               />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#64748B' }}>
-                <span>✓ Auto-syndicate to FB Groups & 𝕏</span>
+                <span>✓ Auto-syndicate to Verified Trade Networks</span>
                 <span style={{ color: '#059669', fontWeight: 800 }}>0% Take Rate</span>
               </div>
               <button
@@ -330,7 +330,7 @@ export default function ShoppageTimeActionHero() {
                 { id: 'solar', label: '⚡ Solar & Inverters' },
                 { id: 'packaging', label: '🍽️ Mitrend Packaging' },
                 { id: 'rfqs', label: '📋 Sourcing Desks' },
-                { id: 'social', label: '📘 FB & 𝕏 Feeds' },
+                { id: 'social', label: '🌐 Verified Community Feeds' },
               ].map((tab) => (
                 <button
                   key={tab.id}

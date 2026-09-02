@@ -7,10 +7,32 @@ import AIAssistant from './AIAssistant';
 
 const THEMES = ['dark', 'dim', 'light'];
 const THEME_NAMES: Record<string, string> = {
-  dark: 'Default (dark)',
-  dim: 'Dim',
-  light: 'Lights on',
+  dark: 'Obsidian Night (Dark)',
+  dim: 'Highveld Slate (Dim)',
+  light: 'Clean Paper (Light)',
 };
+
+function ShoppageLogoMark({ size = 32 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 32 32" width={size} height={size} style={{ flexShrink: 0, borderRadius: '8px' }}>
+      <defs>
+        <linearGradient id="sp-brand-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#10B981" />
+          <stop offset="100%" stopColor="#059669" />
+        </linearGradient>
+        <linearGradient id="sp-bolt-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FCD34D" />
+          <stop offset="100%" stopColor="#F59E0B" />
+        </linearGradient>
+      </defs>
+      <rect width="32" height="32" rx="8" fill="url(#sp-brand-grad)" />
+      <rect x="1.5" y="1.5" width="29" height="29" rx="6.5" fill="none" stroke="#34D399" strokeWidth="1" opacity="0.6" />
+      <path d="M12 11V9C12 6.79086 13.7909 5 16 5C18.2091 5 20 6.79086 20 9V11" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+      <path d="M7.5 11H24.5L23.2 26C23.1 27.1 22.2 28 21.1 28H10.9C9.8 28 8.9 27.1 8.8 26L7.5 11Z" fill="#FFFFFF" />
+      <path d="M16.5 13.5L13 19H16L15.5 24.5L19.5 18H16.5L18 13.5H16.5Z" fill="url(#sp-bolt-grad)" />
+    </svg>
+  );
+}
 
 export default function AppNavbar({
   children,
@@ -104,10 +126,8 @@ export default function AppNavbar({
         {/* ── LEFT RAIL WITH COLLAPSING ───────────────────────────────── */}
         <aside className={`left${collapsed ? ' is-collapsed' : ''}`}>
           <div className="rail-head">
-            <Link href="/" className="logo" title="Shoppage">
-              <svg viewBox="0 0 24 24">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.451-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117l11.966 15.644z" />
-              </svg>
+            <Link href="/" className="logo" title="Shoppage South Africa">
+              <ShoppageLogoMark size={32} />
               {!collapsed && <span className="wordmark">Shoppage</span>}
             </Link>
 

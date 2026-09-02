@@ -234,7 +234,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
         attachedPriceZar: 14850,
       };
       setTwitterPosts([newTweet, ...twitterPosts]);
-      targetSummary.push('Twitter / X (@X)');
+      targetSummary.push('Shoppage Time Desk');
     }
 
     setBroadcastMessage('');
@@ -342,27 +342,25 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 </a>
               )}
 
-              {/* Direct Twitter / X Hyperlink */}
-              <a
-                href={`https://twitter.com/search?q=${encodeURIComponent(market.name)}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              {/* Shoppage Time Live Desk Link */}
+              <Link
+                href="/time"
                 className="btn btn-sm"
                 style={{
-                  background: '#000000',
+                  background: '#10B981',
                   color: '#FFFFFF',
                   fontWeight: 800,
                   borderRadius: '8px',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.25)',
+                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.25)',
                   border: 'none',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.35rem',
                 }}
               >
-                <span>𝕏</span>
-                <span>{twitterXHandle} Live Feed &rarr;</span>
-              </a>
+                <span>⚡</span>
+                <span>Shoppage Time Live Desk &rarr;</span>
+              </Link>
 
               {/* Shopper Account Linking Button */}
               <button
@@ -422,13 +420,13 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
           <span style={{ fontWeight: 800, color: '#34D399' }}>LIVE SOCIAL PULSE</span>
           <span style={{ color: '#94A3B8' }}>|</span>
           <span style={{ color: '#CBD5E1' }}>
-            Sweeping Facebook Groups & Twitter / X feeds every 5s (Pass {livePulseTick + 1})
+            Sweeping Trade Networks & Community feeds every 5s (Pass {livePulseTick + 1})
           </span>
         </div>
 
         <div style={{ display: 'flex', gap: '1rem', color: '#94A3B8', fontSize: '0.75rem' }}>
-          <span>📘 Facebook: <strong>{inboundPosts.length} Live Deals</strong></span>
-          <span>𝕏 Twitter/X: <strong>{twitterPosts.length} Real-Time Tweets</strong></span>
+          <span>📘 Community: <strong>{inboundPosts.length} Live Deals</strong></span>
+          <span>⚡ Shoppage Desk: <strong>{twitterPosts.length} Real-Time Alerts</strong></span>
           <span style={{ color: '#38BDF8' }}>0% Commission Toll</span>
         </div>
       </div>
@@ -448,7 +446,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
           className={`btn ${activeTab === 'community_feed' ? 'btn-primary' : 'btn-outline'}`}
           style={{ borderRadius: '8px', fontSize: '0.875rem', fontWeight: 800 }}
         >
-          📡 Live Social Stream (FB & 𝕏 Twitter) ({inboundPosts.length + twitterPosts.length})
+          📡 Live Trade Stream ({inboundPosts.length + twitterPosts.length})
         </button>
 
         <button
@@ -456,7 +454,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
           className={`btn ${activeTab === 'autopost' ? 'btn-primary' : 'btn-outline'}`}
           style={{ borderRadius: '8px', fontSize: '0.875rem', fontWeight: 800 }}
         >
-          ⚡ Dual Auto-Post (FB + 𝕏 Twitter)
+          ⚡ Multi-Channel Broadcast
         </button>
       </div>
 
@@ -562,9 +560,9 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
               <button
                 onClick={() => setSocialFeedChannel('twitter_x')}
                 className={`btn btn-sm ${socialFeedChannel === 'twitter_x' ? 'btn-primary' : 'btn-outline'}`}
-                style={{ borderRadius: '20px', fontWeight: 700, background: socialFeedChannel === 'twitter_x' ? '#000000' : undefined, borderColor: socialFeedChannel === 'twitter_x' ? '#000000' : undefined }}
+                style={{ borderRadius: '20px', fontWeight: 700, background: socialFeedChannel === 'twitter_x' ? '#10B981' : undefined, borderColor: socialFeedChannel === 'twitter_x' ? '#10B981' : undefined }}
               >
-                𝕏 Twitter / X Feed ({twitterPosts.length})
+                ⚡ Trade Alerts ({twitterPosts.length})
               </button>
             </div>
 
@@ -573,31 +571,29 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
             </span>
           </div>
 
-          {/* Twitter / X Stream Section */}
+          {/* Trade Alerts Stream Section */}
           {(socialFeedChannel === 'all' || socialFeedChannel === 'twitter_x') && (
             <div className="card" style={{ padding: '1.5rem', background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E2E8F0' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '1.2rem', fontWeight: 900, background: '#000000', color: '#FFFFFF', padding: '0.2rem 0.5rem', borderRadius: '6px' }}>𝕏</span>
+                  <span style={{ fontSize: '1.2rem', fontWeight: 900, background: '#10B981', color: '#FFFFFF', padding: '0.2rem 0.5rem', borderRadius: '6px' }}>⚡</span>
                   <div>
                     <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
-                      Twitter / X Real-Time Commercial Feed
+                      Verified Trade Alerts & Direct Deals
                     </h3>
                     <div style={{ fontSize: '0.78rem', color: '#64748B' }}>
-                      Streaming verified trade alerts from {twitterXHandle} & local contractors
+                      Streaming verified trade alerts from local stalls & verified contractors
                     </div>
                   </div>
                 </div>
 
-                <a
-                  href={`https://twitter.com/search?q=${encodeURIComponent(market.name)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  href="/time"
                   className="btn btn-outline btn-sm"
-                  style={{ borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}
+                  style={{ borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, color: '#10B981', borderColor: '#10B981' }}
                 >
-                  Open in 𝕏 App &rarr;
-                </a>
+                  Open Time Desk &rarr;
+                </Link>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
@@ -618,12 +614,12 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                           <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#0F172A', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.75rem' }}>
-                            𝕏
+                            {tweet.authorName.charAt(0)}
                           </div>
                           <div>
                             <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                               <span>{tweet.authorName}</span>
-                              {tweet.isVerified && <span style={{ color: '#1D9BF0' }}>✓</span>}
+                              {tweet.isVerified && <span style={{ color: '#10B981' }}>✓</span>}
                             </div>
                             <div style={{ fontSize: '0.72rem', color: '#64748B' }}>{tweet.authorHandle}</div>
                           </div>
@@ -760,19 +756,19 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
         </section>
       )}
 
-      {/* TAB 3: DUAL AUTO-POST (FB + 𝕏 TWITTER) */}
+      {/* TAB 3: MULTI-CHANNEL BROADCAST */}
       {activeTab === 'autopost' && (
         <section className="card" style={{ padding: '2rem', background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
           <div style={{ maxWidth: '680px', margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#EFF6FF', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', margin: '0 auto 0.75rem auto' }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#ECFDF5', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', margin: '0 auto 0.75rem auto' }}>
                 ⚡
               </div>
               <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0F172A', margin: '0 0 0.4rem 0' }}>
-                Dual Social Commerce Auto-Poster
+                Trade Broadcast & Auto-Poster
               </h2>
               <p style={{ fontSize: '0.9rem', color: '#64748B', lineHeight: 1.5, margin: 0 }}>
-                1-Click broadcast stock drops, clearance deals, or sourcing RFQs simultaneously to <strong>Facebook Groups</strong> and <strong>Twitter / X (@X)</strong>.
+                1-Click broadcast stock drops, clearance deals, or sourcing RFQs simultaneously to <strong>Community Trade Groups</strong> and <strong>Shoppage Time</strong>.
               </p>
             </div>
 
@@ -806,21 +802,21 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                         checked={postToFacebook}
                         onChange={(e) => setPostToFacebook(e.target.checked)}
                       />
-                      <span>📘 Post to Linked Facebook Group ({market.name})</span>
+                      <span>📘 Post to Linked Trade Community ({market.name})</span>
                     </div>
                     <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 800 }}>✓ Live Bridge</span>
                   </label>
 
                   <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 700, color: '#000000' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 700, color: '#10B981' }}>
                       <input
                         type="checkbox"
                         checked={postToTwitterX}
                         onChange={(e) => setPostToTwitterX(e.target.checked)}
                       />
-                      <span>𝕏 Tweet to Twitter / X ({twitterXHandle})</span>
+                      <span>⚡ Broadcast to Shoppage Time Desk</span>
                     </div>
-                    <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 800 }}>✓ Auto-Hashtags</span>
+                    <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 800 }}>✓ Verified Feed</span>
                   </label>
                 </div>
               </div>
@@ -828,9 +824,9 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
               <button
                 type="submit"
                 className="btn btn-primary"
-                style={{ width: '100%', padding: '0.85rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.95rem', background: '#2563EB', borderColor: '#2563EB' }}
+                style={{ width: '100%', padding: '0.85rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.95rem', background: '#10B981', borderColor: '#10B981' }}
               >
-                🚀 1-Click Dual Broadcast to Facebook & 𝕏 Twitter
+                🚀 1-Click Multi-Channel Broadcast
               </button>
             </form>
           </div>
@@ -870,7 +866,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
             </div>
 
             <p style={{ fontSize: '0.875rem', color: '#64748B', lineHeight: 1.5, marginBottom: '1.5rem' }}>
-              Linking your identity allows you to post directly to both Facebook trading groups and Twitter / X with verified CIPC badges and zero commission toll fees.
+              Linking your identity allows you to post directly to contractor trading groups and Shoppage Time with verified CIPC badges and zero commission toll fees.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.75rem' }}>
@@ -878,24 +874,24 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 onClick={() => {
                   setIsAccountLinked(true);
                   setShowLinkModal(false);
-                  showToast('Facebook Profile & Twitter/X handle successfully connected!', 'success');
+                  showToast('WhatsApp Business profile successfully connected!', 'success');
                 }}
                 className="btn btn-primary"
-                style={{ background: '#1877F2', borderColor: '#1877F2', fontWeight: 800, padding: '0.75rem', borderRadius: '8px' }}
+                style={{ background: '#25D366', borderColor: '#25D366', color: '#FFFFFF', fontWeight: 800, padding: '0.75rem', borderRadius: '8px' }}
               >
-                📘 Continue with Facebook
+                💬 Continue with WhatsApp Business
               </button>
 
               <button
                 onClick={() => {
                   setIsAccountLinked(true);
                   setShowLinkModal(false);
-                  showToast('Twitter / X handle successfully connected!', 'success');
+                  showToast('Community Profile successfully connected!', 'success');
                 }}
                 className="btn btn-primary"
-                style={{ background: '#000000', borderColor: '#000000', fontWeight: 800, padding: '0.75rem', borderRadius: '8px' }}
+                style={{ background: '#1877F2', borderColor: '#1877F2', fontWeight: 800, padding: '0.75rem', borderRadius: '8px' }}
               >
-                𝕏 Continue with Twitter / X
+                📘 Continue with Facebook Community
               </button>
 
               <button
