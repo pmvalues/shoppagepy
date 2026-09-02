@@ -1,428 +1,591 @@
 'use client';
 
-import { useState, useRef, useEffect, useMemo } from 'react';
-import FeedPostCard, { type PostItem } from './FeedPost';
-import { getShorts, type ShortItem } from '@/lib/feed';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import Link from 'next/link';
+import FeedPostCard from './FeedPost';
+import type { FeedPost } from '@/lib/feed';
+import { showToast } from '@/lib/toast';
 
-type TabType = 'foryou' | 'deals' | 'new' | 'shorts';
-type ViewType = 'home' | 'bookmarks';
+type TabId = 'foryou' | 'products' | 'vids' | 'shows' | 'markets' | 'companies';
 
-const CIRC = 62.83;
+interface TabConfig {
+  id: TabId;
+  label: string;
+}
 
-export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem[] }) {
-  const [posts, setPosts] = useState<PostItem[]>(initialPosts);
-  const [tab, setTab] = useState<TabType>('foryou');
-  const [view, setView] = useState<ViewType>('home');
-  const [search, setSearch] = useState('');
-  const [replyTo, setReplyTo] = useState<string | null>(null);
+const TABS: TabConfig[] = [
+  { id: 'foryou', label: 'For You' },
+  { id: 'products', label: 'Products' },
+  { id: 'vids', label: 'Shorts' },
+  { id: 'shows', label: 'Shows' },
+  { id: 'markets', label: 'Markets' },
+  { id: 'companies', label: 'Companies' },
+];
+
+const CATEGORY_CHIPS = [
+  { id: 'all', label: 'All' },
+  { id: 'solar', label: 'Solar' },
+  { id: 'packaging', label: 'Packaging' },
+  { id: 'hardware', label: 'Hardware' },
+  { id: 'tech', label: 'Tech' },
+  { id: 'auto', label: 'Auto' },
+  { id: 'fmcg', label: 'FMCG' },
+];
+
+const PAGE_SIZE = 8;
+
+function formatZar(cents: number): string {
+  return new Intl.NumberFormat('en-ZA', {
+    style: 'currency',
+    currency: 'ZAR',
+    maximumFractionDigits: 0,
+  }).format(cents / 100);
+}
+
+function matchesTab(post: FeedPost, tab: TabId): boolean {
+  switch (tab) {
+    case 'products':
+      return (
+        post.kind === 'price_drop' ||
+        post.kind === 'sweep' ||
+        post.kind === 'new_listing' ||
+        post.kind === 'restock' ||
+        post.kind === 'demand'
+      );
+    case 'vids':
+      return post.kind === 'short';
+    case 'shows':
+      return post.kind === 'show';
+    case 'markets':
+      return post.kind === 'market';
+    case 'companies':
+      return post.kind === 'company';
+    case 'foryou':
+    default:
+      return true;
+  }
+}
+
+interface SimulatedInquiry {
+  id: string;
+  author: string;
+  time: string;
+  text: string;
+  isMerchantReply?: boolean;
+}
+
+export default function DiscoveryFeed({ posts: initialPosts }: { posts: FeedPost[] }) {
+  const [localPosts, setLocalPosts] = useState<FeedPost[]>(initialPosts);
+  const [tab, setTab] = useState<TabId>('foryou');
+  const [category, setCategory] = useState<string>('all');
   const [composerText, setComposerText] = useState('');
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [hasNewPostsBanner, setHasNewPostsBanner] = useState(false);
 
-  // Reaction states
-  const [liked, setLiked] = useState<Record<string | number, boolean>>({});
-  const [reposted, setReposted] = useState<Record<string | number, boolean>>({});
-  const [bookmarked, setBookmarked] = useState<Record<string | number, boolean>>({});
-  const [playingShortId, setPlayingShortId] = useState<string | null>(null);
+  // Modals
+  const [inquiryPost, setInquiryPost] = useState<FeedPost | null>(null);
+  const [inquiryText, setInquiryText] = useState('');
+  const [inquiryList, setInquiryList] = useState<Record<string, SimulatedInquiry[]>>({});
 
-  // Toast
-  const [toastMsg, setToastMsg] = useState('');
-  const [toastOn, setToastOn] = useState(false);
-  const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [repostPost, setRepostPost] = useState<FeedPost | null>(null);
 
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const shorts = useMemo(() => getShorts(), []);
-
-  const toast = (msg: string) => {
-    setToastMsg(msg);
-    setToastOn(true);
-    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-    toastTimerRef.current = setTimeout(() => {
-      setToastOn(false);
-    }, 2600);
-  };
-
-  // Sync with window events for cart, search, bookmarks from navbar
-  useEffect(() => {
-    const handleCustomEvent = (e: CustomEvent) => {
-      const { type, query } = e.detail || {};
-      if (type === 'tab') {
-        setTab(query);
-        setView('home');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else if (type === 'bookmarks') {
-        setView('bookmarks');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else if (type === 'search') {
-        setSearch(query || '');
-      } else if (type === 'focus-composer') {
-        textareaRef.current?.focus();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    };
-
-    window.addEventListener('shoppage-nav' as any, handleCustomEvent);
-    return () => window.removeEventListener('shoppage-nav' as any, handleCustomEvent);
-  }, []);
-
-  // Textarea resizing
-  const handleComposerInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const val = e.target.value;
-    setComposerText(val);
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  };
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   // Character counter ring calculation
   const charLen = composerText.length;
   const isOver = charLen > 280;
   const isNear = 280 - charLen <= 20;
   const ringUsed = Math.min(charLen, 280);
-  const ringOffset = CIRC * (1 - ringUsed / 280);
-  const ringColor = isOver ? 'var(--red)' : isNear ? 'var(--gold)' : 'var(--blue)';
+  const ringOffset = 62.83 * (1 - ringUsed / 280);
+  const ringColor = isOver ? '#f4212e' : isNear ? '#ffd400' : '#1d9bf0';
 
-  const handlePostSubmit = () => {
+  const handleComposerSubmit = () => {
     const trimmed = composerText.trim();
     if (!trimmed || trimmed.length > 280) return;
 
-    const fullText = replyTo ? `Replying to ${replyTo}\n${trimmed}` : trimmed;
-    const newPost: PostItem = {
-      id: Date.now(),
-      name: 'You',
-      handle: '@you_za',
-      av: 'g8',
-      ini: 'Y',
-      verified: false,
-      time: 'now',
-      tabs: ['foryou'],
-      text: fullText,
-      stats: { replies: 0, reposts: 0, likes: 0, views: '1' },
+    const newPost: FeedPost = {
+      id: `post_${Date.now()}`,
+      kind: 'demand',
+      author: {
+        id: 'user_you',
+        name: 'You',
+        handle: '@you_za',
+        initials: 'Y',
+        verified: false,
+        href: '/requests',
+      },
+      timeLabel: 'just now',
+      text: trimmed,
+      stats: { replies: 0, reposts: 0, likes: 0, saves: 0 },
+      cta: { label: 'Sourcing Desk', href: '/requests' },
     };
 
-    setPosts([newPost, ...posts]);
+    setLocalPosts([newPost, ...localPosts]);
     setComposerText('');
-    setReplyTo(null);
-    if (textareaRef.current) textareaRef.current.style.height = 'auto';
-    setView('home');
-    setTab('foryou');
+    showToast('Your trade inquiry was posted to the network', 'success');
+  };
+
+  // Filter posts by Tab and Category
+  const filtered = useMemo(() => {
+    return localPosts.filter((p) => {
+      const matchT = matchesTab(p, tab);
+      if (!matchT) return false;
+      if (category === 'all') return true;
+      return p.category === category;
+    });
+  }, [localPosts, tab, category]);
+
+  // Reset pagination window on tab or category change
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+  }, [tab, category]);
+
+  const shown = filtered.slice(0, visible);
+  const hasMore = visible < filtered.length;
+
+  // Infinite scroll observer
+  useEffect(() => {
+    if (!hasMore) return;
+    const node = sentinelRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setVisible((v) => v + PAGE_SIZE);
+        }
+      },
+      { rootMargin: '800px 0px' },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasMore, visible]);
+
+  // Track window scroll for Back to Top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 480);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Simulate a live deal pulse after 8 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setHasNewPostsBanner(true);
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Keyboard navigation: j/k for stroll navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        document.activeElement?.tagName === 'INPUT' ||
+        document.activeElement?.tagName === 'TEXTAREA'
+      ) {
+        return;
+      }
+      if (e.key === 'j') {
+        window.scrollBy({ top: 380, behavior: 'smooth' });
+      } else if (e.key === 'k') {
+        window.scrollBy({ top: -380, behavior: 'smooth' });
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    toast('Your post was sent');
+    setHasNewPostsBanner(false);
   };
 
-  // Post Actions
-  const handleLike = (id: number | string) => {
-    setLiked((prev) => {
-      const next = !prev[id];
-      return { ...prev, [id]: next };
-    });
+  // Seed sample inquiries for the active post
+  const getInquiriesForPost = useCallback((post: FeedPost): SimulatedInquiry[] => {
+    if (inquiryList[post.id]) return inquiryList[post.id];
+    const initial: SimulatedInquiry[] = [
+      {
+        id: 'inq_1',
+        author: 'Kagiso M. (Gauteng Contractor)',
+        time: '24m ago',
+        text: 'Do you offer bulk contractor terms for 10+ units with tax invoice?',
+      },
+      {
+        id: 'inq_2',
+        author: post.author.name,
+        time: '18m ago',
+        text: 'Yes absolutely, VAT invoice provided and trade counter collection ready today.',
+        isMerchantReply: true,
+      },
+    ];
+    return initial;
+  }, [inquiryList]);
+
+  const handleSendInquiry = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inquiryText.trim() || !inquiryPost) return;
+    const current = getInquiriesForPost(inquiryPost);
+    const updated: SimulatedInquiry[] = [
+      ...current,
+      {
+        id: `inq_${Date.now()}`,
+        author: 'You',
+        time: 'Just now',
+        text: inquiryText.trim(),
+      },
+    ];
+    setInquiryList({ ...inquiryList, [inquiryPost.id]: updated });
+    setInquiryText('');
+    showToast('Inquiry broadcast to verified trade counter', 'success');
   };
 
-  const handleRepost = (id: number | string) => {
-    setReposted((prev) => {
-      const next = !prev[id];
-      toast(next ? 'Reposted to your followers' : 'Repost removed');
-      return { ...prev, [id]: next };
-    });
+  const handleShareToWhatsApp = () => {
+    if (!repostPost) return;
+    const url = `${window.location.origin}${repostPost.product?.href || repostPost.cta.href || '/'}`;
+    const text = encodeURIComponent(
+      `🔥 Check this on Shoppage: ${repostPost.author.name} — ${repostPost.text.slice(0, 100)}...\n${url}`,
+    );
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+    setRepostPost(null);
   };
 
-  const handleBookmark = (id: number | string) => {
-    setBookmarked((prev) => {
-      const next = !prev[id];
-      toast(next ? 'Added to your Bookmarks' : 'Removed from Bookmarks');
-      return { ...prev, [id]: next };
-    });
+  const handleShareToTwitter = () => {
+    if (!repostPost) return;
+    const url = `${window.location.origin}${repostPost.product?.href || repostPost.cta.href || '/'}`;
+    const text = encodeURIComponent(
+      `Check this deal on Shoppage South Africa: ${repostPost.text.slice(0, 120)} #Shoppage ${url}`,
+    );
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+    setRepostPost(null);
   };
 
-  const handleShare = (id: number | string) => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(`https://shoppage.co.za/post/${id}`).catch(() => {});
+  const handleCopyLink = () => {
+    if (!repostPost) return;
+    const url = `${window.location.origin}${repostPost.product?.href || repostPost.cta.href || '/'}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url);
+      showToast('Deal link copied to clipboard', 'success');
     }
-    toast('Link copied to clipboard');
+    setRepostPost(null);
   };
-
-  const handleReply = (handle: string) => {
-    setReplyTo(handle);
-    textareaRef.current?.focus();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleGetDeal = (post: PostItem) => {
-    // Dispatch cart addition event for AppNavbar
-    window.dispatchEvent(new CustomEvent('shoppage-cart', { detail: { action: 'add', item: post } }));
-    toast(`🛒 ${post.product?.name || 'Deal'} — price locked for 24h`);
-  };
-
-  // Filtering
-  const q = search.trim().toLowerCase();
-
-  const filteredPosts = useMemo(() => {
-    if (view === 'bookmarks') {
-      return posts.filter((p) => {
-        if (!bookmarked[p.id]) return false;
-        if (!q) return true;
-        return (p.text + p.name + p.handle).toLowerCase().includes(q);
-      });
-    }
-
-    return posts.filter((p) => {
-      if (tab === 'deals' && !p.badge) return false;
-      if (tab === 'new' && !p.tabs.includes('new')) return false;
-      if (!q) return true;
-      const haystack = (
-        p.text +
-        ' ' +
-        p.name +
-        ' ' +
-        p.handle +
-        ' ' +
-        (p.product?.name || '') +
-        ' ' +
-        (p.cat || '')
-      ).toLowerCase();
-      return haystack.includes(q);
-    });
-  }, [posts, tab, view, bookmarked, q]);
-
-  const filteredShorts = useMemo(() => {
-    if (!q) return shorts;
-    return shorts.filter((s) => s.title.toLowerCase().includes(q));
-  }, [shorts, q]);
 
   return (
-    <>
-      {/* ── TOPBAR ────────────────────────────────────────────────────────── */}
-      <div className="topbar">
-        {/* Mobile brand header row */}
-        <div className="row1">
-          <svg viewBox="0 0 24 24">
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.451-6.231z" />
-          </svg>
-          <div className="avatar g8" style={{ width: 32, height: 32, fontSize: 13 }}>
-            Y
-          </div>
+    <div className="discovery-feed-root">
+      {/* 1. STICKY TWITTER/X TABS BAR */}
+      <div className="feed-sticky-header">
+        <div className="feed-tabs" role="tablist" aria-label="Timeline navigation">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={tab === t.id}
+              className={`feed-tab${tab === t.id ? ' is-active' : ''}`}
+              onClick={() => setTab(t.id)}
+            >
+              <span className="feed-tab-label">{t.label}</span>
+              {tab === t.id && <span className="feed-tab-indicator" />}
+            </button>
+          ))}
         </div>
 
-        {/* Bookmarks view title */}
-        <div className={`viewtitle${view === 'bookmarks' ? ' on' : ''}`}>
-          <h2>Bookmarks</h2>
-          <p>Deals you saved for later</p>
+        {/* 2. CATEGORY MICRO-FILTERS */}
+        <div className="feed-category-bar" role="toolbar" aria-label="Category filters">
+          {CATEGORY_CHIPS.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              className={`category-chip${category === c.id ? ' is-selected' : ''}`}
+              onClick={() => setCategory(c.id)}
+            >
+              {c.label}
+            </button>
+          ))}
         </div>
-
-        {/* Timeline Tabs */}
-        {view === 'home' && (
-          <div className="tabs" role="tablist">
-            <button
-              type="button"
-              className={`tab${tab === 'foryou' ? ' on' : ''}`}
-              onClick={() => {
-                setTab('foryou');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-            >
-              For You
-            </button>
-            <button
-              type="button"
-              className={`tab${tab === 'deals' ? ' on' : ''}`}
-              onClick={() => {
-                setTab('deals');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-            >
-              Deals
-            </button>
-            <button
-              type="button"
-              className={`tab${tab === 'new' ? ' on' : ''}`}
-              onClick={() => {
-                setTab('new');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-            >
-              New &amp; Restocked
-            </button>
-            <button
-              type="button"
-              className={`tab${tab === 'shorts' ? ' on' : ''}`}
-              onClick={() => {
-                setTab('shorts');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-            >
-              Shorts
-            </button>
-          </div>
-        )}
       </div>
 
-      {/* ── COMPOSER (Home view only) ─────────────────────────────────────── */}
-      {view === 'home' && tab !== 'shorts' && (
-        <div className="composer">
-          <div className="avatar g8">Y</div>
-          <div className="cbody">
-            {replyTo && (
-              <div className="replyto on">
-                <span>Replying to {replyTo}</span>
-                <button type="button" onClick={() => setReplyTo(null)}>
-                  ✕ Cancel
-                </button>
-              </div>
-            )}
-            <textarea
-              ref={textareaRef}
-              rows={1}
-              placeholder="What's the deal?!"
-              value={composerText}
-              onChange={handleComposerInput}
-            />
-            <div className="ctools">
-              <button
-                type="button"
-                className="tool"
-                title="Media"
-                onClick={() => toast('Attach media proof coming soon')}
-              >
-                <svg viewBox="0 0 24 24">
-                  <path d="M3 5.5A2.5 2.5 0 0 1 5.5 3h13A2.5 2.5 0 0 1 21 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5v-13zM5.5 5c-.28 0-.5.22-.5.5v9.58l4.65-4.65a1 1 0 0 1 1.4 0L15 14.35l2.15-2.15a1 1 0 0 1 1.4 0L20 13.6V5.5c0-.28-.22-.5-.5-.5h-14zM19 16.44l-2.55-2.55-2.15 2.15a1 1 0 0 1-1.4 0L9 12.14l-4 4v2.36c0 .28.22.5.5.5h13c.28 0 .5-.22.5-.5v-2.06zM8.75 7a1.75 1.75 0 1 1 0 3.5 1.75 1.75 0 0 1 0-3.5z" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                className="tool"
-                title="Poll"
-                onClick={() => toast('Poll composer coming soon')}
-              >
-                <svg viewBox="0 0 24 24">
-                  <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21v-5.5h2V21H4z" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                className="tool"
-                title="Emoji"
-                onClick={() => toast('Emoji picker coming soon')}
-              >
-                <svg viewBox="0 0 24 24">
-                  <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zM8.5 8A1.5 1.5 0 1 0 10 9.5 1.5 1.5 0 0 0 8.5 8zm7 0A1.5 1.5 0 1 0 17 9.5 1.5 1.5 0 0 0 15.5 8zM12 17.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                className="tool"
-                title="Location"
-                onClick={() => toast('Trade counter geotag coming soon')}
-              >
-                <svg viewBox="0 0 24 24">
-                  <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5z" />
-                </svg>
-              </button>
-
-              <div className="cright">
-                <div className={`ring${charLen > 0 ? ' on' : ''}`}>
-                  <svg width="26" height="26">
-                    <circle className="bgc" cx="13" cy="13" r="10" />
+      {/* 3. SLEEK TWITTER/X COMPOSER */}
+      <div className="feed-composer">
+        <div className="avatar g8" style={{ width: 40, height: 40, flexShrink: 0 }}>
+          Y
+        </div>
+        <div className="cbody" style={{ flex: 1, minWidth: 0 }}>
+          <textarea
+            rows={1}
+            placeholder="What's the deal?! Search 1M+ items or post RFQ..."
+            value={composerText}
+            onChange={(e) => setComposerText(e.target.value)}
+            style={{
+              width: '100%',
+              background: 'transparent',
+              border: 'none',
+              resize: 'none',
+              color: 'inherit',
+              fontFamily: 'inherit',
+              fontSize: '0.95rem',
+              outline: 'none',
+              padding: '0.35rem 0',
+            }}
+          />
+          <div className="ctools" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.4rem', borderTop: '1px solid var(--border-subtle, rgba(231,233,234,0.1))' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <Link href="/requests" className="category-chip" style={{ textDecoration: 'none', fontSize: '0.75rem', padding: '2px 8px' }}>
+                📋 Sourcing Desk
+              </Link>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              {charLen > 0 && (
+                <div className="ring on" style={{ position: 'relative', width: 24, height: 24 }}>
+                  <svg width="24" height="24" style={{ transform: 'rotate(-90deg)' }}>
+                    <circle cx="12" cy="12" r="9" stroke="rgba(231,233,234,0.15)" fill="none" strokeWidth="2.5" />
                     <circle
-                      className="fgc"
-                      cx="13"
-                      cy="13"
-                      r="10"
-                      strokeDasharray="62.83"
-                      strokeDashoffset={ringOffset}
+                      cx="12"
+                      cy="12"
+                      r="9"
+                      fill="none"
+                      strokeWidth="2.5"
+                      strokeDasharray="56.54"
+                      strokeDashoffset={56.54 * (1 - Math.min(charLen, 280) / 280)}
                       stroke={ringColor}
                     />
                   </svg>
-                  <span className="num" style={{ color: isOver ? 'var(--red)' : 'var(--text2)' }}>
-                    {isOver ? charLen - 280 : isNear ? 280 - charLen : ''}
-                  </span>
                 </div>
+              )}
+              <button
+                type="button"
+                className="btn btn-signal btn-sm"
+                style={{ borderRadius: '9999px', padding: '4px 14px', fontSize: '0.8rem', fontWeight: 700 }}
+                disabled={charLen === 0 || isOver}
+                onClick={handleComposerSubmit}
+              >
+                Post
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-                <button
-                  type="button"
-                  className="send"
-                  disabled={charLen === 0 || isOver}
-                  onClick={handlePostSubmit}
-                >
-                  Post
-                </button>
-              </div>
+      {/* 5. TIMELINE STREAM */}
+      {shown.length === 0 ? (
+        <div className="feed-empty">
+          <div className="feed-empty-icon" aria-hidden="true">
+            🔍
+          </div>
+          <h3>No posts found in this stream</h3>
+          <p>Try switching category filters or search across 1M+ products and trade counters.</p>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+            <button
+              type="button"
+              className="btn btn-signal"
+              onClick={() => {
+                setTab('foryou');
+                setCategory('all');
+              }}
+            >
+              Reset to For You
+            </button>
+            <Link href="/search" className="btn btn-outline">
+              Search Catalog
+            </Link>
+          </div>
+        </div>
+      ) : (
+        shown.map((post, i) => (
+          <FeedPostCard
+            key={post.id}
+            post={post}
+            index={i}
+            onOpenInquiry={(p) => setInquiryPost(p)}
+            onOpenRepost={(p) => setRepostPost(p)}
+          />
+        ))
+      )}
+
+      {/* 6. INFINITE SCROLL & SKELETON LOADERS */}
+      {hasMore && (
+        <>
+          <div ref={sentinelRef} className="feed-sentinel" aria-hidden="true" />
+          <div className="feed-more">
+            <div className="feed-stroll-indicator">
+              <span className="stroll-spinner" />
+              <span>Strolling fresh counter deals...</span>
+            </div>
+          </div>
+        </>
+      )}
+
+      {!hasMore && shown.length > 0 && (
+        <div className="feed-more">
+          <div className="feed-caught-up">
+            <span className="checkmark-seal">✓</span>
+            <div>
+              <strong>You&apos;re completely caught up</strong>
+              <p>Checked {filtered.length} live commerce updates on the national grid.</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* ── FEED OR SHORTS ────────────────────────────────────────────────── */}
-      <div id="feed">
-        {tab === 'shorts' && view === 'home' ? (
-          filteredShorts.length > 0 ? (
-            <div className="shorts">
-              {filteredShorts.map((s) => {
-                const isPlaying = playingShortId === s.id;
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    className={`short${isPlaying ? ' playing' : ''}`}
-                    style={{ backgroundImage: `url('${s.img}')` }}
-                    onClick={() => setPlayingShortId(isPlaying ? null : s.id)}
-                  >
-                    <span className="play">
-                      <svg className="p" viewBox="0 0 24 24">
-                        <path d={isPlaying ? 'M6 19h4V5H6v14zm8-14v14h4V5h-4z' : 'M8 5v14l11-7z'} />
-                      </svg>
-                    </span>
-                    <span className="dur">{s.dur}</span>
-                    <span className="smeta">
-                      <h4>{s.title}</h4>
-                      <span>{s.views}</span>
-                    </span>
-                    <span className="prog" />
-                  </button>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="empty">
-              <h3>No Shorts found</h3>
-              <p>Try a different search query.</p>
-            </div>
-          )
-        ) : filteredPosts.length > 0 ? (
-          filteredPosts.map((post) => (
-            <FeedPostCard
-              key={post.id}
-              post={post}
-              isLiked={liked[post.id]}
-              isReposted={reposted[post.id]}
-              isBookmarked={bookmarked[post.id]}
-              onLike={handleLike}
-              onRepost={handleRepost}
-              onBookmark={handleBookmark}
-              onShare={handleShare}
-              onReply={handleReply}
-              onGetDeal={handleGetDeal}
-            />
-          ))
-        ) : (
-          <div className="empty">
-            {view === 'bookmarks' ? (
-              <>
-                <h3>Save deals for later</h3>
-                <p>Tap the bookmark icon on any post and it will land here.</p>
-              </>
-            ) : (
-              <>
-                <h3>Nothing here yet</h3>
-                <p>
-                  No posts match &quot;{search}&quot; in this stream. Try the For You timeline.
-                </p>
-              </>
-            )}
-          </div>
-        )}
-      </div>
+      {/* 7. FLOATING BACK TO TOP BUTTON */}
+      {showScrollTop && (
+        <button
+          type="button"
+          className="feed-back-to-top"
+          onClick={scrollToTop}
+          aria-label="Scroll back to top"
+          title="Back to top (k)"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="18 15 12 9 6 15" />
+          </svg>
+          <span className="btt-label">Top</span>
+        </button>
+      )}
 
-      {/* ── TOAST NOTIFICATION ────────────────────────────────────────────── */}
-      <div className={`toast${toastOn ? ' on' : ''}`}>{toastMsg}</div>
-    </>
+      {/* ── MODAL: BUYER DISCUSSION / INQUIRY DRAWER ─────────────────────── */}
+      {inquiryPost && (
+        <div className="modal-backdrop" onClick={() => setInquiryPost(null)}>
+          <div
+            className="inquiry-modal-sheet"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-labelledby="inquiry-modal-title"
+          >
+            <div className="inquiry-modal-head">
+              <div>
+                <span className="inquiry-badge">Direct Trade Discussion</span>
+                <h3 id="inquiry-modal-title" className="inquiry-modal-title">
+                  {inquiryPost.author.name}
+                </h3>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setInquiryPost(null)}
+                aria-label="Close modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="inquiry-post-summary">
+              <p className="ips-text">{inquiryPost.text}</p>
+              {inquiryPost.product && (
+                <div className="ips-price-pill">
+                  {inquiryPost.product.title} · {typeof inquiryPost.product.priceNow === 'number' && formatZar(inquiryPost.product.priceNow)}
+                </div>
+              )}
+            </div>
+
+            <div className="inquiry-threads-list">
+              <h4 className="threads-heading">Customer Inquiries & Trade Questions</h4>
+              {getInquiriesForPost(inquiryPost).map((inq) => (
+                <div
+                  key={inq.id}
+                  className={`thread-item${inq.isMerchantReply ? ' is-merchant' : ''}`}
+                >
+                  <div className="thread-head">
+                    <span className="thread-author">{inq.author}</span>
+                    {inq.isMerchantReply && <span className="merchant-tag">Verified Merchant</span>}
+                    <span className="thread-time">{inq.time}</span>
+                  </div>
+                  <p className="thread-text">{inq.text}</p>
+                </div>
+              ))}
+            </div>
+
+            <form onSubmit={handleSendInquiry} className="inquiry-form">
+              <textarea
+                value={inquiryText}
+                onChange={(e) => setInquiryText(e.target.value)}
+                placeholder={`Ask ${inquiryPost.author.name} about bulk pricing, specs, or delivery...`}
+                rows={2}
+                className="inquiry-textarea"
+                required
+              />
+              <div className="inquiry-form-actions">
+                <span className="ifa-guarantee">🔒 0% take-rate. Deal directly.</span>
+                <button type="submit" className="btn btn-signal btn-sm">
+                  Send Inquiry
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: REPOST / SHARE DEAL ───────────────────────────────────── */}
+      {repostPost && (
+        <div className="modal-backdrop" onClick={() => setRepostPost(null)}>
+          <div
+            className="share-modal-sheet"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-labelledby="repost-modal-title"
+          >
+            <div className="share-modal-head">
+              <h3 id="repost-modal-title" className="share-modal-title">
+                Share Deal to Network
+              </h3>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setRepostPost(null)}
+                aria-label="Close modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="share-modal-sub">
+              Broadcast this trade deal directly to WhatsApp groups, Twitter / X, or copy link:
+            </p>
+
+            <div className="share-actions-stack">
+              <button
+                type="button"
+                className="share-row-btn is-wa"
+                onClick={handleShareToWhatsApp}
+              >
+                <span className="srb-icon">💬</span>
+                <div className="srb-info">
+                  <strong>Share to WhatsApp</strong>
+                  <span>Broadcast to trade groups and contractor chats</span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className="share-row-btn is-x"
+                onClick={handleShareToTwitter}
+              >
+                <span className="srb-icon">𝕏</span>
+                <div className="srb-info">
+                  <strong>Post on X (Twitter)</strong>
+                  <span>Share price drop with South African trade community</span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className="share-row-btn"
+                onClick={handleCopyLink}
+              >
+                <span className="srb-icon">🔗</span>
+                <div className="srb-info">
+                  <strong>Copy Deal Link</strong>
+                  <span>Copy direct clean URL with attribution</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
+
