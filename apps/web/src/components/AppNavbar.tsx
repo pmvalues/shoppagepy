@@ -21,11 +21,12 @@ export default function AppNavbar({
 }) {
   const pathname = usePathname();
   const [themeIdx, setThemeIdx] = useState(0);
+  const [collapsed, setCollapsed] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [unreadNotifs, setUnreadNotifs] = useState(3);
   const [cartCount, setCartCount] = useState(0);
 
-  // Initialize theme from storage
+  // Initialize theme and collapse state from storage
   useEffect(() => {
     try {
       const stored = localStorage.getItem('shoppage_theme');
@@ -37,6 +38,11 @@ export default function AppNavbar({
       } else {
         document.body.setAttribute('data-theme', 'dark');
         document.documentElement.setAttribute('data-theme', 'dark');
+      }
+
+      const storedNav = localStorage.getItem('shoppage_nav_collapsed');
+      if (storedNav === 'true') {
+        setCollapsed(true);
       }
     } catch {
       /* ignore */
@@ -51,6 +57,16 @@ export default function AppNavbar({
     window.addEventListener('shoppage-cart' as any, onCartEvent);
     return () => window.removeEventListener('shoppage-cart' as any, onCartEvent);
   }, []);
+
+  const toggleCollapse = () => {
+    const next = !collapsed;
+    setCollapsed(next);
+    try {
+      localStorage.setItem('shoppage_nav_collapsed', String(next));
+    } catch {
+      /* ignore */
+    }
+  };
 
   const cycleTheme = () => {
     const nextIdx = (themeIdx + 1) % THEMES.length;
@@ -85,16 +101,31 @@ export default function AppNavbar({
   return (
     <>
       <div className="shell">
-        {/* ── LEFT RAIL (Exact Prototype Architecture) ─────────────────── */}
-        <aside className="left">
-          <Link href="/" className="logo" title="Shoppage">
-            <svg viewBox="0 0 24 24">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.451-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117l11.966 15.644z" />
-            </svg>
-            <span className="wordmark">Shoppage</span>
-          </Link>
+        {/* ── LEFT RAIL WITH COLLAPSING ───────────────────────────────── */}
+        <aside className={`left${collapsed ? ' is-collapsed' : ''}`}>
+          <div className="rail-head">
+            <Link href="/" className="logo" title="Shoppage">
+              <svg viewBox="0 0 24 24">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.451-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117l11.966 15.644z" />
+              </svg>
+              {!collapsed && <span className="wordmark">Shoppage</span>}
+            </Link>
+
+            <button
+              type="button"
+              className="collapse-btn"
+              onClick={toggleCollapse}
+              title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                {collapsed ? <path d="M9 18l6-6-6-6" /> : <path d="M15 18l-6-6 6-6" />}
+              </svg>
+            </button>
+          </div>
 
           <nav className="nav" aria-label="Primary navigation">
+            {/* 1. Feed / Home */}
             <button
               type="button"
               className={`nav-item${pathname === '/' ? ' active' : ''}`}
@@ -102,6 +133,7 @@ export default function AppNavbar({
                 dispatchNav('tab', 'foryou');
                 setNotifOpen(false);
               }}
+              title={collapsed ? 'Home' : undefined}
             >
               <svg viewBox="0 0 24 24">
                 <path d="M12 1.7 1.6 8.8l1.1 1.7 1.3-.6V21a1 1 0 0 0 1 1h5v-8h4v8h5a1 1 0 0 0 1-1V9.9l1.3.6 1.1-1.7L12 1.7z" />
@@ -109,17 +141,118 @@ export default function AppNavbar({
               <span>Home</span>
             </button>
 
-            <Link href="/search" className="nav-item">
+            {/* 2. Search / Explore */}
+            <Link
+              href="/search"
+              className={`nav-item${pathname === '/search' ? ' active' : ''}`}
+              title={collapsed ? 'Explore & Search' : undefined}
+            >
               <svg viewBox="0 0 24 24">
                 <path d="M10.25 4.25a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm-8 6a8 8 0 1 1 14.9 4.45l4.42 4.42-1.42 1.42-4.42-4.42A8 8 0 0 1 2.25 10.25z" />
               </svg>
               <span>Explore</span>
             </Link>
 
+            {/* 3. Shorts / Video Proof */}
+            <button
+              type="button"
+              className="nav-item"
+              onClick={() => dispatchNav('tab', 'shorts')}
+              title={collapsed ? 'Shorts' : undefined}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="2" y="3" width="20" height="18" rx="3" />
+                <path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none" />
+              </svg>
+              <span>Shorts</span>
+            </button>
+
+            {/* 4. Shows / Original Series */}
+            <Link
+              href="/shows"
+              className={`nav-item${pathname === '/shows' ? ' active' : ''}`}
+              title={collapsed ? 'Shows' : undefined}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="2" y="7" width="20" height="15" rx="2" />
+                <polyline points="17 2 12 7 7 2" />
+              </svg>
+              <span>Shows</span>
+            </Link>
+
+            {/* 5. Wholesale Markets */}
+            <Link
+              href="/markets"
+              className={`nav-item${pathname === '/markets' ? ' active' : ''}`}
+              title={collapsed ? 'Markets' : undefined}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 9l1.5-5h15L21 9" />
+                <path d="M4 9v11h16V9" />
+                <path d="M9 20v-6h6v6" />
+              </svg>
+              <span>Markets</span>
+            </Link>
+
+            {/* 6. Malls */}
+            <Link
+              href="/malls"
+              className={`nav-item${pathname === '/malls' ? ' active' : ''}`}
+              title={collapsed ? 'Malls' : undefined}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 21V8l9-5 9 5v13" />
+                <path d="M9 21v-6h6v6" />
+              </svg>
+              <span>Malls</span>
+            </Link>
+
+            {/* 7. Stores / Merchants */}
+            <Link
+              href="/merchants"
+              className={`nav-item${pathname === '/merchants' ? ' active' : ''}`}
+              title={collapsed ? 'Stores' : undefined}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M20 21H4a1 1 0 0 1-1-1V8l2-4h14l2 4v12a1 1 0 0 1-1 1z" />
+                <path d="M8 21v-6h8v6" />
+              </svg>
+              <span>Stores</span>
+            </Link>
+
+            {/* 8. RFQ Desk */}
+            <Link
+              href="/requests"
+              className={`nav-item${pathname === '/requests' ? ' active' : ''}`}
+              title={collapsed ? 'RFQ Desk' : undefined}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+                <path d="M14 3v5h5" />
+                <path d="M9 13h6M9 17h4" />
+              </svg>
+              <span>RFQ Desk</span>
+            </Link>
+
+            {/* 9. Shoppage Time (LIVE) */}
+            <Link
+              href="/time"
+              className={`nav-item${pathname === '/time' ? ' active' : ''}`}
+              title={collapsed ? 'Shoppage Time (LIVE)' : undefined}
+            >
+              <svg viewBox="0 0 24 24">
+                <path d="M13 2L4 14h7l-1 8 9-12h-7z" />
+              </svg>
+              <span>Time</span>
+              <span className="live-badge">LIVE</span>
+            </Link>
+
+            {/* 10. Notifications */}
             <button
               type="button"
               className="nav-item"
               onClick={() => setNotifOpen(!notifOpen)}
+              title={collapsed ? 'Notifications' : undefined}
             >
               <svg viewBox="0 0 24 24">
                 <path d="M19.99 9.04c0-4.16-3.27-7.54-7.99-7.54S4.01 4.88 4.01 9.04c0 4.1-1.16 6.2-2.14 7.43-.54.68-.04 1.78.85 1.78h18.56c.89 0 1.39-1.1.85-1.78-.98-1.23-2.14-3.33-2.14-7.43zM12 22.5c1.93 0 3.5-1.57 3.5-3.5h-7c0 1.93 1.57 3.5 3.5 3.5z" />
@@ -128,13 +261,7 @@ export default function AppNavbar({
               {unreadNotifs > 0 && <em className="nbadge">{unreadNotifs}</em>}
             </button>
 
-            <Link href="/requests" className="nav-item">
-              <svg viewBox="0 0 24 24">
-                <path d="M1.998 5.5c0-1.381 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.119 2.5 2.5v13c0 1.381-1.119 2.5-2.5 2.5h-15c-1.381 0-2.5-1.119-2.5-2.5v-13zm2.5-.5c-.276 0-.5.224-.5.5v2.764l8 3.638 8-3.636V5.5c0-.276-.224-.5-.5-.5h-15zm15.5 5.463-8 3.636-8-3.638V18.5c0 .276.224.5.5.5h15c.276 0 .5-.224.5-.5v-8.037z" />
-              </svg>
-              <span>Messages</span>
-            </Link>
-
+            {/* 11. Cart */}
             <button
               type="button"
               className="nav-item"
@@ -145,15 +272,10 @@ export default function AppNavbar({
                     : 'Your cart is empty. Tap “Get deal” on any post.',
                 );
               }}
+              title={collapsed ? 'Cart' : undefined}
             >
-              <svg viewBox="0 0 24 24">
-                <path
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinejoin="round"
-                  d="M3 3h2l2.6 12.4a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20.6 8H6"
-                />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 3h2l2.6 12.4a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20.6 8H6" strokeLinejoin="round" />
                 <circle cx="9.5" cy="20" r="1.7" />
                 <circle cx="17.5" cy="20" r="1.7" />
               </svg>
@@ -161,16 +283,15 @@ export default function AppNavbar({
               {cartCount > 0 && <em className="nbadge">{cartCount}</em>}
             </button>
 
+            {/* 12. Bookmarks */}
             <button
               type="button"
               className="nav-item"
               onClick={() => dispatchNav('bookmarks')}
+              title={collapsed ? 'Bookmarks' : undefined}
             >
-              <svg viewBox="0 0 24 24">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
                   strokeLinejoin="round"
                   d="M4 4.5C4 3.12 5.12 2 6.5 2h11C18.88 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5z"
                 />
@@ -178,19 +299,25 @@ export default function AppNavbar({
               <span>Bookmarks</span>
             </button>
 
-            <Link href="/merchant/claim" className="nav-item">
-              <svg viewBox="0 0 24 24">
-                <path
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  d="M12 3a4.25 4.25 0 1 0 0 8.5A4.25 4.25 0 0 0 12 3zM4 20.1c.6-3.6 3.9-5.6 8-5.6s7.4 2 8 5.6v1.4H4v-1.4z"
-                />
+            {/* 13. Profile */}
+            <Link
+              href="/merchant/claim"
+              className={`nav-item${pathname === '/merchant/claim' ? ' active' : ''}`}
+              title={collapsed ? 'Profile' : undefined}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 3a4.25 4.25 0 1 0 0 8.5A4.25 4.25 0 0 0 12 3zM4 20.1c.6-3.6 3.9-5.6 8-5.6s7.4 2 8 5.6v1.4H4v-1.4z" />
               </svg>
               <span>Profile</span>
             </Link>
 
-            <button type="button" className="nav-item" onClick={cycleTheme} title="Switch theme">
+            {/* 14. More / Theme */}
+            <button
+              type="button"
+              className="nav-item"
+              onClick={cycleTheme}
+              title={`Switch theme (currently ${THEME_NAMES[THEMES[themeIdx]]})`}
+            >
               <svg viewBox="0 0 24 24">
                 <circle cx="5" cy="12" r="2" />
                 <circle cx="12" cy="12" r="2" />
@@ -200,10 +327,12 @@ export default function AppNavbar({
             </button>
           </nav>
 
+          {/* Post Action Button */}
           <button
             type="button"
             className="post-btn"
             onClick={() => dispatchNav('focus-composer')}
+            title={collapsed ? 'New Post' : undefined}
           >
             <span className="txt">Post</span>
             <svg className="ic" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
@@ -211,6 +340,7 @@ export default function AppNavbar({
             </svg>
           </button>
 
+          {/* User Card */}
           <div className="me" onClick={cycleTheme} title={`Theme: ${THEME_NAMES[THEMES[themeIdx]]}`}>
             <div className="avatar g8">Y</div>
             <div className="meta">
@@ -221,10 +351,10 @@ export default function AppNavbar({
           </div>
         </aside>
 
-        {/* ── CENTER (Exact Prototype Width) ───────────────────────────── */}
+        {/* ── CENTER (Timeline) ────────────────────────────────────────── */}
         <main className="center">{children}</main>
 
-        {/* ── RIGHT (Exact Prototype Rail) ─────────────────────────────── */}
+        {/* ── RIGHT (Intelligence Rail) ────────────────────────────────── */}
         <aside className="right">{aside}</aside>
       </div>
 

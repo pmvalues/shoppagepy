@@ -33,27 +33,42 @@ a{color:var(--blue);text-decoration:none}
 .shell{display:flex;justify-content:center;max-width:1300px;margin:0 auto;min-height:100vh}
 
 /* ============ LEFT RAIL ============ */
-.left{width:275px;flex-shrink:0;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:8px 12px 12px 12px;z-index:40}
+.left{width:275px;flex-shrink:0;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:8px 12px 12px 12px;z-index:40;transition:width .2s ease,padding .2s ease}
+.rail-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.collapse-btn{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;color:var(--text2);transition:background .2s,color .2s;cursor:pointer}
+.collapse-btn:hover{background:var(--elev);color:var(--text)}
+.collapse-btn svg{width:18px;height:18px}
 .logo{display:flex;align-items:center;gap:10px;padding:12px;border-radius:9999px;width:fit-content;transition:background .2s;color:inherit;text-decoration:none}
 .logo:hover{background:var(--elev)}
 .logo svg{width:28px;height:28px;fill:var(--text)}
 .logo .wordmark{font-weight:800;font-size:20px;letter-spacing:-.4px}
-.nav{margin-top:4px;display:flex;flex-direction:column;gap:2px}
-.nav-item{display:flex;align-items:center;gap:16px;padding:12px;border-radius:9999px;width:fit-content;font-size:20px;transition:background .2s;position:relative;color:inherit;text-decoration:none;cursor:pointer}
+.nav{margin-top:4px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;overflow-x:hidden}
+.nav-item{display:flex;align-items:center;gap:16px;padding:10px 12px;border-radius:9999px;width:fit-content;font-size:18px;transition:background .2s;position:relative;color:inherit;text-decoration:none;cursor:pointer}
 .nav-item:hover{background:var(--elev)}
-.nav-item svg{width:26px;height:26px;fill:var(--text)}
+.nav-item svg{width:24px;height:24px;fill:currentColor}
 .nav-item.active span{font-weight:700}
 .nav-item .nbadge{position:absolute;left:16px;top:4px;background:var(--blue);color:#fff;font-size:11px;font-weight:700;min-width:17px;height:17px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-style:normal}
-.post-btn{margin-top:14px;background:var(--blue);color:#fff;font-weight:700;font-size:17px;border-radius:9999px;padding:15px 0;width:90%;transition:filter .2s,transform .1s;box-shadow:0 4px 14px rgba(29,155,240,.35);cursor:pointer;display:block;text-align:center}
+.nav-item .live-badge{background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:4px;padding:1px 5px;margin-left:6px;letter-spacing:.5px}
+.post-btn{margin-top:14px;background:var(--blue);color:#fff;font-weight:700;font-size:17px;border-radius:9999px;padding:14px 0;width:90%;transition:filter .2s,transform .1s;box-shadow:0 4px 14px rgba(29,155,240,.35);cursor:pointer;display:block;text-align:center}
 .post-btn:hover{filter:brightness(1.1)}
 .post-btn:active{transform:scale(.98)}
 .post-btn .ic{display:none}
-.me{margin-top:auto;display:flex;align-items:center;gap:12px;padding:12px;border-radius:9999px;transition:background .2s;cursor:pointer}
+.me{margin-top:auto;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:9999px;transition:background .2s;cursor:pointer}
 .me:hover{background:var(--elev)}
 .me .meta{line-height:1.25}
 .me .meta b{font-size:15px;display:block}
 .me .meta span{font-size:14px;color:var(--text2)}
 .me .dots{margin-left:auto;color:var(--text2);font-size:18px;letter-spacing:2px}
+
+/* Collapsed left rail state (User toggled or narrower screens) */
+.left.is-collapsed{width:88px;align-items:center}
+.left.is-collapsed .rail-head{flex-direction:column;gap:6px;justify-content:center;width:100%}
+.left.is-collapsed .logo .wordmark,.left.is-collapsed .nav-item span,.left.is-collapsed .nav-item .live-badge,.left.is-collapsed .me .meta,.left.is-collapsed .me .dots{display:none}
+.left.is-collapsed .nav-item{padding:12px;justify-content:center}
+.left.is-collapsed .post-btn{width:52px;height:52px;padding:0;display:flex;align-items:center;justify-content:center;margin:14px auto 0}
+.left.is-collapsed .post-btn .txt{display:none}
+.left.is-collapsed .post-btn .ic{display:block}
+.left.is-collapsed .notif{left:100px}
 
 .avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px;flex-shrink:0;user-select:none}
 .g1{background:linear-gradient(135deg,#ff8a00,#ffb300)}
