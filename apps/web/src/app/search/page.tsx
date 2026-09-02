@@ -4,7 +4,6 @@ import { semanticSearch } from '@/lib/intelligence';
 import GoogleHeader from '@/components/GoogleHeader';
 import SponsoredCarousel from '@/components/SponsoredCarousel';
 import CollapsibleLocalMap from '@/components/CollapsibleLocalMap';
-import KnowledgePanel from '@/components/KnowledgePanel';
 import OrganicWebResults from '@/components/OrganicWebResults';
 import PeopleAlsoSearch from '@/components/PeopleAlsoSearch';
 import GooglePagination from '@/components/GooglePagination';
@@ -73,30 +72,22 @@ export default async function SearchPage({
             <ShoppingBrowseGrid products={searchResults.products} />
           </>
         ) : (
-          /* Google All Mode: Left Organic Results + Nearby Places Map, Right Knowledge Panel */
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 360px', gap: '3rem', alignItems: 'flex-start' }}>
-            {/* Left Main Stream */}
-            <div style={{ minWidth: 0 }}>
-              {/* Collapsible Local Places / Map Component (DEFAULT CLOSED) */}
-              <div style={{ minHeight: '44px' }}>
-                <CollapsibleLocalMap merchants={searchResults.merchants} />
-              </div>
-
-              {/* Organic Web Search Listings */}
-              <OrganicWebResults
-                query={query}
-                products={searchResults.products}
-                merchants={searchResults.merchants}
-              />
-
-              {/* 2-Column People Also Search For Grid */}
-              <PeopleAlsoSearch query={query} />
+          /* Clean Organic Search Stream */
+          <div style={{ maxWidth: '840px', width: '100%' }}>
+            {/* Collapsible Local Places / Map Component (DEFAULT CLOSED) */}
+            <div style={{ minHeight: '44px' }}>
+              <CollapsibleLocalMap merchants={searchResults.merchants} />
             </div>
 
-            {/* Right-Hand Knowledge Panel / Entity Box */}
-            <aside style={{ position: 'sticky', top: '100px', minHeight: '380px' }}>
-              <KnowledgePanel query={query} products={searchResults.products} />
-            </aside>
+            {/* Organic Web Search Listings */}
+            <OrganicWebResults
+              query={query}
+              products={searchResults.products}
+              merchants={searchResults.merchants}
+            />
+
+            {/* 2-Column People Also Search For Grid */}
+            <PeopleAlsoSearch query={query} />
           </div>
         )}
 
