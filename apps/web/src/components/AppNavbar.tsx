@@ -1,136 +1,16 @@
 'use client';
 
-import React from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import LiveSearch from './LiveSearch';
 import AIAssistant from './AIAssistant';
 
-/* ── Icons ─────────────────────────────────────────────────────────────── */
-
-const iconProps = {
-  width: 22,
-  height: 22,
-  viewBox: '0 0 24 24',
-  fill: 'none',
-  stroke: 'currentColor',
-  strokeWidth: 2,
-  strokeLinecap: 'round' as const,
-  strokeLinejoin: 'round' as const,
-  'aria-hidden': true,
+const THEMES = ['dark', 'dim', 'light'];
+const THEME_NAMES: Record<string, string> = {
+  dark: 'Default (dark)',
+  dim: 'Dim',
+  light: 'Lights on',
 };
-
-function FeedIcon() {
-  return (
-    <svg {...iconProps}>
-      <path d="M4 6h16M4 12h16M4 18h10" />
-    </svg>
-  );
-}
-function SearchIcon() {
-  return (
-    <svg {...iconProps}>
-      <circle cx="11" cy="11" r="7" />
-      <path d="M20 20l-3.5-3.5" />
-    </svg>
-  );
-}
-function ShortsIcon() {
-  return (
-    <svg {...iconProps}>
-      <rect x="2" y="3" width="20" height="18" rx="3" />
-      <path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-function ShowsIcon() {
-  return (
-    <svg {...iconProps}>
-      <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
-      <polyline points="17 2 12 7 7 2" />
-    </svg>
-  );
-}
-function MarketsIcon() {
-  return (
-    <svg {...iconProps}>
-      <path d="M3 9l1.5-5h15L21 9" />
-      <path d="M4 9v11h16V9" />
-      <path d="M9 20v-6h6v6" />
-    </svg>
-  );
-}
-function MallsIcon() {
-  return (
-    <svg {...iconProps}>
-      <path d="M3 21V8l9-5 9 5v13" />
-      <path d="M9 21v-6h6v6" />
-    </svg>
-  );
-}
-function StoresIcon() {
-  return (
-    <svg {...iconProps}>
-      <path d="M20 21H4a1 1 0 0 1-1-1V8l2-4h14l2 4v12a1 1 0 0 1-1 1z" />
-      <path d="M8 21v-6h8v6" />
-    </svg>
-  );
-}
-function RfqIcon() {
-  return (
-    <svg {...iconProps}>
-      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
-      <path d="M14 3v5h5" />
-      <path d="M9 13h6M9 17h4" />
-    </svg>
-  );
-}
-function BoltIcon() {
-  return (
-    <svg {...iconProps}>
-      <path d="M13 2L4 14h7l-1 8 9-12h-7z" />
-    </svg>
-  );
-}
-function SunIcon() {
-  return (
-    <svg {...iconProps} width="18" height="18">
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
-    </svg>
-  );
-}
-function MoonIcon() {
-  return (
-    <svg {...iconProps} width="18" height="18">
-      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
-    </svg>
-  );
-}
-
-/* ── Nav model ─────────────────────────────────────────────────────────── */
-
-const NAV_ITEMS = [
-  { href: '/', label: 'Feed', Icon: FeedIcon, exact: true },
-  { href: '/search', label: 'Search', Icon: SearchIcon },
-  { href: '/shorts', label: 'Shorts', Icon: ShortsIcon },
-  { href: '/shows', label: 'Shows', Icon: ShowsIcon },
-  { href: '/markets', label: 'Markets', Icon: MarketsIcon },
-  { href: '/malls', label: 'Malls', Icon: MallsIcon },
-  { href: '/merchants', label: 'Stores', Icon: StoresIcon },
-  { href: '/requests', label: 'RFQ Desk', Icon: RfqIcon },
-  { href: '/time', label: 'Shoppage Time', Icon: BoltIcon, live: true },
-];
-
-const MOBILE_TABS = [
-  { href: '/', label: 'Feed', Icon: FeedIcon, exact: true },
-  { href: '/search', label: 'Search', Icon: SearchIcon },
-  { href: '/shorts', label: 'Shorts', Icon: ShortsIcon },
-  { href: '/requests', label: 'RFQ', Icon: RfqIcon },
-  { href: '/time', label: 'Time', Icon: BoltIcon },
-];
-
-/* ── Shell ─────────────────────────────────────────────────────────────── */
 
 export default function AppNavbar({
   children,
@@ -139,77 +19,59 @@ export default function AppNavbar({
   children: React.ReactNode;
   aside?: React.ReactNode;
 }) {
-  const pathname = usePathname() || '';
-  const isMerchantOS = pathname.startsWith('/merchant/dashboard');
-  const isAdminOS = pathname.startsWith('/admin');
-  const [isLoggedInMerchant, setIsLoggedInMerchant] = React.useState(false);
-  const [scrolled, setScrolled] = React.useState(false);
-  const [theme, setTheme] = React.useState<'light' | 'dark' | null>(null);
-  const [navCollapsed, setNavCollapsed] = React.useState(false);
+  const pathname = usePathname();
+  const [themeIdx, setThemeIdx] = useState(0);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [unreadNotifs, setUnreadNotifs] = useState(3);
+  const [cartCount, setCartCount] = useState(0);
 
-  React.useEffect(() => {
+  // Initialize theme from storage
+  useEffect(() => {
     try {
-      const stored = localStorage.getItem('shoppage_merchant_session');
-      const hasCookie = document.cookie.includes('merchant_session=true');
-      if (stored === 'true' || hasCookie || pathname.startsWith('/merchant/')) {
-        setIsLoggedInMerchant(true);
+      const stored = localStorage.getItem('shoppage_theme');
+      if (stored && THEMES.includes(stored)) {
+        const idx = THEMES.indexOf(stored);
+        setThemeIdx(idx);
+        document.body.setAttribute('data-theme', stored);
+        document.documentElement.setAttribute('data-theme', stored);
+      } else {
+        document.body.setAttribute('data-theme', 'dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
       }
     } catch {
-      /* storage unavailable */
-    }
-  }, [pathname]);
-
-  React.useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  React.useEffect(() => {
-    const current = document.documentElement.getAttribute('data-theme');
-    if (current === 'dark' || current === 'light') setTheme(current);
-    else {
-      setTheme(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    }
-  }, []);
-
-  React.useEffect(() => {
-    try {
-      localStorage.removeItem('shoppage_rail_collapsed');
-      const stored = localStorage.getItem('shoppage_nav_collapsed');
-      if (stored === 'true') setNavCollapsed(true);
-    } catch {
       /* ignore */
     }
+
+    // Listen to cart events
+    const onCartEvent = (e: CustomEvent) => {
+      if (e.detail?.action === 'add') {
+        setCartCount((c) => c + 1);
+      }
+    };
+    window.addEventListener('shoppage-cart' as any, onCartEvent);
+    return () => window.removeEventListener('shoppage-cart' as any, onCartEvent);
   }, []);
 
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-    setTheme(next);
-    document.documentElement.setAttribute('data-theme', next);
+  const cycleTheme = () => {
+    const nextIdx = (themeIdx + 1) % THEMES.length;
+    const nextTheme = THEMES[nextIdx];
+    setThemeIdx(nextIdx);
+    document.body.setAttribute('data-theme', nextTheme);
+    document.documentElement.setAttribute('data-theme', nextTheme);
     try {
-      localStorage.setItem('shoppage_theme', next);
+      localStorage.setItem('shoppage_theme', nextTheme);
     } catch {
       /* ignore */
     }
   };
 
-  const toggleNav = () => {
-    const next = !navCollapsed;
-    setNavCollapsed(next);
-    try {
-      localStorage.setItem('shoppage_nav_collapsed', String(next));
-    } catch {
-      /* ignore */
-    }
+  const dispatchNav = (type: string, query?: string) => {
+    window.dispatchEvent(new CustomEvent('shoppage-nav', { detail: { type, query } }));
   };
 
-  const isActive = (href: string, exact?: boolean) =>
-    exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
+  const isMerchantOS = pathname?.startsWith('/merchant') || pathname?.startsWith('/admin');
 
-  // Merchant OS keeps its own full-bleed chrome.
-  if (isMerchantOS || isAdminOS) {
+  if (isMerchantOS) {
     return (
       <>
         <main style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -222,209 +84,269 @@ export default function AppNavbar({
 
   return (
     <>
-      <header className={`topbar${scrolled ? ' is-scrolled' : ''}`}>
-        <div className="topbar-inner">
+      <div className="shell">
+        {/* ── LEFT RAIL (Exact Prototype Architecture) ─────────────────── */}
+        <aside className="left">
+          <Link href="/" className="logo" title="Shoppage">
+            <svg viewBox="0 0 24 24">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.451-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117l11.966 15.644z" />
+            </svg>
+            <span className="wordmark">Shoppage</span>
+          </Link>
+
+          <nav className="nav" aria-label="Primary navigation">
+            <button
+              type="button"
+              className={`nav-item${pathname === '/' ? ' active' : ''}`}
+              onClick={() => {
+                dispatchNav('tab', 'foryou');
+                setNotifOpen(false);
+              }}
+            >
+              <svg viewBox="0 0 24 24">
+                <path d="M12 1.7 1.6 8.8l1.1 1.7 1.3-.6V21a1 1 0 0 0 1 1h5v-8h4v8h5a1 1 0 0 0 1-1V9.9l1.3.6 1.1-1.7L12 1.7z" />
+              </svg>
+              <span>Home</span>
+            </button>
+
+            <Link href="/search" className="nav-item">
+              <svg viewBox="0 0 24 24">
+                <path d="M10.25 4.25a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm-8 6a8 8 0 1 1 14.9 4.45l4.42 4.42-1.42 1.42-4.42-4.42A8 8 0 0 1 2.25 10.25z" />
+              </svg>
+              <span>Explore</span>
+            </Link>
+
+            <button
+              type="button"
+              className="nav-item"
+              onClick={() => setNotifOpen(!notifOpen)}
+            >
+              <svg viewBox="0 0 24 24">
+                <path d="M19.99 9.04c0-4.16-3.27-7.54-7.99-7.54S4.01 4.88 4.01 9.04c0 4.1-1.16 6.2-2.14 7.43-.54.68-.04 1.78.85 1.78h18.56c.89 0 1.39-1.1.85-1.78-.98-1.23-2.14-3.33-2.14-7.43zM12 22.5c1.93 0 3.5-1.57 3.5-3.5h-7c0 1.93 1.57 3.5 3.5 3.5z" />
+              </svg>
+              <span>Notifications</span>
+              {unreadNotifs > 0 && <em className="nbadge">{unreadNotifs}</em>}
+            </button>
+
+            <Link href="/requests" className="nav-item">
+              <svg viewBox="0 0 24 24">
+                <path d="M1.998 5.5c0-1.381 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.119 2.5 2.5v13c0 1.381-1.119 2.5-2.5 2.5h-15c-1.381 0-2.5-1.119-2.5-2.5v-13zm2.5-.5c-.276 0-.5.224-.5.5v2.764l8 3.638 8-3.636V5.5c0-.276-.224-.5-.5-.5h-15zm15.5 5.463-8 3.636-8-3.638V18.5c0 .276.224.5.5.5h15c.276 0 .5-.224.5-.5v-8.037z" />
+              </svg>
+              <span>Messages</span>
+            </Link>
+
+            <button
+              type="button"
+              className="nav-item"
+              onClick={() => {
+                alert(
+                  cartCount > 0
+                    ? `🛒 ${cartCount} trade deal${cartCount > 1 ? 's' : ''} in your cart`
+                    : 'Your cart is empty. Tap “Get deal” on any post.',
+                );
+              }}
+            >
+              <svg viewBox="0 0 24 24">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                  d="M3 3h2l2.6 12.4a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20.6 8H6"
+                />
+                <circle cx="9.5" cy="20" r="1.7" />
+                <circle cx="17.5" cy="20" r="1.7" />
+              </svg>
+              <span>Cart</span>
+              {cartCount > 0 && <em className="nbadge">{cartCount}</em>}
+            </button>
+
+            <button
+              type="button"
+              className="nav-item"
+              onClick={() => dispatchNav('bookmarks')}
+            >
+              <svg viewBox="0 0 24 24">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                  d="M4 4.5C4 3.12 5.12 2 6.5 2h11C18.88 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5z"
+                />
+              </svg>
+              <span>Bookmarks</span>
+            </button>
+
+            <Link href="/merchant/claim" className="nav-item">
+              <svg viewBox="0 0 24 24">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  d="M12 3a4.25 4.25 0 1 0 0 8.5A4.25 4.25 0 0 0 12 3zM4 20.1c.6-3.6 3.9-5.6 8-5.6s7.4 2 8 5.6v1.4H4v-1.4z"
+                />
+              </svg>
+              <span>Profile</span>
+            </Link>
+
+            <button type="button" className="nav-item" onClick={cycleTheme} title="Switch theme">
+              <svg viewBox="0 0 24 24">
+                <circle cx="5" cy="12" r="2" />
+                <circle cx="12" cy="12" r="2" />
+                <circle cx="19" cy="12" r="2" />
+              </svg>
+              <span>More</span>
+            </button>
+          </nav>
+
           <button
             type="button"
-            className="icon-btn nav-toggle-btn"
-            onClick={toggleNav}
-            aria-label={navCollapsed ? 'Expand sidebar' : 'Collapse sidebar to left'}
-            title={navCollapsed ? 'Expand sidebar' : 'Collapse sidebar to left'}
+            className="post-btn"
+            onClick={() => dispatchNav('focus-composer')}
           >
-            <svg {...iconProps} width={18} height={18} viewBox="0 0 24 24">
-              <rect x="3" y="3" width="18" height="18" rx="3" />
-              <path d="M9 3v18" />
-              {navCollapsed ? (
-                <path d="M13 12l4-3v6z" fill="currentColor" stroke="none" />
-              ) : (
-                <path d="M16 12l-4-3v6z" fill="currentColor" stroke="none" />
-              )}
+            <span className="txt">Post</span>
+            <svg className="ic" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+              <path d="M16.9 3.1a2.62 2.62 0 0 1 3.7 3.7l-11.1 11.1-4.4 1 1-4.4 11.1-11.1z" />
             </svg>
           </button>
 
-          <Link href="/" className="brand" aria-label="Shoppage home">
-            <span className="brand-mark" aria-hidden="true">
-              S
-            </span>
-            <span className="brand-word">
-              Shoppage<span className="dot">.</span>
-            </span>
-          </Link>
-
-          <div className="topbar-search">
-            <LiveSearch />
-          </div>
-
-          <div className="topbar-actions">
-
-
-            <button
-              type="button"
-              className="icon-btn"
-              onClick={toggleTheme}
-              aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-              title="Toggle theme"
-            >
-              {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-            </button>
-
-            <Link
-              href="/time"
-              className="btn btn-sm hide-sm"
-              style={{
-                background: 'var(--slate-900)',
-                color: '#FFFFFF',
-                borderRadius: 'var(--radius-full)',
-                fontWeight: 800,
-                gap: '0.35rem',
-              }}
-              title="Shoppage Time · Real-time commercial timeline"
-            >
-              <BoltIcon />
-              <span>Time</span>
-              <span
-                style={{
-                  background: 'var(--live)',
-                  color: '#FFF',
-                  fontSize: '0.6rem',
-                  padding: '0.08rem 0.32rem',
-                  borderRadius: '4px',
-                  fontWeight: 900,
-                }}
-              >
-                LIVE
-              </span>
-            </Link>
-
-            {!isLoggedInMerchant && (
-              <Link
-                href="/merchant/claim"
-                className="btn btn-signal btn-sm"
-                style={{ borderRadius: 'var(--radius-full)' }}
-              >
-                + List Store
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <div className={`app-shell${navCollapsed ? ' is-nav-collapsed' : ''}`}>
-        <nav
-          className={`rail-nav${navCollapsed ? ' is-collapsed' : ''}`}
-          aria-label="Primary"
-        >
-          <div className="rail-nav-head">
-            {!navCollapsed && <span className="rail-nav-heading">Menu</span>}
-            <button
-              type="button"
-              className="rail-collapse-btn"
-              onClick={toggleNav}
-              aria-label={navCollapsed ? 'Expand sidebar' : 'Close sidebar (indent to left)'}
-              title={navCollapsed ? 'Expand sidebar' : 'Close sidebar (indent to left)'}
-            >
-              <svg {...iconProps} width={16} height={16} viewBox="0 0 24 24">
-                {navCollapsed ? (
-                  <path d="M9 18l6-6-6-6" />
-                ) : (
-                  <path d="M15 18l-6-6 6-6" />
-                )}
-              </svg>
-              {!navCollapsed && <span className="collapse-text">Close</span>}
-            </button>
-          </div>
-
-          {NAV_ITEMS.map(({ href, label, Icon, exact, live }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`nav-item${isActive(href, exact) ? ' is-active' : ''}`}
-              aria-current={isActive(href, exact) ? 'page' : undefined}
-              title={navCollapsed ? (live ? `${label} (LIVE)` : label) : undefined}
-            >
-              <span className="nav-icon">
-                <Icon />
-              </span>
-              <span className="nav-label">{label}</span>
-              {live && (
-                <span className="nav-badge">
-                  {navCollapsed ? '' : 'LIVE'}
-                </span>
-              )}
-            </Link>
-          ))}
-
-          <Link
-            href="/merchant/claim"
-            className="nav-post-btn"
-            title={navCollapsed ? 'List my store (0% take-rate)' : undefined}
-          >
-            {navCollapsed ? '+' : 'List my store'}
-          </Link>
-
-          {!navCollapsed && (
-            <div className="rail-foot">
-              0% take-rate. Direct trade, always.
+          <div className="me" onClick={cycleTheme} title={`Theme: ${THEME_NAMES[THEMES[themeIdx]]}`}>
+            <div className="avatar g8">Y</div>
+            <div className="meta">
+              <b>You</b>
+              <span>@you_za</span>
             </div>
-          )}
-        </nav>
+            <span className="dots">···</span>
+          </div>
+        </aside>
 
-        <div className="feed-column">{children}</div>
+        {/* ── CENTER (Exact Prototype Width) ───────────────────────────── */}
+        <main className="center">{children}</main>
 
-        {aside ? <aside className="rail-aside" aria-label="Commerce intelligence">{aside}</aside> : null}
+        {/* ── RIGHT (Exact Prototype Rail) ─────────────────────────────── */}
+        <aside className="right">{aside}</aside>
       </div>
 
-      <nav className="mobile-tabbar" aria-label="Primary mobile">
-        {MOBILE_TABS.map(({ href, label, Icon, exact }) => (
-          <Link
-            key={href}
-            href={href}
-            className={`mobile-tab${isActive(href, exact) ? ' is-active' : ''}`}
-            aria-current={isActive(href, exact) ? 'page' : undefined}
-          >
-            <span className="mt-icon">
-              <Icon />
-            </span>
-            <span>{label}</span>
-          </Link>
-        ))}
-      </nav>
-
-      <AIAssistant />
-
-      <footer
-        style={{
-          background: 'var(--slate-900)',
-          color: 'var(--slate-500)',
-          borderTop: '1px solid var(--border)',
-          padding: '2.5rem 0 3rem',
-          marginTop: '2rem',
-        }}
-      >
-        <div className="container">
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: '1rem',
-              fontSize: '0.8rem',
+      {/* ── NOTIFICATIONS POPUP ─────────────────────────────────────────── */}
+      <div className={`notif${notifOpen ? ' on' : ''}`}>
+        <header>
+          Notifications{' '}
+          <button
+            type="button"
+            onClick={() => {
+              setUnreadNotifs(0);
             }}
           >
-            <div>
-              © 2026 Shoppage Platform Ltd. South Africa&apos;s commercial grid at 0% commission.
-            </div>
-            <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap' }}>
-              <Link href="/privacy" className="hover-underline">Privacy</Link>
-              <Link href="/terms" className="hover-underline">Terms</Link>
-              <Link href="/security" className="hover-underline">Security</Link>
-              <Link href="/merchants" className="hover-underline">Stores</Link>
-              <Link href="/shows" className="hover-underline">Shows</Link>
-            </div>
+            Mark all read
+          </button>
+        </header>
+        <div className="nitem" onClick={() => setNotifOpen(false)}>
+          <div className="avatar g1">SP</div>
+          <div>
+            <p>
+              <b>SunPower Solutions</b> dropped a price on your watchlist:{' '}
+              <b>Deye 5kW Hybrid Inverter</b> now R 14 999 ⚡
+            </p>
+            <span>34m</span>
+          </div>
+          {unreadNotifs > 0 && <div className="dot" />}
+        </div>
+        <div className="nitem" onClick={() => setNotifOpen(false)}>
+          <div className="avatar g3">DC</div>
+          <div>
+            <p>
+              <b>Dragon City Wholesale Mall</b> restocked an item you follow:{' '}
+              <b>Redmi 13 128GB</b>
+            </p>
+            <span>1h</span>
+          </div>
+          {unreadNotifs > 1 && <div className="dot" />}
+        </div>
+        <div className="nitem" onClick={() => setNotifOpen(false)}>
+          <div className="avatar g8">Y</div>
+          <div>
+            <p>
+              Your post earned <b>128 new likes</b> and 2 300 views 🎉
+            </p>
+            <span>3h</span>
           </div>
         </div>
-      </footer>
+      </div>
+
+      {/* ── MOBILE BOTTOM BAR ──────────────────────────────────────────── */}
+      <nav className="bottombar" aria-label="Mobile navigation">
+        <button
+          type="button"
+          onClick={() => {
+            dispatchNav('tab', 'foryou');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        >
+          <svg viewBox="0 0 24 24">
+            <path d="M12 1.7 1.6 8.8l1.1 1.7 1.3-.6V21a1 1 0 0 0 1 1h5v-8h4v8h5a1 1 0 0 0 1-1V9.9l1.3.6 1.1-1.7L12 1.7z" />
+          </svg>
+        </button>
+        <Link href="/search">
+          <svg viewBox="0 0 24 24">
+            <path d="M10.25 4.25a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm-8 6a8 8 0 1 1 14.9 4.45l4.42 4.42-1.42 1.42-4.42-4.42A8 8 0 0 1 2.25 10.25z" />
+          </svg>
+        </Link>
+        <button type="button" onClick={() => setNotifOpen(!notifOpen)}>
+          <svg viewBox="0 0 24 24">
+            <path d="M19.99 9.04c0-4.16-3.27-7.54-7.99-7.54S4.01 4.88 4.01 9.04c0 4.1-1.16 6.2-2.14 7.43-.54.68-.04 1.78.85 1.78h18.56c.89 0 1.39-1.1.85-1.78-.98-1.23-2.14-3.33-2.14-7.43zM12 22.5c1.93 0 3.5-1.57 3.5-3.5h-7c0 1.93 1.57 3.5 3.5 3.5z" />
+          </svg>
+          {unreadNotifs > 0 && <em className="nbadge">{unreadNotifs}</em>}
+        </button>
+        <button type="button" onClick={() => dispatchNav('bookmarks')}>
+          <svg viewBox="0 0 24 24">
+            <path
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinejoin="round"
+              d="M4 4.5C4 3.12 5.12 2 6.5 2h11C18.88 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5z"
+            />
+          </svg>
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            alert(
+              cartCount > 0
+                ? `🛒 ${cartCount} trade deal${cartCount > 1 ? 's' : ''} in cart`
+                : 'Cart is empty',
+            );
+          }}
+        >
+          <svg viewBox="0 0 24 24">
+            <path
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinejoin="round"
+              d="M3 3h2l2.6 12.4a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20.6 8H6"
+            />
+            <circle cx="9.5" cy="20" r="1.7" />
+            <circle cx="17.5" cy="20" r="1.7" />
+          </svg>
+          {cartCount > 0 && <em className="nbadge">{cartCount}</em>}
+        </button>
+      </nav>
+
+      {/* ── MOBILE FAB ─────────────────────────────────────────────────── */}
+      <button
+        type="button"
+        className="fab"
+        onClick={() => dispatchNav('focus-composer')}
+        aria-label="New post"
+      >
+        <svg viewBox="0 0 24 24">
+          <path d="M16.9 3.1a2.62 2.62 0 0 1 3.7 3.7l-11.1 11.1-4.4 1 1-4.4 11.1-11.1z" />
+        </svg>
+      </button>
+
+      <AIAssistant />
     </>
   );
 }

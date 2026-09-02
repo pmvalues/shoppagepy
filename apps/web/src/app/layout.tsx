@@ -31,7 +31,7 @@ export const viewport = {
 };
 
 // Applies the stored theme before first paint so dark mode never flashes white.
-const themeBootstrap = `(function(){try{var t=localStorage.getItem('shoppage_theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`;
+const themeBootstrap = `(function(){try{var t=localStorage.getItem('shoppage_theme');if(t==='dark'||t==='dim'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`;
 
 export default function RootLayout({
   children,
@@ -43,10 +43,10 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
-          rel="stylesheet"
-        />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/400.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/500.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/700.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/800.css" />
         <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
       </head>
       <body>
