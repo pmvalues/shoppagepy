@@ -100,7 +100,7 @@ export default function AppNavbar({
 
   return (
     <>
-      <div className="shell">
+      <div className={`shell${collapsed ? ' is-nav-collapsed' : ''}`}>
         {/* ── LEFT RAIL WITH COLLAPSING ───────────────────────────────── */}
         <aside className={`left${collapsed ? ' is-collapsed' : ''}`}>
           <div className="rail-head">
