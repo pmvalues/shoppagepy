@@ -11,26 +11,25 @@ type TabId = 'foryou' | 'products' | 'vids' | 'shows' | 'markets' | 'companies';
 interface TabConfig {
   id: TabId;
   label: string;
-  badge?: string;
 }
 
 const TABS: TabConfig[] = [
   { id: 'foryou', label: 'For You' },
   { id: 'products', label: 'Products' },
-  { id: 'vids', label: 'Product Vids', badge: 'Shorts' },
-  { id: 'shows', label: 'Shows', badge: 'HD' },
+  { id: 'vids', label: 'Shorts' },
+  { id: 'shows', label: 'Shows' },
   { id: 'markets', label: 'Markets' },
   { id: 'companies', label: 'Companies' },
 ];
 
 const CATEGORY_CHIPS = [
-  { id: 'all', label: 'All', icon: '✨' },
-  { id: 'solar', label: 'Solar & Power', icon: '⚡' },
-  { id: 'packaging', label: 'Packaging & Catering', icon: '🍽️' },
-  { id: 'hardware', label: 'Building & Hardware', icon: '🧱' },
-  { id: 'tech', label: 'Phones & Tech', icon: '📱' },
-  { id: 'auto', label: 'Automotive Spares', icon: '🚗' },
-  { id: 'fmcg', label: 'Wholesale FMCG', icon: '🛒' },
+  { id: 'all', label: 'All' },
+  { id: 'solar', label: 'Solar' },
+  { id: 'packaging', label: 'Packaging' },
+  { id: 'hardware', label: 'Hardware' },
+  { id: 'tech', label: 'Tech' },
+  { id: 'auto', label: 'Auto' },
+  { id: 'fmcg', label: 'FMCG' },
 ];
 
 const PAGE_SIZE = 8;
@@ -250,15 +249,9 @@ export default function DiscoveryFeed({ posts }: { posts: FeedPost[] }) {
               role="tab"
               aria-selected={tab === t.id}
               className={`feed-tab${tab === t.id ? ' is-active' : ''}`}
-              onClick={() => {
-                setTab(t.id);
-                setHasNewPostsBanner(false);
-              }}
+              onClick={() => setTab(t.id)}
             >
-              <span className="feed-tab-label">
-                {t.label}
-                {t.badge && <span className="tab-badge-pill">{t.badge}</span>}
-              </span>
+              <span className="feed-tab-label">{t.label}</span>
               {tab === t.id && <span className="feed-tab-indicator" />}
             </button>
           ))}
@@ -273,70 +266,24 @@ export default function DiscoveryFeed({ posts }: { posts: FeedPost[] }) {
               className={`category-chip${category === c.id ? ' is-selected' : ''}`}
               onClick={() => setCategory(c.id)}
             >
-              <span aria-hidden="true">{c.icon}</span>
-              <span>{c.label}</span>
+              {c.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* 3. TWITTER/X STYLE FEED COMPOSER */}
+      {/* 3. SLEEK TWITTER/X COMPOSER */}
       <div className="feed-composer">
         <div className="composer-avatar" aria-hidden="true">
           ⚡
         </div>
-        <div className="composer-body">
-          <Link href="/requests" className="composer-input-placeholder">
-            What are you sourcing or looking to buy today? Search 1M+ items or post RFQ...
-          </Link>
-          <div className="composer-actions">
-            <Link href="/requests" className="composer-pill-btn">
-              <span>📋</span> Sourcing RFQ
-            </Link>
-            <button
-              type="button"
-              className="composer-pill-btn"
-              onClick={() => setTab('vids')}
-            >
-              <span>🎬</span> Video Proof
-            </button>
-            <button
-              type="button"
-              className="composer-pill-btn"
-              onClick={() => setTab('shows')}
-            >
-              <span>📺</span> Shows
-            </button>
-            <button
-              type="button"
-              className="composer-pill-btn"
-              onClick={() => setTab('markets')}
-            >
-              <span>🏢</span> Markets
-            </button>
-            <button
-              type="button"
-              className="composer-pill-btn"
-              onClick={() => setTab('companies')}
-            >
-              <span>🏪</span> Stores
-            </button>
-          </div>
-        </div>
+        <Link href="/requests" className="composer-input-placeholder">
+          What are you sourcing today? Search 1M+ products or post RFQ...
+        </Link>
+        <Link href="/requests" className="composer-action-btn">
+          Post RFQ
+        </Link>
       </div>
-
-      {/* 4. NEW POSTS FLOATING BANNER */}
-      {hasNewPostsBanner && (
-        <button
-          type="button"
-          onClick={scrollToTop}
-          className="feed-new-posts-banner"
-          aria-label="New price drops available. Click to scroll up."
-        >
-          <span className="live-dot" />
-          <span>New price drops detected · Stroll to top</span>
-        </button>
-      )}
 
       {/* 5. TIMELINE STREAM */}
       {shown.length === 0 ? (

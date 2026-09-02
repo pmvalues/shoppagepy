@@ -145,7 +145,6 @@ export default function AppNavbar({
   const [isLoggedInMerchant, setIsLoggedInMerchant] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
   const [theme, setTheme] = React.useState<'light' | 'dark' | null>(null);
-  const [railCollapsed, setRailCollapsed] = React.useState(false);
   const [navCollapsed, setNavCollapsed] = React.useState(false);
 
   React.useEffect(() => {
@@ -167,7 +166,6 @@ export default function AppNavbar({
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Read the theme the inline bootstrap script already applied to <html>.
   React.useEffect(() => {
     const current = document.documentElement.getAttribute('data-theme');
     if (current === 'dark' || current === 'light') setTheme(current);
@@ -178,15 +176,7 @@ export default function AppNavbar({
 
   React.useEffect(() => {
     try {
-      const stored = localStorage.getItem('shoppage_rail_collapsed');
-      if (stored === 'true') setRailCollapsed(true);
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
-  React.useEffect(() => {
-    try {
+      localStorage.removeItem('shoppage_rail_collapsed');
       const stored = localStorage.getItem('shoppage_nav_collapsed');
       if (stored === 'true') setNavCollapsed(true);
     } catch {
@@ -200,16 +190,6 @@ export default function AppNavbar({
     document.documentElement.setAttribute('data-theme', next);
     try {
       localStorage.setItem('shoppage_theme', next);
-    } catch {
-      /* ignore */
-    }
-  };
-
-  const toggleRail = () => {
-    const next = !railCollapsed;
-    setRailCollapsed(next);
-    try {
-      localStorage.setItem('shoppage_rail_collapsed', String(next));
     } catch {
       /* ignore */
     }
@@ -276,21 +256,7 @@ export default function AppNavbar({
           </div>
 
           <div className="topbar-actions">
-            <button
-              type="button"
-              className="icon-btn"
-              onClick={toggleRail}
-              aria-label={railCollapsed ? 'Expand right panel' : 'Collapse right panel'}
-              title={railCollapsed ? 'Expand right panel' : 'Collapse right panel'}
-            >
-              <svg {...iconProps} width={18} height={18} viewBox="0 0 24 24">
-                {railCollapsed ? (
-                  <path d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                ) : (
-                  <path d="M11 19l-7-7 7-7M19 19l-7-7 7-7" />
-                )}
-              </svg>
-            </button>
+
 
             <button
               type="button"
@@ -343,11 +309,7 @@ export default function AppNavbar({
         </div>
       </header>
 
-      <div
-        className={`app-shell${navCollapsed ? ' is-nav-collapsed' : ''}${
-          railCollapsed ? ' is-rail-collapsed' : ''
-        }`}
-      >
+      <div className={`app-shell${navCollapsed ? ' is-nav-collapsed' : ''}`}>
         <nav
           className={`rail-nav${navCollapsed ? ' is-collapsed' : ''}`}
           aria-label="Primary"

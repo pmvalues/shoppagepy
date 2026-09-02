@@ -321,6 +321,8 @@ export default function FeedPostCard({
           <span className="post-meta">{post.author.handle}</span>
           <span className="post-dot">·</span>
           <span className="post-meta">{post.timeLabel}</span>
+          <span className="post-dot">·</span>
+          <span className="post-event-subtle">{EVENT_LABEL[post.kind]}</span>
 
           {post.company && (
             <button
@@ -329,25 +331,8 @@ export default function FeedPostCard({
               className={`follow-pill-btn${following ? ' is-following' : ''}`}
               style={{ marginLeft: 'auto' }}
             >
-              {following ? 'Following' : '+ Follow'}
+              {following ? 'Following' : 'Follow'}
             </button>
-          )}
-        </div>
-
-        {/* Event / Category Pill */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-          <span className={`post-event ${EVENT_CLASS[post.kind]}`}>
-            {EVENT_LABEL[post.kind]}
-          </span>
-          {post.show?.series && (
-            <span className="post-series-tag">
-              {post.show.series}
-            </span>
-          )}
-          {post.market?.province && (
-            <span className="post-province-tag">
-              📍 {post.market.province}
-            </span>
           )}
         </div>
 
@@ -460,10 +445,10 @@ export default function FeedPostCard({
           </div>
         )}
 
-        {/* ── EMBED: SHOW EPISODE (16:9 CINEMATIC PLAYER & CHAPTERS) ─────── */}
+        {/* ── EMBED: SHOW EPISODE ───────────────────────────────────────── */}
         {post.kind === 'show' && post.show && (
           <div className="post-show-card">
-            <div className="post-show-media">
+            <div className="post-show-media" onClick={() => setIsPlaying(true)}>
               {isPlaying ? (
                 <video
                   ref={videoRef}
@@ -481,13 +466,12 @@ export default function FeedPostCard({
                     alt={post.show.title}
                     className="post-show-thumb"
                   />
-                  <div className="post-video-overlay" onClick={() => setIsPlaying(true)}>
+                  <div className="post-video-overlay">
                     <div className="post-play-badge is-show-play">
                       <PlayIcon />
                     </div>
                   </div>
                   <span className="post-duration">{post.show.duration}</span>
-                  <span className="post-views-badge">👁️ {formatViews(post.show.views)} views</span>
                 </>
               )}
             </div>
@@ -495,34 +479,13 @@ export default function FeedPostCard({
             <div className="post-show-info">
               <div className="post-show-header">
                 <span className="post-series-chip">{post.show.series}</span>
-                <span className="post-runtime-label">{post.show.duration} full episode</span>
+                <span className="post-runtime-label">{post.show.duration}</span>
               </div>
               <h3 className="post-show-title">{post.show.title}</h3>
-
-              {post.show.chapters && post.show.chapters.length > 0 && (
-                <div className="post-chapters-strip">
-                  {post.show.chapters.map((ch) => (
-                    <span key={ch.time} className="chapter-pill">
-                      <span className="chapter-time">{ch.time}</span>
-                      <span className="chapter-label">{ch.title}</span>
-                    </span>
-                  ))}
-                </div>
-              )}
-
               {post.show.featuredProducts && post.show.featuredProducts.length > 0 && (
-                <div className="post-featured-products">
-                  <span className="pfp-label">Featured in this episode:</span>
-                  <div className="pfp-row">
-                    {post.show.featuredProducts.map((fp) => (
-                      <Link key={fp.title} href={fp.link} className="pfp-card">
-                        <span className="pfp-title">{fp.title}</span>
-                        <span className="pfp-price">{formatZar(fp.price)}</span>
-                        {fp.badge && <span className="pfp-badge">{fp.badge}</span>}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
+                <Link href="/shows" className="post-show-products-link">
+                  📦 {post.show.featuredProducts.length} verified products in this episode · Watch now →
+                </Link>
               )}
             </div>
           </div>
@@ -531,27 +494,18 @@ export default function FeedPostCard({
         {/* ── EMBED: WHOLESALE MARKET SPOTLIGHT ───────────────────────────── */}
         {post.kind === 'market' && post.market && (
           <Link href={post.market.href} className="post-market-card">
-            <div className="post-market-banner">
+            <div className="post-market-thumb-wrap">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={post.market.imageUrl || 'https://images.unsplash.com/photo-1567449303078-57ad995bd301?w=800&h=450&fit=crop'}
                 alt={post.market.name}
+                className="post-market-thumb"
               />
-              <div className="post-market-badge">
-                🏢 {post.market.stallCount}+ Verified Stalls
-              </div>
-              <div className="post-market-location">
-                📍 {post.market.province}
-              </div>
             </div>
             <div className="post-market-details">
               <div className="post-market-name">{post.market.name}</div>
-              <div className="post-market-meta">{post.market.address}</div>
-              <div className="post-market-focus">
-                <span className="focus-pill">Direct Importers</span>
-                <span className="focus-pill">Bulk & Pallet Rates</span>
-                <span className="focus-pill">Walk-in Trade Counters</span>
-              </div>
+              <div className="post-market-meta">🏢 {post.market.stallCount}+ Stalls · {post.market.province}</div>
+              <div className="post-market-address">{post.market.address}</div>
             </div>
           </Link>
         )}
@@ -559,44 +513,29 @@ export default function FeedPostCard({
         {/* ── EMBED: COMPANY SHOWCASE ─────────────────────────────────────── */}
         {post.kind === 'company' && post.company && (
           <div className="post-company-card">
-            <div className="post-company-header">
-              <div>
-                <div className="post-company-name">{post.company.name}</div>
-                <div className="post-company-cat">{post.company.primaryCategory}</div>
+            <div className="post-company-main">
+              <div className="post-company-avatar">
+                {post.author.initials}
               </div>
-              <div className="post-company-badge">
-                ✓ CIPC Verified
-              </div>
-            </div>
-            <div className="post-company-body">
-              <p className="post-company-address">📍 {post.company.address}</p>
-              <div className="post-company-stats">
-                <span className="company-stat">
-                  <strong>{post.company.catalogCount}</strong> Catalog Items
-                </span>
-                <span className="company-stat">
-                  <strong>0%</strong> Commission
-                </span>
-                <span className="company-stat">
-                  <strong>Direct</strong> Trade Counter
-                </span>
+              <div className="post-company-info">
+                <div className="post-company-name-row">
+                  <span className="post-company-name">{post.company.name}</span>
+                  <span className="post-verified">✓</span>
+                </div>
+                <span className="post-company-cat">{post.company.primaryCategory} · {post.company.province}</span>
+                <span className="post-company-address">{post.company.address}</span>
               </div>
             </div>
-            <div className="post-company-actions">
-              <Link href={post.company.href} className="btn btn-sm btn-outline">
-                View Digital Flagship
-              </Link>
-              {post.company.whatsapp && (
-                <a
-                  href={`https://wa.me/${post.company.whatsapp.replace(/[^0-9]/g, '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-sm btn-whatsapp"
-                >
-                  💬 Chat WhatsApp
-                </a>
-              )}
-            </div>
+            {post.company.whatsapp && (
+              <a
+                href={`https://wa.me/${post.company.whatsapp.replace(/[^0-9]/g, '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="post-company-wa-btn"
+              >
+                💬 WhatsApp Trade Counter
+              </a>
+            )}
           </div>
         )}
 

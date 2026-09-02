@@ -113,7 +113,7 @@ export default function CommerceRail() {
                   className={`follow-btn${isFollowing ? ' is-following' : ''}`}
                   aria-label={isFollowing ? `Unfollow ${comp.name}` : `Follow ${comp.name}`}
                 >
-                  {isFollowing ? 'Following' : '+ Follow'}
+                  {isFollowing ? 'Following' : 'Follow'}
                 </button>
               </div>
             );
