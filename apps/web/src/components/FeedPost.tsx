@@ -1,631 +1,365 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { formatViews, formatZar, type FeedKind, type FeedPost } from '@/lib/feed';
-import { showToast } from '@/lib/toast';
 
-const EVENT_LABEL: Record<FeedKind, string> = {
-  price_drop: 'Price Drop',
-  sweep: 'Price Sweep',
-  new_listing: 'New Listing',
-  restock: 'Back in Stock',
-  short: 'Video Proof',
-  show: 'Original Series',
-  market: 'Wholesale Market',
-  company: 'Verified Company',
-  demand: 'Buyer Demand',
-  sponsored: 'Sponsored',
-};
-
-const EVENT_CLASS: Record<FeedKind, string> = {
-  price_drop: 'is-drop',
-  sweep: 'is-sweep',
-  new_listing: 'is-new',
-  restock: 'is-restock',
-  short: 'is-short',
-  show: 'is-show',
-  market: 'is-market',
-  company: 'is-company',
-  demand: 'is-demand',
-  sponsored: 'is-sponsored',
-};
-
-const AVATAR_GRADIENTS = [
-  'linear-gradient(135deg, #0B0F14 0%, #334155 100%)',
-  'linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%)',
-  'linear-gradient(135deg, #134E4A 0%, #14B8A6 100%)',
-  'linear-gradient(135deg, #7C2D12 0%, #EA580C 100%)',
-  'linear-gradient(135deg, #581C87 0%, #A855F7 100%)',
-  'linear-gradient(135deg, #164E63 0%, #0891B2 100%)',
-];
-
-function gradientFor(id: string): string {
-  let total = 0;
-  for (let i = 0; i < id.length; i += 1) total += id.charCodeAt(i);
-  return AVATAR_GRADIENTS[total % AVATAR_GRADIENTS.length];
+export interface PostProduct {
+  name: string;
+  price: string;
+  old?: string;
+  off?: string;
+  note?: string;
+  href?: string;
 }
 
-/* ── Twitter/X Style Icons ─────────────────────────────────────────────── */
-
-function ReplyIcon() {
-  return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
-  );
+export interface PollOption {
+  l: string;
+  v: number;
 }
 
-function RepostIcon() {
-  return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M17 1l4 4-4 4" />
-      <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-      <path d="M7 23l-4-4 4-4" />
-      <path d="M21 13v2a4 4 0 0 1-4 4H3" />
-    </svg>
-  );
+export interface PostPoll {
+  options: PollOption[];
+  voted: number | null;
 }
 
-function HeartIcon({ filled }: { filled: boolean }) {
-  return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill={filled ? '#FF3B5C' : 'none'} stroke={filled ? '#FF3B5C' : 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-    </svg>
-  );
+export interface PostStats {
+  replies: number;
+  reposts: number;
+  likes: number;
+  views: string;
 }
 
-function BookmarkIcon({ filled }: { filled: boolean }) {
-  return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-    </svg>
-  );
+export interface PostBadge {
+  label: string;
+  type: 'drop' | 'sweep' | 'restock' | 'bulk' | string;
 }
 
-function ChartIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <line x1="18" y1="20" x2="18" y2="10" />
-      <line x1="12" y1="20" x2="12" y2="4" />
-      <line x1="6" y1="20" x2="6" y2="14" />
-    </svg>
-  );
+export interface PostItem {
+  id: number | string;
+  name: string;
+  handle: string;
+  av: string;
+  ini: string;
+  verified: boolean;
+  time: string;
+  badge?: PostBadge;
+  cat?: string;
+  tabs: string[];
+  text: string;
+  product?: PostProduct;
+  image?: string;
+  poll?: PostPoll;
+  stats: PostStats;
 }
 
-function ShareIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="18" cy="5" r="3" />
-      <circle cx="6" cy="12" r="3" />
-      <circle cx="18" cy="19" r="3" />
-      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-    </svg>
-  );
+function fmt(n: number): string {
+  if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, '') + 'K';
+  return String(n);
 }
 
-function VerifiedIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 2l2.2 1.6 2.7-.2.9 2.6 2.4 1.3-.7 2.6.7 2.6-2.4 1.3-.9 2.6-2.7-.2L12 22l-2.2-1.6-2.7.2-.9-2.6L3.8 16.7l.7-2.6-.7-2.6 2.4-1.3.9-2.6 2.7.2z" />
-      <path d="M8.8 12.2l2.1 2.1 4.3-4.3" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function PlayIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M8 5.5v13l11-6.5z" />
-    </svg>
-  );
-}
-
-function VolumeIcon({ muted }: { muted: boolean }) {
-  if (muted) {
-    return (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-        <line x1="23" y1="9" x2="17" y2="15" />
-        <line x1="17" y1="9" x2="23" y2="15" />
-      </svg>
-    );
+function chipClass(t?: string) {
+  switch (t) {
+    case 'drop':
+      return 'chip-drop';
+    case 'sweep':
+      return 'chip-sweep';
+    case 'restock':
+      return 'chip-restock';
+    case 'bulk':
+      return 'chip-bulk';
+    default:
+      return 'chip-cat';
   }
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
-    </svg>
-  );
 }
 
-/* ── Component ─────────────────────────────────────────────────────────── */
+const VSVG = (
+  <svg className="vbadge" viewBox="0 0 24 24">
+    <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-10.99 5-3.08-3.08 1.22-1.22 1.86 1.86 5.14-5.14 1.22 1.22L11.26 17z" />
+  </svg>
+);
+
+interface FeedPostProps {
+  post: PostItem;
+  onLike?: (id: number | string) => void;
+  onRepost?: (id: number | string) => void;
+  onBookmark?: (id: number | string) => void;
+  onReply?: (handle: string) => void;
+  onGetDeal?: (post: PostItem) => void;
+  onVote?: (postId: number | string, optionIndex: number) => void;
+  onShare?: (id: number | string) => void;
+  isLiked?: boolean;
+  isReposted?: boolean;
+  isBookmarked?: boolean;
+}
 
 export default function FeedPostCard({
   post,
-  index = 0,
-  onOpenInquiry,
-  onOpenRepost,
-}: {
-  post: FeedPost;
-  index?: number;
-  onOpenInquiry?: (post: FeedPost) => void;
-  onOpenRepost?: (post: FeedPost) => void;
-}) {
-  const [saved, setSaved] = useState(false);
-  const [saves, setSaves] = useState(post.stats.saves);
-  const [liked, setLiked] = useState(false);
-  const [likes, setLikes] = useState(post.stats.likes);
-  const [reposted, setReposted] = useState(false);
-  const [reposts, setReposts] = useState(post.stats.reposts || 0);
-  const [following, setFollowing] = useState(false);
+  onLike,
+  onRepost,
+  onBookmark,
+  onReply,
+  onGetDeal,
+  onVote,
+  onShare,
+  isLiked = false,
+  isReposted = false,
+  isBookmarked = false,
+}: FeedPostProps) {
+  const [localPoll, setLocalPoll] = useState<PostPoll | undefined>(post.poll);
 
-  // Video playback states
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  // Hydrate states from localStorage
-  useEffect(() => {
-    try {
-      const savedRaw = localStorage.getItem('shoppage_saved_posts');
-      if (savedRaw) {
-        const list = JSON.parse(savedRaw) as string[];
-        if (Array.isArray(list) && list.includes(post.id)) setSaved(true);
-      }
-
-      const likedRaw = localStorage.getItem('shoppage_liked_posts');
-      if (likedRaw) {
-        const list = JSON.parse(likedRaw) as string[];
-        if (Array.isArray(list) && list.includes(post.id)) setLiked(true);
-      }
-
-      const repostedRaw = localStorage.getItem('shoppage_reposted_posts');
-      if (repostedRaw) {
-        const list = JSON.parse(repostedRaw) as string[];
-        if (Array.isArray(list) && list.includes(post.id)) setReposted(true);
-      }
-
-      if (post.company) {
-        const followedRaw = localStorage.getItem('shoppage_followed_companies');
-        if (followedRaw) {
-          const list = JSON.parse(followedRaw) as string[];
-          if (Array.isArray(list) && list.includes(post.company.id)) setFollowing(true);
-        }
-      }
-    } catch {
-      /* storage unavailable */
-    }
-  }, [post.id, post.company]);
-
-  const toggleSave = () => {
-    const next = !saved;
-    setSaved(next);
-    setSaves((n) => n + (next ? 1 : -1));
-    try {
-      const raw = localStorage.getItem('shoppage_saved_posts');
-      const list = raw ? (JSON.parse(raw) as string[]) : [];
-      const nextList = next ? [...new Set([...list, post.id])] : list.filter((id) => id !== post.id);
-      localStorage.setItem('shoppage_saved_posts', JSON.stringify(nextList));
-      showToast(next ? 'Saved to your Watchlist' : 'Removed from Watchlist', 'success');
-    } catch {
-      /* ignore */
-    }
+  const handleVote = (optIdx: number) => {
+    if (!localPoll || localPoll.voted !== null) return;
+    const nextOpts = localPoll.options.map((opt, i) =>
+      i === optIdx ? { ...opt, v: opt.v + 1 } : opt,
+    );
+    setLocalPoll({ options: nextOpts, voted: optIdx });
+    if (onVote) onVote(post.id, optIdx);
   };
 
-  const toggleLike = () => {
-    const next = !liked;
-    setLiked(next);
-    setLikes((n) => n + (next ? 1 : -1));
-    try {
-      const raw = localStorage.getItem('shoppage_liked_posts');
-      const list = raw ? (JSON.parse(raw) as string[]) : [];
-      const nextList = next ? [...new Set([...list, post.id])] : list.filter((id) => id !== post.id);
-      localStorage.setItem('shoppage_liked_posts', JSON.stringify(nextList));
-    } catch {
-      /* ignore */
-    }
-  };
-
-  const toggleRepost = () => {
-    if (onOpenRepost) {
-      onOpenRepost(post);
-      return;
-    }
-    const next = !reposted;
-    setReposted(next);
-    setReposts((n) => n + (next ? 1 : -1));
-    try {
-      const raw = localStorage.getItem('shoppage_reposted_posts');
-      const list = raw ? (JSON.parse(raw) as string[]) : [];
-      const nextList = next ? [...new Set([...list, post.id])] : list.filter((id) => id !== post.id);
-      localStorage.setItem('shoppage_reposted_posts', JSON.stringify(nextList));
-      showToast(next ? 'Deal reposted to your network' : 'Deal repost removed', 'info');
-    } catch {
-      /* ignore */
-    }
-  };
-
-  const toggleFollow = () => {
-    if (!post.company) return;
-    const compId = post.company.id;
-    const next = !following;
-    setFollowing(next);
-    try {
-      const raw = localStorage.getItem('shoppage_followed_companies');
-      const list = raw ? (JSON.parse(raw) as string[]) : [];
-      const nextList = next ? [...new Set([...list, compId])] : list.filter((id) => id !== compId);
-      localStorage.setItem('shoppage_followed_companies', JSON.stringify(nextList));
-      showToast(next ? `Now following ${post.author.name}` : `Unfollowed ${post.author.name}`, 'info');
-    } catch {
-      /* ignore */
-    }
-  };
-
-  const toggleVideoPlay = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!videoRef.current) {
-      setIsPlaying(true);
-      return;
-    }
-    if (videoRef.current.paused) {
-      videoRef.current.play();
-      setIsPlaying(true);
-    } else {
-      videoRef.current.pause();
-      setIsPlaying(false);
-    }
-  };
-
-  const toggleMute = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (videoRef.current) {
-      videoRef.current.muted = !videoRef.current.muted;
-      setIsMuted(videoRef.current.muted);
-    } else {
-      setIsMuted((m) => !m);
-    }
-  };
+  const totalVotes = localPoll
+    ? localPoll.options.reduce((sum, o) => sum + o.v, 0)
+    : 0;
 
   return (
-    <article
-      className="post"
-      style={{ animationDelay: `${Math.min(index, 8) * 35}ms` }}
-      aria-labelledby={`post-author-${post.id}`}
-    >
-      {/* 1. Author Avatar */}
-      <div
-        className={`post-avatar${post.author.verified ? ' is-verified' : ''}`}
-        style={{ background: gradientFor(post.author.id) }}
-        aria-hidden="true"
-      >
-        {post.author.initials}
-      </div>
-
-      {/* 2. Main Post Body */}
-      <div className="post-body">
-        {/* Post Header Line */}
-        <div className="post-head">
-          <Link href={post.author.href} className="post-name" id={`post-author-${post.id}`}>
-            {post.author.name}
-          </Link>
-          {post.author.verified && (
-            <span className="post-verified" title="CIPC verified trade counter">
-              <VerifiedIcon />
-              <span className="visually-hidden">Verified</span>
-            </span>
-          )}
-          <span className="post-meta">{post.author.handle}</span>
-          <span className="post-dot">·</span>
-          <span className="post-meta">{post.timeLabel}</span>
-          <span className="post-dot">·</span>
-          <span className="post-event-subtle">{EVENT_LABEL[post.kind]}</span>
-
-          {post.company && (
-            <button
-              type="button"
-              onClick={toggleFollow}
-              className={`follow-pill-btn${following ? ' is-following' : ''}`}
-              style={{ marginLeft: 'auto' }}
-            >
-              {following ? 'Following' : 'Follow'}
-            </button>
-          )}
+    <article className="post" data-id={post.id}>
+      <div className={`avatar ${post.av || 'g8'}`}>{post.ini || 'SP'}</div>
+      <div className="pbody">
+        <div className="phead">
+          <b>{post.name}</b>
+          {post.verified && VSVG}
+          <span className="h">
+            {post.handle} · {post.time}
+          </span>
+          <button
+            type="button"
+            className="more"
+            aria-label="Post options"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onShare) onShare(post.id);
+            }}
+          >
+            ···
+          </button>
         </div>
 
-        {/* Text Content */}
-        <p className="post-text">{post.text}</p>
-
-        {/* ── EMBED: PRODUCT ────────────────────────────────────────────── */}
-        {post.product && (
-          <Link href={post.product.href} className="post-product">
-            <div className="post-product-media" aria-hidden="true">
-              {post.product.imageUrl ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={post.product.imageUrl}
-                  alt={post.product.title}
-                  loading="lazy"
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    target.style.display = 'none';
-                    if (target.parentElement) {
-                      const span = document.createElement('span');
-                      span.className = 'post-product-emoji';
-                      span.innerText = post.product?.emoji || '📦';
-                      target.parentElement.appendChild(span);
-                    }
-                  }}
-                />
-              ) : (
-                <span className="post-product-emoji">{post.product.emoji}</span>
-              )}
-            </div>
-            <div className="post-product-info">
-              <div className="post-product-title">{post.product.title}</div>
-              <div className="post-product-merchant">
-                {post.product.brand}
-                {post.product.sellerCount > 0 &&
-                  (post.product.verifiedSellers > 0
-                    ? ` · ${post.product.verifiedSellers} verified · ${post.product.sellerCount} sources`
-                    : ` · ${post.product.sellerCount} web sources`)}
-              </div>
-              <div className="price-row">
-                {typeof post.product.priceNow === 'number' && (
-                  <span className="price-now">{formatZar(post.product.priceNow)}</span>
-                )}
-                {typeof post.product.priceWas === 'number' && (
-                  <span className="price-was">{formatZar(post.product.priceWas)}</span>
-                )}
-                {post.product.dropPct ? (
-                  <span className="price-drop">▼ {post.product.dropPct}% OFF</span>
-                ) : null}
-              </div>
-            </div>
-          </Link>
+        {(post.badge || post.cat) && (
+          <div className="chips">
+            {post.badge && (
+              <span className={`chip ${chipClass(post.badge.type)}`}>
+                {post.badge.label}
+              </span>
+            )}
+            {post.cat && <span className="chip chip-cat">{post.cat}</span>}
+          </div>
         )}
 
-        {/* ── EMBED: VIDEO SHORT (9:16 INLINE PLAYER) ────────────────────── */}
-        {post.kind === 'short' && post.media && (
-          <div className="post-video-container">
-            {isPlaying ? (
-              <video
-                ref={videoRef}
-                src={post.media.videoUrl}
-                autoPlay
-                playsInline
-                muted={isMuted}
-                loop
-                className="post-inline-video"
-                onClick={toggleVideoPlay}
-              />
-            ) : (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={post.media.thumbnailUrl}
-                alt={post.text}
-                className="post-video-thumb"
-              />
+        <div className="ptext">{post.text}</div>
+
+        {/* Product Embed */}
+        {post.product && (
+          <div className="product">
+            {post.image && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={post.image} alt={post.product.name} loading="lazy" />
             )}
-
-            <div className="post-video-overlay" onClick={toggleVideoPlay}>
-              {!isPlaying && (
-                <div className="post-play-badge">
-                  <PlayIcon />
-                </div>
-              )}
-            </div>
-
-            <div className="post-video-controls">
+            <div className="pinfo">
+              <div className="pname">{post.product.name}</div>
+              <div className="prow">
+                <span className="price">{post.product.price}</span>
+                {post.product.old && <span className="old">{post.product.old}</span>}
+                {post.product.off && <span className="off">{post.product.off}</span>}
+              </div>
+              {post.product.note && <div className="pnote">{post.product.note}</div>}
               <button
                 type="button"
-                className="video-ctrl-btn"
-                onClick={toggleMute}
-                aria-label={isMuted ? 'Unmute' : 'Mute'}
-                title={isMuted ? 'Unmute audio' : 'Mute audio'}
+                className="getdeal"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onGetDeal) onGetDeal(post);
+                }}
               >
-                <VolumeIcon muted={isMuted} />
+                Get deal
               </button>
-
-              <span className="post-duration">{post.media.duration}</span>
             </div>
-
-            {post.product && (
-              <Link href={post.product.href} className="video-product-pill">
-                <span className="vpp-emoji">{post.product.emoji}</span>
-                <span className="vpp-title">{post.product.title}</span>
-                {typeof post.product.priceNow === 'number' && (
-                  <span className="vpp-price">{formatZar(post.product.priceNow)}</span>
-                )}
-              </Link>
-            )}
           </div>
         )}
 
-        {/* ── EMBED: SHOW EPISODE ───────────────────────────────────────── */}
-        {post.kind === 'show' && post.show && (
-          <div className="post-show-card">
-            <div className="post-show-media" onClick={() => setIsPlaying(true)}>
-              {isPlaying ? (
-                <video
-                  ref={videoRef}
-                  src={post.show.videoUrl}
-                  autoPlay
-                  playsInline
-                  controls
-                  className="post-show-video"
-                />
-              ) : (
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={post.show.thumbnailUrl}
-                    alt={post.show.title}
-                    className="post-show-thumb"
-                  />
-                  <div className="post-video-overlay">
-                    <div className="post-play-badge is-show-play">
-                      <PlayIcon />
-                    </div>
+        {/* Poll Embed */}
+        {localPoll && (
+          <>
+            <div
+              className={`poll${localPoll.voted !== null ? ' voted' : ''}`}
+              data-poll={post.id}
+            >
+              {localPoll.options.map((opt, i) => {
+                const voted = localPoll.voted !== null;
+                const isMine = localPoll.voted === i;
+                const pct = totalVotes > 0 ? Math.round((opt.v / totalVotes) * 100) : 0;
+
+                if (!voted) {
+                  return (
+                    <button
+                      key={opt.l}
+                      type="button"
+                      className="opt"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleVote(i);
+                      }}
+                    >
+                      {opt.l}
+                    </button>
+                  );
+                }
+
+                return (
+                  <div
+                    key={opt.l}
+                    className={`opt${isMine ? ' mine' : ''}`}
+                    style={{ cursor: 'default' }}
+                  >
+                    <div className="bar" style={{ width: `${pct}%` }} />
+                    <span className="lbl">
+                      <span>
+                        {isMine ? '✓ ' : ''}
+                        {opt.l}
+                      </span>
+                      <b>{pct}%</b>
+                    </span>
                   </div>
-                  <span className="post-duration">{post.show.duration}</span>
-                </>
-              )}
+                );
+              })}
             </div>
-
-            <div className="post-show-info">
-              <div className="post-show-header">
-                <span className="post-series-chip">{post.show.series}</span>
-                <span className="post-runtime-label">{post.show.duration}</span>
-              </div>
-              <h3 className="post-show-title">{post.show.title}</h3>
-              {post.show.featuredProducts && post.show.featuredProducts.length > 0 && (
-                <Link href="/shows" className="post-show-products-link">
-                  📦 {post.show.featuredProducts.length} verified products in this episode · Watch now →
-                </Link>
-              )}
+            <div className="polltotal">
+              {localPoll.voted !== null
+                ? `${fmt(totalVotes)} votes · Final results`
+                : `${fmt(totalVotes)} votes · 18h left`}
             </div>
-          </div>
+          </>
         )}
 
-        {/* ── EMBED: WHOLESALE MARKET SPOTLIGHT ───────────────────────────── */}
-        {post.kind === 'market' && post.market && (
-          <Link href={post.market.href} className="post-market-card">
-            <div className="post-market-thumb-wrap">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={post.market.imageUrl || 'https://images.unsplash.com/photo-1567449303078-57ad995bd301?w=800&h=450&fit=crop'}
-                alt={post.market.name}
-                className="post-market-thumb"
-              />
-            </div>
-            <div className="post-market-details">
-              <div className="post-market-name">{post.market.name}</div>
-              <div className="post-market-meta">🏢 {post.market.stallCount}+ Stalls · {post.market.province}</div>
-              <div className="post-market-address">{post.market.address}</div>
-            </div>
-          </Link>
-        )}
-
-        {/* ── EMBED: COMPANY SHOWCASE ─────────────────────────────────────── */}
-        {post.kind === 'company' && post.company && (
-          <div className="post-company-card">
-            <div className="post-company-main">
-              <div className="post-company-avatar">
-                {post.author.initials}
-              </div>
-              <div className="post-company-info">
-                <div className="post-company-name-row">
-                  <span className="post-company-name">{post.company.name}</span>
-                  <span className="post-verified">✓</span>
-                </div>
-                <span className="post-company-cat">{post.company.primaryCategory} · {post.company.province}</span>
-                <span className="post-company-address">{post.company.address}</span>
-              </div>
-            </div>
-            {post.company.whatsapp && (
-              <a
-                href={`https://wa.me/${post.company.whatsapp.replace(/[^0-9]/g, '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="post-company-wa-btn"
-              >
-                💬 WhatsApp Trade Counter
-              </a>
-            )}
-          </div>
-        )}
-
-        {/* Social Proof Line */}
-        {post.viewers ? (
-          <div className="post-proof">
-            <span className="live-dot" />
-            {post.viewers} trade buyers viewing right now
-          </div>
-        ) : null}
-
-        {/* ── TWITTER/X INTERACTION BAR ─────────────────────────────────── */}
-        <div className="post-actions" role="toolbar" aria-label="Tweet commerce actions">
-          {/* Reply / Discuss */}
+        {/* Action Bar */}
+        <div className="abar">
           <button
             type="button"
-            className="post-action is-reply"
-            onClick={() => onOpenInquiry && onOpenInquiry(post)}
+            className="ab reply"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onReply) onReply(post.handle);
+            }}
             aria-label={`Reply (${post.stats.replies})`}
-            title="Ask a question or inquire on this listing"
           >
-            <ReplyIcon />
-            <span className="post-action-count">{post.stats.replies}</span>
-          </button>
-
-          {/* Repost / Retweet */}
-          <button
-            type="button"
-            className={`post-action is-repost${reposted ? ' is-reposted' : ''}`}
-            onClick={toggleRepost}
-            aria-label={`Repost (${reposts})`}
-            title="Repost or share deal"
-          >
-            <RepostIcon />
-            <span className="post-action-count">{reposts}</span>
-          </button>
-
-          {/* Like */}
-          <button
-            type="button"
-            className={`post-action is-like${liked ? ' is-liked' : ''}`}
-            onClick={toggleLike}
-            aria-label={`Like (${likes})`}
-            title={liked ? 'Unlike' : 'Like'}
-          >
-            <HeartIcon filled={liked} />
-            <span className="post-action-count">{likes}</span>
-          </button>
-
-          {/* Bookmark / Watchlist */}
-          <button
-            type="button"
-            className={`post-action is-bookmark${saved ? ' is-saved' : ''}`}
-            onClick={toggleSave}
-            aria-label={saved ? 'Remove from watchlist' : 'Save to watchlist'}
-            title={saved ? 'Remove from watchlist' : 'Save to watchlist'}
-          >
-            <BookmarkIcon filled={saved} />
-            <span className="post-action-count">{saves}</span>
-          </button>
-
-          {/* Views / Impressions */}
-          <div className="post-action is-views" title="Total impressions">
-            <ChartIcon />
-            <span className="post-action-count">
-              {post.media ? formatViews(post.media.views) : `${formatViews((post.stats.likes * 14) + 120)}`}
+            <span className="icn">
+              <svg viewBox="0 0 24 24">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  d="M1.75 10c0-4.42 3.58-8 8-8h4.37c4.49 0 8.13 3.64 8.13 8.13 0 2.96-1.61 5.68-4.2 7.11l-8.05 4.46v-3.69h-.07c-4.49.1-8.18-3.51-8.18-8.01z"
+                />
+              </svg>
             </span>
-          </div>
+            <span className="cnt">{fmt(post.stats.replies)}</span>
+          </button>
 
-          {/* Direct CTA */}
-          <div style={{ marginLeft: 'auto' }}>
-            {post.cta.external ? (
-              <a
-                href={post.cta.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`post-cta${post.cta.whatsapp ? ' is-whatsapp' : ''}`}
-              >
-                {post.cta.whatsapp ? '💬 ' : ''}
-                {post.cta.label}
-              </a>
-            ) : (
-              <Link href={post.cta.href} className="post-cta">
-                {post.cta.label}
-              </Link>
-            )}
-          </div>
+          <button
+            type="button"
+            className={`ab repost${isReposted ? ' on' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onRepost) onRepost(post.id);
+            }}
+            aria-label={`Repost (${post.stats.reposts + (isReposted ? 1 : 0)})`}
+          >
+            <span className="icn">
+              <svg viewBox="0 0 24 24">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M17 2l4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 0 1-4 4H3"
+                />
+              </svg>
+            </span>
+            <span className="cnt">{fmt(post.stats.reposts + (isReposted ? 1 : 0))}</span>
+          </button>
+
+          <button
+            type="button"
+            className={`ab like${isLiked ? ' on' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onLike) onLike(post.id);
+            }}
+            aria-label={`Like (${post.stats.likes + (isLiked ? 1 : 0)})`}
+          >
+            <span className="icn">
+              <svg viewBox="0 0 24 24">
+                <path
+                  fill={isLiked ? 'currentColor' : 'none'}
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                />
+              </svg>
+            </span>
+            <span className="cnt">{fmt(post.stats.likes + (isLiked ? 1 : 0))}</span>
+          </button>
+
+          <span className="ab views" title="Views">
+            <span className="icn">
+              <svg viewBox="0 0 24 24">
+                <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21v-5.5h2V21H4z" />
+              </svg>
+            </span>
+            <span className="cnt">{post.stats.views}</span>
+          </span>
+
+          <span style={{ display: 'flex' }}>
+            <button
+              type="button"
+              className={`ab bm${isBookmarked ? ' on' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onBookmark) onBookmark(post.id);
+              }}
+              aria-label="Bookmark"
+            >
+              <span className="icn">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    fill={isBookmarked ? 'currentColor' : 'none'}
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinejoin="round"
+                    d="M4 4.5C4 3.12 5.12 2 6.5 2h11C18.88 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5z"
+                  />
+                </svg>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              className="ab sh"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onShare) onShare(post.id);
+              }}
+              aria-label="Share"
+            >
+              <span className="icn">
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 2.6l6 6-1.4 1.4-3.6-3.6V16h-2V6.4L7.4 10 6 8.6l6-6zM21 15v3.5a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5V15h2v3.5c0 .28.22.5.5.5h13c.28 0 .5-.22.5-.5V15h2z" />
+                </svg>
+              </span>
+            </button>
+          </span>
         </div>
       </div>
     </article>
   );
 }
-

@@ -5,7 +5,7 @@ import AppNavbar from '@/components/AppNavbar';
 import CommerceRail from '@/components/CommerceRail';
 
 export const metadata: Metadata = {
-  title: 'Shoppage South Africa · Live commerce feed, 1M+ products, 3,296 malls',
+  title: 'Shoppage — Price drops, restocks & video proof from verified SA counters',
   description:
     'South Africa’s commercial grid. Live price drops, restocks and video proof from verified merchants — direct trade at 0% commission.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || 'https://shoppage.co.za'),
@@ -27,11 +27,11 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#10B981',
+  themeColor: '#1d9bf0',
 };
 
 // Applies the stored theme before first paint so dark mode never flashes white.
-const themeBootstrap = `(function(){try{var t=localStorage.getItem('shoppage_theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`;
+const themeBootstrap = `(function(){try{var t=localStorage.getItem('shoppage_theme');if(t==='dark'||t==='dim'||t==='light'){document.documentElement.setAttribute('data-theme',t);document.body.setAttribute('data-theme',t);}else{document.documentElement.setAttribute('data-theme','dark');document.body.setAttribute('data-theme','dark');}}catch(e){}})();`;
 
 export default function RootLayout({
   children,
@@ -39,23 +39,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
-          rel="stylesheet"
-        />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/400.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/500.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/700.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/800.css" />
         <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
       </head>
-      <body>
-        <a href="#main-content" className="skip-link">
-          Skip to main content
-        </a>
-        <AppNavbar aside={<CommerceRail />}>
-          <div id="main-content">{children}</div>
-        </AppNavbar>
+      <body data-theme="dark">
+        <AppNavbar aside={<CommerceRail />}>{children}</AppNavbar>
       </body>
     </html>
   );
