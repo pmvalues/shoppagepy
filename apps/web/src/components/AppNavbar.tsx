@@ -43,6 +43,14 @@ function ShortsIcon() {
     </svg>
   );
 }
+function ShowsIcon() {
+  return (
+    <svg {...iconProps}>
+      <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
+      <polyline points="17 2 12 7 7 2" />
+    </svg>
+  );
+}
 function MarketsIcon() {
   return (
     <svg {...iconProps}>
@@ -106,6 +114,7 @@ const NAV_ITEMS = [
   { href: '/', label: 'Feed', Icon: FeedIcon, exact: true },
   { href: '/search', label: 'Search', Icon: SearchIcon },
   { href: '/shorts', label: 'Shorts', Icon: ShortsIcon },
+  { href: '/shows', label: 'Shows', Icon: ShowsIcon },
   { href: '/markets', label: 'Markets', Icon: MarketsIcon },
   { href: '/malls', label: 'Malls', Icon: MallsIcon },
   { href: '/merchants', label: 'Stores', Icon: StoresIcon },

@@ -32,6 +32,7 @@ const CANONICAL_PRODUCT_IMAGES: Record<string, string[]> = {
   var_deye_5kw_hybrid: [
     'https://images.unsplash.com/photo-1508873696983-2df57046475a?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1548611716-ad381335b2e0?auto=format&fit=crop&w=800&q=80',
   ],
   var_sunsynk_8kw_hybrid: [
     'https://images.unsplash.com/photo-1548611716-ad381335b2e0?auto=format&fit=crop&w=800&q=80',
