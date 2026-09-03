@@ -22,6 +22,10 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD:-shoppage_redis_pass}@redis:6379/0
       - TYPESENSE_URL=http://typesense:8108
       - TYPESENSE_API_KEY=${TYPESENSE_API_KEY:-shoppage_typesense_secret_key}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3.6-flash}
+    volumes:
+      - foundation_data:/app/shoppage-commerce-intelligence-foundation/data/study
     depends_on:
       postgres:
         condition: service_healthy
@@ -91,6 +95,8 @@ volumes:
   redis_data:
     driver: local
   typesense_data:
+    driver: local
+  foundation_data:
     driver: local
 
 networks:
