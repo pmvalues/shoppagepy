@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Local environment secrets (never commit keys; .env.example stays tracked)
+.env
+.env*.local
+
 # SQLite Databases & Large Data Dumps
 *.sqlite
 *.sqlite3

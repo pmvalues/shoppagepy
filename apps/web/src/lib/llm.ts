@@ -54,7 +54,7 @@ export interface LLMProvider {
 export function getLLMConfig() {
   return {
     apiKey: (process.env.GEMINI_API_KEY || '').trim(),
-    model: (process.env.GEMINI_MODEL || 'gemini-2.0-flash').trim(),
+    model: (process.env.GEMINI_MODEL || 'gemini-3.6-flash').trim(),
   };
 }
 
