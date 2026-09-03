@@ -52,6 +52,9 @@ COPY --from=builder /app/apps/web/.next ./apps/web/.next
 COPY --from=builder /app/apps/web/next.config.mjs ./apps/web/
 COPY --from=builder /app/shoppage-commerce-intelligence-foundation ./shoppage-commerce-intelligence-foundation
 
+# Production data bootstrapper (fetches sqlite datasets on first boot if missing)
+COPY --from=builder /app/scripts/fetch-production-data.mjs ./scripts/fetch-production-data.mjs
+
 EXPOSE 3000
 
-CMD ["npm", "run", "start", "--workspace=@shoppage/web", "--", "-p", "3000"]
+CMD ["sh", "-c", "node ./scripts/fetch-production-data.mjs && npm run start --workspace=@shoppage/web -- -p 3000"]
