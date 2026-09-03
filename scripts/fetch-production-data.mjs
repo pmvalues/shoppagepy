@@ -24,6 +24,18 @@ const FILES = [
       'https://github.com/pmvalues/shoppagepy/releases/download/data-v1/sa_malls_and_shopping_centres.sqlite.zip',
     dest: 'shoppage-commerce-intelligence-foundation/data/study/sa_malls_and_shopping_centres.sqlite',
   },
+  {
+    env: 'SHOPPAGE_DATA_URL_FOOD',
+    fallback:
+      'https://github.com/pmvalues/shoppagepy/releases/download/data-v1/global_food_master_products.sqlite.zip',
+    dest: 'shoppage-commerce-intelligence-foundation/data/study/global_food_master_products.sqlite',
+  },
+  {
+    env: 'SHOPPAGE_DATA_URL_MERCHANTS',
+    fallback:
+      'https://github.com/pmvalues/shoppagepy/releases/download/data-v1/sa_nationwide_merchants.sqlite.zip',
+    dest: 'shoppage-commerce-intelligence-foundation/data/study/sa_nationwide_merchants.sqlite',
+  },
 ];
 
 export async function unzipSingle(zipPath, destPath) {
