@@ -1,6 +1,5 @@
-import { Offer, DiscoveredOffer, MasterProduct, Merchant, ProductVariant } from '@shoppage/contracts';
+import { Offer, DiscoveredOffer, Merchant, ProductVariant } from '@shoppage/contracts';
 import { SA_FLAGSHIP_OFFERS } from '../seed/sa_flagship_seed';
-import { SA_CANONICAL_PRODUCTS } from '../seed/sa_flagship_seed';
 
 import { getSqliteDatabase } from './db_resolver';
 
@@ -304,47 +303,6 @@ function rowToDiscoveredOffer(row: any): DiscoveredOffer {
   };
 }
 
-/**
- * Generate direct canonical product discovered offers for any Master Product
- */
-function generateDynamicDiscoveredOffers(product: MasterProduct): DiscoveredOffer[] {
-  const basePrice = (product.attributes?.estimatedPriceZar as number) || 1200;
-
-  const relevant = PUBLIC_RETAILERS.filter((r) =>
-    r.category.includes('all') ||
-    r.category.includes(product.categoryRef) ||
-    r.category.includes('electronics') ||
-    r.category.includes('solar_energy') ||
-    r.category.includes('groceries')
-  );
-
-  return relevant.map((ret, idx) => {
-    const multiplier = 0.92 + (idx * 0.04);
-    const amount = Math.round(basePrice * multiplier);
-    const url = ret.buildUrl(product.title, product.canonicalId);
-
-    return {
-      id: `disc_${product.canonicalId}_${ret.website.replace(/[^a-z0-9]/g, '_')}`,
-      masterProductRef: product.canonicalId,
-      merchantName: ret.name,
-      sourceWebsite: ret.website,
-      sourceUrl: url,
-      discoveredPrice: {
-        amount,
-        currency: 'ZAR',
-        rawPriceText: `R ${amount.toLocaleString()}`,
-      },
-      availabilityText: idx % 2 === 0 ? 'In Stock (National Delivery & Store Pickup)' : 'In Stock (Dispatch within 24-48h)',
-      discoverySource: 'retailer_web_sweep',
-      confidenceScore: Math.round((0.92 + (idx * 0.01)) * 100) / 100,
-      discoveredAt: new Date(Date.now() - (idx * 3600 * 1000 * 4)).toISOString(),
-      status: 'discovered',
-      locationHint: ret.locationHint,
-      sku: `ZA-${product.brand.slice(0, 3).toUpperCase()}-${idx + 101}`,
-    };
-  });
-}
-
 // In-memory cache for fast lookups
 const DISCOVERED_OFFERS_CACHE = new Map<string, DiscoveredOffer[]>();
 
@@ -384,28 +342,8 @@ export class DiscoveredOffersStore {
         }
       }
 
-      if (!discovered || discovered.length === 0) {
-        const product = SA_CANONICAL_PRODUCTS.find((p) => p.canonicalId === productId) || {
-          canonicalId: productId,
-          familyRef: 'general',
-          categoryRef: 'general',
-          title: productId.replace(/[_-]/g, ' '),
-          brand: 'Standard',
-          identifiers: {},
-          attributes: { estimatedPriceZar: 1500 },
-          aliases: [],
-          compatibilityEdgeCount: 0,
-          status: 'active' as const,
-          countryScope: ['ZA' as const],
-          provenance: {
-            sourceRef: 'dynamic_lookup',
-            rightsClass: 'PUBLIC_RECORD' as const,
-            confidence: 0.95,
-            fieldOwner: 'SHOPPAGE',
-            validFrom: new Date().toISOString(),
-          },
-        };
-        discovered = generateDynamicDiscoveredOffers(product);
+      if (!discovered) {
+        discovered = [];
       }
 
       DISCOVERED_OFFERS_CACHE.set(productId, discovered);
@@ -440,7 +378,9 @@ export class DiscoveredOffersStore {
     const db = getDiscoveredOffersSqliteDb();
     if (db) {
       try {
-        const stmt = db.prepare('SELECT * FROM discovered_offers ORDER BY discovered_price_zar ASC');
+        const stmt = db.prepare(
+          'SELECT * FROM discovered_offers ORDER BY (discovered_price_zar IS NULL OR discovered_price_zar <= 0), discovered_price_zar ASC LIMIT 5000',
+        );
         const rows: any[] = stmt.all();
         return rows.map(rowToDiscoveredOffer);
       } catch (e) {
@@ -510,16 +450,16 @@ export class DiscoveredOffersStore {
     if (db && cleanQuery) {
       try {
         const stmt = db.prepare(`
-          SELECT * FROM discovered_offers 
+          SELECT * FROM discovered_offers
           WHERE (
-            LOWER(product_title) LIKE ? 
-            OR LOWER(brand) LIKE ? 
-            OR LOWER(category) LIKE ? 
-            OR LOWER(master_product_ref) LIKE ? 
-            OR LOWER(merchant_name) LIKE ? 
+            LOWER(product_title) LIKE ?
+            OR LOWER(brand) LIKE ?
+            OR LOWER(category) LIKE ?
+            OR LOWER(master_product_ref) LIKE ?
+            OR LOWER(merchant_name) LIKE ?
             OR LOWER(sku) LIKE ?
           )
-          ORDER BY discovered_price_zar ASC
+          ORDER BY (discovered_price_zar IS NULL OR discovered_price_zar <= 0), discovered_price_zar ASC
         `);
         const pattern = `%${cleanQuery}%`;
         rows = stmt.all(pattern, pattern, pattern, pattern, pattern, pattern) as any[];
@@ -548,11 +488,13 @@ export class DiscoveredOffersStore {
       if (seenProducts.has(pRef)) continue;
 
       const pTitle = r.product_title || r.masterProductRef?.replace(/^var_/, '').replace(/_/g, ' ') || 'Verified Product';
-      const pBrand = r.brand || 'South Africa Verified';
+      const pBrand = r.brand || '';
       const pCat = r.category || 'general';
       const pImg = r.image_url || 'https://images.unsplash.com/photo-1508873696983-2df57046475a?w=800&auto=format&fit=crop&q=80';
       const sourceUrl = sanitizeSourceUrl(r.source_url || r.sourceUrl, r.source_website || r.sourceWebsite, pRef);
-      const priceVal = typeof r.discovered_price_zar === 'number' ? r.discovered_price_zar : (r.discoveredPrice?.amount || 99);
+      const priceVal = typeof r.discovered_price_zar === 'number' && r.discovered_price_zar > 0
+        ? r.discovered_price_zar
+        : (typeof r.discoveredPrice?.amount === 'number' && r.discoveredPrice.amount > 0 ? r.discoveredPrice.amount : null);
       const skuVal = r.sku || `SKU-${pRef.slice(0, 8).toUpperCase()}`;
 
       const productVariant: ProductVariant = {
@@ -567,7 +509,7 @@ export class DiscoveredOffersStore {
         },
         attributes: {
           category: pCat,
-          estimatedPriceZar: priceVal,
+          ...(priceVal !== null ? { estimatedPriceZar: priceVal } : {}),
           verificationState: 'verified_scraped_product',
           heroImage: pImg,
         },
@@ -595,7 +537,7 @@ export class DiscoveredOffersStore {
           destinationUrl: sourceUrl,
         },
         price: {
-          amount: priceVal,
+          amount: priceVal ?? undefined,
           currency: 'ZAR',
           sourceTimestamp: r.discovered_at || r.discoveredAt || new Date().toISOString(),
         },
@@ -686,12 +628,28 @@ export class DiscoveredOffersStore {
       try {
         const stmt = db.prepare('SELECT count(*) as total FROM discovered_offers');
         const res: any = stmt.get();
-        return res?.total || 60;
+        return res?.total || 0;
       } catch (e) {
-        return 60;
+        return 0;
       }
     }
-    return 60;
+    return 0;
+  }
+
+  public static getLatestDiscoveredOffers(limit = 20, offset = 0): DiscoveredOffer[] {
+    const db = getDiscoveredOffersSqliteDb();
+    if (db) {
+      try {
+        const stmt = db.prepare(
+          'SELECT * FROM discovered_offers ORDER BY (discovered_price_zar IS NULL OR discovered_price_zar <= 0), rowid DESC LIMIT ? OFFSET ?',
+        );
+        const rows: any[] = stmt.all(limit, offset);
+        return rows.map(rowToDiscoveredOffer);
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
   }
 
   public static clearCache(): void {

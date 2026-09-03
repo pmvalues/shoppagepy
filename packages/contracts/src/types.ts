@@ -327,7 +327,7 @@ export interface DiscoveredOffer {
     rawPriceText?: string;
   };
   availabilityText: string;
-  discoverySource: 'retailer_web_sweep' | 'catalog_index' | 'public_registry' | 'e_commerce_scrape' | 'google_shopping_feed';
+  discoverySource: 'retailer_web_sweep' | 'catalog_index' | 'public_registry' | 'e_commerce_scrape' | 'google_shopping_feed' | 'sitemap_harvest';
   confidenceScore: number; // 0.0 - 1.0
   discoveredAt: string;
   status: 'discovered';

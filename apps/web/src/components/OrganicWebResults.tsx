@@ -67,16 +67,16 @@ export default function OrganicWebResults({
       const emoji = isSolar ? '⚡' : isHard ? '🧱' : isTech ? '📱' : '🛒';
 
       const domainPath = disc.sourceWebsite.replace(/^https?:\/\//, '');
-      const prodName = disc.masterProductRef.replace(/^(?:var_|za_hard_|za_fmcg_|disc_)/, '').replace(/_/g, ' ');
+      const prodName = disc.masterProductRef.replace(/^(?:var_|za_hard_|za_fmcg_|disc_|ext_[a-z0-9]+_)/, '').replace(/_/g, ' ');
 
       organicResults.push({
         url: disc.sourceUrl,
         domain: `${domainPath} › product › ${disc.sku || 'live'}`,
-        title: `${disc.merchantName} — ${disc.discoveredPrice.rawPriceText} (${disc.availabilityText || 'In Stock'})`,
+        title: disc.discoveredPrice.rawPriceText ? `${disc.merchantName} — ${disc.discoveredPrice.rawPriceText} (${disc.availabilityText || 'See live listing'})` : `${disc.merchantName} — live store listing`,
         snippet: `Verified South African retailer live listing for ${prodName.toUpperCase()}. Stock dispatched from ${disc.locationHint || 'National Distribution Centres'}. Genuine direct store checkout link.`,
         thumbnailEmoji: emoji,
         isInternal: false,
-        priceText: disc.discoveredPrice.rawPriceText,
+        priceText: disc.discoveredPrice.rawPriceText || undefined,
         retailerBadge: disc.merchantName,
       });
     });
@@ -90,16 +90,16 @@ export default function OrganicWebResults({
       const emoji = isSolar ? '⚡' : isHard ? '🧱' : isTech ? '📱' : '🛒';
 
       const domainPath = disc.sourceWebsite.replace(/^https?:\/\//, '');
-      const prodName = disc.masterProductRef.replace(/^(?:var_|za_hard_|za_fmcg_|disc_)/, '').replace(/_/g, ' ');
+      const prodName = disc.masterProductRef.replace(/^(?:var_|za_hard_|za_fmcg_|disc_|ext_[a-z0-9]+_)/, '').replace(/_/g, ' ');
 
       organicResults.push({
         url: disc.sourceUrl,
         domain: `${domainPath} › product › ${disc.sku || 'live'}`,
-        title: `${disc.merchantName} — ${disc.discoveredPrice.rawPriceText} (${disc.availabilityText || 'In Stock'})`,
+        title: disc.discoveredPrice.rawPriceText ? `${disc.merchantName} — ${disc.discoveredPrice.rawPriceText} (${disc.availabilityText || 'See live listing'})` : `${disc.merchantName} — live store listing`,
         snippet: `Verified South African retailer live stock for ${prodName.toUpperCase()}. Real direct product checkout URL.`,
         thumbnailEmoji: emoji,
         isInternal: false,
-        priceText: disc.discoveredPrice.rawPriceText,
+        priceText: disc.discoveredPrice.rawPriceText || undefined,
         retailerBadge: disc.merchantName,
       });
     });

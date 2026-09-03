@@ -11,6 +11,7 @@ import {
   type PostItem,
   type MarketItem,
   type ProductCatalogItem,
+  type RetailSpecial,
 } from '@/lib/feed';
 
 type TabType = 'foryou' | 'products' | 'deals' | 'markets' | 'shorts';
@@ -28,7 +29,13 @@ const PRODUCT_CATEGORIES = [
   { id: 'fmcg', label: '🛒 Wholesale FMCG' },
 ];
 
-export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem[] }) {
+export default function DiscoveryFeed({
+  posts: initialPosts,
+  specials = [],
+}: {
+  posts: PostItem[];
+  specials?: RetailSpecial[];
+}) {
   const [posts, setPosts] = useState<PostItem[]>(initialPosts);
   const [tab, setTab] = useState<TabType>('foryou');
   const [view, setView] = useState<ViewType>('home');
@@ -812,6 +819,31 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
 
       {/* ── TIMELINE POSTS & SHORTS (For You, Deals, Bookmarks, Shorts) ───── */}
       {(view === 'bookmarks' || tab === 'foryou' || tab === 'deals' || tab === 'shorts') && (
+        <>
+        {view === 'home' && tab === 'deals' && specials.length > 0 && (
+          <div className="markets-list">
+            <div className="stream-header">
+              <h2>Live retailer specials</h2>
+              <p>Current listings pulled from stored vendor catalogues across major SA retailers.</p>
+            </div>
+            {specials.map((s) => (
+              <div key={s.id} className="market-card">
+                <div className={`avatar g${(s.title.length % 8) + 1}`}>{s.title.charAt(0).toUpperCase()}</div>
+                <div className="market-content">
+                  <div className="market-header">
+                    <h3 className="market-title">
+                      <a href={s.url} target="_blank" rel="noreferrer">{s.title}</a>
+                    </h3>
+                  </div>
+                  <p className="market-meta">{s.merchant}{s.priceText ? ` · ${s.priceText}` : ''}</p>
+                  <div className="market-actions">
+                    <a href={s.url} target="_blank" rel="noreferrer" className="visit-btn">View live deal ⚡</a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
         <div id="feed">
           {tab === 'shorts' && view === 'home' ? (
             filteredShorts.length > 0 ? (
@@ -891,6 +923,7 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
             </div>
           )}
         </div>
+        </>
       )}
 
       {/* ── TOAST NOTIFICATION ────────────────────────────────────────────── */}

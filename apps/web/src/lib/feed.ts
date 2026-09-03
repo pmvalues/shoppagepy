@@ -9,6 +9,7 @@ import {
   SA_FLAGSHIP_MERCHANTS,
   SA_FLAGSHIP_OFFERS,
   SA_COMPREHENSIVE_MARKETS,
+  DiscoveredOffersStore,
 } from '@shoppage/kernel';
 
 export interface PostProduct {
@@ -227,6 +228,44 @@ export function getFeed(): PostItem[] {
   });
 
   return posts;
+}
+
+export interface RetailSpecial {
+  id: string;
+  title: string;
+  merchant: string;
+  url: string;
+  priceText?: string;
+}
+
+function humanizeRef(ref: string): string {
+  const clean = ref
+    .replace(/^(?:var_|za_hard_|za_fmcg_|disc_|ext_[a-z0-9]+_)/, '')
+    .replace(/_/g, ' ')
+    .trim();
+  return clean || ref;
+}
+
+export function getRetailerSpecials(limit = 20): RetailSpecial[] {
+  const offers = DiscoveredOffersStore.getLatestDiscoveredOffers(limit);
+  const seen = new Set<string>();
+  const out: RetailSpecial[] = [];
+  for (const o of offers) {
+    if (!o.sourceUrl || seen.has(o.sourceUrl)) continue;
+    seen.add(o.sourceUrl);
+    const amount = o.discoveredPrice?.amount;
+    const known = SA_CANONICAL_PRODUCTS.find((p) => p.canonicalId === o.masterProductRef);
+    out.push({
+      id: o.id,
+      title: known ? known.title : humanizeRef(o.masterProductRef),
+      merchant: o.merchantName,
+      url: o.sourceUrl,
+      ...(typeof amount === 'number' && amount > 0
+        ? { priceText: o.discoveredPrice.rawPriceText || `R ${amount.toLocaleString()}` }
+        : {}),
+    });
+  }
+  return out;
 }
 
 export function getShorts(): ShortItem[] {

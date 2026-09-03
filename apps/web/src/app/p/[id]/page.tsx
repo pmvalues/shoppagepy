@@ -71,9 +71,24 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   const isMitrend = resolvedParams.id.toLowerCase().includes('mitrend');
   const hasOffers = displayOffers.length > 0;
-  const minPrice = hasOffers
-    ? Math.min(...displayOffers.map((o) => o.price?.amount || 999999))
-    : Number((product.attributes as any)?.estimatedPriceZar) || 0;
+  const pricedAmounts = hasOffers
+    ? displayOffers
+        .map((o) => o.price?.amount)
+        .filter((n): n is number => typeof n === 'number' && n > 0)
+    : [];
+  const minPrice =
+    pricedAmounts.length > 0
+      ? Math.min(...pricedAmounts)
+      : hasOffers
+        ? 0
+        : Number((product.attributes as any)?.estimatedPriceZar) || 0;
+  const primaryOffer = displayOffers[0];
+  const primaryKnown = primaryOffer !== undefined && (primaryOffer.merchantRef === 'loc_mitrend_midrand' || SA_FLAGSHIP_MERCHANTS.some((m) => m.id === primaryOffer.merchantRef));
+  const primaryStoreHref = !primaryOffer
+    ? '#'
+    : primaryKnown
+      ? `/m/${primaryOffer.merchantRef}`
+      : primaryOffer.actionTarget?.destinationUrl || '#';
   const isSolar = product.categoryRef === 'solar_energy' || Boolean(product.compliance?.nrs097Certified);
   const batteryKwh = Number((product.attributes as any)?.batteryCapacityKwh) || 5.12;
 
@@ -89,11 +104,14 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     .filter((p) => p.canonicalId !== product.canonicalId)
     .slice(0, 4);
 
-  const priceLabel = hasOffers
-    ? `Starting verified price (${displayOffers.length} confirmed stockist${displayOffers.length > 1 ? 's' : ''})`
-    : minPrice > 0
-    ? 'Estimated catalogue price · Request quote from stockists'
-    : 'Direct seller quote required';
+  const priceLabel =
+    confirmedOffers.length > 0
+      ? `Starting verified price (${confirmedOffers.length} confirmed stockist${confirmedOffers.length > 1 ? 's' : ''})`
+      : hasOffers
+        ? `Live store listings (${displayOffers.length} retailer${displayOffers.length > 1 ? 's' : ''}) · confirm price in store`
+        : minPrice > 0
+          ? 'Estimated catalogue price · Request quote from stockists'
+          : 'Direct seller quote required';
 
   /* ---- Tab content (rendered server-side, passed to the client tab shell) ---- */
   const description = (product.attributes as any)?.description as string
@@ -125,31 +143,38 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           </thead>
           <tbody>
             {displayOffers.map((offer) => {
-              const merchant = (offer.merchantRef === 'loc_mitrend_midrand' || isMitrend)
+              const knownMerchant = (offer.merchantRef === 'loc_mitrend_midrand' || isMitrend)
                 ? (MITREND_MERCHANT as any)
-                : SA_FLAGSHIP_MERCHANTS.find((m) => m.id === offer.merchantRef) || {
-                    id: offer.merchantRef,
-                    name: 'SunPower Solutions (Crown Mines)',
-                    addressText: 'Dragon City Wholesale Mall, Building 2 Shop B-18, Crown Mines, Johannesburg, 2092',
-                    contacts: { telephone: '+27118301100', whatsapp: '+27118301100', website: 'https://sunpowersolutions.co.za' },
-                    googleRating: 4.9,
-                  };
+                : SA_FLAGSHIP_MERCHANTS.find((m) => m.id === offer.merchantRef);
+              const merchant = knownMerchant || {
+                id: offer.merchantRef,
+                name: offer.stallRef || offer.merchantRef,
+                addressText: 'Online storefront',
+                contacts: {},
+                country: 'ZA',
+                verificationState: 'unverified',
+                googleRating: undefined as number | undefined,
+              };
+              const storeHref = knownMerchant
+                ? `/m/${merchant.id}`
+                : offer.actionTarget?.destinationUrl || '#';
               return (
                 <tr key={offer.id}>
                   <td>
                     <div style={{ fontWeight: 800, color: 'var(--text-primary)' }}>
-                      <Link href={`/m/${merchant.id}`} style={{ color: 'inherit' }}>{merchant.name}</Link>
+                      <Link href={storeHref} style={{ color: 'inherit' }}>{merchant.name}</Link>
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                      📍 {merchant.addressText} · ★ {merchant.googleRating || '4.8'}
-                    </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        📍 {merchant.addressText || 'Online storefront'}
+                        {merchant.googleRating ? ` · ★ ${merchant.googleRating}` : ''}
+                      </div>
                   </td>
-                  <td><span className="badge badge-green" style={{ fontSize: '0.72rem' }}>✓ In Stock (Counter)</span></td>
-                  <td><span style={{ color: 'var(--emerald)', fontWeight: 800 }}>✓ Verified Stockist</span></td>
-                  <td><span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.05rem', fontWeight: 900, color: 'var(--text-primary)' }}>R {(offer.price?.amount || minPrice).toLocaleString()}</span></td>
+                  <td>{confirmedOffers.length > 0 ? (<span className="badge badge-green" style={{ fontSize: '0.72rem' }}>✓ In Stock (Counter)</span>) : (<span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>See live listing</span>)}</td>
+                  <td>{confirmedOffers.length > 0 ? (<span style={{ color: 'var(--emerald)', fontWeight: 800 }}>✓ Verified Stockist</span>) : (<span style={{ color: 'var(--text-muted)', fontWeight: 700 }}>Online retailer</span>)}</td>
+                  <td><span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.05rem', fontWeight: 900, color: 'var(--text-primary)' }}>{offer.price?.amount && offer.price.amount > 0 ? `R ${offer.price.amount.toLocaleString()}` : 'See in store'}</span></td>
                   <td style={{ textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                      <Link href={`/m/${merchant.id}`} className="btn btn-outline btn-sm">Store Counter</Link>
+                      <Link href={storeHref} className="btn btn-outline btn-sm">Store Counter</Link>
                       <Link
                         href={`/requests?prefillSku=${encodeURIComponent(product.canonicalId)}&prefillTitle=${encodeURIComponent(product.title)}&prefillBrand=${encodeURIComponent(product.brand || '')}`}
                         className="btn btn-primary btn-sm"
@@ -308,7 +333,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </Link>
               {displayOffers[0] ? (
                 <Link
-                  href={`/m/${displayOffers[0].merchantRef}`}
+                  href={primaryStoreHref}
                   className="btn btn-outline btn-lg"
                   style={{ flex: '1 1 160px', display: 'inline-flex', justifyContent: 'center', alignItems: 'center', gap: '0.4rem' }}
                 >

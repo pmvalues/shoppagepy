@@ -337,12 +337,12 @@ export async function askAssistant(
   }
   products.slice(0, 6).forEach((p) => {
     const offs = offersByProduct[p.canonicalId] || [];
-    const amounts = offs.map((o) => o.price?.amount).filter((n): n is number => typeof n === 'number');
+    const amounts = offs.map((o) => o.price?.amount).filter((n): n is number => typeof n === 'number' && n > 0);
     const names = Array.from(
       new Set(offs.map((o) => merchantName(o.merchantRef)).filter((n): n is string => !!n)),
     ).slice(0, 3);
     context.push(
-      `PRODUCT: ${p.title} (${p.brand})${
+      `PRODUCT: ${p.title}${p.brand ? ` (${p.brand})` : ''}${
         amounts.length > 0
           ? ` | best live price R ${Math.min(...amounts).toLocaleString()} across ${offs.length} offer(s)`
           : ' | no live offer price'
@@ -379,7 +379,7 @@ export async function askAssistant(
       parts.push('Top matches with confirmed stock:');
       products.slice(0, 3).forEach((p, idx) => {
         const offs = offersByProduct[p.canonicalId] || [];
-        const amounts = offs.map((o) => o.price?.amount).filter((n): n is number => typeof n === 'number');
+        const amounts = offs.map((o) => o.price?.amount).filter((n): n is number => typeof n === 'number' && n > 0);
         const best = amounts.length > 0 ? Math.min(...amounts) : undefined;
         parts.push(
           `${idx + 1}. **${p.title}** — ${
