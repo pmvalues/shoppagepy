@@ -37,6 +37,8 @@ export function getSqliteDatabase(filename: string, options: { readOnly?: boolea
         path.resolve(__dirname, '../..', filename),
         path.resolve(__dirname, '..', filename),
         path.resolve(__dirname, filename),
+        'C:/Users/Maga/OneDrive/Docs/Documents A/Shoppage Django/shoppage-commerce-intelligence-foundation/data/study/' + filename,
+        'C:/Users/Maga/OneDrive/Docs/Documents A/Shoppage Django/' + filename,
         'C:/Users/Maga/OneDrive/Docs/Documents A/Shoppage/shoppage-commerce-intelligence-foundation/data/study/' + filename,
         'C:/Users/Maga/OneDrive/Docs/Documents A/Shoppage/' + filename,
       ];

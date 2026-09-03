@@ -360,7 +360,7 @@ export function getPlatformStats() {
   return {
     products: '1.0M+',
     merchants: '3.1M+',
-    malls: '31+',
+    malls: '3.3K+',
     takeRate: '0%',
   };
 }
