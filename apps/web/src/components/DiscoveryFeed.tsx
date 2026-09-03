@@ -367,6 +367,30 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
     <>
       {/* ── TOPBAR TABS ────────────────────────────────────────────────────── */}
       <div className="topbar">
+        <div className="topbar-search">
+          <form
+            className="searchbox"
+            onSubmit={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M10.25 4.25a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm-8 6a8 8 0 1 1 14.9 4.45l4.42 4.42-1.42 1.42-4.42-4.42A8 8 0 0 1 2.25 10.25z" />
+            </svg>
+            <input
+              type="search"
+              placeholder="Search products, brands, malls, stores..."
+              aria-label="Search Shoppage"
+              value={search}
+              onChange={(e) => {
+                window.dispatchEvent(
+                  new CustomEvent('shoppage-nav', { detail: { type: 'search', query: e.target.value } }),
+                );
+              }}
+            />
+          </form>
+        </div>
         {view === 'bookmarks' ? (
           <div className="viewtitle on">
             <h2>Bookmarks</h2>
