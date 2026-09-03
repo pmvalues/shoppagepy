@@ -13,48 +13,97 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMsg('');
 
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password,
+          role: activeTab === 'merchant' ? 'merchant_owner' : 'superadmin',
+          storeId: activeTab === 'merchant' ? selectedStore : undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setErrorMsg(data.error || 'Authentication failed');
+        setIsLoading(false);
+        return;
+      }
+
       if (activeTab === 'merchant') {
         try {
           localStorage.setItem('shoppage_merchant_session', 'true');
           localStorage.setItem('shoppage_merchant_store', selectedStore);
-          document.cookie = 'merchant_session=true; path=/; max-age=86400';
         } catch {}
         router.push(`/merchant/dashboard?store=${selectedStore}`);
       } else {
         router.push('/admin/dashboard');
       }
-    }, 600);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Network error');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleQuickLogin = (role: 'mitrend' | 'sunpower' | 'superadmin') => {
+  const handleQuickLogin = async (role: 'mitrend' | 'sunpower' | 'superadmin') => {
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      if (role === 'mitrend') {
+    setErrorMsg('');
+
+    let emailToUse = 'admin@shoppage.co.za';
+    let storeToUse: string | undefined;
+    let targetRole: 'superadmin' | 'merchant_owner' = 'superadmin';
+
+    if (role === 'mitrend') {
+      emailToUse = 'sales@mitrend.co.za';
+      storeToUse = 'loc_mitrend_midrand';
+      targetRole = 'merchant_owner';
+    } else if (role === 'sunpower') {
+      emailToUse = 'sales@sunpower.co.za';
+      storeToUse = 'loc_sunpower_crownmines';
+      targetRole = 'merchant_owner';
+    }
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: emailToUse,
+          password: '••••••••••••',
+          role: targetRole,
+          storeId: storeToUse,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setErrorMsg(data.error || 'Quick login failed');
+        setIsLoading(false);
+        return;
+      }
+
+      if (storeToUse) {
         try {
           localStorage.setItem('shoppage_merchant_session', 'true');
-          localStorage.setItem('shoppage_merchant_store', 'loc_mitrend_midrand');
-          document.cookie = 'merchant_session=true; path=/; max-age=86400';
+          localStorage.setItem('shoppage_merchant_store', storeToUse);
         } catch {}
-        router.push('/merchant/dashboard?store=loc_mitrend_midrand');
-      } else if (role === 'sunpower') {
-        try {
-          localStorage.setItem('shoppage_merchant_session', 'true');
-          localStorage.setItem('shoppage_merchant_store', 'loc_sunpower_crownmines');
-          document.cookie = 'merchant_session=true; path=/; max-age=86400';
-        } catch {}
-        router.push('/merchant/dashboard?store=loc_sunpower_crownmines');
+        router.push(`/merchant/dashboard?store=${storeToUse}`);
       } else {
         router.push('/admin/dashboard');
       }
-    }, 400);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Quick login failed');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -23,7 +23,8 @@
     "test:web": "npm run test --workspace=@shoppage/web",
     "dev": "npm run dev --workspace=@shoppage/web",
     "lint": "npm run lint --workspaces --if-present",
-    "seed": "npm run seed --workspace=@shoppage/kernel"
+    "seed": "npm run seed --workspace=@shoppage/kernel",
+    "scrape:guzzle": "python scripts/scrapers/shoppage_scrape_guzzle_specials.py"
   },
   "devDependencies": {
     "typescript": "^5.5.4",

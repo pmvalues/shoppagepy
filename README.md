@@ -7,7 +7,8 @@
 [![Payload CMS](https://img.shields.io/badge/Payload_CMS-3.0-blue?style=flat)](https://payloadcms.com/)
 [![SQLite FTS5](https://img.shields.io/badge/Search-SQLite_FTS5-003B57?style=flat&logo=sqlite)](https://www.sqlite.org/fts5.html)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=flat&logo=typescript)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/Tests-117%20Passing%20(100%25)-brightgreen?style=flat&logo=vitest)](https://vitest.dev/)
+[![Tests](https://img.shields.io/badge/Tests-141%20Passing%20(100%25)-brightgreen?style=flat&logo=vitest)](https://vitest.dev/)
+[![Architecture](https://img.shields.io/badge/Architecture-v9.1%20Polyglot%20Baseline-blue)](SHOPPAGE_POLYGLOT_ARCHITECTURE_AND_SYSTEM_MODEL_v9.1.md)
 [![Security: Audited](https://img.shields.io/badge/Security-Hardened-success?style=flat)](SECURITY.md)
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
 
@@ -150,11 +151,13 @@ Platform income is generated through a high-margin dual monetization engine: **D
 
 ---
 
-## 🏛️ Architecture Note: Single Runtime
+## 🏛️ Architecture Note: Single Runtime & v9.1 Polyglot Baseline
 
-Early platform versions (v1–v6) were prototyped in Python/Django. The entire data kernel, canonical GTIN check-digit resolution and operations admin were subsequently migrated to TypeScript to achieve **sub-1ms in-process search latency** and eliminate cross-service serialization.
+Early platform versions (v1–v6) were prototyped in Python/Django, and v8.1 explored a theoretical Django 6 constitution. The entire live production platform was subsequently unified into a high-performance **TypeScript / Node.js runtime** (Next.js 16 + Payload CMS 3.0 + SQLite FTS5) to achieve **sub-1ms in-process search latency** and eliminate cross-service serialization.
 
-The Django prototype has been **removed from this repository**. The runtime is 100% TypeScript/Node.js (Next.js 16 + Payload CMS 3.0), validated by the automated spec suite and hardened with standard HTTP security headers. Python survives only as a standalone data-engineering toolkit under `scripts/` (ingestion, scraping, index analytics) — it is not part of the web runtime.
+The authoritative documentation of the current verified runtime and the target polyglot architecture (PostgreSQL write authority + SQLite read distribution + Typesense search + Redis cache) is recorded in [**`SHOPPAGE_POLYGLOT_ARCHITECTURE_AND_SYSTEM_MODEL_v9.1.md`**](SHOPPAGE_POLYGLOT_ARCHITECTURE_AND_SYSTEM_MODEL_v9.1.md).
+
+The runtime is 100% TypeScript/Node.js, validated by the automated 124-test spec suite and hardened with standard HTTP security headers. Python survives as a standalone data-engineering toolkit under `scripts/` (ingestion, sitemap scraping, index analytics).
 
 ---
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PayloadMerchantCmsService } from '@/cms';
+import { getSessionFromRequest } from '@/lib/auth';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ collection: string }> }) {
   const { searchParams } = new URL(req.url);
@@ -61,16 +62,39 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ coll
 export async function POST(req: NextRequest, { params }: { params: Promise<{ collection: string }> }) {
   const resolvedParams = await params;
   const collection = resolvedParams.collection;
-  const merchantId = req.headers.get('x-merchant-id') || 'loc_mitrend_midrand';
+
+  const session = await getSessionFromRequest(req);
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized: Authentication session required' }, { status: 401 });
+  }
 
   try {
     const data = await req.json();
 
     switch (collection) {
       case 'products': {
+        const effectiveMerchantId =
+          session.role === 'superadmin'
+            ? data.merchantId || session.merchantId || 'loc_mitrend_midrand'
+            : session.merchantId;
+
+        if (!effectiveMerchantId) {
+          return NextResponse.json(
+            { error: 'Forbidden: No merchant tenant associated with session' },
+            { status: 403 }
+          );
+        }
+
+        if (session.role !== 'superadmin' && data.merchantId && data.merchantId !== session.merchantId) {
+          return NextResponse.json(
+            { error: 'Forbidden: Cross-tenant product creation blocked' },
+            { status: 403 }
+          );
+        }
+
         const doc = PayloadMerchantCmsService.createProduct({
           ...data,
-          merchantId: data.merchantId || merchantId,
+          merchantId: effectiveMerchantId,
         });
         return NextResponse.json({ success: true, doc }, { status: 201 });
       }
@@ -86,25 +110,61 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ col
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ collection: string }> }) {
   const resolvedParams = await params;
   const collection = resolvedParams.collection;
-  const merchantId = req.headers.get('x-merchant-id') || 'loc_mitrend_midrand';
+
+  const session = await getSessionFromRequest(req);
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized: Authentication session required' }, { status: 401 });
+  }
 
   try {
     const data = await req.json();
+    const effectiveMerchantId =
+      session.role === 'superadmin'
+        ? data.merchantId || session.merchantId || 'loc_mitrend_midrand'
+        : session.merchantId;
+
+    if (!effectiveMerchantId) {
+      return NextResponse.json(
+        { error: 'Forbidden: No merchant tenant associated with session' },
+        { status: 403 }
+      );
+    }
+
+    if (session.role !== 'superadmin' && data.merchantId && data.merchantId !== session.merchantId) {
+      return NextResponse.json(
+        { error: 'Forbidden: Cross-tenant modification blocked' },
+        { status: 403 }
+      );
+    }
 
     switch (collection) {
       case 'merchants': {
-        const doc = PayloadMerchantCmsService.updateMerchant(merchantId, data);
+        const doc = PayloadMerchantCmsService.updateMerchant(effectiveMerchantId, data);
         return NextResponse.json({ success: true, doc });
       }
 
       case 'products': {
         if (!data.id) return NextResponse.json({ error: 'Product id required' }, { status: 400 });
+
+        // Verify product ownership if not superadmin
+        if (session.role !== 'superadmin') {
+          const existing = PayloadMerchantCmsService.getProductById(data.id);
+          if (existing && existing.merchantId !== session.merchantId) {
+            return NextResponse.json(
+              { error: 'Forbidden: Cross-tenant product update blocked' },
+              { status: 403 }
+            );
+          }
+        }
+
         const doc = PayloadMerchantCmsService.updateProduct(data.id, data);
         return NextResponse.json({ success: true, doc });
       }
 
       case 'orders': {
-        if (!data.id || !data.orderStatus) return NextResponse.json({ error: 'Order id and orderStatus required' }, { status: 400 });
+        if (!data.id || !data.orderStatus) {
+          return NextResponse.json({ error: 'Order id and orderStatus required' }, { status: 400 });
+        }
         const doc = PayloadMerchantCmsService.updateOrderStatus(data.id, data.orderStatus);
         return NextResponse.json({ success: true, doc });
       }
@@ -125,9 +185,24 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ c
 
   if (!id) return NextResponse.json({ error: 'id param required' }, { status: 400 });
 
+  const session = await getSessionFromRequest(req);
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized: Authentication session required' }, { status: 401 });
+  }
+
   try {
     switch (collection) {
       case 'products': {
+        if (session.role !== 'superadmin') {
+          const existing = PayloadMerchantCmsService.getProductById(id);
+          if (existing && existing.merchantId !== session.merchantId) {
+            return NextResponse.json(
+              { error: 'Forbidden: Cross-tenant product deletion blocked' },
+              { status: 403 }
+            );
+          }
+        }
+
         const success = PayloadMerchantCmsService.deleteProduct(id);
         return NextResponse.json({ success });
       }
@@ -139,3 +214,4 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ c
     return NextResponse.json({ error: error.message || 'CMS delete failed' }, { status: 500 });
   }
 }
+

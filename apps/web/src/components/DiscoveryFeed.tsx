@@ -29,6 +29,37 @@ const PRODUCT_CATEGORIES = [
   { id: 'fmcg', label: '🛒 Wholesale FMCG' },
 ];
 
+const DEAL_RETAILERS = [
+  { id: 'all', label: 'All Major Retailers' },
+  { id: 'buco', label: '🟡 BUCO' },
+  { id: 'spar', label: '🟢 SPAR' },
+  { id: 'builders', label: '🟠 Builders Warehouse' },
+  { id: 'game', label: '🔵 Game Stores' },
+  { id: 'makro', label: '🔴 Makro' },
+  { id: 'expert', label: '🔵 Expert Stores' },
+  { id: 'bradlows', label: '🟤 Bradlows' },
+  { id: 'russells', label: '🔴 Russells' },
+  { id: 'pep', label: '🟡 PEP Stores' },
+  { id: 'dischem', label: '🟢 Dis-Chem' },
+  { id: 'leroy', label: '🟢 Leroy Merlin' },
+  { id: 'checkers', label: '🟢 Checkers Sixty60' },
+  { id: 'pnp', label: '🔴 Pick n Pay' },
+  { id: 'woolworths', label: '⚫ Woolworths' },
+  { id: 'takealot', label: '🔵 Takealot' },
+  { id: 'clicks', label: '🔵 Clicks Group' },
+  { id: 'solar', label: '⚡ SolarAdvice' },
+];
+
+const DEAL_CATEGORIES = [
+  { id: 'all', label: 'All Categories' },
+  { id: 'groceries', label: '🛒 Groceries & FMCG' },
+  { id: 'solar_energy', label: '⚡ Solar & Inverters' },
+  { id: 'electronics', label: '📱 Phones & Tech' },
+  { id: 'hardware', label: '🧱 Building & Tools' },
+  { id: 'appliances', label: '🍳 Appliances' },
+  { id: 'health_beauty', label: '💊 Health & Beauty' },
+];
+
 export default function DiscoveryFeed({
   posts: initialPosts,
   specials = [],
@@ -42,6 +73,12 @@ export default function DiscoveryFeed({
   const [search, setSearch] = useState('');
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [composerText, setComposerText] = useState('');
+
+  // Deals tab state (Guzzle-Style Circular Specials with Direct Retailer URLs)
+  const [dealRetailer, setDealRetailer] = useState('all');
+  const [dealCategory, setDealCategory] = useState('all');
+  const [dealSearch, setDealSearch] = useState('');
+  const [dealSort, setDealSort] = useState<'discount' | 'price_asc' | 'price_desc'>('discount');
 
   // Products tab state
   const [prodSearch, setProdSearch] = useState('');
@@ -309,6 +346,56 @@ export default function DiscoveryFeed({
 
     return list;
   }, [posts, tab, view, search, bookmarked]);
+
+  // Filter & sort major retailer deals (Guzzle-style circular aggregator)
+  const filteredSpecials = useMemo(() => {
+    let list = specials;
+
+    if (dealRetailer !== 'all') {
+      list = list.filter((s) => {
+        const m = s.merchant.toLowerCase();
+        const d = (s.retailerDomain || '').toLowerCase();
+        if (dealRetailer === 'buco') return m.includes('buco') || d.includes('buco');
+        if (dealRetailer === 'spar') return m.includes('spar') || d.includes('spar');
+        if (dealRetailer === 'expert') return m.includes('expert') || d.includes('expert');
+        if (dealRetailer === 'bradlows') return m.includes('bradlows') || d.includes('bradlows');
+        if (dealRetailer === 'russells') return m.includes('russells') || d.includes('russells');
+        if (dealRetailer === 'pep') return m.includes('pep') || d.includes('pep');
+        if (dealRetailer === 'makro') return m.includes('makro') || d.includes('makro');
+        if (dealRetailer === 'game') return m.includes('game') || d.includes('game');
+        if (dealRetailer === 'builders') return m.includes('builders') || d.includes('builders');
+        if (dealRetailer === 'checkers') return m.includes('checkers') || d.includes('checkers');
+        if (dealRetailer === 'pnp') return m.includes('pick n pay') || d.includes('pnp');
+        if (dealRetailer === 'woolworths') return m.includes('woolworths') || d.includes('woolworths');
+        if (dealRetailer === 'takealot') return m.includes('takealot') || d.includes('takealot');
+        if (dealRetailer === 'clicks') return m.includes('clicks') || d.includes('clicks');
+        if (dealRetailer === 'dischem') return m.includes('dis-chem') || d.includes('dischem');
+        if (dealRetailer === 'leroy') return m.includes('leroy') || d.includes('leroy');
+        if (dealRetailer === 'solar') return m.includes('solar') || m.includes('inverter') || d.includes('solar');
+        return true;
+      });
+    }
+
+    if (dealCategory !== 'all') {
+      list = list.filter((s) => (s.category || '').toLowerCase() === dealCategory.toLowerCase());
+    }
+
+    if (dealSearch.trim()) {
+      const q = dealSearch.toLowerCase();
+      list = list.filter(
+        (s) =>
+          s.title.toLowerCase().includes(q) ||
+          (s.brand && s.brand.toLowerCase().includes(q)) ||
+          s.merchant.toLowerCase().includes(q)
+      );
+    }
+
+    return list.slice().sort((a, b) => {
+      if (dealSort === 'price_asc') return (a.priceZar || 0) - (b.priceZar || 0);
+      if (dealSort === 'price_desc') return (b.priceZar || 0) - (a.priceZar || 0);
+      return (b.dropPct || 0) - (a.dropPct || 0);
+    });
+  }, [specials, dealRetailer, dealCategory, dealSearch, dealSort]);
 
   // Filter products catalog
   const filteredProducts = useMemo(() => {
@@ -817,33 +904,186 @@ export default function DiscoveryFeed({
         </div>
       )}
 
-      {/* ── TIMELINE POSTS & SHORTS (For You, Deals, Bookmarks, Shorts) ───── */}
-      {(view === 'bookmarks' || tab === 'foryou' || tab === 'deals' || tab === 'shorts') && (
-        <>
-        {view === 'home' && tab === 'deals' && specials.length > 0 && (
-          <div className="markets-list">
-            <div className="stream-header">
-              <h2>Live retailer specials</h2>
-              <p>Current listings pulled from stored vendor catalogues across major SA retailers.</p>
+      {/* ── DEALS TAB: MAJOR RETAILER CIRCULARS & DISCOVERED SPECIALS (GUZZLE-STYLE) ── */}
+      {view === 'home' && tab === 'deals' && (
+        <div className="products-view">
+          <div className="stream-header">
+            <h2>🔥 Live Major Retailer Deals &amp; Circular Specials</h2>
+            <p>
+              South Africa&apos;s live retail deal aggregator. Weekly catalogue specials from Makro, Game, Builders, Checkers, Pick n Pay, Woolworths, Takealot, Clicks, and Dis-Chem.
+              <b> Links lead directly to the official retailer product checkout page</b> — no scanned PDF flyers.
+            </p>
+          </div>
+
+          <div className="stream-tools">
+            {/* Search within Deals */}
+            <div className="stream-search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                type="search"
+                placeholder="Search deals across Makro, Game, Builders, Checkers, Takealot..."
+                value={dealSearch}
+                onChange={(e) => setDealSearch(e.target.value)}
+              />
+              {dealSearch && (
+                <button
+                  type="button"
+                  onClick={() => setDealSearch('')}
+                  style={{ color: 'var(--text2)', fontSize: '13px', cursor: 'pointer' }}
+                >
+                  ✕
+                </button>
+              )}
             </div>
-            {specials.map((s) => (
-              <div key={s.id} className="market-card">
-                <div className={`avatar g${(s.title.length % 8) + 1}`}>{s.title.charAt(0).toUpperCase()}</div>
-                <div className="market-content">
-                  <div className="market-header">
-                    <h3 className="market-title">
-                      <a href={s.url} target="_blank" rel="noreferrer">{s.title}</a>
-                    </h3>
+
+            {/* Retailer filter pills */}
+            <div className="chips-scroll">
+              {DEAL_RETAILERS.map((r) => (
+                <button
+                  key={r.id}
+                  type="button"
+                  className={`chip-pill${dealRetailer === r.id ? ' active' : ''}`}
+                  onClick={() => setDealRetailer(r.id)}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Category filter pills */}
+            <div className="chips-scroll" style={{ marginTop: '6px' }}>
+              {DEAL_CATEGORIES.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  className={`chip-pill${dealCategory === c.id ? ' active' : ''}`}
+                  onClick={() => setDealCategory(c.id)}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Sub-row: count and sort */}
+            <div className="stream-subrow">
+              <span>
+                <b>{filteredSpecials.length}</b> verified retailer specials with direct links
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>Sort by:</span>
+                <select
+                  value={dealSort}
+                  onChange={(e) => setDealSort(e.target.value as any)}
+                >
+                  <option value="discount">Biggest Price Drop (%)</option>
+                  <option value="price_asc">Price: Low to High</option>
+                  <option value="price_desc">Price: High to Low</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Deals List */}
+          <div className="products-list">
+            {filteredSpecials.length > 0 ? (
+              filteredSpecials.map((s) => (
+                <div key={s.id} className="prod-card">
+                  <div className="prod-thumb">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={s.image} alt={s.title} loading="lazy" />
                   </div>
-                  <p className="market-meta">{s.merchant}{s.priceText ? ` · ${s.priceText}` : ''}</p>
-                  <div className="market-actions">
-                    <a href={s.url} target="_blank" rel="noreferrer" className="visit-btn">View live deal ⚡</a>
+                  <div className="prod-content">
+                    <div>
+                      <div className="prod-head">
+                        <h3>
+                          <a
+                            href={s.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: 'inherit', textDecoration: 'none' }}
+                          >
+                            {s.title}
+                          </a>
+                        </h3>
+                        {s.dropPct ? <span className="prod-drop">-{s.dropPct}%</span> : null}
+                      </div>
+                      <p className="prod-specs">
+                        🏷️ <b>{s.merchant}</b> · {s.categoryLabel}
+                        {s.badge ? <span style={{ marginLeft: '8px', fontSize: '11px', background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>{s.badge}</span> : null}
+                      </p>
+                      <p className="prod-location">
+                        🏢 {s.availability || 'In Stock'} · {s.locationHint || 'National Retailer'}
+                      </p>
+                    </div>
+
+                    <div>
+                      <div className="prod-price-row">
+                        <span className="prod-price">{s.priceText}</span>
+                        {s.oldPriceZar ? (
+                          <span className="prod-old">{formatZar(s.oldPriceZar)}</span>
+                        ) : null}
+                      </div>
+
+                      <div className="prod-actions">
+                        <a
+                          href={s.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-stockists"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '4px',
+                            background: '#0EA5E9',
+                            color: '#FFFFFF',
+                            fontWeight: 600,
+                          }}
+                        >
+                          View on {s.merchant.split(' ')[0]} ↗
+                        </a>
+                        <button
+                          type="button"
+                          className="btn-cart"
+                          onClick={() => {
+                            window.dispatchEvent(
+                              new CustomEvent('shoppage-cart', {
+                                detail: {
+                                  action: 'add',
+                                  item: {
+                                    name: s.title,
+                                    price: s.priceText,
+                                    merchantName: s.merchant,
+                                  },
+                                },
+                              }),
+                            );
+                            toast(`Locked ${s.brand || s.merchant} deal into Trade Cart`);
+                          }}
+                        >
+                          Lock Deal ⚡
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="empty">
+                <h3>No retailer deals match this filter</h3>
+                <p>Try switching to &quot;All Major Retailers&quot; or clearing your search term.</p>
               </div>
-            ))}
+            )}
           </div>
-        )}
+        </div>
+      )}
+
+      {/* ── TIMELINE POSTS & SHORTS (For You, Bookmarks, Shorts) ───── */}
+      {(view === 'bookmarks' || tab === 'foryou' || tab === 'shorts') && (
+        <>
         <div id="feed">
           {tab === 'shorts' && view === 'home' ? (
             filteredShorts.length > 0 ? (

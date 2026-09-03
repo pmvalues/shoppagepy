@@ -333,6 +333,13 @@ export interface DiscoveredOffer {
   status: 'discovered';
   locationHint?: string;
   sku?: string;
+  oldPriceZar?: number;
+  discountPct?: number;
+  dealBadge?: string;
+  productTitle?: string;
+  brand?: string;
+  category?: string;
+  imageUrl?: string;
 }
 
 export interface MarketGeo {

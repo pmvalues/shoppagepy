@@ -22,7 +22,9 @@ export function getSqliteDatabase(filename: string, options: { readOnly?: boolea
       const { DatabaseSync } = req('node:sqlite');
 
       const cwd = process.cwd();
+      const customDir = process.env.SHOPPAGE_DATA_DIR ? path.resolve(process.env.SHOPPAGE_DATA_DIR, filename) : null;
       const possiblePaths = [
+        ...(customDir ? [customDir] : []),
         path.resolve(cwd, 'shoppage-commerce-intelligence-foundation/data/study', filename),
         path.resolve(cwd, '../shoppage-commerce-intelligence-foundation/data/study', filename),
         path.resolve(cwd, '../../shoppage-commerce-intelligence-foundation/data/study', filename),
@@ -37,10 +39,6 @@ export function getSqliteDatabase(filename: string, options: { readOnly?: boolea
         path.resolve(__dirname, '../..', filename),
         path.resolve(__dirname, '..', filename),
         path.resolve(__dirname, filename),
-        'C:/Users/Maga/OneDrive/Docs/Documents A/Shoppage Django/shoppage-commerce-intelligence-foundation/data/study/' + filename,
-        'C:/Users/Maga/OneDrive/Docs/Documents A/Shoppage Django/' + filename,
-        'C:/Users/Maga/OneDrive/Docs/Documents A/Shoppage/shoppage-commerce-intelligence-foundation/data/study/' + filename,
-        'C:/Users/Maga/OneDrive/Docs/Documents A/Shoppage/' + filename,
       ];
 
       for (const p of possiblePaths) {

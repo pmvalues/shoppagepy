@@ -10,6 +10,7 @@ import {
   SA_FLAGSHIP_OFFERS,
   SA_COMPREHENSIVE_MARKETS,
   DiscoveredOffersStore,
+  SA_MAJOR_RETAILER_DEALS,
 } from '@shoppage/kernel';
 
 export interface PostProduct {
@@ -233,9 +234,20 @@ export function getFeed(): PostItem[] {
 export interface RetailSpecial {
   id: string;
   title: string;
+  brand: string;
   merchant: string;
-  url: string;
-  priceText?: string;
+  retailerDomain: string;
+  category: string;
+  categoryLabel: string;
+  url: string; // The direct retailer product page URL!
+  priceZar: number;
+  oldPriceZar?: number;
+  priceText: string;
+  dropPct?: number;
+  badge?: string;
+  image: string;
+  availability: string;
+  locationHint: string;
 }
 
 function humanizeRef(ref: string): string {
@@ -246,25 +258,73 @@ function humanizeRef(ref: string): string {
   return clean || ref;
 }
 
-export function getRetailerSpecials(limit = 20): RetailSpecial[] {
-  const offers = DiscoveredOffersStore.getLatestDiscoveredOffers(limit);
-  const seen = new Set<string>();
+export function getRetailerSpecials(limit = 60): RetailSpecial[] {
   const out: RetailSpecial[] = [];
+  const seen = new Set<string>();
+
+  // 1. Curated major South African retail circular specials (Makro, Game, Builders, Checkers, Pick n Pay, Woolworths, Takealot, Incredible, Clicks, Dis-Chem, Leroy Merlin, SolarAdvice)
+  for (const d of SA_MAJOR_RETAILER_DEALS) {
+    seen.add(d.directProductUrl);
+    out.push({
+      id: d.id,
+      title: d.title,
+      brand: d.brand,
+      merchant: d.merchantName,
+      retailerDomain: d.retailerDomain,
+      category: d.category,
+      categoryLabel: d.categoryLabel,
+      url: d.directProductUrl,
+      priceZar: d.dealPriceZar,
+      oldPriceZar: d.oldPriceZar,
+      priceText: `R ${d.dealPriceZar.toLocaleString('en-ZA')}`,
+      dropPct: d.discountPct,
+      badge: d.badge || (d.discountPct ? `-${d.discountPct}%` : 'SPECIAL'),
+      image: d.imageUrl,
+      availability: d.availability,
+      locationHint: d.locationHint,
+    });
+  }
+
+  // 2. Database-backed discovered offers from sa_discovered_offers.sqlite
+  const offers = DiscoveredOffersStore.getAllDiscoveredSpecials(limit);
   for (const o of offers) {
     if (!o.sourceUrl || seen.has(o.sourceUrl)) continue;
     seen.add(o.sourceUrl);
     const amount = o.discoveredPrice?.amount;
+    if (typeof amount !== 'number' || amount <= 0) continue;
+
     const known = SA_CANONICAL_PRODUCTS.find((p) => p.canonicalId === o.masterProductRef);
+    const title = o.productTitle || (known ? known.title : humanizeRef(o.masterProductRef));
+    const brand = o.brand || (known ? known.brand : (o.merchantName.split(' ')[0] || 'Verified'));
+    const domain = o.sourceWebsite || 'retail';
+    const category = o.category || known?.categoryRef || 'general';
+    const image = o.imageUrl || getImageForVariant(brand, title, out.length);
+    const oldPrice = o.oldPriceZar;
+    const dropPct =
+      o.discountPct ||
+      (oldPrice && oldPrice > amount ? Math.round(((oldPrice - amount) / oldPrice) * 100) : undefined);
+    const badge = o.dealBadge || (dropPct ? `-${dropPct}%` : 'VERIFIED DEAL');
+
     out.push({
       id: o.id,
-      title: known ? known.title : humanizeRef(o.masterProductRef),
+      title,
+      brand,
       merchant: o.merchantName,
+      retailerDomain: domain,
+      category,
+      categoryLabel: formatCat(category),
       url: o.sourceUrl,
-      ...(typeof amount === 'number' && amount > 0
-        ? { priceText: o.discoveredPrice.rawPriceText || `R ${amount.toLocaleString()}` }
-        : {}),
+      priceZar: amount,
+      oldPriceZar: oldPrice,
+      priceText: o.discoveredPrice.rawPriceText || `R ${amount.toLocaleString('en-ZA')}`,
+      dropPct,
+      badge,
+      image,
+      availability: o.availabilityText || 'In Stock · Direct Retailer Listing',
+      locationHint: o.locationHint || 'National Distribution',
     });
   }
+
   return out;
 }
 

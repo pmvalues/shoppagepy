@@ -300,6 +300,13 @@ function rowToDiscoveredOffer(row: any): DiscoveredOffer {
     status: 'discovered',
     locationHint: row.location_hint,
     sku: row.sku,
+    oldPriceZar: row.old_price_zar ?? undefined,
+    discountPct: row.discount_pct ?? undefined,
+    dealBadge: row.deal_badge || undefined,
+    productTitle: row.product_title || undefined,
+    brand: row.brand || undefined,
+    category: row.category || undefined,
+    imageUrl: row.image_url || undefined,
   };
 }
 
@@ -641,9 +648,25 @@ export class DiscoveredOffersStore {
     if (db) {
       try {
         const stmt = db.prepare(
-          'SELECT * FROM discovered_offers ORDER BY (discovered_price_zar IS NULL OR discovered_price_zar <= 0), rowid DESC LIMIT ? OFFSET ?',
+          'SELECT * FROM discovered_offers ORDER BY (discount_pct IS NOT NULL AND discount_pct > 0) DESC, (discovered_price_zar IS NULL OR discovered_price_zar <= 0), rowid DESC LIMIT ? OFFSET ?',
         );
         const rows: any[] = stmt.all(limit, offset);
+        return rows.map(rowToDiscoveredOffer);
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  }
+
+  public static getAllDiscoveredSpecials(limit = 100): DiscoveredOffer[] {
+    const db = getDiscoveredOffersSqliteDb();
+    if (db) {
+      try {
+        const stmt = db.prepare(
+          'SELECT * FROM discovered_offers WHERE discovered_price_zar > 0 ORDER BY (discount_pct IS NOT NULL AND discount_pct > 0) DESC, rowid DESC LIMIT ?',
+        );
+        const rows: any[] = stmt.all(limit);
         return rows.map(rowToDiscoveredOffer);
       } catch (e) {
         return [];

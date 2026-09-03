@@ -19,7 +19,7 @@ describe('Master Product & Discovered Offers Direct Product Links Suite', () => 
     for (const disc of discovered) {
       expect(disc.status).toBe('discovered');
       expect(disc.sourceWebsite).toBeDefined();
-      expect(disc.sourceUrl).toMatch(/^https:\/\/(www\.)?(takealot\.com|makro\.co\.za|builders\.co\.za|leroymerlin\.co\.za|checkers\.co\.za|woolworths\.co\.za|dischem\.co\.za|clicks\.co\.za|incredible\.co\.za|solaradvice\.co\.za|solartechdirect\.co\.za|inverterwarehouse\.co\.za|pricecheck\.co\.za|google\.co\.za)/);
+      expect(disc.sourceUrl).toMatch(/^https:\/\/(www\.)?(takealot\.com|makro\.co\.za|builders\.co\.za|game\.co\.za|buco\.co\.za|spar\.co\.za|expertstores\.co\.za|russells\.co\.za|bradlows\.co\.za|pep\.co\.za|leroymerlin\.co\.za|checkers\.co\.za|woolworths\.co\.za|dischem\.co\.za|clicks\.co\.za|incredible\.co\.za|solaradvice\.co\.za|solartechdirect\.co\.za|inverterwarehouse\.co\.za|pricecheck\.co\.za|google\.co\.za)/);
       expect(disc.sourceUrl.startsWith('https://')).toBe(true);
       expect(disc.discoveredPrice.amount).toBeGreaterThan(0);
       expect(disc.confidenceScore).toBeGreaterThanOrEqual(0.85);
@@ -55,7 +55,7 @@ describe('Master Product & Discovered Offers Direct Product Links Suite', () => 
 
     const first = cementResults[0];
     expect(first.product.title.toLowerCase()).toContain('cement');
-    expect(first.offer.actionTarget.destinationUrl).toMatch(/^https:\/\/(www\.)?(builders\.co\.za|leroymerlin\.co\.za|makro\.co\.za|takealot\.com)/);
+    expect(first.offer.actionTarget.destinationUrl).toMatch(/^https:\/\/(www\.)?(builders\.co\.za|game\.co\.za|buco\.co\.za|leroymerlin\.co\.za|makro\.co\.za|takealot\.com)/);
     expect(first.offer.price.amount).toBeGreaterThan(0);
     expect(first.offer.actionTarget.destinationUrl).not.toContain('undefined');
   });
