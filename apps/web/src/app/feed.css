@@ -102,8 +102,7 @@ a{color:var(--brand);text-decoration:none}
 .left.is-collapsed ~ .center .abar{max-width:580px}
 .topbar{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
 .topbar .row1{display:none;align-items:center;justify-content:space-between;padding:10px 16px}
-.topbar-search{display:none;padding:10px 16px 0}
-@media (max-width:1020px){.topbar-search{display:block}}
+.topbar-search{display:block;padding:10px 16px 0}
 .topbar .row1 svg{width:24px;height:24px;fill:var(--text)}
 .viewtitle{padding:12px 16px 4px;display:none}
 .viewtitle.on{display:block}
