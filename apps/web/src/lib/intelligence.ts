@@ -8,50 +8,87 @@ import {
   NationwideMerchantStore,
   SouthAfricaMallsStore,
   SA_FLAGSHIP_OFFERS,
+  SA_FLAGSHIP_MERCHANTS,
   SA_CANONICAL_PRODUCTS,
   calculateBackupRuntime,
-  checkSolarCompatibility,
 } from '@shoppage/kernel';
 import type { ProductVariant, Merchant, Offer } from '@shoppage/contracts';
 import { searchExternalLiveWeb } from './external_discovery';
+import { completeChat, LLMError, type LLMToolDef } from './llm';
 
-const CATEGORY_KEYWORDS: Record<string, string[]> = {
-  solar_energy: [
-    'solar', 'inverter', 'battery', 'backup', 'power', 'deye', 'sunsynk', 'dyness', 'panel', 'pv',
-    'load shedding', 'loadshedding', 'ups', 'hybrid', 'lifepo4', 'pylontech', 'hubble', 'growatt',
-    'victron', 'must', 'geyser timer', 'generator', 'stage 6', 'lithium', 'runtime', 'hours'
-  ],
-  smartphones: [
-    'phone', 'smartphone', 'samsung', 'apple', 'iphone', 'android', 'galaxy', 'a16', 'a55', 'tablet',
-    'cellphone', 'mobile', 'xiaomi', 'redmi', 'oppo', 'honor', 'oraimo', 'airpods', 'earbuds'
-  ],
-  hardware: [
-    'hardware', 'cement', 'surebuild', 'ppc', 'brick', 'paint', 'tool', 'drill', 'building', 'plumbing',
-    'tile', 'steel', 'timber', 'jojo', 'borehole', 'pump', 'welder', 'angle grinder'
-  ],
-  groceries: [
-    'food', 'grocery', 'fmcg', 'maize', 'rice', 'sugar', 'oil', 'flour', 'tin', 'can', 'spaza',
-    'beverage', 'bulk food', 'pantry'
-  ],
-  pharmacy: [
-    'pharmacy', 'medicine', 'health', 'vitamin', 'supplement', 'pill', 'dischem', 'clicks', 'first aid'
-  ],
-  automotive: [
-    'car', 'auto', 'spare', 'tyre', 'tire', 'engine oil', 'brake', 'vehicle', 'car battery', 'alternator'
-  ],
-  packaging_catering: [
-    'packaging', 'catering', 'mitrend', 'hanger', 'hotel hanger', 'anti-theft hanger', 'anti theft',
-    'spoon', 'measuring spoon', 'dosage spoon', 'teaspoon', 'grater', 'cleaver', 'meat cleaver',
-    'knife', 'oyster knife', 'shears', 'poultry shears', 'lid', 'silicone lid', 'clip-on lid',
-    'tub', 'container', 'portioning', 'sampling cup', 'tasting cup', 'gelato spoon', 'tasting spoon',
-    'buffet', 'displayware', 'hotel equipment', 'kitchen smalls', 'cutting board'
-  ],
-};
+const ASSISTANT_SYSTEM = [
+  "You are Shoppage's shopping assistant for South Africa.",
+  'Answer ONLY from the tool results provided to you.',
+  'Every product, price, merchant, address, contact, link or location you mention must come from a tool result.',
+  'Never invent, estimate, round or guess prices, stock levels, merchants, contacts, links or locations.',
+  'Prices are in South African Rand (ZAR).',
+  'If the tools return nothing relevant, say so honestly and suggest what to try next.',
+  'Keep replies short, plain and useful. Use **bold** for product names and prices.',
+].join(' ');
 
-const BRAND_HINTS = [
-  'deye', 'sunsynk', 'dyness', 'samsung', 'apple', 'huawei', 'lg', 'sony', 'oraimo',
-  'xis', 'victron', 'growatt', 'pylontech', 'hubble', 'must', 'ja solar', 'canadian solar',
-  'mitrend', 'mitrend products'
+const ASSISTANT_TOOLS: LLMToolDef[] = [
+  {
+    name: 'searchCatalog',
+    description: 'Search the live South African product catalogue. Returns catalogue products; use getOffers for their live prices.',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Product keywords, e.g. "5kW hybrid inverter"' },
+        category: { type: 'string', description: 'Catalogue category if known' },
+        brand: { type: 'string', description: 'Brand name if the user named one' },
+        maxPrice: { type: 'number', description: 'Maximum budget in ZAR' },
+        minPrice: { type: 'number', description: 'Minimum budget in ZAR' },
+      },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'getOffers',
+    description: 'List confirmed live offers (price plus stockist) for one catalogue product.',
+    parameters: {
+      type: 'object',
+      properties: {
+        canonicalId: { type: 'string', description: 'Catalogue product id from searchCatalog results' },
+      },
+      required: ['canonicalId'],
+    },
+  },
+  {
+    name: 'findStores',
+    description: 'Find verified physical trade stores by keyword and optional province.',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Store, brand or product keywords' },
+        province: { type: 'string', description: 'South African province, e.g. Gauteng' },
+      },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'calcRuntime',
+    description: 'Estimate load-shedding backup runtime for a battery capacity and load.',
+    parameters: {
+      type: 'object',
+      properties: {
+        batteryKwh: { type: 'number', description: 'Battery capacity in kWh' },
+        loadWatts: { type: 'number', description: 'Load in watts' },
+      },
+    },
+  },
+  {
+    name: 'liveSweep',
+    description: 'Search live external retailer sweeps for items missing from the catalogue.',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Product keywords' },
+        brand: { type: 'string', description: 'Brand name if known' },
+        category: { type: 'string', description: 'Catalogue category if known' },
+      },
+      required: ['query'],
+    },
+  },
 ];
 
 export interface ToolCallResult {
@@ -74,75 +111,47 @@ export interface SearchIntent {
   wantsCompare: boolean;
 }
 
-export function parsePriceValue(raw: string): number | undefined {
-  if (!raw) return undefined;
-  const clean = raw.toLowerCase().trim().replace(/^r\s*/i, '').replace(/,/g, '');
-  const grandMatch = clean.match(/^([\d.]+)\s*grand/i);
-  if (grandMatch) return Math.round(parseFloat(grandMatch[1]) * 1000);
-  const kMatch = clean.match(/^([\d.]+)\s*k$/i);
-  if (kMatch) return Math.round(parseFloat(kMatch[1]) * 1000);
-  const num = parseInt(clean, 10);
-  return isNaN(num) ? undefined : num;
+function numArg(v: unknown): number | undefined {
+  return typeof v === 'number' && Number.isFinite(v) ? v : undefined;
 }
 
-export function detectIntent(raw: string): SearchIntent {
-  const text = (raw || '').toLowerCase().trim();
+function strArg(v: unknown): string | undefined {
+  return typeof v === 'string' && v.trim().length > 0 ? v.trim() : undefined;
+}
 
-  let maxPrice: number | undefined;
-  let minPrice: number | undefined;
-
-  const under = text.match(/(?:under|below|less than|cheaper than|max|up to)\s*(?:r\s*)?([\d,.]+\s*(?:k|grand)?)/i);
-  if (under) maxPrice = parsePriceValue(under[1]);
-
-  const over = text.match(/(?:over|above|more than|min|from)\s*(?:r\s*)?([\d,.]+\s*(?:k|grand)?)/i);
-  if (over) minPrice = parsePriceValue(over[1]);
-
-  const brand = BRAND_HINTS.find((b) => text.includes(b));
-
-  let category: string | undefined;
-  for (const [cat, kws] of Object.entries(CATEGORY_KEYWORDS)) {
-    if (kws.some((k) => text.includes(k))) {
-      category = cat;
-      break;
-    }
+function runSearchCatalog(args: {
+  query: string;
+  category?: string;
+  brand?: string;
+  maxPrice?: number;
+  minPrice?: number;
+  limit?: number;
+}): { products: ProductVariant[]; offersByProduct: Record<string, Offer[]> } {
+  const res = MasterProductStore.searchProducts({
+    query: args.query,
+    category: args.category,
+    brand: args.brand,
+    limit: args.limit ?? 24,
+    offset: 0,
+  });
+  let products = res.items;
+  if (args.maxPrice !== undefined || args.minPrice !== undefined) {
+    products = products.filter((p) => {
+      const price = priceOf(p);
+      if (typeof price !== 'number') return true;
+      if (args.maxPrice !== undefined && price > args.maxPrice) return false;
+      if (args.minPrice !== undefined && price < args.minPrice) return false;
+      return true;
+    });
   }
-
-  let batteryKwh: number | undefined;
-  let loadWatts: number | undefined;
-  const kwhMatch = text.match(/([\d.]+)\s*kwh/i);
-  if (kwhMatch) batteryKwh = parseFloat(kwhMatch[1]);
-  const wattsMatch = text.match(/([\d.]+)\s*(?:w|watts|watt)/i);
-  if (wattsMatch) loadWatts = parseFloat(wattsMatch[1]);
-
-  const isSolarCalculation = Boolean(batteryKwh || (loadWatts && text.includes('load shedding')) || text.includes('runtime') || text.includes('how long'));
-
-  const loc = text.match(/(?:in|near|around|at)\s+([a-z ]+?)(?:\s+(?:for|with|under|below|that|and|$))/);
-  const location = loc ? loc[1].trim() : undefined;
-
-  const wantsVideo = /video|short|watch|youtube|clip|demo|teardown|walk/.test(text);
-  const wantsCompare = /compare|vs|versus|difference|which|better/.test(text);
-
-  return {
-    normalizedQuery: text,
-    category,
-    brand,
-    maxPrice,
-    minPrice,
-    location,
-    batteryKwh,
-    loadWatts,
-    isSolarCalculation,
-    wantsVideo,
-    wantsCompare
-  };
+  const offersByProduct: Record<string, Offer[]> = {};
+  for (const p of products) offersByProduct[p.canonicalId] = offersFor(p.canonicalId);
+  return { products, offersByProduct };
 }
 
-export function cleanSearchQuery(text: string): string {
-  return text
-    .replace(/(?:under|below|less than|cheaper than|max|up to|over|above|more than|min|from)\s*(?:r\s*)?[\d,.]+\s*(?:k|grand)?/gi, ' ')
-    .replace(/\b(?:i\s+need|i\s+want|looking\s+for|give\s+me|find\s+me|show\s+me|where\s+to\s+buy|price\s+of|prices\s+for|can\s+i\s+get|please|how\s+long\s+will|how\s+much\s+is)\b/gi, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+function merchantName(id: string | undefined): string | undefined {
+  if (!id) return undefined;
+  return SA_FLAGSHIP_MERCHANTS.find((m) => m.id === id)?.name;
 }
 
 function priceOf(p: ProductVariant): number | undefined {
@@ -175,126 +184,260 @@ export interface AssistantReply {
   externalComplemented?: boolean;
 }
 
-export function askAssistant(message: string, opts?: { limit?: number; offset?: number }): AssistantReply {
-  const intent = detectIntent(message);
-  const limit = opts?.limit || 24;
-  const offset = opts?.offset || 0;
+export async function askAssistant(
+  message: string,
+  opts?: { limit?: number; offset?: number; signal?: AbortSignal },
+): Promise<AssistantReply> {
+  const clean = (message || '').trim().slice(0, 500);
+  const limit = Math.min(Math.max(opts?.limit ?? 24, 1), 48);
+  const intent: SearchIntent = {
+    normalizedQuery: clean.toLowerCase(),
+    isSolarCalculation: false,
+    wantsVideo: false,
+    wantsCompare: false,
+  };
+  const products: ProductVariant[] = [];
+  const seen = new Set<string>();
+  const offersByProduct: Record<string, Offer[]> = {};
+  const merchants: Merchant[] = [];
   const toolCalls: ToolCallResult[] = [];
   let calculationResult: AssistantReply['calculationResult'];
+  let externalComplemented = false;
 
-  // Tool 1: Solar Runtime Calculator
-  if (intent.isSolarCalculation || intent.batteryKwh || intent.loadWatts) {
-    const batt = intent.batteryKwh || 5.12;
-    const load = intent.loadWatts || 500;
-    const runtime = calculateBackupRuntime(batt, load);
-    calculationResult = {
-      batteryCapacityKwh: batt,
-      loadWatts: load,
-      hours: runtime.runtimeHours,
-      formatted: runtime.formattedRuntime
+  if (!clean) {
+    return {
+      reply: 'Ask me about a product, brand, budget or suburb — for example "5kW hybrid inverter under R20000".',
+      products,
+      merchants,
+      offersByProduct,
+      intent,
+      toolCalls,
     };
-    toolCalls.push({
-      tool: 'calculateSolarRuntime',
-      title: `⚡ Load-Shedding Backup Runtime (${batt}kWh @ ${load}W)`,
-      data: calculationResult
-    });
   }
 
-  // Tool 2: Product Search on Live Grid
-  const cleaned = cleanSearchQuery(intent.normalizedQuery);
-  const q = cleaned || intent.brand || (intent.category ? intent.category.replace(/_/g, ' ') : message);
+  const take = (list: ProductVariant[]) => {
+    for (const p of list) {
+      if (seen.has(p.canonicalId)) continue;
+      seen.add(p.canonicalId);
+      products.push(p);
+      if (products.length >= limit) break;
+    }
+  };
 
-  const productRes = MasterProductStore.searchProducts({
-    query: q,
-    category: intent.category,
-    brand: intent.brand,
-    limit,
-    offset,
+  const first = await completeChat({
+    system: ASSISTANT_SYSTEM,
+    message: clean,
+    tools: ASSISTANT_TOOLS,
+    signal: opts?.signal,
   });
 
-  let products = productRes.items;
-  if (intent.maxPrice || intent.minPrice) {
-    products = products.filter((p) => {
-      const price = priceOf(p);
-      if (typeof price !== 'number') return true;
-      if (intent.maxPrice && price > intent.maxPrice) return false;
-      if (intent.minPrice && price < intent.minPrice) return false;
-      return true;
-    });
-  }
-
-  const offersByProduct: Record<string, Offer[]> = {};
-  for (const p of products) offersByProduct[p.canonicalId] = offersFor(p.canonicalId);
-
-  // Tool 3: Complement with Live External Web Sweep if few/no internal matches
-  let externalComplemented = false;
-  if (products.length < 3 && q.trim().length >= 2 && !q.includes('xyznonexistent')) {
-    const externalItems = searchExternalLiveWeb(q, intent, 4 - products.length);
-    if (externalItems.length > 0) {
-      externalComplemented = true;
-      externalItems.forEach(({ product, offer }) => {
-        products.push(product);
-        offersByProduct[product.canonicalId] = [offer];
-      });
+  for (const call of first.toolCalls.slice(0, 4)) {
+    const a = call.args || {};
+    if (call.name === 'searchCatalog') {
+      const q = strArg(a.query) || clean;
+      const category = strArg(a.category);
+      const brand = strArg(a.brand);
+      const maxPrice = numArg(a.maxPrice);
+      const minPrice = numArg(a.minPrice);
+      const res = runSearchCatalog({ query: q, category, brand, maxPrice, minPrice, limit });
+      take(res.products);
+      Object.assign(offersByProduct, res.offersByProduct);
+      if (category) intent.category = category;
+      if (brand) intent.brand = brand;
+      if (maxPrice !== undefined) intent.maxPrice = maxPrice;
+      if (minPrice !== undefined) intent.minPrice = minPrice;
       toolCalls.push({
-        tool: 'liveExternalSweep',
-        title: `🌐 Complemented with ${externalItems.length} Live Retailer Sweep Items (Takealot / Makro / Retail)`,
-        data: { count: externalItems.length }
+        tool: 'searchProducts',
+        title: `Grid catalogue search for "${q}"`,
+        data: { count: res.products.length },
       });
+    } else if (call.name === 'getOffers') {
+      const id = strArg(a.canonicalId);
+      if (id) {
+        const offs = offersFor(id);
+        if (offs.length > 0) offersByProduct[id] = offs;
+        toolCalls.push({
+          tool: 'searchProducts',
+          title: 'Live offers for catalogue item',
+          data: { count: offs.length },
+        });
+      }
+    } else if (call.name === 'findStores') {
+      const q = strArg(a.query) || clean;
+      const province = strArg(a.province);
+      const res = NationwideMerchantStore.searchMerchants({ query: q, province, limit: 4, offset: 0 });
+      merchants.push(...res.items);
+      if (province) intent.location = province;
+      toolCalls.push({
+        tool: 'findStores',
+        title: 'Matched verified physical stores',
+        data: { count: res.total },
+      });
+    } else if (call.name === 'calcRuntime') {
+      const batt = numArg(a.batteryKwh) ?? 5.12;
+      const load = numArg(a.loadWatts) ?? 500;
+      const runtime = calculateBackupRuntime(batt, load);
+      calculationResult = {
+        batteryCapacityKwh: batt,
+        loadWatts: load,
+        hours: runtime.runtimeHours,
+        formatted: runtime.formattedRuntime,
+      };
+      intent.batteryKwh = batt;
+      intent.loadWatts = load;
+      intent.isSolarCalculation = true;
+      toolCalls.push({
+        tool: 'calculateSolarRuntime',
+        title: `Backup runtime (${batt}kWh at ${load}W)`,
+        data: calculationResult,
+      });
+    } else if (call.name === 'liveSweep') {
+      const q = strArg(a.query) || clean;
+      const items = searchExternalLiveWeb(
+        q,
+        {
+          normalizedQuery: q.toLowerCase(),
+          category: strArg(a.category),
+          brand: strArg(a.brand),
+          isSolarCalculation: false,
+          wantsVideo: false,
+          wantsCompare: false,
+        },
+        4,
+      );
+      for (const { product, offer } of items) {
+        if (!seen.has(product.canonicalId)) {
+          seen.add(product.canonicalId);
+          products.push(product);
+        }
+        offersByProduct[product.canonicalId] = [offer];
+      }
+      if (items.length > 0) {
+        externalComplemented = true;
+        toolCalls.push({
+          tool: 'liveExternalSweep',
+          title: 'Live retailer sweep items',
+          data: { count: items.length },
+        });
+      }
     }
   }
 
-  toolCalls.push({
-    tool: 'searchProducts',
-    title: `📦 Grid Catalog Search for "${q}"`,
-    data: { count: products.length, items: products.slice(0, 4) }
-  });
-
-  // Tool 4: Match Verified Merchants
-  const merchantRes = NationwideMerchantStore.searchMerchants({
-    query: q,
-    province: intent.location,
-    limit: 4,
-    offset: 0,
-  });
-
-  if (merchantRes.items.length > 0) {
-    toolCalls.push({
-      tool: 'findStores',
-      title: `🏪 Matched Verified Physical Stores`,
-      data: { count: merchantRes.total, stores: merchantRes.items }
-    });
+  if (products.length === 0 && !calculationResult) {
+    const fallback = runSearchCatalog({ query: clean, limit });
+    take(fallback.products);
+    Object.assign(offersByProduct, fallback.offersByProduct);
   }
 
-  // Synthesize Agentic Response
-  const parts: string[] = [];
+  const context: string[] = [];
   if (calculationResult) {
-    parts.push(`⚡ Calculation: A **${calculationResult.batteryCapacityKwh}kWh** battery running a **${calculationResult.loadWatts}W** load provides **${calculationResult.formatted}** of continuous backup power.`);
+    context.push(
+      `CALCULATION: a ${calculationResult.batteryCapacityKwh}kWh battery running a ${calculationResult.loadWatts}W load provides ${calculationResult.formatted} of backup power.`,
+    );
   }
+  products.slice(0, 6).forEach((p) => {
+    const offs = offersByProduct[p.canonicalId] || [];
+    const amounts = offs.map((o) => o.price?.amount).filter((n): n is number => typeof n === 'number');
+    const names = Array.from(
+      new Set(offs.map((o) => merchantName(o.merchantRef)).filter((n): n is string => !!n)),
+    ).slice(0, 3);
+    context.push(
+      `PRODUCT: ${p.title} (${p.brand})${
+        amounts.length > 0
+          ? ` | best live price R ${Math.min(...amounts).toLocaleString()} across ${offs.length} offer(s)`
+          : ' | no live offer price'
+      }${names.length > 0 ? ` | stockists: ${names.join(', ')}` : ''}`,
+    );
+  });
+  merchants.slice(0, 4).forEach((m) => {
+    context.push(`STORE: ${m.name}${m.addressText ? ` | ${m.addressText}` : ''}`);
+  });
 
-  if (products.length > 0) {
-    const subject = intent.brand ? intent.brand.toUpperCase() : intent.category ? intent.category.replace(/_/g, ' ') : 'verified products';
-    parts.push(`Here are top-ranked **${subject}** with confirmed stock in South Africa:`);
-    products.slice(0, 3).forEach((p, idx) => {
-      const offs = offersByProduct[p.canonicalId] || [];
-      const pPrice = priceOf(p);
-      const prStr = pPrice ? `R ${pPrice.toLocaleString()}` : 'Price on request';
-      parts.push(`${idx + 1}. **${p.title}** — from **${prStr}** (${offs.length} confirmed store${offs.length === 1 ? '' : 's'}).`);
+  let reply = '';
+  try {
+    const final = await completeChat({
+      system: ASSISTANT_SYSTEM,
+      message: `User asked: ${clean}\n\nTool results (answer ONLY from these):\n${
+        context.length > 0 ? context.join('\n') : 'No matching products, stores or calculations found.'
+      }`,
+      signal: opts?.signal,
+      maxOutputTokens: 512,
     });
-  } else if (!calculationResult) {
-    parts.push(`I couldn't find an exact product match for "${message}" in the current South African catalogue. Try a product type like "5kW hybrid inverter", a brand like "Deye", or a budget range like "under R20000".`);
+    reply = final.text;
+  } catch {
+    reply = '';
   }
 
-  if (merchantRes.items.length > 0) {
-    parts.push(`💡 You can contact **${merchantRes.items[0].name}** directly (Phone, Web, or Storefront) for live stock and counter pricing.`);
+  if (!reply) {
+    const parts: string[] = [];
+    if (calculationResult) {
+      parts.push(
+        `A **${calculationResult.batteryCapacityKwh}kWh** battery running a **${calculationResult.loadWatts}W** load provides **${calculationResult.formatted}** of backup power.`,
+      );
+    }
+    if (products.length > 0) {
+      parts.push('Top matches with confirmed stock:');
+      products.slice(0, 3).forEach((p, idx) => {
+        const offs = offersByProduct[p.canonicalId] || [];
+        const amounts = offs.map((o) => o.price?.amount).filter((n): n is number => typeof n === 'number');
+        const best = amounts.length > 0 ? Math.min(...amounts) : undefined;
+        parts.push(
+          `${idx + 1}. **${p.title}** — ${
+            best !== undefined
+              ? `from **R ${best.toLocaleString()}** (${offs.length} store${offs.length === 1 ? '' : 's'})`
+              : 'price on request'
+          }.`,
+        );
+      });
+    } else if (!calculationResult) {
+      parts.push(
+        `I couldn't find an exact match for "${clean}" in the live catalogue. Try a product type like "5kW hybrid inverter", a brand like "Deye", or a budget like "under R20000".`,
+      );
+    }
+    if (merchants.length > 0) {
+      parts.push(`You can contact **${merchants[0].name}** directly for live stock and counter pricing.`);
+    }
+    reply = parts.join('\n\n');
   }
 
-  const reply = parts.join('\n\n');
-  return { reply, products, merchants: merchantRes.items, offersByProduct, intent, toolCalls, calculationResult, externalComplemented };
+  return { reply, products, merchants, offersByProduct, intent, toolCalls, calculationResult, externalComplemented };
 }
 
-export function semanticSearch(rawQuery: string, opts?: { limit?: number; offset?: number }) {
-  const res = askAssistant(rawQuery, opts);
+export async function semanticSearch(rawQuery: string, opts?: { limit?: number; offset?: number }) {
+  const limit = opts?.limit ?? 24;
+  try {
+    const res = await askAssistant(rawQuery, opts);
+    return shapeSearchResult(rawQuery, res);
+  } catch (err) {
+    if (!(err instanceof LLMError)) throw err;
+    const q = rawQuery.trim().slice(0, 200);
+    const direct = runSearchCatalog({ query: q, limit });
+    const merchantRes = NationwideMerchantStore.searchMerchants({ query: q, limit: 4, offset: 0 });
+    return shapeSearchResult(rawQuery, {
+      products: direct.products,
+      merchants: merchantRes.items,
+      offersByProduct: direct.offersByProduct,
+      intent: {
+        normalizedQuery: q.toLowerCase(),
+        isSolarCalculation: false,
+        wantsVideo: false,
+        wantsCompare: false,
+      },
+      externalComplemented: false,
+    });
+  }
+}
+
+function shapeSearchResult(
+  rawQuery: string,
+  res: {
+    products: ProductVariant[];
+    merchants: Merchant[];
+    offersByProduct: Record<string, Offer[]>;
+    intent: SearchIntent;
+    externalComplemented?: boolean;
+  },
+) {
   const totalProducts = res.products.length;
   const totalMerchants = res.merchants.length;
   const topBrands = Array.from(new Set(res.products.map((p) => p.brand))).slice(0, 5);

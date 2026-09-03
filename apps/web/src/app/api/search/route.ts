@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     if (!q.trim()) {
       return NextResponse.json({ query: '', overview: '', products: [], merchants: [], totalProducts: 0, totalMerchants: 0 });
     }
-    const result = semanticSearch(q, { limit: 8 });
+    const result = await semanticSearch(q, { limit: 8 });
     return NextResponse.json(result);
   } catch (err) {
     console.error('[search] error', err);

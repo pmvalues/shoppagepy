@@ -1,102 +1,161 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
-  detectIntent,
-  parsePriceValue,
   semanticSearch,
   askAssistant,
   getRecommendations,
   getPlatformStats,
 } from '../src/lib/intelligence';
+import { LLMError, completeChat } from '../src/lib/llm';
 import { SHORTS, SHOWS, ALL_MEDIA, getMediaById } from '../src/lib/media';
 
-describe('@shoppage/web Intelligence & Intent Engine', () => {
-  describe('parsePriceValue', () => {
-    it('parses standard numbers', () => {
-      expect(parsePriceValue('25000')).toBe(25000);
-      expect(parsePriceValue('R18,999')).toBe(18999);
-      expect(parsePriceValue('R 500')).toBe(500);
-    });
+const OLD_KEY = process.env.GEMINI_API_KEY;
 
-    it('parses "k" notation correctly', () => {
-      expect(parsePriceValue('20k')).toBe(20000);
-      expect(parsePriceValue('R15k')).toBe(15000);
-      expect(parsePriceValue('1.5k')).toBe(1500);
-    });
+function mockJsonOnce(payload: unknown, status = 200) {
+  const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
+  mockFetch.mockResolvedValueOnce({
+    ok: status >= 200 && status < 300,
+    status,
+    json: async () => payload,
+  } as Response);
+}
 
-    it('parses "grand" notation correctly', () => {
-      expect(parsePriceValue('20 grand')).toBe(20000);
-      expect(parsePriceValue('5 grand')).toBe(5000);
-    });
+function geminiText(text: string) {
+  return { candidates: [{ content: { parts: [{ text }] } }] };
+}
 
-    it('returns undefined for empty/invalid inputs', () => {
-      expect(parsePriceValue('')).toBeUndefined();
-      expect(parsePriceValue('invalid')).toBeUndefined();
-    });
+function geminiTools(calls: Array<{ name: string; args: Record<string, unknown> }>, text = '') {
+  return {
+    candidates: [
+      {
+        content: {
+          parts: [
+            ...(text ? [{ text }] : []),
+            ...calls.map((c) => ({ functionCall: { name: c.name, args: c.args } })),
+          ],
+        },
+      },
+    ],
+  };
+}
+
+describe('@shoppage/web LLM assistant (Gemini + real kernel tools)', () => {
+  beforeEach(() => {
+    process.env.GEMINI_API_KEY = 'test-key';
+    vi.stubGlobal('fetch', vi.fn());
   });
 
-  describe('detectIntent', () => {
-    it('detects category, brand, and price ceilings in solar queries', () => {
-      const intent = detectIntent('Deye 5kW hybrid inverter under R20000');
-      expect(intent.brand).toBe('deye');
-      expect(intent.category).toBe('solar_energy');
-      expect(intent.maxPrice).toBe(20000);
-      expect(intent.wantsCompare).toBe(false);
-    });
-
-    it('detects comparison intent and brand pairs', () => {
-      const intent = detectIntent('Compare Deye vs Sunsynk 8kW inverters');
-      expect(intent.brand).toBe('deye');
-      expect(intent.category).toBe('solar_energy');
-      expect(intent.wantsCompare).toBe(true);
-    });
-
-    it('detects video intent', () => {
-      const intent = detectIntent('Show me teardown video of Dyness battery');
-      expect(intent.wantsVideo).toBe(true);
-      expect(intent.brand).toBe('dyness');
-      expect(intent.category).toBe('solar_energy');
-    });
-
-    it('detects "k" price ceiling e.g. "under 15k"', () => {
-      const intent = detectIntent('Samsung galaxy under 15k');
-      expect(intent.brand).toBe('samsung');
-      expect(intent.category).toBe('smartphones');
-      expect(intent.maxPrice).toBe(15000);
-    });
-
-    it('detects hardware and building queries', () => {
-      const intent = detectIntent('PPC cement 50kg bag prices in Sandton');
-      expect(intent.category).toBe('hardware');
-    });
+  afterEach(() => {
+    if (OLD_KEY === undefined) delete process.env.GEMINI_API_KEY;
+    else process.env.GEMINI_API_KEY = OLD_KEY;
+    vi.unstubAllGlobals();
   });
 
-  describe('semanticSearch', () => {
-    it('returns structured search results and AI overview for solar queries', () => {
-      const result = semanticSearch('solar inverter', { limit: 4 });
-      expect(result.products.length).toBeGreaterThan(0);
-      expect(result.overview).toContain('Shoppage intelligence');
-      expect(result.topBrands.length).toBeGreaterThan(0);
-      expect(result.totalProducts).toBeGreaterThan(0);
+  describe('llm client', () => {
+    it('throws NOT_CONFIGURED when the API key is missing', async () => {
+      delete process.env.GEMINI_API_KEY;
+      await expect(completeChat({ system: 's', message: 'hi' })).rejects.toMatchObject({
+        code: 'NOT_CONFIGURED',
+      });
+      expect(fetch).not.toHaveBeenCalled();
     });
 
-    it('applies price filter to search results', () => {
-      const result = semanticSearch('inverter under R50000', { limit: 4 });
-      expect(result.intent.maxPrice).toBe(50000);
-      expect(result.products.length).toBeGreaterThan(0);
+    it('returns text plus parsed tool calls', async () => {
+      mockJsonOnce(
+        geminiTools([{ name: 'searchCatalog', args: { query: 'inverter' } }], 'Looking that up'),
+      );
+      const res = await completeChat({ system: 's', message: 'inverter', tools: [] });
+      expect(res.text).toBe('Looking that up');
+      expect(res.toolCalls).toEqual([{ name: 'searchCatalog', args: { query: 'inverter' } }]);
+    });
+
+    it('maps 401 to AUTH and 429 to retryable RATE_LIMITED', async () => {
+      mockJsonOnce({ error: { message: 'bad key' } }, 401);
+      await expect(completeChat({ system: 's', message: 'hi' })).rejects.toMatchObject({
+        code: 'AUTH',
+      });
+
+      mockJsonOnce({ error: { message: 'slow down' } }, 429);
+      mockJsonOnce({ error: { message: 'slow down' } }, 429);
+      const err = await completeChat({ system: 's', message: 'hi' }).catch((e) => e);
+      expect(err).toBeInstanceOf(LLMError);
+      expect((err as LLMError).code).toBe('RATE_LIMITED');
+      expect((err as LLMError).retryable).toBe(true);
+    });
+
+    it('rejects empty provider responses', async () => {
+      mockJsonOnce({ candidates: [{ content: { parts: [] } }] });
+      await expect(completeChat({ system: 's', message: 'hi' })).rejects.toMatchObject({
+        code: 'BAD_RESPONSE',
+      });
     });
   });
 
   describe('askAssistant', () => {
-    it('returns natural language response with matched products and suppliers', () => {
-      const res = askAssistant('I need a 5kW inverter under R20000');
-      expect(res.reply).toBeDefined();
+    it('answers product questions from real kernel tools', async () => {
+      mockJsonOnce(
+        geminiTools([
+          { name: 'searchCatalog', args: { query: '5kW inverter', brand: 'deye', maxPrice: 20000 } },
+        ]),
+      );
+      mockJsonOnce(geminiText('The Deye 5kW is in stock at a live counter.'));
+      const res = await askAssistant('I need a 5kW inverter under R20000');
       expect(res.products.length).toBeGreaterThan(0);
+      expect(res.intent.brand).toBe('deye');
       expect(res.intent.maxPrice).toBe(20000);
+      expect(res.reply).toContain('Deye 5kW');
+      expect(res.toolCalls?.some((t) => t.tool === 'searchProducts') ?? false).toBe(true);
     });
 
-    it('provides helpful guidance for unmapped queries', () => {
-      const res = askAssistant('xyznonexistentunobtainium9999');
-      expect(res.reply).toContain('catalogue');
+    it('runs the solar runtime calculator through the model', async () => {
+      mockJsonOnce(
+        geminiTools([{ name: 'calcRuntime', args: { batteryKwh: 5, loadWatts: 500 } }]),
+      );
+      mockJsonOnce(geminiText('About 10 hours of backup.'));
+      const res = await askAssistant('How long will a 5kWh battery run 500W?');
+      expect(res.calculationResult).toBeDefined();
+      expect(res.calculationResult?.hours).toBeGreaterThan(0);
+      expect(res.intent.isSolarCalculation).toBe(true);
+    });
+
+    it('falls back to honest templated answers when finalization fails', async () => {
+      mockJsonOnce(geminiTools([{ name: 'searchCatalog', args: { query: 'inverter' } }]));
+      (fetch as unknown as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('down'));
+      const res = await askAssistant('inverter deals');
+      expect(res.products.length).toBeGreaterThan(0);
+      expect(res.reply).toContain('Top matches with confirmed stock');
+    });
+
+    it('is honest when nothing matches', async () => {
+      mockJsonOnce(geminiText('I will check the catalogue.'));
+      mockJsonOnce(geminiText('No match in the live catalogue.'));
+      const res = await askAssistant('xyznonexistentunobtainium9999');
+      expect(res.products.length).toBe(0);
+      expect(res.reply).toContain('No match in the live catalogue.');
+    });
+
+    it('refuses to run without configuration', async () => {
+      delete process.env.GEMINI_API_KEY;
+      await expect(askAssistant('hello')).rejects.toMatchObject({ code: 'NOT_CONFIGURED' });
+    });
+  });
+
+  describe('semanticSearch', () => {
+    it('degrades to direct catalogue retrieval without LLM configuration', async () => {
+      delete process.env.GEMINI_API_KEY;
+      const result = await semanticSearch('solar inverter', { limit: 4 });
+      expect(result.products.length).toBeGreaterThan(0);
+      expect(result.overview).toContain('Shoppage intelligence');
+      expect(fetch).not.toHaveBeenCalled();
+    });
+
+    it('returns structured search results and AI overview for solar queries', async () => {
+      mockJsonOnce(geminiTools([{ name: 'searchCatalog', args: { query: 'solar inverter' } }]));
+      mockJsonOnce(geminiText('Solar inverters in stock.'));
+      const result = await semanticSearch('solar inverter', { limit: 4 });
+      expect(result.products.length).toBeGreaterThan(0);
+      expect(result.overview).toContain('Shoppage intelligence');
+      expect(result.topBrands.length).toBeGreaterThan(0);
+      expect(result.totalProducts).toBeGreaterThan(0);
     });
   });
 
@@ -122,6 +181,7 @@ describe('@shoppage/web Intelligence & Intent Engine', () => {
       expect(firstShort.type).toBe('short');
       expect(firstShort.videoUrl).toContain('.mp4');
       expect(firstShort.merchantWhatsApp).toBeDefined();
+      expect(ALL_MEDIA.length).toBeGreaterThanOrEqual(SHORTS.length);
     });
 
     it('contains verified video shows with market walk tours', () => {

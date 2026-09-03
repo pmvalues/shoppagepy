@@ -20,7 +20,7 @@ export default async function SearchPage({
   const currentPage = parseInt(resolvedSearchParams.page || '1', 10);
   const pageSize = 24;
 
-  const searchResults = semanticSearch(query, {
+  const searchResults = await semanticSearch(query, {
     limit: pageSize,
     offset: (currentPage - 1) * pageSize,
   });
