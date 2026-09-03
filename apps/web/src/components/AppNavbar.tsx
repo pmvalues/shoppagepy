@@ -454,6 +454,7 @@ export default function AppNavbar({
       <nav className="bottombar" aria-label="Mobile navigation">
         <button
           type="button"
+          className={pathname === '/' ? 'active' : undefined}
           onClick={() => {
             dispatchNav('tab', 'foryou');
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -463,7 +464,7 @@ export default function AppNavbar({
             <path d="M12 1.7 1.6 8.8l1.1 1.7 1.3-.6V21a1 1 0 0 0 1 1h5v-8h4v8h5a1 1 0 0 0 1-1V9.9l1.3.6 1.1-1.7L12 1.7z" />
           </svg>
         </button>
-        <Link href="/search">
+        <Link href="/search" className={pathname === '/search' ? 'active' : undefined}>
           <svg viewBox="0 0 24 24">
             <path d="M10.25 4.25a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm-8 6a8 8 0 1 1 14.9 4.45l4.42 4.42-1.42 1.42-4.42-4.42A8 8 0 0 1 2.25 10.25z" />
           </svg>
