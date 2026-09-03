@@ -763,7 +763,7 @@ export default function PlatformSuperAdminDashboardPage() {
                   </thead>
                   <tbody>
                     {catalogQuery.items.map((p) => {
-                      const price = (p.attributes?.estimatedPriceZar as number) || 0;
+                      const price = p.attributes?.estimatedPriceZar as number | undefined;
                       const hasImage = p.media?.gallery?.[0]?.url;
                       return (
                         <tr key={p.canonicalId} style={{ borderBottom: '1px solid #1F2937' }}>
@@ -795,7 +795,11 @@ export default function PlatformSuperAdminDashboardPage() {
                             <div style={{ fontSize: '0.72rem', color: '#64748B' }}>{p.categoryRef}</div>
                           </td>
                           <td style={{ padding: '1rem', fontWeight: 900, fontSize: '1.05rem', color: '#10B981', fontFamily: 'monospace' }}>
-                            R {price.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
+                            {typeof price === 'number' && price > 0 ? (
+                              `R ${price.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}`
+                            ) : (
+                              <span style={{ color: '#64748B', fontSize: '0.85rem', fontWeight: 700 }}>On request</span>
+                            )}
                           </td>
                           <td style={{ padding: '1rem' }}>
                             <span style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10B981', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800 }}>
@@ -1155,7 +1159,7 @@ export default function PlatformSuperAdminDashboardPage() {
                   <div>
                     <h4 style={{ color: '#38BDF8', margin: '0 0 0.5rem 0' }}>Runtime Status</h4>
                     <div style={{ fontSize: '0.85rem', color: '#CBD5E1', lineHeight: 1.8 }}>
-                      • <strong>Platform Runtime:</strong> Node.js 14+ (Next.js 14.2)<br />
+                      • <strong>Platform Runtime:</strong> Node.js 20+ (Next.js 16)<br />
                       • <strong>CMS Engine:</strong> Payload CMS 3.0 Local Service<br />
                       • <strong>Database:</strong> SQLite DatabaseSync + FTS5<br />
                       • <strong>Direct Take Rate:</strong> 0% Commission<br />
