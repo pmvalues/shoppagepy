@@ -179,7 +179,7 @@ a{color:var(--brand);text-decoration:none}
 .prow .old{color:var(--text2);text-decoration:line-through;font-size:14px}
 .prow .off{color:var(--green);font-weight:700;font-size:13px;background:rgba(16,185,129,.14);padding:2px 8px;border-radius:99px}
 .pnote{color:var(--text2);font-size:13px;margin-top:6px}
-.getdeal{margin-top:12px;background:var(--brand);color:#fff;font-weight:700;font-size:15px;border-radius:9999px;padding:11px 18px;display:block;width:100%;text-align:center;transition:filter .2s,transform .1s;box-shadow:0 3px 10px var(--brand-glow);cursor:pointer}
+.getdeal{margin-top:10px;background:var(--brand);color:#fff;font-weight:700;font-size:14px;border-radius:9999px;padding:8px 18px;transition:filter .2s,transform .1s;box-shadow:0 3px 10px var(--brand-glow);cursor:pointer}
 .getdeal:hover{filter:brightness(1.1)}
 .getdeal:active{transform:scale(.97)}
 

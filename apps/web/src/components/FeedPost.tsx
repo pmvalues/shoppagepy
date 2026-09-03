@@ -78,7 +78,8 @@ export default function FeedPostCard({
           <b>{post.name}</b>
           {post.verified && VSVG}
           <span className="h">
-            {post.handle} · {post.time}
+            {post.handle}
+            {post.time ? ` · ${post.time}` : ''}
           </span>
           <button
             type="button"
@@ -212,7 +213,7 @@ export default function FeedPostCard({
                 />
               </svg>
             </span>
-            <span className="cnt">{fmt(post.stats.replies)}</span>
+            {post.stats.replies > 0 ? <span className="cnt">{fmt(post.stats.replies)}</span> : null}
           </button>
 
           <button
@@ -236,7 +237,9 @@ export default function FeedPostCard({
                 />
               </svg>
             </span>
-            <span className="cnt">{fmt(post.stats.reposts + (isReposted ? 1 : 0))}</span>
+            {post.stats.reposts + (isReposted ? 1 : 0) > 0 ? (
+              <span className="cnt">{fmt(post.stats.reposts + (isReposted ? 1 : 0))}</span>
+            ) : null}
           </button>
 
           <button
@@ -258,17 +261,10 @@ export default function FeedPostCard({
                 />
               </svg>
             </span>
-            <span className="cnt">{fmt(post.stats.likes + (isLiked ? 1 : 0))}</span>
+            {post.stats.likes + (isLiked ? 1 : 0) > 0 ? (
+              <span className="cnt">{fmt(post.stats.likes + (isLiked ? 1 : 0))}</span>
+            ) : null}
           </button>
-
-          <span className="ab views" title="Views">
-            <span className="icn">
-              <svg viewBox="0 0 24 24">
-                <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21v-5.5h2V21H4z" />
-              </svg>
-            </span>
-            <span className="cnt">{post.stats.views}</span>
-          </span>
 
           <span style={{ display: 'flex' }}>
             <button

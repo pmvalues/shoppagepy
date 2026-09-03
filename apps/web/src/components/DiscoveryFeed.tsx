@@ -42,17 +42,10 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
   const [prodSort, setProdSort] = useState<'drop' | 'price_asc' | 'price_desc' | 'sellers'>('drop');
 
   // Markets tab state
-  const [marketSubFilter, setMarketSubFilter] = useState<'all' | 'fav' | 'wholesale' | 'groups'>('all');
+  const [marketSubFilter, setMarketSubFilter] = useState<'all' | 'fav' | 'wholesale'>('all');
   const [marketSearch, setMarketSearch] = useState('');
-  const [favMarkets, setFavMarkets] = useState<Record<string, boolean>>({
-    market_dragon_city: true,
-    market_oriental_plaza: true,
-    group_gauteng_solar: true,
-  });
-  const [followedMarkets, setFollowedMarkets] = useState<Record<string, boolean>>({
-    market_dragon_city: true,
-    group_gauteng_solar: true,
-  });
+  const [favMarkets, setFavMarkets] = useState<Record<string, boolean>>({});
+  const [followedMarkets, setFollowedMarkets] = useState<Record<string, boolean>>({});
 
   // Reaction states
   const [liked, setLiked] = useState<Record<string | number, boolean>>({});
@@ -347,8 +340,6 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
       list = list.filter((m) => favMarkets[m.id]);
     } else if (marketSubFilter === 'wholesale') {
       list = list.filter((m) => m.type === 'wholesale_plaza');
-    } else if (marketSubFilter === 'groups') {
-      list = list.filter((m) => m.type === 'community_group');
     }
 
     if (marketSearch.trim()) {
@@ -724,13 +715,6 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
               >
                 🏢 Wholesale Plazas
               </button>
-              <button
-                type="button"
-                className={`chip-pill${marketSubFilter === 'groups' ? ' active' : ''}`}
-                onClick={() => setMarketSubFilter('groups')}
-              >
-                💬 Contractor Networks
-              </button>
             </div>
           </div>
 
@@ -758,8 +742,12 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
                       <p className="market-desc">{m.description}</p>
 
                       <p className="market-meta" style={{ marginTop: '6px' }}>
-                        📍 {m.location} ·{' '}
-                        <b>{m.stalls ? `${m.stalls}+ Active Stalls` : m.membersCount}</b>
+                        📍 {m.location}
+                        {m.stalls ? (
+                          <>
+                            {' '}· <b>{m.stalls}+ Active Stalls</b>
+                          </>
+                        ) : null}
                       </p>
 
                       <div className="market-actions">
@@ -781,7 +769,7 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
                         </button>
 
                         <Link href={m.href} className="visit-btn">
-                          {m.type === 'community_group' ? 'Open Desk 💬' : 'Browse Stalls 🏢'}
+                          Browse Stalls 🏢
                         </Link>
                       </div>
                     </div>
@@ -825,10 +813,10 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
                           />
                         </svg>
                       </span>
-                      <span className="dur">{s.dur}</span>
+                      {s.dur ? <span className="dur">{s.dur}</span> : null}
                       <span className="smeta">
                         <h4>{s.title}</h4>
-                        <span>{s.views}</span>
+                        {s.meta ? <span>{s.meta}</span> : null}
                       </span>
                       <span className="prog" />
                     </button>
@@ -863,12 +851,17 @@ export default function DiscoveryFeed({ posts: initialPosts }: { posts: PostItem
                   <h3>Save deals for later</h3>
                   <p>Tap the bookmark icon on any post and it will land here.</p>
                 </>
-              ) : (
+              ) : search.trim() ? (
                 <>
                   <h3>Nothing here yet</h3>
                   <p>
                     No posts match &quot;{search}&quot; in this stream. Try the For You timeline.
                   </p>
+                </>
+              ) : (
+                <>
+                  <h3>No live deals right now</h3>
+                  <p>New offers land here as trade counters confirm stock.</p>
                 </>
               )}
             </div>

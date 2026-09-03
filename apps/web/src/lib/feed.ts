@@ -66,8 +66,9 @@ export type FeedPost = PostItem;
 export interface ShortItem {
   id: string;
   title: string;
-  views: string;
-  dur: string;
+  views?: string;
+  dur?: string;
+  meta?: string;
   img: string;
 }
 
@@ -81,37 +82,6 @@ export const IMG = {
   lnt: 'https://image.qwenlm.ai/public_source/799adab8-af82-468a-997e-65ab7df589b4/1b4b0653f-439a-4ccf-a92c-cfe32e974808.png',
   own: 'https://image.qwenlm.ai/public_source/799adab8-af82-468a-997e-65ab7df589b4/1786d84fe-193a-405e-a9aa-91666f8f0410.png',
 };
-
-export const SHORTS: ShortItem[] = [
-  {
-    id: 's1',
-    title: '60-second install: Deye 5kW swap-out ⚡',
-    views: '48K views',
-    dur: '0:58',
-    img: IMG.own,
-  },
-  {
-    id: 's2',
-    title: 'Stage 6 survival kit under R 999 🔦',
-    views: '121K views',
-    dur: '0:42',
-    img: IMG.lnt,
-  },
-  {
-    id: 's3',
-    title: 'Dragon City haul: R 5 000 challenge 🛒',
-    views: '87K views',
-    dur: '1:12',
-    img: IMG.fmcg,
-  },
-  {
-    id: 's4',
-    title: 'Battery wiring, explained simply 🔋',
-    views: '63K views',
-    dur: '0:51',
-    img: IMG.bat,
-  },
-];
 
 function formatZarRands(rands: number): string {
   return new Intl.NumberFormat('en-ZA', {
@@ -164,15 +134,12 @@ export function getFeed(): PostItem[] {
       .filter((p): p is number => typeof p === 'number')
       .sort((a, b) => a - b);
     const attrPrice = (cp.attributes?.estimatedPriceZar as number) || (cp.attributes?.price as number);
-    const lowest = sortedPrices[0] || attrPrice || Math.max(25, ((idx * 83 + 150) % 28000));
-    const highest = sortedPrices[sortedPrices.length - 1] || Math.round(lowest * 1.25);
-    const dropPct = highest > lowest ? Math.round(((highest - lowest) / highest) * 100) : 0;
-
-    // Associate with real verified merchant
+    const lowest = sortedPrices[0] ?? attrPrice;
     const offer = offers[0];
-    const merchant =
-      (offer && SA_FLAGSHIP_MERCHANTS.find((m) => m.id === offer.merchantRef)) ||
-      SA_FLAGSHIP_MERCHANTS[idx % SA_FLAGSHIP_MERCHANTS.length];
+    const merchant = offer ? SA_FLAGSHIP_MERCHANTS.find((m) => m.id === offer.merchantRef) : undefined;
+    if (typeof lowest !== 'number' || !merchant) return;
+    const highest = sortedPrices.length > 1 ? sortedPrices[sortedPrices.length - 1] : undefined;
+    const dropPct = highest && highest > lowest ? Math.round(((highest - lowest) / highest) * 100) : 0;
     const avIndex = (idx % 8) + 1;
     const handle = `@${merchant.name.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 18)}`;
 
@@ -181,21 +148,10 @@ export function getFeed(): PostItem[] {
         ? { label: '⚡ PRICE DROP', type: 'drop' }
         : offers.length > 2
         ? { label: 'PRICE SWEEP', type: 'sweep' }
-        : idx % 2 === 0
-        ? { label: 'RESTOCK', type: 'restock' }
         : undefined;
 
     const tabs = ['foryou'];
-    if (badge?.type === 'drop' || badge?.type === 'sweep' || badge?.type === 'bulk') tabs.push('deals');
-    if (badge?.type === 'restock' || idx % 2 === 0) tabs.push('new');
-
-    const minutesAgo = (idx * 17 + 2) % 180;
-    const timeLabel = minutesAgo < 60 ? `${minutesAgo || 2}m` : `${Math.floor(minutesAgo / 60)}h`;
-
-    const replies = Math.floor(10 + ((idx * 13) % 80));
-    const reposts = Math.floor(25 + ((idx * 37) % 250));
-    const likes = Math.floor(150 + ((idx * 149) % 1800));
-    const viewsNum = Math.floor(8 + ((idx * 19) % 180));
+    if (badge) tabs.push('deals');
 
     posts.push({
       id: cp.canonicalId,
@@ -204,61 +160,42 @@ export function getFeed(): PostItem[] {
       av: `g${avIndex}`,
       ini: getInitials(merchant.name),
       verified: merchant.verificationState === 'fully_verified',
-      time: timeLabel,
+      time: '',
       badge,
       cat: formatCat(cp.categoryRef),
       tabs,
-      text: `${cp.title} just spotted at ${formatZarRands(lowest)}! ${
-        highest > lowest
-          ? `Down ${dropPct}% from ${formatZarRands(highest)} across ${offers.length || 2} verified trade counters.`
-          : 'Direct trade counter stock in Gauteng.'
-      } #PriceDrop #SouthAfrica #TradeCounter`,
+      text:
+        highest && highest > lowest
+          ? `${cp.title} at ${formatZarRands(lowest)} — down ${dropPct}% from ${formatZarRands(highest)} across ${offers.length} trade counters. #PriceDrop #SouthAfrica`
+          : `${cp.title} listed at ${formatZarRands(lowest)} by ${merchant.name}. #SouthAfrica #TradeCounter`,
       product: {
         name: cp.title,
         price: formatZarRands(lowest),
-        old: highest > lowest ? formatZarRands(highest) : undefined,
+        old: highest && highest > lowest ? formatZarRands(highest) : undefined,
         off: dropPct > 0 ? `-${dropPct}%` : undefined,
-        note: `Verified trade counter · ${merchant.addressText || 'Johannesburg, Gauteng'}`,
+        note: `${merchant.verificationState === 'fully_verified' ? 'Verified trade counter · ' : ''}${merchant.addressText || merchant.name}`,
         href: `/p/${cp.canonicalId}`,
       },
       image: getImageForVariant(cp.brand, cp.title, idx),
       stats: {
-        replies,
-        reposts,
-        likes,
-        views: `${viewsNum}K`,
+        replies: 0,
+        reposts: 0,
+        likes: 0,
+        views: '0',
       },
       whatsapp: merchant.contacts?.whatsapp,
     });
   });
 
-  // 2. Insert Community Poll
-  posts.splice(2, 0, {
-    id: 'poll_loadshedding',
-    name: 'Load-Shedding Watch ZA',
-    handle: '@loadsheddingza',
-    av: 'g4',
-    ini: 'LS',
-    verified: true,
-    time: '3h',
-    tabs: ['foryou'],
-    text: 'Stage 6 tonight across Gauteng & Cape Town. How are you powering through? 🔋⚡',
-    poll: {
-      options: [
-        { l: 'Full solar + batteries 🌞', v: 4120 },
-        { l: 'Generator 🛢️', v: 1830 },
-        { l: 'Rechargeable lights only 🔦', v: 2950 },
-        { l: 'Candles & vibes 🕯️', v: 3410 },
-      ],
-      voted: null,
-    },
-    stats: { replies: 312, reposts: 187, likes: 2410, views: '310K' },
-  });
-
-  // 3. Real Wholesale Market Spotlights
+  // 2. Wholesale Market Spotlights (kernel data only)
   SA_COMPREHENSIVE_MARKETS.slice(0, 3).forEach((m, i) => {
-    const stallCount = m.zones?.reduce((s, z) => s + (z.stallCount || 0), 0) || 50;
-    const address = m.geo?.streetAddress || `${m.name}, ${m.province}`;
+    const address = m.geo?.streetAddress || m.metro || `${m.name}, ${m.province}`;
+    const hubBadge =
+      m.marketType === 'wholesale_market'
+        ? { label: 'WHOLESALE HUB', type: 'bulk' }
+        : m.marketType === 'formal_mega_mall'
+        ? { label: 'TRADE HUB', type: 'bulk' }
+        : { label: 'TRANSIT HUB', type: 'bulk' };
     posts.splice(4 + i * 3, 0, {
       id: `market_${m.id}`,
       name: m.name,
@@ -266,23 +203,25 @@ export function getFeed(): PostItem[] {
       av: `g${((i + 3) % 8) + 1}`,
       ini: getInitials(m.name),
       verified: true,
-      time: `${i + 1}h`,
-      badge: { label: 'WHOLESALE HUB', type: 'bulk' },
+      time: '',
+      badge: hubBadge,
       cat: formatCat(m.marketType),
-      tabs: ['foryou', 'deals'],
-      text: `🏢 Wholesale Walk: ${m.name} with ${stallCount}+ active trade stalls in ${m.province}. Walk-in contractor pricing, direct container imports, and pallet volume discounts.`,
+      tabs: ['foryou'],
+      text: `🏢 ${m.name} — ${m.province}. ${address}.${
+        m.activeMerchantsCount ? ` ${m.activeMerchantsCount} active merchants on the precinct.` : ''
+      }${m.landmarks?.length ? ` Near ${m.landmarks.slice(0, 2).join(' and ')}.` : ''}`,
       product: {
-        name: `${m.name} — Direct Wholesale Importers`,
-        price: `${stallCount}+ Stalls`,
+        name: m.name,
+        price: m.metro || m.province || 'South Africa',
         note: address,
         href: `/market/${m.id}`,
       },
       image: IMG.fmcg,
       stats: {
-        replies: 45 + i * 12,
-        reposts: 89 + i * 20,
-        likes: 620 + i * 110,
-        views: `${40 + i * 15}K`,
+        replies: 0,
+        reposts: 0,
+        likes: 0,
+        views: '0',
       },
     });
   });
@@ -291,7 +230,27 @@ export function getFeed(): PostItem[] {
 }
 
 export function getShorts(): ShortItem[] {
-  return SHORTS;
+  return SA_CANONICAL_PRODUCTS.filter((cp) =>
+    SA_FLAGSHIP_OFFERS.some(
+      (o) => o.variantRef === cp.canonicalId && typeof o.price?.amount === 'number',
+    ),
+  )
+    .slice(0, 4)
+    .map((cp, i) => {
+      const offer = SA_FLAGSHIP_OFFERS.find(
+        (o) => o.variantRef === cp.canonicalId && typeof o.price?.amount === 'number',
+      );
+      const merchant = offer
+        ? SA_FLAGSHIP_MERCHANTS.find((m) => m.id === offer.merchantRef)
+        : undefined;
+      const price = offer?.price?.amount ?? 0;
+      return {
+        id: `short_${cp.canonicalId}`,
+        title: cp.title,
+        meta: `${merchant ? `${merchant.name} · ` : ''}${formatZarRands(price)}`,
+        img: getImageForVariant(cp.brand, cp.title, i),
+      };
+    });
 }
 
 export interface CommerceTrend {
@@ -303,49 +262,37 @@ export interface CommerceTrend {
   query: string;
 }
 
+function countLiveOffers(keywords: string[]): number {
+  const terms = keywords.map((k) => k.toLowerCase());
+  const ids = new Set(
+    SA_CANONICAL_PRODUCTS.filter((cp) =>
+      terms.some((t) => `${cp.title} ${cp.brand} ${cp.categoryRef}`.toLowerCase().includes(t)),
+    ).map((p) => p.canonicalId),
+  );
+  return SA_FLAGSHIP_OFFERS.filter(
+    (o) => ids.has(o.variantRef) && typeof o.price?.amount === 'number',
+  ).length;
+}
+
 export function getCommerceTrends(): CommerceTrend[] {
-  return [
-    {
-      tag: '#SolarInverters',
-      label: 'Solar & Load-Shedding',
-      category: 'Solar & Load-Shedding · Trending',
-      postsCount: '2 847 posts',
-      isHot: true,
-      query: 'inverter',
-    },
-    {
-      tag: '#LoadShedding',
-      label: 'Trending in South Africa',
-      category: 'Trending in South Africa',
-      postsCount: '12.4K posts',
-      isHot: true,
-      query: 'loadshedding',
-    },
-    {
-      tag: '#Redmi13',
-      label: 'Smartphones & Tech',
-      category: 'Smartphones & Tech',
-      postsCount: '1 203 posts',
-      isHot: false,
-      query: 'redmi',
-    },
-    {
-      tag: '#MaizeMealPallet',
-      label: 'Wholesale FMCG',
-      category: 'Wholesale FMCG',
-      postsCount: '986 posts',
-      isHot: false,
-      query: 'fmcg',
-    },
-    {
-      tag: '#PoloVivoSpares',
-      label: 'Automotive & Spares',
-      category: 'Automotive & Spares',
-      postsCount: '754 posts',
-      isHot: false,
-      query: 'polo',
-    },
+  const defs = [
+    { tag: '#SolarInverters', label: 'Solar & Load-Shedding', category: 'Solar & Load-Shedding · Trending', isHot: true, query: 'inverter', match: ['inverter', 'sunsynk', 'deye', 'solar', 'panel'] },
+    { tag: '#LoadShedding', label: 'Trending in South Africa', category: 'Trending in South Africa', isHot: true, query: 'loadshedding', match: ['battery', 'solar', 'inverter', 'power'] },
+    { tag: '#Redmi13', label: 'Smartphones & Tech', category: 'Smartphones & Tech', isHot: false, query: 'redmi', match: ['redmi', 'samsung', 'iphone', 'phone'] },
+    { tag: '#MaizeMealPallet', label: 'Wholesale FMCG', category: 'Wholesale FMCG', isHot: false, query: 'fmcg', match: ['maize', 'flour', 'oil', 'fmcg', 'sugar'] },
+    { tag: '#PoloVivoSpares', label: 'Automotive & Spares', category: 'Automotive & Spares', isHot: false, query: 'polo', match: ['polo', 'brake', 'vivo', 'spares'] },
   ];
+  return defs.map((d) => {
+    const n = countLiveOffers(d.match);
+    return {
+      tag: d.tag,
+      label: d.label,
+      category: d.category,
+      postsCount: `${n} live offer${n === 1 ? '' : 's'}`,
+      isHot: d.isHot,
+      query: d.query,
+    };
+  });
 }
 
 export interface RecommendedCompany {
@@ -396,138 +343,36 @@ export interface MarketItem {
   handle: string;
   initials: string;
   avatarClass: string;
-  type: 'wholesale_plaza' | 'mega_mall' | 'community_group';
+  type: 'wholesale_plaza' | 'mega_mall' | 'transport_hub';
   typeLabel: string;
   province: string;
   location: string;
   stalls?: number;
-  membersCount?: string;
   description: string;
   href: string;
-  whatsappGroup?: string;
-  isFavouredDefault?: boolean;
 }
 
 export function getMarkets(): MarketItem[] {
-  const markets: MarketItem[] = [
-    {
-      id: 'market_dragon_city',
-      name: 'Dragon City Wholesale Mall',
-      handle: '@dragoncity_jhb',
-      initials: 'DC',
-      avatarClass: 'g1',
-      type: 'wholesale_plaza',
-      typeLabel: 'Wholesale Hub',
-      province: 'Gauteng',
-      location: 'Crown Mines, Johannesburg',
-      stalls: 450,
-      description: 'South Africa’s premier wholesale commercial plaza. Direct container imports, textiles, electronics, hardware, and pallet-load FMCG trade.',
-      href: '/market/market_dragon_city',
-      isFavouredDefault: true,
-    },
-    {
-      id: 'market_oriental_plaza',
-      name: 'Oriental Plaza Fordsburg',
-      handle: '@orientalplaza_za',
-      initials: 'OP',
-      avatarClass: 'g2',
-      type: 'wholesale_plaza',
-      typeLabel: 'Trade Plaza',
-      province: 'Gauteng',
-      location: 'Fordsburg, Johannesburg',
-      stalls: 360,
-      description: 'Historic trade centre renowned for curtaining, tailoring, apparel, commercial catering supplies, and fabric rolls.',
-      href: '/market/market_oriental_plaza',
-      isFavouredDefault: true,
-    },
-    {
-      id: 'group_gauteng_solar',
-      name: 'Gauteng Solar & Electrical Contractors Hub',
-      handle: '@gauteng_solar_hub',
-      initials: 'GS',
-      avatarClass: 'g3',
-      type: 'community_group',
-      typeLabel: 'WhatsApp Contractor Network',
-      province: 'Gauteng',
-      location: 'Johannesburg & Pretoria',
-      membersCount: '2,480 Active Members',
-      description: 'Verified trade community for SABS/NRS 097 inverter deals, battery pallet drops, CoC tips, and load-shedding hardware stock alerts.',
-      href: '/requests',
-      whatsappGroup: 'https://chat.whatsapp.com/solar-gauteng-verified',
-      isFavouredDefault: true,
-    },
-    {
-      id: 'group_jhb_spaza_fmcg',
-      name: 'Joburg FMCG & Spaza Bulk Buyers Syndicate',
-      handle: '@fmcg_spaza_syndicate',
-      initials: 'FS',
-      avatarClass: 'g6',
-      type: 'community_group',
-      typeLabel: 'FMCG Trade Group',
-      province: 'Gauteng',
-      location: 'Crown Mines & Soweto',
-      membersCount: '1,830 Traders',
-      description: 'Group buying network for maize meal, cooking oil, rice, sugar, and dry grocery pallets direct from wholesale mills.',
-      href: '/requests',
-      whatsappGroup: 'https://chat.whatsapp.com/fmcg-spaza-syndicate',
-    },
-    {
-      id: 'group_cape_builders',
-      name: 'Western Cape Master Builders & Electrical Guild',
-      handle: '@wc_builders_guild',
-      initials: 'BG',
-      avatarClass: 'g4',
-      type: 'community_group',
-      typeLabel: 'Contractor Trade Guild',
-      province: 'Western Cape',
-      location: 'Cape Town & Paarl',
-      membersCount: '1,420 Contractors',
-      description: 'Contractor exchange for cement pallets, electrical DB boards, scaffolding hire, and municipal compliance CoC signoffs.',
-      href: '/requests',
-      whatsappGroup: 'https://chat.whatsapp.com/wc-builders-guild',
-    },
-    {
-      id: 'group_kzn_hardware',
-      name: 'KZN Trade & Durban Port Importers Network',
-      handle: '@kzn_port_trade',
-      initials: 'KP',
-      avatarClass: 'g5',
-      type: 'community_group',
-      typeLabel: 'Port Clearance Network',
-      province: 'KwaZulu-Natal',
-      location: 'Durban Harbour & Pinetown',
-      membersCount: '1,190 Traders',
-      description: 'Direct port clearance deals for container tools, solar racking, copper cabling, and hardware fittings.',
-      href: '/requests',
-      whatsappGroup: 'https://chat.whatsapp.com/kzn-port-trade',
-    },
-  ];
-
-  // Dynamically add all 31 wholesale trade markets from SA_COMPREHENSIVE_MARKETS
-  SA_COMPREHENSIVE_MARKETS.forEach((m, idx) => {
-    if (markets.some((ex) => ex.id === m.id || ex.id === `market_${m.id}`)) return;
-    const stallCount = m.zones?.reduce((s, z) => s + (z.stallCount || 0), 0) || 120;
+  return SA_COMPREHENSIVE_MARKETS.map((m, idx) => {
     const isMall = m.marketType === 'formal_mega_mall';
-    markets.push({
+    const isWholesale = m.marketType === 'wholesale_market';
+    return {
       id: m.id.startsWith('market_') ? m.id : `market_${m.id}`,
       name: m.name,
       handle: `@${m.name.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 16)}`,
       initials: getInitials(m.name),
       avatarClass: `g${(idx % 8) + 1}`,
-      type: isMall ? 'mega_mall' : 'wholesale_plaza',
-      typeLabel: isMall ? 'Commercial Hub' : 'Wholesale Plaza',
-      province: m.province || 'Gauteng',
-      location: m.metro || `${m.name}, South Africa`,
-      stalls: stallCount,
+      type: isMall ? 'mega_mall' : isWholesale ? 'wholesale_plaza' : 'transport_hub',
+      typeLabel: isMall ? 'Commercial Hub' : isWholesale ? 'Wholesale Plaza' : 'Transit Hub',
+      province: m.province || 'South Africa',
+      location: m.geo?.streetAddress || m.metro || m.name,
+      stalls: m.activeMerchantsCount,
       description: m.landmarks?.length
-        ? `Major commercial trade precinct near ${m.landmarks.slice(0, 2).join(' and ')}. High-volume verified counters with zero middleman toll.`
-        : 'Active South African commercial trade interchange with verified trade desks.',
+        ? `Major trade precinct near ${m.landmarks.slice(0, 2).join(' and ')}.`
+        : `${m.name} — verified South African trade precinct.`,
       href: `/market/${m.id}`,
-      isFavouredDefault: idx < 2,
-    });
+    };
   });
-
-  return markets;
 }
 
 export interface ProductCatalogItem {
@@ -547,18 +392,20 @@ export interface ProductCatalogItem {
 }
 
 export function getProductsCatalog(): ProductCatalogItem[] {
-  return SA_CANONICAL_PRODUCTS.map((cp, idx) => {
+  const items: ProductCatalogItem[] = [];
+  SA_CANONICAL_PRODUCTS.forEach((cp, idx) => {
     const offers = SA_FLAGSHIP_OFFERS.filter((o) => o.variantRef === cp.canonicalId);
     const sortedPrices = offers
       .map((o) => o.price?.amount)
       .filter((p): p is number => typeof p === 'number')
       .sort((a, b) => a - b);
     const attrPrice = (cp.attributes?.estimatedPriceZar as number) || (cp.attributes?.price as number);
-    const price = sortedPrices[0] || attrPrice || Math.max(15, ((idx * 83 + 120) % 28000));
-    const oldPrice = sortedPrices.length > 1
-      ? sortedPrices[sortedPrices.length - 1]
-      : Math.round(price * 1.25);
-    const dropPct = oldPrice > price ? Math.round(((oldPrice - price) / oldPrice) * 100) : 0;
+    const price = sortedPrices[0] ?? attrPrice;
+    const offer = offers[0];
+    const merchant = offer ? SA_FLAGSHIP_MERCHANTS.find((m) => m.id === offer.merchantRef) : undefined;
+    if (typeof price !== 'number' || !merchant) return;
+    const oldPrice = sortedPrices.length > 1 ? sortedPrices[sortedPrices.length - 1] : undefined;
+    const dropPct = oldPrice && oldPrice > price ? Math.round(((oldPrice - price) / oldPrice) * 100) : 0;
 
     // Determine categoryRef
     let categoryRef = 'solar';
@@ -577,14 +424,7 @@ export function getProductsCatalog(): ProductCatalogItem[] {
       categoryRef = 'fmcg';
     }
 
-    // Match real stockist
-    const offer = offers[0];
-    const merchant =
-      (offer && SA_FLAGSHIP_MERCHANTS.find((m) => m.id === offer.merchantRef)) ||
-      SA_FLAGSHIP_MERCHANTS[idx % SA_FLAGSHIP_MERCHANTS.length];
-    const stockistLocation = merchant
-      ? `${merchant.name} · ${merchant.addressText?.split(',')[0] || 'Johannesburg'}`
-      : 'Verified South African Trade Counter';
+    const stockistLocation = `${merchant.name} · ${merchant.addressText?.split(',')[0] || 'South Africa'}`;
 
     // Specs
     const complianceParts: string[] = [];
@@ -598,20 +438,21 @@ export function getProductsCatalog(): ProductCatalogItem[] {
       (cp.attributes?.specs as string) ||
       (cp.attributes?.warrantyYears ? `${cp.attributes.warrantyYears}-Year Warranty · SABS Certified` : 'Commercial Grade · Direct Trade Counter');
 
-    return {
+    items.push({
       id: cp.canonicalId,
       title: cp.title,
       brand: cp.brand,
       category: formatCat(cp.categoryRef),
       categoryRef,
       price,
-      oldPrice: oldPrice > price ? oldPrice : undefined,
+      oldPrice: oldPrice && oldPrice > price ? oldPrice : undefined,
       dropPct: dropPct > 0 ? dropPct : undefined,
       image: getImageForVariant(cp.brand, cp.title, idx),
-      sellerCount: Math.max(offers.length, 1),
+      sellerCount: offers.length,
       stockistLocation,
       href: `/p/${cp.canonicalId}`,
       specs,
-    };
+    });
   });
+  return items;
 }
