@@ -20,11 +20,12 @@ import {
   CmsMediaDocument,
   CmsShortOrShowDocument,
 } from '@/cms';
+import CmsImportPanel from '@/components/CmsImportPanel';
 
 export default function PlatformSuperAdminDashboardPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'merchants' | 'verification' | 'catalog' | 'cms_collections' | 'diagnostics'
+    'overview' | 'merchants' | 'verification' | 'catalog' | 'cms_collections' | 'diagnostics' | 'import'
   >('overview');
 
   // Search & Filter States
@@ -428,6 +429,29 @@ export default function PlatformSuperAdminDashboardPage() {
           >
             <span>🩺</span>
             <span>Engine Diagnostics</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('import')}
+            style={{
+              width: '100%',
+              padding: '0.65rem 0.85rem',
+              borderRadius: '8px',
+              border: 'none',
+              background: activeTab === 'import' ? '#1E293B' : 'transparent',
+              color: activeTab === 'import' ? '#38BDF8' : '#94A3B8',
+              fontWeight: activeTab === 'import' ? 800 : 600,
+              fontSize: '0.85rem',
+              textAlign: 'left',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.65rem',
+            }}
+          >
+            <span>📤</span>
+            <span>Bulk Import</span>
           </button>
 
           <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '1px solid #1E293B' }}>
@@ -1147,6 +1171,9 @@ export default function PlatformSuperAdminDashboardPage() {
               </div>
             </div>
           )}
+
+          {/* TAB 7: BULK IMPORT */}
+          {activeTab === 'import' && <CmsImportPanel />}
 
           {/* TAB 6: DIAGNOSTICS */}
           {activeTab === 'diagnostics' && (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, use } from 'react';
+import { useState, use, useEffect } from 'react';
 import Link from 'next/link';
 import {
   NationwideMerchantStore,
@@ -15,34 +15,6 @@ import Breadcrumb from '@/components/Breadcrumb';
 import WooButton from '@/components/WooButton';
 import WhatsAppCTA from '@/components/WhatsAppCTA';
 
-function synthesizeFallbackMerchant(id: string): Merchant {
-  if (id.toLowerCase().includes('mitrend')) {
-    return MITREND_MERCHANT as Merchant;
-  }
-  const clean = id.replace(/^(?:mer_ext_|loc_|mer_)/, '').replace(/_/g, ' ');
-  const name = clean.split(' ').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-
-  return {
-    id,
-    name: `${name} (Verified Storefront)`,
-    country: 'ZA',
-    category: 'solar_energy',
-    addressText: 'Commercial Trading Node, Johannesburg, Gauteng',
-    province: 'Gauteng',
-    googleRating: 4.8,
-    googleReviewsCount: 34,
-    operatingHours: 'Mon-Fri 08:00 - 17:00 · Sat 08:00 - 13:00',
-    medianResponseMinutes: 10,
-    verificationState: 'fully_verified',
-    contacts: {
-      telephone: '+27105007670',
-      whatsapp: '+27105007670',
-      email: `sales@${clean.replace(/\s+/g, '')}.co.za`,
-      website: `https://${clean.replace(/\s+/g, '')}.co.za`,
-    },
-  };
-}
-
 interface CartItem {
   id: string;
   title: string;
@@ -54,7 +26,7 @@ interface CartItem {
 
 export default function MerchantProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
-  const merchant = NationwideMerchantStore.getMerchantById(resolvedParams.id) || synthesizeFallbackMerchant(resolvedParams.id);
+  const registryMerchant = NationwideMerchantStore.getMerchantById(resolvedParams.id);
   const isMitrend = resolvedParams.id.toLowerCase().includes('mitrend');
 
   // Active Store Tabs
@@ -65,14 +37,135 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<MediaItem | null>(null);
   const [activeShowEpisode, setActiveShowEpisode] = useState(0);
-  const [liveChatMessages, setLiveChatMessages] = useState([
-    { sender: 'Johan V.', text: 'Does this 5kW Deye inverter include the CT clamp?', time: '14:21' },
-    { sender: 'Thabo M.', text: 'Can this run a 2.5kW borehole pump?', time: '14:22' },
-    { sender: 'Pretoria Solar CC', text: 'Placed an order for 4 units, thanks guys!', time: '14:23' },
-  ]);
+  const [liveChatMessages, setLiveChatMessages] = useState<
+    Array<{ sender: string; text: string; time: string }>
+  >([]);
   const [newChatText, setNewChatText] = useState('');
   const [rfqSubmitted, setRfqSubmitted] = useState(false);
   const [rfqForm, setRfqForm] = useState({ name: '', phone: '', email: '', items: '4x Deye 5kW + 8x Dyness 5.12kWh', notes: 'Need delivery to Midrand construction site.' });
+
+  const [cmsMerchant, setCmsMerchant] = useState<Merchant | null>(null);
+  const [cmsProducts, setCmsProducts] = useState<
+    Array<{
+      id: string;
+      title: string;
+      brand: string;
+      sku: string;
+      category: string;
+      categoryLabel: string;
+      price: number;
+      salePrice: number | null;
+      inStock: boolean;
+      stockQty: number;
+      warranty: string;
+      specs: string;
+      image: string;
+    }>
+  >([]);
+  const [cmsChecked, setCmsChecked] = useState(false);
+
+  useEffect(() => {
+    let live = true;
+    setCmsMerchant(null);
+    setCmsProducts([]);
+    setCmsChecked(false);
+    if (registryMerchant) {
+      setCmsChecked(true);
+      return;
+    }
+    fetch(`/api/cms/merchants?id=${encodeURIComponent(resolvedParams.id)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { doc?: any } | null) => {
+        if (!live) return;
+        const doc = data?.doc;
+        if (doc && typeof doc.id === 'string') {
+          setCmsMerchant({
+            id: doc.id,
+            name: doc.name || doc.id,
+            country: 'ZA',
+            category: doc.category || 'wholesale',
+            addressText: doc.addressText || 'South Africa',
+            province: doc.province,
+            googleRating:
+              typeof doc.googleRating === 'number' && doc.googleRating > 0 ? doc.googleRating : undefined,
+            operatingHours: doc.operatingHours,
+            medianResponseMinutes:
+              typeof doc.medianResponseMinutes === 'number' ? doc.medianResponseMinutes : undefined,
+            verificationState:
+              doc.verificationState === 'fully_verified' || doc.verificationState === 'phone_verified'
+                ? doc.verificationState
+                : 'unverified',
+            contacts: {
+              telephone: doc.contacts?.telephone || '',
+              whatsapp: doc.contacts?.whatsapp || '',
+              email: doc.contacts?.email || '',
+              website: doc.contacts?.website,
+            },
+          });
+          fetch(`/api/cms/products?merchantId=${encodeURIComponent(resolvedParams.id)}`)
+            .then((pr) => (pr.ok ? pr.json() : null))
+            .then((pdata: { docs?: any[] } | null) => {
+              if (!live) return;
+              const docs = Array.isArray(pdata?.docs) ? pdata.docs : [];
+              setCmsProducts(
+                docs.map((d) => ({
+                  id: d.id,
+                  title: d.title || 'Untitled product',
+                  brand: d.brand || '',
+                  sku: d.sku || '',
+                  category: d.category || 'general',
+                  categoryLabel: d.category || 'general',
+                  price: typeof d.price === 'number' ? d.price : 0,
+                  salePrice: typeof d.salePrice === 'number' ? d.salePrice : null,
+                  inStock: d.inStock !== false,
+                  stockQty: typeof d.stockQty === 'number' ? d.stockQty : 0,
+                  warranty: d.warranty || '',
+                  specs: d.specs || d.description || '',
+                  image:
+                    d.featuredImage ||
+                    'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=500&h=400&fit=crop',
+                })),
+              );
+            })
+            .catch(() => {});
+        }
+        setCmsChecked(true);
+      })
+      .catch(() => {
+        if (live) setCmsChecked(true);
+      });
+    return () => {
+      live = false;
+    };
+  }, [resolvedParams.id, registryMerchant]);
+
+  const merchant = registryMerchant || cmsMerchant;
+
+  if (!merchant) {
+    return (
+      <div style={{ padding: '3rem 1.5rem', textAlign: 'center', maxWidth: '640px', margin: '0 auto' }}>
+        <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🏬</div>
+        <h1 style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--text-primary)' }}>
+          {cmsChecked ? 'Storefront not found' : 'Loading storefront…'}
+        </h1>
+        {cmsChecked && (
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '0.5rem 0 1.25rem' }}>
+            No verified store exists for “{resolvedParams.id}” yet.
+          </p>
+        )}
+        {cmsChecked && (
+          <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link href="/merchants" className="btn btn-outline btn-sm">
+              Browse stores
+            </Link>
+            <Link href="/merchant/claim" className="btn btn-signal btn-sm">
+              List your store
+            </Link>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   const passport = SA_FLAGSHIP_PASSPORTS[merchant.id] || {
     merchantId: merchant.id,
@@ -224,7 +317,9 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
         specs: p.specs,
         image: p.image,
       }))
-    : solarProducts;
+    : cmsMerchant
+      ? cmsProducts
+      : solarProducts;
 
   // Dynamic Categories from the store products
   const uniqueCategories = Array.from(new Set(storeProducts.map((p) => p.category)));

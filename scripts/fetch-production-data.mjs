@@ -2,7 +2,7 @@
 // Production boot helper: ensures sqlite datasets exist before `next start`.
 // Downloads each missing file ONCE (into the persistent volume path) and never
 // blocks boot: any failure degrades to seed-fallback mode with exit code 0.
-import { createWriteStream } from 'node:fs';
+import { createReadStream, createWriteStream } from 'node:fs';
 import { mkdir, readFile, rename, stat, unlink, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -31,12 +31,42 @@ const FILES = [
     dest: 'shoppage-commerce-intelligence-foundation/data/study/global_food_master_products.sqlite',
   },
   {
+    env: 'SHOPPAGE_DATA_URL_MALLS',
+    fallback:
+      'https://github.com/pmvalues/shoppagepy/releases/download/data-v1/sa_malls_and_shopping_centres.sqlite.zip',
+    dest: 'shoppage-commerce-intelligence-foundation/data/study/sa_malls_and_shopping_centres.sqlite',
+  },
+  {
+    env: 'SHOPPAGE_DATA_URL_FOOD',
+    fallback:
+      'https://github.com/pmvalues/shoppagepy/releases/download/data-v1/global_food_master_products.sqlite.zip',
+    dest: 'shoppage-commerce-intelligence-foundation/data/study/global_food_master_products.sqlite',
+    parts: 3,
+  },
+  {
     env: 'SHOPPAGE_DATA_URL_MERCHANTS',
     fallback:
       'https://github.com/pmvalues/shoppagepy/releases/download/data-v1/sa_nationwide_merchants.sqlite.zip',
     dest: 'shoppage-commerce-intelligence-foundation/data/study/sa_nationwide_merchants.sqlite',
+    parts: 8,
   },
 ];
+
+export async function assembleParts(partFiles, outZip) {
+  const out = createWriteStream(outZip);
+  for (const pf of partFiles) {
+    await new Promise((resolveP, reject) => {
+      const inp = createReadStream(pf);
+      inp.on('error', reject);
+      inp.on('end', resolveP);
+      inp.pipe(out, { end: false });
+    });
+  }
+  await new Promise((resolveP, reject) => {
+    out.on('error', reject);
+    out.end(resolveP);
+  });
+}
 
 export async function unzipSingle(zipPath, destPath) {
   const buf = await readFile(zipPath);
@@ -68,13 +98,28 @@ export async function unzipSingle(zipPath, destPath) {
   await writeFile(destPath, raw);
 }
 
+function requestHeaders(url) {
+  const headers = { 'User-Agent': 'ShoppageProdBoot/1.0' };
+  try {
+    if (
+      process.env.SHOPPAGE_GITHUB_TOKEN &&
+      new URL(url).hostname === 'github.com'
+    ) {
+      headers.Authorization = 'Bearer ' + process.env.SHOPPAGE_GITHUB_TOKEN;
+    }
+  } catch {
+    // malformed URL surfaces as a fetch error below
+  }
+  return headers;
+}
+
 function fetchToFile(url, dest, redirects = 0) {
   return new Promise((resolveP, reject) => {
     if (redirects > 5) {
       reject(new Error('too many redirects'));
       return;
     }
-    get(url, { headers: { 'User-Agent': 'ShoppageProdBoot/1.0' } }, (res) => {
+    get(url, { headers: requestHeaders(url) }, (res) => {
       const status = res.statusCode || 0;
       if (status >= 300 && status < 400 && res.headers.location) {
         res.resume();
@@ -114,26 +159,39 @@ async function ensureFile(entry) {
   }
   await mkdir(dirname(dest), { recursive: true });
   const zipTmp = dest + '.zip';
+  const partCount = entry.parts || 1;
   for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const temps = [zipTmp, zipTmp + '.part', dest];
     try {
-      console.log('[data] downloading (attempt ' + attempt + '/3): ' + entry.dest);
-      await fetchToFile(url, zipTmp);
-      await rename(zipTmp + '.part', zipTmp);
+      if (partCount === 1) {
+        console.log('[data] downloading (attempt ' + attempt + '/3): ' + entry.dest);
+        await fetchToFile(url, zipTmp);
+        await rename(zipTmp + '.part', zipTmp);
+      } else {
+        const downloaded = [];
+        for (let i = 1; i <= partCount; i += 1) {
+          const partUrl = url + '.' + String(i).padStart(3, '0');
+          const partTmp = zipTmp + '.p' + i;
+          temps.push(partTmp, partTmp + '.part');
+          console.log(
+            '[data] downloading part ' + i + '/' + partCount + ' (attempt ' + attempt + '/3): ' + entry.dest,
+          );
+          await fetchToFile(partUrl, partTmp);
+          await rename(partTmp + '.part', partTmp);
+          downloaded.push(partTmp);
+        }
+        await assembleParts(downloaded, zipTmp);
+      }
       const zs = await stat(zipTmp);
       if (zs.size < 1024) throw new Error('download too small, likely an error page');
       await unzipSingle(zipTmp, dest);
       const st = await stat(dest);
       if (st.size < 1024) throw new Error('extracted file too small');
-      try {
-        await unlink(zipTmp);
-      } catch {
-        // ignore cleanup errors
-      }
       console.log('[data] ready: ' + entry.dest);
       return;
     } catch (err) {
       console.log('[data] attempt failed: ' + (err && err.message ? err.message : err));
-      for (const tmp of [zipTmp, zipTmp + '.part', dest]) {
+      for (const tmp of temps) {
         try {
           await unlink(tmp);
         } catch {
@@ -141,6 +199,15 @@ async function ensureFile(entry) {
         }
       }
       if (attempt < 3) await new Promise((r) => setTimeout(r, 3000));
+    } finally {
+      for (const tmp of temps) {
+        if (tmp === dest) continue;
+        try {
+          await unlink(tmp);
+        } catch {
+          // ignore cleanup errors
+        }
+      }
     }
   }
   console.log('[data] giving up on ' + entry.dest + ' - booting without it (degraded mode)');

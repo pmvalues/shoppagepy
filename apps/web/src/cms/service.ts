@@ -8,6 +8,7 @@ import type {
   CmsOrderDocument,
   CmsCustomerDocument,
 } from './types';
+import type { Merchant, ProductVariant } from '@shoppage/contracts';
 
 // In-Memory Documents Stores initialized with seed data
 const merchantsStore = new Map<string, CmsMerchantDocument>();
@@ -18,6 +19,115 @@ const ordersStore = new Map<string, CmsOrderDocument>();
 const customersStore = new Map<string, CmsCustomerDocument>();
 
 let isInitialized = false;
+
+const CMS_SQLITE_FILE = 'sa_cms_documents.sqlite';
+
+function nodeModules(): { fs: any; path: any; DatabaseSync: any } | null {
+  try {
+    if (typeof process === 'undefined' || !process.versions?.node) return null;
+    const req = eval('require');
+    return { fs: req('fs'), path: req('path'), DatabaseSync: req('node:sqlite').DatabaseSync };
+  } catch {
+    return null;
+  }
+}
+
+function cmsDbPath(writable: boolean): string | null {
+  const mods = nodeModules();
+  if (!mods) return null;
+  const { fs, path } = mods;
+  const cwd = process.cwd();
+  const candidates = [
+    path.resolve(cwd, 'shoppage-commerce-intelligence-foundation/data/study', CMS_SQLITE_FILE),
+    path.resolve(cwd, '../shoppage-commerce-intelligence-foundation/data/study', CMS_SQLITE_FILE),
+    path.resolve(cwd, '../../shoppage-commerce-intelligence-foundation/data/study', CMS_SQLITE_FILE),
+  ];
+  try {
+    for (const p of candidates) {
+      if (fs.existsSync(p)) return p;
+    }
+    if (!writable) return null;
+    for (const p of candidates) {
+      try {
+        if (fs.existsSync(path.dirname(p))) return p;
+      } catch {
+        continue;
+      }
+    }
+    return candidates[0];
+  } catch {
+    return null;
+  }
+}
+
+function withCmsDb<T>(writable: boolean, fn: (db: any) => T): T | null {
+  const mods = nodeModules();
+  const file = cmsDbPath(writable);
+  if (!mods || !file) return null;
+  let db: any = null;
+  try {
+    if (writable) {
+      mods.fs.mkdirSync(mods.path.dirname(file), { recursive: true });
+    }
+    db = new mods.DatabaseSync(file, { open: true, readOnly: !writable });
+    if (writable) {
+      db.exec(
+        'CREATE TABLE IF NOT EXISTS cms_documents (collection TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (collection, id))',
+      );
+    }
+    return fn(db);
+  } catch {
+    return null;
+  } finally {
+    try {
+      if (db) db.close();
+    } catch {}
+  }
+}
+
+function readCmsDoc<T>(collection: string, id: string): T | null {
+  const row = withCmsDb(false, (db) =>
+    db.prepare('SELECT data FROM cms_documents WHERE collection = ? AND id = ?').get(collection, id),
+  ) as { data: string } | undefined | null;
+  if (!row) return null;
+  try {
+    return JSON.parse(row.data) as T;
+  } catch {
+    return null;
+  }
+}
+
+function writeCmsDoc(collection: string, id: string, doc: unknown) {
+  withCmsDb(true, (db) => {
+    db.prepare(
+      'INSERT INTO cms_documents (collection, id, data, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(collection, id) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at',
+    ).run(collection, id, JSON.stringify(doc), new Date().toISOString());
+    return true;
+  });
+}
+
+function deleteCmsDoc(collection: string, id: string) {
+  withCmsDb(false, (db) => {
+    db.prepare('DELETE FROM cms_documents WHERE collection = ? AND id = ?').run(collection, id);
+    return true;
+  });
+}
+
+function listCmsDocs<T>(collection: string): T[] {
+  const rows = withCmsDb(false, (db) =>
+    db.prepare('SELECT data FROM cms_documents WHERE collection = ?').all(collection),
+  ) as Array<{ data: string }> | null;
+  if (!rows) return [];
+  const out: T[] = [];
+  for (const r of rows) {
+    try {
+      out.push(JSON.parse(r.data) as T);
+    } catch {
+      continue;
+    }
+  }
+  return out;
+}
 
 function ensureInitialized() {
   if (isInitialized) return;
@@ -283,7 +393,108 @@ export class PayloadMerchantCmsService {
   // Merchant Profile Operations
   public static getMerchant(merchantId: string): CmsMerchantDocument | null {
     ensureInitialized();
-    return merchantsStore.get(merchantId) || null;
+    return readCmsDoc<CmsMerchantDocument>('merchants', merchantId) || merchantsStore.get(merchantId) || null;
+  }
+
+  public static upsertMerchant(doc: CmsMerchantDocument): CmsMerchantDocument {
+    ensureInitialized();
+    const stamped: CmsMerchantDocument = { ...doc, updatedAt: new Date().toISOString() };
+    merchantsStore.set(doc.id, stamped);
+    writeCmsDoc('merchants', doc.id, stamped);
+    return stamped;
+  }
+
+  public static searchAllMerchants(query: string, limit = 8): CmsMerchantDocument[] {
+    ensureInitialized();
+    const q = query.toLowerCase().trim();
+    const seen = new Set<string>();
+    const out: CmsMerchantDocument[] = [];
+    const consider = (m: CmsMerchantDocument) => {
+      if (seen.has(m.id)) return;
+      seen.add(m.id);
+      if (
+        !q ||
+        m.name.toLowerCase().includes(q) ||
+        m.category.toLowerCase().includes(q) ||
+        m.province.toLowerCase().includes(q) ||
+        m.addressText.toLowerCase().includes(q)
+      ) {
+        out.push(m);
+      }
+    };
+    listCmsDocs<CmsMerchantDocument>('merchants').forEach(consider);
+    Array.from(merchantsStore.values()).forEach(consider);
+    return out.slice(0, limit);
+  }
+
+  public static toMerchant(doc: CmsMerchantDocument): Merchant {
+    return {
+      id: doc.id,
+      name: doc.name,
+      country: 'ZA',
+      category: doc.category,
+      addressText: doc.addressText,
+      province: doc.province,
+      googleRating: doc.googleRating,
+      operatingHours: doc.operatingHours,
+      medianResponseMinutes: doc.medianResponseMinutes,
+      verificationState: doc.verificationState,
+      contacts: {
+        telephone: doc.contacts.telephone,
+        whatsapp: doc.contacts.whatsapp,
+        email: doc.contacts.email,
+        website: doc.contacts.website,
+      },
+    };
+  }
+
+  public static toMasterProduct(doc: CmsProductDocument): ProductVariant {
+    return {
+      canonicalId: doc.id,
+      familyRef: `fam_${doc.merchantId}`,
+      categoryRef: doc.category,
+      title: doc.title,
+      brand: doc.brand,
+      modelNumber: doc.sku,
+      identifiers: { mpn: doc.sku },
+      attributes: {
+        category: doc.category,
+        description: doc.description,
+        specs: doc.specs,
+        estimatedPriceZar: doc.price,
+        warrantyYears: doc.compliance.warrantyYears,
+        heroImage: doc.featuredImage,
+      },
+      aliases: [],
+      compatibilityEdgeCount: 0,
+      status: 'active',
+      countryScope: ['ZA'],
+      provenance: {
+        sourceRef: 'cms_merchant_import',
+        rightsClass: 'PUBLIC_RECORD',
+        confidence: 1,
+        fieldOwner: 'SHOPPAGE_CMS',
+        validFrom: new Date().toISOString(),
+      },
+      compliance: {
+        sabsApproved: doc.compliance.sabsApproved,
+        nrs097Certified: doc.compliance.nrs097Certified,
+        warrantyYears: doc.compliance.warrantyYears,
+      },
+      media:
+        doc.galleryImages.length > 0
+          ? {
+              gallery: doc.galleryImages.map((url, i) => ({
+                id: `${doc.id}-img-${i}`,
+                type: 'image' as const,
+                url,
+                altText: doc.title,
+              })),
+              videos: [],
+              documents: [],
+            }
+          : undefined,
+    };
   }
 
   public static updateMerchant(merchantId: string, updates: Partial<CmsMerchantDocument>): CmsMerchantDocument {
@@ -294,15 +505,15 @@ export class PayloadMerchantCmsService {
       category: updates.category || 'wholesale',
       addressText: updates.addressText || 'South Africa',
       province: updates.province || 'Gauteng',
-      googleRating: 4.8,
-      googleReviewsCount: 1,
+      googleRating: 0,
+      googleReviewsCount: 0,
       operatingHours: 'Mon-Fri 08:30 - 17:00',
       medianResponseMinutes: 10,
-      verificationState: 'fully_verified' as const,
+      verificationState: 'unverified' as const,
       contacts: {
-        telephone: updates.contacts?.telephone || '+27105007670',
-        whatsapp: updates.contacts?.whatsapp || '+27105007670',
-        email: updates.contacts?.email || 'store@shoppage.co.za',
+        telephone: updates.contacts?.telephone || '',
+        whatsapp: updates.contacts?.whatsapp || '',
+        email: updates.contacts?.email || '',
       },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -315,13 +526,20 @@ export class PayloadMerchantCmsService {
     };
 
     merchantsStore.set(merchantId, merged);
+    writeCmsDoc('merchants', merchantId, merged);
     return merged;
   }
 
   // Product Operations
   public static getProducts(merchantId: string, query?: string): CmsProductDocument[] {
     ensureInitialized();
-    let all = Array.from(productsStore.values()).filter((p) => p.merchantId === merchantId);
+    const seen = new Set<string>();
+    const persisted = listCmsDocs<CmsProductDocument>('products').filter((p) => p.merchantId === merchantId);
+    persisted.forEach((p) => seen.add(p.id));
+    let all = [
+      ...persisted,
+      ...Array.from(productsStore.values()).filter((p) => p.merchantId === merchantId && !seen.has(p.id)),
+    ];
     if (query) {
       const q = query.toLowerCase();
       all = all.filter((p) => p.title.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
@@ -331,7 +549,38 @@ export class PayloadMerchantCmsService {
 
   public static getProductById(productId: string): CmsProductDocument | null {
     ensureInitialized();
-    return productsStore.get(productId) || null;
+    return readCmsDoc<CmsProductDocument>('products', productId) || productsStore.get(productId) || null;
+  }
+
+  public static upsertProduct(doc: CmsProductDocument): CmsProductDocument {
+    ensureInitialized();
+    const stamped: CmsProductDocument = { ...doc, updatedAt: new Date().toISOString() };
+    productsStore.set(doc.id, stamped);
+    writeCmsDoc('products', doc.id, stamped);
+    return stamped;
+  }
+
+  public static searchAllProducts(query: string, limit = 24): CmsProductDocument[] {
+    ensureInitialized();
+    const q = query.toLowerCase().trim();
+    const seen = new Set<string>();
+    const out: CmsProductDocument[] = [];
+    const consider = (p: CmsProductDocument) => {
+      if (seen.has(p.id) || p.feedStatus !== 'Active') return;
+      seen.add(p.id);
+      if (
+        !q ||
+        p.title.toLowerCase().includes(q) ||
+        p.sku.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q) ||
+        p.brand.toLowerCase().includes(q)
+      ) {
+        out.push(p);
+      }
+    };
+    listCmsDocs<CmsProductDocument>('products').forEach(consider);
+    Array.from(productsStore.values()).forEach(consider);
+    return out.slice(0, limit);
   }
 
   public static createProduct(doc: Omit<CmsProductDocument, 'id' | 'createdAt' | 'updatedAt' | 'viewsCount' | 'salesCount'>): CmsProductDocument {
@@ -346,6 +595,7 @@ export class PayloadMerchantCmsService {
       updatedAt: new Date().toISOString(),
     };
     productsStore.set(id, newDoc);
+    writeCmsDoc('products', id, newDoc);
     return newDoc;
   }
 
@@ -360,12 +610,16 @@ export class PayloadMerchantCmsService {
       updatedAt: new Date().toISOString(),
     };
     productsStore.set(productId, merged);
+    writeCmsDoc('products', productId, merged);
     return merged;
   }
 
   public static deleteProduct(productId: string): boolean {
     ensureInitialized();
-    return productsStore.delete(productId);
+    const existed = productsStore.has(productId) || readCmsDoc('products', productId) !== null;
+    deleteCmsDoc('products', productId);
+    productsStore.delete(productId);
+    return existed;
   }
 
   // Media Operations

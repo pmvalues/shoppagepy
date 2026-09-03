@@ -17,6 +17,7 @@ import ProductTabs from '@/components/ProductTabs';
 import Breadcrumb from '@/components/Breadcrumb';
 import WhatsAppCTA from '@/components/WhatsAppCTA';
 import { resolveExternalProduct } from '@/lib/external_discovery';
+import { PayloadMerchantCmsService } from '@/cms';
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -28,6 +29,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     if (extMatch) {
       product = extMatch.product;
       resolvedExternalOffer = extMatch.offer;
+    }
+  }
+
+  if (!product) {
+    const cmsDoc = PayloadMerchantCmsService.getProductById(resolvedParams.id);
+    if (cmsDoc && cmsDoc.feedStatus === 'Active') {
+      product = PayloadMerchantCmsService.toMasterProduct(cmsDoc);
     }
   }
 

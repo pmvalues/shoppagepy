@@ -24,6 +24,7 @@ services:
       - TYPESENSE_API_KEY=${TYPESENSE_API_KEY:-shoppage_typesense_secret_key}
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3.6-flash}
+      - SHOPPAGE_GITHUB_TOKEN=${SHOPPAGE_GITHUB_TOKEN:-}
     volumes:
       - foundation_data:/app/shoppage-commerce-intelligence-foundation/data/study
     depends_on:

@@ -15,6 +15,7 @@ import {
 import type { ProductVariant, Merchant, Offer } from '@shoppage/contracts';
 import { searchExternalLiveWeb } from './external_discovery';
 import { completeChat, LLMError, type LLMToolDef } from './llm';
+import { PayloadMerchantCmsService } from '../cms/service';
 
 const ASSISTANT_SYSTEM = [
   "You are Shoppage's shopping assistant for South Africa.",
@@ -135,6 +136,16 @@ function runSearchCatalog(args: {
     offset: 0,
   });
   let products = res.items;
+  try {
+    const cmsMatches = PayloadMerchantCmsService.searchAllProducts(args.query, 6).map((d) =>
+      PayloadMerchantCmsService.toMasterProduct(d),
+    );
+    for (const p of cmsMatches) {
+      if (!products.some((x) => x.canonicalId === p.canonicalId)) products.push(p);
+    }
+  } catch {
+    // CMS search is best-effort; kernel results stand alone
+  }
   if (args.maxPrice !== undefined || args.minPrice !== undefined) {
     products = products.filter((p) => {
       const price = priceOf(p);
