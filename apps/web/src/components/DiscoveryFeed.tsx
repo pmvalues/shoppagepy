@@ -514,6 +514,10 @@ export default function DiscoveryFeed({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleGetDeal = (post: PostItem) => {
+    setSelectedPostDetail(post);
+  };
+
 
 
   // Filter timeline posts
