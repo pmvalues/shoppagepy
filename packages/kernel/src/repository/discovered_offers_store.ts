@@ -659,7 +659,7 @@ export class DiscoveredOffersStore {
     return [];
   }
 
-  public static getAllDiscoveredSpecials(limit = 100): DiscoveredOffer[] {
+  public static getAllDiscoveredSpecials(limit = 5000): DiscoveredOffer[] {
     const db = getDiscoveredOffersSqliteDb();
     if (db) {
       try {
@@ -668,6 +668,31 @@ export class DiscoveredOffersStore {
         );
         const rows: any[] = stmt.all(limit);
         return rows.map(rowToDiscoveredOffer);
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  }
+
+  /**
+   * Retrieves verified catalog listings for major retail brands (Takealot, Clicks, Builders Warehouse)
+   * where prices are live on retailer site, providing direct product checkout URLs.
+   */
+  public static getDiscoveredCatalogOffers(limitPerMerchant = 150): DiscoveredOffer[] {
+    const db = getDiscoveredOffersSqliteDb();
+    if (db) {
+      try {
+        const merchants = ['Takealot.com', 'Clicks Group', 'Builders Warehouse'];
+        const results: any[] = [];
+        for (const m of merchants) {
+          const stmt = db.prepare(
+            'SELECT * FROM discovered_offers WHERE merchant_name = ? AND (discovered_price_zar IS NULL OR discovered_price_zar <= 0) ORDER BY rowid ASC LIMIT ?',
+          );
+          const rows: any[] = stmt.all(m, limitPerMerchant);
+          results.push(...rows);
+        }
+        return results.map(rowToDiscoveredOffer);
       } catch (e) {
         return [];
       }

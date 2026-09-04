@@ -553,5 +553,58 @@ export function getProductsCatalog(): ProductCatalogItem[] {
       specs,
     });
   });
+
+  // 2. Add verified products from DiscoveredOffersStore (sa_discovered_offers.sqlite)
+  try {
+    const discoveredOffers = DiscoveredOffersStore.getLatestDiscoveredOffers(250);
+    const seenCatalogTitles = new Set(items.map((i) => i.title.toLowerCase().trim()));
+    for (const o of discoveredOffers) {
+      const rawTitle = o.productTitle || humanizeRef(o.masterProductRef);
+      const cleanTitle = rawTitle.toLowerCase().trim();
+      if (!cleanTitle || seenCatalogTitles.has(cleanTitle)) continue;
+      seenCatalogTitles.add(cleanTitle);
+
+      const price = typeof o.discoveredPrice?.amount === 'number' && o.discoveredPrice.amount > 0
+        ? o.discoveredPrice.amount
+        : undefined;
+
+      let categoryRef = 'solar';
+      const cLower = `${o.category || ''} ${cleanTitle} ${o.brand || ''}`.toLowerCase();
+      if (cLower.includes('solar') || cLower.includes('inverter') || cLower.includes('battery') || cLower.includes('panel')) {
+        categoryRef = 'solar';
+      } else if (cLower.includes('phone') || cLower.includes('smart') || cLower.includes('tech') || cLower.includes('elect')) {
+        categoryRef = 'electronics';
+      } else if (cLower.includes('pack') || cLower.includes('cater') || cLower.includes('tubs') || cLower.includes('hangers')) {
+        categoryRef = 'packaging';
+      } else if (cLower.includes('hard') || cLower.includes('build') || cLower.includes('cement') || cLower.includes('brick') || cLower.includes('grind') || cLower.includes('tool')) {
+        categoryRef = 'hardware';
+      } else if (cLower.includes('auto') || cLower.includes('brake') || cLower.includes('car') || cLower.includes('spares') || cLower.includes('service')) {
+        categoryRef = 'automotive';
+      } else if (cLower.includes('fmcg') || cLower.includes('food') || cLower.includes('flour') || cLower.includes('oil') || cLower.includes('maize') || cLower.includes('sugar') || cLower.includes('grocer')) {
+        categoryRef = 'fmcg';
+      }
+
+      const dropPct = o.discountPct || (o.oldPriceZar && price && o.oldPriceZar > price ? Math.round(((o.oldPriceZar - price) / o.oldPriceZar) * 100) : undefined);
+
+      items.push({
+        id: o.id || o.masterProductRef,
+        title: rawTitle,
+        brand: o.brand || o.merchantName.split(' ')[0] || 'Verified',
+        category: formatCat(categoryRef),
+        categoryRef,
+        price: price || 0,
+        oldPrice: o.oldPriceZar,
+        dropPct: dropPct && dropPct > 0 ? dropPct : undefined,
+        image: o.imageUrl || getImageForVariant(o.brand || '', rawTitle, items.length),
+        sellerCount: 1,
+        stockistLocation: `${o.merchantName} · Direct Retailer`,
+        href: o.sourceUrl || `/p/${o.masterProductRef}`,
+        specs: o.availabilityText || 'Verified Retail Catalog Listing',
+      });
+    }
+  } catch {
+    // Graceful fallback to canonical products only
+  }
+
   return items;
 }

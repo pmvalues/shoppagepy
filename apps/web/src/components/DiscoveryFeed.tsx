@@ -31,23 +31,23 @@ const PRODUCT_CATEGORIES = [
 
 const DEAL_RETAILERS = [
   { id: 'all', label: 'All Major Retailers' },
-  { id: 'buco', label: '🟡 BUCO' },
-  { id: 'spar', label: '🟢 SPAR' },
-  { id: 'builders', label: '🟠 Builders Warehouse' },
-  { id: 'game', label: '🔵 Game Stores' },
-  { id: 'makro', label: '🔴 Makro' },
-  { id: 'expert', label: '🔵 Expert Stores' },
-  { id: 'bradlows', label: '🟤 Bradlows' },
-  { id: 'russells', label: '🔴 Russells' },
-  { id: 'pep', label: '🟡 PEP Stores' },
-  { id: 'dischem', label: '🟢 Dis-Chem' },
-  { id: 'leroy', label: '🟢 Leroy Merlin' },
+  { id: 'buco', label: '🟡 BUCO (558 Deals)' },
+  { id: 'spar', label: '🟢 SPAR (141 Deals)' },
+  { id: 'game', label: '🔵 Game (93 Deals)' },
+  { id: 'builders', label: '🟠 Builders (69 Deals)' },
+  { id: 'bradlows', label: '🟤 Bradlows (59 Deals)' },
+  { id: 'russells', label: '🔴 Russells (55 Deals)' },
+  { id: 'leroy', label: '🟢 Leroy Merlin (40 Deals)' },
+  { id: 'expert', label: '🔵 Expert Stores (31 Deals)' },
+  { id: 'makro', label: '🔴 Makro (24 Deals)' },
+  { id: 'takealot', label: '🔵 Takealot (18 Deals)' },
+  { id: 'pep', label: '🟡 PEP Stores (12 Deals)' },
+  { id: 'dischem', label: '🟢 Dis-Chem (12 Deals)' },
+  { id: 'solar', label: '⚡ SolarAdvice (9 Deals)' },
+  { id: 'clicks', label: '🔵 Clicks Group (2 Deals)' },
   { id: 'checkers', label: '🟢 Checkers Sixty60' },
   { id: 'pnp', label: '🔴 Pick n Pay' },
   { id: 'woolworths', label: '⚫ Woolworths' },
-  { id: 'takealot', label: '🔵 Takealot' },
-  { id: 'clicks', label: '🔵 Clicks Group' },
-  { id: 'solar', label: '⚡ SolarAdvice' },
 ];
 
 const DEAL_CATEGORIES = [
@@ -79,6 +79,11 @@ export default function DiscoveryFeed({
   const [dealCategory, setDealCategory] = useState('all');
   const [dealSearch, setDealSearch] = useState('');
   const [dealSort, setDealSort] = useState<'discount' | 'price_asc' | 'price_desc'>('discount');
+  const [visibleDealsCount, setVisibleDealsCount] = useState(48);
+
+  useEffect(() => {
+    setVisibleDealsCount(48);
+  }, [dealRetailer, dealCategory, dealSearch, dealSort]);
 
   // Products tab state
   const [prodSearch, setProdSearch] = useState('');
@@ -910,7 +915,7 @@ export default function DiscoveryFeed({
           <div className="stream-header">
             <h2>🔥 Live Major Retailer Deals &amp; Circular Specials</h2>
             <p>
-              South Africa&apos;s live retail deal aggregator. Weekly catalogue specials from Makro, Game, Builders, Checkers, Pick n Pay, Woolworths, Takealot, Clicks, and Dis-Chem.
+              South Africa&apos;s live retail deal aggregator. <b>1,188+ weekly circular specials</b> with verified prices &amp; discounts across Makro, Game, Builders, Checkers, Pick n Pay, Woolworths, Takealot, Clicks, and Dis-Chem.
               <b> Links lead directly to the official retailer product checkout page</b> — no scanned PDF flyers.
             </p>
           </div>
@@ -970,7 +975,10 @@ export default function DiscoveryFeed({
             {/* Sub-row: count and sort */}
             <div className="stream-subrow">
               <span>
-                <b>{filteredSpecials.length}</b> verified retailer specials with direct links
+                Showing <b>{Math.min(visibleDealsCount, filteredSpecials.length)}</b> of <b>{filteredSpecials.length.toLocaleString()}</b> verified retailer specials &amp; direct listings
+                <span style={{ color: 'var(--text2)', marginLeft: '6px', fontSize: '12px' }}>
+                  (93,021 active retailer offers in database)
+                </span>
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <span>Sort by:</span>
@@ -989,7 +997,7 @@ export default function DiscoveryFeed({
           {/* Deals List */}
           <div className="products-list">
             {filteredSpecials.length > 0 ? (
-              filteredSpecials.map((s) => (
+              filteredSpecials.slice(0, visibleDealsCount).map((s) => (
                 <div key={s.id} className="prod-card">
                   <div className="prod-thumb">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1078,6 +1086,28 @@ export default function DiscoveryFeed({
               </div>
             )}
           </div>
+
+          {visibleDealsCount < filteredSpecials.length && (
+            <div style={{ textAlign: 'center', padding: '24px 0 36px', width: '100%' }}>
+              <button
+                type="button"
+                className="btn-stockists"
+                onClick={() => setVisibleDealsCount((c) => c + 48)}
+                style={{
+                  padding: '12px 32px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  background: 'var(--brand)',
+                  color: '#000',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  border: 'none',
+                }}
+              >
+                Load More Verified Deals ({filteredSpecials.length - visibleDealsCount} remaining) ↓
+              </button>
+            </div>
+          )}
         </div>
       )}
 

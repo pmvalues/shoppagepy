@@ -5,7 +5,7 @@ import { getFeed, getRetailerSpecials } from '@/lib/feed';
 
 export default function HomePage() {
   const posts = getFeed();
-  const specials = getRetailerSpecials(500);
+  const specials = getRetailerSpecials(5000);
 
   return <DiscoveryFeed posts={posts} specials={specials} />;
 }
