@@ -452,14 +452,7 @@ export default function DiscoveryFeed({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleGetDeal = (post: PostItem) => {
-    window.dispatchEvent(
-      new CustomEvent('shoppage-cart', {
-        detail: { action: 'add', item: post.product },
-      }),
-    );
-    toast(`Added "${post.product?.name}" to Cart`);
-  };
+
 
   // Filter timeline posts
   const filteredPosts = useMemo(() => {
@@ -956,24 +949,17 @@ export default function DiscoveryFeed({
                         <Link href={p.href} className="deal-btn-direct">
                           View Stockists ↗
                         </Link>
-                        <button
-                          type="button"
-                          className="deal-btn-lock"
-                          title="Lock Deal into Cart"
-                          onClick={() => {
-                            window.dispatchEvent(
-                              new CustomEvent('shoppage-cart', {
-                                detail: {
-                                  action: 'add',
-                                  item: { name: p.title, price: formatZar(p.price) },
-                                },
-                              }),
-                            );
-                            toast(`Locked ${p.brand} deal into Cart`);
-                          }}
+                        <a
+                          href={`https://wa.me/27820000000?text=${encodeURIComponent(
+                            `Hi Shoppage, I'm looking for verified stockists for: ${p.title} (${formatZar(p.price)})`,
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="deal-btn-contact"
+                          title="WhatsApp Stockist Inquiry"
                         >
-                          ⚡ Lock
-                        </button>
+                          💬 Contact
+                        </a>
                       </div>
                     </div>
                   );
@@ -1030,23 +1016,17 @@ export default function DiscoveryFeed({
                             <Link href={p.href} className="btn-stockists">
                               View Stockists ↗
                             </Link>
-                            <button
-                              type="button"
-                              className="btn-cart"
-                              onClick={() => {
-                                window.dispatchEvent(
-                                  new CustomEvent('shoppage-cart', {
-                                    detail: {
-                                      action: 'add',
-                                      item: { name: p.title, price: formatZar(p.price) },
-                                    },
-                                  }),
-                                );
-                                toast(`Locked ${p.brand} deal into Cart`);
-                              }}
+                            <a
+                              href={`https://wa.me/27820000000?text=${encodeURIComponent(
+                                `Hi Shoppage, I'm looking for verified stockists for: ${p.title} (${formatZar(p.price)})`,
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn-contact"
+                              title="WhatsApp Stockist Inquiry"
                             >
-                              Lock Deal ⚡
-                            </button>
+                              💬 Contact
+                            </a>
                           </div>
                         </div>
                       </div>
@@ -1396,28 +1376,17 @@ export default function DiscoveryFeed({
                         >
                           Buy on {s.merchant.split(' ')[0]} ↗
                         </a>
-                        <button
-                          type="button"
-                          className="deal-btn-lock"
-                          title="Lock Deal into Trade Cart"
-                          onClick={() => {
-                            window.dispatchEvent(
-                              new CustomEvent('shoppage-cart', {
-                                detail: {
-                                  action: 'add',
-                                  item: {
-                                    name: s.title,
-                                    price: s.priceText,
-                                    merchantName: s.merchant,
-                                  },
-                                },
-                              }),
-                            );
-                            toast(`Locked ${s.brand || s.merchant} deal into Trade Cart`);
-                          }}
+                        <a
+                          href={`https://wa.me/27820000000?text=${encodeURIComponent(
+                            `Hi Shoppage, I'm interested in this retailer deal: ${s.title} (${s.priceText}) at ${s.merchant}`,
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="deal-btn-contact"
+                          title="WhatsApp Retailer Deal Inquiry"
                         >
-                          ⚡ Lock
-                        </button>
+                          💬 Contact
+                        </a>
                       </div>
                     </div>
                   );
@@ -1498,27 +1467,17 @@ export default function DiscoveryFeed({
                             >
                               View on {s.merchant.split(' ')[0]} ↗
                             </a>
-                            <button
-                              type="button"
-                              className="btn-cart"
-                              onClick={() => {
-                                window.dispatchEvent(
-                                  new CustomEvent('shoppage-cart', {
-                                    detail: {
-                                      action: 'add',
-                                      item: {
-                                        name: s.title,
-                                        price: s.priceText,
-                                        merchantName: s.merchant,
-                                      },
-                                    },
-                                  }),
-                                );
-                                toast(`Locked ${s.brand || s.merchant} deal into Trade Cart`);
-                              }}
+                            <a
+                              href={`https://wa.me/27820000000?text=${encodeURIComponent(
+                                `Hi Shoppage, I'm interested in this retailer deal: ${s.title} (${s.priceText}) at ${s.merchant}`,
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn-contact"
+                              title="WhatsApp Retailer Deal Inquiry"
                             >
-                              Lock Deal ⚡
-                            </button>
+                              💬 Contact
+                            </a>
                           </div>
                         </div>
                       </div>

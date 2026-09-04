@@ -342,8 +342,8 @@ a{color:var(--brand);text-decoration:none}
 .prod-actions button, .prod-actions a{padding:6px 14px;border-radius:9999px;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .2s,transform .1s;text-decoration:none}
 .prod-actions button:active,.prod-actions a:active{transform:scale(.96)}
 .prod-actions .btn-stockists{background:var(--brand);color:#fff}
-.prod-actions .btn-cart{background:transparent;color:var(--text);border:1px solid var(--border)}
-.prod-actions .btn-cart:hover{background:var(--elev)}
+.prod-actions .btn-contact, .prod-actions .btn-cart{background:transparent;color:var(--text);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;gap:4px}
+.prod-actions .btn-contact:hover, .prod-actions .btn-cart:hover{background:var(--elev)}
 
 /* ── MARKETS STREAM & CARDS ─────────────────────────────────────────────── */
 .market-card{display:flex;gap:14px;padding:16px;border-bottom:1px solid var(--border);transition:background .15s}
@@ -429,6 +429,143 @@ a{color:var(--brand);text-decoration:none}
   align-items: center;
   justify-content: center;
   padding: 0 3px;
+}
+
+/* Mobile Left Drawer & Backdrop */
+.mobile-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.mobile-drawer-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 290px;
+  max-width: 85vw;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  z-index: 999;
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.mobile-drawer.is-open {
+  transform: translateX(0);
+}
+.mobile-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.mobile-drawer-head .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text);
+}
+.mobile-drawer-head .wordmark {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+.mobile-drawer-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--hover);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.mobile-drawer-close:active {
+  transform: scale(0.92);
+}
+.mobile-drawer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 10px;
+  flex: 1;
+}
+.mobile-drawer-nav .nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: 9999px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+.mobile-drawer-nav .nav-item:hover {
+  background: var(--hover);
+}
+.mobile-drawer-nav .nav-item.active {
+  font-weight: 800;
+  color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 10%, transparent);
+}
+.mobile-drawer-nav .nav-item svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  fill: currentColor;
+}
+.mobile-drawer-nav .nav-item svg[fill="none"] {
+  fill: none;
+}
+.mobile-drawer-nav .live-badge {
+  font-size: 9px;
+  font-weight: 800;
+  background: #EF4444;
+  color: #FFFFFF;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  margin-left: auto;
+  letter-spacing: 0.5px;
+}
+.mobile-drawer-footer {
+  padding: 14px 14px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--card);
+}
+@media (min-width: 701px) {
+  .mobile-drawer, .mobile-drawer-backdrop {
+    display: none !important;
+  }
 }
 
 @media (max-width:1290px){
@@ -665,6 +802,7 @@ a{color:var(--brand);text-decoration:none}
     overflow: hidden !important;
     text-overflow: ellipsis !important;
   }
+  .deal-btn-contact,
   .deal-btn-lock {
     width: 100% !important;
     padding: 5px 4px !important;
@@ -673,6 +811,14 @@ a{color:var(--brand);text-decoration:none}
     text-align: center !important;
     border-radius: 6px !important;
     box-sizing: border-box !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    text-decoration: none !important;
+    color: var(--text) !important;
+    background: var(--hover) !important;
+    border: 1px solid var(--border) !important;
   }
 
   /* Compact Product List Card on Mobile */
@@ -926,6 +1072,7 @@ a{color:var(--brand);text-decoration:none}
 .deal-btn-direct:hover {
   filter: brightness(1.08);
 }
+.deal-btn-contact,
 .deal-btn-lock {
   padding: 8px 12px;
   border-radius: 8px;
@@ -935,8 +1082,15 @@ a{color:var(--brand);text-decoration:none}
   color: var(--text);
   border: 1px solid var(--border);
   cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   transition: background 0.15s ease;
+  white-space: nowrap;
 }
+.deal-btn-contact:hover,
 .deal-btn-lock:hover {
   background: var(--hover);
 }
