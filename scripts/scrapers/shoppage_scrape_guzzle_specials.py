@@ -259,6 +259,15 @@ class GuzzleSpecialsEngine:
                 deal_badge TEXT
             )
         """)
+        cur.execute("PRAGMA table_info(discovered_offers)")
+        cols = {row[1] for row in cur.fetchall()}
+        if "old_price_zar" not in cols:
+            cur.execute("ALTER TABLE discovered_offers ADD COLUMN old_price_zar REAL")
+        if "discount_pct" not in cols:
+            cur.execute("ALTER TABLE discovered_offers ADD COLUMN discount_pct REAL")
+        if "deal_badge" not in cols:
+            cur.execute("ALTER TABLE discovered_offers ADD COLUMN deal_badge TEXT")
+
         cur.execute("CREATE INDEX IF NOT EXISTS idx_disc_prod ON discovered_offers(master_product_ref)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_disc_site ON discovered_offers(source_website)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_disc_price ON discovered_offers(discovered_price_zar)")

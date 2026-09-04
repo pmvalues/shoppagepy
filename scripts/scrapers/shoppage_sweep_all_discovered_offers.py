@@ -745,9 +745,8 @@ def build_discovered_offers_db():
     conn = sqlite3.connect(SQLITE_DB_PATH)
     cur = conn.cursor()
 
-    cur.execute("DROP TABLE IF EXISTS discovered_offers")
     cur.execute("""
-    CREATE TABLE discovered_offers (
+    CREATE TABLE IF NOT EXISTS discovered_offers (
         id TEXT PRIMARY KEY,
         master_product_ref TEXT NOT NULL,
         product_title TEXT NOT NULL,
@@ -766,7 +765,10 @@ def build_discovered_offers_db():
         discovered_at TEXT NOT NULL,
         status TEXT NOT NULL,
         location_hint TEXT NOT NULL,
-        sku TEXT NOT NULL
+        sku TEXT NOT NULL,
+        old_price_zar REAL,
+        discount_pct REAL,
+        deal_badge TEXT
     )
     """)
 
@@ -793,7 +795,13 @@ def build_discovered_offers_db():
             raw_price = f"R {price_val:,.2f}"
 
             cur.execute("""
-                INSERT INTO discovered_offers VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT OR REPLACE INTO discovered_offers (
+                    id, master_product_ref, product_title, brand, category,
+                    image_url, merchant_ref, merchant_name, source_website, source_url,
+                    discovered_price_zar, raw_price_text, availability_text,
+                    discovery_source, confidence_score, discovered_at, status,
+                    location_hint, sku
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 disc_id,
                 p_ref,
