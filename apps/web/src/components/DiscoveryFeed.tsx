@@ -63,9 +63,11 @@ const DEAL_CATEGORIES = [
 export default function DiscoveryFeed({
   posts: initialPosts,
   specials = [],
+  initialProducts = [],
 }: {
   posts: PostItem[];
   specials?: RetailSpecial[];
+  initialProducts?: ProductCatalogItem[];
 }) {
   const [posts, setPosts] = useState<PostItem[]>(initialPosts);
   const [tab, setTab] = useState<TabType>('foryou');
@@ -121,6 +123,11 @@ export default function DiscoveryFeed({
   const [prodCategory, setProdCategory] = useState('all');
   const [prodSort, setProdSort] = useState<'drop' | 'price_asc' | 'price_desc' | 'sellers'>('drop');
   const [prodViewMode, setProdViewMode] = useState<'grid' | 'list'>('grid');
+  const [visibleProductsCount, setVisibleProductsCount] = useState(48);
+
+  useEffect(() => {
+    setVisibleProductsCount(48);
+  }, [prodCategory, prodSearch, prodSort]);
 
   // Markets tab state
   const [marketSubFilter, setMarketSubFilter] = useState<'all' | 'fav' | 'wholesale'>('all');
@@ -142,7 +149,10 @@ export default function DiscoveryFeed({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const shorts = useMemo(() => getShorts(), []);
   const allMarkets = useMemo(() => getMarkets(), []);
-  const allProducts = useMemo(() => getProductsCatalog(), []);
+  const allProducts = useMemo(() => {
+    if (initialProducts && initialProducts.length > 0) return initialProducts;
+    return getProductsCatalog();
+  }, [initialProducts]);
 
   const toast = (msg: string) => {
     setToastMsg(msg);
@@ -757,7 +767,10 @@ export default function DiscoveryFeed({
             {/* Sub-row: count, view mode toggle, and sort */}
             <div className="stream-subrow" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
               <span style={{ fontWeight: 700, color: 'var(--text)' }}>
-                <b>{filteredProducts.length.toLocaleString()}</b> canonical products found
+                Showing <b>{Math.min(visibleProductsCount, filteredProducts.length).toLocaleString()}</b> of <b>{filteredProducts.length.toLocaleString()}</b> verified products
+                <span style={{ color: 'var(--text2)', marginLeft: '6px', fontSize: '12px' }}>
+                  (1,000,000+ catalog in database)
+                </span>
               </span>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -828,7 +841,7 @@ export default function DiscoveryFeed({
           {prodViewMode === 'grid' ? (
             <div className="deals-grid">
               {filteredProducts.length > 0 ? (
-                filteredProducts.map((p) => {
+                filteredProducts.slice(0, visibleProductsCount).map((p) => {
                   const saveZar = p.oldPrice && p.price && p.oldPrice > p.price
                     ? p.oldPrice - p.price
                     : null;
@@ -903,7 +916,7 @@ export default function DiscoveryFeed({
             /* Products List */
             <div className="products-list">
               {filteredProducts.length > 0 ? (
-                filteredProducts.map((p) => {
+                filteredProducts.slice(0, visibleProductsCount).map((p) => {
                   const saveZar = p.oldPrice && p.price && p.oldPrice > p.price
                     ? p.oldPrice - p.price
                     : null;
@@ -973,6 +986,29 @@ export default function DiscoveryFeed({
                   <p>Try clearing search keywords or selecting All Categories.</p>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Load More Products Button */}
+          {visibleProductsCount < filteredProducts.length && (
+            <div style={{ textAlign: 'center', padding: '24px 0 36px', width: '100%' }}>
+              <button
+                type="button"
+                className="btn-stockists"
+                onClick={() => setVisibleProductsCount((c) => c + 48)}
+                style={{
+                  padding: '12px 32px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  background: 'var(--brand)',
+                  color: '#000',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  border: 'none',
+                }}
+              >
+                Load More Products ({filteredProducts.length - visibleProductsCount} remaining) ↓
+              </button>
             </div>
           )}
         </div>

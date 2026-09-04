@@ -490,7 +490,7 @@ export interface ProductCatalogItem {
   specs: string;
 }
 
-export function getProductsCatalog(): ProductCatalogItem[] {
+export function getProductsCatalog(limit = 2500): ProductCatalogItem[] {
   const items: ProductCatalogItem[] = [];
   SA_CANONICAL_PRODUCTS.forEach((cp, idx) => {
     const offers = SA_FLAGSHIP_OFFERS.filter((o) => o.variantRef === cp.canonicalId);
@@ -556,7 +556,7 @@ export function getProductsCatalog(): ProductCatalogItem[] {
 
   // 2. Add verified products from DiscoveredOffersStore (sa_discovered_offers.sqlite)
   try {
-    const discoveredOffers = DiscoveredOffersStore.getLatestDiscoveredOffers(250);
+    const discoveredOffers = DiscoveredOffersStore.getLatestDiscoveredOffers(limit);
     const seenCatalogTitles = new Set(items.map((i) => i.title.toLowerCase().trim()));
     for (const o of discoveredOffers) {
       const rawTitle = o.productTitle || humanizeRef(o.masterProductRef);
