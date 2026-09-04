@@ -84,9 +84,47 @@ export default function DiscoveryFeed({
   const [dealViewMode, setDealViewMode] = useState<'grid' | 'list'>('grid');
   const [visibleDealsCount, setVisibleDealsCount] = useState(48);
 
+  // Products tab state
+  const [prodSearch, setProdSearch] = useState('');
+  const [prodCategory, setProdCategory] = useState('all');
+  const [prodSort, setProdSort] = useState<'drop' | 'price_asc' | 'price_desc' | 'sellers'>('drop');
+  const [prodViewMode, setProdViewMode] = useState<'grid' | 'list'>('grid');
+  const [visibleProductsCount, setVisibleProductsCount] = useState(48);
+
+  // Markets tab state
+  const [marketSubFilter, setMarketSubFilter] = useState<'all' | 'fav' | 'wholesale'>('all');
+  const [marketSearch, setMarketSearch] = useState('');
+  const [favMarkets, setFavMarkets] = useState<Record<string, boolean>>({});
+  const [followedMarkets, setFollowedMarkets] = useState<Record<string, boolean>>({});
+
+  // Reaction states
+  const [liked, setLiked] = useState<Record<string | number, boolean>>({});
+  const [reposted, setReposted] = useState<Record<string | number, boolean>>({});
+  const [bookmarked, setBookmarked] = useState<Record<string | number, boolean>>({});
+  const [playingShortId, setPlayingShortId] = useState<string | null>(null);
+
+  // Toast
+  const [toastMsg, setToastMsg] = useState('');
+  const [toastOn, setToastOn] = useState(false);
+  const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // Memos
+  const shorts = useMemo(() => getShorts(), []);
+  const allMarkets = useMemo(() => getMarkets(), []);
+  const allProducts = useMemo(() => {
+    if (initialProducts && initialProducts.length > 0) return initialProducts;
+    return getProductsCatalog();
+  }, [initialProducts]);
+
+  // Effects
   useEffect(() => {
     setVisibleDealsCount(48);
   }, [dealRetailer, dealCategory, dealSearch, dealSort]);
+
+  useEffect(() => {
+    setVisibleProductsCount(48);
+  }, [prodCategory, prodSearch, prodSort]);
 
   // Sync active tab with localStorage & custom event for CommerceRail
   useEffect(() => {
@@ -124,42 +162,6 @@ export default function DiscoveryFeed({
       );
     }
   }, [specials, dealRetailer]);
-
-  // Products tab state
-  const [prodSearch, setProdSearch] = useState('');
-  const [prodCategory, setProdCategory] = useState('all');
-  const [prodSort, setProdSort] = useState<'drop' | 'price_asc' | 'price_desc' | 'sellers'>('drop');
-  const [prodViewMode, setProdViewMode] = useState<'grid' | 'list'>('grid');
-  const [visibleProductsCount, setVisibleProductsCount] = useState(48);
-
-  useEffect(() => {
-    setVisibleProductsCount(48);
-  }, [prodCategory, prodSearch, prodSort]);
-
-  // Markets tab state
-  const [marketSubFilter, setMarketSubFilter] = useState<'all' | 'fav' | 'wholesale'>('all');
-  const [marketSearch, setMarketSearch] = useState('');
-  const [favMarkets, setFavMarkets] = useState<Record<string, boolean>>({});
-  const [followedMarkets, setFollowedMarkets] = useState<Record<string, boolean>>({});
-
-  // Reaction states
-  const [liked, setLiked] = useState<Record<string | number, boolean>>({});
-  const [reposted, setReposted] = useState<Record<string | number, boolean>>({});
-  const [bookmarked, setBookmarked] = useState<Record<string | number, boolean>>({});
-  const [playingShortId, setPlayingShortId] = useState<string | null>(null);
-
-  // Toast
-  const [toastMsg, setToastMsg] = useState('');
-  const [toastOn, setToastOn] = useState(false);
-  const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const shorts = useMemo(() => getShorts(), []);
-  const allMarkets = useMemo(() => getMarkets(), []);
-  const allProducts = useMemo(() => {
-    if (initialProducts && initialProducts.length > 0) return initialProducts;
-    return getProductsCatalog();
-  }, [initialProducts]);
 
   // Sync live products data with CommerceRail
   useEffect(() => {
