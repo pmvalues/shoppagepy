@@ -91,12 +91,19 @@ export default function DiscoveryFeed({
   // Sync active tab with localStorage & custom event for CommerceRail
   useEffect(() => {
     window.dispatchEvent(
-      new CustomEvent('shoppage-active-tab', { detail: { tab, retailer: dealRetailer } })
+      new CustomEvent('shoppage-active-tab', {
+        detail: {
+          tab,
+          retailer: dealRetailer,
+          category: prodCategory,
+          marketFilter: marketSubFilter,
+        },
+      })
     );
     try {
       localStorage.setItem('shoppage_active_tab', tab);
     } catch {}
-  }, [tab, dealRetailer]);
+  }, [tab, dealRetailer, prodCategory, marketSubFilter]);
 
   // Sync live deals data with CommerceRail
   useEffect(() => {
@@ -153,6 +160,49 @@ export default function DiscoveryFeed({
     if (initialProducts && initialProducts.length > 0) return initialProducts;
     return getProductsCatalog();
   }, [initialProducts]);
+
+  // Sync live products data with CommerceRail
+  useEffect(() => {
+    if (allProducts && allProducts.length > 0) {
+      const topProducts = allProducts
+        .filter((p) => typeof p.price === 'number' && p.price > 0)
+        .slice(0, 6)
+        .map((p) => ({
+          id: p.id,
+          title: p.title,
+          brand: p.brand,
+          merchant: p.stockistLocation?.split('·')[0]?.trim() || p.brand,
+          priceText: formatZar(p.price),
+          dropPct: p.dropPct,
+          image: p.image,
+          url: p.href,
+        }));
+
+      window.dispatchEvent(
+        new CustomEvent('shoppage-products-sync', {
+          detail: {
+            totalProducts: allProducts.length,
+            activeCategory: prodCategory,
+            topProducts,
+          },
+        })
+      );
+    }
+  }, [allProducts, prodCategory]);
+
+  // Sync live markets data with CommerceRail
+  useEffect(() => {
+    if (allMarkets && allMarkets.length > 0) {
+      window.dispatchEvent(
+        new CustomEvent('shoppage-markets-sync', {
+          detail: {
+            totalMarkets: allMarkets.length,
+            activeFilter: marketSubFilter,
+          },
+        })
+      );
+    }
+  }, [allMarkets, marketSubFilter]);
 
   const toast = (msg: string) => {
     setToastMsg(msg);
@@ -231,6 +281,27 @@ export default function DiscoveryFeed({
         if (sort) setDealSort(sort);
       } else if (type === 'prod-view-mode') {
         setProdViewMode(mode || 'grid');
+      } else if (type === 'prod-category') {
+        setTab('products');
+        setProdCategory(category || query || 'all');
+        setView('home');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (type === 'prod-search') {
+        setTab('products');
+        setProdSearch(query || '');
+        setView('home');
+      } else if (type === 'prod-sort') {
+        if (sort) setProdSort(sort);
+      } else if (type === 'market-filter') {
+        setTab('markets');
+        setMarketSubFilter((mode || query || 'all') as any);
+        setView('home');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (type === 'market-search') {
+        setTab('markets');
+        setMarketSearch(query || '');
+        setView('home');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else if (type === 'focus-composer') {
         if (tab === 'products' || tab === 'markets' || tab === 'shorts' || tab === 'deals') {
           setTab('foryou');
