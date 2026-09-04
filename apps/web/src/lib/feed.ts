@@ -490,7 +490,7 @@ export interface ProductCatalogItem {
   specs: string;
 }
 
-export function getProductsCatalog(limit = 20000): ProductCatalogItem[] {
+export function getProductsCatalog(limit = 100000): ProductCatalogItem[] {
   const items: ProductCatalogItem[] = [];
   SA_CANONICAL_PRODUCTS.forEach((cp, idx) => {
     const offers = SA_FLAGSHIP_OFFERS.filter((o) => o.variantRef === cp.canonicalId);
