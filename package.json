@@ -24,7 +24,10 @@
     "dev": "npm run dev --workspace=@shoppage/web",
     "lint": "npm run lint --workspaces --if-present",
     "seed": "npm run seed --workspace=@shoppage/kernel",
-    "scrape:guzzle": "python scripts/scrapers/shoppage_scrape_guzzle_specials.py"
+    "scrape:guzzle": "python scripts/scrapers/shoppage_scrape_guzzle_specials.py",
+    "scout:once": "python scripts/orchestrator/shoppage_scouting_daemon.py --run-once",
+    "scout:daemon": "python scripts/orchestrator/shoppage_scouting_daemon.py --daemon",
+    "sync:typesense": "node scripts/search/sync_typesense.mjs"
   },
   "devDependencies": {
     "typescript": "^5.5.4",

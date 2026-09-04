@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SearchQuerySchema } from '@shoppage/contracts';
-import { InMemorySearchEngine } from '@shoppage/adapters';
+import { HybridSearchEngine } from '@shoppage/adapters';
 import { SA_CANONICAL_PRODUCTS, SA_FLAGSHIP_OFFERS } from '@shoppage/kernel';
 
-// Initialize search engine with seed data
-const searchEngine = new InMemorySearchEngine();
+// Initialize hybrid search engine (Typesense when available, with in-process fallback)
+const searchEngine = new HybridSearchEngine();
 for (const variant of SA_CANONICAL_PRODUCTS) {
   searchEngine.indexVariant(variant);
 }
@@ -14,6 +14,7 @@ for (const offer of SA_FLAGSHIP_OFFERS) {
 
 /**
  * Public Search API Endpoint (/api/v1/search)
+ * Backed by Typesense 26.0 with automatic SQLite FTS5 fallback
  */
 export async function GET(request: NextRequest) {
   try {
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const results = searchEngine.search(parseResult.data);
+    const results = await searchEngine.search(parseResult.data);
     return NextResponse.json(results);
   } catch (error) {
     return NextResponse.json(

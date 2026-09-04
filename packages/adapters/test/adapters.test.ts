@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { InMemorySearchEngine } from '../src/search/search_adapter';
+import { TypesenseSearchAdapter, HybridSearchEngine } from '../src/search/typesense_adapter';
 import { generateLiveTrustSealSvg } from '../src/seal/trust_seal';
 import { buildWhatsAppActionLink } from '../src/comms/whatsapp';
 import { GovernedAiGateway } from '../src/ai/grok_gateway';
@@ -117,5 +118,55 @@ describe('Shoppage Adapters Suite', () => {
     expect(draft.requiresHumanReview).toBe(true);
     expect(draft.extractedData.length).toBe(3);
     expect(draft.extractedData[0].title).toContain('Deye 8kW');
+  });
+
+  it('checks Typesense adapter configuration and health probe resilience', async () => {
+    const adapter = new TypesenseSearchAdapter({
+      url: 'http://127.0.0.1:8108',
+      apiKey: 'test_key',
+      timeoutMs: 300,
+    });
+
+    expect(adapter.getBaseUrl()).toBe('http://127.0.0.1:8108');
+    // Fast health probe returns boolean without unhandled rejection
+    const healthy = await adapter.isHealthy();
+    expect(typeof healthy).toBe('boolean');
+  });
+
+  it('verifies HybridSearchEngine executes transparent fallback when Typesense is offline', async () => {
+    const hybrid = new HybridSearchEngine({
+      url: 'http://127.0.0.1:8108',
+      apiKey: 'test_key',
+      timeoutMs: 200,
+    });
+
+    for (const variant of SA_CANONICAL_PRODUCTS) {
+      hybrid.indexVariant(variant);
+    }
+    for (const offer of SA_FLAGSHIP_OFFERS) {
+      hybrid.indexOffer(offer);
+    }
+
+    // Must return valid results using in-memory / FTS5 fallback
+    const res = await hybrid.search({
+      query: 'Deye 5kW inverter',
+      country: 'ZA',
+      availability: 'all_confirmed',
+      limit: 5,
+      offset: 0,
+    });
+
+    expect(res.totalHits).toBeGreaterThan(0);
+    expect(res.hits[0].variant.brand).toBe('Deye');
+    expect(res.hits[0].lowestPrice).toBeGreaterThan(0);
+
+    // Synchronous execution also works
+    const syncRes = hybrid.searchSync({
+      query: 'Deye 5kW inverter',
+      country: 'ZA',
+      limit: 5,
+      offset: 0,
+    });
+    expect(syncRes.totalHits).toBeGreaterThan(0);
   });
 });
