@@ -38,6 +38,7 @@ export default function FeedPostCard({
   onBookmark,
   onReply,
   onGetDeal,
+  onOpenDetail,
   isLiked = false,
   isReposted = false,
   isBookmarked = false,
@@ -48,6 +49,7 @@ export default function FeedPostCard({
   onBookmark?: (id: number | string) => void;
   onReply?: (handle: string) => void;
   onGetDeal?: (post: PostItem) => void;
+  onOpenDetail?: (post: PostItem) => void;
   isLiked?: boolean;
   isReposted?: boolean;
   isBookmarked?: boolean;
@@ -107,7 +109,13 @@ export default function FeedPostCard({
           </div>
         )}
 
-        <div className="ptext">{post.text}</div>
+        <div
+          className="ptext"
+          onClick={() => onOpenDetail && onOpenDetail(post)}
+          style={{ cursor: onOpenDetail ? 'pointer' : 'default' }}
+        >
+          {post.text}
+        </div>
 
         {/* Product Embed */}
         {post.product && (
@@ -199,7 +207,11 @@ export default function FeedPostCard({
             className="ab reply"
             onClick={(e) => {
               e.stopPropagation();
-              if (onReply) onReply(post.handle);
+              if (onOpenDetail) {
+                onOpenDetail(post);
+              } else if (onReply) {
+                onReply(post.handle);
+              }
             }}
             aria-label={`Reply (${post.stats.replies})`}
           >

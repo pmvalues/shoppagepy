@@ -12,12 +12,38 @@ import {
   type MarketItem,
   type ProductCatalogItem,
   type RetailSpecial,
+  type ShortItem,
 } from '@/lib/feed';
+import PostDetailModal from './PostDetailModal';
+import MarketDetailModal from './MarketDetailModal';
+import ShortsViewerModal from './ShortsViewerModal';
 
 type TabType = 'foryou' | 'products' | 'deals' | 'markets' | 'shorts';
 type ViewType = 'home' | 'bookmarks';
 
 const CIRC = 62.83;
+
+const SA_PROVINCES = [
+  { id: 'all', label: 'All Provinces' },
+  { id: 'Gauteng', label: 'Gauteng' },
+  { id: 'Western Cape', label: 'Western Cape' },
+  { id: 'KwaZulu-Natal', label: 'KwaZulu-Natal' },
+  { id: 'Eastern Cape', label: 'Eastern Cape' },
+  { id: 'Limpopo', label: 'Limpopo' },
+  { id: 'Mpumalanga', label: 'Mpumalanga' },
+  { id: 'Free State', label: 'Free State' },
+  { id: 'North West', label: 'North West' },
+];
+
+const SHORTS_CATEGORIES = [
+  { id: 'all', label: 'All Trade Reels' },
+  { id: 'solar', label: '⚡ Solar & Power' },
+  { id: 'tech', label: '📱 Phones & Tech' },
+  { id: 'markets', label: '🏢 Wholesale Markets' },
+  { id: 'auto', label: '🚗 Spares & Auto' },
+  { id: 'fmcg', label: '🛒 Bulk FMCG' },
+  { id: 'packaging', label: '📦 Packaging' },
+];
 
 const PRODUCT_CATEGORIES = [
   { id: 'all', label: 'All Categories' },
@@ -91,11 +117,27 @@ export default function DiscoveryFeed({
   const [prodViewMode, setProdViewMode] = useState<'grid' | 'list'>('grid');
   const [visibleProductsCount, setVisibleProductsCount] = useState(48);
 
+  // Modals state
+  const [selectedPostDetail, setSelectedPostDetail] = useState<PostItem | null>(null);
+  const [selectedMarketDetail, setSelectedMarketDetail] = useState<MarketItem | null>(null);
+  const [selectedShortModal, setSelectedShortModal] = useState<ShortItem | null>(null);
+
   // Markets tab state
-  const [marketSubFilter, setMarketSubFilter] = useState<'all' | 'fav' | 'wholesale'>('all');
+  const [marketSubFilter, setMarketSubFilter] = useState<'all' | 'fav' | 'wholesale' | 'malls' | 'transit'>('all');
+  const [marketProvince, setMarketProvince] = useState('all');
+  const [marketViewMode, setMarketViewMode] = useState<'grid' | 'list'>('grid');
   const [marketSearch, setMarketSearch] = useState('');
   const [favMarkets, setFavMarkets] = useState<Record<string, boolean>>({});
   const [followedMarkets, setFollowedMarkets] = useState<Record<string, boolean>>({});
+
+  // Shorts tab state
+  const [shortsCategory, setShortsCategory] = useState('all');
+
+  // Composer Poll state
+  const [isPollOpen, setIsPollOpen] = useState(false);
+  const [pollOpt1, setPollOpt1] = useState('');
+  const [pollOpt2, setPollOpt2] = useState('');
+  const [pollOpt3, setPollOpt3] = useState('');
 
   // Reaction states
   const [liked, setLiked] = useState<Record<string | number, boolean>>({});
@@ -363,6 +405,21 @@ export default function DiscoveryFeed({
     const trimmed = composerText.trim();
     if (!trimmed || trimmed.length > 280) return;
 
+    let pollPayload: PostItem['poll'] = undefined;
+    if (isPollOpen && pollOpt1.trim() && pollOpt2.trim()) {
+      const opts = [
+        { l: pollOpt1.trim(), v: 0 },
+        { l: pollOpt2.trim(), v: 0 },
+      ];
+      if (pollOpt3.trim()) {
+        opts.push({ l: pollOpt3.trim(), v: 0 });
+      }
+      pollPayload = {
+        options: opts,
+        voted: null,
+      };
+    }
+
     const fullText = replyTo ? `Replying to ${replyTo}\n${trimmed}` : trimmed;
     const newPost: PostItem = {
       id: `usr_${Date.now()}`,
@@ -374,12 +431,17 @@ export default function DiscoveryFeed({
       time: 'now',
       tabs: ['foryou', 'deals'],
       text: fullText,
+      poll: pollPayload,
       stats: { replies: 0, reposts: 0, likes: 0, views: '1' },
     };
 
     setPosts((prev) => [newPost, ...prev]);
     setComposerText('');
     setReplyTo(null);
+    setIsPollOpen(false);
+    setPollOpt1('');
+    setPollOpt2('');
+    setPollOpt3('');
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
@@ -565,10 +627,18 @@ export default function DiscoveryFeed({
   const filteredMarkets = useMemo(() => {
     let list = allMarkets;
 
+    if (marketProvince !== 'all') {
+      list = list.filter((m) => m.province.toLowerCase() === marketProvince.toLowerCase());
+    }
+
     if (marketSubFilter === 'fav') {
       list = list.filter((m) => favMarkets[m.id]);
     } else if (marketSubFilter === 'wholesale') {
       list = list.filter((m) => m.type === 'wholesale_plaza');
+    } else if (marketSubFilter === 'malls') {
+      list = list.filter((m) => m.type === 'mega_mall');
+    } else if (marketSubFilter === 'transit') {
+      list = list.filter((m) => m.type === 'transport_hub');
     }
 
     if (marketSearch.trim()) {
@@ -583,14 +653,38 @@ export default function DiscoveryFeed({
     }
 
     return list;
-  }, [allMarkets, marketSubFilter, marketSearch, favMarkets]);
+  }, [allMarkets, marketSubFilter, marketProvince, marketSearch, favMarkets]);
 
   // Filter shorts
   const filteredShorts = useMemo(() => {
-    if (!search.trim()) return shorts;
-    const q = search.toLowerCase();
-    return shorts.filter((s) => s.title.toLowerCase().includes(q));
-  }, [shorts, search]);
+    let list = shorts;
+
+    if (shortsCategory !== 'all') {
+      const catKey = shortsCategory.toLowerCase();
+      list = list.filter((s) => {
+        const full = `${s.category || ''} ${s.title} ${s.summary || ''}`.toLowerCase();
+        if (catKey === 'solar') return full.includes('solar') || full.includes('inverter') || full.includes('battery');
+        if (catKey === 'tech') return full.includes('redmi') || full.includes('phone') || full.includes('tech');
+        if (catKey === 'markets') return full.includes('market') || full.includes('plaza') || full.includes('mall');
+        if (catKey === 'auto') return full.includes('brake') || full.includes('auto') || full.includes('spares');
+        if (catKey === 'fmcg') return full.includes('maize') || full.includes('fmcg') || full.includes('food');
+        if (catKey === 'packaging') return full.includes('kraft') || full.includes('pack');
+        return true;
+      });
+    }
+
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(
+        (s) =>
+          s.title.toLowerCase().includes(q) ||
+          (s.summary && s.summary.toLowerCase().includes(q)) ||
+          (s.merchantName && s.merchantName.toLowerCase().includes(q)),
+      );
+    }
+
+    return list;
+  }, [shorts, shortsCategory, search]);
 
   return (
     <>
@@ -710,6 +804,40 @@ export default function DiscoveryFeed({
               value={composerText}
               onChange={handleComposerInput}
             />
+            {isPollOpen && (
+              <div className="poll-builder-box">
+                <div className="poll-builder-head">
+                  <span>📊 Trade Poll Setup</span>
+                  <button
+                    type="button"
+                    style={{ background: 'none', border: 'none', color: 'var(--text2)', cursor: 'pointer', fontSize: '12px' }}
+                    onClick={() => setIsPollOpen(false)}
+                  >
+                    ✕ Remove
+                  </button>
+                </div>
+                <div className="poll-builder-inputs">
+                  <input
+                    type="text"
+                    placeholder="Option 1 (e.g. 5kW Hybrid)"
+                    value={pollOpt1}
+                    onChange={(e) => setPollOpt1(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Option 2 (e.g. 8kW Hybrid)"
+                    value={pollOpt2}
+                    onChange={(e) => setPollOpt2(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Option 3 (optional, e.g. 10kW 3-Phase)"
+                    value={pollOpt3}
+                    onChange={(e) => setPollOpt3(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
             <div className="ctools">
               <button
                 type="button"
@@ -723,9 +851,9 @@ export default function DiscoveryFeed({
               </button>
               <button
                 type="button"
-                className="tool"
+                className={`tool${isPollOpen ? ' on' : ''}`}
                 title="Poll"
-                onClick={() => toast('Poll composer coming soon')}
+                onClick={() => setIsPollOpen(!isPollOpen)}
               >
                 <svg viewBox="0 0 24 24">
                   <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21v-5.5h2V21H4z" />
@@ -1077,6 +1205,26 @@ export default function DiscoveryFeed({
             </p>
           </div>
 
+          {/* Quick Stats Strip */}
+          <div className="market-stats-banner">
+            <div className="market-stat-card">
+              <span className="val">{allMarkets.length}</span>
+              <span className="lbl">Verified Hubs</span>
+            </div>
+            <div className="market-stat-card">
+              <span className="val">{allMarkets.filter((m) => m.type === 'wholesale_plaza').length}</span>
+              <span className="lbl">Wholesale Plazas</span>
+            </div>
+            <div className="market-stat-card">
+              <span className="val">1,500+</span>
+              <span className="lbl">Active Counters</span>
+            </div>
+            <div className="market-stat-card">
+              <span className="val">9 Provinces</span>
+              <span className="lbl">Nationwide Map</span>
+            </div>
+          </div>
+
           <div className="stream-tools">
             {/* Search in markets */}
             <div className="stream-search-box">
@@ -1086,20 +1234,43 @@ export default function DiscoveryFeed({
               </svg>
               <input
                 type="search"
-                placeholder="Search markets or groups (e.g. Dragon City, Oriental Plaza, Solar Hub)..."
+                placeholder="Search markets or groups (e.g. Dragon City, Oriental Plaza, Sandton)..."
                 value={marketSearch}
                 onChange={(e) => setMarketSearch(e.target.value)}
               />
+              {marketSearch && (
+                <button
+                  type="button"
+                  onClick={() => setMarketSearch('')}
+                  style={{ color: 'var(--text2)', fontSize: '13px', cursor: 'pointer', background: 'none', border: 'none' }}
+                >
+                  ✕
+                </button>
+              )}
             </div>
 
-            {/* Sub-filter pills */}
+            {/* Province filter pills */}
             <div className="chips-scroll">
+              {SA_PROVINCES.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className={`chip-pill${marketProvince === p.id ? ' active' : ''}`}
+                  onClick={() => setMarketProvince(p.id)}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Market type filter pills */}
+            <div className="chips-scroll" style={{ marginTop: '6px' }}>
               <button
                 type="button"
                 className={`chip-pill${marketSubFilter === 'all' ? ' active' : ''}`}
                 onClick={() => setMarketSubFilter('all')}
               >
-                All Hubs ({allMarkets.length})
+                All Formats ({allMarkets.length})
               </button>
               <button
                 type="button"
@@ -1115,74 +1286,230 @@ export default function DiscoveryFeed({
               >
                 🏢 Wholesale Plazas
               </button>
+              <button
+                type="button"
+                className={`chip-pill${marketSubFilter === 'malls' ? ' active' : ''}`}
+                onClick={() => setMarketSubFilter('malls')}
+              >
+                🏬 Commercial Malls
+              </button>
+              <button
+                type="button"
+                className={`chip-pill${marketSubFilter === 'transit' ? ' active' : ''}`}
+                onClick={() => setMarketSubFilter('transit')}
+              >
+                🚌 Transit Ranks
+              </button>
+            </div>
+
+            {/* Sub-row: count and Grid/List toggle */}
+            <div
+              className="stream-subrow"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '10px',
+                padding: '10px 0',
+                borderBottom: '1px solid var(--border)',
+                marginBottom: '14px',
+              }}
+            >
+              <div style={{ fontSize: '13px', color: 'var(--text2)' }}>
+                Showing <b>{filteredMarkets.length}</b> verified trade hubs
+              </div>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <button
+                  type="button"
+                  className={`chip-pill${marketViewMode === 'grid' ? ' active' : ''}`}
+                  onClick={() => setMarketViewMode('grid')}
+                  style={{ fontSize: '12px', padding: '4px 10px' }}
+                >
+                  ▦ Grid
+                </button>
+                <button
+                  type="button"
+                  className={`chip-pill${marketViewMode === 'list' ? ' active' : ''}`}
+                  onClick={() => setMarketViewMode('list')}
+                  style={{ fontSize: '12px', padding: '4px 10px' }}
+                >
+                  ☰ List
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Markets List */}
-          <div className="markets-list">
-            {filteredMarkets.length > 0 ? (
-              filteredMarkets.map((m) => {
-                const isFav = !!favMarkets[m.id];
-                const isFollowed = !!followedMarkets[m.id];
-                return (
-                  <div key={m.id} className="market-card">
-                    <div className={`avatar ${m.avatarClass}`}>{m.initials}</div>
-                    <div className="market-content">
-                      <div className="market-header">
-                        <div>
-                          <h3 className="market-title">
-                            <Link href={m.href}>{m.name}</Link>
-                          </h3>
-                          <p className="market-meta">
-                            {m.handle} · <span className="chip">{m.typeLabel}</span>
-                          </p>
+          {/* Markets Display: Grid vs List */}
+          {marketViewMode === 'grid' ? (
+            <div className="markets-grid">
+              {filteredMarkets.length > 0 ? (
+                filteredMarkets.map((m) => {
+                  const isFav = !!favMarkets[m.id];
+                  const isFollowed = !!followedMarkets[m.id];
+                  return (
+                    <div key={m.id} className="market-grid-card">
+                      <div>
+                        <div className="market-card-top">
+                          <div className={`avatar ${m.avatarClass}`} style={{ width: '48px', height: '48px', fontSize: '16px' }}>
+                            {m.initials}
+                          </div>
+                          <div className="market-card-info">
+                            <h3 className="market-card-name" title={m.name}>
+                              <button
+                                type="button"
+                                onClick={() => setSelectedMarketDetail(m)}
+                                style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', color: 'inherit', cursor: 'pointer', textAlign: 'left', fontWeight: 800 }}
+                              >
+                                {m.name}
+                              </button>
+                            </h3>
+                            <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', marginTop: '2px' }}>
+                              <span className="chip" style={{ fontSize: '11px', padding: '2px 6px' }}>{m.typeLabel}</span>
+                              <span style={{ fontSize: '12px', color: 'var(--text2)' }}>{m.province}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <p className="market-card-desc">{m.description}</p>
+
+                        <div className="market-card-meta-row">
+                          <span>📍 {m.location.split(',')[0]}</span>
+                          {m.stalls ? <span>· <b>{m.stalls}+ Stalls</b></span> : null}
+                          {m.operatingHours ? <span>· ⏰ {m.operatingHours.split('|')[0].trim()}</span> : null}
                         </div>
                       </div>
 
-                      <p className="market-desc">{m.description}</p>
-
-                      <p className="market-meta" style={{ marginTop: '6px' }}>
-                        📍 {m.location}
-                        {m.stalls ? (
-                          <>
-                            {' '}· <b>{m.stalls}+ Active Stalls</b>
-                          </>
-                        ) : null}
-                      </p>
-
-                      <div className="market-actions">
+                      <div className="market-card-actions">
+                        <button
+                          type="button"
+                          className="btn-card-quick"
+                          onClick={() => setSelectedMarketDetail(m)}
+                        >
+                          Quick View
+                        </button>
                         <button
                           type="button"
                           className={`fav-btn${isFav ? ' active' : ''}`}
                           onClick={() => toggleFavMarket(m.id, m.name)}
                           title={isFav ? 'Remove favourite' : 'Add to favourites'}
+                          style={{ padding: '6px 10px', fontSize: '12px' }}
                         >
-                          {isFav ? '★ Favoured' : '⭐ Favourite'}
+                          {isFav ? '★' : '☆'}
                         </button>
-
                         <button
                           type="button"
                           className={`follow-btn${isFollowed ? ' active' : ''}`}
                           onClick={() => toggleFollowMarket(m.id, m.name)}
+                          style={{ padding: '6px 12px', fontSize: '12px' }}
                         >
                           {isFollowed ? 'Following' : 'Follow'}
                         </button>
-
-                        <Link href={m.href} className="visit-btn">
-                          Browse Stalls 🏢
+                        <Link
+                          href={m.href}
+                          className="visit-btn"
+                          style={{ padding: '6px 12px', fontSize: '12px' }}
+                        >
+                          Stalls 🏢
                         </Link>
                       </div>
                     </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="empty">
-                <h3>No markets match this filter</h3>
-                <p>Try switching to &quot;All Hubs&quot; or clearing your search term.</p>
-              </div>
-            )}
-          </div>
+                  );
+                })
+              ) : (
+                <div className="empty" style={{ gridColumn: '1 / -1' }}>
+                  <h3>No markets match this filter</h3>
+                  <p>Try switching to &quot;All Formats&quot; or clearing your province selection.</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* List View */
+            <div className="markets-list">
+              {filteredMarkets.length > 0 ? (
+                filteredMarkets.map((m) => {
+                  const isFav = !!favMarkets[m.id];
+                  const isFollowed = !!followedMarkets[m.id];
+                  return (
+                    <div key={m.id} className="market-card">
+                      <div className={`avatar ${m.avatarClass}`}>{m.initials}</div>
+                      <div className="market-content">
+                        <div className="market-header">
+                          <div>
+                            <h3 className="market-title">
+                              <button
+                                type="button"
+                                onClick={() => setSelectedMarketDetail(m)}
+                                style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', color: 'inherit', cursor: 'pointer', textAlign: 'left' }}
+                              >
+                                {m.name}
+                              </button>
+                            </h3>
+                            <p className="market-meta">
+                              {m.handle} · <span className="chip">{m.typeLabel}</span> · <span>📍 {m.province}</span>
+                            </p>
+                          </div>
+                        </div>
+
+                        <p className="market-desc">{m.description}</p>
+
+                        <p className="market-meta" style={{ marginTop: '6px' }}>
+                          📍 {m.location}
+                          {m.stalls ? (
+                            <>
+                              {' '}· <b>{m.stalls}+ Active Stalls</b>
+                            </>
+                          ) : null}
+                          {m.operatingHours ? (
+                            <>
+                              {' '}· ⏰ {m.operatingHours.split('|')[0].trim()}
+                            </>
+                          ) : null}
+                        </p>
+
+                        <div className="market-actions">
+                          <button
+                            type="button"
+                            className="btn-card-quick"
+                            onClick={() => setSelectedMarketDetail(m)}
+                            style={{ flex: 'none', padding: '6px 14px' }}
+                          >
+                            Quick View
+                          </button>
+
+                          <button
+                            type="button"
+                            className={`fav-btn${isFav ? ' active' : ''}`}
+                            onClick={() => toggleFavMarket(m.id, m.name)}
+                            title={isFav ? 'Remove favourite' : 'Add to favourites'}
+                          >
+                            {isFav ? '★ Favoured' : '⭐ Favourite'}
+                          </button>
+
+                          <button
+                            type="button"
+                            className={`follow-btn${isFollowed ? ' active' : ''}`}
+                            onClick={() => toggleFollowMarket(m.id, m.name)}
+                          >
+                            {isFollowed ? 'Following' : 'Follow'}
+                          </button>
+
+                          <Link href={m.href} className="visit-btn">
+                            Browse Stalls 🏢
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="empty">
+                  <h3>No markets match this filter</h3>
+                  <p>Try switching to &quot;All Hubs&quot; or clearing your search term.</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -1522,45 +1849,83 @@ export default function DiscoveryFeed({
         <>
         <div id="feed">
           {tab === 'shorts' && view === 'home' ? (
-            filteredShorts.length > 0 ? (
-              <div className="shorts">
-                {filteredShorts.map((s) => {
-                  const isPlaying = playingShortId === s.id;
-                  return (
-                    <button
-                      key={s.id}
-                      type="button"
-                      className={`short${isPlaying ? ' playing' : ''}`}
-                      style={{ backgroundImage: `url('${s.img}')` }}
-                      onClick={() => setPlayingShortId(isPlaying ? null : s.id)}
-                    >
-                      <span className="play">
-                        <svg className="p" viewBox="0 0 24 24">
-                          <path
-                            d={
-                              isPlaying
-                                ? 'M6 19h4V5H6v14zm8-14v14h4V5h-4z'
-                                : 'M8 5v14l11-7z'
-                            }
-                          />
-                        </svg>
-                      </span>
-                      {s.dur ? <span className="dur">{s.dur}</span> : null}
-                      <span className="smeta">
-                        <h4>{s.title}</h4>
-                        {s.meta ? <span>{s.meta}</span> : null}
-                      </span>
-                      <span className="prog" />
-                    </button>
-                  );
-                })}
+            <div className="shorts-view" style={{ padding: '0 16px 40px' }}>
+              <div className="stream-header" style={{ padding: '16px 0 8px' }}>
+                <h2>🎬 Live Commercial Shorts &amp; Reels</h2>
+                <p>
+                  Watch verified South African trade tests, pallet unboxings, inverter inspections, and factory bulk drops.
+                </p>
               </div>
-            ) : (
-              <div className="empty">
-                <h3>No Shorts found</h3>
-                <p>Try a different search query.</p>
+
+              {/* Category Filter Pills */}
+              <div className="chips-scroll" style={{ marginBottom: '14px' }}>
+                {SHORTS_CATEGORIES.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    className={`chip-pill${shortsCategory === c.id ? ' active' : ''}`}
+                    onClick={() => setShortsCategory(c.id)}
+                  >
+                    {c.label}
+                  </button>
+                ))}
               </div>
-            )
+
+              {filteredShorts.length > 0 ? (
+                <div className="shorts-tab-grid">
+                  {filteredShorts.map((s) => {
+                    const featured = s.featuredProducts?.[0];
+                    return (
+                      <div
+                        key={s.id}
+                        className="short-reel-card"
+                        style={{ backgroundImage: `url('${s.img}')` }}
+                        onClick={() => setSelectedShortModal(s)}
+                      >
+                        {/* Top Badges */}
+                        <div className="short-card-top">
+                          {s.category ? (
+                            <span className="short-cat-pill">{s.category}</span>
+                          ) : <span />}
+                          {s.dur ? (
+                            <span className="short-dur-pill">{s.dur}</span>
+                          ) : null}
+                        </div>
+
+                        {/* Central Play Overlay */}
+                        <div className="short-play-center">
+                          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </div>
+
+                        {/* Bottom Metadata */}
+                        <div className="short-card-bottom">
+                          <div className="short-views-pill">
+                            🔥 {s.likes ? `${(s.likes / 100).toFixed(1)}k views` : '1.2k views'}
+                          </div>
+                          <h4 className="short-card-title">{s.title}</h4>
+                          <div className="short-card-merchant">
+                            <span>{s.merchantName || 'Verified Merchant'}</span>
+                            <span style={{ color: '#38BDF8', fontSize: '10px' }}>✓</span>
+                          </div>
+                          {featured && (
+                            <div className="short-product-pill">
+                              🏷️ {featured.title.split(' ')[0]} · R{featured.price.toLocaleString('en-ZA')}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="empty">
+                  <h3>No Commercial Shorts Found</h3>
+                  <p>Try switching to &quot;All Trade Reels&quot; or clearing your search term.</p>
+                </div>
+              )}
+            </div>
           ) : filteredPosts.length > 0 ? (
             filteredPosts.map((post) => (
               <FeedPostCard
@@ -1574,6 +1939,7 @@ export default function DiscoveryFeed({
                 onBookmark={handleBookmark}
                 onReply={handleReply}
                 onGetDeal={handleGetDeal}
+                onOpenDetail={(p) => setSelectedPostDetail(p)}
               />
             ))
           ) : (
@@ -1600,6 +1966,40 @@ export default function DiscoveryFeed({
           )}
         </div>
         </>
+      )}
+
+      {/* ── MODALS (Post Detail, Market Detail, Shorts Reels) ───────────────── */}
+      {selectedPostDetail && (
+        <PostDetailModal
+          post={selectedPostDetail}
+          onClose={() => setSelectedPostDetail(null)}
+          isLiked={!!liked[selectedPostDetail.id]}
+          isReposted={!!reposted[selectedPostDetail.id]}
+          isBookmarked={!!bookmarked[selectedPostDetail.id]}
+          onLike={handleLike}
+          onRepost={handleRepost}
+          onBookmark={handleBookmark}
+        />
+      )}
+
+      {selectedMarketDetail && (
+        <MarketDetailModal
+          market={selectedMarketDetail}
+          onClose={() => setSelectedMarketDetail(null)}
+          isFav={!!favMarkets[selectedMarketDetail.id]}
+          isFollowed={!!followedMarkets[selectedMarketDetail.id]}
+          onToggleFav={toggleFavMarket}
+          onToggleFollow={toggleFollowMarket}
+        />
+      )}
+
+      {selectedShortModal && (
+        <ShortsViewerModal
+          short={selectedShortModal}
+          shortsList={filteredShorts}
+          onClose={() => setSelectedShortModal(null)}
+          onSelectShort={setSelectedShortModal}
+        />
       )}
 
       {/* ── TOAST NOTIFICATION ────────────────────────────────────────────── */}
