@@ -120,6 +120,7 @@ export default function DiscoveryFeed({
   const [prodSearch, setProdSearch] = useState('');
   const [prodCategory, setProdCategory] = useState('all');
   const [prodSort, setProdSort] = useState<'drop' | 'price_asc' | 'price_desc' | 'sellers'>('drop');
+  const [prodViewMode, setProdViewMode] = useState<'grid' | 'list'>('grid');
 
   // Markets tab state
   const [marketSubFilter, setMarketSubFilter] = useState<'all' | 'fav' | 'wholesale'>('all');
@@ -218,6 +219,8 @@ export default function DiscoveryFeed({
         setDealViewMode(mode || 'grid');
       } else if (type === 'deal-sort') {
         if (sort) setDealSort(sort);
+      } else if (type === 'prod-view-mode') {
+        setProdViewMode(mode || 'grid');
       } else if (type === 'focus-composer') {
         if (tab === 'products' || tab === 'markets' || tab === 'shorts' || tab === 'deals') {
           setTab('foryou');
@@ -711,9 +714,6 @@ export default function DiscoveryFeed({
         <div className="products-view">
           <div className="stream-header">
             <h2>Products &amp; Trade Catalog</h2>
-            <p>
-              Live master catalog with verified South African stockists, wholesale pricing, and SABS / NRS 097 grid compliance.
-            </p>
           </div>
 
           <div className="stream-tools">
@@ -733,7 +733,7 @@ export default function DiscoveryFeed({
                 <button
                   type="button"
                   onClick={() => setProdSearch('')}
-                  style={{ color: 'var(--text2)', fontSize: '13px', cursor: 'pointer' }}
+                  style={{ color: 'var(--text2)', fontSize: '13px', cursor: 'pointer', background: 'none', border: 'none' }}
                 >
                   ✕
                 </button>
@@ -754,64 +754,126 @@ export default function DiscoveryFeed({
               ))}
             </div>
 
-            {/* Sub-row: count and sort */}
-            <div className="stream-subrow">
-              <span>
-                <b>{filteredProducts.length}</b> canonical products found
+            {/* Sub-row: count, view mode toggle, and sort */}
+            <div className="stream-subrow" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+              <span style={{ fontWeight: 700, color: 'var(--text)' }}>
+                <b>{filteredProducts.length.toLocaleString()}</b> canonical products found
               </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span>Sort by:</span>
-                <select
-                  value={prodSort}
-                  onChange={(e) => setProdSort(e.target.value as any)}
-                >
-                  <option value="drop">Biggest Price Drop</option>
-                  <option value="price_asc">Price: Low to High</option>
-                  <option value="price_desc">Price: High to Low</option>
-                  <option value="sellers">Most Verified Stockists</option>
-                </select>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                {/* View Mode Toggle: Grid vs List */}
+                <div style={{ display: 'flex', background: 'var(--hover)', borderRadius: '8px', padding: '2px', border: '1px solid var(--border)' }}>
+                  <button
+                    type="button"
+                    onClick={() => setProdViewMode('grid')}
+                    title="Grid View"
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: prodViewMode === 'grid' ? 700 : 500,
+                      background: prodViewMode === 'grid' ? 'var(--card)' : 'transparent',
+                      color: prodViewMode === 'grid' ? 'var(--text)' : 'var(--text2)',
+                      border: 'none',
+                      cursor: 'pointer',
+                      boxShadow: prodViewMode === 'grid' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span>⊞</span> Grid
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setProdViewMode('list')}
+                    title="List View"
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: prodViewMode === 'list' ? 700 : 500,
+                      background: prodViewMode === 'list' ? 'var(--card)' : 'transparent',
+                      color: prodViewMode === 'list' ? 'var(--text)' : 'var(--text2)',
+                      border: 'none',
+                      cursor: 'pointer',
+                      boxShadow: prodViewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span>☰</span> List
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--text2)' }}>Sort:</span>
+                  <select
+                    value={prodSort}
+                    onChange={(e) => setProdSort(e.target.value as any)}
+                    style={{ fontSize: '12px', padding: '4px 8px', borderRadius: '6px' }}
+                  >
+                    <option value="drop">Biggest Price Drop</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                    <option value="sellers">Most Verified Stockists</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Products List */}
-          <div className="products-list">
-            {filteredProducts.length > 0 ? (
-              filteredProducts.map((p) => (
-                <div key={p.id} className="prod-card">
-                  <div className="prod-thumb">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={p.image} alt={p.title} loading="lazy" />
-                  </div>
-                  <div className="prod-content">
-                    <div>
-                      <div className="prod-head">
-                        <h3>
-                          <Link href={p.href}>{p.title}</Link>
+          {/* Products Presentation: Grid or List */}
+          {prodViewMode === 'grid' ? (
+            <div className="deals-grid">
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((p) => {
+                  const saveZar = p.oldPrice && p.price && p.oldPrice > p.price
+                    ? p.oldPrice - p.price
+                    : null;
+                  return (
+                    <div key={p.id} className="deal-grid-card">
+                      <div className="deal-card-thumb">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={p.image} alt={p.title} loading="lazy" />
+                        <span className="deal-badge-retailer">{p.brand}</span>
+                        {p.dropPct ? <span className="deal-badge-drop">-{p.dropPct}%</span> : null}
+                      </div>
+
+                      <div className="deal-card-body">
+                        <div className="deal-card-cat">
+                          {p.category}
+                        </div>
+                        <h3 className="deal-card-title">
+                          <Link href={p.href} title={p.title}>
+                            {p.title}
+                          </Link>
                         </h3>
-                        {p.dropPct && <span className="prod-drop">-{p.dropPct}%</span>}
-                      </div>
-                      <p className="prod-specs">{p.specs}</p>
-                      <p className="prod-location">
-                        🏢 {p.sellerCount} verified stockists · {p.stockistLocation}
-                      </p>
-                    </div>
 
-                    <div>
-                      <div className="prod-price-row">
-                        <span className="prod-price">{formatZar(p.price)}</span>
-                        {p.oldPrice && (
-                          <span className="prod-old">{formatZar(p.oldPrice)}</span>
-                        )}
+                        <div className="deal-card-prices">
+                          <span className="deal-card-price">{formatZar(p.price)}</span>
+                          {p.oldPrice ? (
+                            <span className="deal-card-old">{formatZar(p.oldPrice)}</span>
+                          ) : null}
+                          {saveZar ? (
+                            <span className="deal-card-save">Save {formatZar(saveZar)}</span>
+                          ) : null}
+                        </div>
+
+                        <div className="deal-card-location">
+                          🏢 {p.sellerCount} verified stockists · {p.stockistLocation}
+                        </div>
                       </div>
 
-                      <div className="prod-actions">
-                        <Link href={p.href} className="btn-stockists">
-                          View Stockists
+                      <div className="deal-card-footer">
+                        <Link href={p.href} className="deal-btn-direct">
+                          View Stockists ↗
                         </Link>
                         <button
                           type="button"
-                          className="btn-cart"
+                          className="deal-btn-lock"
+                          title="Lock Deal into Cart"
                           onClick={() => {
                             window.dispatchEvent(
                               new CustomEvent('shoppage-cart', {
@@ -824,20 +886,95 @@ export default function DiscoveryFeed({
                             toast(`Locked ${p.brand} deal into Cart`);
                           }}
                         >
-                          Lock Deal ⚡
+                          ⚡ Lock
                         </button>
                       </div>
                     </div>
-                  </div>
+                  );
+                })
+              ) : (
+                <div className="empty" style={{ gridColumn: '1 / -1' }}>
+                  <h3>No products matched your criteria</h3>
+                  <p>Try clearing search keywords or selecting All Categories.</p>
                 </div>
-              ))
-            ) : (
-              <div className="empty">
-                <h3>No products matched your criteria</h3>
-                <p>Try clearing search keywords or selecting All Categories.</p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          ) : (
+            /* Products List */
+            <div className="products-list">
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((p) => {
+                  const saveZar = p.oldPrice && p.price && p.oldPrice > p.price
+                    ? p.oldPrice - p.price
+                    : null;
+                  return (
+                    <div key={p.id} className="prod-card">
+                      <div className="prod-thumb">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={p.image} alt={p.title} loading="lazy" />
+                      </div>
+                      <div className="prod-content">
+                        <div>
+                          <div className="prod-head">
+                            <h3>
+                              <Link href={p.href}>{p.title}</Link>
+                            </h3>
+                            {p.dropPct && <span className="prod-drop">-{p.dropPct}%</span>}
+                          </div>
+                          <p className="prod-specs">{p.specs}</p>
+                          <p className="prod-location">
+                            🏢 {p.sellerCount} verified stockists · {p.stockistLocation}
+                          </p>
+                        </div>
+
+                        <div>
+                          <div className="prod-price-row">
+                            <span className="prod-price">{formatZar(p.price)}</span>
+                            {p.oldPrice && (
+                              <span className="prod-old">{formatZar(p.oldPrice)}</span>
+                            )}
+                            {saveZar ? (
+                              <span style={{ fontSize: '12px', fontWeight: 700, color: '#10B981', background: 'rgba(16, 185, 129, 0.12)', padding: '2px 8px', borderRadius: '4px', marginLeft: '6px' }}>
+                                Save {formatZar(saveZar)}
+                              </span>
+                            ) : null}
+                          </div>
+
+                          <div className="prod-actions">
+                            <Link href={p.href} className="btn-stockists">
+                              View Stockists ↗
+                            </Link>
+                            <button
+                              type="button"
+                              className="btn-cart"
+                              onClick={() => {
+                                window.dispatchEvent(
+                                  new CustomEvent('shoppage-cart', {
+                                    detail: {
+                                      action: 'add',
+                                      item: { name: p.title, price: formatZar(p.price) },
+                                    },
+                                  }),
+                                );
+                                toast(`Locked ${p.brand} deal into Cart`);
+                              }}
+                            >
+                              Lock Deal ⚡
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="empty">
+                  <h3>No products matched your criteria</h3>
+                  <p>Try clearing search keywords or selecting All Categories.</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
