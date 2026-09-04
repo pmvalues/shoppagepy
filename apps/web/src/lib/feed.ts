@@ -9,6 +9,7 @@ import {
   SA_FLAGSHIP_MERCHANTS,
   SA_FLAGSHIP_OFFERS,
   SA_COMPREHENSIVE_MARKETS,
+  SA_COMMUNITY_GROUPS_DATASET,
   DiscoveredOffersStore,
   SA_MAJOR_RETAILER_DEALS,
 } from '@shoppage/kernel';
@@ -510,17 +511,29 @@ export function formatViews(v: number | string): string {
   return String(v);
 }
 
+export interface GroupRecentPost {
+  id: string;
+  author: string;
+  time: string;
+  text: string;
+  price?: number;
+  phone?: string;
+  verified?: boolean;
+}
+
 export interface MarketItem {
   id: string;
   name: string;
   handle: string;
   initials: string;
   avatarClass: string;
-  type: 'wholesale_plaza' | 'mega_mall' | 'transport_hub';
+  coverGradient: string;
+  type: 'community_group' | 'wholesale_plaza' | 'mega_mall' | 'transport_hub';
   typeLabel: string;
   province: string;
   location: string;
   metro?: string;
+  town?: string;
   stalls?: number;
   stallCapacity?: number;
   operatingHours?: string;
@@ -531,24 +544,147 @@ export interface MarketItem {
   whatsapp?: string;
   description: string;
   href: string;
+  // Facebook Group-style community features
+  isCommunityGroup: boolean;
+  memberCount: number;
+  dailyPostVolume: number;
+  groupCategory?: string;
+  moderationType?: string;
+  externalCommunityUrl?: string;
+  recentPosts: GroupRecentPost[];
+}
+
+const GROUP_COVER_GRADIENTS = [
+  'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)', // Blue trade
+  'linear-gradient(135deg, #065f46 0%, #10b981 100%)', // Green solar / agri
+  'linear-gradient(135deg, #7c2d12 0%, #f97316 100%)', // Orange hardware
+  'linear-gradient(135deg, #581c87 0%, #a855f7 100%)', // Purple wholesale
+  'linear-gradient(135deg, #1e293b 0%, #475569 100%)', // Dark auto
+  'linear-gradient(135deg, #831843 0%, #ec4899 100%)', // Pink catering/lifestyle
+  'linear-gradient(135deg, #0f766e 0%, #14b8a6 100%)', // Teal electronics
+  'linear-gradient(135deg, #78350f 0%, #d97706 100%)', // Amber FMCG
+];
+
+function formatGroupCategoryLabel(cat?: string): string {
+  switch (cat) {
+    case 'suburb_buy_sell': return 'Buy & Sell Group';
+    case 'solar_inverter_exchange': return 'Solar & Power Guild';
+    case 'b2b_contractor_network': return 'Contractors & Hardware';
+    case 'fmcg_spaza_trade': return 'Wholesale & Spaza';
+    case 'auto_parts_spares': return 'Auto Parts & Mechanics';
+    case 'wholesale_importers': return 'Catering & Packaging';
+    case 'farming_livestock': return 'Agri & Farmers Link';
+    default: return 'Trade Community';
+  }
 }
 
 export function getMarkets(): MarketItem[] {
-  return SA_COMPREHENSIVE_MARKETS.map((m, idx) => {
-    const isMall = m.marketType === 'formal_mega_mall';
-    const isWholesale = m.marketType === 'wholesale_market';
+  const result: MarketItem[] = [];
+
+  // 1. Community Trading Groups (Facebook Groups format) from SA_COMMUNITY_GROUPS_DATASET
+  const sampleGroups = (SA_COMMUNITY_GROUPS_DATASET || []).slice(0, 72);
+  sampleGroups.forEach((m, idx) => {
+    const meta = m.communityGroupMeta;
+    const gradient = GROUP_COVER_GRADIENTS[idx % GROUP_COVER_GRADIENTS.length];
+    const categoryLabel = formatGroupCategoryLabel(meta?.groupCategory);
     const googleMapsUrl =
       m.geo?.googleMapsUrl ||
       (m.geo?.latitude && m.geo?.longitude
         ? `https://maps.google.com/?q=${m.geo.latitude},${m.geo.longitude}`
         : undefined);
 
-    return {
+    const recentPosts: GroupRecentPost[] = (meta?.inboundFeed || []).map((p, pIdx) => ({
+      id: p.id || `gp_${m.id}_${pIdx}`,
+      author: p.postAuthor || 'Community Trader',
+      time: p.postTime || '15m ago',
+      text: p.content || 'Active listing in this trade community.',
+      price: p.extractedPriceZar,
+      phone: p.extractedPhone,
+      verified: p.verifiedMerchantStatus ?? true,
+    }));
+
+    if (recentPosts.length === 0) {
+      recentPosts.push({
+        id: `gp_${m.id}_def`,
+        author: `${meta?.cityOrTown || m.province} Trade Desk`,
+        time: '12m ago',
+        text: `Welcome to ${m.name}. Post verified trade listings, bulk pallet clearance, and contractor tenders with zero middleman fee.`,
+        verified: true,
+      });
+    }
+
+    result.push({
+      id: m.id,
+      name: m.name,
+      handle: meta?.twitterX?.officialHandle || `@${m.canonicalSlug?.slice(0, 16) || m.id}`,
+      initials: getInitials(m.name),
+      avatarClass: `g${(idx % 8) + 1}`,
+      coverGradient: gradient,
+      type: 'community_group',
+      typeLabel: categoryLabel,
+      province: m.province || 'South Africa',
+      metro: m.metro,
+      town: meta?.cityOrTown || m.geo?.suburb,
+      location: m.geo?.streetAddress || meta?.cityOrTown || m.name,
+      stalls: m.activeMerchantsCount || Math.round((meta?.memberCount || 20000) * 0.04),
+      stallCapacity: m.stallCapacity || Math.round((meta?.memberCount || 20000) * 0.1),
+      operatingHours: m.operatingHours || '24/7 Live Community Group Exchange',
+      landmarks: m.landmarks || [],
+      safetyNotices: m.safetyNotices || ['Admin moderated', 'Verified sellers badge required for high-value tenders'],
+      googleMapsUrl,
+      whatsapp: '27781234567',
+      description:
+        m.virtualMeta?.operationalModel ||
+        `South Africa's dedicated trading group for ${meta?.cityOrTown || m.province}. Join ${meta?.memberCount?.toLocaleString('en-ZA') || '25,000'}+ members trading daily.`,
+      href: `/market/${m.id}`,
+      isCommunityGroup: true,
+      memberCount: meta?.memberCount || 24500,
+      dailyPostVolume: meta?.dailyPostVolume || 95,
+      groupCategory: meta?.groupCategory || 'suburb_buy_sell',
+      moderationType: meta?.moderationType || 'open_public',
+      externalCommunityUrl: meta?.externalCommunityUrl,
+      recentPosts,
+    });
+  });
+
+  // 2. Physical Wholesale Plazas & Malls as Commercial Trade Guilds
+  SA_COMPREHENSIVE_MARKETS.forEach((m, idx) => {
+    const isMall = m.marketType === 'formal_mega_mall';
+    const isWholesale = m.marketType === 'wholesale_market';
+    const gradient = GROUP_COVER_GRADIENTS[(idx + 4) % GROUP_COVER_GRADIENTS.length];
+    const googleMapsUrl =
+      m.geo?.googleMapsUrl ||
+      (m.geo?.latitude && m.geo?.longitude
+        ? `https://maps.google.com/?q=${m.geo.latitude},${m.geo.longitude}`
+        : undefined);
+
+    const memberCount = (m.activeMerchantsCount || 80) * 120 + 4500;
+    const dailyPostVolume = Math.round((m.activeMerchantsCount || 80) * 0.4) + 35;
+
+    const recentPosts: GroupRecentPost[] = [
+      {
+        id: `mkt_post_${m.id}_1`,
+        author: `${m.name.split(' ')[0]} Counter Desk`,
+        time: '8m ago',
+        text: `Official stall update: Direct trade counters open today. Bulk enquiries & collections active across all registered zones.`,
+        verified: true,
+      },
+      {
+        id: `mkt_post_${m.id}_2`,
+        author: `Zone Supervisor (${m.province})`,
+        time: '24m ago',
+        text: `Daily trade volume: ${dailyPostVolume}+ active counter deals syndicated. Safe loading bays open with armed precinct security.`,
+        verified: true,
+      },
+    ];
+
+    result.push({
       id: m.id.startsWith('market_') ? m.id : `market_${m.id}`,
       name: m.name,
       handle: `@${m.name.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 16)}`,
       initials: getInitials(m.name),
       avatarClass: `g${(idx % 8) + 1}`,
+      coverGradient: gradient,
       type: isMall ? 'mega_mall' : isWholesale ? 'wholesale_plaza' : 'transport_hub',
       typeLabel: isMall ? 'Commercial Hub' : isWholesale ? 'Wholesale Plaza' : 'Transit Hub',
       province: m.province || 'South Africa',
@@ -563,11 +699,19 @@ export function getMarkets(): MarketItem[] {
       googleMapsUrl,
       whatsapp: '27781234567',
       description: m.landmarks?.length
-        ? `Major trade precinct near ${m.landmarks.slice(0, 2).join(' and ')}.`
-        : `${m.name} — verified South African trade precinct with active trade counters.`,
+        ? `Major trading community near ${m.landmarks.slice(0, 2).join(' and ')}.`
+        : `${m.name} — verified South African trade community with active trade counters.`,
       href: `/market/${m.id}`,
-    };
+      isCommunityGroup: false,
+      memberCount,
+      dailyPostVolume,
+      groupCategory: isWholesale ? 'wholesale_importers' : 'suburb_buy_sell',
+      moderationType: 'cipc_verified_merchants',
+      recentPosts,
+    });
   });
+
+  return result;
 }
 
 export interface ProductCatalogItem {

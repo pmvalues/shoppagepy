@@ -123,12 +123,13 @@ export default function DiscoveryFeed({
   const [selectedShortModal, setSelectedShortModal] = useState<ShortItem | null>(null);
 
   // Markets tab state
-  const [marketSubFilter, setMarketSubFilter] = useState<'all' | 'fav' | 'wholesale' | 'malls' | 'transit'>('all');
+  const [marketSubFilter, setMarketSubFilter] = useState<string>('all');
   const [marketProvince, setMarketProvince] = useState('all');
   const [marketViewMode, setMarketViewMode] = useState<'grid' | 'list'>('grid');
   const [marketSearch, setMarketSearch] = useState('');
   const [favMarkets, setFavMarkets] = useState<Record<string, boolean>>({});
   const [followedMarkets, setFollowedMarkets] = useState<Record<string, boolean>>({});
+  const [joinedMarkets, setJoinedMarkets] = useState<Record<string, boolean>>({});
 
   // Shorts tab state
   const [shortsCategory, setShortsCategory] = useState('all');
@@ -242,11 +243,13 @@ export default function DiscoveryFeed({
           detail: {
             totalMarkets: allMarkets.length,
             activeFilter: marketSubFilter,
+            joinedCount: Object.values(joinedMarkets).filter(Boolean).length,
+            favCount: Object.values(favMarkets).filter(Boolean).length,
           },
         })
       );
     }
-  }, [allMarkets, marketSubFilter]);
+  }, [allMarkets, marketSubFilter, joinedMarkets, favMarkets]);
 
   const toast = (msg: string) => {
     setToastMsg(msg);
@@ -257,7 +260,7 @@ export default function DiscoveryFeed({
     }, 2600);
   };
 
-  // Load saved favourites, follows, user posts, and reactions from localStorage
+  // Load saved favourites, follows, joined groups, user posts, and reactions from localStorage
   useEffect(() => {
     try {
       const savedFavs = localStorage.getItem('shoppage_fav_markets');
@@ -265,6 +268,9 @@ export default function DiscoveryFeed({
 
       const savedFollows = localStorage.getItem('shoppage_followed_markets');
       if (savedFollows) setFollowedMarkets(JSON.parse(savedFollows));
+
+      const savedJoined = localStorage.getItem('shoppage_joined_markets');
+      if (savedJoined) setJoinedMarkets(JSON.parse(savedJoined));
 
       const savedLikes = localStorage.getItem('shoppage_liked_posts');
       if (savedLikes) setLiked(JSON.parse(savedLikes));
@@ -357,8 +363,18 @@ export default function DiscoveryFeed({
       }
     };
 
+    const handleJoinedSync = (e: CustomEvent) => {
+      if (e.detail?.joinedMarkets) {
+        setJoinedMarkets(e.detail.joinedMarkets);
+      }
+    };
+
     window.addEventListener('shoppage-nav' as any, handleCustomEvent);
-    return () => window.removeEventListener('shoppage-nav' as any, handleCustomEvent);
+    window.addEventListener('shoppage-joined-markets-sync' as any, handleJoinedSync);
+    return () => {
+      window.removeEventListener('shoppage-nav' as any, handleCustomEvent);
+      window.removeEventListener('shoppage-joined-markets-sync' as any, handleJoinedSync);
+    };
   }, [tab]);
 
   // Toggle market favourite
@@ -381,6 +397,20 @@ export default function DiscoveryFeed({
       localStorage.setItem('shoppage_followed_markets', JSON.stringify(updated));
     } catch {}
     toast(next ? `Following ${name}` : `Unfollowed ${name}`);
+  };
+
+  // Toggle community group join
+  const toggleJoinMarket = (id: string, name: string) => {
+    const next = !joinedMarkets[id];
+    const updated = { ...joinedMarkets, [id]: next };
+    setJoinedMarkets(updated);
+    try {
+      localStorage.setItem('shoppage_joined_markets', JSON.stringify(updated));
+    } catch {}
+    toast(next ? `👥 Joined ${name}! New group listings will appear in your feed.` : `Left ${name}`);
+    window.dispatchEvent(
+      new CustomEvent('shoppage-joined-markets-sync', { detail: { joinedMarkets: updated } })
+    );
   };
 
   // Textarea resizing
@@ -627,6 +657,14 @@ export default function DiscoveryFeed({
     });
   }, [allProducts, prodCategory, prodSearch, prodSort]);
 
+  // Helper for formatting member counts
+  const formatMembers = (count?: number) => {
+    if (!count) return '10K+';
+    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
+    return count.toLocaleString();
+  };
+
   // Filter markets & groups
   const filteredMarkets = useMemo(() => {
     let list = allMarkets;
@@ -637,10 +675,64 @@ export default function DiscoveryFeed({
 
     if (marketSubFilter === 'fav') {
       list = list.filter((m) => favMarkets[m.id]);
-    } else if (marketSubFilter === 'wholesale') {
-      list = list.filter((m) => m.type === 'wholesale_plaza');
+    } else if (marketSubFilter === 'joined') {
+      list = list.filter((m) => joinedMarkets[m.id]);
+    } else if (marketSubFilter === 'solar') {
+      list = list.filter(
+        (m) =>
+          m.groupCategory === 'solar_inverter_exchange' ||
+          m.name.toLowerCase().includes('solar') ||
+          m.description.toLowerCase().includes('solar') ||
+          m.description.toLowerCase().includes('inverter')
+      );
+    } else if (marketSubFilter === 'contractor' || marketSubFilter === 'hardware') {
+      list = list.filter(
+        (m) =>
+          m.groupCategory === 'b2b_contractor_network' ||
+          m.name.toLowerCase().includes('contractor') ||
+          m.description.toLowerCase().includes('contractor') ||
+          m.description.toLowerCase().includes('hardware') ||
+          m.description.toLowerCase().includes('build')
+      );
+    } else if (marketSubFilter === 'fmcg' || marketSubFilter === 'spaza') {
+      list = list.filter(
+        (m) =>
+          m.groupCategory === 'fmcg_spaza_trade' ||
+          m.name.toLowerCase().includes('spaza') ||
+          m.name.toLowerCase().includes('fmcg') ||
+          m.description.toLowerCase().includes('spaza') ||
+          m.description.toLowerCase().includes('fmcg') ||
+          m.description.toLowerCase().includes('food')
+      );
+    } else if (marketSubFilter === 'auto') {
+      list = list.filter(
+        (m) =>
+          m.groupCategory === 'auto_parts_spares' ||
+          m.name.toLowerCase().includes('auto') ||
+          m.description.toLowerCase().includes('auto') ||
+          m.description.toLowerCase().includes('spares')
+      );
+    } else if (marketSubFilter === 'wholesale' || marketSubFilter === 'importers') {
+      list = list.filter(
+        (m) =>
+          m.groupCategory === 'wholesale_importers' ||
+          m.type === 'wholesale_plaza' ||
+          m.description.toLowerCase().includes('wholesale') ||
+          m.description.toLowerCase().includes('importer')
+      );
+    } else if (marketSubFilter === 'packaging') {
+      list = list.filter(
+        (m) =>
+          m.description.toLowerCase().includes('packag') ||
+          m.description.toLowerCase().includes('cater')
+      );
     } else if (marketSubFilter === 'malls') {
-      list = list.filter((m) => m.type === 'mega_mall');
+      list = list.filter(
+        (m) =>
+          m.type === 'mega_mall' ||
+          m.description.toLowerCase().includes('mall') ||
+          m.name.toLowerCase().includes('mall')
+      );
     } else if (marketSubFilter === 'transit') {
       list = list.filter((m) => m.type === 'transport_hub');
     }
@@ -652,12 +744,13 @@ export default function DiscoveryFeed({
           m.name.toLowerCase().includes(q) ||
           m.location.toLowerCase().includes(q) ||
           m.province.toLowerCase().includes(q) ||
-          m.description.toLowerCase().includes(q),
+          (m.town && m.town.toLowerCase().includes(q)) ||
+          m.description.toLowerCase().includes(q)
       );
     }
 
     return list;
-  }, [allMarkets, marketSubFilter, marketProvince, marketSearch, favMarkets]);
+  }, [allMarkets, marketSubFilter, marketProvince, marketSearch, favMarkets, joinedMarkets]);
 
   // Filter shorts
   const filteredShorts = useMemo(() => {
@@ -1199,33 +1292,33 @@ export default function DiscoveryFeed({
         </div>
       )}
 
-      {/* ── MY MARKETS TAB: HUBS, WHOLESALE PLAZAS & CONTRACTOR GROUPS ───── */}
+      {/* ── MY MARKETS TAB: HUBS, WHOLESALE PLAZAS & COMMUNITY TRADING GROUPS ───── */}
       {view === 'home' && tab === 'markets' && (
         <div className="markets-view">
           <div className="stream-header">
-            <h2>My Markets &amp; Trade Hubs</h2>
+            <h2>👥 Community Trading Groups &amp; Markets</h2>
             <p>
-              Follow and favourite wholesale malls, regional trade plazas, and contractor networks across South Africa.
+              Join local buy &amp; sell communities, solar guilds, contractor networks, and wholesale trade hubs across South Africa.
             </p>
           </div>
 
           {/* Quick Stats Strip */}
           <div className="market-stats-banner">
             <div className="market-stat-card">
-              <span className="val">{allMarkets.length}</span>
-              <span className="lbl">Verified Hubs</span>
+              <span className="val">{allMarkets.length}+</span>
+              <span className="lbl">Community Groups &amp; Hubs</span>
             </div>
             <div className="market-stat-card">
-              <span className="val">{allMarkets.filter((m) => m.type === 'wholesale_plaza').length}</span>
-              <span className="lbl">Wholesale Plazas</span>
+              <span className="val">450K+</span>
+              <span className="lbl">Trading Members</span>
             </div>
             <div className="market-stat-card">
-              <span className="val">1,500+</span>
-              <span className="lbl">Active Counters</span>
+              <span className="val">3,500+</span>
+              <span className="lbl">Daily Listings</span>
             </div>
             <div className="market-stat-card">
               <span className="val">9 Provinces</span>
-              <span className="lbl">Nationwide Map</span>
+              <span className="lbl">Nationwide Grid</span>
             </div>
           </div>
 
@@ -1238,7 +1331,7 @@ export default function DiscoveryFeed({
               </svg>
               <input
                 type="search"
-                placeholder="Search markets or groups (e.g. Dragon City, Oriental Plaza, Sandton)..."
+                placeholder="Search trading groups, guilds, wholesale hubs (e.g. Sandton, Solar, Crown Mines, BUCO)..."
                 value={marketSearch}
                 onChange={(e) => setMarketSearch(e.target.value)}
               />
@@ -1267,14 +1360,21 @@ export default function DiscoveryFeed({
               ))}
             </div>
 
-            {/* Market type filter pills */}
+            {/* Sector / Category filter pills */}
             <div className="chips-scroll" style={{ marginTop: '6px' }}>
               <button
                 type="button"
                 className={`chip-pill${marketSubFilter === 'all' ? ' active' : ''}`}
                 onClick={() => setMarketSubFilter('all')}
               >
-                All Formats ({allMarkets.length})
+                All Groups &amp; Hubs ({allMarkets.length})
+              </button>
+              <button
+                type="button"
+                className={`chip-pill${marketSubFilter === 'joined' ? ' active' : ''}`}
+                onClick={() => setMarketSubFilter('joined')}
+              >
+                👥 Joined Groups ({Object.values(joinedMarkets).filter(Boolean).length})
               </button>
               <button
                 type="button"
@@ -1285,10 +1385,45 @@ export default function DiscoveryFeed({
               </button>
               <button
                 type="button"
+                className={`chip-pill${marketSubFilter === 'solar' ? ' active' : ''}`}
+                onClick={() => setMarketSubFilter('solar')}
+              >
+                ⚡ Solar Guilds
+              </button>
+              <button
+                type="button"
+                className={`chip-pill${marketSubFilter === 'contractor' ? ' active' : ''}`}
+                onClick={() => setMarketSubFilter('contractor')}
+              >
+                🧱 Contractors &amp; Hardware
+              </button>
+              <button
+                type="button"
+                className={`chip-pill${marketSubFilter === 'fmcg' ? ' active' : ''}`}
+                onClick={() => setMarketSubFilter('fmcg')}
+              >
+                🛒 Spaza &amp; FMCG Bulk
+              </button>
+              <button
+                type="button"
+                className={`chip-pill${marketSubFilter === 'auto' ? ' active' : ''}`}
+                onClick={() => setMarketSubFilter('auto')}
+              >
+                🚗 Auto &amp; Spares
+              </button>
+              <button
+                type="button"
                 className={`chip-pill${marketSubFilter === 'wholesale' ? ' active' : ''}`}
                 onClick={() => setMarketSubFilter('wholesale')}
               >
-                🏢 Wholesale Plazas
+                🏢 Direct Importers &amp; Plazas
+              </button>
+              <button
+                type="button"
+                className={`chip-pill${marketSubFilter === 'packaging' ? ' active' : ''}`}
+                onClick={() => setMarketSubFilter('packaging')}
+              >
+                📦 Catering &amp; Packaging
               </button>
               <button
                 type="button"
@@ -1296,13 +1431,6 @@ export default function DiscoveryFeed({
                 onClick={() => setMarketSubFilter('malls')}
               >
                 🏬 Commercial Malls
-              </button>
-              <button
-                type="button"
-                className={`chip-pill${marketSubFilter === 'transit' ? ' active' : ''}`}
-                onClick={() => setMarketSubFilter('transit')}
-              >
-                🚌 Transit Ranks
               </button>
             </div>
 
@@ -1321,7 +1449,7 @@ export default function DiscoveryFeed({
               }}
             >
               <div style={{ fontSize: '13px', color: 'var(--text2)' }}>
-                Showing <b>{filteredMarkets.length}</b> verified trade hubs
+                Showing <b>{filteredMarkets.length}</b> verified trading groups &amp; hubs
               </div>
               <div style={{ display: 'flex', gap: '4px' }}>
                 <button
@@ -1345,175 +1473,115 @@ export default function DiscoveryFeed({
           </div>
 
           {/* Markets Display: Grid vs List */}
-          {marketViewMode === 'grid' ? (
-            <div className="markets-grid">
-              {filteredMarkets.length > 0 ? (
-                filteredMarkets.map((m) => {
-                  const isFav = !!favMarkets[m.id];
-                  const isFollowed = !!followedMarkets[m.id];
-                  return (
-                    <div key={m.id} className="market-grid-card">
-                      <div>
-                        <div className="market-card-top">
-                          <div className={`avatar ${m.avatarClass}`} style={{ width: '48px', height: '48px', fontSize: '16px' }}>
-                            {m.initials}
-                          </div>
-                          <div className="market-card-info">
-                            <h3 className="market-card-name" title={m.name}>
-                              <button
-                                type="button"
-                                onClick={() => setSelectedMarketDetail(m)}
-                                style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', color: 'inherit', cursor: 'pointer', textAlign: 'left', fontWeight: 800 }}
-                              >
-                                {m.name}
-                              </button>
-                            </h3>
-                            <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', marginTop: '2px' }}>
-                              <span className="chip" style={{ fontSize: '11px', padding: '2px 6px' }}>{m.typeLabel}</span>
-                              <span style={{ fontSize: '12px', color: 'var(--text2)' }}>{m.province}</span>
-                            </div>
-                          </div>
+          <div className={marketViewMode === 'grid' ? 'fb-group-grid' : 'markets-list'}>
+            {filteredMarkets.length > 0 ? (
+              filteredMarkets.map((m) => {
+                const isFav = !!favMarkets[m.id];
+                const isJoined = !!joinedMarkets[m.id];
+                return (
+                  <div key={m.id} className="fb-group-card">
+                    <div
+                      className="fb-group-cover-strip"
+                      style={{ background: m.coverGradient || 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)' }}
+                    >
+                      <span className="fb-cover-tag">{m.typeLabel || 'Community Group'}</span>
+                      <span className="fb-cover-tag" style={{ background: 'rgba(0,0,0,0.6)' }}>
+                        🌐 Public Group
+                      </span>
+                    </div>
+
+                    <div className="fb-group-body">
+                      <div className="fb-group-avatar-row">
+                        <div className={`avatar ${m.avatarClass || 'g1'} fb-group-avatar`}>
+                          {m.initials}
                         </div>
-
-                        <p className="market-card-desc">{m.description}</p>
-
-                        <div className="market-card-meta-row">
-                          <span>📍 {m.location.split(',')[0]}</span>
-                          {m.stalls ? <span>· <b>{m.stalls}+ Stalls</b></span> : null}
-                          {m.operatingHours ? <span>· ⏰ {m.operatingHours.split('|')[0].trim()}</span> : null}
-                        </div>
-                      </div>
-
-                      <div className="market-card-actions">
-                        <button
-                          type="button"
-                          className="btn-card-quick"
-                          onClick={() => setSelectedMarketDetail(m)}
-                        >
-                          Quick View
-                        </button>
                         <button
                           type="button"
                           className={`fav-btn${isFav ? ' active' : ''}`}
                           onClick={() => toggleFavMarket(m.id, m.name)}
                           title={isFav ? 'Remove favourite' : 'Add to favourites'}
-                          style={{ padding: '6px 10px', fontSize: '12px' }}
+                          style={{ padding: '6px 10px', fontSize: '13px', borderRadius: '8px' }}
                         >
                           {isFav ? '★' : '☆'}
                         </button>
-                        <button
-                          type="button"
-                          className={`follow-btn${isFollowed ? ' active' : ''}`}
-                          onClick={() => toggleFollowMarket(m.id, m.name)}
-                          style={{ padding: '6px 12px', fontSize: '12px' }}
-                        >
-                          {isFollowed ? 'Following' : 'Follow'}
-                        </button>
-                        <Link
-                          href={m.href}
-                          className="visit-btn"
-                          style={{ padding: '6px 12px', fontSize: '12px' }}
-                        >
-                          Stalls 🏢
-                        </Link>
                       </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="empty" style={{ gridColumn: '1 / -1' }}>
-                  <h3>No markets match this filter</h3>
-                  <p>Try switching to &quot;All Formats&quot; or clearing your province selection.</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            /* List View */
-            <div className="markets-list">
-              {filteredMarkets.length > 0 ? (
-                filteredMarkets.map((m) => {
-                  const isFav = !!favMarkets[m.id];
-                  const isFollowed = !!followedMarkets[m.id];
-                  return (
-                    <div key={m.id} className="market-card">
-                      <div className={`avatar ${m.avatarClass}`}>{m.initials}</div>
-                      <div className="market-content">
-                        <div className="market-header">
-                          <div>
-                            <h3 className="market-title">
-                              <button
-                                type="button"
-                                onClick={() => setSelectedMarketDetail(m)}
-                                style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', color: 'inherit', cursor: 'pointer', textAlign: 'left' }}
-                              >
-                                {m.name}
-                              </button>
-                            </h3>
-                            <p className="market-meta">
-                              {m.handle} · <span className="chip">{m.typeLabel}</span> · <span>📍 {m.province}</span>
-                            </p>
+
+                      <div className="fb-group-title">
+                        <button type="button" onClick={() => setSelectedMarketDetail(m)}>
+                          {m.name}
+                        </button>
+                      </div>
+
+                      <div className="fb-group-social-proof">
+                        <span>👥 <b>{formatMembers(m.memberCount)}</b> members</span>
+                        <span>·</span>
+                        <span>💬 <b>{m.dailyPostVolume || 85}</b> posts/day</span>
+                        <span>·</span>
+                        <span>📍 {m.town || m.location.split(',')[0]}</span>
+                      </div>
+
+                      <p className="fb-group-desc">{m.description}</p>
+
+                      {m.recentPosts && m.recentPosts.length > 0 && (
+                        <div
+                          className="fb-group-preview-post"
+                          onClick={() => setSelectedMarketDetail(m)}
+                          style={{ cursor: 'pointer' }}
+                          title="Click to view full group feed"
+                        >
+                          <div style={{ fontWeight: 700, fontSize: '11px', color: '#0284C7', marginBottom: '2px' }}>
+                            💬 Latest Trade Offer:
+                          </div>
+                          <div style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                            &quot;{m.recentPosts[0].text}&quot;
                           </div>
                         </div>
+                      )}
 
-                        <p className="market-desc">{m.description}</p>
+                      <div className="fb-group-actions">
+                        <button
+                          type="button"
+                          className={`fb-btn-join${isJoined ? ' joined' : ''}`}
+                          onClick={() => toggleJoinMarket(m.id, m.name)}
+                        >
+                          {isJoined ? '✓ Joined' : '+ Join Group'}
+                        </button>
 
-                        <p className="market-meta" style={{ marginTop: '6px' }}>
-                          📍 {m.location}
-                          {m.stalls ? (
-                            <>
-                              {' '}· <b>{m.stalls}+ Active Stalls</b>
-                            </>
-                          ) : null}
-                          {m.operatingHours ? (
-                            <>
-                              {' '}· ⏰ {m.operatingHours.split('|')[0].trim()}
-                            </>
-                          ) : null}
-                        </p>
-
-                        <div className="market-actions">
-                          <button
-                            type="button"
-                            className="btn-card-quick"
-                            onClick={() => setSelectedMarketDetail(m)}
-                            style={{ flex: 'none', padding: '6px 14px' }}
-                          >
-                            Quick View
-                          </button>
-
-                          <button
-                            type="button"
-                            className={`fav-btn${isFav ? ' active' : ''}`}
-                            onClick={() => toggleFavMarket(m.id, m.name)}
-                            title={isFav ? 'Remove favourite' : 'Add to favourites'}
-                          >
-                            {isFav ? '★ Favoured' : '⭐ Favourite'}
-                          </button>
-
-                          <button
-                            type="button"
-                            className={`follow-btn${isFollowed ? ' active' : ''}`}
-                            onClick={() => toggleFollowMarket(m.id, m.name)}
-                          >
-                            {isFollowed ? 'Following' : 'Follow'}
-                          </button>
-
-                          <Link href={m.href} className="visit-btn">
-                            Browse Stalls 🏢
-                          </Link>
-                        </div>
+                        <button
+                          type="button"
+                          className="fb-btn-view"
+                          onClick={() => setSelectedMarketDetail(m)}
+                        >
+                          View Group 💬
+                        </button>
                       </div>
                     </div>
-                  );
-                })
-              ) : (
-                <div className="empty">
-                  <h3>No markets match this filter</h3>
-                  <p>Try switching to &quot;All Hubs&quot; or clearing your search term.</p>
-                </div>
-              )}
-            </div>
-          )}
+                  </div>
+                );
+              })
+            ) : marketSubFilter === 'joined' ? (
+              <div className="empty" style={{ gridColumn: '1 / -1', padding: '40px 20px', textAlign: 'center' }}>
+                <div style={{ fontSize: '40px', marginBottom: '12px' }}>👥</div>
+                <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '6px' }}>You haven&apos;t joined any trading groups yet</h3>
+                <p style={{ color: 'var(--text2)', maxWidth: '460px', margin: '0 auto 16px', fontSize: '14px', lineHeight: 1.5 }}>
+                  Join local buy &amp; sell communities, solar guilds, spaza exchanges, and wholesale importer groups to curate your personal trade feed.
+                </p>
+                <button
+                  type="button"
+                  className="chip-pill active"
+                  onClick={() => setMarketSubFilter('all')}
+                  style={{ padding: '8px 18px', fontSize: '14px' }}
+                >
+                  Browse All Groups ({allMarkets.length})
+                </button>
+              </div>
+            ) : (
+              <div className="empty" style={{ gridColumn: '1 / -1' }}>
+                <h3>No groups match this filter</h3>
+                <p>Try switching to &quot;All Groups &amp; Hubs&quot; or clearing your search term.</p>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -1991,9 +2059,9 @@ export default function DiscoveryFeed({
           market={selectedMarketDetail}
           onClose={() => setSelectedMarketDetail(null)}
           isFav={!!favMarkets[selectedMarketDetail.id]}
-          isFollowed={!!followedMarkets[selectedMarketDetail.id]}
+          isJoined={!!joinedMarkets[selectedMarketDetail.id]}
           onToggleFav={toggleFavMarket}
-          onToggleFollow={toggleFollowMarket}
+          onToggleJoin={toggleJoinMarket}
         />
       )}
 

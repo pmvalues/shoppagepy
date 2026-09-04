@@ -111,78 +111,90 @@ const FALLBACK_TOP_PRODUCTS = [
 ];
 
 // Markets: Trade Corridors / Provinces
-const RAIL_MARKET_REGIONS = [
-  { id: '', label: 'All Trade Regions', count: '3,300+', icon: '🇿🇦' },
-  { id: 'Gauteng', label: 'Gauteng Trade Hub', count: '1,420+', icon: '🟡' },
-  { id: 'Western Cape', label: 'Western Cape Corridor', count: '680+', icon: '🟢' },
-  { id: 'KwaZulu-Natal', label: 'KwaZulu-Natal Ports', count: '540+', icon: '🔵' },
-  { id: 'Eastern Cape', label: 'Eastern Cape Hub', count: '290+', icon: '🟠' },
-  { id: 'Free State', label: 'Free State Central', count: '180+', icon: '🟣' },
-  { id: 'Limpopo', label: 'Limpopo / North Corridors', count: '210+', icon: '🟤' },
+// Markets: Community Sectors & Guilds
+const RAIL_COMMUNITY_SECTORS = [
+  { id: 'all', label: 'All Groups & Hubs', count: '100+', icon: '🇿🇦' },
+  { id: 'joined', label: 'Joined Groups', countKey: 'joined', icon: '👥' },
+  { id: 'fav', label: 'Favoured Guilds', countKey: 'fav', icon: '⭐' },
+  { id: 'solar', label: 'Solar & Inverter Guilds', count: '16', icon: '⚡' },
+  { id: 'contractor', label: 'Contractors & Hardware', count: '14', icon: '🧱' },
+  { id: 'fmcg', label: 'Spaza & FMCG Bulk', count: '12', icon: '🛒' },
+  { id: 'auto', label: 'Auto Parts & Spares', count: '10', icon: '🚗' },
+  { id: 'wholesale', label: 'Wholesale Importers', count: '12', icon: '🏢' },
+  { id: 'packaging', label: 'Catering & Packaging', count: '8', icon: '📦' },
+  { id: 'malls', label: 'Commercial Malls', count: '10', icon: '🏬' },
 ];
 
-const FEATURED_PLAZAS = [
+const FEATURED_COMMUNITY_GROUPS = [
   {
-    id: 'dragon_city',
-    name: 'Dragon City Wholesale Plaza',
-    location: 'Crown Mines, Johannesburg',
-    stalls: '450+ wholesale stalls',
-    tag: 'Wholesale B2B',
-    icon: '🐉',
-    query: 'Dragon City',
+    id: 'grp_sandton_buy_sell',
+    name: 'Sandton Community Buy & Sell',
+    location: 'Sandton, Johannesburg',
+    members: '42.5K members',
+    dailyPosts: '140 posts/day',
+    tag: 'Public Group',
+    initials: 'SC',
+    avatarClass: 'g1',
+    query: 'Sandton',
   },
   {
-    id: 'china_mall',
-    name: 'China Mall Amalgam',
-    location: 'Crown Mines, Johannesburg',
-    stalls: '600+ direct importers',
+    id: 'grp_pta_solar',
+    name: 'Pretoria Solar & Inverter Guild',
+    location: 'Pretoria East & Centurion',
+    members: '28.4K members',
+    dailyPosts: '95 posts/day',
+    tag: 'Solar & Power',
+    initials: 'PS',
+    avatarClass: 'g2',
+    query: 'Solar',
+  },
+  {
+    id: 'grp_crown_mines_importers',
+    name: 'Crown Mines Wholesale Importers',
+    location: 'Crown Mines & Amalgam, JHB',
+    members: '51.2K members',
+    dailyPosts: '210 posts/day',
     tag: 'Direct Import Hub',
-    icon: '🏬',
-    query: 'China Mall',
+    initials: 'CM',
+    avatarClass: 'g3',
+    query: 'Crown Mines',
   },
   {
-    id: 'oriental_plaza',
-    name: 'Oriental Plaza Fordsburg',
-    location: 'Fordsburg, Johannesburg',
-    stalls: '360+ specialty stores',
-    tag: 'Textiles & FMCG',
-    icon: '🕌',
-    query: 'Oriental Plaza',
+    id: 'grp_east_rand_contractors',
+    name: 'East Rand Contractors Network',
+    location: 'Boksburg & Benoni, Gauteng',
+    members: '19.8K members',
+    dailyPosts: '75 posts/day',
+    tag: 'Building & Civils',
+    initials: 'ER',
+    avatarClass: 'g5',
+    query: 'Contractor',
   },
   {
-    id: 'menlyn_park',
-    name: 'Menlyn Park Mega Mall',
-    location: 'Pretoria East, Gauteng',
-    stalls: '500+ flagship stores',
-    tag: 'Super Regional Mall',
-    icon: '🛍️',
-    query: 'Menlyn',
-  },
-  {
-    id: 'canal_walk',
-    name: 'Canal Walk Shopping Centre',
-    location: 'Century City, Cape Town',
-    stalls: '400+ stores',
-    tag: 'Regional Trade Hub',
-    icon: '🚢',
-    query: 'Canal Walk',
-  },
-  {
-    id: 'gateway',
-    name: 'Gateway Theatre of Shopping',
-    location: 'Umhlanga, Durban',
-    stalls: '430+ stores',
-    tag: 'Coastal Mega Mall',
-    icon: '🌊',
-    query: 'Gateway',
+    id: 'grp_durban_fmcg',
+    name: 'Durban Coastal FMCG Exchange',
+    location: 'Durban Central & Pinetown',
+    members: '33.1K members',
+    dailyPosts: '120 posts/day',
+    tag: 'Wholesale FMCG',
+    initials: 'DC',
+    avatarClass: 'g6',
+    query: 'FMCG',
   },
 ];
 
-const QUICK_MARKET_FILTERS = [
-  { label: '🏬 Wholesale Plazas Only', filter: 'wholesale' },
-  { label: '⭐ My Favourites', filter: 'fav' },
-  { label: '🛍️ Mega Malls', query: 'Mega Mall' },
-  { label: '🇿🇦 All Trade Hubs', filter: 'all' },
+const QUICK_COMMUNITY_FILTERS = [
+  { label: '👥 Joined Groups', filter: 'joined' },
+  { label: '⭐ Favoured', filter: 'fav' },
+  { label: '⚡ Solar Guilds', filter: 'solar' },
+  { label: '🧱 Contractors', filter: 'contractor' },
+  { label: '🛒 FMCG Spaza', filter: 'fmcg' },
+  { label: '🚗 Auto Spares', filter: 'auto' },
+  { label: '🏢 Wholesale Importers', filter: 'wholesale' },
+  { label: '📦 Packaging', filter: 'packaging' },
+  { label: '📍 Gauteng', query: 'Gauteng' },
+  { label: '📍 Western Cape', query: 'Western Cape' },
+  { label: '📍 KwaZulu-Natal', query: 'KwaZulu-Natal' },
 ];
 
 export default function CommerceRail() {
@@ -193,6 +205,8 @@ export default function CommerceRail() {
   const [activeProdCategory, setActiveProdCategory] = useState<string>('all');
   const [activeMarketRegion, setActiveMarketRegion] = useState<string>('');
   const [activeMarketFilter, setActiveMarketFilter] = useState<string>('all');
+  const [joinedCount, setJoinedCount] = useState<number>(0);
+  const [favCount, setFavCount] = useState<number>(0);
 
   const [syncTopDrops, setSyncTopDrops] = useState<any[]>([]);
   const [syncTopProducts, setSyncTopProducts] = useState<any[]>([]);
@@ -228,6 +242,18 @@ export default function CommerceRail() {
     try {
       const savedTab = localStorage.getItem('shoppage_active_tab');
       if (savedTab) setActiveTab(savedTab);
+
+      const savedJoined = localStorage.getItem('shoppage_joined_markets');
+      if (savedJoined) {
+        const parsed = JSON.parse(savedJoined);
+        setJoinedCount(Object.values(parsed).filter(Boolean).length);
+      }
+
+      const savedFavs = localStorage.getItem('shoppage_fav_markets');
+      if (savedFavs) {
+        const parsed = JSON.parse(savedFavs);
+        setFavCount(Object.values(parsed).filter(Boolean).length);
+      }
     } catch {}
 
     const handleTabChange = (e: CustomEvent) => {
@@ -264,21 +290,31 @@ export default function CommerceRail() {
     };
 
     const handleMarketsSync = (e: CustomEvent) => {
-      const { totalMarkets: tm, activeFilter: af } = e.detail || {};
+      const { totalMarkets: tm, activeFilter: af, joinedCount: jc, favCount: fc } = e.detail || {};
       if (tm) setTotalMarkets(tm);
       if (af) setActiveMarketFilter(af);
+      if (typeof jc === 'number') setJoinedCount(jc);
+      if (typeof fc === 'number') setFavCount(fc);
+    };
+
+    const handleJoinedSync = (e: CustomEvent) => {
+      if (e.detail?.joinedMarkets) {
+        setJoinedCount(Object.values(e.detail.joinedMarkets).filter(Boolean).length);
+      }
     };
 
     window.addEventListener('shoppage-active-tab' as any, handleTabChange);
     window.addEventListener('shoppage-deals-sync' as any, handleDealsSync);
     window.addEventListener('shoppage-products-sync' as any, handleProductsSync);
     window.addEventListener('shoppage-markets-sync' as any, handleMarketsSync);
+    window.addEventListener('shoppage-joined-markets-sync' as any, handleJoinedSync);
 
     return () => {
       window.removeEventListener('shoppage-active-tab' as any, handleTabChange);
       window.removeEventListener('shoppage-deals-sync' as any, handleDealsSync);
       window.removeEventListener('shoppage-products-sync' as any, handleProductsSync);
       window.removeEventListener('shoppage-markets-sync' as any, handleMarketsSync);
+      window.removeEventListener('shoppage-joined-markets-sync' as any, handleJoinedSync);
     };
   }, []);
 
@@ -360,7 +396,7 @@ export default function CommerceRail() {
   const getSearchPlaceholder = () => {
     if (activeTab === 'deals') return 'Search verified specials...';
     if (activeTab === 'products') return 'Search 100,000+ verified products...';
-    if (activeTab === 'markets') return 'Search 3,300+ malls & wholesale hubs...';
+    if (activeTab === 'markets') return 'Search community groups & trading hubs...';
     return 'Search Shoppage';
   };
 
@@ -374,7 +410,7 @@ export default function CommerceRail() {
           </svg>
           <input
             type="search"
-            placeholder={activeTab === 'deals' ? 'Search verified specials...' : 'Search Shoppage'}
+            placeholder={getSearchPlaceholder()}
             value={searchInput}
             onChange={(e) => {
               const val = e.target.value;
@@ -592,59 +628,69 @@ export default function CommerceRail() {
           </div>
         </>
       ) : activeTab === 'markets' ? (
-        /* ── MARKETS DEDICATED RIGHT RAIL ────────────────────────────── */
+        /* ── MARKETS DEDICATED RIGHT RAIL (COMMUNITY GUILDS & FACEBOOK GROUPS) ── */
         <>
-          {/* Regional Trade Corridors */}
+          {/* Community Sectors & Guilds Breakdown */}
           <div className="rcard">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <h3 style={{ margin: 0 }}>📍 Regional Trade Hubs</h3>
+              <h3 style={{ margin: 0 }}>👥 Trading Groups &amp; Guilds</h3>
               <span style={{ fontSize: '11px', color: 'var(--text2)', fontWeight: 600 }}>
                 {totalMarkets.toLocaleString()}+ hubs
               </span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {RAIL_MARKET_REGIONS.map((r) => {
-                const isActive = activeMarketRegion === r.id;
+              {RAIL_COMMUNITY_SECTORS.map((s) => {
+                const isActive = activeMarketFilter === s.id;
+                const countDisplay =
+                  s.id === 'all'
+                    ? `${totalMarkets.toLocaleString()}`
+                    : s.countKey === 'joined'
+                    ? `${joinedCount}`
+                    : s.countKey === 'fav'
+                    ? `${favCount}`
+                    : s.count;
+
                 return (
                   <div
-                    key={r.id || 'all'}
+                    key={s.id}
                     className={`rail-retailer-row${isActive ? ' active' : ''}`}
-                    onClick={() => handleMarketRegionClick(r.id)}
+                    onClick={() => handleMarketFilterClick(s.id)}
                   >
                     <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span>{r.icon}</span>
-                      <span>{r.label}</span>
+                      <span>{s.icon}</span>
+                      <span>{s.label}</span>
                     </span>
-                    <span className="rail-retailer-cnt">
-                      {r.count}
-                    </span>
+                    <span className="rail-retailer-cnt">{countDisplay}</span>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          {/* Premier Wholesale Plazas & Mega Malls */}
+          {/* High-Activity Community Trading Groups (Facebook Style) */}
           <div className="rcard">
-            <h3 style={{ marginBottom: '10px' }}>🏢 Premier Wholesale Plazas</h3>
+            <h3 style={{ marginBottom: '10px' }}>🔥 High-Activity Trading Groups</h3>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {FEATURED_PLAZAS.map((m) => (
+              {FEATURED_COMMUNITY_GROUPS.map((g) => (
                 <div
-                  key={m.id}
+                  key={g.id}
                   className="rail-drop-item"
-                  title={m.name}
-                  onClick={() => handleMarketSearchClick(m.query)}
+                  title={g.name}
+                  onClick={() => handleMarketSearchClick(g.query)}
+                  style={{ cursor: 'pointer' }}
                 >
-                  <div className="rail-drop-thumb" style={{ fontSize: '20px', background: 'var(--hover)' }}>
-                    {m.icon}
+                  <div className={`avatar ${g.avatarClass}`} style={{ width: '38px', height: '38px', fontSize: '13px', flexShrink: 0, borderRadius: '10px' }}>
+                    {g.initials}
                   </div>
                   <div className="rail-drop-info">
-                    <div className="rail-drop-title">{m.name}</div>
-                    <div className="rail-drop-meta">{m.location}</div>
+                    <div className="rail-drop-title">{g.name}</div>
+                    <div className="rail-drop-meta">{g.location}</div>
                     <div className="rail-drop-prices">
-                      <span style={{ fontSize: '11px', color: 'var(--text2)', fontWeight: 600 }}>{m.stalls}</span>
+                      <span style={{ fontSize: '11px', color: 'var(--text2)', fontWeight: 600 }}>
+                        {g.members} · {g.dailyPosts}
+                      </span>
                       <span className="rail-drop-badge" style={{ color: 'var(--blue)', background: 'rgba(59, 130, 246, 0.12)' }}>
-                        {m.tag}
+                        {g.tag}
                       </span>
                     </div>
                   </div>
@@ -653,15 +699,15 @@ export default function CommerceRail() {
             </div>
           </div>
 
-          {/* Quick Market Filters */}
+          {/* Quick Community Topics & Filters */}
           <div className="rcard">
-            <h3 style={{ marginBottom: '10px' }}>🎯 Hub Filters</h3>
+            <h3 style={{ marginBottom: '10px' }}>🎯 Quick Community Topics</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {QUICK_MARKET_FILTERS.map((f) => (
+              {QUICK_COMMUNITY_FILTERS.map((f) => (
                 <button
                   key={f.label}
                   type="button"
-                  className={`quick-discount-chip${(f.filter && activeMarketFilter === f.filter) ? ' active' : ''}`}
+                  className={`quick-discount-chip${f.filter && activeMarketFilter === f.filter ? ' active' : ''}`}
                   onClick={() => {
                     if (f.filter) {
                       handleMarketFilterClick(f.filter);
@@ -676,16 +722,16 @@ export default function CommerceRail() {
             </div>
           </div>
 
-          {/* Claim Plaza Stall Promo Card */}
+          {/* Verified Community Trade Guarantee Card */}
           <div className="rcard promo" style={{ background: 'color-mix(in srgb, var(--brand) 8%, var(--card))', border: '1px solid color-mix(in srgb, var(--brand) 30%, var(--border))' }}>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              🏬 Are You a Plaza or Mall Tenant?
+              🛡️ Verified Community Trade Guarantee
             </h3>
             <p style={{ fontSize: '12px', lineHeight: 1.4, margin: '6px 0 0', color: 'var(--text2)' }}>
-              Claim your verified trade counter on Shoppage. List your stall number, connect your WhatsApp catalog, and reach wholesale buyers nationwide.
+              Community buy &amp; sell groups on Shoppage feature verified trader credentials, WhatsApp catalog sync, and zero middleman commissions for peer-to-peer and trade-counter commerce.
             </p>
             <Link href="/merchant/claim" className="follow" style={{ display: 'inline-block', textAlign: 'center', marginTop: '10px' }}>
-              Claim Your Stall ↗
+              Verify Your Trading Profile ↗
             </Link>
           </div>
         </>
