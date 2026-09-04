@@ -611,8 +611,8 @@ export default function DiscoveryFeed({
         )}
       </div>
 
-      {/* ── COMPOSER (Home view & For You / Deals only) ────────────────────── */}
-      {view === 'home' && (tab === 'foryou' || tab === 'deals') && (
+      {/* ── COMPOSER (Home view & For You only) ────────────────────────────── */}
+      {view === 'home' && tab === 'foryou' && (
         <div className="composer">
           <div className="avatar g8">Y</div>
           <div className="cbody">
@@ -627,7 +627,7 @@ export default function DiscoveryFeed({
             <textarea
               ref={textareaRef}
               rows={1}
-              placeholder="What's the deal?!"
+              placeholder="What's happening in trade?!"
               value={composerText}
               onChange={handleComposerInput}
             />
@@ -963,25 +963,8 @@ export default function DiscoveryFeed({
       {/* ── DEALS TAB: MAJOR RETAILER CIRCULARS & DISCOVERED SPECIALS (GUZZLE-STYLE) ── */}
       {view === 'home' && tab === 'deals' && (
         <div className="products-view">
-          <div className="stream-header" style={{ padding: '16px 20px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', marginBottom: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-              <div>
-                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  🔥 South Africa Retailer Specials &amp; Circulars
-                </h2>
-                <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--text2)', lineHeight: 1.4 }}>
-                  Weekly circular specials aggregated from Makro, Game, Builders, BUCO, SPAR, Bradlows, and more. <b>Every deal links directly to the official product checkout page.</b>
-                </p>
-              </div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, padding: '4px 10px', borderRadius: '20px', background: 'color-mix(in srgb, var(--brand) 15%, transparent)', color: 'var(--brand)', border: '1px solid color-mix(in srgb, var(--brand) 30%, transparent)' }}>
-                  ✓ 1,176 Verified Specials
-                </span>
-                <span style={{ fontSize: '12px', fontWeight: 600, padding: '4px 10px', borderRadius: '20px', background: 'var(--hover)', color: 'var(--text2)', border: '1px solid var(--border)' }}>
-                  🛡️ 100% Direct URLs
-                </span>
-              </div>
-            </div>
+          <div className="stream-header">
+            <h2>🔥 South Africa Retailer Specials &amp; Circulars</h2>
           </div>
 
           <div className="stream-tools">
