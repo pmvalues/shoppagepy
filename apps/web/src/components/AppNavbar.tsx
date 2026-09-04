@@ -155,6 +155,39 @@ export default function AppNavbar({
 
   return (
     <>
+      {/* ── MOBILE APP HEADER (Sticky top on screens <= 700px) ───── */}
+      <header className="mobile-header">
+        <Link href="/" className="mobile-header-logo" title="Shoppage South Africa">
+          <ShoppageLogoMark size={28} />
+          <span className="mobile-wordmark">Shoppage</span>
+        </Link>
+        <div className="mobile-header-actions">
+          <button
+            type="button"
+            className="mobile-header-btn"
+            onClick={cycleTheme}
+            title={`Current theme: ${THEME_NAMES[THEMES[themeIdx]]} (tap to cycle)`}
+            aria-label="Toggle theme"
+          >
+            <span>{THEMES[themeIdx] === 'dark' ? '🌙' : THEMES[themeIdx] === 'dim' ? '🌔' : '☀️'}</span>
+          </button>
+          <button
+            type="button"
+            className="mobile-header-btn"
+            onClick={() => setIsCartOpen(true)}
+            title="Trade Cart"
+            aria-label="Open Trade Cart"
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 3h2l2.6 12.4a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20.6 8H6" />
+              <circle cx="9.5" cy="20" r="1.7" />
+              <circle cx="17.5" cy="20" r="1.7" />
+            </svg>
+            {cartCount > 0 && <span className="mobile-header-badge">{cartCount}</span>}
+          </button>
+        </div>
+      </header>
+
       <div className={`shell${collapsed ? ' is-nav-collapsed' : ''}`}>
         {/* ── LEFT RAIL WITH COLLAPSING ───────────────────────────────── */}
         <aside className={`left${collapsed ? ' is-collapsed' : ''}`}>
@@ -397,39 +430,6 @@ export default function AppNavbar({
             <span className="dots">···</span>
           </div>
         </aside>
-
-        {/* ── MOBILE APP HEADER (Sticky top on screens <= 700px) ───── */}
-        <header className="mobile-header">
-          <Link href="/" className="mobile-header-logo" title="Shoppage South Africa">
-            <ShoppageLogoMark size={28} />
-            <span className="mobile-wordmark">Shoppage</span>
-          </Link>
-          <div className="mobile-header-actions">
-            <button
-              type="button"
-              className="mobile-header-btn"
-              onClick={cycleTheme}
-              title={`Current theme: ${THEME_NAMES[THEMES[themeIdx]]} (tap to cycle)`}
-              aria-label="Toggle theme"
-            >
-              <span>{THEMES[themeIdx] === 'dark' ? '🌙' : THEMES[themeIdx] === 'dim' ? '🌔' : '☀️'}</span>
-            </button>
-            <button
-              type="button"
-              className="mobile-header-btn"
-              onClick={() => setIsCartOpen(true)}
-              title="Trade Cart"
-              aria-label="Open Trade Cart"
-            >
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 3h2l2.6 12.4a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20.6 8H6" />
-                <circle cx="9.5" cy="20" r="1.7" />
-                <circle cx="17.5" cy="20" r="1.7" />
-              </svg>
-              {cartCount > 0 && <span className="mobile-header-badge">{cartCount}</span>}
-            </button>
-          </div>
-        </header>
 
         {/* ── CENTER (Timeline) ────────────────────────────────────────── */}
         <main className="center">{children}</main>
