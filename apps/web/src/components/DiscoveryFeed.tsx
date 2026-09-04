@@ -79,11 +79,42 @@ export default function DiscoveryFeed({
   const [dealCategory, setDealCategory] = useState('all');
   const [dealSearch, setDealSearch] = useState('');
   const [dealSort, setDealSort] = useState<'discount' | 'price_asc' | 'price_desc'>('discount');
+  const [dealViewMode, setDealViewMode] = useState<'grid' | 'list'>('grid');
   const [visibleDealsCount, setVisibleDealsCount] = useState(48);
 
   useEffect(() => {
     setVisibleDealsCount(48);
   }, [dealRetailer, dealCategory, dealSearch, dealSort]);
+
+  // Sync active tab with localStorage & custom event for CommerceRail
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent('shoppage-active-tab', { detail: { tab, retailer: dealRetailer } })
+    );
+    try {
+      localStorage.setItem('shoppage_active_tab', tab);
+    } catch {}
+  }, [tab, dealRetailer]);
+
+  // Sync live deals data with CommerceRail
+  useEffect(() => {
+    if (specials && specials.length > 0) {
+      const topDrops = specials
+        .filter((s) => typeof s.dropPct === 'number' && s.dropPct > 0)
+        .sort((a, b) => (b.dropPct || 0) - (a.dropPct || 0))
+        .slice(0, 6);
+
+      window.dispatchEvent(
+        new CustomEvent('shoppage-deals-sync', {
+          detail: {
+            totalDeals: specials.length,
+            activeRetailer: dealRetailer,
+            topDrops,
+          },
+        })
+      );
+    }
+  }, [specials, dealRetailer]);
 
   // Products tab state
   const [prodSearch, setProdSearch] = useState('');
@@ -154,7 +185,7 @@ export default function DiscoveryFeed({
   // Sync with window events from navbar or commerce rail
   useEffect(() => {
     const handleCustomEvent = (e: CustomEvent) => {
-      const { type, query } = e.detail || {};
+      const { type, query, retailer, category, mode, sort } = e.detail || {};
       if (type === 'tab') {
         setTab(query as TabType);
         setView('home');
@@ -166,9 +197,29 @@ export default function DiscoveryFeed({
         setSearch(query || '');
         if (tab === 'products') {
           setProdSearch(query || '');
+        } else if (tab === 'deals') {
+          setDealSearch(query || '');
         }
+      } else if (type === 'deal-retailer') {
+        setTab('deals');
+        setDealRetailer(retailer || query || 'all');
+        setView('home');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (type === 'deal-category') {
+        setTab('deals');
+        setDealCategory(category || query || 'all');
+        setView('home');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (type === 'deal-search') {
+        setTab('deals');
+        setDealSearch(query || '');
+        setView('home');
+      } else if (type === 'deal-view-mode') {
+        setDealViewMode(mode || 'grid');
+      } else if (type === 'deal-sort') {
+        if (sort) setDealSort(sort);
       } else if (type === 'focus-composer') {
-        if (tab === 'products' || tab === 'markets' || tab === 'shorts') {
+        if (tab === 'products' || tab === 'markets' || tab === 'shorts' || tab === 'deals') {
           setTab('foryou');
         }
         setTimeout(() => {
@@ -912,12 +963,25 @@ export default function DiscoveryFeed({
       {/* ── DEALS TAB: MAJOR RETAILER CIRCULARS & DISCOVERED SPECIALS (GUZZLE-STYLE) ── */}
       {view === 'home' && tab === 'deals' && (
         <div className="products-view">
-          <div className="stream-header">
-            <h2>🔥 Live Major Retailer Deals &amp; Circular Specials</h2>
-            <p>
-              South Africa&apos;s live retail deal aggregator. <b>1,188+ weekly circular specials</b> with verified prices &amp; discounts across Makro, Game, Builders, Checkers, Pick n Pay, Woolworths, Takealot, Clicks, and Dis-Chem.
-              <b> Links lead directly to the official retailer product checkout page</b> — no scanned PDF flyers.
-            </p>
+          <div className="stream-header" style={{ padding: '16px 20px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  🔥 South Africa Retailer Specials &amp; Circulars
+                </h2>
+                <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--text2)', lineHeight: 1.4 }}>
+                  Weekly circular specials aggregated from Makro, Game, Builders, BUCO, SPAR, Bradlows, and more. <b>Every deal links directly to the official product checkout page.</b>
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <span style={{ fontSize: '12px', fontWeight: 700, padding: '4px 10px', borderRadius: '20px', background: 'color-mix(in srgb, var(--brand) 15%, transparent)', color: 'var(--brand)', border: '1px solid color-mix(in srgb, var(--brand) 30%, transparent)' }}>
+                  ✓ 1,176 Verified Specials
+                </span>
+                <span style={{ fontSize: '12px', fontWeight: 600, padding: '4px 10px', borderRadius: '20px', background: 'var(--hover)', color: 'var(--text2)', border: '1px solid var(--border)' }}>
+                  🛡️ 100% Direct URLs
+                </span>
+              </div>
+            </div>
           </div>
 
           <div className="stream-tools">
@@ -929,7 +993,7 @@ export default function DiscoveryFeed({
               </svg>
               <input
                 type="search"
-                placeholder="Search deals across Makro, Game, Builders, Checkers, Takealot..."
+                placeholder="Search specials across BUCO, Game, Builders, SPAR, Makro..."
                 value={dealSearch}
                 onChange={(e) => setDealSearch(e.target.value)}
               />
@@ -937,7 +1001,7 @@ export default function DiscoveryFeed({
                 <button
                   type="button"
                   onClick={() => setDealSearch('')}
-                  style={{ color: 'var(--text2)', fontSize: '13px', cursor: 'pointer' }}
+                  style={{ color: 'var(--text2)', fontSize: '13px', cursor: 'pointer', background: 'none', border: 'none' }}
                 >
                   ✕
                 </button>
@@ -972,90 +1036,141 @@ export default function DiscoveryFeed({
               ))}
             </div>
 
-            {/* Sub-row: count and sort */}
-            <div className="stream-subrow">
-              <span>
-                Showing <b>{Math.min(visibleDealsCount, filteredSpecials.length)}</b> of <b>{filteredSpecials.length.toLocaleString()}</b> verified retailer specials &amp; direct listings
-                <span style={{ color: 'var(--text2)', marginLeft: '6px', fontSize: '12px' }}>
-                  (93,021 active retailer offers in database)
+            {/* Sub-row: count, view mode toggle, and sort */}
+            <div className="stream-subrow" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+                <span style={{ fontWeight: 700, color: 'var(--text)' }}>
+                  Showing {Math.min(visibleDealsCount, filteredSpecials.length).toLocaleString()} of {filteredSpecials.length.toLocaleString()} verified deals
                 </span>
-              </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span>Sort by:</span>
-                <select
-                  value={dealSort}
-                  onChange={(e) => setDealSort(e.target.value as any)}
-                >
-                  <option value="discount">Biggest Price Drop (%)</option>
-                  <option value="price_asc">Price: Low to High</option>
-                  <option value="price_desc">Price: High to Low</option>
-                </select>
+                {dealRetailer !== 'all' && (
+                  <button
+                    type="button"
+                    onClick={() => setDealRetailer('all')}
+                    style={{ fontSize: '11px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '12px', padding: '2px 8px', color: 'var(--brand)', cursor: 'pointer' }}
+                  >
+                    Reset retailer ✕
+                  </button>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                {/* View Mode Toggle: Grid vs List */}
+                <div style={{ display: 'flex', background: 'var(--hover)', borderRadius: '8px', padding: '2px', border: '1px solid var(--border)' }}>
+                  <button
+                    type="button"
+                    onClick={() => setDealViewMode('grid')}
+                    title="Grid View"
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: dealViewMode === 'grid' ? 700 : 500,
+                      background: dealViewMode === 'grid' ? 'var(--card)' : 'transparent',
+                      color: dealViewMode === 'grid' ? 'var(--text)' : 'var(--text2)',
+                      border: 'none',
+                      cursor: 'pointer',
+                      boxShadow: dealViewMode === 'grid' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span>⊞</span> Grid
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDealViewMode('list')}
+                    title="List View"
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: dealViewMode === 'list' ? 700 : 500,
+                      background: dealViewMode === 'list' ? 'var(--card)' : 'transparent',
+                      color: dealViewMode === 'list' ? 'var(--text)' : 'var(--text2)',
+                      border: 'none',
+                      cursor: 'pointer',
+                      boxShadow: dealViewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span>☰</span> List
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--text2)' }}>Sort:</span>
+                  <select
+                    value={dealSort}
+                    onChange={(e) => setDealSort(e.target.value as any)}
+                    style={{ fontSize: '12px', padding: '4px 8px', borderRadius: '6px' }}
+                  >
+                    <option value="discount">Biggest Price Drop (%)</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Deals List */}
-          <div className="products-list">
-            {filteredSpecials.length > 0 ? (
-              filteredSpecials.slice(0, visibleDealsCount).map((s) => (
-                <div key={s.id} className="prod-card">
-                  <div className="prod-thumb">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={s.image} alt={s.title} loading="lazy" />
-                  </div>
-                  <div className="prod-content">
-                    <div>
-                      <div className="prod-head">
-                        <h3>
-                          <a
-                            href={s.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ color: 'inherit', textDecoration: 'none' }}
-                          >
+          {/* Deals Presentation: Grid or List */}
+          {dealViewMode === 'grid' ? (
+            <div className="deals-grid">
+              {filteredSpecials.length > 0 ? (
+                filteredSpecials.slice(0, visibleDealsCount).map((s) => {
+                  const saveZar = s.oldPriceZar && s.priceZar && s.oldPriceZar > s.priceZar
+                    ? s.oldPriceZar - s.priceZar
+                    : null;
+                  return (
+                    <div key={s.id} className="deal-grid-card">
+                      <div className="deal-card-thumb">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={s.image} alt={s.title} loading="lazy" />
+                        <span className="deal-badge-retailer">{s.merchant.split(' ')[0]}</span>
+                        {s.dropPct ? <span className="deal-badge-drop">-{s.dropPct}%</span> : null}
+                      </div>
+
+                      <div className="deal-card-body">
+                        <div className="deal-card-cat">
+                          {s.merchant} · {s.categoryLabel}
+                        </div>
+                        <h3 className="deal-card-title">
+                          <a href={s.url} target="_blank" rel="noopener noreferrer" title={s.title}>
                             {s.title}
                           </a>
                         </h3>
-                        {s.dropPct ? <span className="prod-drop">-{s.dropPct}%</span> : null}
-                      </div>
-                      <p className="prod-specs">
-                        🏷️ <b>{s.merchant}</b> · {s.categoryLabel}
-                        {s.badge ? <span style={{ marginLeft: '8px', fontSize: '11px', background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>{s.badge}</span> : null}
-                      </p>
-                      <p className="prod-location">
-                        🏢 {s.availability || 'In Stock'} · {s.locationHint || 'National Retailer'}
-                      </p>
-                    </div>
 
-                    <div>
-                      <div className="prod-price-row">
-                        <span className="prod-price">{s.priceText}</span>
-                        {s.oldPriceZar ? (
-                          <span className="prod-old">{formatZar(s.oldPriceZar)}</span>
-                        ) : null}
+                        <div className="deal-card-prices">
+                          <span className="deal-card-price">{s.priceText}</span>
+                          {s.oldPriceZar ? (
+                            <span className="deal-card-old">{formatZar(s.oldPriceZar)}</span>
+                          ) : null}
+                          {saveZar ? (
+                            <span className="deal-card-save">Save {formatZar(saveZar)}</span>
+                          ) : null}
+                        </div>
+
+                        <div className="deal-card-location">
+                          🏢 {s.availability || 'In Stock'} · {s.locationHint || 'National Retailer'}
+                        </div>
                       </div>
 
-                      <div className="prod-actions">
+                      <div className="deal-card-footer">
                         <a
                           href={s.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="btn-stockists"
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '4px',
-                            background: '#0EA5E9',
-                            color: '#FFFFFF',
-                            fontWeight: 600,
-                          }}
+                          className="deal-btn-direct"
                         >
-                          View on {s.merchant.split(' ')[0]} ↗
+                          Buy on {s.merchant.split(' ')[0]} ↗
                         </a>
                         <button
                           type="button"
-                          className="btn-cart"
+                          className="deal-btn-lock"
+                          title="Lock Deal into Trade Cart"
                           onClick={() => {
                             window.dispatchEvent(
                               new CustomEvent('shoppage-cart', {
@@ -1072,20 +1187,123 @@ export default function DiscoveryFeed({
                             toast(`Locked ${s.brand || s.merchant} deal into Trade Cart`);
                           }}
                         >
-                          Lock Deal ⚡
+                          ⚡ Lock
                         </button>
                       </div>
                     </div>
-                  </div>
+                  );
+                })
+              ) : (
+                <div className="empty" style={{ gridColumn: '1 / -1' }}>
+                  <h3>No retailer deals match this filter</h3>
+                  <p>Try switching to &quot;All Major Retailers&quot; or clearing your search term.</p>
                 </div>
-              ))
-            ) : (
-              <div className="empty">
-                <h3>No retailer deals match this filter</h3>
-                <p>Try switching to &quot;All Major Retailers&quot; or clearing your search term.</p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          ) : (
+            /* List View */
+            <div className="products-list">
+              {filteredSpecials.length > 0 ? (
+                filteredSpecials.slice(0, visibleDealsCount).map((s) => {
+                  const saveZar = s.oldPriceZar && s.priceZar && s.oldPriceZar > s.priceZar
+                    ? s.oldPriceZar - s.priceZar
+                    : null;
+                  return (
+                    <div key={s.id} className="prod-card">
+                      <div className="prod-thumb">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={s.image} alt={s.title} loading="lazy" />
+                      </div>
+                      <div className="prod-content">
+                        <div>
+                          <div className="prod-head">
+                            <h3>
+                              <a
+                                href={s.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ color: 'inherit', textDecoration: 'none' }}
+                              >
+                                {s.title}
+                              </a>
+                            </h3>
+                            {s.dropPct ? <span className="prod-drop">-{s.dropPct}%</span> : null}
+                          </div>
+                          <p className="prod-specs">
+                            🏷️ <b>{s.merchant}</b> · {s.categoryLabel}
+                            {s.badge ? <span style={{ marginLeft: '8px', fontSize: '11px', background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>{s.badge}</span> : null}
+                          </p>
+                          <p className="prod-location">
+                            🏢 {s.availability || 'In Stock'} · {s.locationHint || 'National Retailer'}
+                          </p>
+                        </div>
+
+                        <div>
+                          <div className="prod-price-row">
+                            <span className="prod-price">{s.priceText}</span>
+                            {s.oldPriceZar ? (
+                              <span className="prod-old">{formatZar(s.oldPriceZar)}</span>
+                            ) : null}
+                            {saveZar ? (
+                              <span style={{ fontSize: '12px', fontWeight: 700, color: '#10B981', background: 'rgba(16, 185, 129, 0.12)', padding: '2px 8px', borderRadius: '4px', marginLeft: '6px' }}>
+                                Save {formatZar(saveZar)}
+                              </span>
+                            ) : null}
+                          </div>
+
+                          <div className="prod-actions">
+                            <a
+                              href={s.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn-stockists"
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '4px',
+                                background: '#0EA5E9',
+                                color: '#FFFFFF',
+                                fontWeight: 600,
+                              }}
+                            >
+                              View on {s.merchant.split(' ')[0]} ↗
+                            </a>
+                            <button
+                              type="button"
+                              className="btn-cart"
+                              onClick={() => {
+                                window.dispatchEvent(
+                                  new CustomEvent('shoppage-cart', {
+                                    detail: {
+                                      action: 'add',
+                                      item: {
+                                        name: s.title,
+                                        price: s.priceText,
+                                        merchantName: s.merchant,
+                                      },
+                                    },
+                                  }),
+                                );
+                                toast(`Locked ${s.brand || s.merchant} deal into Trade Cart`);
+                              }}
+                            >
+                              Lock Deal ⚡
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="empty">
+                  <h3>No retailer deals match this filter</h3>
+                  <p>Try switching to &quot;All Major Retailers&quot; or clearing your search term.</p>
+                </div>
+              )}
+            </div>
+          )}
 
           {visibleDealsCount < filteredSpecials.length && (
             <div style={{ textAlign: 'center', padding: '24px 0 36px', width: '100%' }}>

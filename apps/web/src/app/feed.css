@@ -369,3 +369,300 @@ a{color:var(--brand);text-decoration:none}
   .post,.tab.on::after,.ab.like.on .icn svg,.ab.bm.on .icn svg,.short.playing .prog{animation:none}
   .product img,.prod-thumb img{transition:none}
 }
+
+/* ============ DEALS ENHANCED GRID & CARDS ============ */
+.deals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
+  padding: 14px 16px;
+}
+.deal-grid-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  position: relative;
+}
+.deal-grid-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-color: color-mix(in srgb, var(--brand) 40%, var(--border));
+}
+.deal-card-thumb {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.deal-card-thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+.deal-grid-card:hover .deal-card-thumb img {
+  transform: scale(1.04);
+}
+.deal-badge-retailer {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #ffffff;
+  backdrop-filter: blur(4px);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 2;
+}
+.deal-badge-drop {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: #10B981;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35);
+  z-index: 2;
+}
+.deal-card-body {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.deal-card-cat {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.deal-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--text);
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 38px;
+}
+.deal-card-title a {
+  color: inherit;
+  text-decoration: none;
+}
+.deal-card-title a:hover {
+  color: var(--brand);
+  text-decoration: underline;
+}
+.deal-card-prices {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+.deal-card-price {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--text);
+}
+.deal-card-old {
+  font-size: 12px;
+  text-decoration: line-through;
+  color: var(--text2);
+}
+.deal-card-save {
+  font-size: 11px;
+  font-weight: 700;
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.12);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.deal-card-location {
+  font-size: 11px;
+  color: var(--text2);
+  margin-top: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.deal-card-footer {
+  padding: 0 14px 14px;
+  display: flex;
+  gap: 8px;
+}
+.deal-btn-direct {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--brand);
+  color: #ffffff;
+  text-align: center;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: filter 0.15s ease;
+}
+.deal-btn-direct:hover {
+  filter: brightness(1.08);
+}
+.deal-btn-lock {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.deal-btn-lock:hover {
+  background: var(--hover);
+}
+
+/* ============ DEALS RIGHT RAIL STYLES ============ */
+.rail-retailer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+.rail-retailer-row:hover {
+  background: var(--hover);
+}
+.rail-retailer-row.active {
+  background: color-mix(in srgb, var(--brand) 16%, transparent);
+  font-weight: 700;
+  color: var(--brand);
+}
+.rail-retailer-cnt {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text2);
+}
+.rail-drop-item {
+  display: flex;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 4px;
+}
+.rail-drop-item:hover {
+  background: var(--hover);
+}
+.rail-drop-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  padding: 2px;
+}
+.rail-drop-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.rail-drop-info {
+  flex: 1;
+  min-width: 0;
+}
+.rail-drop-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rail-drop-meta {
+  font-size: 11px;
+  color: var(--text2);
+  margin-top: 1px;
+}
+.rail-drop-prices {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 2px;
+}
+.rail-drop-price {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+}
+.rail-drop-badge {
+  font-size: 10px;
+  font-weight: 800;
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.12);
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: auto;
+}
+.quick-discount-chip {
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--hover);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: all 0.15s ease;
+}
+.quick-discount-chip:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+.quick-discount-chip.active {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #ffffff;
+}
+
