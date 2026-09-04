@@ -15,17 +15,17 @@
   --red:#ef4444;
   --pink:#ec4899;
 }
-body[data-theme="dark"], :root[data-theme="dark"], :root{
+:root, body[data-theme="light"], :root[data-theme="light"]{
+  --bg:#ffffff; --elev:rgba(15,23,42,.08); --card:#f8fafc; --border:#e2e8f0;
+  --text:#0f172a; --text2:#64748b; --hover:#f1f5f9; --overlay:rgba(15,23,42,.4);
+}
+body[data-theme="dark"], :root[data-theme="dark"]{
   --bg:#090d16; --elev:rgba(255,255,255,.08); --card:#111726; --border:#1e293b;
   --text:#f1f5f9; --text2:#94a3b8; --hover:rgba(255,255,255,.05); --overlay:rgba(9,13,22,.65);
 }
 body[data-theme="dim"], :root[data-theme="dim"]{
   --bg:#0f172a; --elev:rgba(255,255,255,.09); --card:#1e2732; --border:#334155;
   --text:#f8fafc; --text2:#94a3b8; --hover:rgba(255,255,255,.06); --overlay:rgba(15,23,42,.65);
-}
-body[data-theme="light"], :root[data-theme="light"]{
-  --bg:#ffffff; --elev:rgba(15,23,42,.08); --card:#f8fafc; --border:#e2e8f0;
-  --text:#0f172a; --text2:#64748b; --hover:#f1f5f9; --overlay:rgba(15,23,42,.4);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -108,8 +108,26 @@ a{color:var(--brand);text-decoration:none}
 .viewtitle.on{display:block}
 .viewtitle h2{font-size:20px;font-weight:800}
 .viewtitle p{font-size:13px;color:var(--text2)}
-.tabs{display:flex}
-.tab{flex:1;text-align:center;padding:16px 0;position:relative;color:var(--text2);font-size:15px;font-weight:500;transition:background .2s,color .2s;cursor:pointer}
+.tabs{
+  display:flex;
+  overflow-x:auto;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+  white-space:nowrap;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:1;
+  text-align:center;
+  padding:15px 12px;
+  position:relative;
+  color:var(--text2);
+  font-size:15px;
+  font-weight:600;
+  transition:background .2s,color .2s;
+  cursor:pointer;
+  white-space:nowrap;
+}
 .tab:hover{background:var(--hover);color:var(--text)}
 .tab.on{color:var(--text);font-weight:700}
 .tab.on::after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:56px;height:4px;border-radius:99px;background:var(--brand);animation:tabin .25s ease}
@@ -345,6 +363,74 @@ a{color:var(--brand);text-decoration:none}
 .market-actions .visit-btn{padding:6px 14px;border-radius:9999px;font-size:12px;font-weight:700;background:var(--hover);border:1px solid var(--border);color:var(--brand);text-decoration:none}
 .market-actions .visit-btn:hover{background:var(--elev)}
 
+/* Mobile Top Header (Sticky on screens <= 700px) */
+.mobile-header {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 52px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  width: 100%;
+}
+.mobile-header-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--text);
+}
+.mobile-wordmark {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+.mobile-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mobile-header-btn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--hover);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.mobile-header-btn:active {
+  transform: scale(0.92);
+}
+.mobile-header-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+}
+
 @media (max-width:1290px){
   .left{width:88px;align-items:center}
   .logo .wordmark,.nav-item span,.me .meta,.me .dots{display:none}
@@ -356,14 +442,181 @@ a{color:var(--brand);text-decoration:none}
 @media (max-width:1020px){ .right{display:none} .center{border-right:none} }
 @media (max-width:700px){
   .left{display:none}
+  .mobile-header{display:flex}
   .bottombar{display:flex}
   .fab{display:flex}
-  .center{width:100%;border-left:none}
-  .topbar .row1{display:flex}
+  .center{width:100%;border-left:none;border-right:none}
+  .topbar{top:52px}
+  .topbar-search{padding:8px 12px 0}
+  .topbar-search .searchbox{padding:8px 14px}
+  .topbar-search .searchbox input{font-size:13.5px}
+  .tabs{padding:0 4px;gap:2px}
+  .tab{flex:0 0 auto;padding:12px 14px;font-size:13.5px}
+  .tab.on::after{width:36px;height:3px}
   .post-btn{display:none}
   .post{padding:12px}
-  .product img{height:220px}
-  body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+  .product img{height:200px}
+  body{padding-bottom:calc(68px + env(safe-area-inset-bottom,12px))}
+}
+@media (max-width: 640px) {
+  /* High-density 2-column e-commerce grid on phones */
+  .deals-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 8px 10px;
+  }
+  .deal-grid-card {
+    border-radius: 10px;
+  }
+  .deal-card-thumb {
+    height: 120px;
+    padding: 6px;
+  }
+  .deal-badge-retailer {
+    font-size: 9px;
+    padding: 2px 5px;
+    top: 5px;
+    left: 5px;
+    max-width: calc(100% - 44px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .deal-badge-drop {
+    font-size: 9px;
+    padding: 2px 5px;
+    top: 5px;
+    right: 5px;
+  }
+  .deal-card-body {
+    padding: 8px 8px 10px;
+  }
+  .deal-card-cat {
+    font-size: 9px;
+    margin-bottom: 2px;
+  }
+  .deal-card-title {
+    font-size: 12px;
+    height: 30px;
+    line-height: 1.25;
+    margin-bottom: 4px;
+    -webkit-line-clamp: 2;
+  }
+  .deal-card-prices {
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .deal-card-price {
+    font-size: 14px;
+  }
+  .deal-card-old {
+    font-size: 10px;
+  }
+  .deal-card-save {
+    font-size: 9px;
+    padding: 1px 4px;
+  }
+  .deal-card-location {
+    font-size: 10px;
+    margin-top: 3px;
+  }
+  .deal-card-footer {
+    padding: 0 8px 8px;
+    gap: 4px;
+  }
+  .deal-btn-direct {
+    padding: 5px 6px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+  .deal-btn-lock {
+    padding: 5px 6px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+
+  /* Compact Product List Card on Mobile */
+  .prod-card {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  .prod-thumb {
+    width: 76px;
+    height: 76px;
+    border-radius: 8px;
+  }
+  .prod-head h3 {
+    font-size: 13px;
+  }
+  .prod-specs {
+    font-size: 11px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .prod-location {
+    font-size: 10.5px;
+  }
+  .prod-price {
+    font-size: 16px;
+  }
+  .prod-actions {
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .prod-actions button, .prod-actions a {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  /* Compact Market Card on Mobile */
+  .market-card {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+  .market-title {
+    font-size: 14px;
+  }
+  .market-desc {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+  .market-actions {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .market-actions .fav-btn, .market-actions .follow-btn, .market-actions .visit-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  /* Stream Tools on Mobile */
+  .stream-tools {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .stream-search-box {
+    padding: 6px 12px;
+  }
+  .stream-search-box input {
+    font-size: 13px;
+  }
+  .chips-scroll {
+    gap: 5px;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .chip-pill {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+  .stream-subrow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 }
 @media (prefers-reduced-motion:reduce){
   .post,.tab.on::after,.ab.like.on .icn svg,.ab.bm.on .icn svg,.short.playing .prog{animation:none}

@@ -6,11 +6,11 @@ import { usePathname } from 'next/navigation';
 import AIAssistant from './AIAssistant';
 import TradeCartDrawer from './TradeCartDrawer';
 
-const THEMES = ['dark', 'dim', 'light'];
+const THEMES = ['light', 'dark', 'dim'];
 const THEME_NAMES: Record<string, string> = {
+  light: 'Clean Paper (Light)',
   dark: 'Obsidian Night (Dark)',
   dim: 'Highveld Slate (Dim)',
-  light: 'Clean Paper (Light)',
 };
 
 function ShoppageLogoMark({ size = 32 }: { size?: number }) {
@@ -67,14 +67,15 @@ export default function AppNavbar({
   // Initialize theme, nav collapse and cart count from localStorage
   useEffect(() => {
     try {
-      const storedTheme = localStorage.getItem('shoppage_theme');
-      if (storedTheme) {
-        const idx = THEMES.indexOf(storedTheme);
-        if (idx !== -1) {
-          setThemeIdx(idx);
-          document.body.setAttribute('data-theme', storedTheme);
-          document.documentElement.setAttribute('data-theme', storedTheme);
-        }
+      const storedTheme = localStorage.getItem('shoppage_theme') || 'light';
+      const idx = THEMES.indexOf(storedTheme);
+      if (idx !== -1) {
+        setThemeIdx(idx);
+        document.body.setAttribute('data-theme', storedTheme);
+        document.documentElement.setAttribute('data-theme', storedTheme);
+      } else {
+        document.body.setAttribute('data-theme', 'light');
+        document.documentElement.setAttribute('data-theme', 'light');
       }
 
       const storedNav = localStorage.getItem('shoppage_nav_collapsed');
@@ -397,6 +398,39 @@ export default function AppNavbar({
           </div>
         </aside>
 
+        {/* ── MOBILE APP HEADER (Sticky top on screens <= 700px) ───── */}
+        <header className="mobile-header">
+          <Link href="/" className="mobile-header-logo" title="Shoppage South Africa">
+            <ShoppageLogoMark size={28} />
+            <span className="mobile-wordmark">Shoppage</span>
+          </Link>
+          <div className="mobile-header-actions">
+            <button
+              type="button"
+              className="mobile-header-btn"
+              onClick={cycleTheme}
+              title={`Current theme: ${THEME_NAMES[THEMES[themeIdx]]} (tap to cycle)`}
+              aria-label="Toggle theme"
+            >
+              <span>{THEMES[themeIdx] === 'dark' ? '🌙' : THEMES[themeIdx] === 'dim' ? '🌔' : '☀️'}</span>
+            </button>
+            <button
+              type="button"
+              className="mobile-header-btn"
+              onClick={() => setIsCartOpen(true)}
+              title="Trade Cart"
+              aria-label="Open Trade Cart"
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 3h2l2.6 12.4a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20.6 8H6" />
+                <circle cx="9.5" cy="20" r="1.7" />
+                <circle cx="17.5" cy="20" r="1.7" />
+              </svg>
+              {cartCount > 0 && <span className="mobile-header-badge">{cartCount}</span>}
+            </button>
+          </div>
+        </header>
+
         {/* ── CENTER (Timeline) ────────────────────────────────────────── */}
         <main className="center">{children}</main>
 
@@ -488,13 +522,9 @@ export default function AppNavbar({
         </button>
         <button
           type="button"
-          onClick={() => {
-            alert(
-              cartCount > 0
-                ? `🛒 ${cartCount} trade deal${cartCount > 1 ? 's' : ''} in cart`
-                : 'Cart is empty',
-            );
-          }}
+          onClick={() => setIsCartOpen(true)}
+          aria-label="Open Cart"
+          title="Trade Cart"
         >
           <svg viewBox="0 0 24 24">
             <path

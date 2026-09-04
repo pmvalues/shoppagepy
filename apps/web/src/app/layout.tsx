@@ -27,11 +27,11 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#10B981',
+  themeColor: '#ffffff',
 };
 
-// Applies the stored theme before first paint so dark mode never flashes white.
-const themeBootstrap = `(function(){try{var t=localStorage.getItem('shoppage_theme');if(t==='dark'||t==='dim'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`;
+// Applies the stored theme before first paint, defaulting to light mode.
+const themeBootstrap = `(function(){try{var t=localStorage.getItem('shoppage_theme')||'light';document.documentElement.setAttribute('data-theme',t);if(document.body){document.body.setAttribute('data-theme',t);}if(t==='dark'||t==='dim'){document.documentElement.style.colorScheme='dark';}else{document.documentElement.style.colorScheme='light';}}catch(e){}})();`;
 
 export default function RootLayout({
   children,
@@ -39,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-theme="light" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

@@ -142,7 +142,7 @@
    Applied when the OS prefers dark, unless the user pinned light via [data-theme].
    ───────────────────────────────────────────────────────────────────────── */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
+  :root[data-theme='dark'] {
     --slate-50:  #0F151D;
     --slate-100: #131A24;
     --slate-200: #1A2432;
@@ -413,10 +413,6 @@ button { font-family: inherit; }
 
 :root[data-theme='dark'] .badge-purple { background: #1E1633; color: #C4A5F7; border-color: #3B2A63; }
 :root[data-theme='dark'] .badge-amber  { background: var(--amber-light); color: #FCD34D; border-color: #78350F; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .badge-purple { background: #1E1633; color: #C4A5F7; border-color: #3B2A63; }
-  :root:not([data-theme='light']) .badge-amber  { background: var(--amber-light); color: #FCD34D; border-color: #78350F; }
-}
 
 /* ─────────────────────────────────────────────────────────────────────────
    7. BUTTONS
@@ -453,10 +449,6 @@ button { font-family: inherit; }
 }
 :root[data-theme='dark'] .btn-primary { background: var(--signal); color: var(--signal-ink); border-color: var(--signal-strong); }
 :root[data-theme='dark'] .btn-primary:hover { background: var(--signal-strong); box-shadow: var(--shadow-glow); }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .btn-primary { background: var(--signal); color: var(--signal-ink); border-color: var(--signal-strong); }
-  :root:not([data-theme='light']) .btn-primary:hover { background: var(--signal-strong); box-shadow: var(--shadow-glow); }
-}
 
 /* Signal = lime. The one high-energy CTA. */
 .btn-signal {
