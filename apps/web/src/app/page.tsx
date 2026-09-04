@@ -6,7 +6,7 @@ import { getFeed, getRetailerSpecials, getProductsCatalog } from '@/lib/feed';
 export default function HomePage() {
   const posts = getFeed();
   const specials = getRetailerSpecials(5000);
-  const products = getProductsCatalog(2500);
+  const products = getProductsCatalog(20000);
 
   return <DiscoveryFeed posts={posts} specials={specials} initialProducts={products} />;
 }
