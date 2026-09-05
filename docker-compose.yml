@@ -85,8 +85,8 @@ services:
     command: '--data-dir /data --api-key=${TYPESENSE_API_KEY:?TYPESENSE_API_KEY required} --enable-cors'
     volumes:
       - typesense_data:/data
-   networks:
-     - shoppage-network
+    networks:
+      - shoppage-network
 
 volumes:
   postgres_data:

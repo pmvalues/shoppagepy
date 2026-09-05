@@ -90,6 +90,7 @@ export class TypesenseSearchAdapter {
           { name: 'countryScope', type: 'string[]', facet: true },
           { name: 'lowestPrice', type: 'float', optional: true, facet: true },
           { name: 'highestPrice', type: 'float', optional: true },
+          { name: 'location', type: 'geopoint', optional: true },
           { name: 'description', type: 'string', optional: true },
           { name: 'specs', type: 'string', optional: true },
           { name: 'aliases', type: 'string[]', optional: true },
@@ -183,6 +184,9 @@ export class TypesenseSearchAdapter {
     if (params.brand) {
       filters.push(`brand:=${params.brand}`);
     }
+    if (params.lat !== undefined && params.lng !== undefined && params.maxDistanceKm) {
+      filters.push(`location:(${params.lat}, ${params.lng}, ${params.maxDistanceKm} km)`);
+    }
 
     const searchParams = new URLSearchParams({
       q: query,
@@ -193,6 +197,10 @@ export class TypesenseSearchAdapter {
       per_page: String(params.limit || 24),
       page: String(Math.floor((params.offset || 0) / (params.limit || 24)) + 1),
     });
+
+    if (params.lat !== undefined && params.lng !== undefined) {
+      searchParams.set('sort_by', `location(${params.lat}, ${params.lng}):asc,lowestPrice:asc`);
+    }
 
     if (filters.length > 0) {
       searchParams.set('filter_by', filters.join(' && '));
