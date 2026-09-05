@@ -162,7 +162,7 @@ export default function TradeCartDrawer({
         branchCode: '051001',
       },
       buyer: {
-        name: buyerName || 'Verified Trade Buyer',
+        name: buyerName || 'Verified Shopper',
         phone: buyerPhone || '+27 82 000 0000',
       },
       items: items.map((it) => ({
@@ -182,10 +182,10 @@ export default function TradeCartDrawer({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sourceCategory: 'wholesale_trade',
+          sourceCategory: 'retail_shopping',
           itemSummary: items.map((it) => `${it.quantity}x ${it.name}`).join(', '),
           buyerContact: {
-            name: buyerName || 'Verified Trade Buyer',
+            name: buyerName || 'Verified Shopper',
             phone: buyerPhone || '+27 10 500 7670',
           },
           additionalNotes: `Total estimated value: R ${totalZar.toLocaleString('en-ZA')}. Proforma ${generatedNumber} generated.`,
@@ -242,9 +242,9 @@ export default function TradeCartDrawer({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <span style={{ fontSize: '1.35rem' }}>🛒</span>
             <div>
-              <h2 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>Trade Desk Cart</h2>
+              <h2 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>Shopping & Pickup Cart</h2>
               <span style={{ fontSize: '0.75rem', color: 'var(--text2, #94A3B8)' }}>
-                {items.length} {items.length === 1 ? 'line item' : 'line items'} · 0% commission
+                {items.length} {items.length === 1 ? 'item' : 'items'} · Direct Store Deals
               </span>
             </div>
           </div>
@@ -472,14 +472,14 @@ export default function TradeCartDrawer({
                   gap: '0.5rem',
                 }}
               >
-                <span>📄 Generate SARS Proforma Tax Invoice</span>
+                <span>📄 Request Official Tax Invoice / Quote</span>
               </button>
 
               <form onSubmit={handleRequestInvoice} style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', marginTop: '0.25rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.45rem' }}>
                   <input
                     type="text"
-                    placeholder="Your Name / Business"
+                    placeholder="Your Full Name"
                     value={buyerName}
                     onChange={(e) => setBuyerName(e.target.value)}
                     required
@@ -523,7 +523,7 @@ export default function TradeCartDrawer({
                     cursor: 'pointer',
                   }}
                 >
-                  {isCheckingOut ? 'Reserving...' : '📍 Reserve for In-Store Pickup (24h Hold)'}
+                  {isCheckingOut ? 'Reserving...' : '📍 Hold for In-Store Pickup (24h Free)'}
                 </button>
               </form>
             </div>

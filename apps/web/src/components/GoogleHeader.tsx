@@ -4,13 +4,13 @@ import Link from 'next/link';
 
 export default function GoogleHeader({ currentQuery = '', currentTab = 'all' }: { currentQuery?: string; currentTab?: string }) {
   const tabs = [
-    { id: 'all', label: 'All', icon: '🔍' },
-    { id: 'shopping', label: 'Catalog Matrix', icon: '🛍️' },
-    { id: 'stores', label: 'Nearby Stores', icon: '📍' },
-    { id: 'markets', label: 'Virtual Markets', icon: '🌐' },
-    { id: 'za_spec', label: 'SABS & Standards', icon: '🇿🇦' },
-    { id: 'shorts', label: 'Proof Shorts', icon: '🎬' },
-    { id: 'rfq', label: 'Buyer RFQs', icon: '📋' },
+    { id: 'all', label: 'All Results', icon: '🔍' },
+    { id: 'shopping', label: 'Shopping & Deals', icon: '🛍️' },
+    { id: 'stores', label: 'Nearby Malls & Stores', icon: '📍' },
+    { id: 'markets', label: 'Local Markets', icon: '🌐' },
+    { id: 'za_spec', label: 'SABS Certified', icon: '🇿🇦' },
+    { id: 'shorts', label: 'Video Demos', icon: '🎬' },
+    { id: 'rfq', label: 'Quotes & Invoices', icon: '📋' },
   ];
 
   return (

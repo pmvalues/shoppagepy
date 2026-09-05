@@ -89,10 +89,10 @@ export default function BuyBoxDrawer({
         <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1A73E8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              National BuyBox Matrix · South Africa
+              Where to Buy in South Africa · Price Comparison
             </div>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0F172A', margin: '0.25rem 0 0 0' }}>
-              Compare Verified Stockists
+              Compare Stores &amp; In-Store Stock
             </h2>
           </div>
           <button
@@ -284,9 +284,9 @@ export default function BuyBoxDrawer({
                           fontWeight: 700,
                           cursor: 'pointer',
                         }}
-                        title="Generate SARS-compliant B2B Proforma Tax Invoice"
+                        title="Download official tax invoice / quote"
                       >
-                        📄 Proforma
+                        📄 Tax Invoice / Quote
                       </button>
                     )}
 
@@ -318,9 +318,9 @@ export default function BuyBoxDrawer({
           ) : (
             <div style={{ padding: '2rem', textAlign: 'center', color: '#64748B' }}>
               <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🏬</div>
-              <h4 style={{ color: '#0F172A', margin: 0 }}>Direct In-Store Counter Verification</h4>
+              <h4 style={{ color: '#0F172A', margin: 0 }}>Available at Local Retailers</h4>
               <p style={{ fontSize: '0.85rem', marginTop: '0.4rem' }}>
-                This product is listed in the National GS1 Master Library. Check nearby trade distributors in Midrand and Crown Mines for live allocation.
+                This product is listed in South Africa. Check nearby shopping malls and local store branches for live shelf availability.
               </p>
             </div>
           )}
@@ -328,8 +328,8 @@ export default function BuyBoxDrawer({
 
         {/* Footer Guarantee */}
         <div style={{ padding: '0.85rem 1.5rem', background: '#F8FAFC', borderTop: '1px solid #E2E8F0', fontSize: '0.75rem', color: '#64748B', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>🛡️ 0% Platform Take-Rate · Direct Merchant Billing</span>
-          <span>SABS / NRS 097 South African Standards</span>
+          <span>🛡️ 100% Free for Shoppers · Direct Store &amp; Online Deals</span>
+          <span>Verified South African Retailers</span>
         </div>
       </div>
     </div>

@@ -65,7 +65,7 @@ export default function ShoppingBrowseGrid({
         branchCode: '051001',
       },
       buyer: {
-        name: 'Trade Account / B2B Procurement',
+        name: 'Shopper / Customer Account',
         phone: '+27 11 000 0000',
       },
       items: [
@@ -120,7 +120,7 @@ export default function ShoppingBrowseGrid({
       <div style={{ marginBottom: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            📍 Trading Hub:
+            📍 Shopping Area / Mall:
           </span>
           <button
             onClick={() => setSelectedHub('all')}
@@ -135,7 +135,7 @@ export default function ShoppingBrowseGrid({
               cursor: 'pointer',
             }}
           >
-            All South Africa (74k Stores)
+            All South Africa (3,296 Malls &amp; Stores)
           </button>
           {SA_KEY_TRADING_HUBS.map((hub) => (
             <button
@@ -193,11 +193,11 @@ export default function ShoppingBrowseGrid({
           <div style={{ marginBottom: '1.25rem', fontSize: '0.825rem', color: '#3C4043' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem' }}>
               <input type="checkbox" id="instock_cb" defaultChecked />
-              <label htmlFor="instock_cb">🟢 In Stock (Immediate Pickup)</label>
+              <label htmlFor="instock_cb">🟢 In Stock (Store Pickup Today)</label>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem' }}>
               <input type="checkbox" id="verified_cb" defaultChecked />
-              <label htmlFor="verified_cb">🛡️ CIPC Verified Stores</label>
+              <label htmlFor="verified_cb">🛡️ Verified SA Retailers &amp; Stores</label>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <input type="checkbox" id="sabs_cb" />
@@ -267,7 +267,7 @@ export default function ShoppingBrowseGrid({
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
             <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#202124', margin: 0 }}>
-              {filteredProducts.length} Verified Master Products
+              {filteredProducts.length} Verified Products &amp; Retail Deals
             </h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#5F6368' }}>
               <span>Sort:</span>
