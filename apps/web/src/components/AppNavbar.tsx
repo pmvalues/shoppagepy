@@ -142,10 +142,11 @@ export default function AppNavbar({
             aria-label="Open Navigation Menu"
             title="Open Menu"
           >
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2">
+              <rect x="3" y="3" width="7" height="7" rx="1.5" />
+              <rect x="14" y="3" width="7" height="7" rx="1.5" />
+              <rect x="3" y="14" width="7" height="7" rx="1.5" />
+              <rect x="14" y="14" width="7" height="7" rx="1.5" />
             </svg>
           </button>
           <Link href="/" className="mobile-header-logo" title="Shoppage South Africa">
@@ -163,24 +164,74 @@ export default function AppNavbar({
           >
             <span>{THEMES[themeIdx] === 'dark' ? '🌙' : THEMES[themeIdx] === 'dim' ? '🌔' : '☀️'}</span>
           </button>
-          <a
-            href="https://wa.me/27820000000?text=Hi%20Shoppage%20Trade%20Desk%2C%20I%20have%20an%20enquiry"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
             className="mobile-header-btn"
-            title="WhatsApp Trade Desk"
-            aria-label="WhatsApp Trade Desk"
+            onClick={() => setNotifOpen(!notifOpen)}
+            title="Notifications"
+            aria-label="Notifications"
+            style={{ position: 'relative' }}
           >
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M19.99 9.04c0-4.16-3.27-7.54-7.99-7.54S4.01 4.88 4.01 9.04c0 4.1-1.16 6.2-2.14 7.43-.54.68-.04 1.78.85 1.78h18.56c.89 0 1.39-1.1.85-1.78-.98-1.23-2.14-3.33-2.14-7.43zM12 22.5c1.93 0 3.5-1.57 3.5-3.5h-7c0 1.93 1.57 3.5 3.5 3.5z" />
             </svg>
-          </a>
+            {unreadNotifs > 0 && (
+              <em
+                className="nbadge"
+                style={{
+                  position: 'absolute',
+                  top: '-3px',
+                  right: '-3px',
+                  fontSize: '9px',
+                  width: '15px',
+                  height: '15px',
+                  borderRadius: '50%',
+                  background: 'var(--brand)',
+                  color: '#fff',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {unreadNotifs}
+              </em>
+            )}
+          </button>
         </div>
       </header>
 
       <div className={`shell${collapsed ? ' is-nav-collapsed' : ''}`}>
         {/* ── LEFT RAIL WITH COLLAPSING ───────────────────────────────── */}
         <aside className={`left${collapsed ? ' is-collapsed' : ''}`}>
+          {/* Top 4-Square Grid Launcher */}
+          <div className="rail-top-grid" style={{ padding: '8px 12px 0' }}>
+            <button
+              type="button"
+              onClick={() => dispatchNav('tab', 'foryou')}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '6px',
+                color: 'var(--text)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '8px',
+              }}
+              title="Shoppage Grid"
+              aria-label="Shoppage Grid"
+            >
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2">
+                <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                <rect x="14" y="14" width="7" height="7" rx="1.5" />
+              </svg>
+            </button>
+          </div>
+
           <div className="rail-head">
             <Link href="/" className="logo" title="Shoppage South Africa">
               <ShoppageLogoMark size={32} />
@@ -459,7 +510,7 @@ export default function AppNavbar({
         </div>
       </div>
 
-      {/* ── MOBILE BOTTOM BAR ──────────────────────────────────────────── */}
+      {/* ── MOBILE BOTTOM BAR WITH ICONS AND LABELS ─────────────────────── */}
       <nav className="bottombar" aria-label="Mobile navigation">
         <button
           type="button"
@@ -472,46 +523,56 @@ export default function AppNavbar({
           <svg viewBox="0 0 24 24">
             <path d="M12 1.7 1.6 8.8l1.1 1.7 1.3-.6V21a1 1 0 0 0 1 1h5v-8h4v8h5a1 1 0 0 0 1-1V9.9l1.3.6 1.1-1.7L12 1.7z" />
           </svg>
+          <span>Home</span>
         </button>
+
         <Link href="/search" className={pathname === '/search' ? 'active' : undefined}>
           <svg viewBox="0 0 24 24">
             <path d="M10.25 4.25a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm-8 6a8 8 0 1 1 14.9 4.45l4.42 4.42-1.42 1.42-4.42-4.42A8 8 0 0 1 2.25 10.25z" />
           </svg>
+          <span>Explore</span>
         </Link>
-        <button type="button" onClick={() => setNotifOpen(!notifOpen)}>
-          <svg viewBox="0 0 24 24">
-            <path d="M19.99 9.04c0-4.16-3.27-7.54-7.99-7.54S4.01 4.88 4.01 9.04c0 4.1-1.16 6.2-2.14 7.43-.54.68-.04 1.78.85 1.78h18.56c.89 0 1.39-1.1.85-1.78-.98-1.23-2.14-3.33-2.14-7.43zM12 22.5c1.93 0 3.5-1.57 3.5-3.5h-7c0 1.93 1.57 3.5 3.5 3.5z" />
+
+        <Link href="/malls" className={pathname === '/malls' ? 'active' : undefined}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 21V8l9-5 9 5v13" />
+            <path d="M9 21v-6h6v6" />
           </svg>
-          {unreadNotifs > 0 && <em className="nbadge">{unreadNotifs}</em>}
-        </button>
-        <button type="button" onClick={() => dispatchNav('bookmarks')}>
-          <svg viewBox="0 0 24 24">
-            <path
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinejoin="round"
-              d="M4 4.5C4 3.12 5.12 2 6.5 2h11C18.88 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5z"
-            />
+          <span>Malls</span>
+        </Link>
+
+        <Link href="/merchants" className={pathname === '/merchants' ? 'active' : undefined}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M20 21H4a1 1 0 0 1-1-1V8l2-4h14l2 4v12a1 1 0 0 1-1 1z" />
+            <path d="M8 21v-6h8v6" />
           </svg>
-        </button>
-        <a
-          href="https://wa.me/27820000000?text=Hi%20Shoppage%20Trade%20Desk%2C%20I%20have%20an%20enquiry"
-          target="_blank"
-          rel="noopener noreferrer"
-          title="WhatsApp Trade Desk"
-          aria-label="Contact Trade Desk"
+          <span>Stores</span>
+        </Link>
+
+        <Link href="/requests" className={pathname === '/requests' ? 'active' : undefined}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+            <path d="M14 3v5h5" />
+            <path d="M9 13h6M9 17h4" />
+          </svg>
+          <span>RFQ Desk</span>
+        </Link>
+
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(true)}
+          className={mobileMenuOpen ? 'active' : undefined}
+          title="Open Full Menu"
+          aria-label="Open Full Navigation Menu"
         >
-          <svg viewBox="0 0 24 24">
-            <path
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinejoin="round"
-              d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
-            />
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="3" width="7" height="7" rx="1.5" />
+            <rect x="14" y="3" width="7" height="7" rx="1.5" />
+            <rect x="3" y="14" width="7" height="7" rx="1.5" />
+            <rect x="14" y="14" width="7" height="7" rx="1.5" />
           </svg>
-        </a>
+          <span>Menu</span>
+        </button>
       </nav>
 
       {/* ── MOBILE FAB ─────────────────────────────────────────────────── */}
@@ -528,7 +589,7 @@ export default function AppNavbar({
 
       <AIAssistant />
 
-      {/* ── MOBILE LEFT NAVIGATION DRAWER ──────────────────────────────── */}
+      {/* ── MOBILE LEFT NAVIGATION DRAWER (Full sidebar on mobile) ─────── */}
       <div
         className={`mobile-drawer-backdrop${mobileMenuOpen ? ' is-open' : ''}`}
         onClick={() => setMobileMenuOpen(false)}
@@ -538,22 +599,56 @@ export default function AppNavbar({
         className={`mobile-drawer${mobileMenuOpen ? ' is-open' : ''}`}
         aria-label="Mobile Navigation Menu"
       >
+        {/* Top 4-Square Grid Launcher matching screenshot */}
+        <div style={{ padding: '14px 16px 2px' }}>
+          <button
+            type="button"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '4px',
+              color: 'var(--text)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '8px',
+            }}
+            title="Shoppage Grid"
+            aria-label="Shoppage Grid"
+            onClick={() => {
+              dispatchNav('tab', 'foryou');
+              setMobileMenuOpen(false);
+            }}
+          >
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.2">
+              <rect x="3" y="3" width="7" height="7" rx="1.5" />
+              <rect x="14" y="3" width="7" height="7" rx="1.5" />
+              <rect x="3" y="14" width="7" height="7" rx="1.5" />
+              <rect x="14" y="14" width="7" height="7" rx="1.5" />
+            </svg>
+          </button>
+        </div>
+
         <div className="mobile-drawer-head">
-          <Link href="/" className="logo" onClick={() => setMobileMenuOpen(false)}>
-            <ShoppageLogoMark size={28} />
+          <Link href="/" className="logo" onClick={() => setMobileMenuOpen(false)} title="Shoppage South Africa">
             <span className="wordmark">Shoppage</span>
           </Link>
           <button
             type="button"
             className="mobile-drawer-close"
             onClick={() => setMobileMenuOpen(false)}
-            aria-label="Close menu"
+            aria-label="Collapse menu"
+            title="Collapse menu"
           >
-            ✕
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
           </button>
         </div>
 
         <nav className="mobile-drawer-nav">
+          {/* 1. Home */}
           <button
             type="button"
             className={`nav-item${pathname === '/' ? ' active' : ''}`}
@@ -568,6 +663,7 @@ export default function AppNavbar({
             <span>Home</span>
           </button>
 
+          {/* 2. Explore */}
           <Link
             href="/search"
             className={`nav-item${pathname === '/search' ? ' active' : ''}`}
@@ -579,6 +675,7 @@ export default function AppNavbar({
             <span>Explore</span>
           </Link>
 
+          {/* 3. Shorts */}
           <button
             type="button"
             className="nav-item"
@@ -594,6 +691,7 @@ export default function AppNavbar({
             <span>Shorts</span>
           </button>
 
+          {/* 4. Shows */}
           <Link
             href="/shows"
             className={`nav-item${pathname === '/shows' ? ' active' : ''}`}
@@ -606,6 +704,7 @@ export default function AppNavbar({
             <span>Shows</span>
           </Link>
 
+          {/* 5. Markets */}
           <Link
             href="/markets"
             className={`nav-item${pathname === '/markets' ? ' active' : ''}`}
@@ -619,6 +718,7 @@ export default function AppNavbar({
             <span>Markets</span>
           </Link>
 
+          {/* 6. Malls */}
           <Link
             href="/malls"
             className={`nav-item${pathname === '/malls' ? ' active' : ''}`}
@@ -631,6 +731,7 @@ export default function AppNavbar({
             <span>Malls</span>
           </Link>
 
+          {/* 7. Stores */}
           <Link
             href="/merchants"
             className={`nav-item${pathname === '/merchants' ? ' active' : ''}`}
@@ -643,6 +744,7 @@ export default function AppNavbar({
             <span>Stores</span>
           </Link>
 
+          {/* 8. RFQ Desk */}
           <Link
             href="/requests"
             className={`nav-item${pathname === '/requests' ? ' active' : ''}`}
@@ -655,82 +757,31 @@ export default function AppNavbar({
             </svg>
             <span>RFQ Desk</span>
           </Link>
-
-          <Link
-            href="/time"
-            className={`nav-item${pathname === '/time' ? ' active' : ''}`}
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <svg viewBox="0 0 24 24">
-              <path d="M13 2L4 14h7l-1 8 9-12h-7z" />
-            </svg>
-            <span>Time</span>
-            <span className="live-badge">LIVE</span>
-          </Link>
-
-          <button
-            type="button"
-            className="nav-item"
-            onClick={() => {
-              dispatchNav('bookmarks');
-              setMobileMenuOpen(false);
-            }}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path
-                strokeLinejoin="round"
-                d="M4 4.5C4 3.12 5.12 2 6.5 2h11C18.88 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5z"
-              />
-            </svg>
-            <span>Bookmarks</span>
-          </button>
-
-          <Link
-            href="/merchant/claim"
-            className={`nav-item${pathname === '/merchant/claim' ? ' active' : ''}`}
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 3a4.25 4.25 0 1 0 0 8.5A4.25 4.25 0 0 0 12 3zM4 20.1c.6-3.6 3.9-5.6 8-5.6s7.4 2 8 5.6v1.4H4v-1.4z" />
-            </svg>
-            <span>Profile / Claim</span>
-          </Link>
-
-          {/* WhatsApp Direct Referral & Trade Support */}
-          <a
-            href="https://wa.me/27820000000?text=Hi%20Shoppage%20Trade%20Desk%2C%20I%20have%20an%20enquiry"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="nav-item"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-            </svg>
-            <span style={{ color: '#10B981', fontWeight: 700 }}>WhatsApp Concierge</span>
-          </a>
         </nav>
 
-        <div className="mobile-drawer-footer">
+        {/* Post Button */}
+        <div style={{ padding: '0 16px 14px' }}>
           <button
             type="button"
-            className="post-btn"
-            style={{ width: '100%', marginBottom: '12px' }}
+            className="mobile-drawer-post-btn"
             onClick={() => {
               dispatchNav('focus-composer');
               setMobileMenuOpen(false);
             }}
           >
-            <span className="txt">Post to Feed</span>
+            Post
           </button>
+        </div>
 
+        {/* User Card at Bottom */}
+        <div className="mobile-drawer-footer">
           <div className="me" onClick={cycleTheme} title={`Theme: ${THEME_NAMES[THEMES[themeIdx]]}`}>
             <div className="avatar g8">Y</div>
             <div className="meta">
               <b>You</b>
-              <span>{THEME_NAMES[THEMES[themeIdx]]}</span>
+              <span>@you_za</span>
             </div>
-            <span className="dots">☀️</span>
+            <span className="dots">···</span>
           </div>
         </div>
       </aside>
