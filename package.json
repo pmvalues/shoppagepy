@@ -27,7 +27,9 @@
     "scrape:guzzle": "python scripts/scrapers/shoppage_scrape_guzzle_specials.py",
     "scout:once": "python scripts/orchestrator/shoppage_scouting_daemon.py --run-once",
     "scout:daemon": "python scripts/orchestrator/shoppage_scouting_daemon.py --daemon",
-    "sync:typesense": "node scripts/search/sync_typesense.mjs"
+    "sync:typesense": "node scripts/search/sync_typesense.mjs",
+    "agents:sweep": "node scripts/agents/run_retail_agents.mjs",
+    "agents:dry": "node scripts/agents/run_retail_agents.mjs --dry-run"
   },
   "devDependencies": {
     "typescript": "^5.5.4",

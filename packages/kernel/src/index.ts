@@ -35,4 +35,9 @@ export * from './graph/sa_community_groups_dataset';
 export * from './services/community_group_autoposter_service';
 export * from './services/live_data_scraper_service';
 export * from './seed/sa_major_retailer_deals';
-
+export * from './agents/link_verifier_agent';
+export * from './agents/product_cleansing_agent';
+export * from './agents/merchant_sourcing_agent';
+export * from './agents/retail_news_agent';
+export * from './agents/change_detector_agent';
+export * from './agents/agent_orchestrator';

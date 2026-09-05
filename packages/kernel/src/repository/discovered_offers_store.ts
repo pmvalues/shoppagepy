@@ -8,6 +8,10 @@ function getDiscoveredOffersSqliteDb() {
   return getSqliteDatabase('sa_discovered_offers.sqlite', { readOnly: true });
 }
 
+function getDiscoveredOffersSqliteRwDb() {
+  return getSqliteDatabase('sa_discovered_offers.sqlite', { readOnly: false });
+}
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -705,6 +709,109 @@ export class DiscoveredOffersStore {
       }
     }
     return [];
+  }
+
+  public static upsertOfferRecord(offer: DiscoveredOffer): boolean {
+    // 1. Update in-memory cache
+    const existing = DISCOVERED_OFFERS_CACHE.get(offer.masterProductRef) || [];
+    const filtered = existing.filter((o) => o.id !== offer.id);
+    filtered.push(offer);
+    DISCOVERED_OFFERS_CACHE.set(offer.masterProductRef, filtered);
+
+    // 2. Persist to SQLite
+    const db = getDiscoveredOffersSqliteRwDb();
+    if (db) {
+      try {
+        const stmt = db.prepare(`
+          INSERT INTO discovered_offers (
+            id, master_product_ref, product_title, brand, category,
+            image_url, merchant_ref, merchant_name, source_website,
+            source_url, discovered_price_zar, raw_price_text,
+            availability_text, discovery_source, confidence_score,
+            discovered_at, status, location_hint, sku,
+            old_price_zar, discount_pct, deal_badge
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT(id) DO UPDATE SET
+            master_product_ref = excluded.master_product_ref,
+            product_title = excluded.product_title,
+            brand = excluded.brand,
+            category = excluded.category,
+            image_url = excluded.image_url,
+            merchant_ref = excluded.merchant_ref,
+            merchant_name = excluded.merchant_name,
+            source_website = excluded.source_website,
+            source_url = excluded.source_url,
+            discovered_price_zar = excluded.discovered_price_zar,
+            raw_price_text = excluded.raw_price_text,
+            availability_text = excluded.availability_text,
+            discovery_source = excluded.discovery_source,
+            confidence_score = excluded.confidence_score,
+            discovered_at = excluded.discovered_at,
+            status = excluded.status,
+            location_hint = excluded.location_hint,
+            sku = excluded.sku,
+            old_price_zar = excluded.old_price_zar,
+            discount_pct = excluded.discount_pct,
+            deal_badge = excluded.deal_badge
+        `);
+        stmt.run(
+          offer.id,
+          offer.masterProductRef,
+          offer.productTitle || offer.masterProductRef,
+          offer.brand || 'Generic',
+          offer.category || 'general',
+          offer.imageUrl || '',
+          offer.merchantRef || null,
+          offer.merchantName,
+          offer.sourceWebsite,
+          offer.sourceUrl,
+          offer.discoveredPrice?.amount || 0,
+          offer.discoveredPrice?.rawPriceText || `R ${(offer.discoveredPrice?.amount || 0).toLocaleString('en-ZA')}`,
+          offer.availabilityText || 'In Stock',
+          offer.discoverySource || 'retailer_web_sweep',
+          offer.confidenceScore ?? 0.98,
+          offer.discoveredAt || new Date().toISOString(),
+          offer.status || 'discovered',
+          offer.locationHint || 'National Distribution Centres',
+          offer.sku || `SKU-${offer.id.slice(0, 8)}`,
+          offer.oldPriceZar ?? null,
+          offer.discountPct ?? null,
+          offer.dealBadge ?? null
+        );
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  public static retireDeadOfferRecord(id: string): boolean {
+    // 1. Update in-memory cache
+    for (const [key, offers] of DISCOVERED_OFFERS_CACHE.entries()) {
+      const target = offers.find((o) => o.id === id);
+      if (target) {
+        target.status = 'retired_404' as any;
+        target.availabilityText = 'Discontinued / 404 Dead Link';
+      }
+    }
+
+    // 2. Persist to SQLite
+    const db = getDiscoveredOffersSqliteRwDb();
+    if (db) {
+      try {
+        const stmt = db.prepare(`
+          UPDATE discovered_offers
+          SET status = 'retired_404', availability_text = 'Discontinued / 404 Dead Link'
+          WHERE id = ?
+        `);
+        stmt.run(id);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+    return false;
   }
 
   public static clearCache(): void {
