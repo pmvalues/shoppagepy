@@ -17,6 +17,9 @@ const DEFAULT_SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
 function getAuthSecret(): string {
   const secret = (process.env.SHOPPAGE_AUTH_SECRET || process.env.PAYLOAD_SECRET || '').trim();
   if (!secret) {
+    if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
+      return 'test_secret_for_auth_testing_minimum_32_chars_long';
+    }
     throw new Error('SHOPPAGE_AUTH_SECRET (or PAYLOAD_SECRET) must be configured in production');
   }
   return secret;

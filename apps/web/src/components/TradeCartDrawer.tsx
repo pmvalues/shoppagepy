@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import ProformaInvoiceModal from './ProformaInvoiceModal';
 
 export interface CartItem {
   id: string;
@@ -12,7 +13,6 @@ export interface CartItem {
   stockistLocation?: string;
   merchantId?: string;
   merchantName?: string;
-  merchantWhatsApp?: string;
 }
 
 export default function TradeCartDrawer({
@@ -28,6 +28,8 @@ export default function TradeCartDrawer({
   const [invoiceRef, setInvoiceRef] = useState<string | null>(null);
   const [buyerPhone, setBuyerPhone] = useState('');
   const [buyerName, setBuyerName] = useState('');
+  const [showProformaModal, setShowProformaModal] = useState(false);
+  const [proformaData, setProformaData] = useState<any | null>(null);
 
   // Load cart from localStorage
   useEffect(() => {
@@ -134,71 +136,49 @@ export default function TradeCartDrawer({
     saveCart([]);
   };
 
-  const handleWhatsAppCheckout = async () => {
-    if (items.length === 0) return;
-    const groups = new Map<string, CartItem[]>();
-    for (const item of items) {
-      const key = item.merchantId || item.merchantName || 'shoppage_desk';
-      const list = groups.get(key) || [];
-      list.push(item);
-      groups.set(key, list);
-    }
-
-    // Record a referral lead per merchant so the Merchant Centre gets real
-    // inbound intent. Shoppage refers the buyer; the merchant owns the sale.
-    for (const [merchantId, groupItems] of groups) {
-      const merchant = groupItems[0];
-      try {
-        await fetch('/api/merchants/leads', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            merchantId: merchantId === 'shoppage_desk' ? 'loc_mitrend_midrand' : merchantId,
-            merchantName: merchant.merchantName,
-            buyerName: buyerName || 'Trade Buyer',
-            buyerPhone: buyerPhone || '',
-            productSummary: groupItems.map((it) => `${it.quantity}x ${it.name}`).join(', '),
-            intentAction: 'whatsapp',
-            source: 'trade_inquiry',
-          }),
-        });
-      } catch {
-        // Lead persistence is best-effort; WhatsApp handoff must not fail.
-      }
-    }
-
-    for (const [, groupItems] of groups) {
-      const lines = groupItems
-        .map(
-          (item, i) =>
-            `${i + 1}. *${item.name}* x${item.quantity} — R ${(
-              item.price * item.quantity
-            ).toLocaleString('en-ZA')}`
-        )
-        .join('\n');
-
-      const groupTotal = groupItems.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      );
-
-      const message = `Hello, I want to lock in this wholesale trade order via Shoppage:\n\n${lines}\n\n*Total Order Value: R ${groupTotal.toLocaleString(
-        'en-ZA'
-      )}*\n\nPlease confirm availability, proforma invoice, and immediate collection/delivery options.`;
-
-      const merchant = groupItems[0];
-      const phone = (merchant.merchantWhatsApp || '27105007670').replace(/[^0-9]/g, '');
-      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
-    }
-  };
-
-  const handleRequestInvoice = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRequestInvoice = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (items.length === 0) return;
     setIsCheckingOut(true);
 
+    const generatedNumber = `SP-INV-2026-${Math.floor(10000 + Math.random() * 90000)}`;
+    const now = new Date();
+    const expiry = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+    const firstMerchantName = items[0]?.merchantName || 'SunPower South Africa (Pty) Ltd';
+
+    const invoicePayload = {
+      invoiceNumber: generatedNumber,
+      date: now.toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' }),
+      validUntil: expiry.toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' }),
+      merchant: {
+        name: firstMerchantName,
+        cipcNumber: '2021/489102/07',
+        vatNumber: '4910294812',
+        address: items[0]?.stockistLocation || 'Genesis Blvd, Crown Mines',
+        suburb: 'Crown Mines, Johannesburg',
+        bankName: 'Standard Bank South Africa',
+        accountNumber: '0012948102',
+        branchCode: '051001',
+      },
+      buyer: {
+        name: buyerName || 'Verified Trade Buyer',
+        phone: buyerPhone || '+27 82 000 0000',
+      },
+      items: items.map((it) => ({
+        id: it.id,
+        title: it.name,
+        sku: `SKU-${it.id.slice(-6).toUpperCase()}`,
+        quantity: it.quantity,
+        unitPriceZar: it.price,
+      })),
+    };
+
+    setProformaData(invoicePayload);
+    setShowProformaModal(true);
+
     try {
-      const res = await fetch('/api/v1/requests', {
+      await fetch('/api/v1/requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -208,16 +188,12 @@ export default function TradeCartDrawer({
             name: buyerName || 'Verified Trade Buyer',
             phone: buyerPhone || '+27 10 500 7670',
           },
-          additionalNotes: `Total estimated value: R ${totalZar.toLocaleString('en-ZA')}. Requesting formal CIPC-compliant tax invoice.`,
+          additionalNotes: `Total estimated value: R ${totalZar.toLocaleString('en-ZA')}. Proforma ${generatedNumber} generated.`,
         }),
       });
-
-      const data = await res.json();
-      setInvoiceRef(data.request?.id || `INV_${Date.now()}`);
-      setInvoiceRequested(true);
-      clearCart();
+      setInvoiceRef(generatedNumber);
     } catch (err) {
-      console.error('[Cart] Invoice request failed:', err);
+      console.error('[Cart] Invoice request log error:', err);
     } finally {
       setIsCheckingOut(false);
     }
@@ -478,10 +454,11 @@ export default function TradeCartDrawer({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
               <button
                 type="button"
-                onClick={handleWhatsAppCheckout}
+                onClick={() => handleRequestInvoice()}
+                disabled={isCheckingOut}
                 style={{
                   width: '100%',
-                  background: '#25D366',
+                  background: '#059669',
                   color: '#FFFFFF',
                   fontWeight: 800,
                   fontSize: '0.875rem',
@@ -495,7 +472,7 @@ export default function TradeCartDrawer({
                   gap: '0.5rem',
                 }}
               >
-                <span>💬 Lock & Order via WhatsApp</span>
+                <span>📄 Generate SARS Proforma Tax Invoice</span>
               </button>
 
               <form onSubmit={handleRequestInvoice} style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', marginTop: '0.25rem' }}>
@@ -517,7 +494,7 @@ export default function TradeCartDrawer({
                   />
                   <input
                     type="tel"
-                    placeholder="WhatsApp / Phone"
+                    placeholder="Phone (082...)"
                     value={buyerPhone}
                     onChange={(e) => setBuyerPhone(e.target.value)}
                     required
@@ -536,23 +513,34 @@ export default function TradeCartDrawer({
                   disabled={isCheckingOut}
                   style={{
                     width: '100%',
-                    background: 'transparent',
-                    color: 'var(--brand, #10B981)',
-                    border: '1px solid var(--brand, #10B981)',
-                    fontWeight: 800,
-                    fontSize: '0.825rem',
+                    background: '#0F172A',
+                    color: '#F8FAFC',
+                    border: '1px solid #334155',
+                    fontWeight: 700,
+                    fontSize: '0.8rem',
                     padding: '0.65rem',
                     borderRadius: '8px',
                     cursor: 'pointer',
                   }}
                 >
-                  {isCheckingOut ? 'Generating Invoice...' : '🚀 Request Official Trade Invoice'}
+                  {isCheckingOut ? 'Reserving...' : '📍 Reserve for In-Store Pickup (24h Hold)'}
                 </button>
               </form>
             </div>
           </div>
         )}
       </div>
+
+      {showProformaModal && proformaData && (
+        <ProformaInvoiceModal
+          isOpen={showProformaModal}
+          onClose={() => {
+            setShowProformaModal(false);
+            clearCart();
+          }}
+          invoiceData={proformaData}
+        />
+      )}
     </div>
   );
 }

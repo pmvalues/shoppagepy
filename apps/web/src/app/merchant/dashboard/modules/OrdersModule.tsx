@@ -1,0 +1,265 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import type { Merchant } from '@shoppage/contracts';
+import ProformaInvoiceModal from '@/components/ProformaInvoiceModal';
+
+export interface OrdersModuleProps {
+  merchant: Merchant;
+}
+
+export default function OrdersModule({ merchant }: OrdersModuleProps) {
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/orders/proforma?merchantId=${merchant.id}&status=${statusFilter}`);
+      const data = await res.json();
+      setOrders(data.orders || []);
+    } catch (err) {
+      console.error('[OrdersModule] Fetch failed:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, [merchant.id, statusFilter]);
+
+  const updateOrderStatus = (orderId: string, newStatus: string) => {
+    setOrders((prev) =>
+      prev.map((ord) => (ord.id === orderId ? { ...ord, status: newStatus } : ord))
+    );
+  };
+
+  const openInvoiceModal = (order: any) => {
+    setSelectedInvoice({
+      invoiceNumber: order.invoiceNumber,
+      date: new Date(order.createdAt).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' }),
+      validUntil: new Date(order.expiresAt).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' }),
+      merchant: {
+        name: merchant.name,
+        cipcNumber: merchant.cipcEnterpriseNumber || '2021/489102/07',
+        vatNumber: '4910294812',
+        address: merchant.addressText || 'Crown Mines Trade Corridor',
+        suburb: 'Crown Mines, Johannesburg',
+        bankName: 'Standard Bank South Africa',
+        accountNumber: '0012948102',
+        branchCode: '051001',
+      },
+      buyer: {
+        name: order.buyerName,
+        companyName: order.buyerCompany,
+        phone: order.buyerPhone,
+      },
+      items: order.items.map((it: any) => ({
+        id: it.id,
+        title: it.title,
+        sku: it.sku,
+        quantity: it.quantity,
+        unitPriceZar: it.unitPriceZar,
+      })),
+    });
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      {/* Header & Status Ribbon */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+            Proforma Invoices & Counter Reservations
+          </h2>
+          <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '0.2rem 0 0 0' }}>
+            Direct B2B contractor procurement orders with SARS-compliant VAT invoicing and 24-hour stock locks.
+          </p>
+        </div>
+
+        {/* Status Filters */}
+        <div style={{ display: 'flex', gap: '0.35rem', background: '#F1F5F9', padding: '0.25rem', borderRadius: '10px' }}>
+          {[
+            { id: 'all', label: 'All Orders' },
+            { id: 'pending_payment', label: 'Pending EFT' },
+            { id: 'ready_for_collection', label: 'Ready for Collection' },
+            { id: 'completed', label: 'Settled' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setStatusFilter(tab.id)}
+              style={{
+                padding: '0.35rem 0.75rem',
+                borderRadius: '8px',
+                border: 'none',
+                background: statusFilter === tab.id ? '#FFFFFF' : 'transparent',
+                color: statusFilter === tab.id ? '#0F172A' : '#64748B',
+                fontSize: '0.78rem',
+                fontWeight: statusFilter === tab.id ? 700 : 500,
+                cursor: 'pointer',
+                boxShadow: statusFilter === tab.id ? '0 1px 2px rgba(0,0,0,0.08)' : 'none',
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Orders Table Card */}
+      <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        {loading ? (
+          <div style={{ padding: '3rem', textAlign: 'center', color: '#64748B' }}>
+            Loading live proforma reservations...
+          </div>
+        ) : orders.length === 0 ? (
+          <div style={{ padding: '3rem', textAlign: 'center', color: '#64748B' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📄</div>
+            <h4 style={{ color: '#0F172A', margin: 0 }}>No orders found for this status</h4>
+            <p style={{ fontSize: '0.85rem', marginTop: '0.35rem' }}>
+              Orders generated by trade contractors via the BuyBox will appear here in real time.
+            </p>
+          </div>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem' }}>
+              <thead>
+                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0', color: '#64748B', textAlign: 'left', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '0.75rem 1rem' }}>Invoice #</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Buyer / Contractor</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Items Summary</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Total (ZAR)</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Fulfillment</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Status</th>
+                  <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((ord) => (
+                  <tr key={ord.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                    <td style={{ padding: '1rem', fontWeight: 800, color: '#1A73E8' }}>
+                      {ord.invoiceNumber}
+                    </td>
+                    <td style={{ padding: '1rem' }}>
+                      <div style={{ fontWeight: 700, color: '#0F172A' }}>{ord.buyerCompany || ord.buyerName}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748B' }}>
+                        {ord.buyerCompany ? `Attn: ${ord.buyerName} · ` : ''}
+                        {ord.buyerPhone}
+                      </div>
+                    </td>
+                    <td style={{ padding: '1rem', maxWidth: '280px' }}>
+                      <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 600 }}>
+                        {ord.items.map((it: any) => `${it.quantity}x ${it.title}`).join(', ')}
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
+                        {ord.items.length} line item{ord.items.length === 1 ? '' : 's'}
+                      </div>
+                    </td>
+                    <td style={{ padding: '1rem', fontWeight: 900, color: '#0F172A' }}>
+                      R {ord.totalInclVatZar?.toLocaleString('en-ZA')}
+                    </td>
+                    <td style={{ padding: '1rem' }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#059669', background: '#ECFDF5', padding: '2px 6px', borderRadius: '4px' }}>
+                        📍 Counter Pickup
+                      </span>
+                    </td>
+                    <td style={{ padding: '1rem' }}>
+                      <span
+                        style={{
+                          fontSize: '0.72rem',
+                          fontWeight: 800,
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          background:
+                            ord.status === 'ready_for_collection'
+                              ? '#DCFCE7'
+                              : ord.status === 'pending_payment'
+                              ? '#FEF3C7'
+                              : '#F1F5F9',
+                          color:
+                            ord.status === 'ready_for_collection'
+                              ? '#15803D'
+                              : ord.status === 'pending_payment'
+                              ? '#B45309'
+                              : '#475569',
+                        }}
+                      >
+                        {ord.status.replace(/_/g, ' ').toUpperCase()}
+                      </span>
+                    </td>
+                    <td style={{ padding: '1rem', textAlign: 'right' }}>
+                      <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'flex-end' }}>
+                        <button
+                          onClick={() => openInvoiceModal(ord)}
+                          style={{
+                            padding: '0.35rem 0.65rem',
+                            borderRadius: '6px',
+                            border: '1px solid #CBD5E1',
+                            background: '#FFFFFF',
+                            color: '#0F172A',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                          }}
+                          title="View and reprint official SARS Proforma Tax Invoice"
+                        >
+                          📄 Invoice
+                        </button>
+                        {ord.status === 'pending_payment' && (
+                          <button
+                            onClick={() => updateOrderStatus(ord.id, 'ready_for_collection')}
+                            style={{
+                              padding: '0.35rem 0.65rem',
+                              borderRadius: '6px',
+                              border: 'none',
+                              background: '#059669',
+                              color: '#FFFFFF',
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            Mark Ready
+                          </button>
+                        )}
+                        {ord.status === 'ready_for_collection' && (
+                          <button
+                            onClick={() => updateOrderStatus(ord.id, 'completed')}
+                            style={{
+                              padding: '0.35rem 0.65rem',
+                              borderRadius: '6px',
+                              border: 'none',
+                              background: '#0F172A',
+                              color: '#FFFFFF',
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            Complete
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Proforma Modal */}
+      {selectedInvoice && (
+        <ProformaInvoiceModal
+          isOpen={!!selectedInvoice}
+          onClose={() => setSelectedInvoice(null)}
+          invoiceData={selectedInvoice}
+        />
+      )}
+    </div>
+  );
+}
