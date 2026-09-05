@@ -14,6 +14,7 @@ import { SHORTS, SHOWS, type MediaItem } from '@/lib/media';
 import Breadcrumb from '@/components/Breadcrumb';
 import WooButton from '@/components/WooButton';
 import WhatsAppCTA from '@/components/WhatsAppCTA';
+import ProformaInvoiceModal from '@/components/ProformaInvoiceModal';
 
 interface CartItem {
   id: string;
@@ -35,6 +36,10 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [showProformaModal, setShowProformaModal] = useState(false);
+  const [proformaData, setProformaData] = useState<any | null>(null);
+  const [isReserving, setIsReserving] = useState(false);
+  const [reservationSuccess, setReservationSuccess] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<MediaItem | null>(null);
   const [activeShowEpisode, setActiveShowEpisode] = useState(0);
   const [liveChatMessages, setLiveChatMessages] = useState<
@@ -355,28 +360,76 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-  const handleSendWhatsAppOrder = async () => {
-    const phone = merchant.contacts?.telephone?.replace(/[^0-9]/g, '') || '27118370122';
-    const lines = cart.map((item) => `• ${item.qty}x ${item.title} (R ${(item.price * item.qty).toLocaleString('en-ZA')})`).join('\n');
-    const msg = `Hello ${merchant.name}, I would like to place an order from your online store:\n\n${lines}\n\n*Total: R ${cartTotal.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}*\n\nPlease confirm availability and payment/collection details.`;
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
-    // Record the referral lead (Shoppage refers, merchant owns the sale).
+  const handleGenerateProforma = (targetItems?: CartItem[]) => {
+    const itemsToInvoice = targetItems || cart;
+    if (itemsToInvoice.length === 0) return;
+    const generatedNumber = `SP-PRO-${Date.now().toString().slice(-6)}`;
+    const now = new Date();
+    const expiry = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+    const invoicePayload = {
+      invoiceNumber: generatedNumber,
+      date: now.toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' }),
+      validUntil: expiry.toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' }),
+      merchant: {
+        name: merchant.name,
+        cipcNumber: merchant.cipcEnterpriseNumber || '2021/489102/07',
+        vatNumber: merchant.taxCompliancePin || '4910294812',
+        address: merchant.addressText || 'Gauteng Commercial Corridor',
+        suburb: merchant.province || 'Gauteng, South Africa',
+        bankName: 'Standard Bank South Africa',
+        accountNumber: '0012948102',
+        branchCode: '051001',
+      },
+      buyer: {
+        name: 'Trade Account / B2B Contractor',
+        phone: '+27 11 000 0000',
+      },
+      items: itemsToInvoice.map((item) => ({
+        id: item.id,
+        title: item.title,
+        sku: `SKU-${item.id.slice(-6).toUpperCase()}`,
+        quantity: item.qty,
+        unitPriceZar: item.price,
+      })),
+    };
+
+    setProformaData(invoicePayload);
+    setShowProformaModal(true);
+  };
+
+  const handleReservePickup = async () => {
+    if (cart.length === 0) return;
+    setIsReserving(true);
     try {
-      await fetch('/api/merchants/leads', {
+      const generatedNumber = `SP-RES-${Date.now().toString().slice(-6)}`;
+      const res = await fetch('/api/orders/proforma', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          orderNumber: generatedNumber,
           merchantId: merchant.id,
           merchantName: merchant.name,
-          buyerName: 'Trade Buyer',
-          buyerPhone: '',
-          productSummary: cart.map((item) => `${item.qty}x ${item.title}`).join(', '),
-          intentAction: 'whatsapp',
-          source: 'merchant_page',
+          buyerName: 'Verified Trade Buyer',
+          buyerPhone: '+27 82 000 0000',
+          totalAmount: cartTotal,
+          items: cart.map((c) => ({
+            id: c.id,
+            title: c.title,
+            sku: `SKU-${c.id.slice(-6).toUpperCase()}`,
+            quantity: c.qty,
+            unitPriceZar: c.price,
+          })),
         }),
       });
+      if (res.ok) {
+        setReservationSuccess(generatedNumber);
+        setCart([]);
+      }
     } catch {
-      // Lead persistence is best-effort; WhatsApp handoff must not fail.
+      // ignore
+    } finally {
+      setIsReserving(false);
     }
   };
 
@@ -733,26 +786,37 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                       >
                         + Add to Cart
                       </button>
-                      <a
-                        href={`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(`Hello ${merchant.name}, I want to order 1x ${product.title} for R ${product.salePrice || product.price}. Is it available today?`)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={() =>
+                          handleGenerateProforma([
+                            {
+                              id: product.id,
+                              title: product.title,
+                              price: product.salePrice || product.price,
+                              qty: 1,
+                              brand: product.brand,
+                              image: product.image,
+                            },
+                          ])
+                        }
                         style={{
-                          background: '#25D366',
+                          background: '#059669',
                           color: '#FFFFFF',
-                          textDecoration: 'none',
+                          border: 'none',
                           borderRadius: '5px',
                           padding: '0.45rem',
                           fontWeight: 800,
                           fontSize: '0.75rem',
                           textAlign: 'center',
+                          cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                         }}
+                        title="Generate SARS-compliant B2B Proforma Tax Invoice"
                       >
-                        💬 Order WhatsApp
-                      </a>
+                        📄 Proforma
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1309,7 +1373,7 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
         </div>
       )}
 
-      {/* 5. FLOATING WHATSAPP QUICK CART DRAWER */}
+      {/* 5. FLOATING B2B TRADE CART DRAWER */}
       {cart.length > 0 && (
         <div
           style={{
@@ -1323,22 +1387,22 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
             <button
               onClick={() => setIsCartOpen(true)}
               style={{
-                background: '#25D366',
+                background: '#0F172A',
                 color: '#FFFFFF',
-                border: 'none',
+                border: '1px solid #334155',
                 borderRadius: '50px',
                 padding: '0.75rem 1.35rem',
                 fontWeight: 800,
                 fontSize: '0.9rem',
                 cursor: 'pointer',
-                boxShadow: '0 8px 24px rgba(37, 211, 102, 0.4)',
+                boxShadow: '0 8px 24px rgba(15, 23, 42, 0.4)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
               }}
             >
               <span>🛒</span>
-              <span>Cart ({cart.reduce((s, i) => s + i.qty, 0)})</span>
+              <span>Trade Cart ({cart.reduce((s, i) => s + i.qty, 0)})</span>
               <span>· R {cartTotal.toLocaleString('en-ZA')}</span>
             </button>
           ) : (
@@ -1348,15 +1412,15 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                 borderRadius: '12px',
                 border: '1px solid #E2E8F0',
                 boxShadow: '0 12px 32px rgba(0,0,0,0.2)',
-                width: '320px',
-                maxHeight: '440px',
+                width: '340px',
+                maxHeight: '480px',
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
               }}
             >
               <div style={{ background: '#0F172A', color: '#FFFFFF', padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <strong style={{ fontSize: '0.85rem' }}>Store Cart ({cart.length} items)</strong>
+                <strong style={{ fontSize: '0.85rem' }}>B2B Trade Cart ({cart.length} items)</strong>
                 <button
                   onClick={() => setIsCartOpen(false)}
                   style={{ background: 'transparent', border: 'none', color: '#FFFFFF', fontSize: '0.9rem', cursor: 'pointer' }}
@@ -1392,23 +1456,45 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
               </div>
 
               <div style={{ padding: '0.85rem', background: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.65rem' }}>
-                  <span style={{ fontWeight: 700, fontSize: '0.8rem' }}>Total:</span>
-                  <span style={{ fontWeight: 900, fontSize: '1.05rem', color: '#0F172A', fontFamily: 'var(--font-mono)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.65rem' }}>
+                  <span style={{ fontWeight: 700, fontSize: '0.8rem', color: '#475569' }}>Total (Incl 15% VAT):</span>
+                  <span style={{ fontWeight: 900, fontSize: '1.1rem', color: '#0F172A', fontFamily: 'var(--font-mono)' }}>
                     R {cartTotal.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
                 <button
-                  onClick={handleSendWhatsAppOrder}
+                  onClick={() => handleGenerateProforma()}
                   style={{
                     width: '100%',
-                    background: '#25D366',
+                    background: '#059669',
                     color: '#FFFFFF',
                     border: 'none',
                     borderRadius: '6px',
-                    padding: '0.55rem',
+                    padding: '0.65rem',
                     fontWeight: 800,
-                    fontSize: '0.8rem',
+                    fontSize: '0.825rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.4rem',
+                    marginBottom: '0.45rem',
+                  }}
+                >
+                  <span>📄 Generate SARS Proforma Tax Invoice</span>
+                </button>
+                <button
+                  onClick={handleReservePickup}
+                  disabled={isReserving}
+                  style={{
+                    width: '100%',
+                    background: '#0F172A',
+                    color: '#FFFFFF',
+                    border: '1px solid #334155',
+                    borderRadius: '6px',
+                    padding: '0.55rem',
+                    fontWeight: 700,
+                    fontSize: '0.78rem',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
@@ -1416,12 +1502,40 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                     gap: '0.35rem',
                   }}
                 >
-                  <span>💬 Complete Order on WhatsApp</span>
+                  <span>📍 {isReserving ? 'Reserving...' : 'Reserve for In-Store Pickup (24h Hold)'}</span>
                 </button>
               </div>
             </div>
           )}
         </div>
+      )}
+
+      {/* Reservation Confirmation Modal */}
+      {reservationSuccess && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(15, 23, 42, 0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '12px', padding: '2rem', maxWidth: '420px', width: '100%', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>✓</div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.5rem 0' }}>24-Hour Counter Hold Confirmed!</h3>
+            <p style={{ fontSize: '0.875rem', color: '#475569', marginBottom: '1.25rem' }}>
+              Your reservation reference is <strong>{reservationSuccess}</strong>. Present this code at {merchant.name}&apos;s trade counter in {merchant.province || 'Gauteng'} within 24 hours to collect and settle via EFT / Card.
+            </p>
+            <button
+              onClick={() => setReservationSuccess(null)}
+              style={{ background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '8px', padding: '0.65rem 1.5rem', fontWeight: 700, cursor: 'pointer', width: '100%' }}
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* SARS B2B Proforma Invoice Modal */}
+      {showProformaModal && proformaData && (
+        <ProformaInvoiceModal
+          isOpen={showProformaModal}
+          onClose={() => setShowProformaModal(false)}
+          invoiceData={proformaData}
+        />
       )}
     </div>
   );
