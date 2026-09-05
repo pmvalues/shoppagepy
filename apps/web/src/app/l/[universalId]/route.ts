@@ -3,6 +3,7 @@ import { buildReferralActionEvent } from '@shoppage/kernel';
 import { SA_FLAGSHIP_OFFERS, SA_CANONICAL_PRODUCTS, SA_FLAGSHIP_MERCHANTS } from '@shoppage/kernel';
 import { buildWhatsAppActionLink } from '@shoppage/adapters';
 import { resolveExternalProduct } from '@/lib/external_discovery';
+import { appendReferralEvent } from '@/server/action-ledger';
 
 
 /**
@@ -40,7 +41,7 @@ export async function GET(
   const merchant = SA_FLAGSHIP_MERCHANTS.find((m) => m.id === offer?.merchantRef);
   const merchantRef = merchant?.id || offer?.merchantRef || 'unknown_merchant';
 
-  // 1. Emit Action Ledger Event (referral / intent logging)
+  // 1. Emit Action Ledger Event (referral / intent logging) — persisted now.
   const referralEvent = buildReferralActionEvent({
     country: 'ZA',
     sessionFingerprint,
@@ -54,8 +55,8 @@ export async function GET(
     sourceAssetQrId,
   });
 
-  // In production: Persist asynchronously to raw referral_events Drizzle table
-  // console.log('[ACTION_LEDGER_EMIT]', referralEvent);
+  // Persist synchronously to the append-only ledger (SQLite + NDJSON).
+  appendReferralEvent(referralEvent);
 
   // 2. Select the most specific valid destination
   if (offer) {

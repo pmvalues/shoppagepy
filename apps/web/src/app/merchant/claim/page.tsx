@@ -31,16 +31,45 @@ export default function MerchantClaimWizardPage({
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [credential, setCredential] = useState('');
+  const [provisionedMerchantId, setProvisionedMerchantId] = useState('');
 
   const selectedProduct = SA_CANONICAL_PRODUCTS.find((p) => p.canonicalId === formData.selectedProductId) || SA_CANONICAL_PRODUCTS[0];
 
   const handleNext = () => setStep((s) => Math.min(s + 1, 4) as any);
   const handleBack = () => setStep((s) => Math.max(s - 1, 1) as any);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitted(true);
     setStep(4);
+    try {
+      const res = await fetch('/api/merchants/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          businessName: formData.businessName,
+          whatsappPhone: formData.whatsappPhone,
+          email: formData.email,
+          streetAddress: formData.streetAddress,
+          category: formData.category,
+          marketId: formData.marketId,
+          stallNumber: formData.stallNumber,
+          selectedProductId: formData.selectedProductId,
+          priceZar: formData.priceZar,
+          stockQuantity: formData.stockQuantity,
+          condition: formData.condition,
+          warrantyYears: formData.warrantyYears,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.merchant) {
+        setCredential(data.credential || '');
+        setProvisionedMerchantId(data.merchant.id || '');
+      }
+    } catch {
+      // Wizard completes locally; provisioning retry happens on next visit.
+    }
   };
 
   return (
@@ -333,6 +362,20 @@ export default function MerchantClaimWizardPage({
           </p>
 
           <div style={{ background: '#F8FAFC', padding: '1.25rem', borderRadius: '8px', border: '1px solid #E2E8F0', maxWidth: '500px', margin: '0 auto 2rem auto', textAlign: 'left' }}>
+            {credential && (
+              <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '0.75rem' }}>
+                <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#92400E' }}>Your Merchant Login Credential</div>
+                <div style={{ fontSize: '0.85rem', color: '#78350F', marginTop: '0.25rem' }}>
+                  Store ID: <strong style={{ fontFamily: 'monospace' }}>{provisionedMerchantId}</strong>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: '#78350F', marginTop: '0.25rem' }}>
+                  Credential: <strong style={{ fontFamily: 'monospace' }}>{credential}</strong>
+                </div>
+                <div style={{ fontSize: '0.72rem', color: '#92400E', marginTop: '0.35rem' }}>
+                  Keep this safe. It is shown once. Use it on the login page with the Store ID above.
+                </div>
+              </div>
+            )}
             <div style={{ fontSize: '0.8rem', color: '#64748B', marginBottom: '0.4rem' }}>Synchronized Across Network:</div>
             <div style={{ fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
               <div>✓ <strong>Product Detail Page:</strong> Listed as Verified Confirmed Supplier</div>

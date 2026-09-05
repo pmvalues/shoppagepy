@@ -355,11 +355,29 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-  const handleSendWhatsAppOrder = () => {
+  const handleSendWhatsAppOrder = async () => {
     const phone = merchant.contacts?.telephone?.replace(/[^0-9]/g, '') || '27118370122';
     const lines = cart.map((item) => `• ${item.qty}x ${item.title} (R ${(item.price * item.qty).toLocaleString('en-ZA')})`).join('\n');
     const msg = `Hello ${merchant.name}, I would like to place an order from your online store:\n\n${lines}\n\n*Total: R ${cartTotal.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}*\n\nPlease confirm availability and payment/collection details.`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    // Record the referral lead (Shoppage refers, merchant owns the sale).
+    try {
+      await fetch('/api/merchants/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          merchantId: merchant.id,
+          merchantName: merchant.name,
+          buyerName: 'Trade Buyer',
+          buyerPhone: '',
+          productSummary: cart.map((item) => `${item.qty}x ${item.title}`).join(', '),
+          intentAction: 'whatsapp',
+          source: 'merchant_page',
+        }),
+      });
+    } catch {
+      // Lead persistence is best-effort; WhatsApp handoff must not fail.
+    }
   };
 
   const handleLiveChatSubmit = (e: React.FormEvent) => {
@@ -385,6 +403,20 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
           },
           targetMerchantId: merchant.id,
           additionalNotes: rfqForm.notes,
+        }),
+      });
+      await fetch('/api/merchants/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          merchantId: merchant.id,
+          merchantName: merchant.name,
+          buyerName: rfqForm.name,
+          buyerPhone: rfqForm.phone,
+          buyerEmail: rfqForm.email || undefined,
+          productSummary: rfqForm.items,
+          intentAction: 'rfq',
+          source: 'merchant_page',
         }),
       });
     } catch (err) {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ProductVariant, Offer } from '@shoppage/contracts';
 import { scoreVariantMatch, validateGtin } from '@shoppage/kernel';
 import { SA_CANONICAL_PRODUCTS, SA_FLAGSHIP_OFFERS } from '@shoppage/kernel';
+import { rateLimit, clientIp } from '@/server/rate-limit';
 
 export interface VendorSyncItemInput {
   merchantSku?: string;
@@ -26,6 +27,12 @@ export interface VendorSyncPayload {
  * and creates or updates merchant-specific Offer records.
  */
 export async function POST(request: NextRequest) {
+  const ip = clientIp(request);
+  const rl = rateLimit('sync:' + ip, 60, 60_000);
+  if (rl.limited) {
+    return NextResponse.json({ error: 'Too many requests, slow down' }, { status: 429 });
+  }
+
   try {
     const body = (await request.json()) as VendorSyncPayload;
 
@@ -123,3 +130,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

@@ -15,11 +15,10 @@ export const SESSION_COOKIE_NAME = 'shoppage_session';
 const DEFAULT_SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 function getAuthSecret(): string {
-  const secret = (
-    process.env.SHOPPAGE_AUTH_SECRET ||
-    process.env.PAYLOAD_SECRET ||
-    'shoppage-secure-default-auth-secret-key-32chars-min'
-  ).trim();
+  const secret = (process.env.SHOPPAGE_AUTH_SECRET || process.env.PAYLOAD_SECRET || '').trim();
+  if (!secret) {
+    throw new Error('SHOPPAGE_AUTH_SECRET (or PAYLOAD_SECRET) must be configured in production');
+  }
   return secret;
 }
 
@@ -184,13 +183,13 @@ export function verifyCredentials(
   const now = Date.now();
 
   const superAdminEmail = (process.env.SHOPPAGE_ADMIN_EMAIL || 'admin@shoppage.co.za').toLowerCase();
-  const superAdminPass = process.env.SHOPPAGE_ADMIN_PASSWORD || 'shoppage_admin_pass_2026';
+  const superAdminPass = (process.env.SHOPPAGE_ADMIN_PASSWORD || '').trim();
 
-  // 1. SuperAdmin Login
-  if (
-    normalizedEmail === superAdminEmail &&
-    (password === superAdminPass || password === '••••••••••••' || password === 'admin123')
-  ) {
+  // 1. SuperAdmin Login — no hardcoded fallback, no masked-string or admin123 bypass.
+  if (!superAdminPass) {
+    return null;
+  }
+  if (normalizedEmail === superAdminEmail && password === superAdminPass) {
     return {
       userId: 'usr_superadmin_01',
       email: normalizedEmail,
@@ -200,42 +199,21 @@ export function verifyCredentials(
     };
   }
 
-  // 2. Demo Merchant: Mitrend Products (Midrand)
+  // 2. Merchant login — real merchant credentials via env-driven secret map.
+  //    No universal storeId bypass. A merchant must present a credential token
+  //    (SHOPPAGE_MERCHANT_SECRET_<STORE_ID>) to authenticate.
+  const merchantSecretRaw = storeId
+    ? (process.env['SHOPPAGE_MERCHANT_SECRET_' + storeId.toUpperCase().replace(/[^A-Z0-9]/g, '_')] || '')
+    : '';
+  const merchantSecret = merchantSecretRaw.trim();
   if (
-    normalizedEmail === 'sales@mitrend.co.za' ||
-    normalizedEmail === 'mitrend@shoppage.co.za' ||
-    storeId === 'loc_mitrend_midrand'
+    storeId &&
+    merchantSecret &&
+    password === merchantSecret &&
+    (targetRole === 'merchant_owner' || targetRole === 'merchant_staff')
   ) {
     return {
-      userId: 'usr_mitrend_midrand',
-      email: normalizedEmail || 'sales@mitrend.co.za',
-      role: 'merchant_owner',
-      merchantId: 'loc_mitrend_midrand',
-      issuedAt: now,
-      expiresAt: now + DEFAULT_SESSION_DURATION,
-    };
-  }
-
-  // 3. Demo Merchant: SunPower / Crown Mines
-  if (
-    normalizedEmail === 'sales@sunpower.co.za' ||
-    normalizedEmail === 'solar@shoppage.co.za' ||
-    storeId === 'loc_sunpower_crownmines'
-  ) {
-    return {
-      userId: 'usr_sunpower_crownmines',
-      email: normalizedEmail || 'sales@sunpower.co.za',
-      role: 'merchant_owner',
-      merchantId: 'loc_sunpower_crownmines',
-      issuedAt: now,
-      expiresAt: now + DEFAULT_SESSION_DURATION,
-    };
-  }
-
-  // 4. Generic merchant credential fallback if valid store ID is provided
-  if (storeId && (targetRole === 'merchant_owner' || targetRole === 'merchant_staff')) {
-    return {
-      userId: `usr_${storeId}`,
+      userId: 'usr_' + storeId,
       email: normalizedEmail,
       role: targetRole,
       merchantId: storeId,

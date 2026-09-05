@@ -79,6 +79,14 @@ JOBS = [
         "category": "search_optimization",
         "interval_hours": 24,
     },
+    {
+        "id": "freshness",
+        "name": "Offer Freshness Lifecycle Sweep",
+        "script": ROOT / "scripts" / "analytics" / "sweep_offer_freshness.py",
+        "args": [],
+        "category": "freshness",
+        "interval_hours": 6,
+    },
 ]
 
 

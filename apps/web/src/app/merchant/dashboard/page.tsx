@@ -16,6 +16,7 @@ import { MERCHANT_PLAN_TIERS } from '@/cms/types';
 import { showToast } from '@/lib/toast';
 import WooButton from '@/components/WooButton';
 import WhatsAppCTA from '@/components/WhatsAppCTA';
+import ReferralLeadsInbox from '@/components/ReferralLeadsInbox';
 
 export default function MerchantDashboardPage() {
   const [selectedMerchantId, setSelectedMerchantId] = useState('loc_sunpower_crownmines');
@@ -1541,6 +1542,8 @@ export default function MerchantDashboardPage() {
               <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1D2327', margin: '0 0 1rem 0' }}>
                 Orders & Live Dispatch ({ordersList.length})
               </h2>
+
+              <ReferralLeadsInbox merchantId={selectedMerchantId} />
 
               {/* Status Filter Chips */}
               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>

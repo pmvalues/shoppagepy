@@ -27,11 +27,29 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 2. Verify Stripe HMAC-SHA256 (if configured)
+    // 2. Verify Stripe HMAC-SHA256 (if configured). Stripe uses a timestamped
+    //    signature: v1=<hmac>. Without STRIPE_WEBHOOK_SECRET or a valid
+    //    signature, we must reject. Never trust an unverified Stripe event.
     if (!verified && stripeSignature && stripeSecret) {
-      // In production, use Stripe SDK constructEvent
-      verified = true;
-      provider = 'stripe';
+      const parts = String(stripeSignature).split(',');
+      const tsPart = parts.find((p) => p.startsWith('t='));
+      const sigPart = parts.find((p) => p.startsWith('v1='));
+      if (tsPart && sigPart) {
+        const timestamp = tsPart.slice(2);
+        const signedPayload = timestamp + '.' + rawBody;
+        const expected = crypto.createHmac('sha256', stripeSecret).update(signedPayload).digest('hex');
+        const provided = sigPart.slice(3);
+        if (expected.length === provided.length) {
+          let mismatch = 0;
+          for (let i = 0; i < expected.length; i++) {
+            mismatch |= expected.charCodeAt(i) ^ provided.charCodeAt(i);
+          }
+          if (mismatch === 0) {
+            verified = true;
+            provider = 'stripe';
+          }
+        }
+      }
     }
 
     // If local dev / staging test without keys configured, allow structured dry-run

@@ -10,6 +10,9 @@ export interface CartItem {
   brand?: string;
   image?: string;
   stockistLocation?: string;
+  merchantId?: string;
+  merchantName?: string;
+  merchantWhatsApp?: string;
 }
 
 export default function TradeCartDrawer({
@@ -131,23 +134,62 @@ export default function TradeCartDrawer({
     saveCart([]);
   };
 
-  const handleWhatsAppCheckout = () => {
+  const handleWhatsAppCheckout = async () => {
     if (items.length === 0) return;
-    const lines = items
-      .map(
-        (item, i) =>
-          `${i + 1}. *${item.name}* x${item.quantity} — R ${(
-            item.price * item.quantity
-          ).toLocaleString('en-ZA')}`
-      )
-      .join('\n');
+    const groups = new Map<string, CartItem[]>();
+    for (const item of items) {
+      const key = item.merchantId || item.merchantName || 'shoppage_desk';
+      const list = groups.get(key) || [];
+      list.push(item);
+      groups.set(key, list);
+    }
 
-    const message = `Hello, I want to lock in this wholesale trade order via Shoppage:\n\n${lines}\n\n*Total Order Value: R ${totalZar.toLocaleString(
-      'en-ZA'
-    )}*\n\nPlease confirm availability, proforma invoice, and immediate collection/delivery options.`;
+    // Record a referral lead per merchant so the Merchant Centre gets real
+    // inbound intent. Shoppage refers the buyer; the merchant owns the sale.
+    for (const [merchantId, groupItems] of groups) {
+      const merchant = groupItems[0];
+      try {
+        await fetch('/api/merchants/leads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            merchantId: merchantId === 'shoppage_desk' ? 'loc_mitrend_midrand' : merchantId,
+            merchantName: merchant.merchantName,
+            buyerName: buyerName || 'Trade Buyer',
+            buyerPhone: buyerPhone || '',
+            productSummary: groupItems.map((it) => `${it.quantity}x ${it.name}`).join(', '),
+            intentAction: 'whatsapp',
+            source: 'trade_inquiry',
+          }),
+        });
+      } catch {
+        // Lead persistence is best-effort; WhatsApp handoff must not fail.
+      }
+    }
 
-    const phone = '27105007670'; // Shoppage Central Trade Clearing Desk
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+    for (const [, groupItems] of groups) {
+      const lines = groupItems
+        .map(
+          (item, i) =>
+            `${i + 1}. *${item.name}* x${item.quantity} — R ${(
+              item.price * item.quantity
+            ).toLocaleString('en-ZA')}`
+        )
+        .join('\n');
+
+      const groupTotal = groupItems.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
+
+      const message = `Hello, I want to lock in this wholesale trade order via Shoppage:\n\n${lines}\n\n*Total Order Value: R ${groupTotal.toLocaleString(
+        'en-ZA'
+      )}*\n\nPlease confirm availability, proforma invoice, and immediate collection/delivery options.`;
+
+      const merchant = groupItems[0];
+      const phone = (merchant.merchantWhatsApp || '27105007670').replace(/[^0-9]/g, '');
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+    }
   };
 
   const handleRequestInvoice = async (e: React.FormEvent) => {

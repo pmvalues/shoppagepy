@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MasterProductStore, SA_CANONICAL_PRODUCTS } from '@shoppage/kernel';
+import { rateLimit, clientIp } from '@/server/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -9,6 +10,12 @@ export const dynamic = 'force-dynamic';
  * Queries 1,005,190 master products and canonical South African trade items.
  */
 export async function GET(request: NextRequest) {
+  const ip = clientIp(request);
+  const rl = rateLimit('products:' + ip, 120, 60_000);
+  if (rl.limited) {
+    return NextResponse.json({ error: 'Too many requests, slow down' }, { status: 429 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q') || searchParams.get('query') || undefined;
@@ -72,35 +79,3 @@ export async function GET(request: NextRequest) {
   }
 }
 
-/**
- * POST /api/v1/products - Submit a trade product or broadcast deal
- */
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    if (!body.title) {
-      return NextResponse.json({ error: 'Product title is required' }, { status: 400 });
-    }
-
-    const newProduct = {
-      id: `prod_${Date.now()}`,
-      title: String(body.title).trim(),
-      brand: String(body.brand || 'Trade Verified').trim(),
-      price: Number(body.price || 0),
-      category: String(body.category || 'general_trade'),
-      status: 'active',
-      createdAt: new Date().toISOString(),
-    };
-
-    return NextResponse.json({
-      success: true,
-      message: 'Product listing received and indexed for local trade discovery.',
-      product: newProduct,
-    });
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to create product listing', message: String(error) },
-      { status: 500 }
-    );
-  }
-}

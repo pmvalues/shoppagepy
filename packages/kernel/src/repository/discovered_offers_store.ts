@@ -1,4 +1,5 @@
 import { Offer, DiscoveredOffer, Merchant, ProductVariant } from '@shoppage/contracts';
+import { evaluateOfferFreshness } from '../offers/freshness';
 import { SA_FLAGSHIP_OFFERS } from '../seed/sa_flagship_seed';
 
 import { getSqliteDatabase } from './db_resolver';
@@ -548,15 +549,21 @@ export class DiscoveredOffersStore {
           currency: 'ZAR',
           sourceTimestamp: r.discovered_at || r.discoveredAt || new Date().toISOString(),
         },
-        availabilityState: 'fresh',
-        updateType: 'api_feed_update',
-        freshness: {
-          slaClass: 'retail_72h',
-          expiresAt: new Date(Date.now() + 72 * 3600 * 1000).toISOString(),
-          lastConfirmedAt: r.discovered_at || r.discoveredAt || new Date().toISOString(),
-        },
-        status: 'confirmed',
-      };
+       availabilityState: 'fresh',
+       updateType: 'api_feed_update',
+       freshness: {
+         slaClass: 'retail_72h',
+         expiresAt: new Date(Date.now() + 72 * 3600 * 1000).toISOString(),
+         lastConfirmedAt: r.discovered_at || r.discoveredAt || new Date().toISOString(),
+       },
+       status: 'confirmed',
+     };
+
+      // Freshness lifecycle: demote stale offers before serving them.
+      const freshness = evaluateOfferFreshness(offer);
+      if (freshness.stateChanged) {
+        offer.availabilityState = freshness.nextState;
+      }
 
       const discOffer = rowToDiscoveredOffer(r);
 
