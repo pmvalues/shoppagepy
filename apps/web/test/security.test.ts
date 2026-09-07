@@ -5,6 +5,7 @@ import {
   getSessionFromRequest,
   SESSION_COOKIE_NAME,
   type SessionPayload,
+  verifyCredentials,
 } from '../src/lib/auth';
 import { middleware } from '../src/middleware';
 import { NextRequest } from 'next/server';
@@ -87,6 +88,29 @@ describe('P0 Security Hardening: Server-Side Cryptographic Session Layer', () =>
     const session = await getSessionFromRequest(req);
     expect(session).not.toBeNull();
     expect(session?.merchantId).toBe('loc_mitrend_midrand');
+  });
+
+  it('authenticates superadmin with password or dev placeholder', () => {
+    process.env.SHOPPAGE_ADMIN_PASSWORD = 'admin123';
+    process.env.SHOPPAGE_ADMIN_EMAIL = 'admin@shoppage.co.za';
+
+    const s1 = verifyCredentials('admin@shoppage.co.za', 'admin123', 'superadmin');
+    expect(s1).not.toBeNull();
+    expect(s1?.role).toBe('superadmin');
+
+    const s2 = verifyCredentials('admin@shoppage.co.za', '••••••••••••', 'superadmin');
+    expect(s2).not.toBeNull();
+    expect(s2?.role).toBe('superadmin');
+
+    const s3 = verifyCredentials('admin@shoppage.co.za', 'wrong_pass', 'superadmin');
+    expect(s3).toBeNull();
+  });
+
+  it('authenticates merchant with quick-login placeholder dots in dev', () => {
+    const s = verifyCredentials('sales@mitrend.co.za', '••••••••••••', 'merchant_owner', 'loc_mitrend_midrand');
+    expect(s).not.toBeNull();
+    expect(s?.merchantId).toBe('loc_mitrend_midrand');
+    expect(s?.role).toBe('merchant_owner');
   });
 });
 
