@@ -209,8 +209,8 @@ function RequestsContent() {
       
       {/* Platform Header */}
       <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#ECFDF5', border: '1px solid #A7F3D0', padding: '0.35rem 0.85rem', borderRadius: '9999px', color: '#065F46', fontSize: '0.8rem', fontWeight: 800, marginBottom: '0.75rem' }}>
-          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10B981', display: 'inline-block' }} />
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'var(--color-brand-50)', border: '1px solid var(--color-brand-200)', padding: '0.35rem 0.85rem', borderRadius: '9999px', color: 'var(--color-brand-800)', fontSize: '0.8rem', fontWeight: 800, marginBottom: '0.75rem' }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-brand-500)', display: 'inline-block' }} />
           National B2B &amp; Trade Procurement Desk · 0% Commission
         </div>
         <h1 style={{ fontSize: '2.4rem', fontWeight: 900, margin: '0.2rem 0 0.5rem 0', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
@@ -254,13 +254,13 @@ function RequestsContent() {
         </div>
 
         {submitted && (
-          <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', padding: '1.25rem', borderRadius: '8px', marginBottom: '1.5rem', color: '#065F46', fontSize: '0.95rem' }}>
+          <div style={{ background: 'var(--color-brand-50)', border: '1px solid var(--color-brand-200)', padding: '1.25rem', borderRadius: '8px', marginBottom: '1.5rem', color: 'var(--color-brand-800)', fontSize: '0.95rem' }}>
             ✓ <strong>Request Broadcasted Successfully!</strong> Verified South African stockists have been notified. Expect itemized quotes via your preferred response channel shortly.
           </div>
         )}
 
         {quoteSuccessId && (
-          <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', color: '#1E40AF', fontSize: '0.9rem' }}>
+          <div style={{ background: 'var(--color-brand-50)', border: '1px solid var(--color-brand-200)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', color: 'var(--color-brand-800)', fontSize: '0.9rem' }}>
             ✓ <strong>Supplier Quote Submitted!</strong> The buyer has been notified with your trade pricing and availability notes.
           </div>
         )}
@@ -472,8 +472,10 @@ function RequestsContent() {
                   fontSize: '0.8rem',
                   fontWeight: 700,
                   border: '1px solid var(--border)',
-                  background: activeCategoryFilter === cat ? 'var(--primary)' : 'var(--bg-surface)',
-                  color: activeCategoryFilter === cat ? '#FFFFFF' : 'var(--text-secondary)',
+                  // Selected chip is a white-text fill, so it needs the fixed
+                  // emerald rather than the theme-flipping text alias.
+                  background: activeCategoryFilter === cat ? 'var(--color-brand-solid)' : 'var(--bg-surface)',
+                  color: activeCategoryFilter === cat ? 'var(--color-on-solid)' : 'var(--text-secondary)',
                   cursor: 'pointer',
                 }}
               >

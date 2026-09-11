@@ -125,12 +125,12 @@ export default function AIAssistant() {
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <button
                 onClick={resetChat}
-                style={{ background: 'none', border: 'none', color: '#CBD5E1', cursor: 'pointer', fontSize: '0.75rem', textDecoration: 'underline', padding: '0.2rem' }}
+                style={{ background: 'none', border: 'none', color: 'var(--color-content-muted)', cursor: 'pointer', fontSize: '0.75rem', textDecoration: 'underline', padding: '0.2rem' }}
                 title="Reset conversation"
               >
                 Clear
               </button>
-              <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', color: '#FFF', fontSize: '1.1rem', cursor: 'pointer' }} aria-label="Close assistant">
+              <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--color-on-solid)', fontSize: '1.1rem', cursor: 'pointer' }} aria-label="Close assistant">
                 ✕
               </button>
             </div>
@@ -143,7 +143,7 @@ export default function AIAssistant() {
                 {m.toolCalls && m.toolCalls.length > 0 && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '0.6rem' }}>
                     {m.toolCalls.map((tc, idx) => (
-                      <div key={idx} style={{ background: 'rgba(37, 99, 235, 0.08)', border: '1px solid rgba(37, 99, 235, 0.2)', padding: '0.3rem 0.55rem', borderRadius: '6px', fontSize: '0.72rem', color: '#1E40AF', fontWeight: 600 }}>
+                      <div key={idx} style={{ background: 'rgba(5, 150, 105, 0.08)', border: '1px solid rgba(5, 150, 105, 0.2)', padding: '0.3rem 0.55rem', borderRadius: '6px', fontSize: '0.72rem', color: 'var(--color-brand-800)', fontWeight: 600 }}>
                         {tc.title}
                       </div>
                     ))}
@@ -152,12 +152,12 @@ export default function AIAssistant() {
 
                 {/* Calculation Chip */}
                 {m.calculationResult && (
-                  <div style={{ background: 'linear-gradient(135deg, #ECFDF5 0%, #EFF6FF 100%)', border: '1.5px solid #10B981', padding: '0.75rem', borderRadius: '8px', marginBottom: '0.75rem' }}>
-                    <div style={{ fontSize: '0.75rem', color: '#047857', fontWeight: 800, textTransform: 'uppercase' }}>⚡ Verified Load-Shedding Duration:</div>
-                    <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#064E3B', margin: '0.15rem 0' }}>
+                  <div style={{ background: 'linear-gradient(135deg, #ECFDF5 0%, #EFF6FF 100%)', border: '1.5px solid var(--color-brand-500)', padding: '0.75rem', borderRadius: '8px', marginBottom: '0.75rem' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-brand-700)', fontWeight: 800, textTransform: 'uppercase' }}>⚡ Verified Load-Shedding Duration:</div>
+                    <div style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--color-brand-900)', margin: '0.15rem 0' }}>
                       {m.calculationResult.formatted}
                     </div>
-                    <div style={{ fontSize: '0.72rem', color: '#475569' }}>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--color-content-secondary)' }}>
                       {m.calculationResult.batteryCapacityKwh}kWh Capacity @ {m.calculationResult.loadWatts}W Continuous Draw
                     </div>
                   </div>
@@ -184,7 +184,7 @@ export default function AIAssistant() {
             ))}
             {loading && (
               <div className="msg msg-bot">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#64748B', fontSize: '0.85rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-content-muted)', fontSize: '0.85rem' }}>
                   <span style={{ animation: 'spin 1s linear infinite' }}>⚡</span>
                   Agent executing grid tool lookup & calculations…
                 </div>
@@ -192,13 +192,13 @@ export default function AIAssistant() {
             )}
           </div>
 
-          <div style={{ padding: '0.5rem 0.85rem', display: 'flex', gap: '0.35rem', overflowX: 'auto', background: '#F8FAFC', borderTop: '1px solid var(--border)' }}>
+          <div style={{ padding: '0.5rem 0.85rem', display: 'flex', gap: '0.35rem', overflowX: 'auto', background: 'var(--color-surface-subtle)', borderTop: '1px solid var(--border)' }}>
             {SUGGESTIONS.map((s) => (
               <button
                 key={s}
                 type="button"
                 onClick={() => sendQuery(s.replace(/^[^\w]+/g, ''))}
-                style={{ padding: '0.25rem 0.6rem', background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '9999px', fontSize: '0.72rem', whiteSpace: 'nowrap', cursor: 'pointer', color: '#334155' }}
+                style={{ padding: '0.25rem 0.6rem', background: 'var(--color-surface)', border: '1px solid var(--color-line-strong)', borderRadius: '9999px', fontSize: '0.72rem', whiteSpace: 'nowrap', cursor: 'pointer', color: 'var(--color-content-secondary)' }}
               >
                 {s}
               </button>

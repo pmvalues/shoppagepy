@@ -1,0 +1,20 @@
+# Shoppage secret scanning configuration (WS-1.5)
+extends = ["gitleaks-default"]
+
+[allowlist]
+description = "Values that are intentionally public or documentation-only"
+paths = [
+  '''\.env\.example$''',
+  '''node_modules/''',
+  '''package-lock\.json$''',
+  '''\.sqlite$''',
+  '''scratch/''',
+]
+regexes = [
+  # Documentation placeholders that are not real credentials.
+  '''replace_with_''',
+  '''your-.*-key-here''',
+  '''test_secret_for_auth_testing''',
+  '''shoppage_typesense_secret_key''',
+  '''shoppage-local-dev-secret-key''',
+]

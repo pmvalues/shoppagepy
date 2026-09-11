@@ -554,6 +554,17 @@ export interface MarketItem {
   recentPosts: GroupRecentPost[];
 }
 
+/**
+ * Cover gradients for community-group cards.
+ *
+ * These are a CATEGORICAL palette, not theme chrome: eight mutually
+ * distinguishable hues so a card's trade category is readable at a glance.
+ * That is precisely what the design tokens cannot express — the system has one
+ * brand ramp plus a lime accent, so routing these through tokens would collapse
+ * eight categories into one colour. Like the illustration palette in
+ * ProductStudioStage, they are intentionally literal. The emerald entry already
+ * matches the brand ramp; the rest are chosen for separation, not identity.
+ */
 const GROUP_COVER_GRADIENTS = [
   'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)', // Blue trade
   'linear-gradient(135deg, #065f46 0%, #10b981 100%)', // Green solar / agri

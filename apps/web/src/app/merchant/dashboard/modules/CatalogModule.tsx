@@ -113,10 +113,10 @@ export default function CatalogModule({ merchant }: CatalogModuleProps) {
       {/* Search & Filter Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-content)', margin: 0 }}>
             Master Catalog & Local Stock Matrix
           </h2>
-          <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '0.2rem 0 0 0' }}>
+          <p style={{ fontSize: '0.8rem', color: 'var(--color-content-muted)', margin: '0.2rem 0 0 0' }}>
             Direct inventory control. Prices update across Google Shopping XML feeds and the BuyBox in real time.
           </p>
         </div>
@@ -130,7 +130,7 @@ export default function CatalogModule({ merchant }: CatalogModuleProps) {
             style={{
               padding: '0.45rem 0.85rem',
               borderRadius: '8px',
-              border: '1px solid #CBD5E1',
+              border: '1px solid var(--color-line-strong)',
               fontSize: '0.825rem',
               width: '240px',
             }}
@@ -141,9 +141,9 @@ export default function CatalogModule({ merchant }: CatalogModuleProps) {
             style={{
               padding: '0.45rem 0.85rem',
               borderRadius: '8px',
-              border: '1px solid #CBD5E1',
+              border: '1px solid var(--color-line-strong)',
               fontSize: '0.825rem',
-              background: '#FFFFFF',
+              background: 'var(--color-surface)',
             }}
           >
             <option value="all">All Categories</option>
@@ -155,10 +155,10 @@ export default function CatalogModule({ merchant }: CatalogModuleProps) {
       </div>
 
       {/* Catalog Table Card */}
-      <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+      <div style={{ background: 'var(--color-surface)', borderRadius: '16px', border: '1px solid var(--color-line)', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem' }}>
           <thead>
-            <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0', color: '#64748B', textAlign: 'left', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+            <tr style={{ background: 'var(--color-surface-subtle)', borderBottom: '1px solid var(--color-line)', color: 'var(--color-content-muted)', textAlign: 'left', fontSize: '0.75rem', textTransform: 'uppercase' }}>
               <th style={{ padding: '0.75rem 1rem' }}>Product & GS1 GTIN</th>
               <th style={{ padding: '0.75rem 1rem' }}>SKU</th>
               <th style={{ padding: '0.75rem 1rem' }}>Compliance</th>
@@ -169,27 +169,27 @@ export default function CatalogModule({ merchant }: CatalogModuleProps) {
           </thead>
           <tbody>
             {filtered.map((prod) => (
-              <tr key={prod.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
+              <tr key={prod.id} style={{ borderBottom: '1px solid var(--color-line-subtle)' }}>
                 <td style={{ padding: '1rem', maxWidth: '340px' }}>
-                  <div style={{ fontWeight: 700, color: '#0F172A' }}>{prod.title}</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '0.15rem', display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                  <div style={{ fontWeight: 700, color: 'var(--color-content)' }}>{prod.title}</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--color-content-muted)', marginTop: '0.15rem', display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
                     <span style={{ fontWeight: 600 }}>{prod.brand}</span>
                     <span>·</span>
                     <span style={{ fontFamily: 'monospace' }}>GTIN {prod.gtin13}</span>
                   </div>
                 </td>
-                <td style={{ padding: '1rem', fontFamily: 'monospace', fontWeight: 600, color: '#334155' }}>
+                <td style={{ padding: '1rem', fontFamily: 'monospace', fontWeight: 600, color: 'var(--color-content-secondary)' }}>
                   {prod.sku}
                 </td>
                 <td style={{ padding: '1rem' }}>
                   <div style={{ display: 'flex', gap: '0.25rem' }}>
                     {prod.nrsCertified && (
-                      <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#15803D', background: '#DCFCE7', padding: '1px 5px', borderRadius: '4px' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-brand-700)', background: 'var(--color-brand-100)', padding: '1px 5px', borderRadius: '4px' }}>
                         NRS 097 ✓
                       </span>
                     )}
                     {prod.sabsApproved && (
-                      <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#1D4ED8', background: '#DBEAFE', padding: '1px 5px', borderRadius: '4px' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-brand-700)', background: 'var(--color-brand-100)', padding: '1px 5px', borderRadius: '4px' }}>
                         SABS
                       </span>
                     )}
@@ -202,18 +202,18 @@ export default function CatalogModule({ merchant }: CatalogModuleProps) {
                         type="number"
                         defaultValue={prod.priceZar}
                         onChange={(e) => setNewPriceVal(e.target.value)}
-                        style={{ width: '90px', padding: '0.25rem 0.4rem', fontSize: '0.8rem', border: '1px solid #1A73E8', borderRadius: '4px' }}
+                        style={{ width: '90px', padding: '0.25rem 0.4rem', fontSize: '0.8rem', border: '1px solid var(--color-brand-solid)', borderRadius: '4px' }}
                       />
                       <button
                         onClick={() => savePrice(prod.id)}
-                        style={{ background: '#1A73E8', color: '#FFFFFF', border: 'none', padding: '0.25rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                        style={{ background: 'var(--color-brand-solid)', color: 'var(--color-on-solid)', border: 'none', padding: '0.25rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                       >
                         Save
                       </button>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <strong style={{ fontSize: '0.95rem', color: '#0F172A' }}>
+                      <strong style={{ fontSize: '0.95rem', color: 'var(--color-content)' }}>
                         R {prod.priceZar.toLocaleString('en-ZA')}
                       </strong>
                       <button
@@ -221,7 +221,7 @@ export default function CatalogModule({ merchant }: CatalogModuleProps) {
                           setEditingPriceId(prod.id);
                           setNewPriceVal(prod.priceZar.toString());
                         }}
-                        style={{ background: 'none', border: 'none', color: '#1A73E8', cursor: 'pointer', fontSize: '0.75rem' }}
+                        style={{ background: 'none', border: 'none', color: 'var(--color-brand-ink)', cursor: 'pointer', fontSize: '0.75rem' }}
                         title="Edit price"
                       >
                         ✏️
@@ -237,8 +237,8 @@ export default function CatalogModule({ merchant }: CatalogModuleProps) {
                         padding: '0.25rem 0.65rem',
                         borderRadius: '6px',
                         border: 'none',
-                        background: prod.inStock ? '#DCFCE7' : '#FEE2E2',
-                        color: prod.inStock ? '#15803D' : '#B91C1C',
+                        background: prod.inStock ? 'var(--color-brand-100)' : 'var(--color-danger-50)',
+                        color: prod.inStock ? 'var(--color-brand-700)' : 'var(--color-danger-500)',
                         fontWeight: 800,
                         fontSize: '0.72rem',
                         cursor: 'pointer',
@@ -246,7 +246,7 @@ export default function CatalogModule({ merchant }: CatalogModuleProps) {
                     >
                       {prod.inStock ? '🟢 IN STOCK' : '🔴 OUT OF STOCK'}
                     </button>
-                    <span style={{ fontSize: '0.75rem', color: '#64748B' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-content-muted)' }}>
                       ({prod.stockQty} units)
                     </span>
                   </div>
@@ -258,9 +258,9 @@ export default function CatalogModule({ merchant }: CatalogModuleProps) {
                     style={{
                       padding: '0.35rem 0.65rem',
                       borderRadius: '6px',
-                      border: '1px solid #CBD5E1',
-                      background: '#F8FAFC',
-                      color: '#0F172A',
+                      border: '1px solid var(--color-line-strong)',
+                      background: 'var(--color-surface-subtle)',
+                      color: 'var(--color-content)',
                       fontSize: '0.75rem',
                       fontWeight: 700,
                       textDecoration: 'none',

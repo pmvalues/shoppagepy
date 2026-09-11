@@ -187,7 +187,7 @@ export default function AppNavbar({
                   height: '15px',
                   borderRadius: '50%',
                   background: 'var(--brand)',
-                  color: '#fff',
+                  color: 'var(--color-on-solid)',
                   fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',

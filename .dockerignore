@@ -5,6 +5,22 @@ node_modules
 .venv
 venv
 env
+# Local env files must never reach the build context. Next.js inlines NEXT_PUBLIC_*
+# at build time, so a local .env.local containing NEXT_PUBLIC_SERVER_URL=http://localhost:3000
+# bakes localhost into robots.txt, sitemap.xml and metadataBase — verified in a local
+# production build. The deploy pipeline supplies real values as build args instead.
+#
+# The `**/` prefix is load-bearing: a bare `.env.*` matches only a root-level file,
+# and the real one lives at apps/web/.env.local. Left unanchored it was still being
+# copied in — carrying PAYLOAD_SECRET, SHOPPAGE_AUTH_SECRET, the platform admin
+# password and every SHOPPAGE_MERCHANT_SECRET_*. The deploy pipeline supplies real
+# values as build args instead.
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
 __pycache__
 *.pyc
 *.pyo

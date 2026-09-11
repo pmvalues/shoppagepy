@@ -1,96 +1,93 @@
-/* ══════════════════════════════════════════════════════════════════════════
-   SHOPPAGE DESIGN SYSTEM v4.0 — "NATIONAL GRID"
-   Identity: near-black authority + Highveld Lime signal + utility blue
-   Light = warm paper (not clinical white) · Dark = first-class, not an afterthought
-   All legacy class names preserved so the 25 existing routes keep rendering.
-   ══════════════════════════════════════════════════════════════════════════ */
 
-/* Fonts are loaded via <link> in layout.tsx — kept as fallback for isolated CSS preview.
-   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300..800&family=Outfit:wght@500..900&family=JetBrains+Mono:wght@500;700&display=swap'); */
+
+/* Layered deliberately. Unlayered CSS outranks every @layer, so these v4.0
+   class rules were silently overriding Tailwind utilities across the app. See the
+   note in theme.css and scratch/layer-legacy-css.mjs for the full rationale. */
+@layer components { /* SHOPPAGE LEGACY CLASS LAYER */
+
 
 /* ─────────────────────────────────────────────────────────────────────────
-   1. TOKENS — LIGHT (default)
+   1. TOKEN ALIASES — LIGHT (default)
+
+   v5.0: the authoritative tokens now live in theme.css (@theme). This block
+   exists only so the ~500 legacy class definitions below — and the 25 routes
+   that consume them — keep working unchanged while components migrate to
+   Tailwind utilities. Every alias points at exactly one theme token, so the
+   two systems can no longer drift apart.
    ───────────────────────────────────────────────────────────────────────── */
 :root {
-  /* Neutral ramp — cool graphite (kept ordered dark→light in both themes) */
-  --slate-50:  #F7F8FA;
-  --slate-100: #EFF1F5;
-  --slate-200: #E2E6ED;
-  --slate-300: #CBD2DE;
-  --slate-400: #94A0B4;
-  --slate-500: #64708A;
-  --slate-600: #48546B;
-  --slate-700: #2C3648;
-  --slate-800: #18202E;
-  --slate-900: #0B0F14;
-  --slate-950: #05080C;
+  /* Neutral ramp — aliased onto the ink scale. */
+  --slate-50:  var(--color-ink-50);
+  --slate-100: var(--color-ink-100);
+  --slate-200: var(--color-ink-200);
+  --slate-300: var(--color-ink-300);
+  --slate-400: var(--color-ink-400);
+  --slate-500: var(--color-ink-500);
+  --slate-600: var(--color-ink-600);
+  --slate-700: var(--color-ink-700);
+  --slate-800: var(--color-ink-800);
+  --slate-900: var(--color-ink-900);
+  --slate-950: var(--color-ink-950);
 
-  /* Brand: Highveld Lime — the signal. Used for CTAs, live states, savings. */
-  --signal:        #C6F24E;
-  --signal-strong: #B4E533;
-  --signal-ink:    #0B0F14;   /* text that sits ON lime */
-  --signal-soft:   rgba(198, 242, 78, 0.16);
-  --signal-glow:   rgba(198, 242, 78, 0.32);
+  /* Accent — lime is the signal colour, used for live and savings only. */
+  --signal:        var(--color-signal-400);
+  --signal-strong: var(--color-signal-500);
+  --signal-ink:    var(--color-signal-ink);
+  --signal-soft:   rgb(198 242 78 / 0.16);
+  --signal-glow:   rgb(198 242 78 / 0.32);
 
-  /* Deal / urgency — Joburg Amber */
-  --deal:        #FF6B1A;
-  --deal-strong: #E85D0A;
-  --deal-light:  #FFF1E7;
+  /* Deal / urgency */
+  --deal:        var(--color-deal-500);
+  --deal-strong: var(--color-deal-600);
+  --deal-light:  #fff1e7;
 
   /* Live pulse */
-  --live:      #FF3B5C;
-  --live-soft: #FFE9ED;
+  --live:      var(--color-live-500);
+  --live-soft: #ffe9ed;
 
-  /* Utility blue — links, focus, AI. Chosen for WCAG AA on both surfaces. */
-  --primary:       #2F5BEA;
-  --primary-hover: #1E42C4;
-  --primary-light: #EDF2FE;
-  --primary-glow:  rgba(47, 91, 234, 0.16);
+  /* Primary is now the emerald brand, not the old utility blue.
+     These aliases are consumed as TEXT, icons and outlines, so they resolve to
+     --color-brand-ink and flip with the theme. Solid fills that carry white
+     text are the other role and use --color-brand-solid — see .btn-success.
+     At brand-500/600 the fill measured 2.54:1 with white and 2.54:1 as text. */
+  --primary:       var(--color-brand-ink);
+  --primary-hover: var(--color-brand-solid-hover);
+  --primary-light: var(--color-brand-50);
+  --primary-glow:  rgb(16 185 129 / 0.16);
 
-  --emerald:       #12B76A;
-  --emerald-hover: #0E9455;
-  --emerald-light: #E7F8F0;
-  --emerald-glow:  rgba(18, 183, 106, 0.16);
+  --emerald:       var(--color-brand-ink);
+  --emerald-hover: var(--color-brand-ink);
+  --emerald-light: var(--color-brand-50);
+  --emerald-glow:  rgb(16 185 129 / 0.16);
 
-  --amber:       #F59E0B;
-  --amber-light: #FEF3C7;
+  --amber:       var(--color-warning-500);
+  --amber-light: #fef3c7;
 
-  --whatsapp:       #25D366;
-  --whatsapp-hover: #20BA56;
-  --whatsapp-light: #DCFCE7;
+  --whatsapp:       var(--color-whatsapp-500);
+  --whatsapp-hover: var(--color-whatsapp-600);
+  --whatsapp-light: #dcfce7;
 
-  --negative:      #E5484D;
-  --negative-soft: #FDECEC;
+  --negative:      var(--color-danger-500);
+  --negative-soft: #fdecec;
 
-  /* Surfaces — warm paper, softer than the old clinical #F8FAFC */
-  --bg-page:            #FAF9F7;
-  --bg-surface:         #FFFFFF;
-  --bg-surface-elevated:#FFFFFF;
-  --bg-subtle:          #F3F1EE;
-  --bg-inset:           #F7F6F4;
-  --border:             #E6E3DE;
-  --border-subtle:      #F0EEEA;
-  --border-strong:      #D4CFC8;
+  /* Surfaces */
+  --bg-page:             var(--color-page);
+  --bg-surface:          var(--color-surface);
+  --bg-surface-elevated: var(--color-surface-elevated);
+  --bg-subtle:           var(--color-surface-subtle);
+  --bg-inset:            var(--color-surface-inset);
+  --border:              var(--color-line);
+  --border-subtle:       var(--color-line-subtle);
+  --border-strong:       var(--color-line-strong);
 
-  --text-primary:   #0B0F14;
-  --text-secondary: #48546B;
-  --text-muted:     #64708A;
-  --text-inverse:   #FFFFFF;
+  --text-primary:   var(--color-content);
+  --text-secondary: var(--color-content-secondary);
+  --text-muted:     var(--color-content-muted);
+  --text-inverse:   var(--color-content-inverse);
 
-  /* Typography */
-  --font-sans:    'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
-  --font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
-
-  /* Type scale — fluid */
-  --text-xs:   0.75rem;
-  --text-sm:   0.8125rem;
-  --text-base: 0.9375rem;
-  --text-md:   1rem;
-  --text-lg:   1.125rem;
-  --text-xl:   1.375rem;
-  --text-2xl:  1.75rem;
-  --text-3xl:  2.25rem;
+  /* Typography: --font-sans / --font-display / --font-mono are emitted to
+     :root by @theme in theme.css, so they are intentionally not redefined
+     here (a self-referential alias would be a circular definition). */
 
   /* Spacing */
   --space-1: 0.25rem;
@@ -104,26 +101,7 @@
   --space-12: 3rem;
   --space-16: 4rem;
 
-  /* Shadows — tighter, warmer (no pure-black casts) */
-  --shadow-xs: 0 1px 2px 0 rgba(11, 15, 20, 0.04);
-  --shadow-sm: 0 1px 3px 0 rgba(11, 15, 20, 0.06), 0 1px 2px -1px rgba(11, 15, 20, 0.04);
-  --shadow-md: 0 4px 6px -1px rgba(11, 15, 20, 0.07), 0 2px 4px -2px rgba(11, 15, 20, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(11, 15, 20, 0.08), 0 4px 6px -4px rgba(11, 15, 20, 0.04);
-  --shadow-xl: 0 20px 25px -5px rgba(11, 15, 20, 0.08), 0 8px 10px -6px rgba(11, 15, 20, 0.03);
-  --shadow-glow:         0 0 30px -5px rgba(198, 242, 78, 0.30);
-  --shadow-glow-emerald: 0 0 30px -5px rgba(18, 183, 106, 0.28);
-
-  /* Radii */
-  --radius-xs:  4px;
-  --radius-sm:  6px;
-  --radius-md:  10px;
-  --radius-lg:  14px;
-  --radius-xl:  20px;
-  --radius-2xl: 28px;
-  --radius-full: 9999px;
-
   /* Motion */
-  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --transition-fast:   0.15s var(--ease-out-expo);
   --transition-smooth: 0.25s var(--ease-out-expo);
 
@@ -134,116 +112,31 @@
   --rail-left-collapsed: 68px;
   --rail-right: 280px;
 
+  --radius-full: 9999px;
+
   color-scheme: light;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
-   2. TOKENS — DARK
-   Applied when the OS prefers dark, unless the user pinned light via [data-theme].
-   ───────────────────────────────────────────────────────────────────────── */
-@media (prefers-color-scheme: dark) {
-  :root[data-theme='dark'] {
-    --slate-50:  #0F151D;
-    --slate-100: #131A24;
-    --slate-200: #1A2432;
-    --slate-300: #243043;
-    --slate-400: #3A4A61;
-    --slate-500: #7C8899;
-    --slate-600: #9AA6B8;
-    --slate-700: #B9C3D1;
-    --slate-800: #D7DEE8;
-    --slate-900: #EDF1F6;
-    --slate-950: #F7F9FC;
-
-    --signal-soft: rgba(198, 242, 78, 0.18);
-    --signal-glow: rgba(198, 242, 78, 0.40);
-
-    --deal-light: #2A1A0E;
-
-    --primary:       #6E93FF;
-    --primary-hover: #8FADFF;
-    --primary-light: #16203A;
-    --primary-glow:  rgba(110, 147, 255, 0.22);
-
-    --emerald-light: #10261C;
-    --amber-light:   #2A2011;
-    --whatsapp-light:#10291B;
-    --live-soft:     #2A1116;
-    --negative-soft: #2A1416;
-
-    --bg-page:             #0B0F14;
-    --bg-surface:          #131A24;
-    --bg-surface-elevated: #1A2432;
-    --bg-subtle:           #18202E;
-    --bg-inset:            #0F151D;
-    --border:              #232E3D;
-    --border-subtle:       #1A2432;
-    --border-strong:       #334155;
-
-    --text-primary:   #F5F7FA;
-    --text-secondary: #A9B4C4;
-    --text-muted:     #7C8899;
-    --text-inverse:   #0B0F14;
-
-    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
-    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.36), 0 1px 2px -1px rgba(0, 0, 0, 0.30);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.40), 0 2px 4px -2px rgba(0, 0, 0, 0.34);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.44), 0 4px 6px -4px rgba(0, 0, 0, 0.36);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.48), 0 8px 10px -6px rgba(0, 0, 0, 0.40);
-
-    color-scheme: dark;
-  }
+/* Dark + dim: only the values that genuinely differ need restating, because
+   every surface/line/content alias above already points at a theme token that
+   theme.css flips per theme. */
+:root[data-theme='dark'],
+[data-theme='dark'] {
+  --deal-light:     #2a1a0e;
+  --live-soft:      #2a1116;
+  --negative-soft:  #2a1416;
+  --amber-light:    #2a2011;
+  --whatsapp-light: #10291b;
+  color-scheme: dark;
 }
 
-/* Explicit dark override (theme toggle sets data-theme="dark") */
-:root[data-theme='dark'] {
-  --slate-50:  #0F151D;
-  --slate-100: #131A24;
-  --slate-200: #1A2432;
-  --slate-300: #243043;
-  --slate-400: #3A4A61;
-  --slate-500: #7C8899;
-  --slate-600: #9AA6B8;
-  --slate-700: #B9C3D1;
-  --slate-800: #D7DEE8;
-  --slate-900: #EDF1F6;
-  --slate-950: #F7F9FC;
-
-  --signal-soft: rgba(198, 242, 78, 0.18);
-  --signal-glow: rgba(198, 242, 78, 0.40);
-  --deal-light: #2A1A0E;
-
-  --primary:       #6E93FF;
-  --primary-hover: #8FADFF;
-  --primary-light: #16203A;
-  --primary-glow:  rgba(110, 147, 255, 0.22);
-
-  --emerald-light: #10261C;
-  --amber-light:   #2A2011;
-  --whatsapp-light:#10291B;
-  --live-soft:     #2A1116;
-  --negative-soft: #2A1416;
-
-  --bg-page:             #0B0F14;
-  --bg-surface:          #131A24;
-  --bg-surface-elevated: #1A2432;
-  --bg-subtle:           #18202E;
-  --bg-inset:            #0F151D;
-  --border:              #232E3D;
-  --border-subtle:       #1A2432;
-  --border-strong:       #334155;
-
-  --text-primary:   #F5F7FA;
-  --text-secondary: #A9B4C4;
-  --text-muted:     #7C8899;
-  --text-inverse:   #0B0F14;
-
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.36), 0 1px 2px -1px rgba(0, 0, 0, 0.30);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.40), 0 2px 4px -2px rgba(0, 0, 0, 0.34);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.44), 0 4px 6px -4px rgba(0, 0, 0, 0.36);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.48), 0 8px 10px -6px rgba(0, 0, 0, 0.40);
-
+:root[data-theme='dim'],
+[data-theme='dim'] {
+  --deal-light:     #2a1a0e;
+  --live-soft:      #2a1116;
+  --negative-soft:  #2a1416;
+  --amber-light:    #2a2011;
+  --whatsapp-light: #10291b;
   color-scheme: dark;
 }
 
@@ -261,7 +154,7 @@ html, body {
   background-color: var(--bg-page);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: var(--text-base);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -468,17 +361,23 @@ button { font-family: inherit; }
 }
 .btn-outline:hover { background: var(--bg-subtle); border-color: var(--border-strong); box-shadow: var(--shadow-sm); transform: translateY(-1.5px); }
 
-.btn-whatsapp { background: var(--whatsapp); color: #FFFFFF; border-color: var(--whatsapp-hover); font-weight: 800; box-shadow: 0 1px 3px rgba(37, 211, 102, 0.2); }
+.btn-whatsapp { background: var(--color-whatsapp-solid); color: #FFFFFF; border-color: var(--whatsapp-hover); font-weight: 800; box-shadow: 0 1px 3px rgba(37, 211, 102, 0.2); }
 .btn-whatsapp:hover { background: var(--whatsapp-hover); box-shadow: 0 6px 16px rgba(37, 211, 102, 0.38); transform: translateY(-2px); }
 
-.btn-dark { background: var(--slate-900); color: #FFFFFF; border-color: var(--slate-950); box-shadow: 0 1px 3px rgba(11, 15, 20, 0.2); }
+/* `--slate-900` is an ink-ramp step, so it INVERTS in dark mode — the button
+   becomes light. A hardcoded #FFFFFF label therefore measured 1.13:1 against
+   it. The label has to be the inverse twin, not a literal. */
+.btn-dark { background: var(--slate-900); color: var(--color-content-inverse); border-color: var(--slate-950); box-shadow: 0 1px 3px rgba(11, 15, 20, 0.2); }
 .btn-dark:hover { background: var(--slate-800); box-shadow: 0 6px 16px rgba(11, 15, 20, 0.35); transform: translateY(-2px); }
 
 .btn-secondary { background: var(--bg-subtle); color: var(--text-primary); border-color: var(--border); box-shadow: var(--shadow-xs); }
 .btn-secondary:hover { background: var(--border-subtle); border-color: var(--border-strong); transform: translateY(-1px); }
 
-.btn-success { background: var(--emerald); color: #FFFFFF; border-color: var(--emerald-hover); box-shadow: 0 1px 3px rgba(18,183,106,0.2); }
-.btn-success:hover { background: var(--emerald-hover); box-shadow: 0 6px 16px rgba(18,183,106,0.38); transform: translateY(-2px); }
+/* Solid fill carrying white text, so it uses the FIXED emerald rather than the
+   flipping one — otherwise the button turns pale in dark mode and the white
+   label drops to ~1.9:1. */
+.btn-success { background: var(--color-brand-solid); color: #FFFFFF; border-color: var(--color-brand-solid-hover); box-shadow: 0 1px 3px rgba(18,183,106,0.2); }
+.btn-success:hover { background: var(--color-brand-solid-hover); box-shadow: 0 6px 16px rgba(18,183,106,0.38); transform: translateY(-2px); }
 .btn-danger { background: var(--negative); color: #FFFFFF; border-color: #C93A3E; box-shadow: 0 1px 3px rgba(229,72,77,0.2); }
 .btn-danger:hover { background: #C93A3E; box-shadow: 0 6px 16px rgba(229,72,77,0.38); transform: translateY(-2px); }
 .btn-block { display: flex; width: 100%; }
@@ -683,14 +582,26 @@ table tbody tr:hover td { background-color: var(--bg-subtle); }
 .breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 0.825rem; color: var(--text-muted); margin-bottom: 1.5rem; flex-wrap: wrap; }
 .breadcrumb a { color: var(--text-muted); }
 .breadcrumb a:hover { color: var(--primary); text-decoration: underline; }
-.breadcrumb .sep { color: var(--border-strong); }
+/* Was `--border-strong` (#D4CFC8 light / #334155 dark) — a LINE token used as
+   TEXT. It measured 1.47:1 light and 1.86:1 dark. `--text-muted` is the
+   quietest tone that still clears AA (5.66:1 / 5.78:1). */
+.breadcrumb .sep { color: var(--text-muted); }
 .breadcrumb .current { color: var(--text-primary); font-weight: 600; }
 
-.breadcrumb--dark { color: #94A3B8; }
-.breadcrumb--dark a { color: #93C5FD; }
-.breadcrumb--dark a:hover { color: #BFDBFE; text-decoration: underline; }
-.breadcrumb--dark .sep { color: #475569; }
-.breadcrumb--dark .current { color: #E2E8F0; font-weight: 600; }
+/* Breadcrumb on an INVERSE surface (the merchant header, the invoice top bar).
+   These previously hardcoded light greys, which only worked while those
+   surfaces were pinned dark. They are now inverse surfaces that flip with the
+   theme, so the foreground has to flip with them — hence
+   `--color-content-inverse` with opacity carrying the hierarchy instead of
+   four separate literal greys. */
+.breadcrumb--dark { color: var(--color-content-inverse); opacity: 0.72; }
+.breadcrumb--dark a { color: var(--color-content-inverse); }
+.breadcrumb--dark a:hover { color: var(--color-brand-400); text-decoration: underline; }
+/* Calculated, not measured: this inherits the nav's 0.72 opacity, so 0.45
+   composited to an effective 0.324 — roughly 2.9:1 on the light-mode inverse
+   surface. 0.75 composites to 0.54 ≈ 6.0:1. */
+.breadcrumb--dark .sep { color: var(--color-content-inverse); opacity: 0.75; }
+.breadcrumb--dark .current { color: var(--color-content-inverse); font-weight: 600; opacity: 1; }
 
 .pdp-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 2.75rem; margin-bottom: 3.5rem; align-items: start; }
 @media (max-width: 860px) { .pdp-grid { grid-template-columns: 1fr; gap: 1.75rem; } }
@@ -707,7 +618,9 @@ table tbody tr:hover td { background-color: var(--bg-subtle); }
 .pdp-eyebrow { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 0.35rem; }
 .pdp-title { font-family: var(--font-display); font-weight: 900; font-size: 2.1rem; line-height: 1.15; letter-spacing: -0.02em; color: var(--text-primary); margin-bottom: 0.85rem; }
 .pdp-rating { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem; }
-.pdp-rating .stars { color: var(--amber); font-weight: 800; }
+/* `--amber` is the raw ramp step (#F59E0B): 2.04:1 on the product page surface.
+   `-ink` is the text-bearing variant of the same hue. */
+.pdp-rating .stars { color: var(--color-warning-ink); font-weight: 800; }
 .pdp-rating a { color: var(--text-muted); text-decoration: underline; }
 
 .pdp-buybox { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-sm); margin-bottom: 1.5rem; }
@@ -779,3 +692,4 @@ table tbody tr:hover td { background-color: var(--bg-subtle); }
   }
   .card-interactive:hover, .card:hover, .btn:hover { transform: none !important; }
 }
+} /* end SHOPPAGE LEGACY CLASS LAYER */

@@ -1,11 +1,24 @@
 import { Offer, DiscoveredOffer, Merchant, ProductVariant } from '@shoppage/contracts';
 import { evaluateOfferFreshness } from '../offers/freshness';
 import { SA_FLAGSHIP_OFFERS } from '../seed/sa_flagship_seed';
+import { isSourcePublishable, RETAIL_FIELDS } from '../rights/register';
 
 import { getSqliteDatabase } from './db_resolver';
 
 function getDiscoveredOffersSqliteDb() {
   return getSqliteDatabase('sa_discovered_offers.sqlite', { readOnly: true });
+}
+
+/**
+ * WS-2.2 diagnostics. Tracks which sources the rights register has suppressed
+ * during this process's lifetime, so the posture is observable rather than silent.
+ */
+const SUPPRESSED_SOURCES = new Set<string>();
+let SUPPRESSION_FIRST_SEEN: string | null = null;
+
+function recordRightsSuppression(sources: string[]): void {
+  if (!SUPPRESSION_FIRST_SEEN) SUPPRESSION_FIRST_SEEN = new Date().toISOString();
+  for (const s of sources) SUPPRESSED_SOURCES.add(s);
 }
 
 function getDiscoveredOffersSqliteRwDb() {
@@ -315,6 +328,31 @@ function rowToDiscoveredOffer(row: any): DiscoveredOffer {
   };
 }
 
+/**
+ * WS-2.2 read-boundary rights gate for the raw SELECT paths.
+ *
+ * `searchDiscoveredProducts` enforces the register inline. The two raw
+ * catalogue readers (`getLatestDiscoveredOffers`, `getAllDiscoveredSpecials`)
+ * historically did not, which allowed every scraped retailer row to reach the
+ * public homepage payload regardless of clearance. This helper gives them the
+ * same default-deny treatment and records the suppression for diagnostics.
+ */
+function filterRowsByRights<T extends Record<string, any>>(rows: T[]): T[] {
+  const deniedByRights = new Set<string>();
+  const permitted = rows.filter((r) => {
+    const sourceWebsite = r.source_website || r.sourceWebsite;
+    if (!isSourcePublishable(sourceWebsite, RETAIL_FIELDS, false).allowed) {
+      deniedByRights.add(sourceWebsite || 'unknown');
+      return false;
+    }
+    return true;
+  });
+  if (deniedByRights.size > 0) {
+    recordRightsSuppression([...deniedByRights]);
+  }
+  return permitted;
+}
+
 // In-memory cache for fast lookups
 const DISCOVERED_OFFERS_CACHE = new Map<string, DiscoveredOffer[]>();
 
@@ -347,7 +385,14 @@ export class DiscoveredOffersStore {
           const stmt = db.prepare('SELECT * FROM discovered_offers WHERE master_product_ref = ?');
           const rows: any[] = stmt.all(productId);
           if (rows && rows.length > 0) {
-            discovered = rows.map(rowToDiscoveredOffer);
+            // WS-2.2: apply the same rights gate as the search path so this
+            // accessor cannot be used to bypass enforcement.
+            discovered = rows
+              .filter((row) =>
+                isSourcePublishable(row.source_website || row.sourceWebsite || '', RETAIL_FIELDS, false)
+                  .allowed
+              )
+              .map(rowToDiscoveredOffer);
           }
         } catch (err) {
           // Fallback to dynamic generation
@@ -495,6 +540,9 @@ export class DiscoveredOffersStore {
     // Deduplicate into distinct product variants
     const seenProducts = new Map<string, { product: ProductVariant; offer: Offer; discoveredOffer: DiscoveredOffer }>();
 
+    // WS-2.2: sources skipped because they are not cleared for publication.
+    const deniedByRights = new Set<string>();
+
     for (const r of rows) {
       const pRef = r.master_product_ref || r.masterProductRef;
       if (seenProducts.has(pRef)) continue;
@@ -504,6 +552,17 @@ export class DiscoveredOffersStore {
       const pCat = r.category || 'general';
       const pImg = r.image_url || 'https://images.unsplash.com/photo-1508873696983-2df57046475a?w=800&auto=format&fit=crop&q=80';
       const sourceUrl = sanitizeSourceUrl(r.source_url || r.sourceUrl, r.source_website || r.sourceWebsite, pRef);
+
+      // WS-2.2 — Rights enforcement at the read boundary.
+      // This is the single point where a scraped row becomes a publicly visible
+      // product + offer. A source that is not CLEARED must not pass this line.
+      const sourceWebsite = r.source_website || r.sourceWebsite || 'takealot.com';
+      const sourceRights = isSourcePublishable(sourceWebsite, RETAIL_FIELDS, false);
+      if (!sourceRights.allowed) {
+        deniedByRights.add(sourceWebsite);
+        continue;
+      }
+
       const priceVal = typeof r.discovered_price_zar === 'number' && r.discovered_price_zar > 0
         ? r.discovered_price_zar
         : (typeof r.discoveredPrice?.amount === 'number' && r.discoveredPrice.amount > 0 ? r.discoveredPrice.amount : null);
@@ -530,8 +589,10 @@ export class DiscoveredOffersStore {
         status: 'active',
         countryScope: ['ZA'],
         provenance: {
-          sourceRef: r.source_website || r.sourceWebsite || 'takealot.com',
-          rightsClass: 'OPEN_DATA_COMMERCIAL',
+          sourceRef: sourceWebsite,
+          // WS-2.3: report the ACTUAL clearance of this source rather than
+          // asserting a blanket OPEN_DATA_COMMERCIAL class on scraped data.
+          rightsClass: sourceRights.allowed ? sourceRights.rightsClass : 'BLOCKED',
           confidence: 0.98,
           fieldOwner: 'SHOPPAGE_DISCOVERY',
           validFrom: new Date().toISOString(),
@@ -580,7 +641,23 @@ export class DiscoveredOffersStore {
       if (seenProducts.size >= limit) break;
     }
 
+    if (deniedByRights.size > 0) {
+      recordRightsSuppression([...deniedByRights]);
+    }
+
     return Array.from(seenProducts.values());
+  }
+
+  /**
+   * WS-2.2 diagnostic: reports which sources are currently suppressed by the
+   * rights register, and how many rows each is withholding. Lets the operator
+   * see the cost of the current posture at a glance.
+   */
+  public static getRightsSuppressionReport(): { sources: string[]; since: string | null } {
+    return {
+      sources: [...SUPPRESSED_SOURCES],
+      since: SUPPRESSION_FIRST_SEEN,
+    };
   }
 
   /**
@@ -662,7 +739,13 @@ export class DiscoveredOffersStore {
           'SELECT * FROM discovered_offers ORDER BY (discount_pct IS NOT NULL AND discount_pct > 0) DESC, (discovered_price_zar IS NULL OR discovered_price_zar <= 0), rowid DESC LIMIT ? OFFSET ?',
         );
         const rows: any[] = stmt.all(limit, offset);
-        return rows.map(rowToDiscoveredOffer);
+
+        // WS-2.2 (corrected 2026-09-11): this path previously returned every row
+        // unfiltered, which let the homepage catalog serialise all 93,021 scraped
+        // retailer offers into the client payload. Apply the same read-boundary
+        // rights gate as searchDiscoveredProducts so a source that is not CLEARED
+        // cannot become publicly visible through this method either.
+        return filterRowsByRights(rows).map(rowToDiscoveredOffer);
       } catch (e) {
         return [];
       }
@@ -678,7 +761,8 @@ export class DiscoveredOffersStore {
           'SELECT * FROM discovered_offers WHERE discovered_price_zar > 0 ORDER BY (discount_pct IS NOT NULL AND discount_pct > 0) DESC, rowid DESC LIMIT ?',
         );
         const rows: any[] = stmt.all(limit);
-        return rows.map(rowToDiscoveredOffer);
+        // WS-2.2 (corrected 2026-09-11): same read-boundary gate as above.
+        return filterRowsByRights(rows).map(rowToDiscoveredOffer);
       } catch (e) {
         return [];
       }

@@ -14,14 +14,14 @@ export default function GoogleHeader({ currentQuery = '', currentTab = 'all' }: 
   ];
 
   return (
-    <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', paddingTop: '0.65rem' }}>
+    <div style={{ background: 'var(--color-surface)', borderBottom: '1px solid var(--color-line)', paddingTop: '0.65rem' }}>
       <div className="container">
         {/* Location Sub-Bar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#5F6368', paddingBottom: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--color-content-secondary)', paddingBottom: '0.5rem' }}>
           <span>📍</span>
           <strong>President Park AH, Midrand</strong>
           <span>·</span>
-          <Link href="/malls?province=Gauteng" style={{ color: '#1A0DAB', textDecoration: 'none' }}>
+          <Link href="/malls?province=Gauteng" style={{ color: 'var(--color-brand-700)', textDecoration: 'none' }}>
             Choose area
           </Link>
           <span>⋮</span>
@@ -42,8 +42,8 @@ export default function GoogleHeader({ currentQuery = '', currentTab = 'all' }: 
                   padding: '0.6rem 0.25rem',
                   fontSize: '0.875rem',
                   fontWeight: isActive ? 700 : 500,
-                  color: isActive ? '#1A73E8' : '#5F6368',
-                  borderBottom: isActive ? '3px solid #1A73E8' : '3px solid transparent',
+                  color: isActive ? 'var(--color-brand-ink)' : 'var(--color-content-secondary)',
+                  borderBottom: isActive ? '3px solid var(--color-brand-solid)' : '3px solid transparent',
                   textDecoration: 'none',
                   transition: 'all 0.15s ease',
                 }}

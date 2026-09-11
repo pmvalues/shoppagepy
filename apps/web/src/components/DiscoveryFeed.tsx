@@ -1231,7 +1231,7 @@ export default function DiscoveryFeed({
                               <span className="prod-old">{formatZar(p.oldPrice)}</span>
                             )}
                             {saveZar ? (
-                              <span style={{ fontSize: '12px', fontWeight: 700, color: '#10B981', background: 'rgba(16, 185, 129, 0.12)', padding: '2px 8px', borderRadius: '4px', marginLeft: '6px' }}>
+                              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-brand-ink)', background: 'rgba(16, 185, 129, 0.12)', padding: '2px 8px', borderRadius: '4px', marginLeft: '6px' }}>
                                 Save {formatZar(saveZar)}
                               </span>
                             ) : null}
@@ -1828,7 +1828,7 @@ export default function DiscoveryFeed({
                           </div>
                           <p className="prod-specs">
                             🏷️ <b>{s.merchant}</b> · {s.categoryLabel}
-                            {s.badge ? <span style={{ marginLeft: '8px', fontSize: '11px', background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>{s.badge}</span> : null}
+                            {s.badge ? <span style={{ marginLeft: '8px', fontSize: '11px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--color-danger-ink)', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>{s.badge}</span> : null}
                           </p>
                           <p className="prod-location">
                             🏢 {s.availability || 'In Stock'} · {s.locationHint || 'National Retailer'}
@@ -1842,7 +1842,7 @@ export default function DiscoveryFeed({
                               <span className="prod-old">{formatZar(s.oldPriceZar)}</span>
                             ) : null}
                             {saveZar ? (
-                              <span style={{ fontSize: '12px', fontWeight: 700, color: '#10B981', background: 'rgba(16, 185, 129, 0.12)', padding: '2px 8px', borderRadius: '4px', marginLeft: '6px' }}>
+                              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-brand-ink)', background: 'rgba(16, 185, 129, 0.12)', padding: '2px 8px', borderRadius: '4px', marginLeft: '6px' }}>
                                 Save {formatZar(saveZar)}
                               </span>
                             ) : null}
@@ -1860,7 +1860,7 @@ export default function DiscoveryFeed({
                                 justifyContent: 'center',
                                 gap: '4px',
                                 background: '#0EA5E9',
-                                color: '#FFFFFF',
+                                color: 'var(--color-on-solid)',
                                 fontWeight: 600,
                               }}
                             >
@@ -1979,7 +1979,7 @@ export default function DiscoveryFeed({
                           <h4 className="short-card-title">{s.title}</h4>
                           <div className="short-card-merchant">
                             <span>{s.merchantName || 'Verified Merchant'}</span>
-                            <span style={{ color: '#38BDF8', fontSize: '10px' }}>✓</span>
+                            <span style={{ color: 'var(--color-info-400)', fontSize: '10px' }}>✓</span>
                           </div>
                           {featured && (
                             <div className="short-product-pill">

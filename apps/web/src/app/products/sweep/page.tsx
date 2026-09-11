@@ -24,48 +24,48 @@ export default function ProductsSweepBlueprintPage() {
       </div>
 
       {/* Architecture Flow Diagram (CSS Grid) */}
-      <div className="card" style={{ marginBottom: '3rem', background: '#0F172A', color: '#F8FAFC', padding: '2.5rem' }}>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#38BDF8', marginBottom: '1.5rem' }}>
+      <div className="card" style={{ marginBottom: '3rem', background: 'var(--color-content)', color: 'var(--color-content-inverse)', padding: '2.5rem' }}>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-info-ink-inverse)', marginBottom: '1.5rem' }}>
           ⚙️ 4-Stage South African Product Ingestion Architecture
         </h2>
 
         <div className="grid grid-cols-4" style={{ gap: '1.5rem' }}>
           <div style={{ background: 'rgba(255,255,255,0.06)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
             <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>1️⃣</div>
-            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#F1F5F9', marginBottom: '0.4rem' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-content-inverse)', marginBottom: '0.4rem' }}>
               GS1 National Barcodes
             </h3>
-            <p style={{ fontSize: '0.8rem', color: '#94A3B8', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.8rem', color: 'var(--color-content-muted-inverse)', lineHeight: 1.5 }}>
               Scan the <strong>6000000000000 – 6019999999999</strong> country namespace for South African registered manufactured products and packaged goods.
             </p>
           </div>
 
           <div style={{ background: 'rgba(255,255,255,0.06)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
             <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>2️⃣</div>
-            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#F1F5F9', marginBottom: '0.4rem' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-content-inverse)', marginBottom: '0.4rem' }}>
               Multi-Retailer Sweepers
             </h3>
-            <p style={{ fontSize: '0.8rem', color: '#94A3B8', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.8rem', color: 'var(--color-content-muted-inverse)', lineHeight: 1.5 }}>
               Headless JSON adapters crawling sitemaps, public product endpoints, and B2B trade feeds across Takealot, Checkers, Makro, Builders, and Solar distros.
             </p>
           </div>
 
           <div style={{ background: 'rgba(255,255,255,0.06)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
             <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>3️⃣</div>
-            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#F1F5F9', marginBottom: '0.4rem' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-content-inverse)', marginBottom: '0.4rem' }}>
               English Canonicalizer
             </h3>
-            <p style={{ fontSize: '0.8rem', color: '#94A3B8', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.8rem', color: 'var(--color-content-muted-inverse)', lineHeight: 1.5 }}>
               Sanitizes promotional junk, decodes HTML entities, extracts pack sizes (kg/kWh), and maps to the 5,000+ Google Product Taxonomy.
             </p>
           </div>
 
           <div style={{ background: 'rgba(255,255,255,0.06)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
             <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>4️⃣</div>
-            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#F1F5F9', marginBottom: '0.4rem' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-content-inverse)', marginBottom: '0.4rem' }}>
               3.1M Store Matcher
             </h3>
-            <p style={{ fontSize: '0.8rem', color: '#94A3B8', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.8rem', color: 'var(--color-content-muted-inverse)', lineHeight: 1.5 }}>
               Connects physical merchants from the 3,109,299 store database to master product SKUs via barcode scanning or one-click zero-offer onboarding.
             </p>
           </div>
@@ -91,7 +91,7 @@ export default function ProductsSweepBlueprintPage() {
                 </p>
               </div>
 
-              <div style={{ fontSize: '0.75rem', background: '#F1F5F9', padding: '0.5rem 0.75rem', borderRadius: '6px', color: 'var(--text-muted)' }}>
+              <div style={{ fontSize: '0.75rem', background: 'var(--color-surface-subtle)', padding: '0.5rem 0.75rem', borderRadius: '6px', color: 'var(--text-muted)' }}>
                 🏷️ <strong>GS1 Range / Standard:</strong> {source.gs1Prefix}
               </div>
             </div>
@@ -168,7 +168,7 @@ export default function ProductsSweepBlueprintPage() {
       </section>
 
       {/* Call to Action */}
-      <div className="card" style={{ textAlign: 'center', padding: '3rem 2rem', background: '#F8FAFC' }}>
+      <div className="card" style={{ textAlign: 'center', padding: '3rem 2rem', background: 'var(--color-surface-subtle)' }}>
         <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '0.5rem' }}>
           Explore the 1,000,000+ Master Product Catalog
         </h2>

@@ -183,7 +183,7 @@ export default async function MerchantsDirectoryPage({
                       href={merchant.googleReviewsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(merchant.name + ' ' + merchant.addressText)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ fontSize: '0.8rem', fontWeight: 700, color: '#D97706', textDecoration: 'none' }}
+                      style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-warning-ink)', textDecoration: 'none' }}
                     >
                       ★ {merchant.googleRating} ({merchant.googleReviewsCount || 20}+ reviews) &nearr;
                     </a>

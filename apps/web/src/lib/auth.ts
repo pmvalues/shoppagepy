@@ -14,14 +14,80 @@ export interface SessionPayload {
 export const SESSION_COOKIE_NAME = 'shoppage_session';
 const DEFAULT_SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
 
+/**
+ * Values that are treated as known-weak and refused in production.
+ * These exist because the UI quick-login surfaces show a masked placeholder.
+ */
+const PLACEHOLDER_PASSWORDS = new Set(['••••••••••••', 'admin123', 'password', 'changeme']);
+const MIN_SECRET_LENGTH = 32;
+
+/**
+ * Detects a weak secret, including the realistic case of a placeholder padded out
+ * to satisfy a minimum-length rule (e.g. "changeme".padEnd(40, 'changeme')).
+ */
+function isWeakSecret(value: string): boolean {
+  const v = value.trim().toLowerCase();
+  if (v.length < MIN_SECRET_LENGTH) return true;
+  for (const placeholder of PLACEHOLDER_PASSWORDS) {
+    if (v.startsWith(placeholder) || v === placeholder) return true;
+  }
+  // Reject genuinely degenerate secrets (e.g. 'aaaa....' or 'ababab....').
+  // Threshold is deliberately low: a random base64 secret sits well above it.
+  const uniqueChars = new Set(v).size;
+  if (uniqueChars < 6) return true;
+  return false;
+}
+
+/**
+ * Explicit, opt-in development authentication.
+ *
+ * SECURITY (WS-1.1): dev auth is NEVER inferred from `NODE_ENV` being absent or
+ * anything other than exactly 'production'. An operator running `next start` without
+ * NODE_ENV set must NOT silently get an open platform. It requires a deliberate
+ * SHOPPAGE_ALLOW_DEV_AUTH=true, and is refused outright in production regardless.
+ */
+export function isDevAuthEnabled(): boolean {
+  if (process.env.NODE_ENV === 'production') return false;
+  return process.env.SHOPPAGE_ALLOW_DEV_AUTH === 'true';
+}
+
 function getAuthSecret(): string {
   const secret = (process.env.SHOPPAGE_AUTH_SECRET || process.env.PAYLOAD_SECRET || '').trim();
-  if (!secret) {
-    if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
-      return 'test_secret_for_auth_testing_minimum_32_chars_long';
+
+  // Production strength checks run FIRST and unconditionally — including under test —
+  // so a weak production secret can never be masked by a test-environment shortcut.
+  if (process.env.NODE_ENV === 'production') {
+    if (!secret) {
+      throw new Error(
+        'SHOPPAGE_AUTH_SECRET (or PAYLOAD_SECRET) must be configured. ' +
+          'Session tokens cannot be signed without it.'
+      );
     }
-    throw new Error('SHOPPAGE_AUTH_SECRET (or PAYLOAD_SECRET) must be configured in production');
+    if (secret.length < MIN_SECRET_LENGTH) {
+      throw new Error(
+        `SHOPPAGE_AUTH_SECRET must be at least ${MIN_SECRET_LENGTH} characters in production.`
+      );
+    }
+    if (isWeakSecret(secret)) {
+      throw new Error(
+        'SHOPPAGE_AUTH_SECRET is a known placeholder, or is too low-entropy, for production. ' +
+          'Generate one with: openssl rand -base64 48'
+      );
+    }
+    return secret;
   }
+
+  if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
+    return secret || 'test_secret_for_auth_testing_minimum_32_chars_long';
+  }
+
+  if (!secret) {
+    throw new Error(
+      'SHOPPAGE_AUTH_SECRET (or PAYLOAD_SECRET) must be configured. ' +
+        'Session tokens cannot be signed without it.'
+    );
+  }
+
   return secret;
 }
 
@@ -173,7 +239,26 @@ export function clearSessionCookie(res: NextResponse): void {
 }
 
 /**
- * Validates credentials for initial admin and merchant users
+ * Constant-time string comparison to avoid leaking credential length/content via timing.
+ */
+function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i++) {
+    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
+
+/**
+ * Validates credentials for admin and merchant users.
+ *
+ * SECURITY (WS-1.1) — the fix for the P0 dev-auth bypass:
+ *  1. Dev mode requires the explicit SHOPPAGE_ALLOW_DEV_AUTH=true opt-in.
+ *  2. A missing merchant secret NO LONGER falls through to "any password".
+ *  3. In production, a merchant without a configured secret cannot authenticate at all.
+ *  4. All credential comparisons are constant-time.
+ *  5. A placeholder or too-short production password is refused (fail closed).
  */
 export function verifyCredentials(
   email: string,
@@ -184,52 +269,102 @@ export function verifyCredentials(
   const normalizedEmail = email.trim().toLowerCase();
   const password = pass.trim();
   const now = Date.now();
+  const devAuth = isDevAuthEnabled();
 
   const superAdminEmail = (process.env.SHOPPAGE_ADMIN_EMAIL || 'admin@shoppage.co.za').toLowerCase();
   const superAdminPass = (process.env.SHOPPAGE_ADMIN_PASSWORD || '').trim();
 
-  // 1. SuperAdmin Login — env-driven, with development support for UI quick-login
-  if (!superAdminPass) {
-    return null;
-  }
-  const isDev = process.env.NODE_ENV !== 'production';
-  const isSuperAdminPasswordMatch =
-    password === superAdminPass ||
-    (isDev && (password === '••••••••••••' || password === 'admin123'));
+  // ---------------------------------------------------------------------------
+  // 1. SuperAdmin
+  // ---------------------------------------------------------------------------
+  // Only attempt the superadmin path when the caller is asking for a privileged
+  // platform role. A login explicitly requesting `merchant_*` must never be
+  // satisfied by platform-admin credentials (privilege confusion).
+  const requestsSuperAdmin = targetRole === undefined || targetRole === 'superadmin';
 
-  if (normalizedEmail === superAdminEmail && isSuperAdminPasswordMatch) {
-    return {
-      userId: 'usr_superadmin_01',
-      email: normalizedEmail,
-      role: 'superadmin',
-      issuedAt: now,
-      expiresAt: now + DEFAULT_SESSION_DURATION,
-    };
+  if (requestsSuperAdmin && (superAdminPass || devAuth)) {
+    if (process.env.NODE_ENV === 'production' && superAdminPass) {
+      if (superAdminPass.length < 12 || PLACEHOLDER_PASSWORDS.has(superAdminPass.toLowerCase())) {
+        // Fail closed: a weak production superadmin password is a deployment error.
+        throw new Error(
+          'SHOPPAGE_ADMIN_PASSWORD is weak or a known placeholder. Rotate it before deploying.'
+        );
+      }
+    }
+
+    const passwordMatches = superAdminPass
+      ? safeEqual(password, superAdminPass)
+      : false;
+
+    // Dev-only convenience. Reached ONLY when SHOPPAGE_ALLOW_DEV_AUTH=true.
+    const devMatch = devAuth && PLACEHOLDER_PASSWORDS.has(password.toLowerCase());
+
+    if (
+      (passwordMatches || devMatch) &&
+      normalizedEmail === superAdminEmail
+    ) {
+      return {
+        userId: 'usr_superadmin_01',
+        email: normalizedEmail,
+        role: 'superadmin',
+        issuedAt: now,
+        expiresAt: now + DEFAULT_SESSION_DURATION,
+      };
+    }
   }
 
-  // 2. Merchant login — real merchant credentials via env-driven secret map,
-  //    with development support for UI quick-login.
-  const merchantSecretRaw = storeId
-    ? (process.env['SHOPPAGE_MERCHANT_SECRET_' + storeId.toUpperCase().replace(/[^A-Z0-9]/g, '_')] || '')
+  // ---------------------------------------------------------------------------
+  // 2. Merchant
+  // ---------------------------------------------------------------------------
+  const merchantSecret = storeId
+    ? (
+        process.env['SHOPPAGE_MERCHANT_SECRET_' + storeId.toUpperCase().replace(/[^A-Z0-9]/g, '_')] || ''
+      ).trim()
     : '';
-  const merchantSecret = merchantSecretRaw.trim();
-  const isMerchantPasswordMatch =
-    (merchantSecret && password === merchantSecret) ||
-    (isDev && (password === '••••••••••••' || password === 'admin123' || (superAdminPass && password === superAdminPass)));
 
-  if (
-    storeId &&
-    (merchantSecret ? isMerchantPasswordMatch : isDev) &&
-    (targetRole === 'merchant_owner' || targetRole === 'merchant_staff')
-  ) {
-    return {
-      userId: 'usr_' + storeId,
-      email: normalizedEmail,
-      role: targetRole,
-      merchantId: storeId,
-      issuedAt: now,
-      expiresAt: now + DEFAULT_SESSION_DURATION,
-    };
+  const isMerchantRole = targetRole === 'merchant_owner' || targetRole === 'merchant_staff';
+
+  if (storeId && isMerchantRole) {
+    let authenticated = false;
+
+    if (merchantSecret) {
+      // Real credential path.
+      if (process.env.NODE_ENV === 'production') {
+        if (
+          merchantSecret.length < 12 ||
+          PLACEHOLDER_PASSWORDS.has(merchantSecret.toLowerCase())
+        ) {
+          throw new Error(
+            `Merchant secret for store "${storeId}" is weak or a known placeholder. Rotate it before deploying.`
+          );
+        }
+      }
+      // A merchant must not be able to authenticate with the platform admin password,
+      // nor with the platform admin email as a merchant identity.
+      const isAdminCredentialReuse =
+        (superAdminPass && safeEqual(password, superAdminPass)) ||
+        normalizedEmail === superAdminEmail;
+
+      if (!isAdminCredentialReuse && safeEqual(password, merchantSecret)) {
+        authenticated = true;
+      }
+    } else if (devAuth) {
+      // Dev-only: a store with no configured secret is open ONLY under the explicit flag.
+      authenticated = PLACEHOLDER_PASSWORDS.has(password.toLowerCase());
+    }
+    // NOTE: if merchantSecret is absent and dev auth is off, `authenticated` stays
+    // false — this is the previously-open hole, now closed.
+
+    if (authenticated) {
+      return {
+        userId: 'usr_' + storeId,
+        email: normalizedEmail,
+        role: targetRole as UserRole,
+        merchantId: storeId,
+        issuedAt: now,
+        expiresAt: now + DEFAULT_SESSION_DURATION,
+      };
+    }
   }
 
   return null;

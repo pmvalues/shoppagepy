@@ -3,13 +3,48 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { ProductVariant, Offer } from '@shoppage/contracts';
-import { formatDistance, calculateHaversineDistanceKm, DEFAULT_USER_LOCATION } from '@/lib/geo';
+import { formatDistance } from '@/lib/geo';
 
 export interface ProductCardProps {
   product: ProductVariant;
   offers?: Offer[];
   isSponsored?: boolean;
   onOpenBuyBox?: (product: ProductVariant, offers: Offer[]) => void;
+}
+
+/** Inline icon set — replaces the emoji glyphs used previously, which rendered
+ *  inconsistently across platforms and could not inherit colour or size. */
+function Icon({ name, className }: { name: 'pin' | 'check' | 'arrow' | 'box'; className?: string }) {
+  const paths: Record<string, React.ReactNode> = {
+    pin: (
+      <>
+        <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z" />
+        <circle cx="12" cy="10" r="2.5" />
+      </>
+    ),
+    check: <path d="M20 6L9 17l-5-5" />,
+    arrow: <path d="M7 17L17 7M9 7h8v8" />,
+    box: (
+      <>
+        <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z" />
+        <path d="M3 8l9 5 9-5M12 13v8" />
+      </>
+    ),
+  };
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
+      {paths[name]}
+    </svg>
+  );
 }
 
 export default function ProductCard({
@@ -20,7 +55,7 @@ export default function ProductCard({
 }: ProductCardProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  // Extract best price from offers or product attribute
+  // Best price from offers, falling back to the product's own estimate.
   const minPrice = offers.length
     ? Math.min(...offers.map((o) => (typeof o.price?.amount === 'number' ? o.price.amount : Infinity)))
     : (product.attributes?.estimatedPriceZar as number | undefined);
@@ -29,246 +64,141 @@ export default function ProductCard({
   const hasDiscount = originalPrice && minPrice && originalPrice > minPrice;
   const discountPct = hasDiscount ? Math.round(((originalPrice - minPrice) / originalPrice) * 100) : null;
 
-  // Best offer geolocal calculation
-  const bestOffer = offers[0];
-  const merchantName = bestOffer?.merchantRef?.replace(/^loc_/, '').replace(/_/g, ' ') || 'SunPower SA';
-  const estimatedDistanceKm = 4.2; // Highveld metro proximity default
-
   const primaryImage = product.media?.gallery?.[0]?.url || (product as any).primary_image?.url;
+  const hasPrice = typeof minPrice === 'number' && minPrice !== Infinity;
 
   return (
-    <div
-      style={{
-        background: '#FFFFFF',
-        borderRadius: '16px',
-        border: isSponsored ? '1px solid #FBBC04' : '1px solid #DADCE0',
-        boxShadow: isSponsored ? '0 2px 8px rgba(251, 188, 4, 0.25)' : '0 1px 3px rgba(0, 0, 0, 0.04)',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        position: 'relative',
-        transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-        height: '100%',
-      }}
-      className="group hover:border-transparent hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
+    <article
+      className={[
+        'group relative flex h-full flex-col overflow-hidden rounded-xl bg-surface',
+        'border transition duration-300 ease-out-expo',
+        'hover:-translate-y-0.5 hover:shadow-md',
+        isSponsored
+          ? 'border-warning-500/60 hover:border-warning-500'
+          : 'border-line hover:border-brand-400',
+      ].join(' ')}
     >
-      {/* Sponsored Pill */}
+      {/* Sponsored marker */}
       {isSponsored && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '10px',
-            left: '10px',
-            zIndex: 10,
-            background: '#FBBC04',
-            color: '#202124',
-            fontSize: '9px',
-            fontWeight: 800,
-            letterSpacing: '0.05em',
-            padding: '2px 6px',
-            borderRadius: '4px',
-            textTransform: 'uppercase',
-          }}
-        >
+        <span className="absolute left-2.5 top-2.5 z-10 rounded bg-warning-500 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-on-accent">
           Sponsored
-        </div>
+        </span>
       )}
 
-      {/* Sale Discount Pill */}
+      {/* Savings marker — lime is reserved for savings and live signals. */}
       {discountPct && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '10px',
-            right: '10px',
-            zIndex: 10,
-            background: '#EA4335',
-            color: '#FFFFFF',
-            fontSize: '11px',
-            fontWeight: 800,
-            padding: '2px 8px',
-            borderRadius: '12px',
-          }}
-        >
-          -{discountPct}%
-        </div>
+        <span className="absolute right-2.5 top-2.5 z-10 rounded-full bg-signal-400 px-2 py-0.5 text-xs font-bold text-signal-ink">
+          −{discountPct}%
+        </span>
       )}
 
-      {/* 1:1 Aspect Ratio Image Container */}
       <Link
         href={`/p/${product.canonicalId}`}
-        style={{
-          display: 'block',
-          aspectRatio: '1/1',
-          background: '#FAFAFA',
-          position: 'relative',
-          overflow: 'hidden',
-          padding: '1rem',
-        }}
+        className="relative block aspect-square overflow-hidden bg-surface-inset p-4"
+        aria-label={product.title}
       >
         {primaryImage ? (
           <img
             src={primaryImage}
-            alt={product.title}
+            alt=""
             loading="lazy"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-            }}
-            className="group-hover:scale-105"
+            onLoad={() => setImgLoaded(true)}
+            className={[
+              'h-full w-full object-contain transition duration-500 ease-out-expo',
+              'group-hover:scale-105',
+              imgLoaded ? 'opacity-100' : 'opacity-0',
+            ].join(' ')}
           />
         ) : (
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '2.5rem',
-              color: '#CBD5E1',
-            }}
-          >
-            📦
-          </div>
+          <span className="flex h-full w-full items-center justify-center text-content-muted">
+            <Icon name="box" className="h-10 w-10" />
+          </span>
         )}
       </Link>
 
-      {/* Product Information Body */}
-      <div style={{ padding: '0.85rem 1rem', display: 'flex', flexDirection: 'column', flex: 1, gap: '0.4rem' }}>
-        {/* Brand & Geolocal Proximity Row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: '#5F6368', flexWrap: 'wrap' }}>
-          <span
-            style={{
-              fontWeight: 700,
-              background: '#F1F3F4',
-              color: '#202124',
-              padding: '1px 6px',
-              borderRadius: '4px',
-              fontSize: '0.7rem',
-            }}
-          >
+      <div className="flex flex-1 flex-col gap-1.5 p-3.5">
+        {/* Provenance row */}
+        <div className="flex flex-wrap items-center gap-1.5 text-xs text-content-muted">
+          <span className="rounded bg-surface-subtle px-1.5 py-0.5 font-semibold text-content-secondary">
             {product.brand}
           </span>
-          <span>•</span>
-          <span style={{ color: '#0F172A', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-            <span>📍</span>
-            <span>{formatDistance(estimatedDistanceKm)}</span>
+          <span aria-hidden="true">·</span>
+          <span className="inline-flex items-center gap-1 font-medium text-content-secondary">
+            <Icon name="pin" className="h-3 w-3" />
+            {formatDistance(4.2)}
           </span>
-          <span style={{ color: '#137333', fontWeight: 700 }}>✓ In Stock</span>
+          <span className="inline-flex items-center gap-1 font-semibold text-brand-ink">
+            <Icon name="check" className="h-3 w-3" />
+            In stock
+          </span>
         </div>
 
-        {/* 2-Line Clamped Title */}
-        <Link href={`/p/${product.canonicalId}`} style={{ textDecoration: 'none' }}>
-          <h3
-            style={{
-              fontSize: '0.85rem',
-              lineHeight: '1.35',
-              fontWeight: 600,
-              color: '#202124',
-              margin: '0.15rem 0',
-              height: '2.7em',
-              overflow: 'hidden',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-            }}
-            className="group-hover:text-[#1A73E8]"
-          >
+        <Link href={`/p/${product.canonicalId}`}>
+          <h3 className="line-clamp-2 min-h-[2.7em] text-sm font-semibold leading-snug text-content transition-colors group-hover:text-brand-ink">
             {product.title}
           </h3>
         </Link>
 
-        {/* Technical Badges & GTIN */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+        {/* Compliance / identifiers */}
+        <div className="flex flex-wrap items-center gap-1.5">
           {product.identifiers?.gtin13 && (
-            <span style={{ fontSize: '0.65rem', fontFamily: 'monospace', color: '#64748B', background: '#F8FAFC', padding: '1px 4px', borderRadius: '3px', border: '1px solid #E2E8F0' }}>
+            <span className="rounded border border-line bg-surface-inset px-1 py-0.5 font-mono text-[10px] text-content-muted">
               GTIN {product.identifiers.gtin13}
             </span>
           )}
           {product.compliance?.nrs097Certified && (
-            <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#137333', background: '#E6F4EA', padding: '1px 5px', borderRadius: '4px' }}>
-              NRS 097 ✓
+            <span className="rounded bg-brand-50 px-1.5 py-0.5 text-[10px] font-semibold text-brand-700">
+              NRS 097
             </span>
           )}
           {product.compliance?.sabsApproved && (
-            <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#1967D2', background: '#E8F0FE', padding: '1px 5px', borderRadius: '4px' }}>
+            <span className="rounded bg-surface-subtle px-1.5 py-0.5 text-[10px] font-semibold text-content-secondary">
               SABS
             </span>
           )}
         </div>
 
-        {/* Price & BuyBox Trigger Section */}
-        <div style={{ marginTop: 'auto', paddingTop: '0.65rem', borderTop: '1px solid #F1F3F4' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem' }}>
-            <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#202124', fontVariantNumeric: 'tabular-nums' }}>
-              {typeof minPrice === 'number' && minPrice !== Infinity
-                ? `R ${minPrice.toLocaleString('en-ZA')}`
-                : 'Quote Required'}
+        {/* Price */}
+        <div className="mt-auto border-t border-line-subtle pt-2.5">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-lg font-bold tabular-nums tracking-tight text-content">
+              {hasPrice ? `R ${minPrice.toLocaleString('en-ZA')}` : 'Quote required'}
             </span>
             {hasDiscount && (
-              <span style={{ fontSize: '0.8rem', color: '#70757A', textDecoration: 'line-through' }}>
+              <span className="text-sm text-content-muted line-through">
                 R {originalPrice.toLocaleString('en-ZA')}
               </span>
             )}
           </div>
-
-          <div style={{ fontSize: '0.72rem', color: '#1A73E8', fontWeight: 600, marginTop: '0.2rem' }}>
-            {offers.length > 0 ? `${offers.length} local stockists · Compare BuyBox` : '1 verified stockist nearby'}
-          </div>
+          <p className="mt-0.5 text-xs font-medium text-brand-ink">
+            {offers.length > 0
+              ? `${offers.length} local stockists · compare`
+              : '1 verified stockist nearby'}
+          </p>
         </div>
       </div>
 
-      {/* Action Strip on Card Hover */}
-      <div style={{ padding: '0 1rem 0.85rem 1rem', display: 'flex', gap: '0.4rem' }}>
+      {/* Actions */}
+      <div className="flex gap-1.5 px-3.5 pb-3.5">
         <button
+          type="button"
           onClick={(e) => {
             e.preventDefault();
-            if (onOpenBuyBox) {
-              onOpenBuyBox(product, offers);
-            }
+            onOpenBuyBox?.(product, offers);
           }}
-          style={{
-            flex: 1,
-            height: '32px',
-            background: '#1A73E8',
-            color: '#FFFFFF',
-            border: 'none',
-            borderRadius: '16px',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'background 0.15s ease',
-          }}
-          className="hover:bg-[#185ABC]"
+          className="flex h-9 flex-1 items-center justify-center rounded-full bg-brand-solid text-xs font-semibold text-white transition duration-200 ease-out-expo hover:bg-brand-solid-hover active:scale-[0.98]"
         >
-          Compare {offers.length || 1} Stores
+          Compare {offers.length || 1} stores
         </button>
 
         <Link
           href={`/p/${product.canonicalId}`}
-          style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            border: '1px solid #DADCE0',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#5F6368',
-            textDecoration: 'none',
-            fontSize: '0.85rem',
-          }}
-          title="Full Specs & Compliance"
+          title="Full specs and compliance"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line text-content-secondary transition duration-200 ease-out-expo hover:border-brand-400 hover:text-brand-ink"
         >
-          ↗
+          <Icon name="arrow" className="h-4 w-4" />
         </Link>
       </div>
-    </div>
+    </article>
   );
 }

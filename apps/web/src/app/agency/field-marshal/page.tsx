@@ -80,15 +80,15 @@ export default function FieldMarshalPage() {
           </p>
         </div>
 
-        <div className="card" style={{ background: '#ECFDF5', border: '1.5px solid #10B981', padding: '0.75rem 1.25rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.75rem', color: '#047857', fontWeight: 800, textTransform: 'uppercase' }}>Bounty Balance</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#064E3B' }}>R {bountyEarnedZar}</div>
-          <div style={{ fontSize: '0.7rem', color: '#059669' }}>R50 / verified store onboarded</div>
+        <div className="card" style={{ background: 'var(--color-brand-50)', border: '1.5px solid var(--color-brand-500)', padding: '0.75rem 1.25rem', textAlign: 'center' }}>
+          <div style={{ fontSize: '0.75rem', color: 'var(--color-brand-700)', fontWeight: 800, textTransform: 'uppercase' }}>Bounty Balance</div>
+          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-brand-900)' }}>R {bountyEarnedZar}</div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--color-brand-ink)' }}>R50 / verified store onboarded</div>
         </div>
       </div>
 
       {successMsg && (
-        <div className="card" style={{ background: '#ECFDF5', border: '1px solid #34D399', color: '#065F46', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="card" style={{ background: 'var(--color-brand-50)', border: '1px solid var(--color-brand-400)', color: 'var(--color-brand-800)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span style={{ fontSize: '1.25rem' }}>✓</span>
           <div>
             <strong>Store Successfully Ingested & Verified!</strong> R50 bounty credited to your Marshal Ledger.
@@ -100,7 +100,7 @@ export default function FieldMarshalPage() {
       <div className="card" style={{ padding: '2rem', marginBottom: '2.5rem' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           {/* Spatial GPS Locator */}
-          <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+          <div style={{ background: 'var(--color-surface-subtle)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
               <strong style={{ fontSize: '0.85rem', color: 'var(--slate-900)' }}>📍 Field GPS Coordinates:</strong>
               <button
@@ -152,14 +152,14 @@ export default function FieldMarshalPage() {
           </div>
 
           {/* Virtual Market Toggle */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#EFF6FF', padding: '0.75rem', borderRadius: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--color-brand-50)', padding: '0.75rem', borderRadius: '6px' }}>
             <input
               type="checkbox"
               id="virtualMarket"
               checked={formData.isVirtualMarket}
               onChange={(e) => setFormData({ ...formData, isVirtualMarket: e.target.checked })}
             />
-            <label htmlFor="virtualMarket" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1E40AF', cursor: 'pointer' }}>
+            <label htmlFor="virtualMarket" style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-brand-800)', cursor: 'pointer' }}>
               Create Virtual Wholesale Collective / Market Cluster (e.g. Crown Mines Solar Hub)
             </label>
           </div>
@@ -223,10 +223,10 @@ export default function FieldMarshalPage() {
         <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem' }}>Your Recent Field Ingestions</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {submittedStores.map((store) => (
-            <div key={store.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: '#F8FAFC', borderRadius: '8px', border: '1px solid var(--border)' }}>
+            <div key={store.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'var(--color-surface-subtle)', borderRadius: '8px', border: '1px solid var(--border)' }}>
               <div>
                 <div style={{ fontWeight: 700, color: 'var(--slate-900)' }}>{store.name}</div>
-                <div style={{ fontSize: '0.75rem', color: '#64748B' }}>📍 {store.market} · {store.stall} · {store.time}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-content-muted)' }}>📍 {store.market} · {store.stall} · {store.time}</div>
               </div>
               <span className="badge badge-green">+R{store.bounty} Paid</span>
             </div>

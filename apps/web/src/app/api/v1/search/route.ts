@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SearchQuerySchema } from '@shoppage/contracts';
 import { HybridSearchEngine } from '@shoppage/adapters';
 import { SA_CANONICAL_PRODUCTS, SA_FLAGSHIP_OFFERS } from '@shoppage/kernel';
+import { enforceRateLimit } from '@/server/rate-limit';
 
 // Initialize hybrid search engine (Typesense when available, with in-process fallback)
 const searchEngine = new HybridSearchEngine();
@@ -17,6 +18,9 @@ for (const offer of SA_FLAGSHIP_OFFERS) {
  * Backed by Typesense 26.0 with automatic SQLite FTS5 fallback
  */
 export async function GET(request: NextRequest) {
+  const limited = enforceRateLimit('search', request);
+  if (limited) return limited;
+
   try {
     const searchParams = Object.fromEntries(request.nextUrl.searchParams.entries());
     const parseResult = SearchQuerySchema.safeParse(searchParams);

@@ -1,7 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionFromRequest } from './lib/auth';
+import { assertEnvironmentIsSafe } from './server/env-check';
+
+// Run the production safety check once per server process, on first request.
+// Fails the process loudly rather than serving traffic with a weak configuration.
+let envChecked = false;
+function ensureEnvironmentChecked() {
+  if (envChecked) return;
+  envChecked = true;
+  assertEnvironmentIsSafe();
+}
 
 export async function middleware(req: NextRequest) {
+  ensureEnvironmentChecked();
+
   const { pathname, searchParams } = req.nextUrl;
 
   // 1. Guard Platform SuperAdmin Dashboard

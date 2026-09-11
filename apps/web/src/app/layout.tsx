@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import './theme.css';
 import './globals.css';
 import './feed.css';
 import AppNavbar from '@/components/AppNavbar';
@@ -33,6 +34,21 @@ export const viewport = {
 // Applies the stored theme before first paint, defaulting to light mode.
 const themeBootstrap = `(function(){try{var t=localStorage.getItem('shoppage_theme')||'light';document.documentElement.setAttribute('data-theme',t);if(document.body){document.body.setAttribute('data-theme',t);}if(t==='dark'||t==='dim'){document.documentElement.style.colorScheme='dark';}else{document.documentElement.style.colorScheme='light';}}catch(e){}})();`;
 
+/**
+ * Fonts.
+ *
+ * These are the faces the design system actually names in --font-sans and
+ * --font-display. Previously layout.tsx loaded Inter only, so the declared
+ * display face (Outfit) was never fetched and every heading silently fell back
+ * to the browser's generic sans-serif. Only the weights in use are requested.
+ */
+const FONT_CDN = 'https://cdn.jsdelivr.net/npm';
+const FONTS: Array<[string, number[]]> = [
+  ['@fontsource/plus-jakarta-sans@5.0.8', [400, 500, 600, 700, 800]],
+  ['@fontsource/outfit@5.0.8', [500, 600, 700, 800]],
+  ['@fontsource/jetbrains-mono@5.0.8', [500, 700]],
+];
+
 export default function RootLayout({
   children,
 }: {
@@ -41,12 +57,16 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/400.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/500.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/700.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/800.css" />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+        {FONTS.flatMap(([pkg, weights]) =>
+          weights.map((w) => (
+            <link
+              key={`${pkg}-${w}`}
+              rel="stylesheet"
+              href={`${FONT_CDN}/${pkg}/${w}.css`}
+            />
+          ))
+        )}
         <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
       </head>
       <body suppressHydrationWarning>

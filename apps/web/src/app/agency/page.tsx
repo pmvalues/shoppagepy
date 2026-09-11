@@ -57,8 +57,8 @@ export default function AgencyHubPage() {
                   <td style={{ padding: '0.75rem', fontWeight: 700, color: 'var(--slate-900)' }}>{client.name}</td>
                   <td style={{ padding: '0.75rem' }}>{client.offers} SKUs</td>
                   <td style={{ padding: '0.75rem' }}><span className="badge badge-green">{client.freshnessRate}</span></td>
-                  <td style={{ padding: '0.75rem', fontWeight: 800, color: '#059669' }}>{client.trustScore} / 100</td>
-                  <td style={{ padding: '0.75rem', fontWeight: 800, color: '#2563EB' }}>{client.leadsThisMonth} leads</td>
+                  <td style={{ padding: '0.75rem', fontWeight: 800, color: 'var(--color-brand-ink)' }}>{client.trustScore} / 100</td>
+                  <td style={{ padding: '0.75rem', fontWeight: 800, color: 'var(--color-brand-ink)' }}>{client.leadsThisMonth} leads</td>
                   <td style={{ padding: '0.75rem' }}>
                     <Link href="/merchant/dashboard" className="btn btn-outline btn-sm">
                       Manage Client &rarr;

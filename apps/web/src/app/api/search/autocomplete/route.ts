@@ -6,11 +6,15 @@ import {
   SA_FLAGSHIP_OFFERS,
   SA_CANONICAL_PRODUCTS,
 } from '@shoppage/kernel';
+import { enforceRateLimit } from '@/server/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
+  const limited = enforceRateLimit('autocomplete', req);
+  if (limited) return limited;
+
   const startTime = Date.now();
   const q = (req.nextUrl.searchParams.get('q') || '').trim().slice(0, 100);
 

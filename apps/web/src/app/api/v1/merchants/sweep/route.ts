@@ -4,11 +4,15 @@ import {
   SA_9_PROVINCES_SWEEP_GRID,
   googlePlaceToMerchant,
 } from '@shoppage/kernel';
+import { enforceRateLimit } from '@/server/rate-limit';
 
 /**
  * Nationwide Google Maps / Places Sweeper & Ingestion API (/api/v1/merchants/sweep)
  */
 export async function GET(request: NextRequest) {
+  const limited = enforceRateLimit('search', request);
+  if (limited) return limited;
+
   const searchParams = request.nextUrl.searchParams;
   const province = searchParams.get('province') || undefined;
   const marketId = searchParams.get('marketId') || undefined;

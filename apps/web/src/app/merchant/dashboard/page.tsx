@@ -9,16 +9,18 @@ import OrdersModule from './modules/OrdersModule';
 import CatalogModule from './modules/CatalogModule';
 import FeedsModule from './modules/FeedsModule';
 import ComplianceModule from './modules/ComplianceModule';
+import AiStoreCrewModule from './modules/AiStoreCrewModule';
 
 export default function MerchantDashboardPage() {
   const [selectedMerchantId, setSelectedMerchantId] = useState('loc_sunpower_crownmines');
-  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'catalog' | 'feeds' | 'compliance'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'catalog' | 'feeds' | 'compliance' | 'crew'>('overview');
 
   const merchant: Merchant =
     SA_FLAGSHIP_MERCHANTS.find((m) => m.id === selectedMerchantId) || SA_FLAGSHIP_MERCHANTS[0];
 
   const tabs = [
     { id: 'overview', label: 'Overview & Velocity', icon: '📊' },
+    { id: 'crew', label: 'AI Store Crew (@Waker)', icon: '🤖' },
     { id: 'orders', label: 'Proforma Orders Desk', icon: '📋' },
     { id: 'catalog', label: 'Master Catalog Matrix', icon: '📦' },
     { id: 'feeds', label: 'Google Shopping Feeds', icon: '🛍️' },
@@ -26,29 +28,31 @@ export default function MerchantDashboardPage() {
   ];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--color-surface-subtle)', display: 'flex' }}>
       {/* Left Navigation Sidebar */}
       <aside
         style={{
           width: '260px',
-          background: '#0F172A',
-          color: '#FFFFFF',
+          background: 'var(--color-content)',
+          color: 'var(--color-content-inverse)',
           padding: '1.5rem 1rem',
           display: 'flex',
           flexDirection: 'column',
           flexShrink: 0,
-          borderRight: '1px solid #1E293B',
+          borderRight: '1px solid var(--color-content-secondary)',
         }}
       >
         {/* Brand Header */}
-        <div style={{ paddingBottom: '1.5rem', borderBottom: '1px solid #1E293B', marginBottom: '1.25rem' }}>
+        <div style={{ paddingBottom: '1.5rem', borderBottom: '1px solid var(--color-content-secondary)', marginBottom: '1.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span style={{ fontSize: '1.4rem' }}>⚡</span>
             <div>
-              <div style={{ fontSize: '1.05rem', fontWeight: 900, letterSpacing: '0.02em', color: '#F8FAFC' }}>
+              <div style={{ fontSize: '1.05rem', fontWeight: 900, letterSpacing: '0.02em', color: 'var(--color-content-inverse)' }}>
                 SHOPPAGE OS
               </div>
-              <div style={{ fontSize: '0.7rem', color: '#10B981', fontWeight: 700 }}>
+              {/* The sidebar is an inverse surface, so every theme-aware token on
+                  it is backwards unless it has an `-inverse` twin. */}
+              <div style={{ fontSize: '0.7rem', color: 'var(--color-brand-ink-inverse)', fontWeight: 700 }}>
                 Merchant Centre · South Africa
               </div>
             </div>
@@ -56,7 +60,7 @@ export default function MerchantDashboardPage() {
 
           {/* Store Switcher Selector */}
           <div style={{ marginTop: '1rem' }}>
-            <label style={{ fontSize: '0.68rem', color: '#64748B', textTransform: 'uppercase', fontWeight: 800 }}>
+            <label style={{ fontSize: '0.68rem', color: 'var(--color-content-muted-inverse)', textTransform: 'uppercase', fontWeight: 800 }}>
               Active Store Branch
             </label>
             <select
@@ -67,9 +71,9 @@ export default function MerchantDashboardPage() {
                 marginTop: '0.25rem',
                 padding: '0.4rem 0.6rem',
                 borderRadius: '6px',
-                border: '1px solid #334155',
-                background: '#1E293B',
-                color: '#F8FAFC',
+                border: '1px solid var(--color-content-secondary)',
+                background: 'var(--color-content)',
+                color: 'var(--color-content-inverse)',
                 fontSize: '0.78rem',
                 fontWeight: 600,
               }}
@@ -98,8 +102,8 @@ export default function MerchantDashboardPage() {
                   padding: '0.65rem 0.85rem',
                   borderRadius: '8px',
                   border: 'none',
-                  background: isActive ? '#1E293B' : 'transparent',
-                  color: isActive ? '#38BDF8' : '#94A3B8',
+                  background: isActive ? 'var(--color-content)' : 'transparent',
+                  color: isActive ? 'var(--color-info-ink-inverse)' : 'var(--color-content-muted-inverse)',
                   fontSize: '0.825rem',
                   fontWeight: isActive ? 700 : 500,
                   cursor: 'pointer',
@@ -115,12 +119,12 @@ export default function MerchantDashboardPage() {
         </nav>
 
         {/* Sidebar Footer Link */}
-        <div style={{ borderTop: '1px solid #1E293B', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div style={{ borderTop: '1px solid var(--color-content-secondary)', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           <Link
             href="/search"
             style={{
               fontSize: '0.78rem',
-              color: '#94A3B8',
+              color: 'var(--color-content-muted-inverse)',
               textDecoration: 'none',
               display: 'flex',
               alignItems: 'center',
@@ -129,7 +133,7 @@ export default function MerchantDashboardPage() {
           >
             <span>🔍 Back to National Search</span>
           </Link>
-          <div style={{ fontSize: '0.68rem', color: '#475569' }}>
+          <div style={{ fontSize: '0.68rem', color: 'var(--color-content-muted-inverse)' }}>
             Shoppage OS v9.1 Polyglot Baseline
           </div>
         </div>
@@ -141,6 +145,7 @@ export default function MerchantDashboardPage() {
           {activeTab === 'overview' && (
             <OverviewModule merchant={merchant} onNavigateTab={(tab) => setActiveTab(tab as any)} />
           )}
+          {activeTab === 'crew' && <AiStoreCrewModule merchant={merchant} />}
           {activeTab === 'orders' && <OrdersModule merchant={merchant} />}
           {activeTab === 'catalog' && <CatalogModule merchant={merchant} />}
           {activeTab === 'feeds' && <FeedsModule merchant={merchant} />}

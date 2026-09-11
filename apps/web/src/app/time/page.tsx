@@ -304,8 +304,8 @@ export default function ShoppageTimePage() {
             top: '20px',
             left: '50%',
             transform: 'translateX(-50%)',
-            background: '#059669',
-            color: '#FFFFFF',
+            background: 'var(--color-brand-solid)',
+            color: 'var(--color-on-solid)',
             padding: '0.65rem 1.5rem',
             borderRadius: '9999px',
             fontWeight: 800,
@@ -333,7 +333,7 @@ export default function ShoppageTimePage() {
                     <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.02em' }}>
                       Shoppage Time
                     </h1>
-                    <span style={{ background: '#EF4444', color: '#FFFFFF', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.68rem', fontWeight: 900, letterSpacing: '0.05em' }}>
+                    <span style={{ background: 'var(--color-danger-solid)', color: 'var(--color-on-solid)', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.68rem', fontWeight: 900, letterSpacing: '0.05em' }}>
                       LIVE WIRE
                     </span>
                   </div>
@@ -343,8 +343,8 @@ export default function ShoppageTimePage() {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#10B981', animation: 'pulse 1.5s infinite' }} />
-                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#059669' }}>
+                  <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-brand-500)', animation: 'pulse 1.5s infinite' }} />
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-brand-ink)' }}>
                     LIVE PULSE #{livePulseTick + 1}
                   </span>
                 </div>
@@ -354,7 +354,7 @@ export default function ShoppageTimePage() {
             {/* COMPOSE TRADE TWEET BOX (TWITTER / X STYLE) */}
             <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '16px', padding: '1.5rem', marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#2563EB', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.1rem', flexShrink: 0 }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'var(--color-brand-solid)', color: 'var(--color-on-solid)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.1rem', flexShrink: 0 }}>
                   S
                 </div>
 
@@ -371,23 +371,23 @@ export default function ShoppageTimePage() {
                       outline: 'none',
                       resize: 'none',
                       fontSize: '1rem',
-                      color: '#0F172A',
+                      color: 'var(--color-content)',
                       padding: '0.25rem 0',
                     }}
                   />
 
                   {/* Multi-Channel Syndication Checkboxes */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid #F1F5F9', marginTop: '0.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid var(--color-line-subtle)', marginTop: '0.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
                     <div style={{ display: 'flex', gap: '1rem', fontSize: '0.78rem', fontWeight: 700 }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#2563EB', cursor: 'pointer' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--color-brand-ink)', cursor: 'pointer' }}>
                         <input type="checkbox" checked={postToTime} onChange={(e) => setPostToTime(e.target.checked)} />
                         <span>⚡ Shoppage Time</span>
                       </label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#1877F2', cursor: 'pointer' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--color-facebook-ink)', cursor: 'pointer' }}>
                         <input type="checkbox" checked={postToFacebook} onChange={(e) => setPostToFacebook(e.target.checked)} />
                         <span>📘 FB Groups</span>
                       </label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#10B981', cursor: 'pointer' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--color-brand-ink)', cursor: 'pointer' }}>
                         <input type="checkbox" checked={postToTwitterX} onChange={(e) => setPostToTwitterX(e.target.checked)} />
                         <span>🛒 Shoppage Catalog</span>
                       </label>
@@ -403,7 +403,7 @@ export default function ShoppageTimePage() {
                           width: '110px',
                           padding: '0.35rem 0.6rem',
                           borderRadius: '6px',
-                          border: '1px solid #CBD5E1',
+                          border: '1px solid var(--color-line-strong)',
                           fontSize: '0.8rem',
                           fontWeight: 700,
                         }}
@@ -422,7 +422,7 @@ export default function ShoppageTimePage() {
             </div>
 
             {/* TIMELINE FILTER TABS (COMMERCIAL STREAM) */}
-            <div style={{ display: 'flex', gap: '0.4rem', borderBottom: '2px solid #E2E8F0', paddingBottom: '0.4rem', marginBottom: '1.25rem', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', gap: '0.4rem', borderBottom: '2px solid var(--color-line)', paddingBottom: '0.4rem', marginBottom: '1.25rem', overflowX: 'auto' }}>
               {[
                 { id: 'all', label: '⚡ For You (All Sources)' },
                 { id: 'deals', label: '🔥 Price Drops & Clearance' },
@@ -434,10 +434,10 @@ export default function ShoppageTimePage() {
                   key={tab.id}
                   onClick={() => setActiveFilter(tab.id as any)}
                   style={{
-                    background: activeFilter === tab.id ? '#0F172A' : '#FFFFFF',
-                    color: activeFilter === tab.id ? '#FFFFFF' : '#475569',
+                    background: activeFilter === tab.id ? 'var(--color-content)' : 'var(--color-surface)',
+                    color: activeFilter === tab.id ? 'var(--color-content-inverse)' : 'var(--color-content-secondary)',
                     border: '1px solid',
-                    borderColor: activeFilter === tab.id ? '#0F172A' : '#E2E8F0',
+                    borderColor: activeFilter === tab.id ? 'var(--color-content)' : 'var(--color-line)',
                     borderRadius: '20px',
                     padding: '0.4rem 0.95rem',
                     fontSize: '0.8rem',
@@ -468,11 +468,11 @@ export default function ShoppageTimePage() {
                   }}
                 >
                   {/* Top Origin Bar */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#64748B' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: 'var(--color-content-muted)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700 }}>
                       <span>{item.sourceIcon}</span>
                       {item.sourceUrl ? (
-                        <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#2563EB', textDecoration: 'none' }}>
+                        <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-brand-ink)', textDecoration: 'none' }}>
                           {item.sourceLabel}
                         </a>
                       ) : (
@@ -484,22 +484,22 @@ export default function ShoppageTimePage() {
 
                   {/* Author Header */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                    <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#0F172A', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.85rem' }}>
+                    <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'var(--color-content)', color: 'var(--color-content-inverse)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.85rem' }}>
                       {item.authorName.charAt(0)}
                     </div>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <span style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F172A' }}>{item.authorName}</span>
-                        {item.isVerifiedMerchant && <span style={{ color: '#10B981', fontSize: '0.8rem' }} title="CIPC Verified Stockist">✓</span>}
+                        <span style={{ fontSize: '0.95rem', fontWeight: 900, color: 'var(--color-content)' }}>{item.authorName}</span>
+                        {item.isVerifiedMerchant && <span style={{ color: 'var(--color-brand-ink)', fontSize: '0.8rem' }} title="CIPC Verified Stockist">✓</span>}
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748B' }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--color-content-muted)' }}>
                         {item.authorHandle} · 📍 {item.authorLocation}
                       </div>
                     </div>
                   </div>
 
                   {/* Post Content */}
-                  <p style={{ fontSize: '0.925rem', color: '#1E293B', lineHeight: 1.5, margin: 0 }}>
+                  <p style={{ fontSize: '0.925rem', color: 'var(--color-content)', lineHeight: 1.5, margin: 0 }}>
                     {item.text}
                   </p>
 
@@ -511,8 +511,8 @@ export default function ShoppageTimePage() {
                         borderRadius: '12px',
                         overflow: 'hidden',
                         maxHeight: '260px',
-                        border: '1px solid #E2E8F0',
-                        background: '#0F172A',
+                        border: '1px solid var(--color-line)',
+                        background: 'var(--color-content)',
                       }}
                     >
                       <img
@@ -540,8 +540,8 @@ export default function ShoppageTimePage() {
                               width: '52px',
                               height: '52px',
                               borderRadius: '50%',
-                              background: 'rgba(37, 99, 235, 0.95)',
-                              color: '#FFFFFF',
+                              background: 'var(--color-brand-solid)',
+                              color: 'var(--color-on-solid)',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -560,7 +560,7 @@ export default function ShoppageTimePage() {
                                 bottom: '10px',
                                 left: '10px',
                                 background: 'rgba(15, 23, 42, 0.85)',
-                                color: '#FFFFFF',
+                                color: 'var(--color-on-solid)',
                                 padding: '0.2rem 0.55rem',
                                 borderRadius: '4px',
                                 fontSize: '0.72rem',
@@ -581,7 +581,7 @@ export default function ShoppageTimePage() {
                   {/* Hashtags Strip */}
                   <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
                     {item.hashtags.map((tag) => (
-                      <span key={tag} style={{ color: '#2563EB', fontSize: '0.78rem', fontWeight: 700 }}>
+                      <span key={tag} style={{ color: 'var(--color-brand-ink)', fontSize: '0.78rem', fontWeight: 700 }}>
                         {tag}
                       </span>
                     ))}
@@ -591,8 +591,8 @@ export default function ShoppageTimePage() {
                   {item.productTitle && (
                     <div
                       style={{
-                        background: '#F8FAFC',
-                        border: '1.5px solid #E2E8F0',
+                        background: 'var(--color-surface-subtle)',
+                        border: '1.5px solid var(--color-line)',
                         borderRadius: '12px',
                         padding: '0.85rem 1.15rem',
                         display: 'flex',
@@ -603,10 +603,10 @@ export default function ShoppageTimePage() {
                       }}
                     >
                       <div>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A' }}>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-content)' }}>
                           {item.productTitle}
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700 }}>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--color-brand-ink)', fontWeight: 700 }}>
                           ✓ {item.stockStatus || 'Available'} · 0% Take-Rate
                         </div>
                       </div>
@@ -614,11 +614,11 @@ export default function ShoppageTimePage() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         {item.priceZar && (
                           <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#047857' }}>
+                            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--color-brand-700)' }}>
                               R {item.priceZar.toLocaleString()}
                             </div>
                             {item.regularPriceZar && (
-                              <div style={{ fontSize: '0.7rem', color: '#94A3B8', textDecoration: 'line-through' }}>
+                              <div style={{ fontSize: '0.7rem', color: 'var(--color-content-muted)', textDecoration: 'line-through' }}>
                                 R {item.regularPriceZar.toLocaleString()}
                               </div>
                             )}
@@ -637,24 +637,24 @@ export default function ShoppageTimePage() {
                   )}
 
                   {/* ACTION BAR (TWITTER / X STYLE) */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.65rem', borderTop: '1px solid #F1F5F9', fontSize: '0.78rem', color: '#64748B' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.65rem', borderTop: '1px solid var(--color-line-subtle)', fontSize: '0.78rem', color: 'var(--color-content-muted)' }}>
                     <button
                       onClick={() => showToast(`Opening instant RFQ chat with ${item.authorName}...`)}
-                      style={{ background: 'none', border: 'none', color: '#64748B', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-content-muted)', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                     >
                       <span>💬</span> {item.replyCount} RFQs
                     </button>
 
                     <button
                       onClick={() => handleRepost(item.id)}
-                      style={{ background: 'none', border: 'none', color: '#059669', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-brand-ink)', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                     >
                       <span>🔁</span> {item.repostsCount} Reposts
                     </button>
 
                     <button
                       onClick={() => handleLike(item.id)}
-                      style={{ background: 'none', border: 'none', color: '#DC2626', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-danger-ink)', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                     >
                       <span>❤️</span> {item.likesCount}
                     </button>
@@ -662,7 +662,7 @@ export default function ShoppageTimePage() {
                     {item.contactPhone && (
                       <a
                         href={`tel:${item.contactPhone}`}
-                        style={{ color: '#2563EB', textDecoration: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                        style={{ color: 'var(--color-brand-ink)', textDecoration: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem' }}
                       >
                         <span>📞</span> Call
                       </a>
@@ -676,8 +676,8 @@ export default function ShoppageTimePage() {
           {/* RIGHT RAIL COLUMN (TWITTER / X STYLE TRENDS & STORES) */}
           <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {/* Trending SA Topics Card */}
-            <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '1.25rem' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 900, color: '#0F172A', margin: '0 0 1rem 0' }}>
+            <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-line)', borderRadius: '16px', padding: '1.25rem' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--color-content)', margin: '0 0 1rem 0' }}>
                 Trending on Shoppage Time 🇿🇦
               </h3>
 
@@ -691,25 +691,25 @@ export default function ShoppageTimePage() {
                 ].map((trend, i) => (
                   <div key={trend.tag} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontSize: '0.68rem', color: '#94A3B8', fontWeight: 700 }}>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--color-content-muted)', fontWeight: 700 }}>
                         {i + 1} · {trend.cat}
                       </div>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A' }}>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-content)' }}>
                         {trend.tag}
                       </div>
-                      <div style={{ fontSize: '0.7rem', color: '#64748B' }}>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--color-content-muted)' }}>
                         {trend.count}
                       </div>
                     </div>
-                    <span style={{ fontSize: '0.8rem', color: '#CBD5E1' }}>↗</span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--color-content-muted)' }}>↗</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Verified Importers to Follow */}
-            <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '1.25rem' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 900, color: '#0F172A', margin: '0 0 1rem 0' }}>
+            <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-line)', borderRadius: '16px', padding: '1.25rem' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--color-content)', margin: '0 0 1rem 0' }}>
                 Top Verified Stockists
               </h3>
 
@@ -721,8 +721,8 @@ export default function ShoppageTimePage() {
                 ].map((s) => (
                   <div key={s.handle} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontSize: '0.825rem', fontWeight: 800, color: '#0F172A' }}>{s.name}</div>
-                      <div style={{ fontSize: '0.7rem', color: '#64748B' }}>{s.handle} · {s.location}</div>
+                      <div style={{ fontSize: '0.825rem', fontWeight: 800, color: 'var(--color-content)' }}>{s.name}</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--color-content-muted)' }}>{s.handle} · {s.location}</div>
                     </div>
                     <button
                       onClick={() => showToast(`Following ${s.name} on Shoppage Time!`)}
@@ -737,13 +737,13 @@ export default function ShoppageTimePage() {
             </div>
 
             {/* Fast Shortcuts */}
-            <div style={{ fontSize: '0.75rem', color: '#94A3B8', lineHeight: 1.6, padding: '0 0.5rem' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--color-content-muted)', lineHeight: 1.6, padding: '0 0.5rem' }}>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
-                <Link href="/markets" style={{ color: '#64748B', textDecoration: 'none' }}>Virtual Markets</Link>
+                <Link href="/markets" style={{ color: 'var(--color-content-muted)', textDecoration: 'none' }}>Virtual Markets</Link>
                 <span>•</span>
-                <Link href="/shorts" style={{ color: '#64748B', textDecoration: 'none' }}>Proof Shorts</Link>
+                <Link href="/shorts" style={{ color: 'var(--color-content-muted)', textDecoration: 'none' }}>Proof Shorts</Link>
                 <span>•</span>
-                <Link href="/requests" style={{ color: '#64748B', textDecoration: 'none' }}>Buyer RFQs</Link>
+                <Link href="/requests" style={{ color: 'var(--color-content-muted)', textDecoration: 'none' }}>Buyer RFQs</Link>
               </div>
               <div>© 2026 Shoppage Platform · Real-Time Commercial Timeline</div>
             </div>

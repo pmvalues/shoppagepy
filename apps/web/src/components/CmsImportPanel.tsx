@@ -16,15 +16,15 @@ interface DryRunResult {
 }
 
 const panel: React.CSSProperties = {
-  background: '#111827',
+  background: 'var(--color-canvas-dark)',
   padding: '1.5rem',
   borderRadius: '12px',
-  border: '1px solid #1F2937',
+  border: '1px solid var(--color-canvas-dark-line)',
 };
 
 const input: React.CSSProperties = {
-  background: '#0B1220',
-  border: '1px solid #1F2937',
+  background: 'var(--color-canvas-dark-sunken)',
+  border: '1px solid var(--color-canvas-dark-line)',
   borderRadius: '8px',
   color: '#F8FAFC',
   padding: '0.6rem 0.8rem',
@@ -33,8 +33,8 @@ const input: React.CSSProperties = {
 };
 
 const btn: React.CSSProperties = {
-  background: '#10B981',
-  color: '#fff',
+  background: 'var(--color-brand-solid)',
+  color: 'var(--color-on-dark)',
   border: 'none',
   borderRadius: '8px',
   padding: '0.6rem 1.2rem',
@@ -89,17 +89,17 @@ export default function CmsImportPanel() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#FFFFFF', margin: '0 0 0.5rem 0' }}>
+      <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--color-on-dark)', margin: '0 0 0.5rem 0' }}>
         Bulk CSV Import
       </h1>
-      <p style={{ color: '#94A3B8', fontSize: '0.85rem', margin: '0 0 1.25rem 0' }}>
+      <p style={{ color: 'var(--color-on-dark-muted)', fontSize: '0.85rem', margin: '0 0 1.25rem 0' }}>
         Load merchants or products in bulk. Dry-run validates every row before anything is written.
         Imported items go live on the storefront immediately.
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
         <div style={panel}>
-          <h4 style={{ color: '#38BDF8', margin: '0 0 0.75rem 0' }}>1. Collection &amp; file</h4>
+          <h4 style={{ color: 'var(--color-info-400)', margin: '0 0 0.75rem 0' }}>1. Collection &amp; file</h4>
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
             {(['products', 'merchants'] as Collection[]).map((c) => (
               <button
@@ -111,8 +111,8 @@ export default function CmsImportPanel() {
                 }}
                 style={{
                   ...btn,
-                  background: collection === c ? '#10B981' : '#1E293B',
-                  color: collection === c ? '#fff' : '#94A3B8',
+                  background: collection === c ? 'var(--color-brand-500)' : 'var(--color-canvas-dark-raised)',
+                  color: collection === c ? 'var(--color-on-dark)' : 'var(--color-on-dark-muted)',
                 }}
               >
                 {c === 'products' ? 'Products' : 'Merchants'}
@@ -121,7 +121,7 @@ export default function CmsImportPanel() {
           </div>
           <a
             href={`/api/cms/import?collection=${collection}`}
-            style={{ color: '#38BDF8', fontSize: '0.8rem', display: 'inline-block', marginBottom: '0.75rem' }}
+            style={{ color: 'var(--color-info-400)', fontSize: '0.8rem', display: 'inline-block', marginBottom: '0.75rem' }}
           >
             ⬇ Download CSV template ({collection})
           </a>
@@ -137,7 +137,7 @@ export default function CmsImportPanel() {
         </div>
 
         <div style={panel}>
-          <h4 style={{ color: '#38BDF8', margin: '0 0 0.75rem 0' }}>2. Authorize &amp; run</h4>
+          <h4 style={{ color: 'var(--color-info-400)', margin: '0 0 0.75rem 0' }}>2. Authorize &amp; run</h4>
           <input
             type="password"
             placeholder="Admin import token (SHOPPAGE_ADMIN_TOKEN)"
@@ -154,27 +154,27 @@ export default function CmsImportPanel() {
               type="button"
               onClick={() => runImport(false)}
               disabled={busy}
-              style={{ ...btn, background: '#F59E0B' }}
+              style={{ ...btn, background: 'var(--color-warning-500)', color: 'var(--color-on-accent)' }}
             >
               Confirm import
             </button>
           </div>
-          {error && <p style={{ color: '#EF4444', fontSize: '0.82rem', marginTop: '0.75rem' }}>{error}</p>}
+          {error && <p style={{ color: 'var(--color-danger-ink)', fontSize: '0.82rem', marginTop: '0.75rem' }}>{error}</p>}
         </div>
       </div>
 
       {result && (
         <div style={panel}>
-          <h4 style={{ color: '#38BDF8', margin: '0 0 0.75rem 0' }}>
+          <h4 style={{ color: 'var(--color-info-400)', margin: '0 0 0.75rem 0' }}>
             {result.dryRun ? 'Validation report' : 'Import result'} — {result.collection}
           </h4>
-          <p style={{ color: '#CBD5E1', fontSize: '0.85rem' }}>
-            {result.total} rows · <strong style={{ color: '#10B981' }}>{result.valid} valid</strong>
+          <p style={{ color: 'var(--color-on-dark-muted)', fontSize: '0.85rem' }}>
+            {result.total} rows · <strong style={{ color: 'var(--color-brand-500)' }}>{result.valid} valid</strong>
             {result.errors.length > 0 && (
-              <> · <strong style={{ color: '#EF4444' }}>{result.errors.length} with errors</strong></>
+              <> · <strong style={{ color: 'var(--color-danger-ink)' }}>{result.errors.length} with errors</strong></>
             )}
             {result.imported !== undefined && (
-              <> · <strong style={{ color: '#10B981' }}>{result.imported} imported</strong></>
+              <> · <strong style={{ color: 'var(--color-brand-500)' }}>{result.imported} imported</strong></>
             )}
           </p>
           {result.errors.length > 0 && (
@@ -185,7 +185,7 @@ export default function CmsImportPanel() {
                 </div>
               ))}
               {result.errors.length > 20 && (
-                <div style={{ fontSize: '0.8rem', color: '#64748B' }}>
+                <div style={{ fontSize: '0.8rem', color: 'var(--color-on-dark-subtle)' }}>
                   …and {result.errors.length - 20} more
                 </div>
               )}
@@ -195,12 +195,12 @@ export default function CmsImportPanel() {
             <pre
               style={{
                 marginTop: '0.75rem',
-                background: '#0B1220',
-                border: '1px solid #1F2937',
+                background: 'var(--color-canvas-dark-sunken)',
+                border: '1px solid var(--color-canvas-dark-line)',
                 borderRadius: '8px',
                 padding: '0.75rem',
                 fontSize: '0.72rem',
-                color: '#94A3B8',
+                color: 'var(--color-on-dark-muted)',
                 overflowX: 'auto',
               }}
             >

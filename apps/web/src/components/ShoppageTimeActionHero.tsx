@@ -118,7 +118,7 @@ export default function ShoppageTimeActionHero() {
   };
 
   return (
-    <section style={{ background: '#FFFFFF', padding: '1.5rem 0 2.5rem', borderBottom: '1px solid #E2E8F0' }}>
+    <section style={{ background: 'var(--color-surface)', padding: '1.5rem 0 2.5rem', borderBottom: '1px solid var(--color-line)' }}>
       {/* Toast Alert */}
       {toastMessage && (
         <div
@@ -127,8 +127,8 @@ export default function ShoppageTimeActionHero() {
             top: '20px',
             left: '50%',
             transform: 'translateX(-50%)',
-            background: '#059669',
-            color: '#FFFFFF',
+            background: 'var(--color-brand-solid)',
+            color: 'var(--color-on-solid)',
             padding: '0.6rem 1.4rem',
             borderRadius: '9999px',
             fontWeight: 800,
@@ -158,7 +158,7 @@ export default function ShoppageTimeActionHero() {
         >
           <div
             style={{
-              background: '#FFFFFF',
+              background: 'var(--color-surface)',
               borderRadius: '16px',
               padding: '1.75rem',
               maxWidth: '520px',
@@ -167,12 +167,12 @@ export default function ShoppageTimeActionHero() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--color-content)', margin: 0 }}>
                 ⚡ Post to Shoppage Time
               </h3>
               <button
                 onClick={() => setShowPostModal(false)}
-                style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#64748B' }}
+                style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: 'var(--color-content-muted)' }}
               >
                 ✕
               </button>
@@ -187,8 +187,8 @@ export default function ShoppageTimeActionHero() {
                 placeholder="Describe your stock drop, clearance deal, or contractor sourcing RFQ..."
                 style={{
                   width: '100%',
-                  background: '#F8FAFC',
-                  border: '1px solid #CBD5E1',
+                  background: 'var(--color-surface-subtle)',
+                  border: '1px solid var(--color-line-strong)',
                   borderRadius: '10px',
                   padding: '0.75rem',
                   fontSize: '0.9rem',
@@ -202,22 +202,22 @@ export default function ShoppageTimeActionHero() {
                 onChange={(e) => setBroadcastPrice(e.target.value)}
                 style={{
                   width: '100%',
-                  background: '#F8FAFC',
-                  border: '1px solid #CBD5E1',
+                  background: 'var(--color-surface-subtle)',
+                  border: '1px solid var(--color-line-strong)',
                   borderRadius: '8px',
                   padding: '0.6rem 0.75rem',
                   fontSize: '0.85rem',
                   fontWeight: 700,
                 }}
               />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#64748B' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: 'var(--color-content-muted)' }}>
                 <span>✓ Auto-syndicate to Verified Trade Networks</span>
-                <span style={{ color: '#059669', fontWeight: 800 }}>0% Take Rate</span>
+                <span style={{ color: 'var(--color-brand-ink)', fontWeight: 800 }}>0% Take Rate</span>
               </div>
               <button
                 type="submit"
                 className="btn btn-primary"
-                style={{ borderRadius: '8px', fontWeight: 800, padding: '0.65rem', background: '#2563EB', borderColor: '#2563EB' }}
+                style={{ borderRadius: '8px', fontWeight: 800, padding: '0.65rem', background: 'var(--color-brand-solid)', borderColor: 'var(--color-brand-solid)' }}
               >
                 ⚡ Broadcast Deal Now
               </button>
@@ -235,8 +235,8 @@ export default function ShoppageTimeActionHero() {
             alignItems: 'center',
             flexWrap: 'wrap',
             gap: '0.75rem',
-            background: '#F8FAFC',
-            border: '1px solid #E2E8F0',
+            background: 'var(--color-surface-subtle)',
+            border: '1px solid var(--color-line)',
             borderRadius: '12px',
             padding: '0.65rem 1.15rem',
             marginBottom: '1.25rem',
@@ -248,8 +248,8 @@ export default function ShoppageTimeActionHero() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.35rem',
-                background: '#EF4444',
-                color: '#FFFFFF',
+                background: 'var(--color-danger-solid)',
+                color: 'var(--color-on-solid)',
                 padding: '0.15rem 0.5rem',
                 borderRadius: '4px',
                 fontSize: '0.68rem',
@@ -257,17 +257,17 @@ export default function ShoppageTimeActionHero() {
                 letterSpacing: '0.04em',
               }}
             >
-              <span style={{ display: 'inline-block', width: '5px', height: '5px', borderRadius: '50%', background: '#FFFFFF', animation: 'pulse 1s infinite' }} />
+              <span style={{ display: 'inline-block', width: '5px', height: '5px', borderRadius: '50%', background: 'var(--color-surface)', animation: 'pulse 1s infinite' }} />
               LIVE FEED
             </div>
 
-            <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 800 }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--color-brand-ink)', fontWeight: 800 }}>
               ● {pulseCount.toLocaleString()} Trades/hr
             </span>
 
-            <span style={{ color: '#CBD5E1' }}>|</span>
+            <span style={{ color: 'var(--color-content-muted)' }}>|</span>
 
-            <span style={{ fontSize: '0.78rem', color: '#64748B' }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--color-content-muted)' }}>
               Real-time Showroom & Web Scraper ({lastScrapedAt})
             </span>
           </div>
@@ -278,7 +278,7 @@ export default function ShoppageTimeActionHero() {
               disabled={isScrapingLive}
               className="btn btn-outline btn-sm"
               style={{
-                borderColor: '#CBD5E1',
+                borderColor: 'var(--color-line-strong)',
                 borderRadius: '6px',
                 fontWeight: 700,
                 fontSize: '0.72rem',
@@ -292,8 +292,8 @@ export default function ShoppageTimeActionHero() {
               onClick={() => setShowPostModal(true)}
               className="btn btn-sm"
               style={{
-                background: '#2563EB',
-                color: '#FFFFFF',
+                background: 'var(--color-brand-solid)',
+                color: 'var(--color-on-solid)',
                 border: 'none',
                 borderRadius: '6px',
                 fontWeight: 800,
@@ -309,7 +309,7 @@ export default function ShoppageTimeActionHero() {
               style={{
                 fontSize: '0.78rem',
                 fontWeight: 700,
-                color: '#2563EB',
+                color: 'var(--color-brand-ink)',
                 textDecoration: 'none',
               }}
             >
@@ -336,10 +336,10 @@ export default function ShoppageTimeActionHero() {
                   key={tab.id}
                   onClick={() => setActiveFilter(tab.id as any)}
                   style={{
-                    background: activeFilter === tab.id ? '#0F172A' : '#FFFFFF',
-                    color: activeFilter === tab.id ? '#FFFFFF' : '#475569',
+                    background: activeFilter === tab.id ? 'var(--color-content)' : 'var(--color-surface)',
+                    color: activeFilter === tab.id ? 'var(--color-content-inverse)' : 'var(--color-content-secondary)',
                     border: '1px solid',
-                    borderColor: activeFilter === tab.id ? '#0F172A' : '#E2E8F0',
+                    borderColor: activeFilter === tab.id ? 'var(--color-content-secondary)' : 'var(--color-line)',
                     borderRadius: '16px',
                     padding: '0.3rem 0.75rem',
                     fontSize: '0.75rem',
@@ -376,16 +376,16 @@ export default function ShoppageTimeActionHero() {
                     }}
                   >
                     {/* Origin */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748B' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: 'var(--color-content-muted)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800 }}>
                         <span>{item.sourceIcon || '⚡'}</span>
-                        <span style={{ color: item.sourceType?.includes('facebook') ? '#1877F2' : item.sourceType?.includes('twitter') ? '#0F172A' : '#2563EB' }}>
+                        <span style={{ color: item.sourceType?.includes('facebook') ? 'var(--color-facebook-ink)' : item.sourceType?.includes('twitter') ? 'var(--color-content)' : 'var(--color-brand-ink)' }}>
                           {item.sourceLabel}
                         </span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                         {item.badge && (
-                          <span style={{ background: item.badgeBg || '#EFF6FF', color: item.badgeColor || '#1E40AF', padding: '0.1rem 0.4rem', borderRadius: '4px', fontWeight: 800, fontSize: '0.65rem' }}>
+                          <span style={{ background: item.badgeBg || 'var(--color-brand-50)', color: item.badgeColor || 'var(--color-brand-800)', padding: '0.1rem 0.4rem', borderRadius: '4px', fontWeight: 800, fontSize: '0.65rem' }}>
                             {item.badge}
                           </span>
                         )}
@@ -395,9 +395,9 @@ export default function ShoppageTimeActionHero() {
 
                     {/* Author & Text */}
                     <div>
-                      <span style={{ fontSize: '0.875rem', fontWeight: 900, color: '#0F172A' }}>{author}</span>
-                      <span style={{ fontSize: '0.72rem', color: '#64748B', marginLeft: '0.4rem' }}>{handle} · 📍 {location}</span>
-                      <p style={{ fontSize: '0.875rem', color: '#334155', lineHeight: 1.45, margin: '0.25rem 0 0 0' }}>
+                      <span style={{ fontSize: '0.875rem', fontWeight: 900, color: 'var(--color-content)' }}>{author}</span>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--color-content-muted)', marginLeft: '0.4rem' }}>{handle} · 📍 {location}</span>
+                      <p style={{ fontSize: '0.875rem', color: 'var(--color-content-secondary)', lineHeight: 1.45, margin: '0.25rem 0 0 0' }}>
                         {item.text}
                       </p>
                     </div>
@@ -409,9 +409,9 @@ export default function ShoppageTimeActionHero() {
                           position: 'relative',
                           borderRadius: '12px',
                           overflow: 'hidden',
-                          border: '1px solid #E2E8F0',
+                          border: '1px solid var(--color-line)',
                           maxHeight: '220px',
-                          background: '#0F172A',
+                          background: 'var(--color-content)',
                         }}
                       >
                         <img
@@ -444,8 +444,8 @@ export default function ShoppageTimeActionHero() {
                                 width: '46px',
                                 height: '46px',
                                 borderRadius: '50%',
-                                background: 'rgba(37, 99, 235, 0.95)',
-                                color: '#FFFFFF',
+                                background: 'var(--color-brand-solid)',
+                                color: 'var(--color-on-solid)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -464,7 +464,7 @@ export default function ShoppageTimeActionHero() {
                                   bottom: '8px',
                                   left: '8px',
                                   background: 'rgba(15, 23, 42, 0.85)',
-                                  color: '#FFFFFF',
+                                  color: 'var(--color-on-solid)',
                                   padding: '0.2rem 0.5rem',
                                   borderRadius: '4px',
                                   fontSize: '0.7rem',
@@ -485,8 +485,8 @@ export default function ShoppageTimeActionHero() {
                     {/* Embedded Compact BuyBox Strip */}
                     <div
                       style={{
-                        background: '#F8FAFC',
-                        border: '1px solid #E2E8F0',
+                        background: 'var(--color-surface-subtle)',
+                        border: '1px solid var(--color-line)',
                         borderRadius: '8px',
                         padding: '0.65rem 0.85rem',
                         display: 'flex',
@@ -497,17 +497,17 @@ export default function ShoppageTimeActionHero() {
                       }}
                     >
                       <div>
-                        <div style={{ fontSize: '0.825rem', fontWeight: 800, color: '#0F172A' }}>
+                        <div style={{ fontSize: '0.825rem', fontWeight: 800, color: 'var(--color-content)' }}>
                           {productTitle}
                         </div>
-                        <div style={{ fontSize: '0.68rem', color: '#059669', fontWeight: 700 }}>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--color-brand-ink)', fontWeight: 700 }}>
                           ✓ {item.stockStatus || 'Counter Trade Ready'}
                         </div>
                       </div>
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                         {item.priceZar && (
-                          <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#047857' }}>
+                          <div style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--color-brand-700)' }}>
                             R {item.priceZar.toLocaleString()}
                           </div>
                         )}
@@ -515,8 +515,8 @@ export default function ShoppageTimeActionHero() {
                           href={item.href || `/search?q=${encodeURIComponent(productTitle)}`}
                           className="btn btn-sm"
                           style={{
-                            background: item.isPlaceholder ? '#0F172A' : '#2563EB',
-                            color: '#FFFFFF',
+                            background: item.isPlaceholder ? 'var(--color-content)' : 'var(--color-brand-solid)',
+                            color: 'var(--color-on-solid)',
                             borderRadius: '6px',
                             fontWeight: 800,
                             fontSize: '0.72rem',
@@ -531,10 +531,10 @@ export default function ShoppageTimeActionHero() {
                     </div>
 
                     {/* Action Micro-Bar */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.35rem', borderTop: '1px solid #F1F5F9', fontSize: '0.72rem', color: '#64748B' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.35rem', borderTop: '1px solid var(--color-line-subtle)', fontSize: '0.72rem', color: 'var(--color-content-muted)' }}>
                       <button
                         onClick={() => showToast(`Opening RFQ inquiry for ${productTitle}...`)}
-                        style={{ background: 'none', border: 'none', color: '#64748B', fontWeight: 700, cursor: 'pointer' }}
+                        style={{ background: 'none', border: 'none', color: 'var(--color-content-muted)', fontWeight: 700, cursor: 'pointer' }}
                       >
                         💬 {item.rfqs || 8} RFQs
                       </button>
@@ -543,7 +543,7 @@ export default function ShoppageTimeActionHero() {
                           setToastMessage('🔁 Trade deal syndicated to your network!');
                           setTimeout(() => setToastMessage(null), 3000);
                         }}
-                        style={{ background: 'none', border: 'none', color: '#059669', fontWeight: 700, cursor: 'pointer' }}
+                        style={{ background: 'none', border: 'none', color: 'var(--color-brand-ink)', fontWeight: 700, cursor: 'pointer' }}
                       >
                         🔁 {item.reposts || 12} Reposts
                       </button>
@@ -551,11 +551,11 @@ export default function ShoppageTimeActionHero() {
                         onClick={() => {
                           setFeed((prev) => prev.map((x) => x.id === item.id ? { ...x, likes: (x.likes || 0) + 1 } : x));
                         }}
-                        style={{ background: 'none', border: 'none', color: '#DC2626', fontWeight: 700, cursor: 'pointer' }}
+                        style={{ background: 'none', border: 'none', color: 'var(--color-danger-ink)', fontWeight: 700, cursor: 'pointer' }}
                       >
                         ❤️ {item.likes || 25}
                       </button>
-                      <Link href={`/search?q=${encodeURIComponent(productTitle)}`} style={{ color: '#2563EB', textDecoration: 'none', fontWeight: 700 }}>
+                      <Link href={`/search?q=${encodeURIComponent(productTitle)}`} style={{ color: 'var(--color-brand-ink)', textDecoration: 'none', fontWeight: 700 }}>
                         Compare 4 Sellers &rarr;
                       </Link>
                     </div>
@@ -570,13 +570,13 @@ export default function ShoppageTimeActionHero() {
             {/* Trending SA Topics */}
             <div
               style={{
-                background: '#FFFFFF',
-                border: '1px solid #E2E8F0',
+                background: 'var(--color-surface)',
+                border: '1px solid var(--color-line)',
                 borderRadius: '12px',
                 padding: '1.15rem',
               }}
             >
-              <h3 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0F172A', margin: '0 0 0.65rem 0' }}>
+              <h3 style={{ fontSize: '0.85rem', fontWeight: 900, color: 'var(--color-content)', margin: '0 0 0.65rem 0' }}>
                 🔥 Trending Commercial Topics 🇿🇦
               </h3>
 
@@ -599,10 +599,10 @@ export default function ShoppageTimeActionHero() {
                     }}
                   >
                     <div>
-                      <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#2563EB' }}>{t.tag}</div>
-                      <div style={{ fontSize: '0.65rem', color: '#64748B' }}>{t.desc}</div>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-brand-ink)' }}>{t.tag}</div>
+                      <div style={{ fontSize: '0.65rem', color: 'var(--color-content-muted)' }}>{t.desc}</div>
                     </div>
-                    <span style={{ color: '#94A3B8', fontSize: '0.7rem' }}>↗</span>
+                    <span style={{ color: 'var(--color-content-muted)', fontSize: '0.7rem' }}>↗</span>
                   </Link>
                 ))}
               </div>
@@ -614,9 +614,9 @@ export default function ShoppageTimeActionHero() {
                 href="/markets"
                 className="btn btn-outline btn-sm"
                 style={{
-                  color: '#0F172A',
-                  borderColor: '#E2E8F0',
-                  background: '#FFFFFF',
+                  color: 'var(--color-content)',
+                  borderColor: 'var(--color-line)',
+                  background: 'var(--color-surface)',
                   borderRadius: '6px',
                   fontSize: '0.72rem',
                   fontWeight: 700,
@@ -630,9 +630,9 @@ export default function ShoppageTimeActionHero() {
                 href="/shorts"
                 className="btn btn-outline btn-sm"
                 style={{
-                  color: '#0F172A',
-                  borderColor: '#E2E8F0',
-                  background: '#FFFFFF',
+                  color: 'var(--color-content)',
+                  borderColor: 'var(--color-line)',
+                  background: 'var(--color-surface)',
                   borderRadius: '6px',
                   fontSize: '0.72rem',
                   fontWeight: 700,
@@ -646,9 +646,9 @@ export default function ShoppageTimeActionHero() {
                 href="/requests"
                 className="btn btn-outline btn-sm"
                 style={{
-                  color: '#0F172A',
-                  borderColor: '#E2E8F0',
-                  background: '#FFFFFF',
+                  color: 'var(--color-content)',
+                  borderColor: 'var(--color-line)',
+                  background: 'var(--color-surface)',
                   borderRadius: '6px',
                   fontSize: '0.72rem',
                   fontWeight: 700,
@@ -662,8 +662,8 @@ export default function ShoppageTimeActionHero() {
                 href="/merchant/claim"
                 className="btn btn-sm"
                 style={{
-                  color: '#FFFFFF',
-                  background: '#059669',
+                  color: 'var(--color-on-solid)',
+                  background: 'var(--color-brand-solid)',
                   borderRadius: '6px',
                   fontSize: '0.72rem',
                   fontWeight: 800,

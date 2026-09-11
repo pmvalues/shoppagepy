@@ -23,13 +23,13 @@ export default function VideoCard({
       style={{
         padding: 0,
         overflow: 'hidden',
-        background: '#000000',
+        background: 'var(--color-canvas-black)',
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
       }}
     >
-      <div style={{ position: 'relative', width: '100%', aspectRatio: isVertical ? '9 / 16' : '16 / 9', background: '#000' }}>
+      <div style={{ position: 'relative', width: '100%', aspectRatio: isVertical ? '9 / 16' : '16 / 9', background: 'var(--color-canvas-black)' }}>
         {playing ? (
           <video src={item.videoUrl} controls autoPlay style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
@@ -46,8 +46,8 @@ export default function VideoCard({
                   width: isVertical ? 56 : 64,
                   height: isVertical ? 56 : 64,
                   borderRadius: '50%',
-                  background: 'rgba(37,99,235,0.9)',
-                  color: '#fff',
+                  background: 'var(--color-brand-solid)',
+                  color: 'var(--color-on-solid)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -58,21 +58,21 @@ export default function VideoCard({
                 ▶
               </span>
             </button>
-            <span style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,0.8)', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: 4, fontSize: '0.75rem', fontWeight: 700 }}>
+            <span style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,0.8)', color: 'var(--color-on-solid)', padding: '0.2rem 0.5rem', borderRadius: 4, fontSize: '0.75rem', fontWeight: 700 }}>
               {item.duration}
             </span>
-            <span style={{ position: 'absolute', bottom: 10, left: 10, color: '#F1F5F9', fontSize: '0.75rem' }}>
+            <span style={{ position: 'absolute', bottom: 10, left: 10, color: 'var(--color-content-inverse)', fontSize: '0.75rem' }}>
               👁️ {item.views.toLocaleString()}
             </span>
           </>
         )}
       </div>
 
-      <div style={{ padding: '1rem', background: '#fff', flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ padding: '1rem', background: 'var(--color-surface)', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <span className="badge badge-green" style={{ fontSize: '0.65rem', marginBottom: '0.4rem', alignSelf: 'flex-start' }}>
           {item.merchantName || item.series || 'Shoppage'}
         </span>
-        <h3 style={{ fontSize: '0.95rem', fontWeight: 700, margin: '0.25rem 0', lineHeight: 1.3, color: '#0F172A' }}>{item.title}</h3>
+        <h3 style={{ fontSize: '0.95rem', fontWeight: 700, margin: '0.25rem 0', lineHeight: 1.3, color: 'var(--color-content)' }}>{item.title}</h3>
         {item.summary && <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4, margin: '0.25rem 0' }}>{item.summary}</p>}
 
         {item.productRef && (
@@ -86,9 +86,9 @@ export default function VideoCard({
             <button
               onClick={() => setLiked((v) => !v)}
               style={{
-                background: liked ? '#ECFDF5' : 'transparent',
-                border: liked ? '1px solid #A7F3D0' : 'none',
-                color: liked ? '#059669' : 'inherit',
+                background: liked ? 'var(--color-brand-50)' : 'transparent',
+                border: liked ? '1px solid var(--color-brand-200)' : 'none',
+                color: liked ? 'var(--color-brand-ink)' : 'inherit',
                 padding: '0.25rem 0.5rem',
                 borderRadius: 6,
                 cursor: 'pointer',

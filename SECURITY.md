@@ -1,56 +1,159 @@
 ﻿# Security Policy & Responsible Disclosure
 
-Shoppage (Pty) Ltd operates a zero-tolerance policy towards unmitigated security vulnerabilities across our distributed commerce intelligence platform, merchant operating systems, and public edge services.
+Shoppage (Pty) Ltd operates a zero-tolerance policy towards unmitigated security
+vulnerabilities across our commerce intelligence platform, merchant operating systems,
+and public edge services.
+
+**This document describes controls that are implemented and verified in the codebase.**
+Each claim cites the file that implements it. Claims that are aspirational or
+incomplete are listed in §6 Known Gaps rather than implied to be complete.
 
 ---
 
 ## 1. Reporting a Vulnerability
 
-If you discover a security vulnerability within any Shoppage code repository, API endpoint, or infrastructure component, please report it promptly to our security engineering team:
-
 * **Email**: security@shoppage.co.za
-* **Response Time**: Initial acknowledgment within 24 hours; severity assessment and triage update within 72 hours.
-* **Coordination**: We request that you observe responsible disclosure principles and do not disclose vulnerabilities publicly until a patch has been verified and deployed.
+* **Response Time**: Initial acknowledgment within 24 hours; severity assessment and
+  triage update within 72 hours.
+* **Coordination**: We request that you observe responsible disclosure principles and do
+  not disclose vulnerabilities publicly until a patch has been verified and deployed.
 
 ---
 
-## 2. Secrets & Credential Management Policy
+## 2. Authentication & Session Integrity
 
-1. **Zero Hardcoded Secrets**:
-   - Production secrets, signing keys, and API tokens (PAYLOAD_SECRET, DATABASE_URI, REDIS_URL, external sweeper tokens) must never be committed to source control.
-   - All runtime environments inject secrets through encrypted secrets managers (e.g. Dokploy encrypted environment storage, HashiCorp Vault, or AWS Secrets Manager).
+| Control | Implementation |
+|---|---|
+| Session tokens signed with HMAC-SHA256 via Web Crypto | `apps/web/src/lib/auth.ts` (`signSession`, `computeHmacSignature`) |
+| Signature verified with constant-time comparison | `apps/web/src/lib/auth.ts` (`verifySession`) |
+| Session expiry enforced server-side | `apps/web/src/lib/auth.ts` (`expiresAt` check) |
+| Cookies are HttpOnly, SameSite=Lax, Secure in production | `apps/web/src/lib/auth.ts` (`setSessionCookie`) |
+| Plaintext credential comparison avoided | `apps/web/src/lib/auth.ts` (`safeEqual`) |
+| Login endpoint rate limited (brute-force mitigation) | `apps/web/src/app/api/auth/login/route.ts` |
 
-2. **Automated Key Rotation & Git Audits**:
-   - Continuous integration workflows enforce secret scanning prior to deployment.
-   - Any leaked or exposed credential must be immediately invalidated at the provider level and rotated across active deployments.
+### Development authentication is explicitly opt-in
 
----
+Development convenience passwords (`admin123`, the masked placeholder) are accepted
+**only** when `SHOPPAGE_ALLOW_DEV_AUTH=true` is set deliberately, and are **refused
+outright** when `NODE_ENV=production`. Development mode is never inferred from
+`NODE_ENV` being absent. A merchant with no configured secret cannot authenticate at
+all outside dev mode.
 
-## 3. Network Transport & Edge Hardening
-
-* **Strict Transport Security (HSTS)**: All production domains enforce Strict-Transport-Security: max-age=31536000; includeSubDomains; preload.
-* **Cookie & Session Hygiene**: All authentication and CSRF session cookies enforce SameSite=Lax, Secure=True, and HttpOnly flags where applicable.
-* **Header Policies**:
-  - X-Frame-Options: DENY (prevents clickjacking attacks)
-  - X-Content-Type-Options: nosniff (prevents MIME sniffing)
-  - Referrer-Policy: origin-when-cross-origin
-  - Permissions-Policy: camera=(), microphone=(), geolocation=()
-
----
-
-## 4. Architecture & Access Control
-
-* **Headless CMS & Operations Authority**: Powered by Payload CMS 3.0 on Next.js 16 with role-based access control (RBAC) governing merchant and super-admin collections.
-* **0% Take-Rate Isolation**: Shoppage does not process or hold buyer credit cards or merchant payment funds directly in checkout flows (transactions route merchant-buyer directly via WhatsApp or verified merchant POS gateways), minimizing PCI-DSS scope and liability.
-* **Rate Limiting & DoS Mitigation**: Edge and API gateway rate-limiting policies govern search omnibox endpoints and AI inference requests.
+*Implementation:* `apps/web/src/lib/auth.ts` (`isDevAuthEnabled`, `verifyCredentials`)
+*Regression guard:* `apps/web/test/security.test.ts` (WS-1.1 suite)
 
 ---
 
-## 5. Security Updates & Audits
+## 3. Secrets & Credential Management
+
+1. **No hardcoded secrets.** Production secrets, signing keys and API tokens are
+   injected via the deployment platform's encrypted secret store.
+2. **Startup validation.** The server refuses to start under `NODE_ENV=production` if
+   any secret is missing, too short, a known placeholder, shared between merchants, or
+   if dev auth is enabled.
+   *Implementation:* `apps/web/src/server/env-check.ts`
+3. **Automated secret scanning.** CI runs gitleaks on every push and pull request and
+   blocks the build on any finding.
+   *Implementation:* `.github/workflows/deploy.yml`, `.gitleaks.toml`
+4. **Rotation.** Any leaked credential must be invalidated at the provider and rotated
+   across active deployments.
+
+> **Note on git history:** verified 2026-09-10 that `.env.local` was never committed.
+> Only `.env.example` appears in history across all checkpoints. Snapshot rotation is
+> therefore sufficient; no history rewrite is required.
+
+---
+
+## 4. Authorization & Tenant Isolation
+
+| Control | Implementation |
+|---|---|
+| Route guards for `/admin/dashboard` and `/merchant/dashboard` | `apps/web/src/middleware.ts` |
+| Merchant-to-store tenant scoping (cross-tenant reads redirected) | `apps/web/src/middleware.ts` |
+| Cross-tenant writes rejected with 403 | `apps/web/src/app/api/cms/[collection]/route.ts` |
+| Verified session identity propagated to handlers | `apps/web/src/middleware.ts` (`x-auth-user-id`, `x-auth-user-role`) |
+| Platform admin credentials cannot authenticate as a merchant | `apps/web/src/lib/auth.ts` (`verifyCredentials`) |
+
+*Tests:* `apps/web/test/security.test.ts` (tenant isolation + middleware guards)
+
+---
+
+## 5. Network Transport, Edge Hardening & Abuse Control
+
+### HTTP security headers — verified present
+
+*Implementation:* `apps/web/next.config.mjs`
+
+| Header | Value |
+|---|---|
+| Strict-Transport-Security | `max-age=31536000; includeSubDomains; preload` |
+| X-Frame-Options | `DENY` |
+| X-Content-Type-Options | `nosniff` |
+| Referrer-Policy | `origin-when-cross-origin` |
+| Permissions-Policy | `camera=(), microphone=(), geolocation=()` |
+| X-DNS-Prefetch-Control | `on` |
+
+### Rate limiting — verified present
+
+A shared limiter governs public surfaces with per-policy ceilings. Exceeding a limit
+returns `429` with `Retry-After`.
+
+*Implementation:* `apps/web/src/server/rate-limit.ts` (`enforceRateLimit`, `RATE_LIMITS`)
+
+| Surface | Limit |
+|---|---|
+| `/api/search` (LLM-backed) | 20 / min |
+| `/api/assistant` | 20 / min |
+| `/api/v1/search`, `/api/v1/products`, `/api/v1/merchants` | 120 / min |
+| `/api/search/autocomplete` | 240 / min |
+| `/api/auth/login` | 10 / min |
+| `/api/v1/requests` | 20 / min |
+
+> **Limitation:** the limiter is **in-process memory**, so the effective limit is
+> per-instance, not global. It is correct for a single-instance deployment and must be
+> replaced with a Redis-backed implementation before horizontal scaling. Tracked as WS-4B.
+
+---
+
+## 6. Known Gaps
+
+These are **not** mitigated today. They are listed so the posture is not overstated.
+
+| Gap | Impact | Tracking |
+|---|---|---|
+| Rate limiter is per-instance, not distributed | Limits multiply across replicas | WS-4B (Redis) |
+| No WAF or edge DDoS protection evidenced | Volumetric attacks reach the origin | WS-3.4 |
+| No automated dependency/vulnerability scanning in CI | Supply-chain risk unmonitored | WS-6 |
+| No error tracking or structured alerting | Breaches may go unnoticed | WS-3.4 |
+| Merchant authentication is a shared-secret map, not per-user identity | No per-user audit trail; no MFA | Post-launch |
+| No POPIA personal-data audit of the merchant dataset | Sole-trader numbers may be present | WS-2.5 |
+
+---
+
+## 7. Data Governance
+
+Shoppage enforces a **default-deny** source rights register. A data source absent from
+the register cannot be published.
+
+| Control | Implementation |
+|---|---|
+| Source rights register with default-BLOCKED posture | `packages/kernel/src/rights/register.ts` |
+| Read-path enforcement (public search and per-product accessors) | `packages/kernel/src/repository/discovered_offers_store.ts` |
+| AI-path enforcement (`isAiProcessing` excludes non-consenting sources) | `apps/web/src/lib/external_discovery.ts` |
+| Third-party retail catalogues blocked pending agreement | `docs/DATA_RIGHTS_DISPOSITION.md` |
+
+**0% Take-Rate / Zero-Custody:** Shoppage does not process or hold buyer credit-card
+payments or merchant funds. Transactions complete directly between merchant and buyer,
+minimising PCI-DSS scope and transactional liability.
+
+---
+
+## 8. Security Update Log
 
 | Date | Scope | Status |
-| :--- | :--- | :--- |
-| **Q3 2026** | Secret sanitization, HTTP security headers, CI quality test gates | **Enforced** |
-| **Q3 2026** | Deprecation of legacy Django backend in favor of Payload CMS 3.0 & @shoppage/kernel | **Completed** |
+|---|---|---|
+| 2026-09-10 | WS-1.1 dev auth bypass removed; WS-1.2 secrets rotated + startup validation; WS-1.3 rate limiting applied to all public surfaces; WS-1.5 gitleaks CI; WS-2 rights register instantiated and enforced; WS-3.1 database integrity verified | **Completed** |
+| Q3 2026 | Secret sanitization, HTTP security headers, CI quality gates | Enforced |
 
-For general inquiries regarding compliance, enterprise verification, or audit reports, contact compliance@shoppage.co.za.
+For compliance, enterprise verification or audit reports, contact
+compliance@shoppage.co.za.

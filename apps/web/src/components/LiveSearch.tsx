@@ -28,6 +28,34 @@ interface AutocompleteMall {
   storeCount: number;
 }
 
+/** Inline icons — emoji glyphs could not inherit colour, size or weight. */
+function SearchIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" className={className}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="M20 20l-3.5-3.5" />
+    </svg>
+  );
+}
+
+function PinIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={className}>
+      <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z" />
+      <circle cx="12" cy="10" r="2.5" />
+    </svg>
+  );
+}
+
+function BoxIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={className}>
+      <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z" />
+      <path d="M3 8l9 5 9-5M12 13v8" />
+    </svg>
+  );
+}
+
 export default function LiveSearch() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -136,137 +164,99 @@ export default function LiveSearch() {
     setOpen(false);
   };
 
+  const hasResults = products.length > 0 || malls.length > 0 || merchants.length > 0;
+
   return (
-    <div ref={containerRef} style={{ position: 'relative', width: '100%', margin: '0 auto' }}>
+    <div ref={containerRef} className="relative mx-auto w-full">
       <form
         onSubmit={submit}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          background: '#FFFFFF',
-          borderRadius: '24px',
-          border: '1px solid #DFE1E5',
-          boxShadow: open ? '0 4px 16px rgba(32, 33, 36, 0.18)' : '0 1px 6px rgba(32, 33, 36, 0.12)',
-          padding: '0 0.85rem 0 1.25rem',
-          height: '46px',
-          transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-        }}
+        className={[
+          'flex h-[46px] items-center rounded-full border bg-surface pl-5 pr-3.5',
+          'transition duration-200 ease-out-expo',
+          open
+            ? 'border-line-strong shadow-lg'
+            : 'border-line shadow-sm hover:border-line-strong',
+        ].join(' ')}
       >
-        <span style={{ fontSize: '1.1rem', color: '#9AA0A6', marginRight: '0.65rem' }}>🔍</span>
+        <SearchIcon className="mr-2.5 h-4 w-4 shrink-0 text-content-muted" />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onFocus={() => q.trim().length >= 2 && setOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder="Search 1,000,000+ products across 74,000 SA stores & malls..."
-          style={{
-            flex: 1,
-            border: 'none',
-            outline: 'none',
-            background: 'transparent',
-            fontSize: '0.95rem',
-            color: '#1E293B',
-            fontWeight: 500,
-          }}
+          className="min-w-0 flex-1 border-none bg-transparent font-medium text-content outline-none placeholder:text-content-muted"
           aria-label="Search"
           autoComplete="off"
         />
 
-        {/* Right Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
+        {/* Right controls */}
+        <div className="flex shrink-0 items-center gap-1.5">
           {q && (
             <button
               type="button"
               onClick={clearSearch}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#70757A',
-                cursor: 'pointer',
-                fontSize: '0.95rem',
-                padding: '0.2rem 0.4rem',
-              }}
               title="Clear"
+              aria-label="Clear search"
+              className="rounded-md px-1.5 py-0.5 text-content-muted transition-colors hover:text-content"
             >
-              ✕
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-4 w-4">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
             </button>
           )}
 
           <button
             type="submit"
-            style={{
-              background: '#1A73E8',
-              color: '#FFFFFF',
-              border: 'none',
-              borderRadius: '20px',
-              padding: '0.4rem 0.9rem',
-              fontSize: '0.825rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
+            className="rounded-full bg-brand-solid px-3.5 py-1.5 text-xs font-semibold text-white transition duration-200 ease-out-expo hover:bg-brand-solid-hover active:scale-[0.98]"
           >
             Search
           </button>
         </div>
       </form>
 
-      {/* Google Shopping-Style Sub-20ms Dropdown */}
-      {open && (products.length > 0 || malls.length > 0 || merchants.length > 0) && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '52px',
-            left: 0,
-            right: 0,
-            zIndex: 9999,
-            background: '#FFFFFF',
-            borderRadius: '16px',
-            border: '1px solid #DADCE0',
-            boxShadow: '0 12px 32px rgba(0, 0, 0, 0.15)',
-            overflow: 'hidden',
-          }}
-        >
-          {/* Header Telemetry Strip */}
-          <div style={{ padding: '0.55rem 1rem', background: '#F8FAFC', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748B' }}>
-            <span>⚡ LIVE NATIONAL GRID · BEST PRICE FIRST</span>
-            <span>{latencyMs ? `${latencyMs}ms in-process` : 'sub-20ms'}</span>
+      {/* Sub-20ms autocomplete dropdown */}
+      {open && hasResults && (
+        <div className="absolute left-0 right-0 top-[52px] z-[9999] overflow-hidden rounded-xl border border-line bg-surface shadow-xl">
+          {/* Telemetry strip */}
+          <div className="flex items-center justify-between border-b border-line-subtle bg-surface-subtle px-4 py-2 text-xs text-content-muted">
+            <span className="font-medium">Live national grid · best price first</span>
+            <span className="tabular-nums">{latencyMs ? `${latencyMs}ms in-process` : 'sub-20ms'}</span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: malls.length > 0 ? '240px 1fr' : '1fr', maxHeight: '480px', overflowY: 'auto' }}>
-            {/* Left Column: Geolocal Trading Hubs & Malls */}
+          <div
+            className="grid max-h-[480px] overflow-y-auto"
+            style={{ gridTemplateColumns: malls.length > 0 ? '240px 1fr' : '1fr' }}
+          >
+            {/* Left column: malls and trading hubs */}
             {malls.length > 0 && (
-              <div style={{ borderRight: '1px solid #F1F5F9', background: '#FAFAFA', padding: '0.85rem' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', marginBottom: '0.5rem', letterSpacing: '0.04em' }}>
-                  📍 Malls & Trading Hubs
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <div className="border-r border-line-subtle bg-surface-inset p-3.5">
+                <p className="mb-2 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-content-secondary">
+                  <PinIcon className="h-3 w-3" />
+                  Malls &amp; trading hubs
+                </p>
+                <div className="flex flex-col gap-1.5">
                   {malls.map((mall) => (
                     <Link
                       key={mall.id}
                       href={`/malls?q=${encodeURIComponent(mall.name)}`}
                       onClick={() => setOpen(false)}
-                      style={{
-                        padding: '0.45rem 0.6rem',
-                        borderRadius: '8px',
-                        background: '#FFFFFF',
-                        border: '1px solid #E2E8F0',
-                        textDecoration: 'none',
-                        display: 'block',
-                      }}
+                      className="block rounded-lg border border-line bg-surface px-2.5 py-2 transition duration-200 ease-out-expo hover:border-brand-400"
                     >
-                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0F172A' }}>{mall.name}</div>
-                      <div style={{ fontSize: '0.68rem', color: '#64748B' }}>{mall.province} · {mall.storeCount} stores</div>
+                      <div className="text-sm font-semibold text-content">{mall.name}</div>
+                      <div className="text-xs text-content-muted">
+                        {mall.province} · {mall.storeCount} stores
+                      </div>
                     </Link>
                   ))}
                 </div>
 
-                {/* Query suggestions */}
                 {suggestions.length > 1 && (
-                  <div style={{ marginTop: '1rem' }}>
-                    <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
+                  <div className="mt-4">
+                    <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-content-secondary">
                       Suggested
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    </p>
+                    <div className="flex flex-col gap-0.5">
                       {suggestions.slice(1).map((sugg, i) => (
                         <button
                           key={i}
@@ -276,17 +266,10 @@ export default function LiveSearch() {
                             router.push(`/search?q=${encodeURIComponent(sugg)}`);
                             setOpen(false);
                           }}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            textAlign: 'left',
-                            fontSize: '0.78rem',
-                            color: '#1A73E8',
-                            padding: '0.2rem 0',
-                            cursor: 'pointer',
-                          }}
+                          className="flex items-center gap-1.5 py-0.5 text-left text-xs text-brand-ink transition-colors hover:text-brand-700"
                         >
-                          🔍 {sugg}
+                          <SearchIcon className="h-3 w-3 shrink-0" />
+                          {sugg}
                         </button>
                       ))}
                     </div>
@@ -295,8 +278,8 @@ export default function LiveSearch() {
               </div>
             )}
 
-            {/* Main Column: In-Stock Canonical Products */}
-            <div style={{ padding: '0.5rem 0' }}>
+            {/* Main column: in-stock products */}
+            <div className="py-2">
               {products.map((item, idx) => {
                 const isSelected = idx === selectedIndex;
                 return (
@@ -304,74 +287,58 @@ export default function LiveSearch() {
                     key={item.canonicalId}
                     href={`/p/${item.canonicalId}`}
                     onClick={() => setOpen(false)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.85rem',
-                      padding: '0.65rem 1rem',
-                      background: isSelected ? '#F1F5F9' : 'transparent',
-                      textDecoration: 'none',
-                      borderBottom: '1px solid #F8FAFC',
-                      transition: 'background 0.1s ease',
-                    }}
-                    className="hover:bg-slate-50"
+                    className={[
+                      'flex items-center gap-3.5 border-b border-line-subtle px-4 py-2.5',
+                      'transition-colors duration-100',
+                      isSelected ? 'bg-surface-subtle' : 'hover:bg-surface-subtle',
+                    ].join(' ')}
                   >
-                    {/* Packshot Image */}
-                    <div
-                      style={{
-                        width: '48px',
-                        height: '48px',
-                        borderRadius: '8px',
-                        background: '#FFFFFF',
-                        border: '1px solid #E2E8F0',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        overflow: 'hidden',
-                        flexShrink: 0,
-                        padding: '0.2rem',
-                      }}
-                    >
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-line bg-surface p-0.5">
                       {item.image ? (
-                        <img src={item.image} alt={item.title} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                        <img src={item.image} alt="" className="max-h-full max-w-full object-contain" />
                       ) : (
-                        <span style={{ fontSize: '1.25rem' }}>📦</span>
+                        <BoxIcon className="h-5 w-5 text-content-muted" />
                       )}
                     </div>
 
-                    {/* Product Details */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.1rem' }}>
-                        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#137333', background: '#E6F4EA', padding: '1px 4px', borderRadius: '3px' }}>
-                          IN STOCK
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-0.5 flex items-center gap-1.5">
+                        <span className="rounded bg-brand-50 px-1 py-0.5 text-[10px] font-semibold text-brand-700">
+                          In stock
                         </span>
-                        <span style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 600 }}>{item.brand}</span>
+                        <span className="text-xs font-medium text-content-muted">{item.brand}</span>
                       </div>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {item.title}
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginTop: '0.15rem' }}>
-                        <span style={{ fontSize: '0.925rem', fontWeight: 800, color: '#0F172A' }}>
+                      <div className="truncate text-sm font-semibold text-content">{item.title}</div>
+                      <div className="mt-0.5 flex items-baseline gap-2">
+                        <span className="text-sm font-bold tabular-nums text-content">
                           R {item.priceZar ? item.priceZar.toLocaleString('en-ZA') : 'Quote'}
                         </span>
-                        <span style={{ fontSize: '0.72rem', color: '#1A73E8' }}>
+                        <span className="text-xs text-brand-ink">
                           · {item.offersCount} store offer{item.offersCount === 1 ? '' : 's'}
                         </span>
                       </div>
                     </div>
 
-                    {/* Arrow CTA */}
-                    <div style={{ color: '#94A3B8', fontSize: '1rem', flexShrink: 0 }}>→</div>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="h-4 w-4 shrink-0 text-content-muted">
+                      <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
                   </Link>
                 );
               })}
             </div>
           </div>
 
-          {/* Footer Bar */}
-          <div style={{ padding: '0.6rem 1rem', background: '#F8FAFC', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#64748B' }}>
-            <span>Press <strong>Enter</strong> for complete 5-column Google Shopping grid</span>
-            <Link href={`/search?q=${encodeURIComponent(q)}`} onClick={() => setOpen(false)} style={{ color: '#1A73E8', fontWeight: 700, textDecoration: 'none' }}>
+          {/* Footer */}
+          <div className="flex items-center justify-between border-t border-line bg-surface-subtle px-4 py-2.5 text-xs text-content-muted">
+            <span>
+              Press <strong className="font-semibold text-content-secondary">Enter</strong> for the full
+              shopping grid
+            </span>
+            <Link
+              href={`/search?q=${encodeURIComponent(q)}`}
+              onClick={() => setOpen(false)}
+              className="font-semibold text-brand-ink transition-colors hover:text-brand-700"
+            >
               View all results →
             </Link>
           </div>

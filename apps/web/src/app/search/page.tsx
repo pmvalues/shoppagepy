@@ -28,7 +28,7 @@ export default async function SearchPage({
   const isShoppingMode = currentTab === 'shopping';
 
   return (
-    <div style={{ background: '#FFFFFF', minHeight: '100vh', color: '#202124' }}>
+    <div style={{ background: 'var(--color-surface)', minHeight: '100vh', color: 'var(--color-content)' }}>
       {/* Top Google/Shoppage SERP Header Bar */}
       <GoogleHeader currentQuery={resolvedSearchParams.q || ''} currentTab={currentTab} />
 

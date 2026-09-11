@@ -63,7 +63,7 @@ export default function PeopleAlsoSearch({ query = 'solar' }: { query?: string }
 
   return (
     <section style={{ marginBottom: '3.5rem' }}>
-      <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#202124', marginBottom: '1rem' }}>
+      <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-content)', marginBottom: '1rem' }}>
         People also search for
       </h3>
 
@@ -76,18 +76,18 @@ export default function PeopleAlsoSearch({ query = 'solar' }: { query?: string }
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              background: '#F1F3F4',
+              background: 'var(--color-surface-subtle)',
               borderRadius: '24px',
               padding: '0.85rem 1.25rem',
               textDecoration: 'none',
-              color: '#202124',
+              color: 'var(--color-content)',
               fontSize: '0.925rem',
               fontWeight: 500,
               transition: 'background 0.15s',
             }}
           >
             <span>{label}</span>
-            <span style={{ color: '#70757A', fontSize: '0.9rem' }}>🔍</span>
+            <span style={{ color: 'var(--color-content-muted)', fontSize: '0.9rem' }}>🔍</span>
           </Link>
         ))}
       </div>

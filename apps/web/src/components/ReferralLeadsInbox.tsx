@@ -35,7 +35,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const STATUS_COLOR: Record<string, string> = {
-  new: '#2563EB',
+  new: 'var(--color-brand-solid)',
   responded: '#D97706',
   resolved: '#059669',
   closed: '#64748B',
@@ -91,57 +91,57 @@ export default function ReferralLeadsInbox({ merchantId }: { merchantId: string 
     <div style={{ marginBottom: '1.5rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
         <div>
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#2C3338' }}>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: 'var(--color-content)' }}>
             Referral Leads Inbox
           </h3>
-          <div style={{ fontSize: '0.78rem', color: '#646970', marginTop: '0.15rem' }}>
+          <div style={{ fontSize: '0.78rem', color: 'var(--color-content-muted)', marginTop: '0.15rem' }}>
             Real buyer intent routed to your store. Shoppage refers — you own the sale.
           </div>
         </div>
         {newCount > 0 && (
-          <span style={{ background: '#ECFDF5', color: '#059669', borderRadius: '999px', padding: '0.25rem 0.75rem', fontSize: '0.75rem', fontWeight: 800 }}>
+          <span style={{ background: 'var(--color-brand-50)', color: 'var(--color-brand-ink)', borderRadius: '999px', padding: '0.25rem 0.75rem', fontSize: '0.75rem', fontWeight: 800 }}>
             {newCount} new
           </span>
         )}
       </div>
 
       {loading ? (
-        <div style={{ padding: '1.5rem', textAlign: 'center', color: '#646970', fontSize: '0.85rem' }}>Loading leads...</div>
+        <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--color-content-muted)', fontSize: '0.85rem' }}>Loading leads...</div>
       ) : error ? (
-        <div style={{ padding: '1rem', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '8px', color: '#B91C1C', fontSize: '0.85rem' }}>{error}</div>
+        <div style={{ padding: '1rem', background: 'var(--color-danger-50)', border: '1px solid var(--color-danger-200)', borderRadius: '8px', color: 'var(--color-danger-ink)', fontSize: '0.85rem' }}>{error}</div>
       ) : leads.length === 0 ? (
-        <div style={{ padding: '1.25rem', textAlign: 'center', color: '#646970', fontSize: '0.85rem', background: '#F8FAFC', borderRadius: '8px', border: '1px dashed #CBD5E1' }}>
+        <div style={{ padding: '1.25rem', textAlign: 'center', color: 'var(--color-content-muted)', fontSize: '0.85rem', background: 'var(--color-surface-subtle)', borderRadius: '8px', border: '1px dashed var(--color-line-strong)' }}>
           No referral leads yet. When buyers start WhatsApp conversations, RFQs or direction requests from Shoppage, they appear here.
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
           {leads.slice(0, 20).map((lead) => (
-            <div key={lead.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0.85rem 1rem', display: 'flex', justifyContent: 'space-between', gap: '0.75rem', alignItems: 'flex-start' }}>
+            <div key={lead.id} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-line)', borderRadius: '8px', padding: '0.85rem 1rem', display: 'flex', justifyContent: 'space-between', gap: '0.75rem', alignItems: 'flex-start' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#2C3338' }}>{lead.buyerName}</span>
-                  <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{timeAgo(lead.createdAt)}</span>
-                  <span style={{ fontSize: '0.7rem', background: '#F1F5F9', borderRadius: '4px', padding: '0.1rem 0.4rem', color: '#475569' }}>{lead.intentAction.toUpperCase()}</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-content)' }}>{lead.buyerName}</span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--color-content-muted)' }}>{timeAgo(lead.createdAt)}</span>
+                  <span style={{ fontSize: '0.7rem', background: 'var(--color-surface-subtle)', borderRadius: '4px', padding: '0.1rem 0.4rem', color: 'var(--color-content-secondary)' }}>{lead.intentAction.toUpperCase()}</span>
                 </div>
-                <div style={{ fontSize: '0.8rem', color: '#475569', marginTop: '0.25rem', lineHeight: 1.4 }}>{lead.productSummary}</div>
-                {lead.buyerPhone && <div style={{ fontSize: '0.72rem', color: '#94A3B8', marginTop: '0.2rem' }}>📱 {lead.buyerPhone}</div>}
+                <div style={{ fontSize: '0.8rem', color: 'var(--color-content-secondary)', marginTop: '0.25rem', lineHeight: 1.4 }}>{lead.productSummary}</div>
+                {lead.buyerPhone && <div style={{ fontSize: '0.72rem', color: 'var(--color-content-muted)', marginTop: '0.2rem' }}>📱 {lead.buyerPhone}</div>}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.35rem' }}>
-                <span style={{ fontSize: '0.72rem', fontWeight: 800, color: STATUS_COLOR[lead.status] || '#475569' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 800, color: STATUS_COLOR[lead.status] || 'var(--color-content-secondary)' }}>
                   {STATUS_LABEL[lead.status] || lead.status}
                 </span>
                 <div style={{ display: 'flex', gap: '0.3rem' }}>
                   <button
                     onClick={() => setStatus(lead.id, 'responded')}
                     disabled={lead.status === 'responded' || lead.status === 'resolved'}
-                    style={{ fontSize: '0.68rem', padding: '0.25rem 0.5rem', borderRadius: '6px', border: '1px solid #D97706', color: '#D97706', background: '#FFFBEB', cursor: lead.status === 'new' ? 'pointer' : 'not-allowed' }}
+                    style={{ fontSize: '0.68rem', padding: '0.25rem 0.5rem', borderRadius: '6px', border: '1px solid var(--color-warning-500)', color: 'var(--color-warning-ink)', background: 'var(--color-warning-50)', cursor: lead.status === 'new' ? 'pointer' : 'not-allowed' }}
                   >
                     Responded
                   </button>
                   <button
                     onClick={() => setStatus(lead.id, 'resolved')}
                     disabled={lead.status === 'resolved'}
-                    style={{ fontSize: '0.68rem', padding: '0.25rem 0.5rem', borderRadius: '6px', border: '1px solid #059669', color: '#059669', background: '#ECFDF5', cursor: lead.status === 'resolved' ? 'not-allowed' : 'pointer' }}
+                    style={{ fontSize: '0.68rem', padding: '0.25rem 0.5rem', borderRadius: '6px', border: '1px solid var(--color-brand-solid)', color: 'var(--color-brand-ink)', background: 'var(--color-brand-50)', cursor: lead.status === 'resolved' ? 'not-allowed' : 'pointer' }}
                   >
                     Resolved
                   </button>

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import {
   signSession,
   verifySession,
@@ -90,27 +90,127 @@ describe('P0 Security Hardening: Server-Side Cryptographic Session Layer', () =>
     expect(session?.merchantId).toBe('loc_mitrend_midrand');
   });
 
-  it('authenticates superadmin with password or dev placeholder', () => {
-    process.env.SHOPPAGE_ADMIN_PASSWORD = 'admin123';
+  it('authenticates superadmin with the configured password', () => {
+    process.env.SHOPPAGE_ADMIN_PASSWORD = 'a-real-strong-admin-password';
     process.env.SHOPPAGE_ADMIN_EMAIL = 'admin@shoppage.co.za';
 
-    const s1 = verifyCredentials('admin@shoppage.co.za', 'admin123', 'superadmin');
+    const s1 = verifyCredentials('admin@shoppage.co.za', 'a-real-strong-admin-password', 'superadmin');
     expect(s1).not.toBeNull();
     expect(s1?.role).toBe('superadmin');
-
-    const s2 = verifyCredentials('admin@shoppage.co.za', '••••••••••••', 'superadmin');
-    expect(s2).not.toBeNull();
-    expect(s2?.role).toBe('superadmin');
 
     const s3 = verifyCredentials('admin@shoppage.co.za', 'wrong_pass', 'superadmin');
     expect(s3).toBeNull();
   });
+});
 
-  it('authenticates merchant with quick-login placeholder dots in dev', () => {
-    const s = verifyCredentials('sales@mitrend.co.za', '••••••••••••', 'merchant_owner', 'loc_mitrend_midrand');
+// =============================================================================
+// WS-1.1 REGRESSION GUARD — the development auth bypass (P0)
+// =============================================================================
+// The original suite asserted that `admin123` and the dot placeholder were ACCEPTED,
+// which locked in an open platform whenever NODE_ENV was not exactly 'production'.
+// These tests now assert the opposite so the hole cannot silently return.
+describe('WS-1.1 Regression: development auth bypass is closed', () => {
+  const ORIGINAL_ENV = { ...process.env };
+
+  /** process.env.NODE_ENV is typed readonly; this is the sanctioned way to set it in tests. */
+  function setNodeEnv(value: string | undefined) {
+    (process.env as Record<string, string | undefined>).NODE_ENV = value;
+  }
+
+  afterEach(() => {
+    process.env = { ...ORIGINAL_ENV };
+  });
+
+  it('refuses the placeholder password when NODE_ENV is unset and dev auth is off', () => {
+    // This is the exact production-danger case: `next start` with no NODE_ENV.
+    setNodeEnv(undefined);
+    delete process.env.SHOPPAGE_ALLOW_DEV_AUTH;
+    process.env.SHOPPAGE_AUTH_SECRET = 'a'.repeat(40);
+    process.env.SHOPPAGE_ADMIN_PASSWORD = 'a-real-strong-admin-password';
+    process.env.SHOPPAGE_ADMIN_EMAIL = 'admin@shoppage.co.za';
+
+    expect(verifyCredentials('admin@shoppage.co.za', '••••••••••••', 'superadmin')).toBeNull();
+    expect(verifyCredentials('admin@shoppage.co.za', 'admin123', 'superadmin')).toBeNull();
+  });
+
+  it('refuses ANY password for a merchant with no configured secret when dev auth is off', () => {
+    // Previously this fell through to `isDev` and accepted everything.
+    setNodeEnv(undefined);
+    delete process.env.SHOPPAGE_ALLOW_DEV_AUTH;
+    delete process.env.SHOPPAGE_MERCHANT_SECRET_LOC_UNCONFIGURED_STORE;
+    process.env.SHOPPAGE_AUTH_SECRET = 'a'.repeat(40);
+
+    expect(
+      verifyCredentials('anyone@example.co.za', 'literally-anything', 'merchant_owner', 'loc_unconfigured_store')
+    ).toBeNull();
+    expect(
+      verifyCredentials('anyone@example.co.za', 'admin123', 'merchant_owner', 'loc_unconfigured_store')
+    ).toBeNull();
+  });
+
+  it('refuses placeholder passwords in production even if the dev flag is set', () => {
+    setNodeEnv('production');
+    process.env.SHOPPAGE_ALLOW_DEV_AUTH = 'true';
+    process.env.SHOPPAGE_AUTH_SECRET = 'a'.repeat(40);
+    process.env.SHOPPAGE_ADMIN_PASSWORD = 'a-real-strong-admin-password';
+
+    expect(verifyCredentials('admin@shoppage.co.za', '••••••••••••', 'superadmin')).toBeNull();
+    expect(verifyCredentials('admin@shoppage.co.za', 'admin123', 'superadmin')).toBeNull();
+  });
+
+  it('throws when production is configured with a short or placeholder auth secret', async () => {
+    setNodeEnv('production');
+    process.env.SHOPPAGE_AUTH_SECRET = 'short';
+
+    await expect(signSession({
+      userId: 'u', email: 'e@x.co.za', role: 'superadmin',
+      issuedAt: Date.now(), expiresAt: Date.now() + 1000,
+    })).rejects.toThrow(/at least 32 characters/);
+  });
+
+  it('throws when the production auth secret is a known placeholder', async () => {
+    setNodeEnv('production');
+    // Long enough to clear the length check (still non-ASCII-free, still weak).
+    process.env.SHOPPAGE_AUTH_SECRET = 'changeme'.padEnd(40, 'changeme');
+
+    await expect(signSession({
+      userId: 'u', email: 'e@x.co.za', role: 'superadmin',
+      issuedAt: Date.now(), expiresAt: Date.now() + 1000,
+    })).rejects.toThrow(/placeholder|low-entropy/);
+  });
+
+  it('still allows explicit opt-in dev auth to work for local development', () => {
+    setNodeEnv('development');
+    process.env.SHOPPAGE_ALLOW_DEV_AUTH = 'true';
+    process.env.SHOPPAGE_AUTH_SECRET = 'a'.repeat(40);
+    process.env.SHOPPAGE_ADMIN_PASSWORD = 'a-real-strong-admin-password';
+    process.env.SHOPPAGE_ADMIN_EMAIL = 'admin@shoppage.co.za';
+
+    const s = verifyCredentials('admin@shoppage.co.za', '••••••••••••', 'superadmin');
     expect(s).not.toBeNull();
-    expect(s?.merchantId).toBe('loc_mitrend_midrand');
-    expect(s?.role).toBe('merchant_owner');
+    expect(s?.role).toBe('superadmin');
+
+    const m = verifyCredentials('dev@store.co.za', '••••••••••••', 'merchant_owner', 'loc_mitrend_midrand');
+    expect(m).not.toBeNull();
+    expect(m?.merchantId).toBe('loc_mitrend_midrand');
+  });
+
+  it('prevents the platform admin password from authenticating as a merchant', () => {
+    setNodeEnv('production');
+    process.env.SHOPPAGE_AUTH_SECRET = 'a'.repeat(40);
+    process.env.SHOPPAGE_ADMIN_PASSWORD = 'shared-secret-value-1234';
+    process.env.SHOPPAGE_ADMIN_EMAIL = 'admin@shoppage.co.za';
+    process.env.SHOPPAGE_MERCHANT_SECRET_LOC_TEST_STORE = 'a-different-merchant-secret';
+
+    // Reusing the platform admin password on a merchant login must fail.
+    expect(
+      verifyCredentials('admin@shoppage.co.za', 'shared-secret-value-1234', 'merchant_owner', 'loc_test_store')
+    ).toBeNull();
+
+    // The merchant's own secret works.
+    const ok = verifyCredentials('owner@store.co.za', 'a-different-merchant-secret', 'merchant_owner', 'loc_test_store');
+    expect(ok).not.toBeNull();
+    expect(ok?.merchantId).toBe('loc_test_store');
   });
 });
 

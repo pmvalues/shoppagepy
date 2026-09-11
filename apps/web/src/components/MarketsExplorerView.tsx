@@ -94,7 +94,7 @@ export default function MarketsExplorerView({
             padding: '0.85rem 1.25rem',
             borderRadius: '9999px',
             fontSize: '0.95rem',
-            border: '1.5px solid #CBD5E1',
+            border: '1.5px solid var(--color-line-strong)',
           }}
         />
 
@@ -107,11 +107,11 @@ export default function MarketsExplorerView({
           style={{
             padding: '0.85rem 1.25rem',
             borderRadius: '9999px',
-            border: '1.5px solid #CBD5E1',
-            background: '#FFFFFF',
+            border: '1.5px solid var(--color-line-strong)',
+            background: 'var(--color-surface)',
             fontWeight: 700,
             fontSize: '0.88rem',
-            color: '#0F172A',
+            color: 'var(--color-content)',
             cursor: 'pointer',
           }}
         >
@@ -151,12 +151,12 @@ export default function MarketsExplorerView({
       </div>
 
       {/* Showing Count */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', color: '#64748B', fontSize: '0.85rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', color: 'var(--color-content-muted)', fontSize: '0.85rem' }}>
         <span>Showing <strong>{filteredMarkets.length.toLocaleString()}</strong> active trading markets (Page {page} of {totalPages || 1})</span>
         {searchQuery && (
           <button
             onClick={() => setSearchQuery('')}
-            style={{ background: 'none', border: 'none', color: '#2563EB', fontWeight: 700, cursor: 'pointer' }}
+            style={{ background: 'none', border: 'none', color: 'var(--color-brand-ink)', fontWeight: 700, cursor: 'pointer' }}
           >
             Clear Search Filter
           </button>
@@ -182,8 +182,8 @@ export default function MarketsExplorerView({
                 justifyContent: 'space-between',
                 borderRadius: '16px',
                 padding: '1.5rem',
-                border: isCommunityGroup ? '1.5px solid #C7D2FE' : isVirtual ? '1.5px solid #BFDBFE' : '1px solid #E2E8F0',
-                background: isCommunityGroup ? 'linear-gradient(180deg, #FFFFFF 0%, #EEF2FF 100%)' : isVirtual ? 'linear-gradient(180deg, #F8FAFC 0%, #EFF6FF 100%)' : '#FFFFFF',
+                border: isCommunityGroup ? '1.5px solid var(--color-brand-200)' : isVirtual ? '1.5px solid var(--color-brand-200)' : '1px solid var(--color-line)',
+                background: isCommunityGroup ? 'linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface-subtle) 100%)' : isVirtual ? 'linear-gradient(180deg, var(--color-surface-subtle) 0%, var(--color-surface) 100%)' : 'var(--color-surface)',
               }}
             >
               <div>
@@ -192,12 +192,12 @@ export default function MarketsExplorerView({
                   <span className={`badge ${isCommunityGroup ? 'badge-purple' : isVirtual ? 'badge-blue' : 'badge-green'}`} style={{ fontSize: '0.68rem', fontWeight: 800 }}>
                     {isCommunityGroup ? '👥 COMMUNITY TRADING GROUP' : market.marketType.replace(/_/g, ' ').toUpperCase()}
                   </span>
-                  <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-content-muted)', fontWeight: 600 }}>
                     {market.province}
                   </span>
                 </div>
 
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '0.5rem', lineHeight: 1.3, color: '#0F172A' }}>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '0.5rem', lineHeight: 1.3, color: 'var(--color-content)' }}>
                   <Link href={`/market/${market.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
                     {market.name}
                   </Link>
@@ -206,10 +206,10 @@ export default function MarketsExplorerView({
                 {/* Community Metrics Pills */}
                 {isCommunityGroup && (
                   <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-                    <span style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 800 }}>
+                    <span style={{ background: 'var(--color-brand-50)', color: 'var(--color-brand-700)', border: '1px solid var(--color-brand-200)', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 800 }}>
                       👥 {memberCount.toLocaleString()} Members
                     </span>
-                    <span style={{ background: '#ECFDF5', color: '#059669', border: '1px solid #A7F3D0', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 800 }}>
+                    <span style={{ background: 'var(--color-brand-50)', color: 'var(--color-brand-ink)', border: '1px solid var(--color-brand-200)', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 800 }}>
                       🔥 {dailyPosts} Trades/Day
                     </span>
                   </div>
@@ -217,20 +217,20 @@ export default function MarketsExplorerView({
 
                 {/* Description / Location */}
                 {market.geo && (
-                  <p style={{ fontSize: '0.825rem', color: '#64748B', marginBottom: '0.75rem', lineHeight: 1.4 }}>
+                  <p style={{ fontSize: '0.825rem', color: 'var(--color-content-muted)', marginBottom: '0.75rem', lineHeight: 1.4 }}>
                     📍 {market.geo.streetAddress}
                   </p>
                 )}
 
                 {market.virtualMeta && (
-                  <p style={{ fontSize: '0.825rem', color: '#475569', marginBottom: '0.75rem', lineHeight: 1.5 }}>
+                  <p style={{ fontSize: '0.825rem', color: 'var(--color-content-secondary)', marginBottom: '0.75rem', lineHeight: 1.5 }}>
                     🌐 {market.virtualMeta.operationalModel}
                   </p>
                 )}
               </div>
 
               {/* Action Buttons & Follow Controls */}
-              <div style={{ marginTop: '1.25rem', paddingTop: '0.85rem', borderTop: '1px solid #E2E8F0' }}>
+              <div style={{ marginTop: '1.25rem', paddingTop: '0.85rem', borderTop: '1px solid var(--color-line)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                   <button
                     onClick={() => toggleFollow(market.id)}
@@ -238,9 +238,9 @@ export default function MarketsExplorerView({
                     style={{
                       borderRadius: '8px',
                       fontWeight: 700,
-                      background: isFollowing ? '#ECFDF5' : '#FFFFFF',
-                      color: isFollowing ? '#059669' : '#0F172A',
-                      border: isFollowing ? '1px solid #A7F3D0' : '1px solid #CBD5E1',
+                      background: isFollowing ? 'var(--color-brand-50)' : 'var(--color-surface)',
+                      color: isFollowing ? 'var(--color-brand-ink)' : 'var(--color-content)',
+                      border: isFollowing ? '1px solid var(--color-brand-200)' : '1px solid var(--color-line-strong)',
                       cursor: 'pointer',
                     }}
                   >
@@ -272,8 +272,8 @@ export default function MarketsExplorerView({
                       rel="noopener noreferrer"
                       className="btn btn-sm"
                       style={{
-                        background: '#1877F2',
-                        color: '#FFFFFF',
+                        background: 'var(--color-facebook-solid)',
+                        color: 'var(--color-on-solid)',
                         border: 'none',
                         borderRadius: '8px',
                         fontWeight: 700,
@@ -291,8 +291,8 @@ export default function MarketsExplorerView({
                     href={`/market/${market.id}`}
                     className="btn btn-sm"
                     style={{
-                      background: '#10B981',
-                      color: '#FFFFFF',
+                      background: 'var(--color-brand-solid)',
+                      color: 'var(--color-on-solid)',
                       border: 'none',
                       borderRadius: '8px',
                       fontWeight: 700,
@@ -322,7 +322,7 @@ export default function MarketsExplorerView({
           >
             &larr; Previous Page
           </button>
-          <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 700, padding: '0 0.5rem' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--color-content-muted)', fontWeight: 700, padding: '0 0.5rem' }}>
             Page {page} of {totalPages}
           </span>
           <button

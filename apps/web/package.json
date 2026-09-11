@@ -9,19 +9,21 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@shoppage/adapters": "*",
     "@shoppage/contracts": "*",
     "@shoppage/kernel": "*",
-    "@shoppage/adapters": "*",
     "next": "^16.3.3",
+    "payload": "^3.88.0",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "payload": "^3.88.0"
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@shoppage/config": "*",
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20.14.11",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "tailwindcss": "^4.3.3",
     "typescript": "^5.5.4",
     "vitest": "^2.0.5"
   }

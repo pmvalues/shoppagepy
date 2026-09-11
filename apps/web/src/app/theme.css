@@ -1,0 +1,677 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   SHOPPAGE DESIGN SYSTEM v5.0 — SINGLE SOURCE OF TRUTH
+
+   This file replaces the two competing token layers that previously shipped
+   (globals.css "National Grid" v4.0 and feed.css "Commercial Discovery").
+   Both of those are retained below as *consumers* of these tokens so the
+   existing routes keep rendering while components migrate to utilities.
+
+   Brand decision (Maga, 2026-09-11):
+     · Emerald is the base — brand identity and primary calls to action.
+     · Lime is the accent — reserved strictly for live and savings signals.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@import 'tailwindcss';
+
+/* The app toggles themes via a data-theme attribute on <html>/<body>, not via
+   the OS preference alone, so map Tailwind's dark: variant onto that attribute. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+@custom-variant dim (&:where([data-theme='dim'], [data-theme='dim'] *));
+
+/* Explicit content sources — the monorepo root is outside this workspace. */
+@source '../components';
+@source '../app';
+@source '../lib';
+
+/* `static` emits every token to :root, including ones no utility currently
+   references. The legacy alias layer in globals.css/feed.css resolves through
+   these variables, so they must exist regardless of what Tailwind prunes. */
+@theme static {
+  /* ── Brand: emerald base ────────────────────────────────────────────── */
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+  --color-brand-900: #064e3b;
+  --color-brand-950: #022c22;
+
+  /* ── Accent: lime signal. Live states, savings, the one high-energy CTA. ─ */
+  --color-signal-100: #f2fdd4;
+  --color-signal-200: #e3fbaa;
+  --color-signal-300: #d5f878;
+  --color-signal-400: #c6f24e;
+  --color-signal-500: #b4e533;
+  --color-signal-600: #96c61f;
+  --color-signal-ink: #0b0f14;
+
+  /* ── Neutrals: cool graphite. Ordered dark to light in both themes. ───── */
+  --color-ink-50: #f7f8fa;
+  --color-ink-100: #eff1f5;
+  --color-ink-200: #e2e6ed;
+  --color-ink-300: #cbd2de;
+  --color-ink-400: #94a0b4;
+  --color-ink-500: #64708a;
+  --color-ink-600: #48546b;
+  --color-ink-700: #2c3648;
+  --color-ink-800: #18202e;
+  --color-ink-900: #0b0f14;
+  --color-ink-950: #05080c;
+
+  /* ── Semantic status ────────────────────────────────────────────────── */
+  --color-deal-500: #ff6b1a;
+  --color-deal-600: #e85d0a;
+  --color-live-500: #ff3b5c;
+  --color-whatsapp-500: #25d366;
+  --color-whatsapp-600: #20ba56;
+  /* WhatsApp brand green measures 1.98:1 against white — unusable as a fill that
+     carries white text. `solid` is the hue darkened to 5.27:1, which is what
+     .btn-whatsapp and the market WhatsApp CTAs must use. */
+  --color-whatsapp-solid: #107c41;
+  /* Third-party brand marks. These are fixed identities, not theme surfaces —
+     Facebook blue must stay Facebook blue in every theme. */
+  --color-facebook-500: #1877f2;
+  /* Facebook role tokens. The raw brand blue (#1877F2) measures 4.23:1 on white
+     and 4.13:1 on obsidian — under AA for text. `ink` is the hue shifted just
+     far enough to clear 4.5:1 (5.27:1 light, 7.72:1 dark); `solid` is the fill
+     variant that carries white text (5.27:1). */
+  --color-facebook-ink: #1668d6;
+  --color-facebook-solid: #1668d6;
+  --color-x-500: #1d9bf0;
+  --color-danger-500: #e5484d;
+  --color-warning-500: #f59e0b;
+
+  /* ── Surfaces: warm paper in light, obsidian in dark. ───────────────── */
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-surface-subtle: #f3f1ee;
+  --color-surface-inset: #f7f6f4;
+  --color-page: #faf9f7;
+
+  --color-line: #e6e3de;
+  --color-line-subtle: #f0eeea;
+  --color-line-strong: #d4cfc8;
+
+  --color-content: #0b0f14;
+  --color-content-secondary: #48546b;
+  /* Muted text is used on TINTED surfaces, not just white — `.pnote` and
+     `.prow .old` sit on --color-surface-subtle (#f3f1ee) and `.chip-cat` on a
+     translucent --elev that composites to ~#e7e7e7. At #64708a that measured
+     4.41:1 and 4.02:1 — both under AA for 13-14px text. Darkened to clear the
+     darker of the two surfaces while staying clearly recessive. */
+  --color-content-muted: #5a6478;
+  /* Muted text sitting on an INVERSE surface (background: var(--color-content)).
+     That surface is #0b0f14 in light mode and #f5f7fa in dark mode — inverted
+     relative to a normal page — so the ordinary muted token is mid-tone against
+     both and fails both ways (3.23:1 and 3.32:1). No single value can satisfy
+     both backgrounds (the required luminance ranges do not overlap), so this
+     twin flips harder than the surface it sits on: light-on-dark in light mode,
+     dark-on-light in dark mode. */
+  --color-content-muted-inverse: #94a3b8;
+  /* Same problem for the brand and info hues when used as TEXT on an inverse
+     surface: light-on-dark here, dark-on-light in the dark block. */
+  --color-brand-ink-inverse: #6ee7b7;
+  --color-info-ink-inverse: #7dd3fc;
+  --color-content-inverse: #ffffff;
+
+  /* Text that sits on a FIXED light accent surface (amber sponsored badge,
+     lime savings badge). These surfaces do not flip with the theme, so their
+     foreground must not either — this token is intentionally never overridden
+     in the dark/dim blocks. */
+  --color-on-accent: #0b0f14;
+
+  /* ── Product studio stage ───────────────────────────────────────────────
+     The stage is a product-photography surface and is deliberately FIXED
+     LIGHT in every theme. This is the same convention Amazon, Takealot and
+     Shopify use in dark mode: product imagery reads best on a neutral light
+     backdrop. It is also a hard constraint here — the category illustrations
+     are painted against this stage, and the navy lithium battery and
+     near-black smartphone lose their silhouette entirely if it inverts.
+     Treat it like the video chrome in ShortsRail: stable by design.
+
+     Consequently these tokens are NEVER overridden in the dark/dim blocks. */
+  --color-stage-base: #ffffff;
+  --color-stage-solar: #f0fdf4;
+  --color-stage-solar-deep: #e6f7f0;
+  --color-stage-tech: #eef2ff;
+  --color-stage-tech-deep: #e0e7ff;
+  --color-stage-hardware: #fffbeb;
+  --color-stage-hardware-deep: #f5f5f4;
+  --color-stage-neutral: #f8fafc;
+  --color-stage-neutral-deep: #edf2f7;
+  --color-stage-grid: rgb(15 23 42 / 0.035);
+  --color-stage-glow-solar: rgb(16 185 129 / 0.12);
+  --color-stage-glow-tech: rgb(99 102 241 / 0.12);
+  --color-stage-glow-amber: rgb(245 158 11 / 0.1);
+  --color-stage-watermark: #94a3b8;
+  /* A soft hairline that reads correctly on the white tile in both themes.
+     `--color-line` would flip to a dark edge in dark mode, which reads as a
+     hard outline around a light tile rather than a subtle one. */
+  --color-stage-edge: rgb(15 23 42 / 0.08);
+
+  /* ── Intentionally-dark surfaces ────────────────────────────────────────
+     Immersive surfaces that stay dark in EVERY theme by design: the shorts
+     feed, the shows player and the admin operations dashboard. A video feed
+     that turns white because the OS is in light mode is a bug, not a
+     feature, so these are FIXED and are never overridden in dark/dim.
+
+     Previously each of those pages picked its own near-black — #090D16 on
+     the admin dashboard, #0B0F19 on shows, #0F172A on shorts, #111827 and
+     #1F2937 elsewhere — so "dark" meant five different things. They now
+     share one ramp, and the intent is stated once instead of inferred from
+     whatever hex happened to be typed. */
+  --color-canvas-dark: #0f172a;
+  --color-canvas-dark-raised: #1e293b;
+  --color-canvas-dark-sunken: #090d16;
+  --color-canvas-dark-line: #1f2937;
+  --color-canvas-dark-line-strong: #334155;
+
+  /* Foreground ramp for those surfaces. Fixed for the same reason. */
+  --color-on-dark: #ffffff;
+  --color-on-dark-muted: #94a3b8;
+  /* Measured 3.75:1 on #0F172A and 3.07:1 on #1E293B — below AA on both.
+     #94A3B8 clears AA on every dark fill in the system (5.76:1 on #1E293B, the
+     lightest of them). AA therefore floors this token at the same value as
+     `--color-on-dark-muted`; the names stay separate so the hierarchy can be
+     re-separated if a darker fill family is introduced. */
+  --color-on-dark-subtle: #94a3b8;
+  /* Fixed hues for text on the admin shell, which is pinned dark in BOTH
+     themes. The flipping `--color-*-ink` twins are wrong here: #92400E
+     measured 2.52:1 and #B91C1C 3:1 against it in light mode. */
+  --color-on-dark-warning: #fbbf24;
+  --color-on-dark-danger: #fca5a5;
+
+  /* ── Foreground on a filled surface ─────────────────────────────────────
+     Text sitting on a SOLID fill — an emerald CTA, a red live badge, a dark
+     chip, a video overlay. These fills do not flip with the theme, so their
+     foreground must not either. This is the white counterpart to
+     `--color-on-accent`, which is the dark ink used on the light lime badge. */
+  --color-on-solid: #ffffff;
+
+  /* Fixed FILLS carrying white text, for the two status hues that previously
+     used their mid-tone ramp step as a fill: #3B82F6 (info-500) measured
+     3.68:1 with white and #A855F7 (violet-500) 3.96:1. Both are too light to
+     carry white. These are the darkened fill counterparts; the 500 steps stay
+     as-is for text and for marks. Deliberately not overridden in dark mode —
+     a fill that carries white text must not flip. */
+  --color-info-solid: #1d4ed8;
+  --color-violet-solid: #7e22ce;
+
+  /* ── Emerald by ROLE, not by step ───────────────────────────────────────
+     The numbered ramp cannot serve both jobs, and treating it as if it could
+     is what produced the worst failures in the audit.
+
+     `--color-brand-500` (#10b981) with white text is 2.54:1 — below AA for
+     every button label in the app. No emerald light enough to read as text on
+     a dark page is also dark enough to carry white text; the two requirements
+     are opposites. So they get separate tokens:
+
+       · --color-brand-solid  — a FILL that carries white text. Deliberately
+         FIXED, never overridden in the dark/dim blocks, for the same reason
+         --color-on-solid is: the fill does not flip, so its foreground must
+         not either. #047857 clears 5.48:1 with white.
+       · --color-brand-ink    — emerald used AS TEXT on a themeable surface.
+         Flips with the theme so it stays legible on both a white card and a
+         dark one. */
+  --color-brand-solid: #047857;
+  --color-brand-solid-hover: #036b4f;
+  --color-brand-ink: #047857;
+
+  /* Status colours follow the same rule: the 500 steps are tuned for fills and
+     strokes, and are too light to carry small white text or to be read as
+     small text on white. These are the text-safe steps. */
+  --color-danger-600: #ce3b41;
+  --color-warning-700: #92400e;
+
+  /* Danger role tokens: solid for white-text fills, ink for text on surfaces. */
+  --color-danger-solid: #ce3b41;
+  --color-danger-ink: #b91c1c;
+
+  /* Amber used as text on a TRANSLUCENT tint. `.chip-bulk` paints its own
+     background as rgba(245,158,11,.16), which composites against the page and
+     therefore flips with the theme — so the label must flip too. Fixed at
+     #92400e it measured 2.10:1 in dark mode. This one is a role token, not a
+     ramp step, for exactly that reason. */
+  --color-warning-ink: #92400e;
+
+  /* Amber on an INVERSE surface. `background: var(--color-content)` makes the
+     page dark in light mode and light in dark mode, so a token that flips with
+     the theme ends up backwards twice over: #92400e measured 1.99:1 on the
+     light-mode inverse surface and #FBBF24 1.57:1 on the dark-mode one. This
+     twin is pinned to the opposite end of the ramp — 8.40:1 / 6.81:1. */
+  --color-warning-ink-inverse: #fbbf24;
+
+  /* ── Informational accent ───────────────────────────────────────────────
+     The cyan/blue family used for neutral informational states, principally
+     on the dark operations surfaces. Distinct from `--color-brand-*`, which
+     carries identity — these carry status. */
+  --color-info-300: #60a5fa;
+  --color-info-400: #38bdf8;
+  --color-info-500: #3b82f6;
+  /* info-400 is a fill tone; as TEXT on a light surface it measures 2.00:1.
+     `ink` is the same hue darkened to 5.53:1 for text usage. */
+  --color-info-ink: #0369a1;
+
+  /* Secondary status accent, used for automation/evolution states on the
+     operations dashboard. */
+  --color-violet-500: #a855f7;
+  /* Violet-500 is a fill/mark value; as text it is 3.96:1 on white. */
+  --color-violet-ink: #7e22ce;
+
+  /* Tint steps for status surfaces. `--color-brand-50/100/200` cover the
+     emerald tints; these cover the remaining two families. */
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-danger-50: #fef2f2;
+  --color-danger-200: #fecaca;
+
+  /* Pure black, for video and overlay wells where #000 is genuinely correct
+     and a navy near-black would be wrong. */
+  --color-canvas-black: #000000;
+
+  /* ── Typography ─────────────────────────────────────────────────────── */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* ── Fluid type scale ───────────────────────────────────────────────────
+     Every step interpolates linearly between a 360px phone and a 1440px
+     desktop, so type responds continuously to the viewport instead of
+     snapping at breakpoints. Overriding the Tailwind defaults means existing
+     text-sm / text-lg / text-2xl utilities become fluid with no markup change.
+     Formula: clamp(min, intercept + slope·vw, max). */
+  --text-xs: clamp(0.75rem, 0.7292rem + 0.0926vw, 0.8125rem);
+  --text-xs--line-height: 1.45;
+  --text-sm: clamp(0.8125rem, 0.7917rem + 0.0926vw, 0.875rem);
+  --text-sm--line-height: 1.5;
+  --text-base: clamp(0.9375rem, 0.9167rem + 0.0926vw, 1rem);
+  --text-base--line-height: 1.6;
+  --text-lg: clamp(1.0625rem, 1.0208rem + 0.1852vw, 1.1875rem);
+  --text-lg--line-height: 1.5;
+  --text-xl: clamp(1.25rem, 1.1667rem + 0.3704vw, 1.5rem);
+  --text-xl--line-height: 1.4;
+  --text-2xl: clamp(1.5rem, 1.3333rem + 0.7407vw, 2rem);
+  --text-2xl--line-height: 1.3;
+  --text-3xl: clamp(1.875rem, 1.5833rem + 1.2963vw, 2.75rem);
+  --text-3xl--line-height: 1.2;
+  --text-4xl: clamp(2.25rem, 1.8333rem + 1.8519vw, 3.5rem);
+  --text-4xl--line-height: 1.12;
+  --text-5xl: clamp(3rem, 2.5rem + 2.2222vw, 4.5rem);
+  --text-5xl--line-height: 1.05;
+
+  /* ── Fluid spacing for section rhythm ───────────────────────────────── */
+  --spacing-gutter: clamp(1rem, 0.7rem + 1.5vw, 2rem);
+  --spacing-section: clamp(2.5rem, 1.8rem + 3.5vw, 5rem);
+
+  /* ── Radii ──────────────────────────────────────────────────────────── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+
+  /* ── Shadows: warm, never pure black ────────────────────────────────── */
+  --shadow-xs: 0 1px 2px 0 rgb(11 15 20 / 0.04);
+  --shadow-sm: 0 1px 3px 0 rgb(11 15 20 / 0.06), 0 1px 2px -1px rgb(11 15 20 / 0.04);
+  --shadow-md: 0 4px 6px -1px rgb(11 15 20 / 0.07), 0 2px 4px -2px rgb(11 15 20 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(11 15 20 / 0.08), 0 4px 6px -4px rgb(11 15 20 / 0.04);
+  --shadow-xl: 0 20px 25px -5px rgb(11 15 20 / 0.08), 0 8px 10px -6px rgb(11 15 20 / 0.03);
+  --shadow-glow: 0 0 30px -5px rgb(16 185 129 / 0.3);
+  --shadow-signal: 0 0 30px -5px rgb(198 242 78 / 0.35);
+
+  /* ── Motion: one shared vocabulary ──────────────────────────────────── */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --animate-fade-up: fade-up 0.3s var(--ease-out-expo) both;
+  --animate-fade-in: fade-in 0.2s var(--ease-smooth) both;
+  --animate-scale-in: scale-in 0.22s var(--ease-out-back) both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-live-pulse: live-pulse 2s var(--ease-smooth) infinite;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   THEME OVERRIDES — dark and dim.
+   These flip the semantic tokens. Because every surface/line/content token
+   is defined here, anything consuming them (including dark mode) follows
+   automatically rather than needing per-component overrides.
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  --sp-brand: #10b981;
+  --sp-brand-strong: #059669;
+}
+
+:root[data-theme='dark'],
+[data-theme='dark'],
+:root[data-theme='dim'],
+[data-theme='dim'] {
+  /* The ink ramp deliberately INVERTS in dark mode. It is used as a text
+     colour (--slate-900 for headings, --slate-600/700 for body) in the admin,
+     agency and field-marshal pages, so "900" must stay the high-contrast end
+     in both themes. Removing this inversion makes that text near-black on a
+     near-black page. */
+  --color-ink-50: #0f151d;
+  --color-ink-100: #131a24;
+  --color-ink-200: #1a2432;
+  --color-ink-300: #243043;
+  --color-ink-400: #3a4a61;
+  --color-ink-500: #7c8899;
+  --color-ink-600: #9aa6b8;
+  --color-ink-700: #b9c3d1;
+  --color-ink-800: #d7dee8;
+  --color-ink-900: #edf1f6;
+  --color-ink-950: #f7f9fc;
+
+  --color-page: #0b0f14;
+  --color-surface: #131a24;
+  --color-surface-elevated: #1a2432;
+  --color-surface-subtle: #18202e;
+  --color-surface-inset: #0f151d;
+
+  --color-line: #232e3d;
+  --color-line-subtle: #1a2432;
+  --color-line-strong: #334155;
+
+  --color-content: #f5f7fa;
+  --color-content-secondary: #a9b4c4;
+  /* #7c8899 measured 4.43:1 on the dark `.chip-cat` fill (~#1f2227) — a hair
+     under AA. Lifted just enough to clear it. */
+  --color-content-muted: #828e9f;
+  --color-content-inverse: #0b0f14;
+
+  /* The emerald ramp mirrors in dark mode for exactly the same reason the ink
+     ramp does: the numbered step encodes DISTANCE FROM THE PAGE, not absolute
+     lightness. Anything using a dark stop as text has to reach a light stop
+     here, or it disappears.
+
+     This previously lifted only 500 and 600 — a half-inversion, which failed
+     at BOTH ends at once:
+       · brand-700/800 were left dark, so emerald links and prices on a dark
+         card rendered at 3.19:1 and 2.28:1 (the wordmark was the worst case).
+       · the lifted 500/600 sat on a brand-50 tint that was still light, so
+         badges got *worse* in dark mode (2.41:1) than in light (3.58:1).
+     Mirroring the whole ramp moves both ends together and keeps the semantic
+     "one step further from the surface" true in both themes. */
+  --color-brand-50: #022c22;
+  --color-brand-100: #064e3b;
+  --color-brand-200: #065f46;
+  --color-brand-300: #047857;
+  --color-brand-400: #059669;
+  --color-brand-500: #10b981;
+  --color-brand-600: #34d399;
+  --color-brand-700: #6ee7b7;
+  --color-brand-800: #a7f3d0;
+  --color-brand-900: #d1fae5;
+  --color-brand-950: #ecfdf5;
+
+  /* Emerald used as text flips to the light end so it reads on a dark card.
+     `--color-brand-solid` is deliberately absent here — see its definition. */
+  --color-brand-ink: #6ee7b7;
+
+  /* Same reasoning for amber text on a translucent amber tint. */
+  --color-warning-ink: #fbbf24;
+
+  /* Danger text flips to light red for dark surfaces. */
+  --color-danger-ink: #fca5a5;
+  --color-violet-ink: #d8b4fe;
+
+  /* Inverse-surface amber: the surface is now LIGHT, so the text must be dark. */
+  --color-warning-ink-inverse: #92400e;
+
+  /* Inverse-surface muted: the surface is now LIGHT, so the text must be dark.
+     5.54:1 on #f5f7fa. */
+  --color-content-muted-inverse: #5a6478;
+  --color-brand-ink-inverse: #047857;
+  --color-info-ink-inverse: #0369a1;
+
+  /* Facebook text flips to a light brand blue for dark surfaces (7.72:1).
+     `solid` stays fixed — it is a fill, so only its white text matters. */
+  --color-facebook-ink: #6fb0fa;
+
+  /* Info text flips to a light sky blue for dark surfaces. */
+  --color-info-ink: #7dd3fc;
+
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.36), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.34);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.44), 0 4px 6px -4px rgb(0 0 0 / 0.36);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.48), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+}
+
+:root[data-theme='dim'],
+[data-theme='dim'] {
+  --color-page: #0f172a;
+  --color-surface: #1e2732;
+  --color-surface-elevated: #243043;
+  --color-surface-subtle: #1a2432;
+  --color-surface-inset: #131a24;
+
+  --color-line: #334155;
+  --color-line-subtle: #243043;
+  --color-line-strong: #475569;
+
+  --color-content: #f8fafc;
+  --color-content-secondary: #a9b4c4;
+  --color-content-muted: #94a3b8;
+  --color-content-inverse: #0b0f14;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BASE LAYER
+   ───────────────────────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  html,
+  body {
+    background-color: var(--color-page);
+    color: var(--color-content);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    transition: background-color 0.3s var(--ease-out-expo), color 0.3s var(--ease-out-expo);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    color: var(--color-content);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.18;
+    text-wrap: balance;
+  }
+
+  p { text-wrap: pretty; }
+
+  a { color: inherit; text-decoration: none; }
+  img, svg, video { display: block; max-width: 100%; }
+  button { font-family: inherit; }
+
+  ::selection {
+    background: var(--color-signal-400);
+    color: var(--color-signal-ink);
+  }
+
+  /* Focus ring: visible, consistent, one definition for the whole app. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+  *::-webkit-scrollbar { width: 10px; height: 10px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    border-radius: 9999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   PRODUCT STUDIO STAGE
+   The stage's visual system lives here rather than in the component so all
+   four category variants can be compared side by side. Layout, sizing and
+   radius stay as Tailwind utilities on the element — only the painted
+   surface is defined below.
+   ───────────────────────────────────────────────────────────────────────── */
+@layer components {
+  .studio-stage {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid var(--color-stage-edge);
+  }
+
+  .studio-stage--solar {
+    background: linear-gradient(
+      135deg,
+      var(--color-stage-base) 0%,
+      var(--color-stage-solar) 60%,
+      var(--color-stage-solar-deep) 100%
+    );
+  }
+  .studio-stage--tech {
+    background: linear-gradient(
+      135deg,
+      var(--color-stage-base) 0%,
+      var(--color-stage-tech) 60%,
+      var(--color-stage-tech-deep) 100%
+    );
+  }
+  .studio-stage--hardware {
+    background: linear-gradient(
+      135deg,
+      var(--color-stage-base) 0%,
+      var(--color-stage-hardware) 60%,
+      var(--color-stage-hardware-deep) 100%
+    );
+  }
+  .studio-stage--neutral {
+    background: linear-gradient(
+      135deg,
+      var(--color-stage-base) 0%,
+      var(--color-stage-neutral) 60%,
+      var(--color-stage-neutral-deep) 100%
+    );
+  }
+
+  /* Blueprint grid — above the gradient, below the artwork. */
+  .studio-stage__grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.9;
+    background-size: 16px 16px;
+    background-image: linear-gradient(to right, var(--color-stage-grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--color-stage-grid) 1px, transparent 1px);
+  }
+  .studio-stage__grid--detail {
+    background-size: 24px 24px;
+  }
+
+  /* Ambient spotlight behind the subject. Three tints only — the original
+     artwork reused the amber glow for both the hardware and neutral stages,
+     which is preserved here rather than silently "fixed". */
+  .studio-stage__glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 140px;
+    height: 140px;
+    border-radius: 9999px;
+    transform: translate(-50%, -50%);
+    filter: blur(24px);
+  }
+  .studio-stage__glow--detail {
+    width: 280px;
+    height: 280px;
+  }
+  .studio-stage__glow--solar {
+    background: radial-gradient(circle, var(--color-stage-glow-solar) 0%, transparent 70%);
+  }
+  .studio-stage__glow--tech {
+    background: radial-gradient(circle, var(--color-stage-glow-tech) 0%, transparent 70%);
+  }
+  .studio-stage__glow--amber {
+    background: radial-gradient(circle, var(--color-stage-glow-amber) 0%, transparent 70%);
+  }
+
+  .studio-stage__subject {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 0.5rem;
+  }
+
+  .studio-stage__watermark {
+    position: absolute;
+    bottom: 8px;
+    right: 10px;
+    z-index: 3;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    color: var(--color-stage-watermark);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   REDUCED MOTION (WCAG 2.1) — honoured globally, not per-component.
+   ───────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

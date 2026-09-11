@@ -153,7 +153,7 @@ export default function KnowledgePanel({ query = 'Product', products = [] }: { q
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#FFFFFF',
+          color: 'var(--color-on-solid)',
           fontSize: '2.75rem',
           marginBottom: '1rem',
         }}
@@ -161,40 +161,40 @@ export default function KnowledgePanel({ query = 'Product', products = [] }: { q
         {entity.iconEmoji}
       </div>
 
-      <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.25rem' }}>
+      <div style={{ fontSize: '0.75rem', color: 'var(--color-content-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.25rem' }}>
         {entity.categoryName}
       </div>
 
-      <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#202124', marginBottom: '0.5rem', lineHeight: 1.3 }}>
+      <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-content)', marginBottom: '0.5rem', lineHeight: 1.3 }}>
         {entity.title}
       </h3>
 
-      <p style={{ fontSize: '0.85rem', color: '#4D5156', lineHeight: 1.55, marginBottom: '0.75rem' }}>
+      <p style={{ fontSize: '0.85rem', color: 'var(--color-content-secondary)', lineHeight: 1.55, marginBottom: '0.75rem' }}>
         {entity.summary}
       </p>
 
       {entity.sourceName && (
-        <div style={{ fontSize: '0.75rem', color: '#70757A', marginBottom: '1rem' }}>
+        <div style={{ fontSize: '0.75rem', color: 'var(--color-content-muted)', marginBottom: '1rem' }}>
           Source:{' '}
-          <a href={entity.sourceUrl || '#'} target="_blank" rel="noopener noreferrer" style={{ color: '#1A0DAB', textDecoration: 'none' }}>
+          <a href={entity.sourceUrl || '#'} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-brand-700)', textDecoration: 'none' }}>
             {entity.sourceName}
           </a>
         </div>
       )}
 
       {/* Structured Key Attributes */}
-      <div style={{ background: '#F8FAFC', borderRadius: '8px', padding: '0.75rem', marginBottom: '1rem', border: '1px solid #E2E8F0' }}>
+      <div style={{ background: 'var(--color-surface-subtle)', borderRadius: '8px', padding: '0.75rem', marginBottom: '1rem', border: '1px solid var(--color-line)' }}>
         {entity.attributes.map((attr, idx) => (
-          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', padding: '0.25rem 0', borderBottom: idx < entity.attributes.length - 1 ? '1px solid #EEF2F6' : 'none' }}>
-            <span style={{ color: '#64748B', fontWeight: 600 }}>{attr.label}:</span>
-            <span style={{ color: '#1E293B', fontWeight: 700, textAlign: 'right' }}>{attr.value}</span>
+          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', padding: '0.25rem 0', borderBottom: idx < entity.attributes.length - 1 ? '1px solid var(--color-line-subtle)' : 'none' }}>
+            <span style={{ color: 'var(--color-content-muted)', fontWeight: 600 }}>{attr.label}:</span>
+            <span style={{ color: 'var(--color-content)', fontWeight: 700, textAlign: 'right' }}>{attr.value}</span>
           </div>
         ))}
       </div>
 
       {/* People Also Search For Grid */}
-      <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '0.85rem' }}>
-        <div style={{ fontSize: '0.825rem', fontWeight: 700, color: '#202124', marginBottom: '0.6rem' }}>
+      <div style={{ borderTop: '1px solid var(--color-line-subtle)', paddingTop: '0.85rem' }}>
+        <div style={{ fontSize: '0.825rem', fontWeight: 700, color: 'var(--color-content)', marginBottom: '0.6rem' }}>
           Related Searches
         </div>
 
@@ -204,16 +204,16 @@ export default function KnowledgePanel({ query = 'Product', products = [] }: { q
               key={i}
               href={`/search?q=${encodeURIComponent(item.label)}`}
               style={{
-                border: '1px solid #E2E8F0',
+                border: '1px solid var(--color-line)',
                 borderRadius: '8px',
                 padding: '0.5rem 0.25rem',
                 textDecoration: 'none',
-                background: '#FFFFFF',
+                background: 'var(--color-surface)',
                 transition: 'all 0.15s',
               }}
             >
               <div style={{ fontSize: '1.1rem', marginBottom: '0.15rem' }}>{item.icon}</div>
-              <div style={{ fontSize: '0.68rem', color: '#202124', fontWeight: 600, lineHeight: 1.2 }}>{item.label}</div>
+              <div style={{ fontSize: '0.68rem', color: 'var(--color-content)', fontWeight: 600, lineHeight: 1.2 }}>{item.label}</div>
             </Link>
           ))}
         </div>

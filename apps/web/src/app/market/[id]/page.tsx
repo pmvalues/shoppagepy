@@ -252,8 +252,8 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
             top: '20px',
             left: '50%',
             transform: 'translateX(-50%)',
-            background: '#059669',
-            color: '#FFFFFF',
+            background: 'var(--color-brand-solid)',
+            color: 'var(--color-on-solid)',
             padding: '0.65rem 1.4rem',
             borderRadius: '9999px',
             fontWeight: 800,
@@ -267,12 +267,12 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
       )}
 
       {/* Breadcrumbs */}
-      <div style={{ fontSize: '0.825rem', color: '#64748B', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <Link href="/" style={{ color: '#64748B', textDecoration: 'none' }}>Home</Link>
+      <div style={{ fontSize: '0.825rem', color: 'var(--color-content-muted)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <Link href="/" style={{ color: 'var(--color-content-muted)', textDecoration: 'none' }}>Home</Link>
         <span>&gt;</span>
-        <Link href="/markets" style={{ color: '#64748B', textDecoration: 'none' }}>Markets & Exchanges</Link>
+        <Link href="/markets" style={{ color: 'var(--color-content-muted)', textDecoration: 'none' }}>Markets & Exchanges</Link>
         <span>&gt;</span>
-        <span style={{ color: '#0F172A', fontWeight: 700 }}>{market.name}</span>
+        <span style={{ color: 'var(--color-content)', fontWeight: 700 }}>{market.name}</span>
       </div>
 
       {/* Market Hero Header */}
@@ -282,12 +282,12 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
           marginBottom: '2rem',
           padding: '2.25rem',
           background: isCommunityGroup
-            ? 'linear-gradient(135deg, #FFFFFF 0%, #EEF2FF 100%)'
+            ? 'linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-subtle) 100%)'
             : isVirtual
-            ? 'linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%)'
-            : '#FFFFFF',
+            ? 'linear-gradient(135deg, var(--color-surface-subtle) 0%, var(--color-surface) 100%)'
+            : 'var(--color-surface)',
           borderRadius: '16px',
-          border: isCommunityGroup ? '1.5px solid #C7D2FE' : isVirtual ? '1.5px solid #BFDBFE' : '1px solid #E2E8F0',
+          border: isCommunityGroup ? '1.5px solid var(--color-brand-200)' : isVirtual ? '1.5px solid var(--color-brand-200)' : '1px solid var(--color-line)',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.5rem' }}>
@@ -300,18 +300,18 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 {market.province}
               </span>
               {isCommunityGroup && (
-                <span style={{ background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 800 }}>
+                <span style={{ background: 'var(--color-brand-50)', color: 'var(--color-brand-700)', border: '1px solid var(--color-brand-200)', padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 800 }}>
                   👥 {memberCount.toLocaleString()} Verified Members · {dailyPosts} Trades/Day
                 </span>
               )}
             </div>
 
-            <h1 style={{ fontSize: '2.3rem', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '0.5rem', color: '#0F172A' }}>
+            <h1 style={{ fontSize: '2.3rem', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '0.5rem', color: 'var(--color-content)' }}>
               {market.name}
             </h1>
 
             {market.geo && (
-              <p style={{ color: '#475569', fontSize: '0.925rem', marginBottom: '0.4rem' }}>
+              <p style={{ color: 'var(--color-content-secondary)', fontSize: '0.925rem', marginBottom: '0.4rem' }}>
                 📍 {market.geo.streetAddress}
               </p>
             )}
@@ -326,8 +326,8 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                   rel="noopener noreferrer"
                   className="btn btn-sm"
                   style={{
-                    background: '#1877F2',
-                    color: '#FFFFFF',
+                    background: 'var(--color-facebook-solid)',
+                    color: 'var(--color-on-solid)',
                     fontWeight: 800,
                     borderRadius: '8px',
                     boxShadow: '0 2px 8px rgba(24, 119, 242, 0.3)',
@@ -347,8 +347,8 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 href="/time"
                 className="btn btn-sm"
                 style={{
-                  background: '#10B981',
-                  color: '#FFFFFF',
+                  background: 'var(--color-brand-solid)',
+                  color: 'var(--color-on-solid)',
                   fontWeight: 800,
                   borderRadius: '8px',
                   boxShadow: '0 2px 8px rgba(16, 185, 129, 0.25)',
@@ -369,9 +369,9 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 style={{
                   borderRadius: '8px',
                   fontWeight: 700,
-                  background: isAccountLinked ? '#ECFDF5' : '#FFFFFF',
-                  borderColor: isAccountLinked ? '#A7F3D0' : '#CBD5E1',
-                  color: isAccountLinked ? '#047857' : '#0F172A',
+                  background: isAccountLinked ? 'var(--color-brand-50)' : 'var(--color-surface)',
+                  borderColor: isAccountLinked ? 'var(--color-brand-200)' : 'var(--color-line-strong)',
+                  color: isAccountLinked ? 'var(--color-brand-700)' : 'var(--color-content)',
                 }}
               >
                 {isAccountLinked ? '✓ Account Linked' : '👥 Link Account to Feed'}
@@ -381,10 +381,13 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
           {/* Quick Actions Side Column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', minWidth: '220px' }}>
+            {/* `.btn-primary` sets a dark-theme label (`--signal-ink`, #0B0F14)
+                intended for a lime fill; this CTA overrides the fill to emerald, so
+                it must override the label too or it measures 3.5:1. */}
             <Link
               href={`/merchant/claim?marketId=${market.id}&marketName=${encodeURIComponent(market.name)}`}
               className="btn btn-primary"
-              style={{ fontWeight: 800, justifyContent: 'center', padding: '0.75rem', borderRadius: '8px', background: '#059669', borderColor: '#059669' }}
+              style={{ fontWeight: 800, justifyContent: 'center', padding: '0.75rem', borderRadius: '8px', background: 'var(--color-brand-solid)', borderColor: 'var(--color-brand-solid)', color: 'var(--color-on-solid)' }}
             >
               + Join Trading Floor (Free)
             </Link>
@@ -402,8 +405,8 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
       {/* LIVE TELEMETRY TICKER BAR */}
       <div
         style={{
-          background: '#0F172A',
-          color: '#F8FAFC',
+          background: 'var(--color-content)',
+          color: 'var(--color-content-inverse)',
           borderRadius: '10px',
           padding: '0.65rem 1.25rem',
           display: 'flex',
@@ -416,23 +419,23 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#10B981', animation: 'pulse 1.5s infinite' }} />
-          <span style={{ fontWeight: 800, color: '#34D399' }}>LIVE SOCIAL PULSE</span>
-          <span style={{ color: '#94A3B8' }}>|</span>
-          <span style={{ color: '#CBD5E1' }}>
+          <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-brand-500)', animation: 'pulse 1.5s infinite' }} />
+          <span style={{ fontWeight: 800, color: 'var(--color-brand-ink-inverse)' }}>LIVE SOCIAL PULSE</span>
+          <span style={{ color: 'var(--color-content-muted-inverse)' }}>|</span>
+          <span style={{ color: 'var(--color-content-muted-inverse)' }}>
             Sweeping Trade Networks & Community feeds every 5s (Pass {livePulseTick + 1})
           </span>
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem', color: '#94A3B8', fontSize: '0.75rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', color: 'var(--color-content-muted-inverse)', fontSize: '0.75rem' }}>
           <span>📘 Community: <strong>{inboundPosts.length} Live Deals</strong></span>
           <span>⚡ Shoppage Desk: <strong>{twitterPosts.length} Real-Time Alerts</strong></span>
-          <span style={{ color: '#38BDF8' }}>0% Commission Toll</span>
+          <span style={{ color: 'var(--color-info-ink-inverse)' }}>0% Commission Toll</span>
         </div>
       </div>
 
       {/* BI-DIRECTIONAL NAVIGATION TABS */}
-      <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '2px solid #E2E8F0', paddingBottom: '0.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '2px solid var(--color-line)', paddingBottom: '0.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
         <button
           onClick={() => setActiveTab('merchants')}
           className={`btn ${activeTab === 'merchants' ? 'btn-primary' : 'btn-outline'}`}
@@ -460,13 +463,13 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
       {/* TAB 1: VERIFIED MERCHANTS & STORES */}
       {activeTab === 'merchants' && (
-        <section className="card" style={{ padding: '2rem', background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
+        <section className="card" style={{ padding: '2rem', background: 'var(--color-surface)', borderRadius: '16px', border: '1px solid var(--color-line)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--color-content)', margin: 0 }}>
                 🏪 Verified Merchants & Suppliers
               </h2>
-              <p style={{ color: '#64748B', fontSize: '0.85rem', margin: '0.25rem 0 0 0' }}>
+              <p style={{ color: 'var(--color-content-muted)', fontSize: '0.85rem', margin: '0.25rem 0 0 0' }}>
                 Direct omnichannel trade: Phone, Email RFQ, Showroom Visit, or Direct Message with 0% take-rate.
               </p>
             </div>
@@ -484,29 +487,29 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
               <div
                 key={merchant.id}
                 className="card card-interactive"
-                style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '1.25rem', borderRadius: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+                style={{ background: 'var(--color-surface-subtle)', border: '1px solid var(--color-line)', padding: '1.25rem', borderRadius: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
               >
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                     <div>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-content)', margin: 0 }}>
                         <Link href={`/m/${merchant.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
                           {merchant.name}
                         </Link>
                       </h3>
-                      <div style={{ color: '#64748B', fontSize: '0.8rem', marginTop: '0.2rem' }}>
+                      <div style={{ color: 'var(--color-content-muted)', fontSize: '0.8rem', marginTop: '0.2rem' }}>
                         📍 {merchant.stallIdentifier || merchant.addressText || 'Main Trade Concourse'}
                       </div>
                     </div>
                     <span className="badge badge-green" style={{ fontSize: '0.65rem' }}>Verified</span>
                   </div>
 
-                  <div style={{ fontSize: '0.78rem', color: '#475569', margin: '0.5rem 0 1rem 0', lineHeight: 1.4 }}>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--color-content-secondary)', margin: '0.5rem 0 1rem 0', lineHeight: 1.4 }}>
                     Category: <strong>{merchant.category || 'General Wholesale'}</strong>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.75rem', borderTop: '1px solid #E2E8F0' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.75rem', borderTop: '1px solid var(--color-line)' }}>
                   <Link href={`/m/${merchant.id}`} className="btn btn-primary btn-sm" style={{ flex: 1, justifyContent: 'center', fontWeight: 800 }}>
                     Enter Store
                   </Link>
@@ -553,35 +556,35 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
               <button
                 onClick={() => setSocialFeedChannel('facebook')}
                 className={`btn btn-sm ${socialFeedChannel === 'facebook' ? 'btn-primary' : 'btn-outline'}`}
-                style={{ borderRadius: '20px', fontWeight: 700, background: socialFeedChannel === 'facebook' ? '#1877F2' : undefined, borderColor: socialFeedChannel === 'facebook' ? '#1877F2' : undefined }}
+                style={{ borderRadius: '20px', fontWeight: 700, background: socialFeedChannel === 'facebook' ? 'var(--color-facebook-solid)' : undefined, borderColor: socialFeedChannel === 'facebook' ? 'var(--color-facebook-solid)' : undefined }}
               >
                 📘 Facebook Group Deals ({inboundPosts.length})
               </button>
               <button
                 onClick={() => setSocialFeedChannel('twitter_x')}
                 className={`btn btn-sm ${socialFeedChannel === 'twitter_x' ? 'btn-primary' : 'btn-outline'}`}
-                style={{ borderRadius: '20px', fontWeight: 700, background: socialFeedChannel === 'twitter_x' ? '#10B981' : undefined, borderColor: socialFeedChannel === 'twitter_x' ? '#10B981' : undefined }}
+                style={{ borderRadius: '20px', fontWeight: 700, background: socialFeedChannel === 'twitter_x' ? 'var(--color-brand-500)' : undefined, borderColor: socialFeedChannel === 'twitter_x' ? 'var(--color-brand-500)' : undefined }}
               >
                 ⚡ Trade Alerts ({twitterPosts.length})
               </button>
             </div>
 
-            <span style={{ fontSize: '0.8rem', color: '#64748B' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--color-content-muted)' }}>
               Real-time synchronization active with <strong>{market.name}</strong>
             </span>
           </div>
 
           {/* Trade Alerts Stream Section */}
           {(socialFeedChannel === 'all' || socialFeedChannel === 'twitter_x') && (
-            <div className="card" style={{ padding: '1.5rem', background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E2E8F0' }}>
+            <div className="card" style={{ padding: '1.5rem', background: 'var(--color-surface)', borderRadius: '14px', border: '1px solid var(--color-line)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '1.2rem', fontWeight: 900, background: '#10B981', color: '#FFFFFF', padding: '0.2rem 0.5rem', borderRadius: '6px' }}>⚡</span>
+                  <span style={{ fontSize: '1.2rem', fontWeight: 900, background: 'var(--color-brand-solid)', color: 'var(--color-on-solid)', padding: '0.2rem 0.5rem', borderRadius: '6px' }}>⚡</span>
                   <div>
-                    <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-content)', margin: 0 }}>
                       Verified Trade Alerts & Direct Deals
                     </h3>
-                    <div style={{ fontSize: '0.78rem', color: '#64748B' }}>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--color-content-muted)' }}>
                       Streaming verified trade alerts from local stalls & verified contractors
                     </div>
                   </div>
@@ -590,7 +593,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 <Link
                   href="/time"
                   className="btn btn-outline btn-sm"
-                  style={{ borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, color: '#10B981', borderColor: '#10B981' }}
+                  style={{ borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-brand-ink)', borderColor: 'var(--color-brand-500)' }}
                 >
                   Open Time Desk &rarr;
                 </Link>
@@ -601,8 +604,8 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                   <div
                     key={tweet.id}
                     style={{
-                      background: '#F8FAFC',
-                      border: '1px solid #E2E8F0',
+                      background: 'var(--color-surface-subtle)',
+                      border: '1px solid var(--color-line)',
                       borderRadius: '12px',
                       padding: '1.25rem',
                       display: 'flex',
@@ -613,34 +616,34 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#0F172A', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.75rem' }}>
+                          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--color-content)', color: 'var(--color-content-inverse)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.75rem' }}>
                             {tweet.authorName.charAt(0)}
                           </div>
                           <div>
-                            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-content)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                               <span>{tweet.authorName}</span>
-                              {tweet.isVerified && <span style={{ color: '#10B981' }}>✓</span>}
+                              {tweet.isVerified && <span style={{ color: 'var(--color-brand-ink)' }}>✓</span>}
                             </div>
-                            <div style={{ fontSize: '0.72rem', color: '#64748B' }}>{tweet.authorHandle}</div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--color-content-muted-inverse)' }}>{tweet.authorHandle}</div>
                           </div>
                         </div>
-                        <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{tweet.timestamp}</span>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--color-content-muted-inverse)' }}>{tweet.timestamp}</span>
                       </div>
 
-                      <p style={{ fontSize: '0.875rem', color: '#1E293B', lineHeight: 1.45, margin: '0.5rem 0' }}>
+                      <p style={{ fontSize: '0.875rem', color: 'var(--color-content)', lineHeight: 1.45, margin: '0.5rem 0' }}>
                         {tweet.text}
                       </p>
 
                       <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
                         {tweet.hashtags.map((tag) => (
-                          <span key={tag} style={{ color: '#1D9BF0', fontSize: '0.75rem', fontWeight: 700 }}>
+                          <span key={tag} style={{ color: 'var(--color-x-500)', fontSize: '0.75rem', fontWeight: 700 }}>
                             {tag}
                           </span>
                         ))}
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.65rem', borderTop: '1px solid #E2E8F0', fontSize: '0.78rem', color: '#64748B' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.65rem', borderTop: '1px solid var(--color-line)', fontSize: '0.78rem', color: 'var(--color-content-muted-inverse)' }}>
                       <div style={{ display: 'flex', gap: '0.75rem' }}>
                         <span>❤️ {tweet.likesCount}</span>
                         <span>🔁 {tweet.retweetsCount}</span>
@@ -662,15 +665,15 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
           {/* Facebook Group Inbound Posts Section */}
           {(socialFeedChannel === 'all' || socialFeedChannel === 'facebook') && (
-            <div className="card" style={{ padding: '1.5rem', background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E2E8F0' }}>
+            <div className="card" style={{ padding: '1.5rem', background: 'var(--color-surface)', borderRadius: '14px', border: '1px solid var(--color-line)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '1.2rem', fontWeight: 900, background: '#1877F2', color: '#FFFFFF', padding: '0.2rem 0.5rem', borderRadius: '6px' }}>📘</span>
+                  <span style={{ fontSize: '1.2rem', fontWeight: 900, background: 'var(--color-facebook-solid)', color: 'var(--color-on-solid)', padding: '0.2rem 0.5rem', borderRadius: '6px' }}>📘</span>
                   <div>
-                    <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-content)', margin: 0 }}>
                       Facebook Group Deals & Member Inquiries
                     </h3>
-                    <div style={{ fontSize: '0.78rem', color: '#64748B' }}>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--color-content-muted)' }}>
                       Extracted and indexed live from {market.name}
                     </div>
                   </div>
@@ -694,8 +697,8 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                   <div
                     key={post.id}
                     style={{
-                      background: '#F8FAFC',
-                      border: '1px solid #E2E8F0',
+                      background: 'var(--color-surface-subtle)',
+                      border: '1px solid var(--color-line)',
                       borderRadius: '10px',
                       padding: '1.25rem',
                       display: 'flex',
@@ -707,25 +710,25 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                   >
                     <div style={{ flex: 1, minWidth: '260px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
-                        <span style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F172A' }}>
+                        <span style={{ fontWeight: 800, fontSize: '0.85rem', color: 'var(--color-content)' }}>
                           {post.postAuthor}
                         </span>
-                        <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>• {post.postTime}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-content-muted)' }}>• {post.postTime}</span>
                         {post.verifiedMerchantStatus && (
-                          <span style={{ background: '#ECFDF5', color: '#047857', padding: '0.1rem 0.4rem', borderRadius: '4px', fontSize: '0.68rem', fontWeight: 800 }}>
+                          <span style={{ background: 'var(--color-brand-50)', color: 'var(--color-brand-700)', padding: '0.1rem 0.4rem', borderRadius: '4px', fontSize: '0.68rem', fontWeight: 800 }}>
                             ✓ CIPC Verified Stockist
                           </span>
                         )}
                       </div>
 
-                      <p style={{ fontSize: '0.9rem', color: '#334155', lineHeight: 1.5, margin: '0 0 0.5rem 0' }}>
+                      <p style={{ fontSize: '0.9rem', color: 'var(--color-content-secondary)', lineHeight: 1.5, margin: '0 0 0.5rem 0' }}>
                         {post.content}
                       </p>
 
                       {post.extractedPriceZar && (
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#ECFDF5', border: '1px solid #A7F3D0', padding: '0.2rem 0.55rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 900, color: '#047857' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'var(--color-brand-50)', border: '1px solid var(--color-brand-200)', padding: '0.2rem 0.55rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 900, color: 'var(--color-brand-700)' }}>
                           <span>R {post.extractedPriceZar.toLocaleString()}</span>
-                          <span style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600 }}>· Extracted Price</span>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--color-content-muted)', fontWeight: 600 }}>· Extracted Price</span>
                         </div>
                       )}
                     </div>
@@ -758,23 +761,23 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
       {/* TAB 3: MULTI-CHANNEL BROADCAST */}
       {activeTab === 'autopost' && (
-        <section className="card" style={{ padding: '2rem', background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
+        <section className="card" style={{ padding: '2rem', background: 'var(--color-surface)', borderRadius: '16px', border: '1px solid var(--color-line)' }}>
           <div style={{ maxWidth: '680px', margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#ECFDF5', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', margin: '0 auto 0.75rem auto' }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'var(--color-brand-50)', color: 'var(--color-brand-ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', margin: '0 auto 0.75rem auto' }}>
                 ⚡
               </div>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0F172A', margin: '0 0 0.4rem 0' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-content)', margin: '0 0 0.4rem 0' }}>
                 Trade Broadcast & Auto-Poster
               </h2>
-              <p style={{ fontSize: '0.9rem', color: '#64748B', lineHeight: 1.5, margin: 0 }}>
+              <p style={{ fontSize: '0.9rem', color: 'var(--color-content-muted)', lineHeight: 1.5, margin: 0 }}>
                 1-Click broadcast stock drops, clearance deals, or sourcing RFQs simultaneously to <strong>Community Trade Groups</strong> and <strong>Shoppage Time</strong>.
               </p>
             </div>
 
             <form onSubmit={handleManualBroadcast}>
               <div style={{ marginBottom: '1.25rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#0F172A', marginBottom: '0.4rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-content)', marginBottom: '0.4rem' }}>
                   Deal / RFQ Announcement Message
                 </label>
                 <textarea
@@ -784,19 +787,19 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                   onChange={(e) => setBroadcastMessage(e.target.value)}
                   placeholder="e.g. Selling 5x Deye 8kW Hybrid Inverters R23,500 each in Sandton. Full 5-yr warranty. Trade counter collection ready."
                   className="form-input"
-                  style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', border: '1.5px solid #CBD5E1', fontSize: '0.9rem' }}
+                  style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', border: '1.5px solid var(--color-line-strong)', fontSize: '0.9rem' }}
                 />
               </div>
 
               {/* Multi-Channel Broadcast Channels Selector */}
-              <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '1.25rem', marginBottom: '1.5rem' }}>
-                <div style={{ fontSize: '0.825rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.75rem' }}>
+              <div style={{ background: 'var(--color-surface-subtle)', border: '1px solid var(--color-line)', borderRadius: '10px', padding: '1.25rem', marginBottom: '1.5rem' }}>
+                <div style={{ fontSize: '0.825rem', fontWeight: 800, color: 'var(--color-content)', marginBottom: '0.75rem' }}>
                   Select Syndication Channels:
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
                   <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 700, color: '#1877F2' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-facebook-ink)' }}>
                       <input
                         type="checkbox"
                         checked={postToFacebook}
@@ -804,11 +807,11 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                       />
                       <span>📘 Post to Linked Trade Community ({market.name})</span>
                     </div>
-                    <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 800 }}>✓ Live Bridge</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-brand-ink)', fontWeight: 800 }}>✓ Live Bridge</span>
                   </label>
 
                   <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 700, color: '#10B981' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-brand-ink)' }}>
                       <input
                         type="checkbox"
                         checked={postToTwitterX}
@@ -816,7 +819,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                       />
                       <span>⚡ Broadcast to Shoppage Time Desk</span>
                     </div>
-                    <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 800 }}>✓ Verified Feed</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-brand-ink)', fontWeight: 800 }}>✓ Verified Feed</span>
                   </label>
                 </div>
               </div>
@@ -824,7 +827,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
               <button
                 type="submit"
                 className="btn btn-primary"
-                style={{ width: '100%', padding: '0.85rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.95rem', background: '#10B981', borderColor: '#10B981' }}
+                style={{ width: '100%', padding: '0.85rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.95rem', background: 'var(--color-brand-500)', borderColor: 'var(--color-brand-500)' }}
               >
                 🚀 1-Click Multi-Channel Broadcast
               </button>
@@ -850,7 +853,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
         >
           <div
             style={{
-              background: '#FFFFFF',
+              background: 'var(--color-surface)',
               borderRadius: '16px',
               padding: '2rem',
               width: '100%',
@@ -859,13 +862,13 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--color-content)', margin: 0 }}>
                 Link Account to Social Trade Grid
               </h3>
               <button onClick={() => setShowLinkModal(false)} style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer' }}>✕</button>
             </div>
 
-            <p style={{ fontSize: '0.875rem', color: '#64748B', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-content-muted)', lineHeight: 1.5, marginBottom: '1.5rem' }}>
               Linking your identity allows you to post directly to contractor trading groups and Shoppage Time with verified CIPC badges and zero commission toll fees.
             </p>
 
@@ -877,7 +880,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                   showToast('WhatsApp Business profile successfully connected!', 'success');
                 }}
                 className="btn btn-primary"
-                style={{ background: '#25D366', borderColor: '#25D366', color: '#FFFFFF', fontWeight: 800, padding: '0.75rem', borderRadius: '8px' }}
+                style={{ background: 'var(--color-whatsapp-solid)', borderColor: 'var(--color-whatsapp-solid)', color: 'var(--color-on-solid)', fontWeight: 800, padding: '0.75rem', borderRadius: '8px' }}
               >
                 💬 Continue with WhatsApp Business
               </button>
@@ -889,7 +892,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                   showToast('Community Profile successfully connected!', 'success');
                 }}
                 className="btn btn-primary"
-                style={{ background: '#1877F2', borderColor: '#1877F2', fontWeight: 800, padding: '0.75rem', borderRadius: '8px' }}
+                style={{ background: 'var(--color-facebook-solid)', borderColor: 'var(--color-facebook-solid)', fontWeight: 800, padding: '0.75rem', borderRadius: '8px' }}
               >
                 📘 Continue with Facebook Community
               </button>
@@ -907,7 +910,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
               </button>
             </div>
 
-            <div style={{ fontSize: '0.75rem', color: '#94A3B8', textAlign: 'center' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--color-content-muted)', textAlign: 'center' }}>
               Protected under 256-bit encryption · POPIA & CIPC compliant.
             </div>
           </div>

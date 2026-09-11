@@ -79,7 +79,7 @@ export default function MerchantClaimWizardPage({
         <span className="badge badge-green" style={{ marginBottom: '0.5rem' }}>
           ⚡ 60-Second Onboarding Wizard
         </span>
-        <h1 style={{ fontSize: '2.25rem', fontWeight: 800, margin: '0.25rem 0', color: '#0F172A' }}>
+        <h1 style={{ fontSize: '2.25rem', fontWeight: 800, margin: '0.25rem 0', color: 'var(--color-content)' }}>
           List Your Store & Inventory
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
@@ -89,7 +89,7 @@ export default function MerchantClaimWizardPage({
 
       {/* Stepper Progress Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', position: 'relative' }}>
-        <div style={{ position: 'absolute', top: '50%', left: '10%', right: '10%', height: '2px', background: '#E2E8F0', zIndex: 1 }} />
+        <div style={{ position: 'absolute', top: '50%', left: '10%', right: '10%', height: '2px', background: 'var(--color-surface-subtle)', zIndex: 1 }} />
         {[
           { num: 1, title: 'Store Details' },
           { num: 2, title: 'Physical Location' },
@@ -104,9 +104,9 @@ export default function MerchantClaimWizardPage({
                   width: '36px',
                   height: '36px',
                   borderRadius: '50%',
-                  background: isActive ? '#2563EB' : '#FFFFFF',
-                  color: isActive ? '#FFFFFF' : '#64748B',
-                  border: `2px solid ${isActive ? '#2563EB' : '#CBD5E1'}`,
+                  background: isActive ? 'var(--color-brand-solid)' : 'var(--color-surface)',
+                  color: isActive ? 'var(--color-on-solid)' : 'var(--color-content-muted)',
+                  border: `2px solid ${isActive ? 'var(--color-brand-solid)' : '#CBD5E1'}`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -117,7 +117,7 @@ export default function MerchantClaimWizardPage({
               >
                 {step > s.num ? '✓' : s.num}
               </div>
-              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: isActive ? '#1E293B' : '#94A3B8' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: isActive ? 'var(--color-content)' : 'var(--color-content-muted)' }}>
                 {s.title}
               </span>
             </div>
@@ -288,12 +288,12 @@ export default function MerchantClaimWizardPage({
               </select>
             </div>
 
-            <div className="card" style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', padding: '1rem' }}>
-              <div style={{ fontSize: '0.8rem', color: '#1E40AF', fontWeight: 700 }}>Selected Master Product:</div>
-              <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#1E3A8A', margin: '0.25rem 0' }}>
+            <div className="card" style={{ background: 'var(--color-brand-50)', border: '1px solid var(--color-brand-200)', padding: '1rem' }}>
+              <div style={{ fontSize: '0.8rem', color: 'var(--color-brand-800)', fontWeight: 700 }}>Selected Master Product:</div>
+              <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-brand-800)', margin: '0.25rem 0' }}>
                 {selectedProduct.title}
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#475569' }}>
+              <div style={{ fontSize: '0.8rem', color: 'var(--color-content-secondary)' }}>
                 Brand: <strong>{selectedProduct.brand}</strong> · SABS / NRS 097 Grid Compliant
               </div>
             </div>
@@ -346,37 +346,37 @@ export default function MerchantClaimWizardPage({
 
       {/* STEP 4: SUCCESS & LIVE CONFIRMATION */}
       {step === 4 && isSubmitted && (
-        <div className="card" style={{ padding: '2.5rem', textAlign: 'center', background: '#FFFFFF' }}>
-          <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#ECFDF5', border: '2px solid #34D399', color: '#059669', fontSize: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
+        <div className="card" style={{ padding: '2.5rem', textAlign: 'center', background: 'var(--color-surface)' }}>
+          <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--color-brand-50)', border: '2px solid var(--color-brand-400)', color: 'var(--color-brand-ink)', fontSize: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
             ✓
           </div>
 
           <span className="badge badge-green" style={{ marginBottom: '0.5rem' }}>
             Live on South Africa Commercial Grid
           </span>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0.25rem 0', color: '#0F172A' }}>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0.25rem 0', color: 'var(--color-content)' }}>
             Congratulations, {formData.businessName || 'Your Store'} is Live!
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '540px', margin: '0 auto 1.5rem auto' }}>
             Your confirmed offer for <strong>{selectedProduct.title}</strong> at <strong>R {parseInt(formData.priceZar || '0').toLocaleString()}</strong> has been published.
           </p>
 
-          <div style={{ background: '#F8FAFC', padding: '1.25rem', borderRadius: '8px', border: '1px solid #E2E8F0', maxWidth: '500px', margin: '0 auto 2rem auto', textAlign: 'left' }}>
+          <div style={{ background: 'var(--color-surface-subtle)', padding: '1.25rem', borderRadius: '8px', border: '1px solid var(--color-line)', maxWidth: '500px', margin: '0 auto 2rem auto', textAlign: 'left' }}>
             {credential && (
-              <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '0.75rem' }}>
-                <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#92400E' }}>Your Merchant Login Credential</div>
-                <div style={{ fontSize: '0.85rem', color: '#78350F', marginTop: '0.25rem' }}>
+              <div style={{ background: 'var(--color-warning-50)', border: '1px solid var(--color-warning-100)', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '0.75rem' }}>
+                <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--color-warning-ink)' }}>Your Merchant Login Credential</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--color-warning-ink)', marginTop: '0.25rem' }}>
                   Store ID: <strong style={{ fontFamily: 'monospace' }}>{provisionedMerchantId}</strong>
                 </div>
-                <div style={{ fontSize: '0.85rem', color: '#78350F', marginTop: '0.25rem' }}>
+                <div style={{ fontSize: '0.85rem', color: 'var(--color-warning-ink)', marginTop: '0.25rem' }}>
                   Credential: <strong style={{ fontFamily: 'monospace' }}>{credential}</strong>
                 </div>
-                <div style={{ fontSize: '0.72rem', color: '#92400E', marginTop: '0.35rem' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--color-warning-ink)', marginTop: '0.35rem' }}>
                   Keep this safe. It is shown once. Use it on the login page with the Store ID above.
                 </div>
               </div>
             )}
-            <div style={{ fontSize: '0.8rem', color: '#64748B', marginBottom: '0.4rem' }}>Synchronized Across Network:</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--color-content-muted)', marginBottom: '0.4rem' }}>Synchronized Across Network:</div>
             <div style={{ fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
               <div>✓ <strong>Product Detail Page:</strong> Listed as Verified Confirmed Supplier</div>
               <div>✓ <strong>Direct WhatsApp:</strong> Connected to {formData.whatsappPhone}</div>

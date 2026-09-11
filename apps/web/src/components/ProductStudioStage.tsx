@@ -9,6 +9,70 @@ interface ProductStudioStageProps {
   className?: string;
 }
 
+/**
+ * Illustration palette.
+ *
+ * These are NOT theme tokens. They are the literal colours of the category
+ * artwork — a lithium battery is navy, a cement sack is amber, an inverter
+ * chassis is white. They are hoisted out of the JSX so the drawing reads as
+ * structure rather than a wall of hex, and they are intentionally identical
+ * in every theme because they are painted on the fixed-light studio stage
+ * (see `--color-stage-*` in theme.css). Do not convert these to surface or
+ * content tokens: there is no thematic meaning to "the red terminal cap".
+ */
+const ART = {
+  white: '#FFFFFF',
+  black: '#000000',
+  ink900: '#0F172A',
+  ink800: '#1E293B',
+  indigo950: '#1E1B4B',
+  indigo900: '#312E81',
+  indigo500: '#6366F1',
+  indigo400: '#818CF8',
+  slate700: '#334155',
+  slate600: '#475569',
+  slate500: '#64748B',
+  slate300: '#CBD5E1',
+  slate200: '#E2E8F0',
+  slate50: '#F8FAFC',
+  sky600: '#0284C7',
+  sky400: '#38BDF8',
+  emerald900: '#064E3B',
+  emerald600: '#059669',
+  emerald500: '#10B981',
+  emerald400: '#34D399',
+  amber500: '#F59E0B',
+  amber100: '#FEF3C7',
+  red600: '#DC2626',
+  orange900: '#78350F',
+  orange800: '#92400E',
+  orange700: '#B45309',
+  orange600: '#D97706',
+} as const;
+
+type StageTone = 'solar' | 'tech' | 'hardware' | 'neutral';
+
+/** Placeholder shown when a product has no image and matches no category. */
+function BoxIcon({ size }: { size: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={ART.slate500}
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M21 8.5 12 3 3 8.5v7L12 21l9-5.5v-7Z" />
+      <path d="M3 8.5 12 14l9-5.5" />
+      <path d="M12 14v7" />
+    </svg>
+  );
+}
+
 export default function ProductStudioStage({
   product,
   variant = 'card',
@@ -23,67 +87,43 @@ export default function ProductStudioStage({
   const isHardware = cat === 'hardware' || /cement|drill|tool|grinder|building|brick|paint/i.test(product.title);
 
   const isDetail = variant === 'detail';
-  const stageHeight = isDetail ? '360px' : '180px';
   const rawImageUrl = product.media?.gallery?.[0]?.url || (product as any).image || (product as any).featuredImage;
   const imageUrl = !imgFailed && rawImageUrl ? rawImageUrl : null;
 
+  // Stage tone and glow tint are decided on `isSolar`, not on the illustration
+  // branch below: a lithium battery is classified `isSolar` and therefore gets
+  // the solar gradient and glow while drawing the battery artwork. Preserved
+  // from the original implementation.
+  const stageTone: StageTone = isSolar ? 'solar' : isTech ? 'tech' : isHardware ? 'hardware' : 'neutral';
+  const glowTone = isSolar ? 'solar' : isTech ? 'tech' : 'amber';
+
   return (
     <div
-      className={`product-studio-stage ${className}`}
-      style={{
-        position: 'relative',
-        width: '100%',
-        height: stageHeight,
-        borderRadius: isDetail ? 'var(--radius-xl)' : '10px',
-        overflow: 'hidden',
-        background: isSolar
-          ? 'linear-gradient(135deg, #FFFFFF 0%, #F0FDF4 60%, #E6F7F0 100%)'
-          : isTech
-          ? 'linear-gradient(135deg, #FFFFFF 0%, #EEF2FF 60%, #E0E7FF 100%)'
-          : isHardware
-          ? 'linear-gradient(135deg, #FFFFFF 0%, #FFFBEB 60%, #F5F5F4 100%)'
-          : 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 60%, #EDF2F7 100%)',
-        border: '1px solid var(--border)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+      className={[
+        'product-studio-stage studio-stage',
+        `studio-stage--${stageTone}`,
+        isDetail ? 'h-[360px] rounded-xl' : 'h-[180px] rounded-md',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
     >
-      {/* Background Blueprint Grid (Subtle Light) */}
+      {/* Background blueprint grid */}
       <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: `
-            linear-gradient(to right, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(15, 23, 42, 0.035) 1px, transparent 1px)
-          `,
-          backgroundSize: isDetail ? '24px 24px' : '16px 16px',
-          opacity: 0.9,
-        }}
+        className={`studio-stage__grid ${isDetail ? 'studio-stage__grid--detail' : ''}`}
+        aria-hidden="true"
       />
 
-      {/* Soft Light Spotlight Ambient Glow */}
+      {/* Ambient spotlight */}
       <div
-        style={{
-          position: 'absolute',
-          width: isDetail ? '280px' : '140px',
-          height: isDetail ? '280px' : '140px',
-          borderRadius: '50%',
-          background: isSolar
-            ? 'radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%)'
-            : isTech
-            ? 'radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, transparent 70%)',
-          filter: 'blur(24px)',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-        }}
+        className={`studio-stage__glow studio-stage__glow--${glowTone} ${
+          isDetail ? 'studio-stage__glow--detail' : ''
+        }`}
+        aria-hidden="true"
       />
 
-      {/* Main Image or Industrial SVG Illustration */}
-      <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', padding: '0.5rem' }}>
+      {/* Main image or category illustration */}
+      <div className="studio-stage__subject">
         {imageUrl ? (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
@@ -94,12 +134,7 @@ export default function ProductStudioStage({
             fetchPriority={isDetail ? 'high' : 'low'}
             onError={() => setImgFailed(true)}
             sizes={isDetail ? '(max-width: 768px) 90vw, 360px' : '(max-width: 640px) 90vw, 230px'}
-            style={{
-              maxHeight: isDetail ? '320px' : '160px',
-              maxWidth: '92%',
-              objectFit: 'cover',
-              borderRadius: '8px',
-            }}
+            className={`max-w-[92%] rounded-lg object-cover ${isDetail ? 'max-h-[320px]' : 'max-h-[160px]'}`}
           />
         ) : isSolar && !isBattery ? (
           <svg
@@ -108,28 +143,40 @@ export default function ProductStudioStage({
             viewBox="0 0 200 160"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-label="Hybrid inverter illustration"
           >
-            {/* Inverter White/Silver Industrial Chassis */}
-            <rect x="25" y="15" width="150" height="130" rx="12" fill="#FFFFFF" stroke="#059669" strokeWidth="2" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.06))" />
-            <rect x="35" y="25" width="130" height="35" rx="6" fill="#F8FAFC" stroke="#CBD5E1" strokeWidth="1.5" />
-            {/* Digital Display Screen */}
-            <rect x="50" y="32" width="100" height="20" rx="3" fill="#064E3B" stroke="#10B981" strokeWidth="1" />
-            <text x="100" y="46" fill="#34D399" fontSize="11" fontFamily="monospace" fontWeight="bold" textAnchor="middle">
+            {/* Inverter white/silver industrial chassis */}
+            <rect
+              x="25"
+              y="15"
+              width="150"
+              height="130"
+              rx="12"
+              fill={ART.white}
+              stroke={ART.emerald600}
+              strokeWidth="2"
+              filter="drop-shadow(0 4px 6px rgba(0,0,0,0.06))"
+            />
+            <rect x="35" y="25" width="130" height="35" rx="6" fill={ART.slate50} stroke={ART.slate300} strokeWidth="1.5" />
+            {/* Digital display screen */}
+            <rect x="50" y="32" width="100" height="20" rx="3" fill={ART.emerald900} stroke={ART.emerald500} strokeWidth="1" />
+            <text x="100" y="46" fill={ART.emerald400} fontSize="11" fontFamily="monospace" fontWeight="bold" textAnchor="middle">
               {product.attributes?.ratedPowerWatts ? `${product.attributes.ratedPowerWatts}W HYBRID` : '5000W 48V'}
             </text>
             {/* Status LEDs */}
-            <circle cx="45" cy="80" r="4" fill="#10B981" />
-            <circle cx="60" cy="80" r="4" fill="#0284C7" />
-            <circle cx="75" cy="80" r="4" fill="#F59E0B" />
-            <text x="95" y="83" fill="#64748B" fontSize="9" fontWeight="600" fontFamily="sans-serif">NORMAL / GRID / FAULT</text>
-            {/* Vents & Wiring Ports */}
-            <line x1="45" y1="105" x2="155" y2="105" stroke="#E2E8F0" strokeWidth="3" strokeLinecap="round" />
-            <line x1="45" y1="115" x2="155" y2="115" stroke="#E2E8F0" strokeWidth="3" strokeLinecap="round" />
-            <line x1="45" y1="125" x2="155" y2="125" stroke="#E2E8F0" strokeWidth="3" strokeLinecap="round" />
-            <rect x="55" y="142" width="18" height="6" rx="2" fill="#334155" />
-            <rect x="80" y="142" width="18" height="6" rx="2" fill="#DC2626" />
-            <rect x="105" y="142" width="18" height="6" rx="2" fill="#0284C7" />
-            <rect x="130" y="142" width="18" height="6" rx="2" fill="#334155" />
+            <circle cx="45" cy="80" r="4" fill={ART.emerald500} />
+            <circle cx="60" cy="80" r="4" fill={ART.sky600} />
+            <circle cx="75" cy="80" r="4" fill={ART.amber500} />
+            <text x="95" y="83" fill={ART.slate500} fontSize="9" fontWeight="600" fontFamily="sans-serif">NORMAL / GRID / FAULT</text>
+            {/* Vents & wiring ports */}
+            <line x1="45" y1="105" x2="155" y2="105" stroke={ART.slate200} strokeWidth="3" strokeLinecap="round" />
+            <line x1="45" y1="115" x2="155" y2="115" stroke={ART.slate200} strokeWidth="3" strokeLinecap="round" />
+            <line x1="45" y1="125" x2="155" y2="125" stroke={ART.slate200} strokeWidth="3" strokeLinecap="round" />
+            <rect x="55" y="142" width="18" height="6" rx="2" fill={ART.slate700} />
+            <rect x="80" y="142" width="18" height="6" rx="2" fill={ART.red600} />
+            <rect x="105" y="142" width="18" height="6" rx="2" fill={ART.sky600} />
+            <rect x="130" y="142" width="18" height="6" rx="2" fill={ART.slate700} />
           </svg>
         ) : isBattery ? (
           <svg
@@ -138,24 +185,26 @@ export default function ProductStudioStage({
             viewBox="0 0 180 140"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-label="Lithium battery illustration"
           >
-            {/* Rack / Wall Mount Lithium Battery Enclosure */}
-            <rect x="15" y="20" width="150" height="100" rx="8" fill="#1E293B" stroke="#38BDF8" strokeWidth="1.5" />
-            {/* BMS Screen & Battery Bar */}
-            <rect x="30" y="35" width="60" height="15" rx="3" fill="#0F172A" stroke="#0284C7" strokeWidth="1" />
-            <text x="60" y="46" fill="#38BDF8" fontSize="9" fontFamily="monospace" fontWeight="bold" textAnchor="middle">51.2V 100Ah</text>
-            <rect x="100" y="36" width="50" height="12" rx="2" fill="#0F172A" />
-            <rect x="102" y="38" width="40" height="8" rx="1" fill="#10B981" />
-            {/* Terminals & Breaker */}
-            <circle cx="35" cy="75" r="7" fill="#DC2626" />
-            <circle cx="35" cy="75" r="3" fill="#FFFFFF" />
-            <circle cx="60" cy="75" r="7" fill="#0F172A" stroke="#475569" />
-            <circle cx="60" cy="75" r="3" fill="#FFFFFF" />
-            <rect x="85" y="65" width="22" height="20" rx="3" fill="#0F172A" stroke="#64748B" />
-            <rect x="91" y="68" width="10" height="14" rx="2" fill="#F59E0B" />
+            {/* Rack / wall-mount lithium battery enclosure */}
+            <rect x="15" y="20" width="150" height="100" rx="8" fill={ART.ink800} stroke={ART.sky400} strokeWidth="1.5" />
+            {/* BMS screen & battery bar */}
+            <rect x="30" y="35" width="60" height="15" rx="3" fill={ART.ink900} stroke={ART.sky600} strokeWidth="1" />
+            <text x="60" y="46" fill={ART.sky400} fontSize="9" fontFamily="monospace" fontWeight="bold" textAnchor="middle">51.2V 100Ah</text>
+            <rect x="100" y="36" width="50" height="12" rx="2" fill={ART.ink900} />
+            <rect x="102" y="38" width="40" height="8" rx="1" fill={ART.emerald500} />
+            {/* Terminals & breaker */}
+            <circle cx="35" cy="75" r="7" fill={ART.red600} />
+            <circle cx="35" cy="75" r="3" fill={ART.white} />
+            <circle cx="60" cy="75" r="7" fill={ART.ink900} stroke={ART.slate600} />
+            <circle cx="60" cy="75" r="3" fill={ART.white} />
+            <rect x="85" y="65" width="22" height="20" rx="3" fill={ART.ink900} stroke={ART.slate500} />
+            <rect x="91" y="68" width="10" height="14" rx="2" fill={ART.amber500} />
             {/* Handles */}
-            <path d="M15 45 H8 V95 H15" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round" />
-            <path d="M165 45 H172 V95 H165" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M15 45 H8 V95 H15" stroke={ART.slate500} strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M165 45 H172 V95 H165" stroke={ART.slate500} strokeWidth="2.5" strokeLinecap="round" />
           </svg>
         ) : isTech ? (
           <svg
@@ -164,17 +213,19 @@ export default function ProductStudioStage({
             viewBox="0 0 120 160"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-label="Smartphone illustration"
           >
-            {/* Modern Slim Smartphone Chassis */}
-            <rect x="25" y="10" width="70" height="140" rx="14" fill="#0F172A" stroke="#6366F1" strokeWidth="1.5" />
-            <rect x="29" y="14" width="62" height="132" rx="10" fill="#1E1B4B" />
-            {/* Camera Punchole & Display Wallpaper Glow */}
-            <circle cx="60" cy="22" r="3" fill="#000000" />
+            {/* Modern slim smartphone chassis */}
+            <rect x="25" y="10" width="70" height="140" rx="14" fill={ART.ink900} stroke={ART.indigo500} strokeWidth="1.5" />
+            <rect x="29" y="14" width="62" height="132" rx="10" fill={ART.indigo950} />
+            {/* Camera punch-hole & display wallpaper glow */}
+            <circle cx="60" cy="22" r="3" fill={ART.black} />
             <circle cx="60" cy="80" r="24" fill="url(#techGlow)" fillOpacity="0.4" />
             <defs>
               <radialGradient id="techGlow" cx="0.5" cy="0.5" r="0.5">
-                <stop offset="0%" stopColor="#818CF8" />
-                <stop offset="100%" stopColor="#312E81" stopOpacity="0" />
+                <stop offset="0%" stopColor={ART.indigo400} />
+                <stop offset="100%" stopColor={ART.indigo900} stopOpacity="0" />
               </radialGradient>
             </defs>
           </svg>
@@ -185,33 +236,27 @@ export default function ProductStudioStage({
             viewBox="0 0 160 140"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-label="Cement sack illustration"
           >
-            {/* Hardware Cement Sack / Industrial Supply */}
-            <path d="M40 25 C50 20, 110 20, 120 25 L130 115 C120 125, 40 125, 30 115 Z" fill="#D97706" stroke="#92400E" strokeWidth="2" />
-            <rect x="50" y="45" width="60" height="45" rx="4" fill="#FEF3C7" stroke="#B45309" strokeWidth="1" />
-            <text x="80" y="65" fill="#92400E" fontSize="10" fontFamily="sans-serif" fontWeight="900" textAnchor="middle">SABS 42.5N</text>
-            <text x="80" y="78" fill="#78350F" fontSize="8" fontFamily="sans-serif" fontWeight="bold" textAnchor="middle">50KG NET</text>
+            {/* Hardware cement sack / industrial supply */}
+            <path
+              d="M40 25 C50 20, 110 20, 120 25 L130 115 C120 125, 40 125, 30 115 Z"
+              fill={ART.orange600}
+              stroke={ART.orange800}
+              strokeWidth="2"
+            />
+            <rect x="50" y="45" width="60" height="45" rx="4" fill={ART.amber100} stroke={ART.orange700} strokeWidth="1" />
+            <text x="80" y="65" fill={ART.orange800} fontSize="10" fontFamily="sans-serif" fontWeight="900" textAnchor="middle">SABS 42.5N</text>
+            <text x="80" y="78" fill={ART.orange900} fontSize="8" fontFamily="sans-serif" fontWeight="bold" textAnchor="middle">50KG NET</text>
           </svg>
         ) : (
-          <div style={{ fontSize: isDetail ? '4rem' : '2rem' }}>📦</div>
+          <BoxIcon size={isDetail ? 64 : 32} />
         )}
       </div>
 
-      {/* GS1 Standard Watermark Badge (Subtle Technical Accent) */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '8px',
-          right: '10px',
-          fontSize: '0.65rem',
-          fontWeight: 800,
-          color: '#94A3B8',
-          letterSpacing: '0.06em',
-          textTransform: 'uppercase',
-          fontFamily: 'var(--font-mono)',
-          zIndex: 3,
-        }}
-      >
+      {/* GS1 standard watermark badge */}
+      <div className="studio-stage__watermark max-w-[80%] truncate text-xs">
         GS1 {product.identifiers?.mpn || 'CANONICAL'}
       </div>
     </div>

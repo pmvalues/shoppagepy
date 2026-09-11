@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCredentials, setSessionCookie, type UserRole } from '@/lib/auth';
+import { enforceRateLimit } from '@/server/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
+  // Unthrottled login is a credential-brute-force vector.
+  const limited = enforceRateLimit('login', req);
+  if (limited) return limited;
+
   try {
     const body = await req.json();
     const { email, password, role, storeId } = body;

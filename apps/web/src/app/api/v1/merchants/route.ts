@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NationwideMerchantStore } from '@shoppage/kernel';
+import { enforceRateLimit } from '@/server/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -9,6 +10,9 @@ export const dynamic = 'force-dynamic';
  * Queries 3,109,299 South African verified merchants and trade desks.
  */
 export async function GET(request: NextRequest) {
+  const limited = enforceRateLimit('search', request);
+  if (limited) return limited;
+
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q') || searchParams.get('query') || undefined;

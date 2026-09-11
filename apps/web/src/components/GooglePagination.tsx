@@ -4,24 +4,26 @@ import Link from 'next/link';
 
 export default function GooglePagination({ currentPage = 1, query = '' }: { currentPage?: number; query?: string }) {
   const pages = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const WORDMARK = 'Shoppagetime';
 
   return (
-    <div style={{ textAlign: 'center', padding: '3rem 0', borderTop: '1px solid #E2E8F0' }}>
-      {/* Colorful Logo Header: ShoppageTime */}
+    <div style={{ textAlign: 'center', padding: '3rem 0', borderTop: '1px solid var(--color-line)' }}>
+      {/* Wordmark.
+          This previously spelled "Shoppagetime" letter by letter in Google's
+          four logo colours (#4285F4 blue, #EA4335 red, #FBBC05 yellow,
+          #34A853 green) — i.e. Google's brand identity applied to Shoppage's
+          own name. The v5.0 brand decision retired the competing identity in
+          favour of an emerald base, so the wordmark is now a duotone drawn
+          from the emerald ramp. The alternating rhythm is kept, but both
+          shades clear 4.5:1 on the light page, which the old yellow and green
+          never did. */}
       <div style={{ display: 'inline-flex', alignItems: 'center', gap: '1px', fontSize: '2.5rem', fontWeight: 900, fontFamily: 'var(--font-display)', marginBottom: '1rem' }}>
-        <span style={{ color: '#4285F4' }}>S</span>
-        <span style={{ color: '#EA4335' }}>h</span>
-        <span style={{ color: '#FBBC05' }}>o</span>
-        <span style={{ color: '#4285F4' }}>p</span>
-        <span style={{ color: '#34A853' }}>p</span>
-        <span style={{ color: '#EA4335' }}>a</span>
-        <span style={{ color: '#FBBC05' }}>g</span>
-        <span style={{ color: '#4285F4' }}>e</span>
-        <span style={{ color: '#34A853' }}>t</span>
-        <span style={{ color: '#EA4335' }}>i</span>
-        <span style={{ color: '#FBBC05' }}>m</span>
-        <span style={{ color: '#4285F4' }}>e</span>
-        <span style={{ color: '#4285F4', fontSize: '1.75rem', marginLeft: '0.5rem' }}>›</span>
+        {WORDMARK.split('').map((ch, i) => (
+          <span key={i} style={{ color: i % 2 === 0 ? 'var(--color-brand-ink)' : 'var(--color-brand-800)' }}>
+            {ch}
+          </span>
+        ))}
+        <span style={{ color: 'var(--color-brand-ink)', fontSize: '1.75rem', marginLeft: '0.5rem' }}>›</span>
       </div>
 
       {/* Numbered Page List */}
@@ -33,7 +35,7 @@ export default function GooglePagination({ currentPage = 1, query = '' }: { curr
               key={p}
               href={`/search?${query ? `q=${encodeURIComponent(query)}&` : ''}page=${p}`}
               style={{
-                color: isCurr ? '#202124' : '#1A0DAB',
+                color: isCurr ? 'var(--color-content)' : 'var(--color-brand-700)',
                 fontWeight: isCurr ? 800 : 500,
                 textDecoration: isCurr ? 'none' : 'underline',
                 padding: '0.2rem 0.4rem',
@@ -45,7 +47,7 @@ export default function GooglePagination({ currentPage = 1, query = '' }: { curr
         })}
         <Link
           href={`/search?${query ? `q=${encodeURIComponent(query)}&` : ''}page=${currentPage + 1}`}
-          style={{ color: '#1A0DAB', fontWeight: 700, marginLeft: '0.75rem', textDecoration: 'none' }}
+          style={{ color: 'var(--color-brand-700)', fontWeight: 700, marginLeft: '0.75rem', textDecoration: 'none' }}
         >
           Next
         </Link>

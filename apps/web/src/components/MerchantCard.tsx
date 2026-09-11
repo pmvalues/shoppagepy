@@ -19,7 +19,7 @@ export default function MerchantCard({ merchant }: { merchant: Merchant }) {
             {merchant.category?.replace(/_/g, ' ').toUpperCase() || 'RETAIL MERCHANT'}
           </span>
           {typeof merchant.googleRating === 'number' && (
-            <span style={{ fontSize: '0.78rem', color: '#D97706', fontWeight: 800, background: '#FEF3C7', padding: '0.15rem 0.45rem', borderRadius: '4px' }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--color-warning-ink)', fontWeight: 800, background: 'var(--color-warning-100)', padding: '0.15rem 0.45rem', borderRadius: '4px' }}>
               ★ {merchant.googleRating.toFixed(1)} ({merchant.googleReviewsCount || 10}+)
             </span>
           )}

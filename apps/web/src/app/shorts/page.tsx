@@ -64,7 +64,7 @@ export default function ShortsPage() {
   }, [activeShortIndex, filteredShorts.length]);
 
   return (
-    <div style={{ background: '#0F172A', minHeight: '100vh', color: '#FFFFFF', paddingBottom: '6rem' }}>
+    <div style={{ background: 'var(--color-canvas-dark)', minHeight: '100vh', color: 'var(--color-on-dark)', paddingBottom: '6rem' }}>
       {/* Toast Notification */}
       {copyToast && (
         <div
@@ -73,8 +73,8 @@ export default function ShortsPage() {
             top: '20px',
             left: '50%',
             transform: 'translateX(-50%)',
-            background: '#059669',
-            color: '#FFFFFF',
+            background: 'var(--color-brand-solid)',
+            color: 'var(--color-on-dark)',
             padding: '0.65rem 1.25rem',
             borderRadius: '9999px',
             fontWeight: 800,
@@ -97,24 +97,24 @@ export default function ShortsPage() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.5rem',
-            background: 'rgba(37, 99, 235, 0.2)',
+            background: 'rgba(5, 150, 105, 0.2)',
             border: '1px solid rgba(59, 130, 246, 0.4)',
             padding: '0.4rem 1rem',
             borderRadius: '9999px',
             fontSize: '0.78rem',
             fontWeight: 800,
-            color: '#60A5FA',
+            color: 'var(--color-info-300)',
             marginBottom: '1rem',
           }}
         >
-          <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444', animation: 'pulse 1.5s infinite' }}></span>
+          <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-danger-500)', animation: 'pulse 1.5s infinite' }}></span>
           <span>LIVE COMMERCE & PRODUCT PROOF FEED</span>
         </div>
 
-        <h1 style={{ fontSize: '2.75rem', fontWeight: 900, letterSpacing: '-0.03em', color: '#FFFFFF', marginBottom: '0.75rem' }}>
+        <h1 style={{ fontSize: '2.75rem', fontWeight: 900, letterSpacing: '-0.03em', color: 'var(--color-on-dark)', marginBottom: '0.75rem' }}>
           Video Shorts & Product Teardowns
         </h1>
-        <p style={{ color: '#94A3B8', fontSize: '1.05rem', maxWidth: '640px', margin: '0 auto 2rem auto', lineHeight: 1.6 }}>
+        <p style={{ color: 'var(--color-on-dark-muted)', fontSize: '1.05rem', maxWidth: '640px', margin: '0 auto 2rem auto', lineHeight: 1.6 }}>
           Watch real teardowns, factory tours, and warehouse price walks. Trade directly with verified stockists with 0% take rate.
         </p>
 
@@ -130,14 +130,14 @@ export default function ShortsPage() {
           <Link
             href="/shows"
             className="btn btn-outline"
-            style={{ borderRadius: '9999px', fontWeight: 800, fontSize: '0.85rem', color: '#CBD5E1', borderColor: '#334155' }}
+            style={{ borderRadius: '9999px', fontWeight: 800, fontSize: '0.85rem', color: 'var(--color-content-secondary)', borderColor: 'var(--color-line-strong)' }}
           >
             📺 Market Walk Shows Series &rarr;
           </Link>
           <button
             onClick={() => setActiveTab('submit')}
             className={`btn ${activeTab === 'submit' ? 'btn-primary' : 'btn-outline'}`}
-            style={{ borderRadius: '9999px', fontWeight: 800, fontSize: '0.85rem', background: activeTab === 'submit' ? '#059669' : 'transparent', borderColor: activeTab === 'submit' ? '#059669' : '#334155', color: '#FFFFFF' }}
+            style={{ borderRadius: '9999px', fontWeight: 800, fontSize: '0.85rem', background: activeTab === 'submit' ? 'var(--color-brand-solid)' : 'transparent', borderColor: activeTab === 'submit' ? 'var(--color-brand-solid)' : 'var(--color-canvas-dark-line-strong)', color: 'var(--color-on-dark)' }}
           >
             + Submit Merchant Video
           </button>
@@ -157,9 +157,9 @@ export default function ShortsPage() {
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
                 style={{
-                  background: selectedCategory === cat.id ? '#2563EB' : 'rgba(30, 41, 59, 0.8)',
-                  color: selectedCategory === cat.id ? '#FFFFFF' : '#94A3B8',
-                  border: selectedCategory === cat.id ? '1px solid #3B82F6' : '1px solid #334155',
+                  background: selectedCategory === cat.id ? 'var(--color-brand-solid)' : 'rgba(30, 41, 59, 0.8)',
+                  color: selectedCategory === cat.id ? 'var(--color-on-dark)' : 'var(--color-on-dark-muted)',
+                  border: selectedCategory === cat.id ? '1px solid var(--color-info-500)' : '1px solid var(--color-canvas-dark-line-strong)',
                   padding: '0.45rem 1.1rem',
                   borderRadius: '9999px',
                   fontWeight: 700,
@@ -192,8 +192,8 @@ export default function ShortsPage() {
                     setIsPlaying(true);
                   }}
                   style={{
-                    background: '#1E293B',
-                    border: '1px solid #334155',
+                    background: 'var(--color-canvas-dark-raised)',
+                    border: '1px solid var(--color-canvas-dark-line-strong)',
                     borderRadius: '16px',
                     padding: 0,
                     overflow: 'hidden',
@@ -203,7 +203,7 @@ export default function ShortsPage() {
                   }}
                 >
                   {/* Video Thumbnail Stage */}
-                  <div style={{ position: 'relative', width: '100%', aspectRatio: '9 / 16', background: '#000000', overflow: 'hidden' }}>
+                  <div style={{ position: 'relative', width: '100%', aspectRatio: '9 / 16', background: 'var(--color-canvas-black)', overflow: 'hidden' }}>
                     <img
                       src={short.thumbnailUrl}
                       alt={short.title}
@@ -213,10 +213,10 @@ export default function ShortsPage() {
 
                     {/* Top Badges */}
                     <div style={{ position: 'absolute', top: '12px', left: '12px', right: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', color: '#FFFFFF', padding: '0.2rem 0.6rem', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 800 }}>
+                      <span style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', color: 'var(--color-on-dark)', padding: '0.2rem 0.6rem', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 800 }}>
                         {short.duration}
                       </span>
-                      <span style={{ background: '#059669', color: '#FFFFFF', padding: '0.2rem 0.5rem', borderRadius: '6px', fontSize: '0.68rem', fontWeight: 800 }}>
+                      <span style={{ background: 'var(--color-brand-solid)', color: 'var(--color-on-dark)', padding: '0.2rem 0.5rem', borderRadius: '6px', fontSize: '0.68rem', fontWeight: 800 }}>
                         ✓ Verified Stock
                       </span>
                     </div>
@@ -228,9 +228,9 @@ export default function ShortsPage() {
                           width: '56px',
                           height: '56px',
                           borderRadius: '50%',
-                          background: 'rgba(37, 99, 235, 0.9)',
+                          background: 'var(--color-brand-solid)',
                           backdropFilter: 'blur(4px)',
-                          color: '#FFFFFF',
+                          color: 'var(--color-on-dark)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -244,29 +244,29 @@ export default function ShortsPage() {
 
                     {/* Bottom Info Overlay */}
                     <div style={{ position: 'absolute', bottom: '12px', left: '12px', right: '12px' }}>
-                      <div style={{ fontSize: '0.75rem', color: '#60A5FA', fontWeight: 800, marginBottom: '0.25rem' }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--color-info-300)', fontWeight: 800, marginBottom: '0.25rem' }}>
                         🏬 {short.merchantName}
                       </div>
-                      <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#FFFFFF', lineHeight: 1.3, marginBottom: '0.5rem' }}>
+                      <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-on-dark)', lineHeight: 1.3, marginBottom: '0.5rem' }}>
                         {short.title}
                       </h3>
 
                       {short.priceZar && (
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(16, 185, 129, 0.2)', border: '1px solid rgba(16, 185, 129, 0.4)', padding: '0.25rem 0.6rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 800, color: '#34D399' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(16, 185, 129, 0.2)', border: '1px solid rgba(16, 185, 129, 0.4)', padding: '0.25rem 0.6rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-brand-500)' }}>
                           <span>R {short.priceZar.toLocaleString()}</span>
-                          {short.discountText && <span style={{ color: '#94A3B8', fontSize: '0.65rem' }}>· {short.discountText}</span>}
+                          {short.discountText && <span style={{ color: 'var(--color-on-dark-muted)', fontSize: '0.65rem' }}>· {short.discountText}</span>}
                         </div>
                       )}
                     </div>
                   </div>
 
                   {/* Card Footer Engagement */}
-                  <div style={{ padding: '0.85rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#1E293B', borderTop: '1px solid #334155' }}>
-                    <div style={{ display: 'flex', gap: '0.85rem', fontSize: '0.78rem', color: '#94A3B8', fontWeight: 700 }}>
+                  <div style={{ padding: '0.85rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--color-canvas-dark-raised)', borderTop: '1px solid var(--color-canvas-dark-line-strong)' }}>
+                    <div style={{ display: 'flex', gap: '0.85rem', fontSize: '0.78rem', color: 'var(--color-on-dark-muted)', fontWeight: 700 }}>
                       <span>👁️ {short.views.toLocaleString()}</span>
                       <span style={{ color: isLiked ? '#F43F5E' : 'inherit' }}>❤️ {currentLikes.toLocaleString()}</span>
                     </div>
-                    <span style={{ fontSize: '0.78rem', color: '#60A5FA', fontWeight: 800 }}>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--color-info-300)', fontWeight: 800 }}>
                       Watch Fullscreen &rarr;
                     </span>
                   </div>
@@ -278,17 +278,17 @@ export default function ShortsPage() {
       ) : (
         /* Merchant Video Submission Portal */
         <div className="container" style={{ maxWidth: '640px' }}>
-          <div className="card" style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '16px', padding: '2rem' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#FFFFFF', marginBottom: '0.5rem' }}>
+          <div className="card" style={{ background: 'var(--color-canvas-dark-raised)', border: '1px solid var(--color-canvas-dark-line-strong)', borderRadius: '16px', padding: '2rem' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-on-dark)', marginBottom: '0.5rem' }}>
               Submit Product Video or Teardown
             </h2>
-            <p style={{ fontSize: '0.875rem', color: '#94A3B8', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-on-dark-muted)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
               Attach TikTok, YouTube Shorts, or MP4 unboxings directly to your store catalog. Zero listing fee.
             </p>
 
             <form onSubmit={(e) => { e.preventDefault(); showToast('Video submitted successfully! Pending CIPC merchant verification.', 'success'); setActiveTab('feed'); }}>
               <div style={{ marginBottom: '1.25rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#CBD5E1', marginBottom: '0.4rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-on-dark-muted)', marginBottom: '0.4rem' }}>
                   Video URL (YouTube Shorts, TikTok, or MP4)
                 </label>
                 <input
@@ -296,12 +296,12 @@ export default function ShortsPage() {
                   required
                   placeholder="https://www.youtube.com/shorts/... or https://vm.tiktok.com/..."
                   className="form-input"
-                  style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', background: '#0F172A', border: '1px solid #475569', color: '#FFFFFF' }}
+                  style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', background: 'var(--color-canvas-dark)', border: '1px solid var(--color-canvas-dark-line-strong)', color: 'var(--color-on-dark)' }}
                 />
               </div>
 
               <div style={{ marginBottom: '1.25rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#CBD5E1', marginBottom: '0.4rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-on-dark-muted)', marginBottom: '0.4rem' }}>
                   Product Name / SKU Reference
                 </label>
                 <input
@@ -309,12 +309,12 @@ export default function ShortsPage() {
                   required
                   placeholder="e.g. Deye 8kW Hybrid Inverter or Mitrend 500ml Tubs"
                   className="form-input"
-                  style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', background: '#0F172A', border: '1px solid #475569', color: '#FFFFFF' }}
+                  style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', background: 'var(--color-canvas-dark)', border: '1px solid var(--color-canvas-dark-line-strong)', color: 'var(--color-on-dark)' }}
                 />
               </div>
 
               <div style={{ marginBottom: '1.25rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#CBD5E1', marginBottom: '0.4rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-on-dark-muted)', marginBottom: '0.4rem' }}>
                   Verified Merchant / Store Name
                 </label>
                 <input
@@ -322,14 +322,14 @@ export default function ShortsPage() {
                   required
                   placeholder="e.g. Mitrend Products (Midrand)"
                   className="form-input"
-                  style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', background: '#0F172A', border: '1px solid #475569', color: '#FFFFFF' }}
+                  style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', background: 'var(--color-canvas-dark)', border: '1px solid var(--color-canvas-dark-line-strong)', color: 'var(--color-on-dark)' }}
                 />
               </div>
 
               <button
                 type="submit"
                 className="btn btn-primary"
-                style={{ width: '100%', padding: '0.85rem', borderRadius: '8px', fontWeight: 800, background: '#059669', borderColor: '#059669' }}
+                style={{ width: '100%', padding: '0.85rem', borderRadius: '8px', fontWeight: 800, background: 'var(--color-brand-solid)', borderColor: 'var(--color-brand-solid)' }}
               >
                 ✓ Submit for Instant Syndication
               </button>
@@ -364,7 +364,7 @@ export default function ShortsPage() {
               maxWidth: '440px',
               height: '92vh',
               maxHeight: '860px',
-              background: '#000000',
+              background: 'var(--color-canvas-black)',
               borderRadius: '20px',
               overflow: 'hidden',
               boxShadow: '0 25px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.1)',
@@ -375,10 +375,10 @@ export default function ShortsPage() {
             {/* Top Close & Progress Bar */}
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '1rem', zIndex: 30, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ background: '#2563EB', color: '#FFFFFF', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800 }}>
+                <span style={{ background: 'var(--color-brand-solid)', color: 'var(--color-on-dark)', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800 }}>
                   PRODUCER PROOF
                 </span>
-                <span style={{ fontSize: '0.78rem', color: '#CBD5E1', fontWeight: 700 }}>
+                <span style={{ fontSize: '0.78rem', color: 'var(--color-on-dark-muted)', fontWeight: 700 }}>
                   {activeShortIndex + 1} / {filteredShorts.length}
                 </span>
               </div>
@@ -391,7 +391,7 @@ export default function ShortsPage() {
                   borderRadius: '50%',
                   background: 'rgba(255,255,255,0.2)',
                   border: 'none',
-                  color: '#FFFFFF',
+                  color: 'var(--color-on-dark)',
                   fontSize: '1.25rem',
                   cursor: 'pointer',
                   display: 'flex',
@@ -427,7 +427,7 @@ export default function ShortsPage() {
               {/* Pause Icon Indicator */}
               {!isPlaying && (
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)' }}>
-                  <span style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'rgba(0,0,0,0.7)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
+                  <span style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'rgba(0,0,0,0.7)', color: 'var(--color-on-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
                     ❚❚
                   </span>
                 </div>
@@ -459,7 +459,7 @@ export default function ShortsPage() {
                   borderRadius: '50%',
                   width: '46px',
                   height: '46px',
-                  color: '#FFFFFF',
+                  color: 'var(--color-on-dark)',
                   fontSize: '1.25rem',
                   display: 'flex',
                   alignItems: 'center',
@@ -486,7 +486,7 @@ export default function ShortsPage() {
                   borderRadius: '50%',
                   width: '46px',
                   height: '46px',
-                  color: '#FFFFFF',
+                  color: 'var(--color-on-dark)',
                   fontSize: '1.2rem',
                   display: 'flex',
                   alignItems: 'center',
@@ -507,11 +507,11 @@ export default function ShortsPage() {
                   href={`tel:${activeShort.merchantPhone}`}
                   onClick={(e) => e.stopPropagation()}
                   style={{
-                    background: '#2563EB',
+                    background: 'var(--color-brand-solid)',
                     borderRadius: '50%',
                     width: '46px',
                     height: '46px',
-                    color: '#FFFFFF',
+                    color: 'var(--color-on-dark)',
                     fontSize: '1.2rem',
                     display: 'flex',
                     alignItems: 'center',
@@ -540,20 +540,20 @@ export default function ShortsPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#38BDF8' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-info-400)' }}>
                   🏬 {activeShort.merchantName}
                 </span>
-                <span style={{ background: '#059669', color: '#FFFFFF', padding: '0.15rem 0.4rem', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 800 }}>
+                <span style={{ background: 'var(--color-brand-solid)', color: 'var(--color-on-dark)', padding: '0.15rem 0.4rem', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 800 }}>
                   ✓ CIPC Verified
                 </span>
               </div>
 
-              <h2 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#FFFFFF', lineHeight: 1.3, marginBottom: '0.5rem' }}>
+              <h2 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-on-dark)', lineHeight: 1.3, marginBottom: '0.5rem' }}>
                 {activeShort.title}
               </h2>
 
               {activeShort.summary && (
-                <p style={{ fontSize: '0.8rem', color: '#94A3B8', lineHeight: 1.4, marginBottom: '0.75rem' }}>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-on-dark-muted)', lineHeight: 1.4, marginBottom: '0.75rem' }}>
                   {activeShort.summary}
                 </p>
               )}
@@ -562,10 +562,10 @@ export default function ShortsPage() {
               {activeShort.featuredProducts && activeShort.featuredProducts.length > 0 && (
                 <div style={{ background: 'rgba(30, 41, 59, 0.9)', border: '1px solid rgba(59, 130, 246, 0.4)', borderRadius: '12px', padding: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem' }}>
                   <div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#FFFFFF' }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-on-dark)' }}>
                       {activeShort.featuredProducts[0].title}
                     </div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#34D399' }}>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 900, color: 'var(--color-brand-500)' }}>
                       R {activeShort.featuredProducts[0].price.toLocaleString()}
                     </div>
                   </div>
@@ -581,7 +581,7 @@ export default function ShortsPage() {
                     <Link
                       href="/requests"
                       className="btn btn-outline btn-sm"
-                      style={{ fontWeight: 800, fontSize: '0.75rem', borderRadius: '6px', color: '#FFFFFF', borderColor: '#475569' }}
+                      style={{ fontWeight: 800, fontSize: '0.75rem', borderRadius: '6px', color: 'var(--color-on-dark)', borderColor: 'var(--color-canvas-dark-line-strong)' }}
                     >
                       ✉️ RFQ
                     </Link>
@@ -597,7 +597,7 @@ export default function ShortsPage() {
                   e.stopPropagation();
                   setActiveShortIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : filteredShorts.length - 1));
                 }}
-                style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', color: '#FFFFFF', cursor: 'pointer', fontSize: '1.1rem' }}
+                style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', color: 'var(--color-on-dark)', cursor: 'pointer', fontSize: '1.1rem' }}
               >
                 ▲
               </button>
@@ -609,7 +609,7 @@ export default function ShortsPage() {
                   e.stopPropagation();
                   setActiveShortIndex((prev) => (prev !== null && prev < filteredShorts.length - 1 ? prev + 1 : 0));
                 }}
-                style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', color: '#FFFFFF', cursor: 'pointer', fontSize: '1.1rem' }}
+                style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', color: 'var(--color-on-dark)', cursor: 'pointer', fontSize: '1.1rem' }}
               >
                 ▼
               </button>

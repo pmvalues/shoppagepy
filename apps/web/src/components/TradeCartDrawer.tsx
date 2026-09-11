@@ -219,12 +219,12 @@ export default function TradeCartDrawer({
           width: '100%',
           maxWidth: '460px',
           height: '100%',
-          background: 'var(--card, #111726)',
-          borderLeft: '1px solid var(--border, #1E293B)',
+          background: 'var(--card)',
+          borderLeft: '1px solid var(--border)',
           boxShadow: '-10px 0 30px rgba(0,0,0,0.4)',
           display: 'flex',
           flexDirection: 'column',
-          color: 'var(--text, #F1F5F9)',
+          color: 'var(--text)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -232,18 +232,18 @@ export default function TradeCartDrawer({
         <div
           style={{
             padding: '1.25rem 1.5rem',
-            borderBottom: '1px solid var(--border, #1E293B)',
+            borderBottom: '1px solid var(--border)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: 'var(--bg, #090D16)',
+            background: 'var(--bg)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <span style={{ fontSize: '1.35rem' }}>🛒</span>
             <div>
               <h2 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>Shopping & Pickup Cart</h2>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text2, #94A3B8)' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text2)' }}>
                 {items.length} {items.length === 1 ? 'item' : 'items'} · Direct Store Deals
               </span>
             </div>
@@ -253,7 +253,7 @@ export default function TradeCartDrawer({
             style={{
               background: 'transparent',
               border: 'none',
-              color: 'var(--text2, #94A3B8)',
+              color: 'var(--text2)',
               fontSize: '1.4rem',
               cursor: 'pointer',
               padding: '0.25rem',
@@ -269,7 +269,7 @@ export default function TradeCartDrawer({
             <div
               style={{
                 background: 'rgba(16, 185, 129, 0.08)',
-                border: '1px solid var(--brand, #10B981)',
+                border: '1px solid var(--brand)',
                 borderRadius: '12px',
                 padding: '1.5rem',
                 textAlign: 'center',
@@ -280,14 +280,14 @@ export default function TradeCartDrawer({
               <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0 0 0.5rem 0' }}>
                 Trade Invoice Requested!
               </h3>
-              <p style={{ fontSize: '0.825rem', color: 'var(--text2, #94A3B8)', lineHeight: 1.5 }}>
+              <p style={{ fontSize: '0.825rem', color: 'var(--text2)', lineHeight: 1.5 }}>
                 Your order has been registered under reference:
                 <br />
-                <strong style={{ color: 'var(--brand, #10B981)', fontFamily: 'monospace', fontSize: '0.95rem' }}>
+                <strong style={{ color: 'var(--brand)', fontFamily: 'monospace', fontSize: '0.95rem' }}>
                   {invoiceRef}
                 </strong>
               </p>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text2, #94A3B8)' }}>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text2)' }}>
                 The stockist and Shoppage Clearing Desk will contact you on WhatsApp with verified bank details and dispatch times.
               </p>
               <button
@@ -297,8 +297,8 @@ export default function TradeCartDrawer({
                 }}
                 style={{
                   marginTop: '1rem',
-                  background: 'var(--brand, #10B981)',
-                  color: '#090D16',
+                  background: 'var(--brand)',
+                  color: 'var(--color-content)',
                   fontWeight: 800,
                   border: 'none',
                   borderRadius: '8px',
@@ -319,7 +319,7 @@ export default function TradeCartDrawer({
                 height: '100%',
                 textAlign: 'center',
                 padding: '2rem',
-                color: 'var(--text2, #94A3B8)',
+                color: 'var(--text2)',
               }}
             >
               <span style={{ fontSize: '3rem', opacity: 0.4, marginBottom: '1rem' }}>🛒</span>
@@ -336,8 +336,8 @@ export default function TradeCartDrawer({
                 <div
                   key={item.id}
                   style={{
-                    background: 'var(--bg, #090D16)',
-                    border: '1px solid var(--border, #1E293B)',
+                    background: 'var(--bg)',
+                    border: '1px solid var(--border)',
                     borderRadius: '10px',
                     padding: '0.85rem 1rem',
                     display: 'flex',
@@ -346,7 +346,7 @@ export default function TradeCartDrawer({
                   }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--brand, #10B981)', fontWeight: 700 }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--brand)', fontWeight: 700 }}>
                       {item.brand || 'Verified Stockist'}
                     </div>
                     <h4
@@ -362,12 +362,12 @@ export default function TradeCartDrawer({
                     >
                       {item.name}
                     </h4>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text2, #94A3B8)' }}>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text2)' }}>
                       📍 {item.stockistLocation}
                     </div>
                     <div style={{ marginTop: '0.45rem', fontSize: '0.95rem', fontWeight: 800, color: 'var(--text)' }}>
                       R {(item.price * item.quantity).toLocaleString('en-ZA')}{' '}
-                      <span style={{ fontSize: '0.72rem', color: 'var(--text2, #94A3B8)', fontWeight: 400 }}>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text2)', fontWeight: 400 }}>
                         (R {item.price.toLocaleString('en-ZA')} ea)
                       </span>
                     </div>
@@ -379,7 +379,7 @@ export default function TradeCartDrawer({
                       style={{
                         background: 'transparent',
                         border: 'none',
-                        color: 'var(--text2, #94A3B8)',
+                        color: 'var(--text2)',
                         cursor: 'pointer',
                         fontSize: '0.8rem',
                         padding: 0,
@@ -392,8 +392,8 @@ export default function TradeCartDrawer({
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.35rem',
-                        background: 'var(--card, #111726)',
-                        border: '1px solid var(--border, #1E293B)',
+                        background: 'var(--card)',
+                        border: '1px solid var(--border)',
                         borderRadius: '6px',
                         padding: '0.15rem 0.35rem',
                       }}
@@ -440,12 +440,12 @@ export default function TradeCartDrawer({
           <div
             style={{
               padding: '1.25rem 1.5rem',
-              borderTop: '1px solid var(--border, #1E293B)',
-              background: 'var(--bg, #090D16)',
+              borderTop: '1px solid var(--border)',
+              background: 'var(--bg)',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text2, #94A3B8)' }}>Estimated Subtotal</span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text2)' }}>Estimated Subtotal</span>
               <strong style={{ fontSize: '1.15rem', color: 'var(--text)' }}>
                 R {totalZar.toLocaleString('en-ZA')}
               </strong>
@@ -458,8 +458,8 @@ export default function TradeCartDrawer({
                 disabled={isCheckingOut}
                 style={{
                   width: '100%',
-                  background: '#059669',
-                  color: '#FFFFFF',
+                  background: 'var(--color-brand-solid)',
+                  color: 'var(--color-on-solid)',
                   fontWeight: 800,
                   fontSize: '0.875rem',
                   padding: '0.75rem',
@@ -486,8 +486,8 @@ export default function TradeCartDrawer({
                     style={{
                       padding: '0.45rem 0.65rem',
                       borderRadius: '6px',
-                      border: '1px solid var(--border, #1E293B)',
-                      background: 'var(--card, #111726)',
+                      border: '1px solid var(--border)',
+                      background: 'var(--card)',
                       color: 'var(--text)',
                       fontSize: '0.78rem',
                     }}
@@ -501,8 +501,8 @@ export default function TradeCartDrawer({
                     style={{
                       padding: '0.45rem 0.65rem',
                       borderRadius: '6px',
-                      border: '1px solid var(--border, #1E293B)',
-                      background: 'var(--card, #111726)',
+                      border: '1px solid var(--border)',
+                      background: 'var(--card)',
                       color: 'var(--text)',
                       fontSize: '0.78rem',
                     }}
@@ -513,9 +513,9 @@ export default function TradeCartDrawer({
                   disabled={isCheckingOut}
                   style={{
                     width: '100%',
-                    background: '#0F172A',
-                    color: '#F8FAFC',
-                    border: '1px solid #334155',
+                    background: 'var(--color-content)',
+                    color: 'var(--color-content-inverse)',
+                    border: '1px solid var(--color-content-secondary)',
                     fontWeight: 700,
                     fontSize: '0.8rem',
                     padding: '0.65rem',

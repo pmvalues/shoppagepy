@@ -52,7 +52,7 @@ export default function MerchantDatasetsDirectoryPage() {
                 {source.description}
               </p>
 
-              <div style={{ background: '#F8FAFC', padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem' }}>
+              <div style={{ background: 'var(--color-surface-subtle)', padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem' }}>
                 <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
                   Extracted Data Fields:
                 </div>

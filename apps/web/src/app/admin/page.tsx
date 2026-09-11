@@ -110,7 +110,7 @@ export default function AdminLoginPage() {
     <div
       style={{
         minHeight: '100vh',
-        background: 'radial-gradient(ellipse 900px 500px at 50% 0%, rgba(37, 99, 235, 0.08) 0%, #F8FAFC 100%)',
+        background: 'radial-gradient(ellipse 900px 500px at 50% 0%, rgba(5, 150, 105, 0.08) 0%, #F8FAFC 100%)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
@@ -126,20 +126,20 @@ export default function AdminLoginPage() {
               width: '38px',
               height: '38px',
               borderRadius: '10px',
-              background: '#2563EB',
-              color: '#FFFFFF',
+              background: 'var(--color-brand-solid)',
+              color: 'var(--color-on-solid)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontWeight: 900,
               fontSize: '1.2rem',
-              boxShadow: '0 4px 10px rgba(37, 99, 235, 0.3)',
+              boxShadow: '0 4px 10px rgba(5, 150, 105, 0.3)',
             }}
           >
             S
           </div>
           <span style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--slate-900)', letterSpacing: '-0.03em' }}>
-            Shoppage <span style={{ color: '#2563EB', fontWeight: 700 }}>Admin</span>
+            Shoppage <span style={{ color: 'var(--color-brand-ink)', fontWeight: 700 }}>Admin</span>
           </span>
         </Link>
         <p style={{ color: 'var(--slate-500)', fontSize: '0.9rem', margin: 0 }}>
@@ -154,10 +154,10 @@ export default function AdminLoginPage() {
           width: '100%',
           maxWidth: '460px',
           padding: '2rem',
-          background: '#FFFFFF',
+          background: 'var(--color-surface)',
           borderRadius: '16px',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03)',
-          border: '1px solid #E2E8F0',
+          border: '1px solid var(--color-line)',
         }}
       >
         {/* Role Toggle Tabs */}
@@ -165,7 +165,7 @@ export default function AdminLoginPage() {
           style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            background: '#F1F5F9',
+            background: 'var(--color-surface-subtle)',
             padding: '4px',
             borderRadius: '10px',
             marginBottom: '1.75rem',
@@ -179,8 +179,8 @@ export default function AdminLoginPage() {
             }}
             style={{
               border: 'none',
-              background: activeTab === 'merchant' ? '#FFFFFF' : 'transparent',
-              color: activeTab === 'merchant' ? '#0F172A' : '#64748B',
+              background: activeTab === 'merchant' ? 'var(--color-surface)' : 'transparent',
+              color: activeTab === 'merchant' ? 'var(--color-content)' : 'var(--color-content-muted)',
               padding: '0.6rem 0.5rem',
               borderRadius: '8px',
               fontSize: '0.85rem',
@@ -200,8 +200,8 @@ export default function AdminLoginPage() {
             }}
             style={{
               border: 'none',
-              background: activeTab === 'superadmin' ? '#FFFFFF' : 'transparent',
-              color: activeTab === 'superadmin' ? '#0F172A' : '#64748B',
+              background: activeTab === 'superadmin' ? 'var(--color-surface)' : 'transparent',
+              color: activeTab === 'superadmin' ? 'var(--color-content)' : 'var(--color-content-muted)',
               padding: '0.6rem 0.5rem',
               borderRadius: '8px',
               fontSize: '0.85rem',
@@ -216,7 +216,7 @@ export default function AdminLoginPage() {
         </div>
 
         {errorMsg && (
-          <div style={{ background: '#FEF2F2', color: '#991B1B', padding: '0.75rem', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '1.25rem', border: '1px solid #F87171' }}>
+          <div style={{ background: 'var(--color-danger-50)', color: 'var(--color-danger-ink)', padding: '0.75rem', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '1.25rem', border: '1px solid var(--color-danger-500)' }}>
             {errorMsg}
           </div>
         )}
@@ -238,11 +238,11 @@ export default function AdminLoginPage() {
                   width: '100%',
                   padding: '0.65rem 0.75rem',
                   borderRadius: '8px',
-                  border: '1px solid #CBD5E1',
+                  border: '1px solid var(--color-line-strong)',
                   fontSize: '0.9rem',
                   fontWeight: 600,
                   outline: 'none',
-                  background: '#F8FAFC',
+                  background: 'var(--color-surface-subtle)',
                 }}
               >
                 <option value="loc_mitrend_midrand">🏨 Mitrend Products (Pty) Ltd — Midrand</option>
@@ -266,7 +266,7 @@ export default function AdminLoginPage() {
                 width: '100%',
                 padding: '0.65rem 0.75rem',
                 borderRadius: '8px',
-                border: '1px solid #CBD5E1',
+                border: '1px solid var(--color-line-strong)',
                 fontSize: '0.9rem',
                 outline: 'none',
               }}
@@ -276,7 +276,7 @@ export default function AdminLoginPage() {
           <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--slate-700)' }}>Password</label>
-              <span style={{ fontSize: '0.75rem', color: '#2563EB', cursor: 'pointer' }}>Forgot password?</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-brand-ink)', cursor: 'pointer' }}>Forgot password?</span>
             </div>
             <input
               type="password"
@@ -287,7 +287,7 @@ export default function AdminLoginPage() {
                 width: '100%',
                 padding: '0.65rem 0.75rem',
                 borderRadius: '8px',
-                border: '1px solid #CBD5E1',
+                border: '1px solid var(--color-line-strong)',
                 fontSize: '0.9rem',
                 outline: 'none',
               }}
@@ -316,8 +316,8 @@ export default function AdminLoginPage() {
         </form>
 
         {/* Verified Enterprise Workspaces */}
-        <div style={{ marginTop: '1.75rem', paddingTop: '1.5rem', borderTop: '1px solid #F1F5F9' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem', textAlign: 'center' }}>
+        <div style={{ marginTop: '1.75rem', paddingTop: '1.5rem', borderTop: '1px solid var(--color-line-subtle)' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-content-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem', textAlign: 'center' }}>
             Verified Enterprise Workspaces
           </div>
 
@@ -328,9 +328,9 @@ export default function AdminLoginPage() {
               style={{
                 padding: '0.65rem 0.85rem',
                 borderRadius: '8px',
-                border: '1px solid #E2E8F0',
-                background: '#F8FAFC',
-                color: '#0F172A',
+                border: '1px solid var(--color-line)',
+                background: 'var(--color-surface-subtle)',
+                color: 'var(--color-content)',
                 fontSize: '0.825rem',
                 fontWeight: 700,
                 textAlign: 'left',
@@ -342,9 +342,9 @@ export default function AdminLoginPage() {
             >
               <div>
                 <div style={{ fontWeight: 800 }}>🏨 Mitrend Products (Pty) Ltd</div>
-                <div style={{ fontSize: '0.7rem', color: '#64748B' }}>Midrand · 157 Catalog SKUs · CIPC: 2018/489102/07</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--color-content-muted)' }}>Midrand · 157 Catalog SKUs · CIPC: 2018/489102/07</div>
               </div>
-              <span style={{ color: '#7F54B3', fontSize: '0.78rem', fontWeight: 800 }}>Enter OS &rarr;</span>
+              <span style={{ color: 'var(--color-violet-500)', fontSize: '0.78rem', fontWeight: 800 }}>Enter OS &rarr;</span>
             </button>
 
             <button
@@ -353,9 +353,9 @@ export default function AdminLoginPage() {
               style={{
                 padding: '0.65rem 0.85rem',
                 borderRadius: '8px',
-                border: '1px solid #E2E8F0',
-                background: '#F8FAFC',
-                color: '#0F172A',
+                border: '1px solid var(--color-line)',
+                background: 'var(--color-surface-subtle)',
+                color: 'var(--color-content)',
                 fontSize: '0.825rem',
                 fontWeight: 700,
                 textAlign: 'left',
@@ -367,9 +367,9 @@ export default function AdminLoginPage() {
             >
               <div>
                 <div style={{ fontWeight: 800 }}>⚡ SunPower Solutions</div>
-                <div style={{ fontSize: '0.7rem', color: '#64748B' }}>Crown Mines Wholesale Hub · Deye/Dyness Stockist</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--color-content-muted)' }}>Crown Mines Wholesale Hub · Deye/Dyness Stockist</div>
               </div>
-              <span style={{ color: '#2563EB', fontSize: '0.78rem', fontWeight: 800 }}>Enter OS &rarr;</span>
+              <span style={{ color: 'var(--color-brand-ink)', fontSize: '0.78rem', fontWeight: 800 }}>Enter OS &rarr;</span>
             </button>
 
             <button
@@ -378,9 +378,9 @@ export default function AdminLoginPage() {
               style={{
                 padding: '0.65rem 0.85rem',
                 borderRadius: '8px',
-                border: '1px solid #E2E8F0',
-                background: '#F8FAFC',
-                color: '#0F172A',
+                border: '1px solid var(--color-line)',
+                background: 'var(--color-surface-subtle)',
+                color: 'var(--color-content)',
                 fontSize: '0.825rem',
                 fontWeight: 700,
                 textAlign: 'left',
@@ -392,16 +392,16 @@ export default function AdminLoginPage() {
             >
               <div>
                 <div style={{ fontWeight: 800 }}>🛡️ Platform SuperAdmin Portal</div>
-                <div style={{ fontSize: '0.7rem', color: '#64748B' }}>National Grid Telemetry · 74K Stores · CIPC Queue</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--color-content-muted)' }}>National Grid Telemetry · 74K Stores · CIPC Queue</div>
               </div>
-              <span style={{ color: '#059669', fontSize: '0.78rem', fontWeight: 800 }}>Enter Admin &rarr;</span>
+              <span style={{ color: 'var(--color-brand-ink)', fontSize: '0.78rem', fontWeight: 800 }}>Enter Admin &rarr;</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Institutional Security Seals */}
-      <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.775rem', color: '#64748B', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+      <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.775rem', color: 'var(--color-content-muted)', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
         <span>🔒 256-Bit SSL Encrypted</span>
         <span>•</span>
         <span>🏛️ CIPC Entity Verified</span>

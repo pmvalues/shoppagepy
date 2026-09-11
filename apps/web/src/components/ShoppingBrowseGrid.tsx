@@ -114,129 +114,119 @@ export default function ShoppingBrowseGrid({
       return 0;
     });
 
+  const pillBase =
+    'inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm font-medium transition duration-200 ease-out-expo';
+
   return (
     <div>
-      {/* Geolocal Precinct & Distance Ribbon */}
-      <div style={{ marginBottom: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            📍 Shopping Area / Mall:
+      {/* Geolocal precinct & distance ribbon */}
+      <div className="mb-5 flex flex-col gap-2.5">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-content-secondary">
+            Shopping area / mall
           </span>
           <button
+            type="button"
             onClick={() => setSelectedHub('all')}
-            style={{
-              borderRadius: '16px',
-              border: selectedHub === 'all' ? '1px solid #0F172A' : '1px solid #CBD5E1',
-              background: selectedHub === 'all' ? '#0F172A' : '#FFFFFF',
-              color: selectedHub === 'all' ? '#FFFFFF' : '#334155',
-              padding: '0.35rem 0.75rem',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
+            className={[
+              pillBase,
+              selectedHub === 'all'
+                ? 'border-transparent bg-content text-content-inverse'
+                : 'border-line bg-surface text-content-secondary hover:border-line-strong',
+            ].join(' ')}
           >
-            All South Africa (3,296 Malls &amp; Stores)
+            All South Africa (3,296 malls &amp; stores)
           </button>
           {SA_KEY_TRADING_HUBS.map((hub) => (
             <button
               key={hub.id}
+              type="button"
               onClick={() => setSelectedHub(hub.id)}
-              style={{
-                borderRadius: '16px',
-                border: selectedHub === hub.id ? '1px solid #1A73E8' : '1px solid #CBD5E1',
-                background: selectedHub === hub.id ? '#E8F0FE' : '#FFFFFF',
-                color: selectedHub === hub.id ? '#1A73E8' : '#334155',
-                padding: '0.35rem 0.75rem',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
+              className={[
+                pillBase,
+                selectedHub === hub.id
+                  ? 'border-brand-400 bg-brand-50 text-brand-700'
+                  : 'border-line bg-surface text-content-secondary hover:border-line-strong',
+              ].join(' ')}
             >
-              📍 {hub.name.split('&')[0].trim()}
+              {hub.name.split('&')[0].trim()}
             </button>
           ))}
         </div>
 
-        {/* Distance Radius Filter */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>Proximity Radius:</span>
+        {/* Distance radius filter */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-medium text-content-muted">Proximity radius</span>
           {['all', '10km', '25km', '50km'].map((rad) => (
             <button
               key={rad}
+              type="button"
               onClick={() => setSelectedRadius(rad)}
-              style={{
-                borderRadius: '12px',
-                border: selectedRadius === rad ? '1px solid #059669' : '1px solid #E2E8F0',
-                background: selectedRadius === rad ? '#ECFDF5' : '#FFFFFF',
-                color: selectedRadius === rad ? '#059669' : '#64748B',
-                padding: '0.2rem 0.55rem',
-                fontSize: '0.72rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
+              className={[
+                'rounded-lg border px-2 py-0.5 text-xs font-semibold transition duration-200 ease-out-expo',
+                selectedRadius === rad
+                  ? 'border-brand-500 bg-brand-50 text-brand-700'
+                  : 'border-line bg-surface text-content-muted hover:border-line-strong',
+              ].join(' ')}
             >
-              {rad === 'all' ? 'National Grid' : `< ${rad}`}
+              {rad === 'all' ? 'National grid' : `< ${rad}`}
             </button>
           ))}
         </div>
       </div>
 
-      {/* 2-Column Layout: Left Refine Sidebar + Right Google Shopping 4-5 Column Product Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '1.75rem', alignItems: 'flex-start' }}>
-        {/* Left Refine Results Sidebar */}
-        <aside style={{ borderRight: '1px solid #E2E8F0', paddingRight: '1.25rem' }}>
-          <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#202124', marginBottom: '0.85rem' }}>
-            Refine results
-          </h3>
+      {/* Refine sidebar + product grid */}
+      <div className="grid items-start gap-7 [grid-template-columns:220px_1fr]">
+        <aside className="border-r border-line pr-5">
+          <h3 className="mb-3.5 text-base font-semibold text-content">Refine results</h3>
 
-          {/* Availability Filter */}
-          <div style={{ marginBottom: '1.25rem', fontSize: '0.825rem', color: '#3C4043' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem' }}>
+          {/* Availability */}
+          <div className="mb-5 text-sm text-content-secondary">
+            <div className="mb-1.5 flex items-center gap-1.5">
               <input type="checkbox" id="instock_cb" defaultChecked />
-              <label htmlFor="instock_cb">🟢 In Stock (Store Pickup Today)</label>
+              <label htmlFor="instock_cb" className="flex items-center gap-1.5">
+                <span className="inline-block h-2 w-2 rounded-full bg-brand-500" aria-hidden="true" />
+                In stock (store pickup today)
+              </label>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem' }}>
+            <div className="mb-1.5 flex items-center gap-1.5">
               <input type="checkbox" id="verified_cb" defaultChecked />
-              <label htmlFor="verified_cb">🛡️ Verified SA Retailers &amp; Stores</label>
+              <label htmlFor="verified_cb">Verified SA retailers &amp; stores</label>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <div className="flex items-center gap-1.5">
               <input type="checkbox" id="sabs_cb" />
-              <label htmlFor="sabs_cb">⚡ SABS / NRS 097 Approved</label>
+              <label htmlFor="sabs_cb">SABS / NRS 097 approved</label>
             </div>
           </div>
 
-          {/* Price Range Filter */}
-          <div style={{ marginBottom: '1.25rem', borderTop: '1px solid #F1F5F9', paddingTop: '0.85rem' }}>
-            <div style={{ fontSize: '0.825rem', fontWeight: 700, color: '#202124', marginBottom: '0.45rem' }}>
-              Price (ZAR)
-            </div>
-            <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+          {/* Price range */}
+          <div className="mb-5 border-t border-line-subtle pt-3.5">
+            <p className="mb-1.5 text-sm font-semibold text-content">Price (ZAR)</p>
+            <div className="flex items-center gap-1.5">
               <input
                 type="number"
                 placeholder="R Min"
                 value={priceMin}
                 onChange={(e) => setPriceMin(e.target.value)}
-                style={{ width: '65px', padding: '0.3rem', fontSize: '0.75rem', border: '1px solid #DADCE0', borderRadius: '4px' }}
+                className="w-16 rounded border border-line bg-surface px-1.5 py-1 text-xs text-content outline-none transition-colors focus:border-brand-400"
               />
-              <span>-</span>
+              <span className="text-content-muted">–</span>
               <input
                 type="number"
                 placeholder="R Max"
                 value={priceMax}
                 onChange={(e) => setPriceMax(e.target.value)}
-                style={{ width: '65px', padding: '0.3rem', fontSize: '0.75rem', border: '1px solid #DADCE0', borderRadius: '4px' }}
+                className="w-16 rounded border border-line bg-surface px-1.5 py-1 text-xs text-content outline-none transition-colors focus:border-brand-400"
               />
             </div>
           </div>
 
-          {/* Brand Checklist */}
+          {/* Brands */}
           {availableBrands.length > 0 && (
-            <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '0.85rem' }}>
-              <div style={{ fontSize: '0.825rem', fontWeight: 700, color: '#202124', marginBottom: '0.45rem' }}>
-                Brand
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem' }}>
+            <div className="border-t border-line-subtle pt-3.5">
+              <p className="mb-1.5 text-sm font-semibold text-content">Brand</p>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1.5 text-sm">
                   <input
                     type="radio"
                     id="brand_all"
@@ -244,10 +234,10 @@ export default function ShoppingBrowseGrid({
                     checked={selectedBrand === 'all'}
                     onChange={() => setSelectedBrand('all')}
                   />
-                  <label htmlFor="brand_all">All Brands</label>
+                  <label htmlFor="brand_all">All brands</label>
                 </div>
                 {availableBrands.slice(0, 8).map((brand) => (
-                  <div key={brand} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem' }}>
+                  <div key={brand} className="flex items-center gap-1.5 text-sm">
                     <input
                       type="radio"
                       id={`brand_${brand}`}
@@ -263,36 +253,26 @@ export default function ShoppingBrowseGrid({
           )}
         </aside>
 
-        {/* Right Product Grid */}
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#202124', margin: 0 }}>
-              {filteredProducts.length} Verified Products &amp; Retail Deals
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold text-content">
+              {filteredProducts.length} verified products &amp; retail deals
             </h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#5F6368' }}>
-              <span>Sort:</span>
+            <div className="flex items-center gap-2 text-sm text-content-muted">
+              <span>Sort</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                style={{
-                  padding: '0.3rem 0.6rem',
-                  fontSize: '0.8rem',
-                  border: '1px solid #CBD5E1',
-                  borderRadius: '6px',
-                  background: '#FFFFFF',
-                  color: '#1E293B',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
+                className="cursor-pointer rounded-md border border-line bg-surface px-2 py-1 text-sm font-medium text-content outline-none transition-colors focus:border-brand-400"
               >
-                <option value="relevance">Google Shopping Relevance</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
+                <option value="relevance">Relevance</option>
+                <option value="price_asc">Price: low to high</option>
+                <option value="price_desc">Price: high to low</option>
               </select>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1.25rem' }}>
+          <div className="grid gap-5 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
             {filteredProducts.map((product, idx) => {
               const offers = offersByProduct[product.canonicalId] || [];
               const isSponsored = idx === 0 || idx === 4;
@@ -310,7 +290,7 @@ export default function ShoppingBrowseGrid({
         </div>
       </div>
 
-      {/* Instant BuyBox Comparison Drawer */}
+      {/* Instant BuyBox comparison drawer */}
       <BuyBoxDrawer
         isOpen={isBuyBoxOpen}
         onClose={() => setIsBuyBoxOpen(false)}
@@ -321,7 +301,7 @@ export default function ShoppingBrowseGrid({
         onGenerateProforma={handleGenerateProforma}
       />
 
-      {/* Instant SARS B2B Proforma Tax Invoice Modal */}
+      {/* SARS B2B proforma tax invoice modal */}
       {showProformaModal && proformaData && (
         <ProformaInvoiceModal
           isOpen={showProformaModal}

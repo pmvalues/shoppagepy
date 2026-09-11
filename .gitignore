@@ -68,3 +68,11 @@ htmlcov/
 .DS_Store
 Thumbs.db
 .playwright-mcp/
+
+# WorkBuddy agent internal state (memory, hooks, skills cache)
+.workbuddy-ai/
+
+# Migration backup files (artefacts of the design-token migration)
+*.bak
+*.bak2
+*.bak3

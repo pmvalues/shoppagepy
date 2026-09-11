@@ -80,7 +80,7 @@ export default async function AllMallsExplorerPage({
               flex: 1,
               padding: '0.75rem 1rem',
               borderRadius: '8px',
-              border: '1px solid #E2E8F0',
+              border: '1px solid var(--color-line)',
               fontSize: '0.95rem',
               outline: 'none',
             }}
@@ -124,8 +124,8 @@ export default async function AllMallsExplorerPage({
               fontSize: '0.8rem',
               fontWeight: 500,
               textDecoration: 'none',
-              background: marketType === t.key ? '#1E293B' : '#F1F5F9',
-              color: marketType === t.key ? '#FFFFFF' : '#475569',
+              background: marketType === t.key ? 'var(--color-content)' : 'var(--color-surface-subtle)',
+              color: marketType === t.key ? 'var(--color-content-inverse)' : 'var(--color-content-secondary)',
             }}
           >
             {t.label}
@@ -153,9 +153,9 @@ export default async function AllMallsExplorerPage({
               flexDirection: 'column',
               justifyContent: 'space-between',
               padding: '1.5rem',
-              background: '#FFFFFF',
+              background: 'var(--color-surface)',
               borderRadius: '12px',
-              border: '1px solid #E2E8F0',
+              border: '1px solid var(--color-line)',
               transition: 'transform 0.15s ease, box-shadow 0.15s ease',
             }}
           >
@@ -164,38 +164,38 @@ export default async function AllMallsExplorerPage({
                 <span className="badge badge-blue" style={{ textTransform: 'uppercase', fontSize: '0.7rem' }}>
                   {mall.marketType.replace(/_/g, ' ')}
                 </span>
-                <span style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 600 }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--color-content-muted)', fontWeight: 600 }}>
                   {mall.geo?.suburb}, {mall.province}
                 </span>
               </div>
 
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.4rem', color: '#0F172A' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.4rem', color: 'var(--color-content)' }}>
                 <Link href={`/markets/${mall.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
                   {mall.name}
                 </Link>
               </h2>
 
-              <p style={{ fontSize: '0.85rem', color: '#475569', marginBottom: '0.75rem' }}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-content-secondary)', marginBottom: '0.75rem' }}>
                 📍 {mall.geo?.streetAddress}
               </p>
 
               {/* Anchors & Features */}
-              <div style={{ fontSize: '0.8rem', color: '#334155', marginBottom: '0.75rem' }}>
+              <div style={{ fontSize: '0.8rem', color: 'var(--color-content-secondary)', marginBottom: '0.75rem' }}>
                 <strong>Key Anchors:</strong> {mall.landmarks?.slice(0, 3).join(', ')}
               </div>
 
               <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-                <span style={{ fontSize: '0.75rem', background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '0.2rem 0.5rem', borderRadius: '4px', color: '#475569' }}>
+                <span style={{ fontSize: '0.75rem', background: 'var(--color-surface-subtle)', border: '1px solid var(--color-line)', padding: '0.2rem 0.5rem', borderRadius: '4px', color: 'var(--color-content-secondary)' }}>
                   🏬 {mall.stallCapacity} Stores
                 </span>
-                <span style={{ fontSize: '0.75rem', background: '#ECFDF5', border: '1px solid #A7F3D0', padding: '0.2rem 0.5rem', borderRadius: '4px', color: '#065F46' }}>
+                <span style={{ fontSize: '0.75rem', background: 'var(--color-brand-50)', border: '1px solid var(--color-brand-200)', padding: '0.2rem 0.5rem', borderRadius: '4px', color: 'var(--color-brand-800)' }}>
                   ⚡ Solar & Lithium Backup
                 </span>
               </div>
             </div>
 
-            <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.75rem', color: '#64748B' }}>
+            <div style={{ borderTop: '1px solid var(--color-line-subtle)', paddingTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-content-muted)' }}>
                 ⏰ {mall.operatingHours?.split('|')[0] || 'Open Daily'}
               </span>
               <Link href={`/markets/${mall.id}`} className="btn btn-primary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>
@@ -217,7 +217,7 @@ export default async function AllMallsExplorerPage({
               &larr; Previous
             </Link>
           )}
-          <span style={{ display: 'flex', alignItems: 'center', padding: '0 1rem', fontSize: '0.9rem', color: '#475569' }}>
+          <span style={{ display: 'flex', alignItems: 'center', padding: '0 1rem', fontSize: '0.9rem', color: 'var(--color-content-secondary)' }}>
             Page {page} of {totalPages}
           </span>
           {page < totalPages && (

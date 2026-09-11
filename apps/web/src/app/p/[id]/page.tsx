@@ -314,18 +314,18 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>{priceLabel}</div>
 
             {isSolar && (
-              <div style={{ marginTop: '1rem', background: 'linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%)', border: '1px solid #BBF7D0', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
-                <div style={{ fontWeight: 800, color: '#166534', fontSize: '0.85rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <div style={{ marginTop: '1rem', background: 'linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%)', border: '1px solid var(--color-brand-200)', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
+                <div style={{ fontWeight: 800, color: 'var(--color-brand-700)', fontSize: '0.85rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   ⚡ Load-Shedding Stage 6 Runtime ({batteryKwh}kWh)
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
-                  <div style={{ background: '#FFFFFF', padding: '0.65rem', borderRadius: '8px', border: '1px solid #DCFCE7' }}>
-                    <div style={{ fontSize: '0.72rem', color: '#15803D', fontWeight: 600 }}>450W Home Essentials</div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.15rem', fontWeight: 900, color: '#14532D' }}>{runtimeEssentials.formattedRuntime}</div>
+                  <div style={{ background: 'var(--color-surface)', padding: '0.65rem', borderRadius: '8px', border: '1px solid var(--color-brand-100)' }}>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--color-brand-700)', fontWeight: 600 }}>450W Home Essentials</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.15rem', fontWeight: 900, color: 'var(--color-brand-800)' }}>{runtimeEssentials.formattedRuntime}</div>
                   </div>
-                  <div style={{ background: '#FFFFFF', padding: '0.65rem', borderRadius: '8px', border: '1px solid #DCFCE7' }}>
-                    <div style={{ fontSize: '0.72rem', color: '#15803D', fontWeight: 600 }}>1200W Heavy Load</div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.15rem', fontWeight: 900, color: '#14532D' }}>{runtimeHeavy.formattedRuntime}</div>
+                  <div style={{ background: 'var(--color-surface)', padding: '0.65rem', borderRadius: '8px', border: '1px solid var(--color-brand-100)' }}>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--color-brand-700)', fontWeight: 600 }}>1200W Heavy Load</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.15rem', fontWeight: 900, color: 'var(--color-brand-800)' }}>{runtimeHeavy.formattedRuntime}</div>
                   </div>
                 </div>
               </div>

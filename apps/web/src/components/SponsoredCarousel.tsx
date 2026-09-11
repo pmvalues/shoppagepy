@@ -28,6 +28,9 @@ function getStoreName(product: MasterProduct, idx: number): string {
   return generalStores[idx % generalStores.length];
 }
 
+const arrowBtn =
+  'flex h-8 w-8 items-center justify-center rounded-full border border-line bg-surface text-content-secondary transition duration-200 ease-out-expo hover:border-brand-400 hover:text-brand-ink';
+
 export default function SponsoredCarousel({ products }: { products: MasterProduct[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -42,61 +45,39 @@ export default function SponsoredCarousel({ products }: { products: MasterProduc
   const sponsoredList = products.slice(0, 8);
 
   return (
-    <section style={{ marginBottom: '2.5rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.95rem', fontWeight: 700, color: '#202124' }}>
-          <span>Sponsored Products</span>
-          <span style={{ fontSize: '0.75rem', color: '#70757A', cursor: 'pointer' }}>ⓘ</span>
+    <section className="mb-10">
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <h2 className="text-base font-semibold text-content">Sponsored products</h2>
+          <span
+            className="cursor-help text-content-muted"
+            title="Paid placements from verified South African retailers"
+            aria-label="About sponsored products"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" className="h-3.5 w-3.5">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 11v5M12 8h.01" />
+            </svg>
+          </span>
         </div>
-        <div style={{ display: 'flex', gap: '0.35rem' }}>
-          <button
-            onClick={() => scroll(-300)}
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              border: '1px solid #DADCE0',
-              background: '#FFFFFF',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 900,
-            }}
-          >
-            ‹
+        <div className="flex gap-1.5">
+          <button type="button" onClick={() => scroll(-300)} aria-label="Scroll left" className={arrowBtn}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+              <path d="M15 6l-6 6 6 6" />
+            </svg>
           </button>
-          <button
-            onClick={() => scroll(300)}
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              border: '1px solid #DADCE0',
-              background: '#FFFFFF',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 900,
-            }}
-          >
-            ›
+          <button type="button" onClick={() => scroll(300)} aria-label="Scroll right" className={arrowBtn}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
           </button>
         </div>
       </div>
 
-      {/* Horizontal Carousel */}
+      {/* Horizontal carousel */}
       <div
         ref={scrollRef}
-        style={{
-          display: 'flex',
-          gap: '1rem',
-          overflowX: 'auto',
-          scrollBehavior: 'smooth',
-          paddingBottom: '0.5rem',
-          scrollbarWidth: 'none',
-        }}
+        className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none]"
       >
         {sponsoredList.map((product, idx) => {
           const storeName = getStoreName(product, idx);
@@ -105,33 +86,25 @@ export default function SponsoredCarousel({ products }: { products: MasterProduc
           return (
             <div
               key={product.canonicalId}
-              style={{
-                minWidth: '190px',
-                maxWidth: '190px',
-                border: '1px solid #DADCE0',
-                borderRadius: '8px',
-                padding: '0.75rem',
-                background: '#FFFFFF',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                transition: 'box-shadow 0.2s',
-              }}
+              className="group flex w-[190px] shrink-0 flex-col justify-between rounded-lg border border-line bg-surface p-3 transition duration-300 ease-out-expo hover:-translate-y-0.5 hover:border-brand-400 hover:shadow-md"
             >
               <div>
                 <ProductStudioStage product={product} variant="card" className="sponsored-thumb" />
-                <h4 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1A0DAB', marginTop: '0.6rem', marginBottom: '0.35rem', lineHeight: 1.35, height: '2.7em', overflow: 'hidden' }}>
-                  <Link href={`/p/${product.canonicalId}`} style={{ color: '#1A0DAB', textDecoration: 'none' }}>
+                <h4 className="mb-1.5 mt-2.5 line-clamp-2 min-h-[2.7em] text-sm font-semibold leading-snug">
+                  <Link
+                    href={`/p/${product.canonicalId}`}
+                    className="text-content transition-colors group-hover:text-brand-ink"
+                  >
                     {product.title}
                   </Link>
                 </h4>
               </div>
 
               <div>
-                <div style={{ fontSize: '1rem', fontWeight: 900, color: '#202124', margin: '0.25rem 0' }}>
+                <div className="my-1 text-base font-bold tabular-nums text-content">
                   R {price.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#5F6368', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <div className="flex items-center gap-1.5 text-xs text-content-muted">
                   <span>{storeName}</span>
                 </div>
               </div>

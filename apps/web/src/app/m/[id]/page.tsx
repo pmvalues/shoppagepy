@@ -481,9 +481,9 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
   const whatsappPhone = merchant.contacts?.telephone?.replace(/[^0-9]/g, '') || '27118370122';
 
   return (
-    <div style={{ background: '#F8FAFC', minHeight: '100vh', paddingBottom: '5rem', color: '#0F172A' }}>
+    <div style={{ background: 'var(--color-surface-subtle)', minHeight: '100vh', paddingBottom: '5rem', color: 'var(--color-content)' }}>
       {/* 1. STREAMLINED COMPACT STORE IDENTITY HEADER (NO EMPTY TOP BANNER) */}
-      <header style={{ background: '#0F172A', color: '#FFFFFF', borderBottom: '1px solid #1E293B' }}>
+      <header style={{ background: 'var(--color-content)', color: 'var(--color-content-inverse)', borderBottom: '1px solid var(--color-content-secondary)' }}>
         <div className="container" style={{ padding: '1rem 1rem 0.5rem' }}>
           <Breadcrumb
             onDark
@@ -501,12 +501,12 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                   width: '46px',
                   height: '46px',
                   borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                  background: 'linear-gradient(135deg, var(--color-brand-600) 0%, var(--color-brand-700) 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '1.4rem',
-                  boxShadow: '0 2px 8px rgba(37,99,235,0.4)',
+                  boxShadow: '0 2px 8px rgba(5, 150, 105,0.4)',
                   flexShrink: 0,
                 }}
               >
@@ -514,20 +514,23 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <h1 style={{ fontSize: '1.35rem', fontWeight: 900, margin: 0, color: '#FFFFFF', letterSpacing: '-0.02em' }}>
+                  {/* Inverse-surface heading: `--color-on-solid` is fixed white,
+                      which measured 1.07:1 once the surface flips light in dark
+                      mode. `--color-content-inverse` tracks the surface. */}
+                  <h1 style={{ fontSize: '1.35rem', fontWeight: 900, margin: 0, color: 'var(--color-content-inverse)', letterSpacing: '-0.02em' }}>
                     {merchant.name}
                   </h1>
-                  <span style={{ background: '#10B981', color: '#FFFFFF', fontSize: '0.68rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '4px' }}>
+                  <span style={{ background: 'var(--color-brand-solid)', color: 'var(--color-on-solid)', fontSize: '0.68rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '4px' }}>
                     ✓ VERIFIED STORE
                   </span>
-                  <span style={{ background: 'rgba(255,255,255,0.12)', color: '#FCD34D', fontSize: '0.68rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '4px' }}>
+                  <span style={{ background: 'rgba(255,255,255,0.12)', color: 'var(--color-warning-ink-inverse)', fontSize: '0.68rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '4px' }}>
                     ★ {merchant.googleRating || 4.8} ({merchant.googleReviewsCount || 42}+ Reviews)
                   </span>
                 </div>
-                <div style={{ fontSize: '0.78rem', color: '#94A3B8', marginTop: '0.15rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <div style={{ fontSize: '0.78rem', color: 'var(--color-content-muted-inverse)', marginTop: '0.15rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                   <span>📍 {merchant.addressText}</span>
                   <span>•</span>
-                  <span style={{ color: '#34D399', fontWeight: 700 }}>● Open Now</span>
+                  <span style={{ color: 'var(--color-brand-ink-inverse)', fontWeight: 700 }}>● Open Now</span>
                   <span>•</span>
                   <span>⚡ Avg reply: <strong>{passport.medianResponseMinutes} min</strong></span>
                 </div>
@@ -564,7 +567,7 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
               display: 'flex',
               gap: '0.4rem',
               marginTop: '0.85rem',
-              borderTop: '1px solid #1E293B',
+              borderTop: '1px solid var(--color-content-secondary)',
               paddingTop: '0.5rem',
               overflowX: 'auto',
               scrollbarWidth: 'none',
@@ -585,8 +588,8 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
                   style={{
-                    background: isActive ? '#2563EB' : 'transparent',
-                    color: isActive ? '#FFFFFF' : '#94A3B8',
+                    background: isActive ? 'var(--color-brand-solid)' : 'transparent',
+                    color: isActive ? 'var(--color-on-solid)' : 'var(--color-content-muted-inverse)',
                     border: 'none',
                     borderRadius: '5px',
                     padding: '0.45rem 0.85rem',
@@ -600,18 +603,23 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                     transition: 'all 0.15s ease',
                   }}
                   onMouseOver={(e) => {
-                    if (!isActive) e.currentTarget.style.color = '#FFFFFF';
+                    if (!isActive) e.currentTarget.style.color = 'var(--color-content)';
                   }}
                   onMouseOut={(e) => {
-                    if (!isActive) e.currentTarget.style.color = '#94A3B8';
+                    if (!isActive) e.currentTarget.style.color = 'var(--color-content-muted-inverse)';
                   }}
                 >
                   <span>{tab.label}</span>
                   {tab.isLive && (
-                    <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#EF4444', display: 'inline-block', boxShadow: '0 0 6px #EF4444' }} />
+                    <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--color-danger-500)', display: 'inline-block', boxShadow: '0 0 6px #EF4444' }} />
                   )}
+                  {/* Count chip: the fill is a FIXED dark slate in both themes, so
+                      its label must be fixed too — inheriting the button colour made
+                      it 2.46:1 in dark mode. The active overlay was white at 0.2,
+                      which lifted the emerald to #369379 and dropped white text to
+                      3.75:1; a black overlay keeps the fill under it readable. */}
                   {tab.count !== undefined && !tab.isLive && (
-                    <span style={{ fontSize: '0.68rem', background: isActive ? 'rgba(255,255,255,0.2)' : '#1E293B', padding: '0.1rem 0.35rem', borderRadius: '10px' }}>
+                    <span style={{ fontSize: '0.68rem', background: isActive ? 'rgba(0,0,0,0.22)' : '#1E293B', color: 'var(--color-on-solid)', padding: '0.1rem 0.35rem', borderRadius: '10px' }}>
                       {tab.count}
                     </span>
                   )}
@@ -630,9 +638,9 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
             {/* Filter and Search Bar */}
             <div
               style={{
-                background: '#FFFFFF',
+                background: 'var(--color-surface)',
                 borderRadius: '8px',
-                border: '1px solid #E2E8F0',
+                border: '1px solid var(--color-line)',
                 padding: '0.75rem 1rem',
                 marginBottom: '1.25rem',
                 display: 'flex',
@@ -651,8 +659,8 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                       key={cat.id}
                       onClick={() => setProductCategory(cat.id)}
                       style={{
-                        background: isSelected ? '#0F172A' : '#F1F5F9',
-                        color: isSelected ? '#FFFFFF' : '#475569',
+                        background: isSelected ? 'var(--color-content)' : 'var(--color-surface-subtle)',
+                        color: isSelected ? 'var(--color-content-inverse)' : 'var(--color-content-secondary)',
                         border: 'none',
                         borderRadius: '5px',
                         padding: '0.35rem 0.75rem',
@@ -678,12 +686,12 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                     width: '100%',
                     padding: '0.4rem 0.65rem 0.4rem 1.85rem',
                     borderRadius: '5px',
-                    border: '1px solid #CBD5E1',
+                    border: '1px solid var(--color-line-strong)',
                     fontSize: '0.8rem',
                     outline: 'none',
                   }}
                 />
-                <span style={{ position: 'absolute', left: '0.6rem', top: '0.4rem', color: '#94A3B8', fontSize: '0.85rem' }}>🔍</span>
+                <span style={{ position: 'absolute', left: '0.6rem', top: '0.4rem', color: 'var(--color-content-muted)', fontSize: '0.85rem' }}>🔍</span>
               </div>
             </div>
 
@@ -703,7 +711,7 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                   }}
                 >
                   {/* Product Image Stage */}
-                  <div style={{ height: '175px', position: 'relative', background: '#F1F5F9', overflow: 'hidden' }}>
+                  <div style={{ height: '175px', position: 'relative', background: 'var(--color-surface-subtle)', overflow: 'hidden' }}>
                     <img
                       src={product.image}
                       alt={product.title}
@@ -715,7 +723,7 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                         top: '8px',
                         left: '8px',
                         background: 'rgba(15, 23, 42, 0.85)',
-                        color: '#FFFFFF',
+                        color: 'var(--color-on-solid)',
                         fontSize: '0.68rem',
                         fontWeight: 800,
                         padding: '0.15rem 0.45rem',
@@ -729,13 +737,13 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                         position: 'absolute',
                         top: '8px',
                         right: '8px',
-                        background: '#ECFDF5',
-                        color: '#059669',
+                        background: 'var(--color-brand-50)',
+                        color: 'var(--color-brand-ink)',
                         fontSize: '0.68rem',
                         fontWeight: 800,
                         padding: '0.15rem 0.45rem',
                         borderRadius: '4px',
-                        border: '1px solid #A7F3D0',
+                        border: '1px solid var(--color-brand-200)',
                       }}
                     >
                       ✓ In Stock ({product.stockQty})
@@ -744,27 +752,27 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
 
                   {/* Product Details */}
                   <div style={{ padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 600 }}>{product.categoryLabel} · SKU: {product.sku}</div>
-                    <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', margin: '0.25rem 0 0.4rem 0', lineHeight: 1.35 }}>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--color-content-muted)', fontWeight: 600 }}>{product.categoryLabel} · SKU: {product.sku}</div>
+                    <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-content)', margin: '0.25rem 0 0.4rem 0', lineHeight: 1.35 }}>
                       {product.title}
                     </h3>
-                    <p style={{ fontSize: '0.75rem', color: '#64748B', margin: '0 0 0.85rem 0', lineHeight: 1.35 }}>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-content-muted)', margin: '0 0 0.85rem 0', lineHeight: 1.35 }}>
                       {product.specs}
                     </p>
 
                     {/* Price in ZAR */}
                     <div style={{ marginTop: 'auto', marginBottom: '0.85rem' }}>
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem' }}>
-                        <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', fontFamily: 'var(--font-mono)' }}>
+                        <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--color-content)', fontFamily: 'var(--font-mono)' }}>
                           R {product.salePrice ? product.salePrice.toLocaleString('en-ZA', { minimumFractionDigits: 2 }) : product.price.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
                         </span>
                         {product.salePrice && (
-                          <span style={{ fontSize: '0.8rem', color: '#94A3B8', textDecoration: 'line-through' }}>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--color-content-muted)', textDecoration: 'line-through' }}>
                             R {product.price.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: '0.7rem', color: '#10B981', fontWeight: 700 }}>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--color-brand-ink)', fontWeight: 700 }}>
                         {product.warranty} · Immediate Collection
                       </div>
                     </div>
@@ -774,8 +782,8 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                       <button
                         onClick={() => addToCart(product)}
                         style={{
-                          background: '#0F172A',
-                          color: '#FFFFFF',
+                          background: 'var(--color-content)',
+                          color: 'var(--color-content-inverse)',
                           border: 'none',
                           borderRadius: '5px',
                           padding: '0.45rem',
@@ -800,8 +808,8 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                           ])
                         }
                         style={{
-                          background: '#059669',
-                          color: '#FFFFFF',
+                          background: 'var(--color-brand-solid)',
+                          color: 'var(--color-on-solid)',
                           border: 'none',
                           borderRadius: '5px',
                           padding: '0.45rem',
@@ -832,7 +840,7 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
             <div>
               <div
                 style={{
-                  background: '#000000',
+                  background: 'var(--color-canvas-black)',
                   borderRadius: '10px',
                   overflow: 'hidden',
                   position: 'relative',
@@ -863,10 +871,10 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', padding: '0.3rem 0.65rem', borderRadius: '20px' }}>
-                    <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#EF4444', display: 'inline-block', boxShadow: '0 0 8px #EF4444' }} />
-                    <span style={{ color: '#FFFFFF', fontWeight: 800, fontSize: '0.72rem' }}>LIVE SHOWROOM BROADCAST</span>
+                    <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--color-danger-500)', display: 'inline-block', boxShadow: '0 0 8px #EF4444' }} />
+                    <span style={{ color: 'var(--color-on-solid)', fontWeight: 800, fontSize: '0.72rem' }}>LIVE SHOWROOM BROADCAST</span>
                   </div>
-                  <div style={{ background: 'rgba(0,0,0,0.7)', color: '#FFFFFF', fontSize: '0.72rem', fontWeight: 700, padding: '0.3rem 0.65rem', borderRadius: '20px' }}>
+                  <div style={{ background: 'rgba(0,0,0,0.7)', color: 'var(--color-on-solid)', fontSize: '0.72rem', fontWeight: 700, padding: '0.3rem 0.65rem', borderRadius: '20px' }}>
                     👥 184 Viewers
                   </div>
                 </div>
@@ -875,9 +883,9 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
               {/* Pinned Featured Live Product */}
               <div
                 style={{
-                  background: '#FFFFFF',
+                  background: 'var(--color-surface)',
                   borderRadius: '8px',
-                  border: '1.5px solid #2563EB',
+                  border: '1.5px solid var(--color-brand-solid)',
                   padding: '1rem',
                   marginTop: '1rem',
                   display: 'flex',
@@ -890,28 +898,28 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <div style={{ fontSize: '1.75rem' }}>🔥</div>
                   <div>
-                    <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#2563EB', textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--color-brand-ink)', textTransform: 'uppercase' }}>
                       FEATURED ON LIVE STREAM:
                     </span>
-                    <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0F172A' }}>
+                    <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--color-content)' }}>
                       Deye 5kW Hybrid Inverter (SUN-5K-SG03LP1-EU)
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748B' }}>Special Live Broadcast Deal · 5 Year Warranty</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-content-muted)' }}>Special Live Broadcast Deal · 5 Year Warranty</div>
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#059669', fontFamily: 'var(--font-mono)' }}>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--color-brand-ink)', fontFamily: 'var(--font-mono)' }}>
                       R 17,999.00
                     </div>
-                    <div style={{ fontSize: '0.7rem', color: '#94A3B8', textDecoration: 'line-through' }}>R 18,500.00</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--color-content-muted)', textDecoration: 'line-through' }}>R 18,500.00</div>
                   </div>
                   <button
                     onClick={() => addToCart(storeProducts[0])}
                     style={{
-                      background: '#2563EB',
-                      color: '#FFFFFF',
+                      background: 'var(--color-brand-solid)',
+                      color: 'var(--color-on-solid)',
                       border: 'none',
                       borderRadius: '5px',
                       padding: '0.55rem 1.15rem',
@@ -929,44 +937,44 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
             {/* Live Chat & Q&A Stream */}
             <div
               style={{
-                background: '#FFFFFF',
+                background: 'var(--color-surface)',
                 borderRadius: '10px',
-                border: '1px solid #E2E8F0',
+                border: '1px solid var(--color-line)',
                 display: 'flex',
                 flexDirection: 'column',
                 height: '460px',
               }}
             >
-              <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #E2E8F0', fontWeight: 800, fontSize: '0.85rem', color: '#0F172A', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--color-line)', fontWeight: 800, fontSize: '0.85rem', color: 'var(--color-content)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>💬 Live Stream Q&A</span>
-                <span style={{ fontSize: '0.7rem', color: '#10B981' }}>● Host Active</span>
+                <span style={{ fontSize: '0.7rem', color: 'var(--color-brand-ink)' }}>● Host Active</span>
               </div>
 
               {/* Chat Log */}
               <div style={{ flex: 1, padding: '0.85rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
                 {liveChatMessages.map((msg, i) => (
-                  <div key={i} style={{ background: '#F8FAFC', padding: '0.55rem 0.75rem', borderRadius: '6px', fontSize: '0.8rem' }}>
+                  <div key={i} style={{ background: 'var(--color-surface-subtle)', padding: '0.55rem 0.75rem', borderRadius: '6px', fontSize: '0.8rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.15rem' }}>
-                      <strong style={{ color: '#2563EB', fontSize: '0.75rem' }}>{msg.sender}</strong>
-                      <span style={{ color: '#94A3B8', fontSize: '0.68rem' }}>{msg.time}</span>
+                      <strong style={{ color: 'var(--color-brand-ink)', fontSize: '0.75rem' }}>{msg.sender}</strong>
+                      <span style={{ color: 'var(--color-content-muted)', fontSize: '0.68rem' }}>{msg.time}</span>
                     </div>
-                    <div style={{ color: '#1E293B', lineHeight: 1.35 }}>{msg.text}</div>
+                    <div style={{ color: 'var(--color-content)', lineHeight: 1.35 }}>{msg.text}</div>
                   </div>
                 ))}
               </div>
 
               {/* Chat Input */}
-              <form onSubmit={handleLiveChatSubmit} style={{ padding: '0.65rem', borderTop: '1px solid #E2E8F0', display: 'flex', gap: '0.4rem' }}>
+              <form onSubmit={handleLiveChatSubmit} style={{ padding: '0.65rem', borderTop: '1px solid var(--color-line)', display: 'flex', gap: '0.4rem' }}>
                 <input
                   type="text"
                   placeholder="Ask the host a question..."
                   value={newChatText}
                   onChange={(e) => setNewChatText(e.target.value)}
-                  style={{ flex: 1, padding: '0.45rem', borderRadius: '5px', border: '1px solid #CBD5E1', fontSize: '0.8rem' }}
+                  style={{ flex: 1, padding: '0.45rem', borderRadius: '5px', border: '1px solid var(--color-line-strong)', fontSize: '0.8rem' }}
                 />
                 <button
                   type="submit"
-                  style={{ background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '5px', padding: '0.45rem 0.75rem', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }}
+                  style={{ background: 'var(--color-content)', color: 'var(--color-content-inverse)', border: 'none', borderRadius: '5px', padding: '0.45rem 0.75rem', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }}
                 >
                   Send
                 </button>
@@ -979,10 +987,10 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
         {activeTab === 'shorts' && (
           <div>
             <div style={{ marginBottom: '1.25rem' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-content)', margin: 0 }}>
                 🎬 Product Teardowns & Physical Load Test Shorts
               </h2>
-              <p style={{ fontSize: '0.825rem', color: '#64748B', margin: '0.2rem 0 0 0' }}>
+              <p style={{ fontSize: '0.825rem', color: 'var(--color-content-muted-inverse)', margin: '0.2rem 0 0 0' }}>
                 Real lab tests, battery stress tests, and unboxing shorts recorded directly by our engineers.
               </p>
             </div>
@@ -993,7 +1001,7 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                   key={short.id}
                   onClick={() => setSelectedVideo(short)}
                   style={{
-                    background: '#000000',
+                    background: 'var(--color-canvas-black)',
                     borderRadius: '8px',
                     overflow: 'hidden',
                     cursor: 'pointer',
@@ -1011,8 +1019,8 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                     style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }}
                   />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)' }} />
-                  <div style={{ position: 'absolute', bottom: '10px', left: '10px', right: '10px', color: '#FFFFFF' }}>
-                    <div style={{ fontSize: '0.68rem', color: '#38BDF8', fontWeight: 800, marginBottom: '0.15rem' }}>
+                  <div style={{ position: 'absolute', bottom: '10px', left: '10px', right: '10px', color: 'var(--color-on-solid)' }}>
+                    <div style={{ fontSize: '0.68rem', color: 'var(--color-info-400)', fontWeight: 800, marginBottom: '0.15rem' }}>
                       ▶ {short.views.toLocaleString()} views · {short.duration}
                     </div>
                     <div style={{ fontSize: '0.8rem', fontWeight: 800, lineHeight: 1.25 }}>
@@ -1029,17 +1037,17 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
         {activeTab === 'shows' && (
           <div>
             <div style={{ marginBottom: '1.25rem' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-content)', margin: 0 }}>
                 📺 Engineering Shows & Solar Masterclasses
               </h2>
-              <p style={{ fontSize: '0.825rem', color: '#64748B', margin: '0.2rem 0 0 0' }}>
+              <p style={{ fontSize: '0.825rem', color: 'var(--color-content-muted)', margin: '0.2rem 0 0 0' }}>
                 In-depth educational episodes on home backup sizing, SABS compliance, and lithium safety.
               </p>
             </div>
 
             {/* Featured Main Show Player */}
-            <div style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid #E2E8F0', overflow: 'hidden', marginBottom: '1.5rem' }}>
-              <div style={{ aspectRatio: '16 / 9', background: '#000' }}>
+            <div style={{ background: 'var(--color-surface)', borderRadius: '10px', border: '1px solid var(--color-line)', overflow: 'hidden', marginBottom: '1.5rem' }}>
+              <div style={{ aspectRatio: '16 / 9', background: 'var(--color-canvas-black)' }}>
                 <video
                   src={SHOWS[activeShowEpisode].videoUrl}
                   controls
@@ -1048,16 +1056,16 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
               </div>
               <div style={{ padding: '1.25rem' }}>
                 <span className="badge badge-purple" style={{ marginBottom: '0.35rem' }}>{SHOWS[activeShowEpisode].series}</span>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', margin: '0.25rem 0' }}>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-content)', margin: '0.25rem 0' }}>
                   {SHOWS[activeShowEpisode].title}
                 </h3>
-                <p style={{ fontSize: '0.825rem', color: '#475569', lineHeight: 1.45, margin: '0.4rem 0 0.85rem 0' }}>
+                <p style={{ fontSize: '0.825rem', color: 'var(--color-content-secondary)', lineHeight: 1.45, margin: '0.4rem 0 0.85rem 0' }}>
                   {SHOWS[activeShowEpisode].description}
                 </p>
                 <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
                   <button
                     onClick={() => setActiveTab('shop')}
-                    style={{ background: '#2563EB', color: '#FFFFFF', border: 'none', borderRadius: '5px', padding: '0.45rem 0.9rem', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}
+                    style={{ background: 'var(--color-brand-solid)', color: 'var(--color-on-solid)', border: 'none', borderRadius: '5px', padding: '0.45rem 0.9rem', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}
                   >
                     🛍️ Browse Featured Products
                   </button>
@@ -1065,7 +1073,7 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                     href={`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(`Hello, I watched your show episode "${SHOWS[activeShowEpisode].title}" and would like technical advice.`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ background: '#F1F5F9', color: '#0F172A', border: '1px solid #CBD5E1', borderRadius: '5px', padding: '0.45rem 0.9rem', fontWeight: 700, fontSize: '0.8rem', textDecoration: 'none' }}
+                    style={{ background: 'var(--color-surface-subtle)', color: 'var(--color-content)', border: '1px solid var(--color-line-strong)', borderRadius: '5px', padding: '0.45rem 0.9rem', fontWeight: 700, fontSize: '0.8rem', textDecoration: 'none' }}
                   >
                     💬 Ask Engineer on WhatsApp
                   </a>
@@ -1074,29 +1082,29 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
             </div>
 
             {/* Episode Grid */}
-            <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.75rem' }}>All Masterclass Episodes</h3>
+            <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-content)', marginBottom: '0.75rem' }}>All Masterclass Episodes</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
               {SHOWS.map((show, idx) => (
                 <div
                   key={show.id}
                   onClick={() => setActiveShowEpisode(idx)}
                   style={{
-                    background: idx === activeShowEpisode ? '#EFF6FF' : '#FFFFFF',
-                    border: idx === activeShowEpisode ? '2px solid #2563EB' : '1px solid #E2E8F0',
+                    background: idx === activeShowEpisode ? 'var(--color-brand-50)' : 'var(--color-surface)',
+                    border: idx === activeShowEpisode ? '2px solid var(--color-brand-solid)' : '1px solid var(--color-line)',
                     borderRadius: '8px',
                     overflow: 'hidden',
                     cursor: 'pointer',
                   }}
                 >
-                  <div style={{ height: '130px', position: 'relative', background: '#000' }}>
+                  <div style={{ height: '130px', position: 'relative', background: 'var(--color-canvas-black)' }}>
                     <img src={show.thumbnailUrl} alt={show.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    <span style={{ position: 'absolute', bottom: '6px', right: '6px', background: 'rgba(0,0,0,0.8)', color: '#FFF', fontSize: '0.68rem', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>
+                    <span style={{ position: 'absolute', bottom: '6px', right: '6px', background: 'rgba(0,0,0,0.8)', color: 'var(--color-on-solid)', fontSize: '0.68rem', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>
                       {show.duration}
                     </span>
                   </div>
                   <div style={{ padding: '0.75rem' }}>
-                    <div style={{ fontSize: '0.68rem', color: '#2563EB', fontWeight: 700 }}>{show.series}</div>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem', lineHeight: 1.3 }}>
+                    <div style={{ fontSize: '0.68rem', color: 'var(--color-brand-ink)', fontWeight: 700 }}>{show.series}</div>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-content)', marginTop: '0.15rem', lineHeight: 1.3 }}>
                       {show.title}
                     </div>
                   </div>
@@ -1108,35 +1116,35 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
 
         {/* TAB 5: 🏢 ABOUT US & FACILITY GALLERY */}
         {activeTab === 'about' && (
-          <div style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid #E2E8F0', padding: '1.75rem' }}>
-            <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A', marginBottom: '0.5rem' }}>
+          <div style={{ background: 'var(--color-surface)', borderRadius: '10px', border: '1px solid var(--color-line)', padding: '1.75rem' }}>
+            <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--color-content)', marginBottom: '0.5rem' }}>
               About {merchant.name}
             </h2>
-            <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.55, maxWidth: '800px', marginBottom: '1.5rem' }}>
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-content-secondary)', lineHeight: 1.55, maxWidth: '800px', marginBottom: '1.5rem' }}>
               Founded in 2018, {merchant.name} is a premier physical stockist and direct importer of commercial-grade solar inverters, lithium battery systems, and grid protection hardware based in Johannesburg. We maintain verified physical inventory with instant counter collections and nationwide freight across all 9 provinces.
             </p>
 
             {/* Credential Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem', marginBottom: '2rem' }}>
-              <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
+              <div style={{ background: 'var(--color-surface-subtle)', padding: '1rem', borderRadius: '6px', border: '1px solid var(--color-line)' }}>
                 <div style={{ fontSize: '1.35rem', marginBottom: '0.35rem' }}>🏛️</div>
-                <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F172A' }}>CIPC Verified Business</div>
-                <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '0.15rem' }}>Reg No: 2018/482910/07 · Tax Compliant</div>
+                <div style={{ fontWeight: 800, fontSize: '0.85rem', color: 'var(--color-content)' }}>CIPC Verified Business</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-content-muted)', marginTop: '0.15rem' }}>Reg No: 2018/482910/07 · Tax Compliant</div>
               </div>
-              <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
+              <div style={{ background: 'var(--color-surface-subtle)', padding: '1rem', borderRadius: '6px', border: '1px solid var(--color-line)' }}>
                 <div style={{ fontSize: '1.35rem', marginBottom: '0.35rem' }}>🛡️</div>
-                <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F172A' }}>SABS & NRS 097 Certified</div>
-                <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '0.15rem' }}>Authorized Tier-1 Partner</div>
+                <div style={{ fontWeight: 800, fontSize: '0.85rem', color: 'var(--color-content)' }}>SABS & NRS 097 Certified</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-content-muted)', marginTop: '0.15rem' }}>Authorized Tier-1 Partner</div>
               </div>
-              <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
+              <div style={{ background: 'var(--color-surface-subtle)', padding: '1rem', borderRadius: '6px', border: '1px solid var(--color-line)' }}>
                 <div style={{ fontSize: '1.35rem', marginBottom: '0.35rem' }}>🏢</div>
-                <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F172A' }}>Physical Trade Counter</div>
-                <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '0.15rem' }}>Showroom & Warehouse in Crown Mines</div>
+                <div style={{ fontWeight: 800, fontSize: '0.85rem', color: 'var(--color-content)' }}>Physical Trade Counter</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-content-muted)', marginTop: '0.15rem' }}>Showroom & Warehouse in Crown Mines</div>
               </div>
             </div>
 
             {/* Showroom & Facility Photo Gallery */}
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.85rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-content)', marginBottom: '0.85rem' }}>
               Showroom, Counter & Warehouse Photos
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.85rem' }}>
@@ -1146,9 +1154,9 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                 { title: 'Lithium Battery Warehouse Staging', url: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=600&h=400&fit=crop' },
                 { title: 'Solar Panel Dispatch Loading Bay', url: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=600&h=400&fit=crop' },
               ].map((photo, i) => (
-                <div key={i} style={{ borderRadius: '6px', overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+                <div key={i} style={{ borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--color-line)' }}>
                   <img src={photo.url} alt={photo.title} style={{ width: '100%', height: '150px', objectFit: 'cover' }} />
-                  <div style={{ padding: '0.55rem', fontSize: '0.75rem', fontWeight: 700, color: '#334155' }}>
+                  <div style={{ padding: '0.55rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-content-secondary)' }}>
                     {photo.title}
                   </div>
                 </div>
@@ -1159,19 +1167,19 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
 
         {/* TAB 6: ⭐ CUSTOMER REVIEWS & TRUST */}
         {activeTab === 'reviews' && (
-          <div style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid #E2E8F0', padding: '1.75rem' }}>
+          <div style={{ background: 'var(--color-surface)', borderRadius: '10px', border: '1px solid var(--color-line)', padding: '1.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
-                <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
+                <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--color-content)', margin: 0 }}>
                   Verified Buyer Reviews
                 </h2>
-                <p style={{ color: '#64748B', fontSize: '0.825rem', margin: '0.2rem 0 0 0' }}>
+                <p style={{ color: 'var(--color-content-muted)', fontSize: '0.825rem', margin: '0.2rem 0 0 0' }}>
                   Real reviews from trade contractors, installers, and residential clients.
                 </p>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0F172A' }}>★ {merchant.googleRating || 4.8} / 5.0</div>
-                <div style={{ fontSize: '0.75rem', color: '#10B981', fontWeight: 700 }}>100% Verified Purchase Score</div>
+                <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--color-content)' }}>★ {merchant.googleRating || 4.8} / 5.0</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-brand-ink)', fontWeight: 700 }}>100% Verified Purchase Score</div>
               </div>
             </div>
 
@@ -1182,18 +1190,18 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                 { name: 'Sipho Ndlovu', org: 'Midrand Electrical Contractors', rating: 5, date: '1 week ago', text: 'Fast WhatsApp confirmation. Delivered to our site within 4 hours. Excellent technical support on the inverter aux port wiring.' },
                 { name: 'David Miller', org: 'Sandton Residential Client', rating: 5, date: '2 weeks ago', text: 'Great pricing compared to major hardware chains. Direct counter pickup was smooth and the warranty is registered with the importer.' },
               ].map((rev, i) => (
-                <div key={i} style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
+                <div key={i} style={{ background: 'var(--color-surface-subtle)', padding: '1rem', borderRadius: '6px', border: '1px solid var(--color-line)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
                     <div>
-                      <strong style={{ color: '#0F172A', fontSize: '0.85rem' }}>{rev.name}</strong>
-                      <span style={{ fontSize: '0.72rem', color: '#64748B', marginLeft: '0.4rem' }}>({rev.org})</span>
+                      <strong style={{ color: 'var(--color-content)', fontSize: '0.85rem' }}>{rev.name}</strong>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--color-content-muted)', marginLeft: '0.4rem' }}>({rev.org})</span>
                     </div>
-                    <div style={{ color: '#F59E0B', fontSize: '0.8rem' }}>{'★'.repeat(rev.rating)}</div>
+                    <div style={{ color: 'var(--color-warning-ink)', fontSize: '0.8rem' }}>{'★'.repeat(rev.rating)}</div>
                   </div>
-                  <p style={{ fontSize: '0.825rem', color: '#334155', lineHeight: 1.4, margin: '0.3rem 0 0.15rem 0' }}>
+                  <p style={{ fontSize: '0.825rem', color: 'var(--color-content-secondary)', lineHeight: 1.4, margin: '0.3rem 0 0.15rem 0' }}>
                     {rev.text}
                   </p>
-                  <span style={{ fontSize: '0.7rem', color: '#94A3B8' }}>{rev.date} · Verified Storefront Purchase</span>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--color-content-muted)' }}>{rev.date} · Verified Storefront Purchase</span>
                 </div>
               ))}
             </div>
@@ -1204,71 +1212,71 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
         {activeTab === 'rfq' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) minmax(280px, 1fr)', gap: '1.5rem' }}>
             {/* Wholesale RFQ Builder */}
-            <div style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid #E2E8F0', padding: '1.75rem' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', margin: '0 0 0.35rem 0' }}>
+            <div style={{ background: 'var(--color-surface)', borderRadius: '10px', border: '1px solid var(--color-line)', padding: '1.75rem' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--color-content)', margin: '0 0 0.35rem 0' }}>
                 Request Wholesale Quote (RFQ)
               </h2>
-              <p style={{ fontSize: '0.825rem', color: '#64748B', marginBottom: '1.25rem' }}>
+              <p style={{ fontSize: '0.825rem', color: 'var(--color-content-muted)', marginBottom: '1.25rem' }}>
                 Direct tier-1 pricing for solar installers, building contractors, and commercial developers.
               </p>
 
               {rfqSubmitted ? (
-                <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '6px', padding: '1.25rem', textAlign: 'center' }}>
+                <div style={{ background: 'var(--color-brand-50)', border: '1px solid var(--color-brand-200)', borderRadius: '6px', padding: '1.25rem', textAlign: 'center' }}>
                   <div style={{ fontSize: '1.75rem', marginBottom: '0.4rem' }}>✓</div>
-                  <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#065F46', margin: '0 0 0.2rem 0' }}>RFQ Dispatched Directly to Store!</h3>
-                  <p style={{ fontSize: '0.8rem', color: '#047857', margin: 0 }}>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-brand-800)', margin: '0 0 0.2rem 0' }}>RFQ Dispatched Directly to Store!</h3>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--color-brand-700)', margin: 0 }}>
                     Our sales engineers will contact you via WhatsApp/Phone within {passport.medianResponseMinutes} minutes.
                   </p>
                 </div>
               ) : (
                 <form onSubmit={handleRfqSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                   <div>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0F172A', display: 'block', marginBottom: '0.2rem' }}>Your Name / Company *</label>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-content)', display: 'block', marginBottom: '0.2rem' }}>Your Name / Company *</label>
                     <input
                       type="text"
                       required
                       value={rfqForm.name}
                       onChange={(e) => setRfqForm({ ...rfqForm, name: e.target.value })}
                       placeholder="e.g. Pretoria Solar Installations CC"
-                      style={{ width: '100%', padding: '0.45rem', borderRadius: '5px', border: '1px solid #CBD5E1', fontSize: '0.825rem' }}
+                      style={{ width: '100%', padding: '0.45rem', borderRadius: '5px', border: '1px solid var(--color-line-strong)', fontSize: '0.825rem' }}
                     />
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
                     <div>
-                      <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0F172A', display: 'block', marginBottom: '0.2rem' }}>Phone / WhatsApp *</label>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-content)', display: 'block', marginBottom: '0.2rem' }}>Phone / WhatsApp *</label>
                       <input
                         type="text"
                         required
                         value={rfqForm.phone}
                         onChange={(e) => setRfqForm({ ...rfqForm, phone: e.target.value })}
                         placeholder="082 123 4567"
-                        style={{ width: '100%', padding: '0.45rem', borderRadius: '5px', border: '1px solid #CBD5E1', fontSize: '0.825rem' }}
+                        style={{ width: '100%', padding: '0.45rem', borderRadius: '5px', border: '1px solid var(--color-line-strong)', fontSize: '0.825rem' }}
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0F172A', display: 'block', marginBottom: '0.2rem' }}>Email Address</label>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-content)', display: 'block', marginBottom: '0.2rem' }}>Email Address</label>
                       <input
                         type="email"
                         value={rfqForm.email}
                         onChange={(e) => setRfqForm({ ...rfqForm, email: e.target.value })}
                         placeholder="procurement@company.co.za"
-                        style={{ width: '100%', padding: '0.45rem', borderRadius: '5px', border: '1px solid #CBD5E1', fontSize: '0.825rem' }}
+                        style={{ width: '100%', padding: '0.45rem', borderRadius: '5px', border: '1px solid var(--color-line-strong)', fontSize: '0.825rem' }}
                       />
                     </div>
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0F172A', display: 'block', marginBottom: '0.2rem' }}>Items Required & Quantities *</label>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-content)', display: 'block', marginBottom: '0.2rem' }}>Items Required & Quantities *</label>
                     <textarea
                       required
                       rows={3}
                       value={rfqForm.items}
                       onChange={(e) => setRfqForm({ ...rfqForm, items: e.target.value })}
-                      style={{ width: '100%', padding: '0.45rem', borderRadius: '5px', border: '1px solid #CBD5E1', fontSize: '0.825rem' }}
+                      style={{ width: '100%', padding: '0.45rem', borderRadius: '5px', border: '1px solid var(--color-line-strong)', fontSize: '0.825rem' }}
                     />
                   </div>
                   <button
                     type="submit"
-                    style={{ background: '#2563EB', color: '#FFFFFF', border: 'none', borderRadius: '5px', padding: '0.65rem', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', marginTop: '0.35rem' }}
+                    style={{ background: 'var(--color-brand-solid)', color: 'var(--color-on-solid)', border: 'none', borderRadius: '5px', padding: '0.65rem', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', marginTop: '0.35rem' }}
                   >
                     🚀 Submit RFQ Direct to Store
                   </button>
@@ -1277,21 +1285,21 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
             </div>
 
             {/* Operating Hours & Physical Location */}
-            <div style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid #E2E8F0', padding: '1.5rem' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.85rem' }}>
+            <div style={{ background: 'var(--color-surface)', borderRadius: '10px', border: '1px solid var(--color-line)', padding: '1.5rem' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-content)', marginBottom: '0.85rem' }}>
                 Store Location & Trading Hours
               </h3>
-              <div style={{ fontSize: '0.825rem', color: '#334155', marginBottom: '1rem', lineHeight: 1.45 }}>
+              <div style={{ fontSize: '0.825rem', color: 'var(--color-content-secondary)', marginBottom: '1rem', lineHeight: 1.45 }}>
                 <strong>Address:</strong><br />
                 📍 {merchant.addressText}
               </div>
 
-              <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '0.85rem', marginBottom: '1rem' }}>
-                <div style={{ fontWeight: 800, fontSize: '0.8rem', marginBottom: '0.4rem', color: '#0F172A' }}>Operating Hours:</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', fontSize: '0.78rem', color: '#64748B' }}>
+              <div style={{ borderTop: '1px solid var(--color-line)', paddingTop: '0.85rem', marginBottom: '1rem' }}>
+                <div style={{ fontWeight: 800, fontSize: '0.8rem', marginBottom: '0.4rem', color: 'var(--color-content)' }}>Operating Hours:</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', fontSize: '0.78rem', color: 'var(--color-content-muted)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Monday – Friday</span><strong>08:00 – 17:00</strong></div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Saturday</span><strong>08:00 – 13:00</strong></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Sunday & Holidays</span><span style={{ color: '#EF4444' }}>Closed</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Sunday & Holidays</span><span style={{ color: 'var(--color-danger-ink)' }}>Closed</span></div>
                 </div>
               </div>
 
@@ -1301,8 +1309,8 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                 rel="noopener noreferrer"
                 style={{
                   display: 'block',
-                  background: '#0F172A',
-                  color: '#FFFFFF',
+                  background: 'var(--color-content)',
+                  color: 'var(--color-content-inverse)',
                   textAlign: 'center',
                   textDecoration: 'none',
                   borderRadius: '5px',
@@ -1335,7 +1343,7 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
         >
           <div
             style={{
-              background: '#000000',
+              background: 'var(--color-canvas-black)',
               borderRadius: '10px',
               overflow: 'hidden',
               maxWidth: '380px',
@@ -1358,7 +1366,7 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                 top: '10px',
                 right: '10px',
                 background: 'rgba(0,0,0,0.7)',
-                color: '#FFF',
+                color: 'var(--color-on-solid)',
                 border: 'none',
                 borderRadius: '50%',
                 width: '30px',
@@ -1387,9 +1395,9 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
             <button
               onClick={() => setIsCartOpen(true)}
               style={{
-                background: '#0F172A',
-                color: '#FFFFFF',
-                border: '1px solid #334155',
+                background: 'var(--color-content)',
+                color: 'var(--color-content-inverse)',
+                border: '1px solid var(--color-content-secondary)',
                 borderRadius: '50px',
                 padding: '0.75rem 1.35rem',
                 fontWeight: 800,
@@ -1408,9 +1416,9 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
           ) : (
             <div
               style={{
-                background: '#FFFFFF',
+                background: 'var(--color-surface)',
                 borderRadius: '12px',
-                border: '1px solid #E2E8F0',
+                border: '1px solid var(--color-line)',
                 boxShadow: '0 12px 32px rgba(0,0,0,0.2)',
                 width: '340px',
                 maxHeight: '480px',
@@ -1419,11 +1427,11 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                 overflow: 'hidden',
               }}
             >
-              <div style={{ background: '#0F172A', color: '#FFFFFF', padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ background: 'var(--color-content)', color: 'var(--color-content-inverse)', padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <strong style={{ fontSize: '0.85rem' }}>B2B Trade Cart ({cart.length} items)</strong>
                 <button
                   onClick={() => setIsCartOpen(false)}
-                  style={{ background: 'transparent', border: 'none', color: '#FFFFFF', fontSize: '0.9rem', cursor: 'pointer' }}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--color-on-solid)', fontSize: '0.9rem', cursor: 'pointer' }}
                 >
                   ✕
                 </button>
@@ -1431,22 +1439,22 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
 
               <div style={{ flex: 1, padding: '0.85rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
                 {cart.map((item) => (
-                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #F1F5F9', paddingBottom: '0.4rem' }}>
+                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-line-subtle)', paddingBottom: '0.4rem' }}>
                     <div style={{ flex: 1, paddingRight: '0.4rem' }}>
-                      <div style={{ fontWeight: 700, fontSize: '0.78rem', color: '#0F172A' }}>{item.title}</div>
-                      <div style={{ fontSize: '0.72rem', color: '#64748B' }}>R {item.price.toLocaleString('en-ZA')} each</div>
+                      <div style={{ fontWeight: 700, fontSize: '0.78rem', color: 'var(--color-content)' }}>{item.title}</div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--color-content-muted-inverse)' }}>R {item.price.toLocaleString('en-ZA')} each</div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                       <button
                         onClick={() => updateCartQty(item.id, -1)}
-                        style={{ width: '22px', height: '22px', borderRadius: '4px', border: '1px solid #CBD5E1', background: '#F8FAFC', cursor: 'pointer' }}
+                        style={{ width: '22px', height: '22px', borderRadius: '4px', border: '1px solid var(--color-line-strong)', background: 'var(--color-surface-subtle)', cursor: 'pointer' }}
                       >
                         -
                       </button>
                       <span style={{ fontSize: '0.78rem', fontWeight: 800 }}>{item.qty}</span>
                       <button
                         onClick={() => updateCartQty(item.id, 1)}
-                        style={{ width: '22px', height: '22px', borderRadius: '4px', border: '1px solid #CBD5E1', background: '#F8FAFC', cursor: 'pointer' }}
+                        style={{ width: '22px', height: '22px', borderRadius: '4px', border: '1px solid var(--color-line-strong)', background: 'var(--color-surface-subtle)', cursor: 'pointer' }}
                       >
                         +
                       </button>
@@ -1455,10 +1463,10 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                 ))}
               </div>
 
-              <div style={{ padding: '0.85rem', background: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}>
+              <div style={{ padding: '0.85rem', background: 'var(--color-surface-subtle)', borderTop: '1px solid var(--color-line)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.65rem' }}>
-                  <span style={{ fontWeight: 700, fontSize: '0.8rem', color: '#475569' }}>Total (Incl 15% VAT):</span>
-                  <span style={{ fontWeight: 900, fontSize: '1.1rem', color: '#0F172A', fontFamily: 'var(--font-mono)' }}>
+                  <span style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-content-secondary)' }}>Total (Incl 15% VAT):</span>
+                  <span style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--color-content)', fontFamily: 'var(--font-mono)' }}>
                     R {cartTotal.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
@@ -1466,8 +1474,8 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                   onClick={() => handleGenerateProforma()}
                   style={{
                     width: '100%',
-                    background: '#059669',
-                    color: '#FFFFFF',
+                    background: 'var(--color-brand-solid)',
+                    color: 'var(--color-on-solid)',
                     border: 'none',
                     borderRadius: '6px',
                     padding: '0.65rem',
@@ -1488,9 +1496,9 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
                   disabled={isReserving}
                   style={{
                     width: '100%',
-                    background: '#0F172A',
-                    color: '#FFFFFF',
-                    border: '1px solid #334155',
+                    background: 'var(--color-content)',
+                    color: 'var(--color-content-inverse)',
+                    border: '1px solid var(--color-content-secondary)',
                     borderRadius: '6px',
                     padding: '0.55rem',
                     fontWeight: 700,
@@ -1513,15 +1521,15 @@ export default function MerchantProfilePage({ params }: { params: Promise<{ id: 
       {/* Reservation Confirmation Modal */}
       {reservationSuccess && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(15, 23, 42, 0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div style={{ background: '#FFFFFF', borderRadius: '12px', padding: '2rem', maxWidth: '420px', width: '100%', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+          <div style={{ background: 'var(--color-surface)', borderRadius: '12px', padding: '2rem', maxWidth: '420px', width: '100%', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
             <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>✓</div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.5rem 0' }}>24-Hour Counter Hold Confirmed!</h3>
-            <p style={{ fontSize: '0.875rem', color: '#475569', marginBottom: '1.25rem' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-content)', margin: '0 0 0.5rem 0' }}>24-Hour Counter Hold Confirmed!</h3>
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-content-secondary)', marginBottom: '1.25rem' }}>
               Your reservation reference is <strong>{reservationSuccess}</strong>. Present this code at {merchant.name}&apos;s trade counter in {merchant.province || 'Gauteng'} within 24 hours to collect and settle via EFT / Card.
             </p>
             <button
               onClick={() => setReservationSuccess(null)}
-              style={{ background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '8px', padding: '0.65rem 1.5rem', fontWeight: 700, cursor: 'pointer', width: '100%' }}
+              style={{ background: 'var(--color-content)', color: 'var(--color-content-inverse)', border: 'none', borderRadius: '8px', padding: '0.65rem 1.5rem', fontWeight: 700, cursor: 'pointer', width: '100%' }}
             >
               Done
             </button>

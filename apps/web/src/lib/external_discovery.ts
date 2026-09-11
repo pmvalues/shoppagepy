@@ -4,7 +4,7 @@
 // Ensures ZERO dead-end external URLs and 100% genuine landing links.
 
 import type { ProductVariant, Offer } from '@shoppage/contracts';
-import { DiscoveredOffersStore, MasterProductStore } from '@shoppage/kernel';
+import { DiscoveredOffersStore, MasterProductStore, canPublishSource } from '@shoppage/kernel';
 import { SearchIntent } from './intelligence';
 
 export interface DiscoveredLiveResult {
@@ -19,6 +19,25 @@ export interface DiscoveredLiveResult {
 export function searchExternalLiveWeb(query: string, intent: SearchIntent, limit = 4): DiscoveredLiveResult[] {
   if (!query || query.trim().length < 2) return [];
 
+  // WS-2.3 — AI-path rights enforcement.
+  // This function feeds the grounded assistant, so it passes isAiProcessing=true.
+  // A source that permits display but forbids AI use is excluded here even though
+  // it may be CLEARED for ordinary search results.
+  return searchExternalLiveWebInternal(query, intent, limit, true);
+}
+
+/**
+ * Runs the external discovery query with the rights gate applied.
+ * @param isAiProcessing true when the caller will feed the results to an LLM.
+ */
+function searchExternalLiveWebInternal(
+  query: string,
+  intent: SearchIntent,
+  limit: number,
+  isAiProcessing: boolean
+): DiscoveredLiveResult[] {
+  if (!query || query.trim().length < 2) return [];
+
   // Query SQLite database for genuine scraped products
   const dbResults = DiscoveredOffersStore.searchDiscoveredProducts(query, {
     category: intent.category,
@@ -27,10 +46,14 @@ export function searchExternalLiveWeb(query: string, intent: SearchIntent, limit
   });
 
   if (dbResults.length > 0) {
-    return dbResults.map(({ product, offer }) => ({
-      product,
-      offer,
-    }));
+    return dbResults
+      .filter(({ discoveredOffer }) =>
+        canPublishSource(discoveredOffer?.sourceWebsite || '', isAiProcessing)
+      )
+      .map(({ product, offer }) => ({
+        product,
+        offer,
+      }));
   }
 
   // Fallback: search internal master catalog products and pair with discovered offers
@@ -45,7 +68,8 @@ export function searchExternalLiveWeb(query: string, intent: SearchIntent, limit
   for (const prod of searchRes.items) {
     const { discovered } = DiscoveredOffersStore.getOffersForProduct(prod.canonicalId);
     if (discovered && discovered.length > 0) {
-      const best = discovered[0];
+      const best = discovered.find((d) => canPublishSource(d.sourceWebsite || '', isAiProcessing));
+      if (!best) continue;
       const offer: Offer = {
         id: `off_${best.id}`,
         variantRef: prod.canonicalId,

@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CreateRequestSchema } from '@shoppage/contracts';
+import { enforceRateLimit } from '@/server/rate-limit';
 
 /**
  * Public Structured Requests API Endpoint (/api/v1/requests)
  */
 export async function POST(request: NextRequest) {
+  // Public write endpoint — throttled to prevent spam and lead poisoning.
+  const limited = enforceRateLimit('requests', request);
+  if (limited) return limited;
+
   try {
     const body = await request.json();
     const parseResult = CreateRequestSchema.safeParse(body);
