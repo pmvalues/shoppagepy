@@ -274,9 +274,9 @@
   --color-canvas-black: #000000;
 
   /* ── Typography ─────────────────────────────────────────────────────── */
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  --font-sans: var(--font-plus-jakarta), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: var(--font-outfit), var(--font-plus-jakarta), sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
 
   /* ── Fluid type scale ───────────────────────────────────────────────────
      Every step interpolates linearly between a 360px phone and a 1440px
@@ -490,6 +490,12 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Keep in-page anchors clear of the sticky navigation. */
+  [id] {
+    scroll-margin-top: calc(var(--nav-height, 64px) + 0.5rem);
   }
 
   html,

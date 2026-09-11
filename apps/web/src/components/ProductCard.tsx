@@ -102,6 +102,7 @@ export default function ProductCard({
             src={primaryImage}
             alt=""
             loading="lazy"
+            decoding="async"
             onLoad={() => setImgLoaded(true)}
             className={[
               'h-full w-full object-contain transition duration-500 ease-out-expo',
