@@ -250,6 +250,10 @@ function safeEqual(a: string, b: string): boolean {
   return mismatch === 0;
 }
 
+export interface VerifyCredentialOptions {
+  verifyStoredCredential?: (storeId: string, password: string) => boolean;
+}
+
 /**
  * Validates credentials for admin and merchant users.
  *
@@ -259,12 +263,16 @@ function safeEqual(a: string, b: string): boolean {
  *  3. In production, a merchant without a configured secret cannot authenticate at all.
  *  4. All credential comparisons are constant-time.
  *  5. A placeholder or too-short production password is refused (fail closed).
+ *
+ * `options.verifyStoredCredential` is injected by the Node-runtime login route;
+ * this module itself is bundled for the Edge runtime and must stay dependency-free.
  */
 export function verifyCredentials(
   email: string,
   pass: string,
   targetRole?: UserRole,
-  storeId?: string
+  storeId?: string,
+  options?: VerifyCredentialOptions
 ): SessionPayload | null {
   const normalizedEmail = email.trim().toLowerCase();
   const password = pass.trim();
@@ -351,9 +359,13 @@ export function verifyCredentials(
     } else if (devAuth) {
       // Dev-only: a store with no configured secret is open ONLY under the explicit flag.
       authenticated = PLACEHOLDER_PASSWORDS.has(password.toLowerCase());
+    } else {
+      authenticated = options?.verifyStoredCredential
+        ? options.verifyStoredCredential(storeId, password)
+        : false;
     }
-    // NOTE: if merchantSecret is absent and dev auth is off, `authenticated` stays
-    // false — this is the previously-open hole, now closed.
+    // NOTE: with no env secret, no stored credential and dev auth off,
+    // `authenticated` stays false — the previously-open hole remains closed.
 
     if (authenticated) {
       return {

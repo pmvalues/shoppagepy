@@ -4,6 +4,7 @@ import {
   RetailNewsAgent,
   DiscoveredOffersStore,
 } from '@shoppage/kernel';
+import { requireSuperAdminOrAdminToken } from '@/server/api-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,7 +12,10 @@ export const dynamic = 'force-dynamic';
  * GET /api/ops/agents
  * Telemetry and health status for the autonomous retail intelligence agent suite
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = await requireSuperAdminOrAdminToken(req);
+  if (!auth.ok) return auth.response;
+
   try {
     const totalOffers = DiscoveredOffersStore.getTotalDiscoveredOffersCount();
     const newsAgent = new RetailNewsAgent();
@@ -76,6 +80,9 @@ export async function GET() {
  * Triggers an on-demand sweep cycle through the autonomous retail agent orchestrator
  */
 export async function POST(req: NextRequest) {
+  const auth = await requireSuperAdminOrAdminToken(req);
+  if (!auth.ok) return auth.response;
+
   try {
     const body = await req.json().catch(() => ({}));
     const batchSize = typeof body.batchSize === 'number' ? Math.min(body.batchSize, 50) : 15;

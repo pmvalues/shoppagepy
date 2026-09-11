@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLeadsByMerchant } from '@/server/referral-lead-store';
+import { requireMerchantScope } from '@/server/api-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -13,7 +14,12 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const merchantId = searchParams.get('merchantId');
+  const requestedMerchantId = searchParams.get('merchantId');
+
+  const auth = await requireMerchantScope(request, requestedMerchantId);
+  if (!auth.ok) return auth.response;
+
+  const merchantId = auth.merchantId;
   if (!merchantId) {
     return NextResponse.json({ error: 'merchantId query param required' }, { status: 400 });
   }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createReferralLead, getLeadById, getLeadsByMerchant, updateLeadStatus } from '@/server/referral-lead-store';
 import { appendReferralEvent, createReferralEvent } from '@/server/action-ledger';
 import { rateLimit, clientIp } from '@/server/rate-limit';
+import { requireMerchantScope } from '@/server/api-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -68,10 +69,17 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const merchantId = searchParams.get('merchantId');
+  const requestedMerchantId = searchParams.get('merchantId');
+
+  // Leads carry buyer PII (name, phone, email) — merchant session + tenant scope required.
+  const auth = await requireMerchantScope(request, requestedMerchantId);
+  if (!auth.ok) return auth.response;
+
+  const merchantId = auth.merchantId;
   if (!merchantId) {
     return NextResponse.json({ error: 'merchantId query param required' }, { status: 400 });
   }
+
   const leads = getLeadsByMerchant(merchantId);
   return NextResponse.json({ success: true, total: leads.length, leads });
 }
@@ -86,20 +94,31 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'id and a valid status required' }, { status: 400 });
     }
 
+    const auth = await requireMerchantScope(request);
+    if (!auth.ok) return auth.response;
+
+    const existing = getLeadById(id);
+    if (!existing) {
+      return NextResponse.json({ error: 'Lead not found' }, { status: 404 });
+    }
+    if (auth.session.role !== 'superadmin' && existing.merchantId !== auth.merchantId) {
+      return NextResponse.json(
+        { error: 'Forbidden: Cross-tenant lead update blocked' },
+        { status: 403 }
+      );
+    }
+
     let eventId: string | undefined;
     if (status === 'resolved') {
-      const lead = getLeadById(id);
-      if (lead) {
-        const event = createReferralEvent({
-          country: 'ZA',
-          sessionFingerprint: 'merchant_' + lead.merchantId,
-          action: 'buyer_resolved',
-          merchantRef: lead.merchantId,
-          variantRef: lead.productSummary.slice(0, 120),
-          metadata: { leadId: id, capturedBy: 'merchant' },
-        });
-        eventId = event.eventId;
-      }
+      const event = createReferralEvent({
+        country: 'ZA',
+        sessionFingerprint: 'merchant_' + existing.merchantId,
+        action: 'buyer_resolved',
+        merchantRef: existing.merchantId,
+        variantRef: existing.productSummary.slice(0, 120),
+        metadata: { leadId: id, capturedBy: 'merchant' },
+      });
+      eventId = event.eventId;
     }
 
     const lead = updateLeadStatus(id, status as any, eventId);

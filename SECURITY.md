@@ -73,8 +73,11 @@ all outside dev mode.
 | Cross-tenant writes rejected with 403 | `apps/web/src/app/api/cms/[collection]/route.ts` |
 | Verified session identity propagated to handlers | `apps/web/src/middleware.ts` (`x-auth-user-id`, `x-auth-user-role`) |
 | Platform admin credentials cannot authenticate as a merchant | `apps/web/src/lib/auth.ts` (`verifyCredentials`) |
+| Privileged merchant reads/mutations require a session and enforce tenant scope | `apps/web/src/server/api-auth.ts` (`requireMerchantScope`) |
+| Ops and ingestion routes require a SuperAdmin session or `x-admin-token` | `apps/web/src/server/api-auth.ts` (`requireSuperAdminOrAdminToken`) |
+| Buyer-facing intake (leads, proforma) stays public but rate limited | `apps/web/src/app/api/merchants/leads/route.ts`, `apps/web/src/app/api/orders/proforma/route.ts` |
 
-*Tests:* `apps/web/test/security.test.ts` (tenant isolation + middleware guards)
+*Tests:* `apps/web/test/security.test.ts` (tenant isolation + middleware guards), `apps/web/test/api_authz.test.ts` (WS-1.6 route authorization)
 
 ---
 
@@ -108,10 +111,22 @@ returns `429` with `Retry-After`.
 | `/api/search/autocomplete` | 240 / min |
 | `/api/auth/login` | 10 / min |
 | `/api/v1/requests` | 20 / min |
+| `/api/orders/proforma` (storefront create) | 30 / min |
+| `/api/merchants/leads` (storefront intake) | 120 / min |
 
 > **Limitation:** the limiter is **in-process memory**, so the effective limit is
 > per-instance, not global. It is correct for a single-instance deployment and must be
 > replaced with a Redis-backed implementation before horizontal scaling. Tracked as WS-4B.
+
+### Webhook authentication — verified present
+
+Subscription webhooks are authenticated by HMAC signature before any processing
+(Paystack SHA-512, Stripe timestamped SHA-256); unverified requests receive `401`.
+Every verified event is persisted exactly once and subscription transitions are applied
+for entitlement checks.
+
+*Implementation:* `apps/web/src/app/api/billing/webhook/route.ts`, `apps/web/src/server/billing-store.ts`
+*Regression guard:* `apps/web/test/billing_webhook.test.ts`
 
 ---
 
@@ -122,6 +137,7 @@ These are **not** mitigated today. They are listed so the posture is not oversta
 | Gap | Impact | Tracking |
 |---|---|---|
 | Rate limiter is per-instance, not distributed | Limits multiply across replicas | WS-4B (Redis) |
+| Rate-limit key trusts `x-forwarded-for` and the container publishes port 3000 | A direct connection can spoof the client IP and bypass per-IP limits | Deploy config before launch |
 | No WAF or edge DDoS protection evidenced | Volumetric attacks reach the origin | WS-3.4 |
 | No automated dependency/vulnerability scanning in CI | Supply-chain risk unmonitored | WS-6 |
 | No error tracking or structured alerting | Breaches may go unnoticed | WS-3.4 |
@@ -152,6 +168,7 @@ minimising PCI-DSS scope and transactional liability.
 
 | Date | Scope | Status |
 |---|---|---|
+| 2026-09-11 | WS-1.6 API authorization: merchant/ops/ingestion routes now require a session + tenant scope or `x-admin-token`; CMS customer/order reads locked; billing webhooks persisted idempotently; claim flow issues scrypt-hashed credentials and never echoes operator env secrets; `/api/ops/ready` added; Docker runtime aligned to Node 22 (`node:sqlite`) | **Completed** |
 | 2026-09-10 | WS-1.1 dev auth bypass removed; WS-1.2 secrets rotated + startup validation; WS-1.3 rate limiting applied to all public surfaces; WS-1.5 gitleaks CI; WS-2 rights register instantiated and enforced; WS-3.1 database integrity verified | **Completed** |
 | Q3 2026 | Secret sanitization, HTTP security headers, CI quality gates | Enforced |
 

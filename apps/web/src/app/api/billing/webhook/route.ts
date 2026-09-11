@@ -1,11 +1,31 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { recordBillingEvent, applySubscriptionTransition } from '@/server/billing-store';
 
 /**
  * Paystack & Stripe Subscription Webhook Handler
  * Processes subscription creation, recurring renewals, and charge completions.
- * Enforces HMAC SHA-512 signature validation and idempotent ledger tracking.
+ * Enforces HMAC SHA-512 signature validation and idempotent event persistence:
+ * every verified event is recorded exactly once (duplicate deliveries are
+ * ignored) and subscription state transitions are applied for entitlement checks.
  */
+
+const SUBSCRIPTION_STATUS_BY_EVENT: Record<string, string> = {
+  'charge.success': 'active',
+  'invoice.payment_succeeded': 'active',
+  'subscription.create': 'active',
+  'subscription.disable': 'canceled',
+  'customer.subscription.deleted': 'canceled',
+};
+
+function pickString(...values: unknown[]): string | null {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim()) return value.trim();
+    if (typeof value === 'number') return String(value);
+  }
+  return null;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text();
@@ -62,18 +82,62 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 401 });
     }
 
-    const payload = JSON.parse(rawBody || '{}');
+    const payload = JSON.parse(rawBody || '{}') as any;
     const event = payload.event || payload.type || 'charge.success';
+    const data = payload?.data || {};
 
-    // 3. Process Event Types Idempotently
+    const subscriptionRef = pickString(
+      data?.subscription_code,
+      data?.object?.subscription,
+      data?.object?.id
+    );
+    const customerRef = pickString(
+      data?.customer?.email,
+      data?.customer?.customer_code,
+      data?.object?.customer
+    );
+    const planRef = pickString(data?.plan?.plan_code, data?.plan?.id);
+    const eventId = pickString(payload?.id, data?.id);
+
+    const eventKey = eventId
+      ? `${provider}:${eventId}`
+      : `${provider}:${crypto.createHash('sha256').update(rawBody).digest('hex')}`;
+
+    const persistence = recordBillingEvent({
+      eventKey,
+      provider,
+      eventType: event,
+      subscriptionRef,
+      customerRef,
+    });
+
+    const nextStatus = SUBSCRIPTION_STATUS_BY_EVENT[event];
+    let subscriptionApplied = false;
+    if (!persistence.duplicate && nextStatus && subscriptionRef) {
+      subscriptionApplied = applySubscriptionTransition({
+        provider,
+        subscriptionRef,
+        status: nextStatus,
+        customerRef,
+        planRef,
+      });
+    }
+
+    const base = {
+      received: true,
+      provider,
+      event,
+      duplicate: persistence.duplicate,
+      stored: persistence.stored,
+      subscriptionApplied,
+    };
+
     switch (event) {
       case 'charge.success':
       case 'invoice.payment_succeeded':
       case 'subscription.create':
         return NextResponse.json({
-          received: true,
-          provider,
-          event,
+          ...base,
           status: 'processed',
           timestamp: new Date().toISOString(),
         });
@@ -81,18 +145,14 @@ export async function POST(req: NextRequest) {
       case 'subscription.disable':
       case 'customer.subscription.deleted':
         return NextResponse.json({
-          received: true,
-          provider,
-          event,
+          ...base,
           status: 'deactivated',
           timestamp: new Date().toISOString(),
         });
 
       default:
         return NextResponse.json({
-          received: true,
-          provider,
-          event,
+          ...base,
           status: 'ignored_unsupported_event',
         });
     }

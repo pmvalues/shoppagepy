@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PayloadMerchantCmsService } from '@/cms';
 import { getSessionFromRequest } from '@/lib/auth';
+import { requireMerchantScope } from '@/server/api-auth';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ collection: string }> }) {
   const { searchParams } = new URL(req.url);
   const resolvedParams = await params;
   const collection = resolvedParams.collection;
-  const merchantId = searchParams.get('merchantId') || 'loc_mitrend_midrand';
+  const requestedMerchantId = searchParams.get('merchantId');
+  const merchantId = requestedMerchantId || 'loc_mitrend_midrand';
   const query = searchParams.get('q') || searchParams.get('query') || '';
   const id = searchParams.get('id');
 
@@ -42,12 +44,18 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ coll
       }
 
       case 'orders': {
-        const docs = PayloadMerchantCmsService.getOrders(merchantId);
+        const auth = await requireMerchantScope(req, requestedMerchantId);
+        if (!auth.ok) return auth.response;
+        const scopedId = auth.merchantId || merchantId;
+        const docs = PayloadMerchantCmsService.getOrders(scopedId);
         return NextResponse.json({ docs, total: docs.length });
       }
 
       case 'customers': {
-        const docs = PayloadMerchantCmsService.getCustomers(merchantId);
+        const auth = await requireMerchantScope(req, requestedMerchantId);
+        if (!auth.ok) return auth.response;
+        const scopedId = auth.merchantId || merchantId;
+        const docs = PayloadMerchantCmsService.getCustomers(scopedId);
         return NextResponse.json({ docs, total: docs.length });
       }
 

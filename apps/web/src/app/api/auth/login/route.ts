@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCredentials, setSessionCookie, type UserRole } from '@/lib/auth';
+import { verifyStoredMerchantCredential } from '@/server/merchant-credentials';
 import { enforceRateLimit } from '@/server/rate-limit';
 
 export const runtime = 'nodejs';
@@ -22,7 +23,8 @@ export async function POST(req: NextRequest) {
       email || '',
       password || '',
       role as UserRole | undefined,
-      storeId
+      storeId,
+      { verifyStoredCredential: verifyStoredMerchantCredential }
     );
 
     if (!sessionPayload) {

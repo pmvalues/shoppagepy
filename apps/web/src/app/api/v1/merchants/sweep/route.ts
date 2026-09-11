@@ -5,6 +5,7 @@ import {
   googlePlaceToMerchant,
 } from '@shoppage/kernel';
 import { enforceRateLimit } from '@/server/rate-limit';
+import { requireSuperAdminOrAdminToken } from '@/server/api-auth';
 
 /**
  * Nationwide Google Maps / Places Sweeper & Ingestion API (/api/v1/merchants/sweep)
@@ -40,6 +41,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = await requireSuperAdminOrAdminToken(request);
+  if (!auth.ok) return auth.response;
+
   try {
     const body = await request.json();
     const { places, marketId } = body;

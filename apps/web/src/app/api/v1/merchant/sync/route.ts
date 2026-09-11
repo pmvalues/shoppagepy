@@ -3,6 +3,7 @@ import { ProductVariant, Offer } from '@shoppage/contracts';
 import { scoreVariantMatch, validateGtin } from '@shoppage/kernel';
 import { SA_CANONICAL_PRODUCTS, SA_FLAGSHIP_OFFERS } from '@shoppage/kernel';
 import { rateLimit, clientIp } from '@/server/rate-limit';
+import { requireMerchantScope, hasValidAdminToken } from '@/server/api-auth';
 
 export interface VendorSyncItemInput {
   merchantSku?: string;
@@ -41,6 +42,11 @@ export async function POST(request: NextRequest) {
         { error: 'Invalid payload: merchantId and items array are required' },
         { status: 400 }
       );
+    }
+
+    if (!hasValidAdminToken(request)) {
+      const auth = await requireMerchantScope(request, body.merchantId);
+      if (!auth.ok) return auth.response;
     }
 
     const syncResults = body.items.map((item) => {

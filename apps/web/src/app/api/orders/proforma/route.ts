@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireMerchantScope } from '@/server/api-auth';
+import { rateLimit, clientIp } from '@/server/rate-limit';
 
 export interface ProformaOrderRecord {
   id: string;
@@ -94,11 +96,19 @@ const PROFORMA_ORDERS_STORE: ProformaOrderRecord[] = [
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const merchantId = searchParams.get('merchantId') || 'loc_sunpower_crownmines';
+  const requestedMerchantId = searchParams.get('merchantId');
   const status = searchParams.get('status');
 
+  const auth = await requireMerchantScope(req, requestedMerchantId);
+  if (!auth.ok) return auth.response;
+
+  const scopedMerchantId = auth.merchantId;
+  if (!scopedMerchantId) {
+    return NextResponse.json({ error: 'merchantId query param required' }, { status: 400 });
+  }
+
   let filtered = PROFORMA_ORDERS_STORE.filter(
-    (o) => o.merchantId === merchantId || merchantId === 'all'
+    (o) => o.merchantId === scopedMerchantId || scopedMerchantId === 'all'
   );
 
   if (status && status !== 'all') {
@@ -114,6 +124,12 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const ip = clientIp(req);
+  const rl = rateLimit('proforma:' + ip, 30, 60_000);
+  if (rl.limited) {
+    return NextResponse.json({ error: 'Too many requests, slow down' }, { status: 429 });
+  }
+
   try {
     const body = await req.json();
 
