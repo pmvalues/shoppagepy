@@ -150,3 +150,54 @@ function dispatchWhatsAppQuote() {
 	const targetUrl = `https://wa.me/${merchantWa}?text=${encodeURIComponent(msg)}`;
 	window.open(targetUrl, '_blank');
 }
+
+function copyStoreLink(btn, storeId) {
+	const url = `${window.location.origin}/m/${storeId}`;
+	navigator.clipboard.writeText(url).then(() => {
+		const orig = btn.textContent;
+		btn.textContent = 'Copied! ✓';
+		setTimeout(() => btn.textContent = orig, 2000);
+	});
+}
+
+function copyBadgeHTML(btn, storeId, badgeType) {
+	const origin = window.location.origin;
+	let width = 200;
+	if (badgeType === 'order-on-shoppage') width = 220;
+	if (badgeType === 'verified-merchant') width = 230;
+	const snippet = `<a href="${origin}/m/${storeId}" target="_blank" rel="noopener noreferrer"><img src="${origin}/badges/${badgeType}.svg" alt="Shoppage South Africa" width="${width}" height="50" border="0" /></a>`;
+	navigator.clipboard.writeText(snippet).then(() => {
+		const orig = btn.textContent;
+		btn.textContent = 'Copied! ✓';
+		setTimeout(() => btn.textContent = orig, 2000);
+	});
+}
+
+function copyEmailSignature(btn, name, address, cipc, phone, wa, storeId) {
+	const origin = window.location.origin;
+	const snippet = `<div style="font-family: Arial, sans-serif; font-size: 13px; color: #1e293b; line-height: 1.4;">
+  <div style="font-size: 14px; font-weight: bold; color: #0f172a;">${name}</div>
+  <div style="font-size: 11px; color: #64748b;">${address} · CIPC: ${cipc}</div>
+  <div style="font-size: 11px; color: #64748b;">Tel: ${phone} · WhatsApp: +${wa}</div>
+  <div style="margin-top: 8px;">
+    <a href="${origin}/m/${storeId}" target="_blank" rel="noopener noreferrer">
+      <img src="${origin}/badges/order-on-shoppage.svg" alt="Order Wholesale on Shoppage" width="180" height="41" border="0" />
+    </a>
+  </div>
+</div>`;
+	navigator.clipboard.writeText(snippet).then(() => {
+		const orig = btn.textContent;
+		btn.textContent = 'Signature Copied! ✓';
+		setTimeout(() => btn.textContent = orig, 2000);
+	});
+}
+
+function copyEmbedCode(btn, storeId) {
+	const origin = window.location.origin;
+	const snippet = `<iframe src="${origin}/embed/m/${storeId}" width="100%" height="650" frameborder="0" style="border-radius: 16px; border: 1px solid #e2e8f0;"></iframe>`;
+	navigator.clipboard.writeText(snippet).then(() => {
+		const orig = btn.textContent;
+		btn.textContent = 'Embed Code Copied! ✓';
+		setTimeout(() => btn.textContent = orig, 2000);
+	});
+}

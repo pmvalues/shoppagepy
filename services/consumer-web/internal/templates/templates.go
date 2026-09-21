@@ -2,6 +2,7 @@ package templates
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
@@ -222,6 +223,53 @@ func starRatingString(rating int) string {
 		rating = 5
 	}
 	return strings.Repeat("★", rating) + strings.Repeat("☆", 5-rating)
+}
+
+// RenderEmbedStore renders the embeddable catalog widget for external websites
+func RenderEmbedStore(w io.Writer, data EmbedStoreViewData) error {
+	return EmbedStoreComponent(data).Render(context.Background(), w)
+}
+
+func schemaOrgStoreJSON(store models.MerchantStorefront, desc string) string {
+	sameAs := []string{}
+	if store.Website != "" {
+		sameAs = append(sameAs, store.Website)
+	}
+	for _, s := range store.SocialLinks {
+		if s.URL != "" && s.URL != store.Website {
+			sameAs = append(sameAs, s.URL)
+		}
+	}
+
+	payload := map[string]any{
+		"@context": "https://schema.org/",
+		"@type":    "WholesaleStore",
+		"name":     store.Name,
+		"description": desc,
+		"url":      fmt.Sprintf("http://localhost:3000/m/%s", store.ID),
+		"telephone": store.Phone,
+		"openingHours": "Mo-Fr 08:00-17:00, Sa 08:30-13:00",
+		"hasMap":   store.DirectionsURL,
+		"address": map[string]string{
+			"@type":          "PostalAddress",
+			"streetAddress":  store.Address,
+			"addressCountry": "ZA",
+		},
+		"aggregateRating": map[string]any{
+			"@type":       "AggregateRating",
+			"ratingValue": fmt.Sprintf("%.1f", store.Rating),
+			"reviewCount": fmt.Sprintf("%d", store.ReviewsCount),
+		},
+	}
+	if store.Email != "" {
+		payload["email"] = store.Email
+	}
+	if len(sameAs) > 0 {
+		payload["sameAs"] = sameAs
+	}
+
+	b, _ := json.MarshalIndent(payload, "", "  ")
+	return string(b)
 }
 
 

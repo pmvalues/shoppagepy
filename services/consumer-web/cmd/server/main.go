@@ -87,6 +87,9 @@ func main() {
 	r.Get("/malls/{id}", h.HandleMallDetail)
 	r.Get("/m/{id}", h.HandleStorefront)
 	r.Get("/store/{id}", h.HandleStorefront)
+	r.Get("/embed/m/{id}", h.HandleStoreEmbed)
+	r.Get("/embed/store/{id}", h.HandleStoreEmbed)
+	r.Get("/badges/{type}.svg", h.HandleBadgeSVG)
 
 	// Short streams & Buyer wholesale RFQ
 	r.Get("/shorts", h.HandleShorts)

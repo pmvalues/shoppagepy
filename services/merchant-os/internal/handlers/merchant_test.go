@@ -1023,3 +1023,41 @@ func TestRMAWorkflow(t *testing.T) {
 		t.Errorf("expected RMA table to reflect Refund Issued status")
 	}
 }
+
+func TestChannelsWebsiteAndEmailHub(t *testing.T) {
+	router := setupTestRouter()
+	req := httptest.NewRequest("GET", "/tab/channels", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK for channels tab, got %d", rec.Code)
+	}
+
+	body := rec.Body.String()
+	if !strings.Contains(body, "Website &amp; Corporate Email Integration Hub") && !strings.Contains(body, "Website & Corporate Email Integration Hub") {
+		t.Errorf("expected channels tab to contain Website & Corporate Email Integration Hub")
+	}
+	if !strings.Contains(body, "find-us-on-shoppage.svg") {
+		t.Errorf("expected channels tab to contain find-us-on-shoppage.svg badge")
+	}
+	if !strings.Contains(body, "order-on-shoppage.svg") {
+		t.Errorf("expected channels tab to contain order-on-shoppage.svg badge")
+	}
+	if !strings.Contains(body, "verified-merchant.svg") {
+		t.Errorf("expected channels tab to contain verified-merchant.svg badge")
+	}
+	if !strings.Contains(body, "shoppage-icon.svg") {
+		t.Errorf("expected channels tab to contain shoppage-icon.svg badge")
+	}
+	if !strings.Contains(body, "Corporate Email Signature Snippet") {
+		t.Errorf("expected channels tab to contain Corporate Email Signature Snippet")
+	}
+	if !strings.Contains(body, "Embed Live Catalog on Your Website") {
+		t.Errorf("expected channels tab to contain Embed Live Catalog on Your Website")
+	}
+	if !strings.Contains(body, "<iframe src=") {
+		t.Errorf("expected channels tab to contain iframe embed code snippet")
+	}
+}
+

@@ -181,26 +181,41 @@ type StoreTestimonial struct {
 	Verified   bool   `json:"verified"`
 }
 
+// SocialLink represents a corporate web/social link for a merchant
+type SocialLink struct {
+	Platform string `json:"platform"` // "website", "linkedin", "facebook", "instagram", "youtube", "twitter"
+	URL      string `json:"url"`
+	Label    string `json:"label"`
+	Icon     string `json:"icon"`
+}
+
 // MerchantStorefront represents a public merchant profile page.
 type MerchantStorefront struct {
-	ID            string             `json:"id"`
-	Name          string             `json:"name"`
-	Category      string             `json:"category"`
-	Suburb        string             `json:"suburb"`
-	City          string             `json:"city"`
-	Province      string             `json:"province"`
-	Address       string             `json:"address"`
-	Phone         string             `json:"phone"`
-	WhatsApp      string             `json:"whatsapp"`
-	Rating        float64            `json:"rating"`
-	ReviewsCount  int                `json:"reviewsCount"`
-	CIPCNumber    string             `json:"cipcNumber"`
-	Verified      bool               `json:"verified"`
-	Catalog       []SearchItem       `json:"catalog"`
-	HoursStatus   string             `json:"hoursStatus,omitempty"`
-	IsOpenNow     bool               `json:"isOpenNow"`
-	DirectionsURL string             `json:"directionsUrl,omitempty"`
-	Testimonials  []StoreTestimonial `json:"testimonials,omitempty"`
+	ID                 string             `json:"id"`
+	Name               string             `json:"name"`
+	Category           string             `json:"category"`
+	Suburb             string             `json:"suburb"`
+	City               string             `json:"city"`
+	Province           string             `json:"province"`
+	Address            string             `json:"address"`
+	Phone              string             `json:"phone"`
+	WhatsApp           string             `json:"whatsapp"`
+	Email              string             `json:"email,omitempty"`
+	Website            string             `json:"website,omitempty"`
+	HasExternalWebsite bool               `json:"hasExternalWebsite"`
+	AboutText          string             `json:"aboutText,omitempty"`
+	BBBEELevel         string             `json:"bbbeeLevel,omitempty"`
+	Certifications     []string           `json:"certifications,omitempty"`
+	SocialLinks        []SocialLink       `json:"socialLinks,omitempty"`
+	Rating             float64            `json:"rating"`
+	ReviewsCount       int                `json:"reviewsCount"`
+	CIPCNumber         string             `json:"cipcNumber"`
+	Verified           bool               `json:"verified"`
+	Catalog            []SearchItem       `json:"catalog"`
+	HoursStatus        string             `json:"hoursStatus,omitempty"`
+	IsOpenNow          bool               `json:"isOpenNow"`
+	DirectionsURL      string             `json:"directionsUrl,omitempty"`
+	Testimonials       []StoreTestimonial `json:"testimonials,omitempty"`
 }
 
 // CartItem represents an item in an RFQ or proforma cart.

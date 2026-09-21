@@ -9,28 +9,8 @@ import (
 
 templ StorefrontComponent(data StorefrontViewData) {
 	@Layout(data.Title, data.Description, data.CurrentTab, []models.TradeTrend{}, []models.RetailerDeal{}, []models.CommunityGuild{}) {
-		<!-- Schema.org JSON-LD LocalBusiness / WholesaleStore Structured Data (GMB & Google Search Parity) -->
-		<script type="application/ld+json">
-		{
-			"@context": "https://schema.org/",
-			"@type": "WholesaleStore",
-			"name": "{ data.Store.Name }",
-			"description": "{ data.Description }",
-			"address": {
-				"@type": "PostalAddress",
-				"streetAddress": "{ data.Store.Address }",
-				"addressCountry": "ZA"
-			},
-			"telephone": "{ data.Store.Phone }",
-			"openingHours": "Mo-Fr 08:00-17:00, Sa 08:30-13:00",
-			"hasMap": "{ data.Store.DirectionsURL }",
-			"aggregateRating": {
-				"@type": "AggregateRating",
-				"ratingValue": "{ fmt.Sprintf("%.1f", data.Store.Rating) }",
-				"reviewCount": "{ fmt.Sprintf("%d", data.Store.ReviewsCount) }"
-			}
-		}
-		</script>
+		<!-- Schema.org JSON-LD LocalBusiness / WholesaleStore Structured Data (GMB & Google Search Knowledge Graph Parity) -->
+		@templ.Raw("<script type=\"application/ld+json\">\n" + schemaOrgStoreJSON(data.Store, data.Description) + "\n</script>")
 
 		<main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8 font-sans">
 			<!-- 1. ANNOUNCEMENT RIBBON (Pemofy-style) -->
@@ -88,6 +68,25 @@ templ StorefrontComponent(data StorefrontViewData) {
 										</span>
 									}
 								}
+								if data.Store.HasExternalWebsite && data.Store.Website != "" {
+									<a 
+										href={ templ.SafeURL(data.Store.Website) } 
+										target="_blank" 
+										rel="noopener noreferrer" 
+										class="px-2.5 py-0.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold inline-flex items-center gap-1.5 transition border border-slate-200"
+										title="Visit official corporate website"
+									>
+										<span>🌐</span>
+										<span>Official Website</span>
+										<span class="text-[10px] text-slate-400">↗</span>
+									</a>
+								} else {
+									<span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold inline-flex items-center gap-1.5">
+										<span>⚡</span>
+										<span>Official Digital Presence</span>
+										<span class="text-[10px] text-emerald-600 font-normal">(Shoppage Standalone)</span>
+									</span>
+								}
 							</div>
 							<p class="text-xs sm:text-sm text-slate-500 flex flex-wrap items-center gap-2">
 								<span>📍 { data.Store.Address }</span>
@@ -96,22 +95,60 @@ templ StorefrontComponent(data StorefrontViewData) {
 								<span class="text-slate-300">•</span>
 								<span class="text-amber-600 font-bold">★ { fmt.Sprintf("%.1f", data.Store.Rating) } ({ fmt.Sprintf("%d", data.Store.ReviewsCount) }+ B2B Reviews)</span>
 							</p>
+
+							<!-- Corporate Ecosystem & Social Row -->
+							if len(data.Store.SocialLinks) > 0 || data.Store.Email != "" {
+								<div class="flex flex-wrap items-center gap-2 pt-1">
+									<span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ecosystem:</span>
+									for _, link := range data.Store.SocialLinks {
+										<a 
+											href={ templ.SafeURL(link.URL) } 
+											target="_blank" 
+											rel="noopener noreferrer" 
+											class="px-2 py-0.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-semibold inline-flex items-center gap-1 border border-slate-200 transition"
+										>
+											<span>{ link.Icon }</span>
+											<span>{ link.Label }</span>
+										</a>
+									}
+									if data.Store.Email != "" {
+										<a 
+											href={ templ.SafeURL(fmt.Sprintf("mailto:%s", data.Store.Email)) } 
+											class="px-2 py-0.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-semibold inline-flex items-center gap-1 border border-slate-200 transition"
+										>
+											<span>✉️</span>
+											<span>{ data.Store.Email }</span>
+										</a>
+									}
+								</div>
+							}
 						</div>
 					</div>
 
 					<!-- Quick Action CTAs -->
-					<div class="flex flex-wrap items-center gap-3 shrink-0">
+					<div class="flex flex-wrap items-center gap-2.5 shrink-0">
+						<!-- Share & Embed Badges Modal Button -->
+						<button 
+							type="button" 
+							onclick="document.getElementById('share-embed-modal').classList.remove('hidden');" 
+							class="px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition inline-flex items-center gap-1.5 shadow-2xs cursor-pointer"
+							title="Get copyable badges, iframe widget, and email signatures"
+						>
+							<span>🔗</span>
+							<span>Share &amp; Badges</span>
+						</button>
+
 						if data.Store.DirectionsURL != "" {
 							<!-- One-Click Google Maps Directions (GMB Parity) -->
 							<a 
 								href={ templ.SafeURL(data.Store.DirectionsURL) } 
 								target="_blank"
 								rel="noopener noreferrer"
-								class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition inline-flex items-center gap-2 shadow-2xs"
+								class="px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition inline-flex items-center gap-1.5 shadow-2xs"
 								title="Open in Google Maps"
 							>
 								<span>📍</span>
-								<span>Get Directions</span>
+								<span>Directions</span>
 							</a>
 						}
 
@@ -119,7 +156,7 @@ templ StorefrontComponent(data StorefrontViewData) {
 						<a 
 							href="/desk" 
 							target="_blank"
-							class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition inline-flex items-center gap-2 shadow-2xs"
+							class="px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition inline-flex items-center gap-1.5 shadow-2xs"
 							title="Open Merchant OS Workstation"
 						>
 							<span class="text-emerald-600 font-bold">⚡</span>
@@ -130,7 +167,7 @@ templ StorefrontComponent(data StorefrontViewData) {
 						<button 
 							type="button" 
 							onclick="toggleQuoteDrawer();"
-							class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition inline-flex items-center gap-2 shadow-2xs relative"
+							class="px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition inline-flex items-center gap-1.5 shadow-2xs relative cursor-pointer"
 							title="View Quotation Basket"
 						>
 							<span>📋</span>
@@ -142,9 +179,9 @@ templ StorefrontComponent(data StorefrontViewData) {
 						<a 
 							href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi,%%20I'm%%20contacting%%20you%%20via%%20Shoppage%%20Storefront%%20regarding%%20wholesale%%20supplies.", data.Store.WhatsApp)) } 
 							target="_blank"
-							class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition shadow-sm inline-flex items-center justify-center gap-2 shadow-emerald-600/20"
+							class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition shadow-sm inline-flex items-center justify-center gap-2 shadow-emerald-600/20"
 						>
-							<span>💬 Direct WhatsApp Trade Desk</span>
+							<span>💬 WhatsApp Desk</span>
 						</a>
 					</div>
 				</div>
@@ -211,6 +248,80 @@ templ StorefrontComponent(data StorefrontViewData) {
 					<div>
 						<h4 class="text-xs font-bold text-slate-900">Instant B2B Proforma Invoices</h4>
 						<p class="text-[11px] text-slate-500">Official 15% VAT tax invoices &amp; bulk carton tiers</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- 4.1. ABOUT THE ENTERPRISE & COMPLIANCE (Website Mirroring & Standalone Parity) -->
+			<section class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xs">
+				<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+					<div class="lg:col-span-2 space-y-3">
+						<div class="flex items-center gap-2">
+							<span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+								Enterprise Profile &amp; Manufacturing
+							</span>
+							if data.Store.BBBEELevel != "" {
+								<span class="text-[10px] font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
+									🇿🇦 { data.Store.BBBEELevel }
+								</span>
+							}
+						</div>
+						<h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+							About { data.Store.Name }
+						</h3>
+						<p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+							{ data.Store.AboutText }
+						</p>
+
+						<!-- SABS / ISO / CIPC Certification Chips -->
+						if len(data.Store.Certifications) > 0 {
+							<div class="pt-2">
+								<div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Quality Standards &amp; Accreditations</div>
+								<div class="flex flex-wrap gap-2">
+									for _, cert := range data.Store.Certifications {
+										<span class="px-3 py-1 rounded-xl bg-slate-50 text-slate-800 border border-slate-200 text-xs font-semibold inline-flex items-center gap-1.5 shadow-2xs">
+											<span class="text-emerald-600 font-bold">✓</span>
+											<span>{ cert }</span>
+										</span>
+									}
+								</div>
+							</div>
+						}
+					</div>
+
+					<!-- Commercial B2B Trade Terms & EFT Rails -->
+					<div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3 text-xs">
+						<div class="font-black text-slate-900 flex items-center justify-between">
+							<span>Commercial Trade Terms</span>
+							<span class="text-[10px] font-mono text-emerald-700 font-bold">SARS VAT 15%</span>
+						</div>
+						<div class="space-y-2 text-slate-600 text-[11.5px]">
+							<div class="flex justify-between border-b border-slate-200/60 pb-1.5">
+								<span>Legal Entity:</span>
+								<span class="font-bold text-slate-900 truncate max-w-[150px]">{ data.Store.Name }</span>
+							</div>
+							<div class="flex justify-between border-b border-slate-200/60 pb-1.5">
+								<span>CIPC Reg:</span>
+								<span class="font-mono font-bold text-slate-900">{ data.Store.CIPCNumber }</span>
+							</div>
+							<div class="flex justify-between border-b border-slate-200/60 pb-1.5">
+								<span>Settlement:</span>
+								<span class="font-bold text-emerald-700">Instant EFT / 30-Day Trade</span>
+							</div>
+							<div class="flex justify-between pb-1">
+								<span>Dispatch Node:</span>
+								<span class="font-bold text-slate-800">{ data.Store.Suburb }, { data.Store.City }</span>
+							</div>
+						</div>
+						<div class="pt-2">
+							<button 
+								type="button" 
+								onclick="document.getElementById('share-embed-modal').classList.remove('hidden');" 
+								class="w-full py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-800 font-bold border border-slate-200 transition inline-flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer text-xs"
+							>
+								<span>🏷️ Get Badges for Your Site</span>
+							</button>
+						</div>
 					</div>
 				</div>
 			</section>
@@ -557,6 +668,124 @@ templ StorefrontComponent(data StorefrontViewData) {
 					>
 						<span>🖨️ Print / Save Official Proforma PDF</span>
 					</button>
+				</div>
+			</div>
+
+			<!-- 9. SHARE & EMBED SHOPPAGE MODAL (For Merchant External Websites & Email Signatures) -->
+			<div id="share-embed-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+				<div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 relative animate-fadeIn max-h-[90vh] overflow-y-auto">
+					<div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+						<div class="flex items-center gap-2.5">
+							<span class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-base font-black">🔗</span>
+							<div>
+								<h4 class="text-sm font-extrabold text-slate-900">Website Badges &amp; Email Signatures</h4>
+								<p class="text-[10px] text-slate-500">Put Shoppage alongside YouTube, Facebook &amp; LinkedIn on your website and emails</p>
+							</div>
+						</div>
+						<button type="button" onclick="document.getElementById('share-embed-modal').classList.add('hidden')" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold transition cursor-pointer">&times;</button>
+					</div>
+
+					<div class="space-y-5 text-xs">
+						<!-- 1. Store Canonical Link -->
+						<div>
+							<label class="block text-xs font-bold text-slate-700 mb-1">Official Shoppage Storefront URL</label>
+							<div class="flex gap-2">
+								<input 
+									type="text" 
+									id="share-store-url" 
+									readonly 
+									value={ fmt.Sprintf("http://localhost:3000/m/%s", data.Store.ID) } 
+									class="flex-1 px-3 py-2 text-xs font-mono bg-slate-50 border border-slate-200 rounded-xl select-all" 
+								/>
+								<button 
+									type="button" 
+									onclick={ templ.ComponentScript{Call: fmt.Sprintf("copyStoreLink(this, '%s')", data.Store.ID)} } 
+									class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition cursor-pointer shrink-0"
+								>
+									Copy Link
+								</button>
+							</div>
+						</div>
+
+						<!-- 2. Copyable Website Badges (SVG) -->
+						<div class="border-t border-slate-100 pt-4">
+							<div class="flex items-center justify-between mb-2">
+								<label class="block text-xs font-bold text-slate-900">1. Website Badge (Copy HTML)</label>
+								<span class="text-[10px] text-emerald-600 font-bold">Vector SVG · High-DPI</span>
+							</div>
+							<p class="text-[11px] text-slate-500 mb-3">Add to your website header, footer, or social media icon bar alongside YouTube, Facebook, and LinkedIn.</p>
+
+							<div class="space-y-3">
+								<!-- Badge 1: Find us on Shoppage -->
+								<div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+									<img src="/badges/find-us-on-shoppage.svg" alt="Find us on Shoppage" class="h-10 w-auto shrink-0" />
+									<button 
+										type="button" 
+										onclick={ templ.ComponentScript{Call: fmt.Sprintf("copyBadgeHTML(this, '%s', 'find-us-on-shoppage')", data.Store.ID)} }
+										class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shrink-0 cursor-pointer"
+									>
+										Copy HTML
+									</button>
+								</div>
+
+								<!-- Badge 2: Order Wholesale on Shoppage -->
+								<div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+									<img src="/badges/order-on-shoppage.svg" alt="Order Wholesale on Shoppage" class="h-10 w-auto shrink-0" />
+									<button 
+										type="button" 
+										onclick={ templ.ComponentScript{Call: fmt.Sprintf("copyBadgeHTML(this, '%s', 'order-on-shoppage')", data.Store.ID)} }
+										class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shrink-0 cursor-pointer"
+									>
+										Copy HTML
+									</button>
+								</div>
+							</div>
+						</div>
+
+						<!-- 3. Corporate Email Signature Snippet -->
+						<div class="border-t border-slate-100 pt-4">
+							<div class="flex items-center justify-between mb-2">
+								<label class="block text-xs font-bold text-slate-900">2. Corporate Email Signature Integration</label>
+								<span class="text-[10px] text-slate-400">Outlook / Gmail / Apple Mail</span>
+							</div>
+							<div class="p-3.5 bg-white border-2 border-dashed border-emerald-500/50 rounded-xl space-y-2 mb-3">
+								<div class="font-extrabold text-slate-900 text-xs">{ data.Store.Name }</div>
+								<div class="text-[11px] text-slate-600">{ data.Store.Address } · CIPC: { data.Store.CIPCNumber }</div>
+								<div class="text-[11px] text-slate-500">Tel: { data.Store.Phone } · WhatsApp: +{ data.Store.WhatsApp }</div>
+								<div class="pt-1">
+									<img src="/badges/order-on-shoppage.svg" alt="Shoppage Trade Desk" class="h-7 w-auto" />
+								</div>
+							</div>
+							<button 
+								type="button" 
+								onclick={ templ.ComponentScript{Call: fmt.Sprintf("copyEmailSignature(this, '%s', '%s', '%s', '%s', '%s', '%s')", escapeJsString(data.Store.Name), escapeJsString(data.Store.Address), data.Store.CIPCNumber, data.Store.Phone, data.Store.WhatsApp, data.Store.ID)} }
+								class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition cursor-pointer text-xs flex items-center justify-center gap-1.5"
+							>
+								<span>✉️ Copy HTML Signature for Email</span>
+							</button>
+						</div>
+
+						<!-- 4. Embeddable Catalog Widget (iFrame) -->
+						<div class="border-t border-slate-100 pt-4">
+							<div class="flex items-center justify-between mb-2">
+								<label class="block text-xs font-bold text-slate-900">3. Embed Catalog Widget on Your Website</label>
+								<span class="text-[10px] text-slate-400">WordPress / Shopify / HTML</span>
+							</div>
+							<textarea 
+								id="embed-iframe-snippet" 
+								readonly 
+								rows="2" 
+								class="w-full px-3 py-2 text-[11px] font-mono bg-slate-50 border border-slate-200 rounded-xl select-all mb-2"
+							>{ fmt.Sprintf("<iframe src=\"http://localhost:3000/embed/m/%s\" width=\"100%%\" height=\"650\" frameborder=\"0\" style=\"border-radius:16px; border:1px solid #e2e8f0;\"></iframe>", data.Store.ID) }</textarea>
+							<button 
+								type="button" 
+								onclick={ templ.ComponentScript{Call: fmt.Sprintf("copyEmbedCode(this, '%s')", data.Store.ID)} } 
+								class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition cursor-pointer text-xs"
+							>
+								Copy Embed Code
+							</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</main>

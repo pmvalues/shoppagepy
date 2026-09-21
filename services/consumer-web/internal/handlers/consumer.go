@@ -1045,5 +1045,104 @@ func (h *ConsumerHandler) HandleInstantCheckout(w http.ResponseWriter, r *http.R
 	</div>`, paymentMethod, orderNo, productTitle, sku, qty, unitPrice, subtotal, vat, grandTotal, waybill)
 }
 
+// HandleStoreEmbed renders an embeddable iframe widget of the merchant storefront
+func (h *ConsumerHandler) HandleStoreEmbed(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	merchant, ok := h.store.GetMerchantByID(id)
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	data := templates.EmbedStoreViewData{
+		Store:   merchant,
+		Catalog: merchant.Catalog,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	// Allow embedding in iframes
+	w.Header().Del("X-Frame-Options")
+	w.Header().Set("Content-Security-Policy", "frame-ancestors *")
+	if err := templates.RenderEmbedStore(w, data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// HandleBadgeSVG generates official vector badges for external websites & email signatures
+func (h *ConsumerHandler) HandleBadgeSVG(w http.ResponseWriter, r *http.Request) {
+	badgeType := chi.URLParam(r, "type")
+	w.Header().Set("Content-Type", "image/svg+xml")
+	w.Header().Set("Cache-Control", "public, max-age=86400")
+
+	switch badgeType {
+	case "find-us-on-shoppage":
+		svg := `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" width="200" height="50">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="bolt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="50" rx="12" fill="url(#bg)"/>
+  <rect x="12" y="10" width="30" height="30" rx="7" fill="#ffffff" fill-opacity="0.2"/>
+  <path d="M22 20C22 17.79 23.79 16 26 16H28C30.21 16 32 17.79 32 20V22H22V20Z" fill="none" stroke="#ffffff" stroke-width="2"/>
+  <rect x="18" y="21" width="18" height="15" rx="3" fill="#ffffff"/>
+  <path d="M28 22L24 28H28L26 34L31 27H27.5L28 22Z" fill="url(#bolt)"/>
+  <text x="52" y="22" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#A7F3D0" letter-spacing="1.2">FIND US ON</text>
+  <text x="52" y="37" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.5" font-weight="900" fill="#ffffff" letter-spacing="0.5">SHOPPAGE</text>
+</svg>`
+		w.Write([]byte(svg))
+
+	case "order-on-shoppage":
+		svg := `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 50" width="220" height="50">
+  <defs>
+    <linearGradient id="bolt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+  </defs>
+  <rect width="220" height="50" rx="12" fill="#0F172A" stroke="#334155" stroke-width="1.5"/>
+  <circle cx="26" cy="25" r="14" fill="#1E293B"/>
+  <path d="M27 18L22 25H27L25 32L31 24H26.5L27 18Z" fill="url(#bolt)"/>
+  <text x="50" y="21" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8" font-weight="700" fill="#34D399" letter-spacing="1.2">ORDER WHOLESALE ON</text>
+  <text x="50" y="37" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="900" fill="#ffffff" letter-spacing="0.5">SHOPPAGE SOUTH AFRICA</text>
+</svg>`
+		w.Write([]byte(svg))
+
+	case "verified-merchant":
+		svg := `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 50" width="230" height="50">
+  <rect width="230" height="50" rx="12" fill="#ffffff" stroke="#10B981" stroke-width="1.8"/>
+  <rect x="10" y="10" width="30" height="30" rx="8" fill="#ECFDF5"/>
+  <path d="M20 25L24 29L31 21" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="48" y="21" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="800" fill="#059669" letter-spacing="1">CIPC VERIFIED MERCHANT</text>
+  <text x="48" y="36" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" fill="#0F172A">SHOPPAGE TRADE DESK</text>
+</svg>`
+		w.Write([]byte(svg))
+
+	default: // shoppage-icon
+		svg := `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="sp-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="sp-bolt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="12" fill="url(#sp-grad)"/>
+  <path d="M14 18C14 15.79 15.79 14 18 14H30C32.21 14 34 15.79 34 18L35 34C35 36.21 33.21 38 31 38H17C14.79 38 13 36.21 13 34L14 18Z" fill="#FFFFFF"/>
+  <path d="M19 15V12C19 9.79 20.79 8 23 8H25C27.21 8 29 9.79 29 12V15" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M26 18L19 26H25L23 34L30 25H25L26 18Z" fill="url(#sp-bolt)"/>
+</svg>`
+		w.Write([]byte(svg))
+	}
+}
+
 
 

@@ -2,6 +2,7 @@ package templates
 
 import (
 	"fmt"
+	"strings"
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
@@ -113,4 +114,193 @@ templ ChannelsTab(data models.DashboardViewData) {
 			</div>
 		</div>
 	</div>
+
+	<!-- Website, Badges & Email Signature Integration Hub -->
+	<div class="card panel" style="margin-top:20px; border-left:4px solid var(--primary);">
+		<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+			<div>
+				<div style="display:flex; align-items:center; gap:8px;">
+					<span style="font-size:20px;">🌐</span>
+					<h4 style="font-size:16px; font-weight:800; margin:0;">Website &amp; Corporate Email Integration Hub</h4>
+				</div>
+				<p style="font-size:13px; color:var(--muted); margin:4px 0 0;">
+					Position Shoppage on your website and corporate emails alongside YouTube, Facebook &amp; LinkedIn — or use Shoppage as your complete standalone website.
+				</p>
+			</div>
+			<div style="display:flex; gap:8px;">
+				<a href={ templ.SafeURL(fmt.Sprintf("http://localhost:3000/m/%s", data.Store.ID)) } target="_blank" class="btn outline small">
+					<span>👁️</span> Open Live Storefront
+				</a>
+			</div>
+		</div>
+
+		<!-- Dual Strategy: With External Website vs Standalone Website -->
+		<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-bottom:20px;">
+			<div style="padding:14px; background:var(--surface-2); border-radius:12px; border:1px solid var(--line);">
+				<div style="font-weight:700; font-size:13px; display:flex; align-items:center; gap:6px; color:var(--primary);">
+					<span>🔗</span> If You Have an Existing Website
+				</div>
+				<p style="font-size:12px; color:var(--muted); margin:6px 0 10px;">
+					(WordPress, Shopify, Wix, WooCommerce, Custom): Add our official high-DPI vector badges to your header/footer/social icon rows and embed your live catalog directly into any page.
+				</p>
+				<div style="font-size:11.5px; font-weight:600; color:var(--ink-2); line-height:1.6;">
+					• 1-line iframe catalog embed<br/>
+					• Vector SVG badges for icon bars<br/>
+					• Direct WhatsApp &amp; proforma ordering
+				</div>
+			</div>
+
+			<div style="padding:14px; background:var(--surface-2); border-radius:12px; border:1px solid var(--line);">
+				<div style="font-weight:700; font-size:13px; display:flex; align-items:center; gap:6px; color:var(--primary);">
+					<span>⚡</span> If You Do NOT Have a Website
+				</div>
+				<p style="font-size:12px; color:var(--muted); margin:6px 0 10px;">
+					Your Shoppage URL is your complete digital presence. Google Search &amp; Google My Business indexed with Schema.org JSON-LD LocalBusiness data, SARS VAT &amp; CIPC verification.
+				</p>
+				<div style="font-size:11.5px; font-weight:600; color:var(--ink-2); line-height:1.6;">
+					• Canonical URL: <code style="font-size:11px; background:var(--surface); padding:2px 4px; border-radius:4px;">{ fmt.Sprintf("http://localhost:3000/m/%s", data.Store.ID) }</code><br/>
+					• Mobile-first proforma generator<br/>
+					• Real-time stock status &amp; trading hours
+				</div>
+			</div>
+		</div>
+
+		<!-- Vector Badges Generator -->
+		<h5 style="font-size:13px; font-weight:700; margin:0 0 10px;">1. High-DPI Official Vector Badges (For Website Header, Footer &amp; Social Icon Bar)</h5>
+		<p style="font-size:12px; color:var(--muted); margin-bottom:12px;">
+			Place alongside YouTube, Facebook, LinkedIn, Instagram, and WhatsApp on your site. Zero raster pixelation on Retina/4K screens.
+		</p>
+
+		<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-bottom:20px;">
+			<!-- Badge 1: Find us on Shoppage -->
+			<div style="padding:12px; background:var(--surface-2); border-radius:10px; border:1px solid var(--line); display:flex; flex-direction:column; justify-content:space-between; gap:10px;">
+				<div>
+					<div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;">Badge 1: Brand Discovery</div>
+					<div style="background:#ffffff; padding:10px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);">
+						<img src="http://localhost:3000/badges/find-us-on-shoppage.svg" alt="Find us on Shoppage" style="height:38px; width:auto;" />
+					</div>
+				</div>
+				<button 
+					type="button" 
+					class="btn solid small" 
+					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"http://localhost:3000/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"http://localhost:3000/badges/find-us-on-shoppage.svg\" alt=\"Find us on Shoppage\" width=\"200\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", data.Store.ID)} }
+				>
+					Copy HTML Snippet
+				</button>
+			</div>
+
+			<!-- Badge 2: Order Wholesale on Shoppage -->
+			<div style="padding:12px; background:var(--surface-2); border-radius:10px; border:1px solid var(--line); display:flex; flex-direction:column; justify-content:space-between; gap:10px;">
+				<div>
+					<div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;">Badge 2: Trade Desk CTA</div>
+					<div style="background:#0f172a; padding:10px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);">
+						<img src="http://localhost:3000/badges/order-on-shoppage.svg" alt="Order Wholesale on Shoppage" style="height:38px; width:auto;" />
+					</div>
+				</div>
+				<button 
+					type="button" 
+					class="btn solid small" 
+					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"http://localhost:3000/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"http://localhost:3000/badges/order-on-shoppage.svg\" alt=\"Order Wholesale on Shoppage\" width=\"220\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", data.Store.ID)} }
+				>
+					Copy HTML Snippet
+				</button>
+			</div>
+
+			<!-- Badge 3: CIPC Verified Merchant -->
+			<div style="padding:12px; background:var(--surface-2); border-radius:10px; border:1px solid var(--line); display:flex; flex-direction:column; justify-content:space-between; gap:10px;">
+				<div>
+					<div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;">Badge 3: Trust &amp; Compliance</div>
+					<div style="background:#ffffff; padding:10px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);">
+						<img src="http://localhost:3000/badges/verified-merchant.svg" alt="Verified Merchant on Shoppage" style="height:38px; width:auto;" />
+					</div>
+				</div>
+				<button 
+					type="button" 
+					class="btn solid small" 
+					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"http://localhost:3000/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"http://localhost:3000/badges/verified-merchant.svg\" alt=\"Verified Merchant on Shoppage\" width=\"230\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", data.Store.ID)} }
+				>
+					Copy HTML Snippet
+				</button>
+			</div>
+
+			<!-- Badge 4: Standalone Social Icon (48x48) -->
+			<div style="padding:12px; background:var(--surface-2); border-radius:10px; border:1px solid var(--line); display:flex; flex-direction:column; justify-content:space-between; gap:10px;">
+				<div>
+					<div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;">Badge 4: Social Icon (For Icon Bars)</div>
+					<div style="background:#ffffff; padding:10px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);">
+						<img src="http://localhost:3000/badges/shoppage-icon.svg" alt="Shoppage Icon" style="height:38px; width:38px;" />
+					</div>
+				</div>
+				<button 
+					type="button" 
+					class="btn solid small" 
+					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"http://localhost:3000/m/%s\" title=\"Shoppage Verified Catalog\" target=\"_blank\" rel=\"noopener\"><img src=\"http://localhost:3000/badges/shoppage-icon.svg\" alt=\"Shoppage\" width=\"36\" height=\"36\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", data.Store.ID)} }
+				>
+					Copy HTML Snippet
+				</button>
+			</div>
+		</div>
+
+		<!-- Email Signature Builder & Embed Widget in 2 Columns -->
+		<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:16px;">
+			<!-- Email Signature -->
+			<div style="padding:14px; background:var(--surface-2); border-radius:12px; border:1px solid var(--line);">
+				<div style="font-weight:700; font-size:13px; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+					<span>✉️</span> 2. Corporate Email Signature Snippet
+				</div>
+				<p style="font-size:12px; color:var(--muted); margin-bottom:12px;">
+					Copy and paste this rich HTML block into Outlook, Gmail, or Apple Mail to turn every outbound email into a wholesale storefront lead.
+				</p>
+				<div style="background:#ffffff; border:2px dashed var(--primary); padding:12px; border-radius:8px; font-size:12px; color:var(--ink); margin-bottom:12px;">
+					<div style="font-weight:800;">{ data.Store.Name }</div>
+					<div style="color:var(--muted); font-size:11px;">{ data.Store.Address } · CIPC: { data.Store.CIPCRegistration }</div>
+					<div style="color:var(--muted); font-size:11px;">Tel: { data.Store.Phone } · WhatsApp: +{ data.Store.WhatsApp }</div>
+					<div style="margin-top:8px;">
+						<img src="http://localhost:3000/badges/order-on-shoppage.svg" alt="Shoppage Trade Desk" style="height:26px; width:auto;" />
+					</div>
+				</div>
+				<button 
+					type="button" 
+					class="btn solid small" 
+					style="width:100%;"
+					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<table style=\"font-family:sans-serif;font-size:13px;color:#1e293b;\"><tr><td><strong>%s</strong></td></tr><tr><td style=\"font-size:11px;color:#64748b;\">%s | CIPC: %s</td></tr><tr><td style=\"font-size:11px;color:#64748b;\">Tel: %s | WhatsApp: +%s</td></tr><tr><td style=\"padding-top:6px;\"><a href=\"http://localhost:3000/m/%s\" target=\"_blank\"><img src=\"http://localhost:3000/badges/order-on-shoppage.svg\" height=\"28\" alt=\"Order on Shoppage\" border=\"0\"/></a></td></tr></table>'); this.textContent = '✓ Copied HTML Signature!'; var b=this; setTimeout(function(){ b.textContent='Copy Email Signature HTML'; }, 2000);", escapeJsString(data.Store.Name), escapeJsString(data.Store.Address), data.Store.CIPCRegistration, data.Store.Phone, data.Store.WhatsApp, data.Store.ID)} }
+				>
+					Copy Email Signature HTML
+				</button>
+			</div>
+
+			<!-- Embeddable Catalog Widget (iFrame) -->
+			<div style="padding:14px; background:var(--surface-2); border-radius:12px; border:1px solid var(--line);">
+				<div style="font-weight:700; font-size:13px; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+					<span>📦</span> 3. Embed Live Catalog on Your Website (iFrame)
+				</div>
+				<p style="font-size:12px; color:var(--muted); margin-bottom:12px;">
+					Embed your real-time South African wholesale pricing &amp; inventory directly into any WordPress, Shopify, Wix, or HTML page.
+				</p>
+				<textarea 
+					readonly 
+					rows="3" 
+					style="width:100%; font-size:11px; font-family:var(--mono); background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:8px; box-sizing:border-box; margin-bottom:12px;"
+				>{ fmt.Sprintf("<iframe src=\"http://localhost:3000/embed/m/%s\" width=\"100%%\" height=\"650\" frameborder=\"0\" style=\"border-radius:16px; border:1px solid #e2e8f0;\"></iframe>", data.Store.ID) }</textarea>
+				<button 
+					type="button" 
+					class="btn solid small" 
+					style="width:100%;"
+					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<iframe src=\"http://localhost:3000/embed/m/%s\" width=\"100%%\" height=\"650\" frameborder=\"0\" style=\"border-radius:16px; border:1px solid #e2e8f0;\"></iframe>'); this.textContent = '✓ Copied iFrame Snippet!'; var b=this; setTimeout(function(){ b.textContent='Copy iFrame Embed Code'; }, 2000);", data.Store.ID)} }
+				>
+					Copy iFrame Embed Code
+				</button>
+			</div>
+		</div>
+	</div>
 }
+
+func escapeJsString(s string) string {
+	s = strings.ReplaceAll(s, "\\", "\\\\")
+	s = strings.ReplaceAll(s, "'", "\\'")
+	s = strings.ReplaceAll(s, "\"", "\\\"")
+	s = strings.ReplaceAll(s, "\n", " ")
+	s = strings.ReplaceAll(s, "\r", "")
+	return s
+}
+

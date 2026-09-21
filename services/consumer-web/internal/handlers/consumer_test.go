@@ -342,5 +342,62 @@ func TestConsumerHandlers(t *testing.T) {
 			t.Errorf("expected courier waybill section")
 		}
 	})
+
+	t.Run("HandleBadgeSVG serves high-DPI vector badges", func(t *testing.T) {
+		badgeTypes := []string{
+			"find-us-on-shoppage",
+			"order-on-shoppage",
+			"verified-merchant",
+			"shoppage-icon",
+		}
+
+		for _, bType := range badgeTypes {
+			req := httptest.NewRequest("GET", "/badges/"+bType+".svg", nil)
+			rctx := chi.NewRouteContext()
+			rctx.URLParams.Add("type", bType)
+			req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+			rec := httptest.NewRecorder()
+
+			h.HandleBadgeSVG(rec, req)
+
+			if rec.Code != http.StatusOK {
+				t.Errorf("badge %s expected 200, got %d", bType, rec.Code)
+			}
+			contentType := rec.Header().Get("Content-Type")
+			if contentType != "image/svg+xml" {
+				t.Errorf("badge %s expected Content-Type image/svg+xml, got %s", bType, contentType)
+			}
+			body := rec.Body.String()
+			if !strings.Contains(body, "<svg") || !strings.Contains(body, "</svg>") {
+				t.Errorf("badge %s expected valid SVG XML markup", bType)
+			}
+		}
+	})
+
+	t.Run("HandleStoreEmbed serves embeddable widget with permissive CSP for external merchant sites", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/embed/m/loc_mitrend_midrand", nil)
+		rctx := chi.NewRouteContext()
+		rctx.URLParams.Add("id", "loc_mitrend_midrand")
+		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+		rec := httptest.NewRecorder()
+
+		h.HandleStoreEmbed(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rec.Code)
+		}
+		csp := rec.Header().Get("Content-Security-Policy")
+		if !strings.Contains(csp, "frame-ancestors *") {
+			t.Errorf("expected frame-ancestors * in CSP header, got: %s", csp)
+		}
+		body := rec.Body.String()
+		if !strings.Contains(body, "MiTrend") {
+			t.Errorf("expected store name in embedded widget body")
+		}
+		if !strings.Contains(body, "Quote") {
+			t.Errorf("expected Quote button in embedded widget body")
+		}
+	})
 }
+
 
