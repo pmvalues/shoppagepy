@@ -21,6 +21,8 @@ type HomeViewData struct {
 	CurrentCategory string
 	CurrentRetailer string
 	CurrentProvince string
+	CurrentSort     string
+	AvgSavingsPct   int
 	Posts           []models.PostItem
 	Products        []models.SearchItem
 	Deals           []models.RetailerDeal
@@ -187,4 +189,15 @@ func RenderStorefront(w io.Writer, data StorefrontViewData) error {
 func RenderChat(w io.Writer, data ChatViewData) error {
 	return ChatComponent(data).Render(context.Background(), w)
 }
+
+// RenderOfferModal renders the interactive Make an Offer modal
+func RenderOfferModal(w io.Writer, data OfferModalViewData) error {
+	return OfferModalComponent(data).Render(context.Background(), w)
+}
+
+// RenderOfferSuccessCard renders the confirmation card after submitting an offer
+func RenderOfferSuccessCard(w io.Writer, result models.OfferSubmissionResult) error {
+	return OfferSuccessCardComponent(result).Render(context.Background(), w)
+}
+
 

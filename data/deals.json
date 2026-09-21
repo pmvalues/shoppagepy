@@ -15,7 +15,15 @@
     "availability": "In Stock · Click & Collect or Bulk Delivery",
     "locationHint": "22 Mega-Warehouse Superstores Nationwide",
     "imageUrl": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 24,
+    "endsIn": "Ends Sunday",
+    "stockLevel": "Limited Stock · 5 units left",
+    "stockPct": 20,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Mall of Africa"
   },
   {
     "id": "deal_makro_samsung_65_tv",
@@ -33,7 +41,15 @@
     "availability": "In Stock · Free Store Delivery",
     "locationHint": "Available Online & in All Makro Superstores",
     "imageUrl": "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 4000,
+    "endsIn": "Valid for 2 days",
+    "stockLevel": "High Demand · 12 left",
+    "stockPct": 45,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Cresta Shopping Centre"
   },
   {
     "id": "deal_makro_whitestar_10kg",
@@ -51,7 +67,15 @@
     "availability": "In Stock · Bulk Pallet Available",
     "locationHint": "Nationwide Wholesale Trade Counters",
     "imageUrl": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 30,
+    "endsIn": "Ends in 48 hours",
+    "stockLevel": "Selling Fast · 8 left",
+    "stockPct": 30,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Menlyn Park"
   },
   {
     "id": "deal_makro_defy_freezer",
@@ -69,7 +93,15 @@
     "availability": "In Stock · Heavy Delivery Available",
     "locationHint": "Makro Warehouse Distribution",
     "imageUrl": "https://images.unsplash.com/photo-1584992236310-6edddc08acff?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 1500,
+    "endsIn": "Circular ends in 3 days",
+    "stockLevel": "25+ Available Nationwide",
+    "stockPct": 85,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Canal Walk"
   },
   {
     "id": "deal_game_hisense_55_tv",
@@ -87,7 +119,15 @@
     "availability": "In Stock · Click & Collect or Delivery",
     "locationHint": "110+ Game Stores in Malls Across South Africa",
     "imageUrl": "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 2000,
+    "endsIn": "Weekend Flash Deal",
+    "stockLevel": "Clearance · Only 3 left",
+    "stockPct": 15,
+    "branchesCount": 84,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Gateway Theatre of Shopping"
   },
   {
     "id": "deal_game_russell_hobbs_airfryer",
@@ -105,7 +145,15 @@
     "availability": "In Stock (Same-Day Collection)",
     "locationHint": "Game Malls Nationwide",
     "imageUrl": "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 700,
+    "endsIn": "Ends Sunday",
+    "stockLevel": "Limited Stock · 5 units left",
+    "stockPct": 20,
+    "branchesCount": 84,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Sandton City"
   },
   {
     "id": "deal_game_ryobi_pressure_washer",
@@ -123,7 +171,15 @@
     "availability": "In Stock · Nationwide Delivery",
     "locationHint": "Game Stores Nationwide",
     "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 400,
+    "endsIn": "Valid for 2 days",
+    "stockLevel": "High Demand · 12 left",
+    "stockPct": 45,
+    "branchesCount": 84,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Fourways Mall"
   },
   {
     "id": "deal_builders_bosch_drill",
@@ -141,7 +197,15 @@
     "availability": "In Stock · 2-Hour Click & Collect",
     "locationHint": "100+ Builders Warehouse & Express Stores Nationwide",
     "imageUrl": "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 800,
+    "endsIn": "Ends in 48 hours",
+    "stockLevel": "Selling Fast · 8 left",
+    "stockPct": 30,
+    "branchesCount": 48,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Mall of Africa"
   },
   {
     "id": "deal_builders_deye_inverter",
@@ -159,7 +223,15 @@
     "availability": "In Stock · Free Delivery on Solar Kits",
     "locationHint": "Builders Superstores Nationwide",
     "imageUrl": "https://images.unsplash.com/photo-1508873696983-2df57046475a?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 3500,
+    "endsIn": "Circular ends in 3 days",
+    "stockLevel": "25+ Available Nationwide",
+    "stockPct": 85,
+    "branchesCount": 48,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Cresta Shopping Centre"
   },
   {
     "id": "deal_builders_jojo_tank",
@@ -177,7 +249,15 @@
     "availability": "In Stock · Yard Collection or Flatbed Delivery",
     "locationHint": "Builders Warehouse Distribution Yards",
     "imageUrl": "https://images.unsplash.com/photo-1584467735815-f778f274e296?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 600,
+    "endsIn": "Weekend Flash Deal",
+    "stockLevel": "Clearance · Only 3 left",
+    "stockPct": 15,
+    "branchesCount": 48,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Menlyn Park"
   },
   {
     "id": "deal_checkers_jacobs_coffee",
@@ -195,7 +275,15 @@
     "availability": "In Stock · 60-Minute Delivery via Sixty60",
     "locationHint": "300+ Checkers Stores Nationwide",
     "imageUrl": "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 50,
+    "endsIn": "Ends Sunday",
+    "stockLevel": "Limited Stock · 5 units left",
+    "stockPct": 20,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Canal Walk"
   },
   {
     "id": "deal_checkers_sunfoil_oil",
@@ -213,7 +301,15 @@
     "availability": "In Stock · Sixty60 On Demand",
     "locationHint": "Nationwide Checkers Footprint",
     "imageUrl": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 20,
+    "endsIn": "Valid for 2 days",
+    "stockLevel": "High Demand · 12 left",
+    "stockPct": 45,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Gateway Theatre of Shopping"
   },
   {
     "id": "deal_checkers_babysoft_tp",
@@ -231,7 +327,15 @@
     "availability": "In Stock · Fast Dispatch",
     "locationHint": "Checkers Supermarkets Nationwide",
     "imageUrl": "https://images.unsplash.com/photo-1584556812952-905ffd0c611a?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 40.000000000000014,
+    "endsIn": "Ends in 48 hours",
+    "stockLevel": "Selling Fast · 8 left",
+    "stockPct": 30,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Sandton City"
   },
   {
     "id": "deal_pnp_weetbix",
@@ -249,7 +353,15 @@
     "availability": "In Stock · Same-Day Delivery via asap!",
     "locationHint": "500+ Pick n Pay Supermarkets Nationwide",
     "imageUrl": "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 14.999999999999993,
+    "endsIn": "Circular ends in 3 days",
+    "stockLevel": "25+ Available Nationwide",
+    "stockPct": 85,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Fourways Mall"
   },
   {
     "id": "deal_pnp_rama_margarine",
@@ -267,7 +379,15 @@
     "availability": "In Stock · asap! Delivery",
     "locationHint": "Pick n Pay Hypermarkets & Supermarkets",
     "imageUrl": "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 15,
+    "endsIn": "Weekend Flash Deal",
+    "stockLevel": "Clearance · Only 3 left",
+    "stockPct": 15,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Mall of Africa"
   },
   {
     "id": "deal_woolworths_eggs",
@@ -285,7 +405,15 @@
     "availability": "In Stock · Woolies Dash 60-Min Delivery",
     "locationHint": "400+ Woolworths Food Stores Across South Africa",
     "imageUrl": "https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 15,
+    "endsIn": "Ends Sunday",
+    "stockLevel": "Limited Stock · 5 units left",
+    "stockPct": 20,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Cresta Shopping Centre"
   },
   {
     "id": "deal_woolworths_milk",
@@ -303,7 +431,15 @@
     "availability": "In Stock · Woolies Dash Delivery",
     "locationHint": "Woolworths Supermarkets Nationwide",
     "imageUrl": "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 8,
+    "endsIn": "Valid for 2 days",
+    "stockLevel": "High Demand · 12 left",
+    "stockPct": 45,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Menlyn Park"
   },
   {
     "id": "deal_takealot_sunsynk_8kw",
@@ -321,7 +457,15 @@
     "availability": "In Stock · Free Nationwide Courier Delivery",
     "locationHint": "Takealot Logistics Distribution Centres",
     "imageUrl": "https://images.unsplash.com/photo-1613665813446-82a78c468a1d?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 5000,
+    "endsIn": "Ends in 48 hours",
+    "stockLevel": "Selling Fast · 8 left",
+    "stockPct": 30,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Canal Walk"
   },
   {
     "id": "deal_takealot_dyness_battery",
@@ -339,7 +483,15 @@
     "availability": "In Stock · Next-Day Dispatch",
     "locationHint": "National Distribution Centres",
     "imageUrl": "https://images.unsplash.com/photo-1558441719-8cf44b4754a6?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 4500,
+    "endsIn": "Circular ends in 3 days",
+    "stockLevel": "25+ Available Nationwide",
+    "stockPct": 85,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Gateway Theatre of Shopping"
   },
   {
     "id": "deal_takealot_samsung_s24",
@@ -357,7 +509,15 @@
     "availability": "In Stock · Same-Day Delivery in JHB & CPT",
     "locationHint": "Takealot Direct Hub",
     "imageUrl": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 6000,
+    "endsIn": "Weekend Flash Deal",
+    "stockLevel": "Clearance · Only 3 left",
+    "stockPct": 15,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Sandton City"
   },
   {
     "id": "deal_incredible_samsung_a16",
@@ -375,7 +535,15 @@
     "availability": "In Stock · Store Collection or Courier",
     "locationHint": "70+ Tech Stores Nationwide",
     "imageUrl": "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 600,
+    "endsIn": "Ends Sunday",
+    "stockLevel": "Limited Stock · 5 units left",
+    "stockPct": 20,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Fourways Mall"
   },
   {
     "id": "deal_incredible_ecoflow_river",
@@ -393,7 +561,15 @@
     "availability": "In Stock · Immediate Collection",
     "locationHint": "Incredible Hubs Across SA",
     "imageUrl": "https://images.unsplash.com/photo-1592833159155-c62df1b65634?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 2000,
+    "endsIn": "Valid for 2 days",
+    "stockLevel": "High Demand · 12 left",
+    "stockPct": 45,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Mall of Africa"
   },
   {
     "id": "deal_clicks_med_lemon",
@@ -411,7 +587,15 @@
     "availability": "In Stock · 850+ Pharmacies Nationwide",
     "locationHint": "All Major Regional Malls & High Streets",
     "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 14.999999999999993,
+    "endsIn": "Ends in 48 hours",
+    "stockLevel": "Selling Fast · 8 left",
+    "stockPct": 30,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Cresta Shopping Centre"
   },
   {
     "id": "deal_clicks_nivea_lotion",
@@ -429,7 +613,15 @@
     "availability": "In Stock · Same-Day Click & Collect",
     "locationHint": "Clicks Stores Nationwide",
     "imageUrl": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 30,
+    "endsIn": "Circular ends in 3 days",
+    "stockLevel": "25+ Available Nationwide",
+    "stockPct": 85,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Menlyn Park"
   },
   {
     "id": "deal_dischem_panado",
@@ -447,7 +639,15 @@
     "availability": "In Stock · Dis-Chem DeliverD 60-Min",
     "locationHint": "250+ Retail Pharmacies Nationwide",
     "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 8.000000000000004,
+    "endsIn": "Weekend Flash Deal",
+    "stockLevel": "Clearance · Only 3 left",
+    "stockPct": 15,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Canal Walk"
   },
   {
     "id": "deal_dischem_biogen_whey",
@@ -465,7 +665,15 @@
     "availability": "In Stock · Online or In-Store",
     "locationHint": "Dis-Chem Health & Wellness Stores",
     "imageUrl": "https://images.unsplash.com/photo-1579722821273-0f6c7d44362f?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 130,
+    "endsIn": "Ends Sunday",
+    "stockLevel": "Limited Stock · 5 units left",
+    "stockPct": 20,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Gateway Theatre of Shopping"
   },
   {
     "id": "deal_leroy_deye_inverter",
@@ -483,7 +691,15 @@
     "availability": "In Stock · 2-Hour Collection",
     "locationHint": "Greenstone, Fourways, Boksburg, Little Falls Superstores",
     "imageUrl": "https://images.unsplash.com/photo-1508873696983-2df57046475a?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 3300,
+    "endsIn": "Valid for 2 days",
+    "stockLevel": "High Demand · 12 left",
+    "stockPct": 45,
+    "branchesCount": 4,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Sandton City"
   },
   {
     "id": "deal_leroy_dexter_tools",
@@ -501,7 +717,15 @@
     "availability": "In Stock · Superstore Pickup",
     "locationHint": "Leroy Merlin Gauteng Warehouses",
     "imageUrl": "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 500,
+    "endsIn": "Ends in 48 hours",
+    "stockLevel": "Selling Fast · 8 left",
+    "stockPct": 30,
+    "branchesCount": 4,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Fourways Mall"
   },
   {
     "id": "deal_solaradvice_deye",
@@ -519,7 +743,15 @@
     "availability": "In Stock · Same-Day Dispatch",
     "locationHint": "Johannesburg Warehouse & Courier Nationwide",
     "imageUrl": "https://images.unsplash.com/photo-1508873696983-2df57046475a?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 3500,
+    "endsIn": "Circular ends in 3 days",
+    "stockLevel": "25+ Available Nationwide",
+    "stockPct": 85,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Mall of Africa"
   },
   {
     "id": "deal_inverterwh_victron",
@@ -537,6 +769,14 @@
     "availability": "In Stock · 5-Year European Warranty",
     "locationHint": "National Solar Dispatch Centre",
     "imageUrl": "https://images.unsplash.com/photo-1508873696983-2df57046475a?w=400&auto=format&fit=crop&q=65",
-    "validUntil": "Limited Stock"
+    "validUntil": "Limited Stock",
+    "savingsZar": 4500,
+    "endsIn": "Weekend Flash Deal",
+    "stockLevel": "Clearance · Only 3 left",
+    "stockPct": 15,
+    "branchesCount": 22,
+    "pudoCost": 60,
+    "isLocalSaStock": true,
+    "mallName": "Cresta Shopping Centre"
   }
 ]

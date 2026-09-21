@@ -41,7 +41,7 @@ func ProductEditModal(sku models.CatalogSKU) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 17, Col: 25}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/product_edit.templ`, Line: 17, Col: 25}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -54,7 +54,7 @@ func ProductEditModal(sku models.CatalogSKU) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/catalog/%s/edit", sku.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 22, Col: 57}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/product_edit.templ`, Line: 22, Col: 57}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
@@ -67,7 +67,7 @@ func ProductEditModal(sku models.CatalogSKU) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 26, Col: 68}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/product_edit.templ`, Line: 26, Col: 68}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {
@@ -80,7 +80,7 @@ func ProductEditModal(sku models.CatalogSKU) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.SKU)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 32, Col: 65}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/product_edit.templ`, Line: 32, Col: 65}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 		if templ_7745c5c3_Err != nil {
@@ -93,7 +93,7 @@ func ProductEditModal(sku models.CatalogSKU) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Brand)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 36, Col: 69}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/product_edit.templ`, Line: 36, Col: 69}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 		if templ_7745c5c3_Err != nil {
@@ -106,7 +106,7 @@ func ProductEditModal(sku models.CatalogSKU) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.2f", sku.WholesaleZar))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 43, Col: 118}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/product_edit.templ`, Line: 43, Col: 118}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 		if templ_7745c5c3_Err != nil {
@@ -119,7 +119,7 @@ func ProductEditModal(sku models.CatalogSKU) templ.Component {
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.2f", sku.RetailZar))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 47, Col: 112}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/product_edit.templ`, Line: 47, Col: 112}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 		if templ_7745c5c3_Err != nil {
@@ -132,7 +132,7 @@ func ProductEditModal(sku models.CatalogSKU) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", sku.StockQuantity))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 54, Col: 106}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/product_edit.templ`, Line: 54, Col: 106}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 		if templ_7745c5c3_Err != nil {
@@ -145,7 +145,7 @@ func ProductEditModal(sku models.CatalogSKU) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", sku.LowStockAlert))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 58, Col: 106}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/product_edit.templ`, Line: 58, Col: 106}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 		if templ_7745c5c3_Err != nil {
@@ -188,7 +188,7 @@ func ProductEditModal(sku models.CatalogSKU) templ.Component {
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Spec.HSCode)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 73, Col: 76}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/product_edit.templ`, Line: 73, Col: 76}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 		if templ_7745c5c3_Err != nil {
@@ -201,7 +201,7 @@ func ProductEditModal(sku models.CatalogSKU) templ.Component {
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Spec.LongDesc)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 79, Col: 79}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/product_edit.templ`, Line: 79, Col: 79}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {

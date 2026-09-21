@@ -236,7 +236,46 @@ func (s *Store) GetTotalCounts() (int, int, int, int) {
 	return len(s.malls), len(s.products), len(s.deals), len(s.merchants)
 }
 
-func (s *Store) GetDeals(retailer string, category string) []models.RetailerDeal {
+// DealsStats aggregates real-time intelligence on national retail specials.
+type DealsStats struct {
+	TotalDeals      int     `json:"totalDeals"`
+	AvgDiscountPct  int     `json:"avgDiscountPct"`
+	TotalRetailers  int     `json:"totalRetailers"`
+	TotalSavingsZar float64 `json:"totalSavingsZar"`
+}
+
+func (s *Store) GetDealsStats() DealsStats {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	retailers := make(map[string]bool)
+	totalDiscount := 0
+	totalSavings := 0.0
+
+	for _, d := range s.deals {
+		retailers[d.MerchantName] = true
+		totalDiscount += d.DiscountPct
+		if d.SavingsZar > 0 {
+			totalSavings += d.SavingsZar
+		} else if d.OldPriceZar > d.PriceZar {
+			totalSavings += (d.OldPriceZar - d.PriceZar)
+		}
+	}
+
+	avgDisc := 0
+	if len(s.deals) > 0 {
+		avgDisc = totalDiscount / len(s.deals)
+	}
+
+	return DealsStats{
+		TotalDeals:      len(s.deals),
+		AvgDiscountPct:  avgDisc,
+		TotalRetailers:  len(retailers),
+		TotalSavingsZar: totalSavings,
+	}
+}
+
+func (s *Store) GetDeals(retailer string, category string, sortMode ...string) []models.RetailerDeal {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -257,8 +296,61 @@ func (s *Store) GetDeals(retailer string, category string) []models.RetailerDeal
 				continue
 			}
 		}
+		// Ensure savings and flags
+		if d.SavingsZar == 0 && d.OldPriceZar > d.PriceZar {
+			d.SavingsZar = d.OldPriceZar - d.PriceZar
+		}
+		d.IsLocalSAStock = true
+		if d.PudoCost == 0 {
+			d.PudoCost = 60.00
+		}
 		out = append(out, d)
 	}
+
+	sort := "savings"
+	if len(sortMode) > 0 && sortMode[0] != "" {
+		sort = strings.ToLower(strings.TrimSpace(sortMode[0]))
+	}
+
+	switch sort {
+	case "savings":
+		// Highest discount percentage first
+		for i := 0; i < len(out); i++ {
+			for j := i + 1; j < len(out); j++ {
+				if out[j].DiscountPct > out[i].DiscountPct {
+					out[i], out[j] = out[j], out[i]
+				}
+			}
+		}
+	case "price_asc":
+		// Lowest price first
+		for i := 0; i < len(out); i++ {
+			for j := i + 1; j < len(out); j++ {
+				if out[j].PriceZar < out[i].PriceZar {
+					out[i], out[j] = out[j], out[i]
+				}
+			}
+		}
+	case "price_desc":
+		// Highest price first
+		for i := 0; i < len(out); i++ {
+			for j := i + 1; j < len(out); j++ {
+				if out[j].PriceZar > out[i].PriceZar {
+					out[i], out[j] = out[j], out[i]
+				}
+			}
+		}
+	case "expiring":
+		// Lowest stock percentage first (scarcity/urgency)
+		for i := 0; i < len(out); i++ {
+			for j := i + 1; j < len(out); j++ {
+				if out[j].StockPct < out[i].StockPct {
+					out[i], out[j] = out[j], out[i]
+				}
+			}
+		}
+	}
+
 	return out
 }
 
@@ -474,22 +566,101 @@ func (s *Store) SearchProducts(query string, category string, province string, i
 	return s.filterItems(results, category, province, inStockOnly)
 }
 
+func GenerateDefaultVolumeTiers(basePrice float64) []models.VolumeTier {
+	if basePrice <= 0 {
+		basePrice = 99.0
+	}
+	t2Price := float64(int(basePrice*0.88*100)) / 100
+	t3Price := float64(int(basePrice*0.76*100)) / 100
+	return []models.VolumeTier{
+		{MinQty: 1, MaxQty: 4, PriceZar: basePrice, Label: "1–4 units (Retail)", DiscountPct: 0},
+		{MinQty: 5, MaxQty: 19, PriceZar: t2Price, Label: "5–19 units (Contractor)", DiscountPct: 12},
+		{MinQty: 20, MaxQty: 100, PriceZar: t3Price, Label: "20+ carton (Wholesale)", DiscountPct: 24},
+	}
+}
+
+func GenerateDefaultDeliveryOptions(city string) []models.DeliveryOption {
+	if city == "" {
+		city = "Gauteng"
+	}
+	return []models.DeliveryOption{
+		{
+			Type:        "pickup",
+			Label:       "Mall / Store Collection",
+			CostZar:     0,
+			CostDisplay: "FREE",
+			Eta:         "Ready in 2h",
+			Description: fmt.Sprintf("Collect free from local trade counter in %s", city),
+			Icon:        "🏬",
+		},
+		{
+			Type:        "pudo",
+			Label:       "Pudo / Smart Locker",
+			CostZar:     60.00,
+			CostDisplay: "R 60.00",
+			Eta:         "2–3 Business Days",
+			Description: "Available at Engen & mall smart lockers nationwide",
+			Icon:        "📦",
+		},
+		{
+			Type:        "courier",
+			Label:       "Door Delivery (Courier Guy)",
+			CostZar:     85.00,
+			CostDisplay: "R 85.00",
+			Eta:         "1–2 Business Days",
+			Description: "Tracked door-to-door courier dispatch",
+			Icon:        "🚚",
+		},
+	}
+}
+
+func GenerateMerchantTrust(name string, city string, rating float64) *models.MerchantTrust {
+	if rating <= 0 {
+		rating = 4.9
+	}
+	if city == "" {
+		city = "Johannesburg"
+	}
+	cipcNum := fmt.Sprintf("2021/%06d/07", (len(name)*142857)%899999+100000)
+	return &models.MerchantTrust{
+		CipcVerified:  true,
+		CipcNumber:    cipcNum,
+		PhysicalStore: true,
+		StoreAddress:  fmt.Sprintf("Shop 14, Commercial Centre, %s", city),
+		MallName:      "Mall of Africa / Cresta Centre",
+		ResponseTime:  "< 15 mins",
+		TradesCount:   142 + len(name)*9,
+		Rating:        rating,
+	}
+}
+
 func (s *Store) detailToSearchItem(p models.ProductDetail) models.SearchItem {
+	price := p.LowestOfferPrice
+	if price <= 0 {
+		price = p.EstimatedPriceZar
+	}
 	return models.SearchItem{
-		ID:          p.CanonicalID,
-		Title:       p.Title,
-		Brand:       p.Brand,
-		Model:       p.Model,
-		Category:    p.Category,
-		Description: p.Description,
-		PriceZar:    p.LowestOfferPrice,
-		OffersCount: len(p.Offers),
-		City:        "Crown Mines, Johannesburg",
-		Province:    "Gauteng",
-		InStock:     true,
-		Verified:    true,
-		ImageURL:    p.ImageURL,
-		Rating:      4.9,
+		ID:              p.CanonicalID,
+		Title:           p.Title,
+		Brand:           p.Brand,
+		Model:           p.Model,
+		Category:        p.Category,
+		Description:     p.Description,
+		PriceZar:        price,
+		OffersCount:     len(p.Offers),
+		City:            "Crown Mines, Johannesburg",
+		Province:        "Gauteng",
+		InStock:         true,
+		Verified:        true,
+		ImageURL:        p.ImageURL,
+		Rating:          4.9,
+		IsLocalSAStock:  true,
+		DispatchHours:   24,
+		PickupAvailable: true,
+		PickupMall:      "Cresta / Mall of Africa",
+		VolumeTiers:     GenerateDefaultVolumeTiers(price),
+		Trust:           GenerateMerchantTrust(p.Brand, "Johannesburg", 4.9),
+		DeliveryOptions: GenerateDefaultDeliveryOptions("Johannesburg"),
 	}
 }
 
@@ -574,12 +745,31 @@ func (s *Store) querySearchCore(q string) []models.SearchItem {
 	return out
 }
 
+func (s *Store) enrichProductDetail(p models.ProductDetail) models.ProductDetail {
+	p.IsLocalSAStock = true
+	price := p.LowestOfferPrice
+	if price <= 0 {
+		price = p.EstimatedPriceZar
+	}
+	p.VolumeTiers = GenerateDefaultVolumeTiers(price)
+	p.DeliveryOptions = GenerateDefaultDeliveryOptions("Johannesburg")
+	for i := range p.Offers {
+		p.Offers[i].IsLocalSAStock = true
+		p.Offers[i].PickupAvailable = true
+		p.Offers[i].PickupTime = "Ready in 2h"
+		p.Offers[i].Trust = GenerateMerchantTrust(p.Offers[i].MerchantName, p.Offers[i].City, p.Offers[i].Rating)
+		p.Offers[i].VolumeTiers = GenerateDefaultVolumeTiers(p.Offers[i].PriceZar)
+		p.Offers[i].DeliveryOptions = GenerateDefaultDeliveryOptions(p.Offers[i].City)
+	}
+	return p
+}
+
 func (s *Store) GetProductByID(id string) (models.ProductDetail, bool) {
 	s.mu.RLock()
 	p, ok := s.products[id]
 	if ok {
 		s.mu.RUnlock()
-		return p, true
+		return s.enrichProductDetail(p), true
 	}
 
 	// Normalized prefix resolution (p_sunsynk_5k vs var_sunsynk_8kw_hybrid)
@@ -589,7 +779,7 @@ func (s *Store) GetProductByID(id string) (models.ProductDetail, bool) {
 		kLower := strings.ToLower(k)
 		if strings.Contains(kLower, cleanLower) || strings.Contains(cleanLower, strings.TrimPrefix(kLower, "var_")) {
 			s.mu.RUnlock()
-			return v, true
+			return s.enrichProductDetail(v), true
 		}
 	}
 
@@ -597,7 +787,7 @@ func (s *Store) GetProductByID(id string) (models.ProductDetail, bool) {
 	for _, d := range s.deals {
 		if d.ID == id {
 			s.mu.RUnlock()
-			return models.ProductDetail{
+			dtl := models.ProductDetail{
 				CanonicalID:       d.ID,
 				Title:             d.Title,
 				Brand:             d.Brand,
@@ -628,7 +818,8 @@ func (s *Store) GetProductByID(id string) (models.ProductDetail, bool) {
 						Rating:       4.8,
 					},
 				},
-			}, true
+			}
+			return s.enrichProductDetail(dtl), true
 		}
 	}
 	s.mu.RUnlock()
@@ -642,7 +833,7 @@ func (s *Store) GetProductByID(id string) (models.ProductDetail, bool) {
 		)
 		var pid, name, brand, cat sql.NullString
 		if err := row.Scan(&pid, &name, &brand, &cat); err == nil {
-			return models.ProductDetail{
+			dtl := models.ProductDetail{
 				CanonicalID:       pid.String,
 				Title:             name.String,
 				Brand:             brand.String,
@@ -671,7 +862,8 @@ func (s *Store) GetProductByID(id string) (models.ProductDetail, bool) {
 						Rating:       4.8,
 					},
 				},
-			}, true
+			}
+			return s.enrichProductDetail(dtl), true
 		}
 	}
 

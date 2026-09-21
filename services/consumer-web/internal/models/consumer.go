@@ -1,37 +1,108 @@
 package models
 
+// VolumeTier represents wholesale / bulk price break points (e.g. 1-4, 5-19, 20+).
+type VolumeTier struct {
+	MinQty      int     `json:"minQty"`
+	MaxQty      int     `json:"maxQty"`
+	PriceZar    float64 `json:"priceZar"`
+	Label       string  `json:"label"`
+	DiscountPct int     `json:"discountPct"`
+}
+
+// MerchantTrust represents verified credibility signals (CIPC, physical store, response speed).
+type MerchantTrust struct {
+	CipcVerified  bool    `json:"cipcVerified"`
+	CipcNumber    string  `json:"cipcNumber,omitempty"`
+	PhysicalStore bool    `json:"physicalStore"`
+	StoreAddress  string  `json:"storeAddress,omitempty"`
+	MallName      string  `json:"mallName,omitempty"`
+	ResponseTime  string  `json:"responseTime"` // e.g. "< 15 mins"
+	TradesCount   int     `json:"tradesCount"`
+	Rating        float64 `json:"rating"`
+}
+
+// DeliveryOption represents a transparent shipping method (Pudo locker, mall pickup, door courier).
+type DeliveryOption struct {
+	Type        string  `json:"type"`        // "pickup", "pudo", "courier"
+	Label       string  `json:"label"`       // e.g. "Pudo / Smart Locker"
+	CostZar     float64 `json:"costZar"`     // 0 for pickup, 60 for Pudo, 85 for courier
+	CostDisplay string  `json:"costDisplay"` // "FREE", "R 60.00"
+	Eta         string  `json:"eta"`         // "Ready in 2h", "2-3 Days"
+	Description string  `json:"description"` // "Engen / Mall Lockers nationwide"
+	Icon        string  `json:"icon"`
+}
+
+// OfferRequest represents a buyer's counter-negotiation request.
+type OfferRequest struct {
+	ProductID    string  `json:"productId"`
+	ProductTitle string  `json:"productTitle"`
+	MerchantID   string  `json:"merchantId"`
+	MerchantName string  `json:"merchantName"`
+	MerchantPhone string `json:"merchantPhone"`
+	ListedPrice  float64 `json:"listedPrice"`
+	OfferPrice   float64 `json:"offerPrice"`
+	Quantity     int     `json:"quantity"`
+	BuyerName    string  `json:"buyerName"`
+	BuyerPhone   string  `json:"buyerPhone"`
+	Notes        string  `json:"notes"`
+}
+
+// OfferSubmissionResult represents the outcome of submitting an offer.
+type OfferSubmissionResult struct {
+	OfferID      string  `json:"offerId"`
+	Status       string  `json:"status"` // "received", "routed"
+	WhatsAppURL  string  `json:"whatsappUrl"`
+	Message      string  `json:"message"`
+	OfferPrice   float64 `json:"offerPrice"`
+	Quantity     int     `json:"quantity"`
+	TotalSavings float64 `json:"totalSavings"`
+}
+
 // SearchItem represents an individual item returned in search grids and discovery feeds.
 type SearchItem struct {
-	ID          string  `json:"id"`
-	Title       string  `json:"title"`
-	Brand       string  `json:"brand"`
-	Model       string  `json:"model"`
-	Category    string  `json:"category"`
-	Description string  `json:"description"`
-	PriceZar    float64 `json:"priceZar"`
-	OffersCount int     `json:"offersCount"`
-	City        string  `json:"city"`
-	Province    string  `json:"province"`
-	InStock     bool    `json:"inStock"`
-	Verified    bool    `json:"verified"`
-	ImageURL    string  `json:"imageUrl"`
-	Score       float64 `json:"score,omitempty"`
-	DistanceKm  float64 `json:"distanceKm,omitempty"`
-	Rating      float64 `json:"rating,omitempty"`
+	ID              string          `json:"id"`
+	Title           string          `json:"title"`
+	Brand           string          `json:"brand"`
+	Model           string          `json:"model"`
+	Category        string          `json:"category"`
+	Description     string          `json:"description"`
+	PriceZar        float64         `json:"priceZar"`
+	OffersCount     int             `json:"offersCount"`
+	City            string          `json:"city"`
+	Province        string          `json:"province"`
+	InStock         bool            `json:"inStock"`
+	Verified        bool            `json:"verified"`
+	ImageURL        string          `json:"imageUrl"`
+	Score           float64         `json:"score,omitempty"`
+	DistanceKm      float64         `json:"distanceKm,omitempty"`
+	Rating          float64         `json:"rating,omitempty"`
+	IsLocalSAStock  bool            `json:"isLocalSaStock"`
+	DispatchHours   int             `json:"dispatchHours"` // e.g. 24
+	PickupAvailable bool            `json:"pickupAvailable"`
+	PickupMall      string          `json:"pickupMall,omitempty"`
+	VolumeTiers     []VolumeTier    `json:"volumeTiers,omitempty"`
+	Trust           *MerchantTrust  `json:"trust,omitempty"`
+	DeliveryOptions []DeliveryOption `json:"deliveryOptions,omitempty"`
 }
 
 // MerchantOffer represents an offer from a specific seller for a product.
 type MerchantOffer struct {
-	MerchantID   string  `json:"merchantId"`
-	MerchantName string  `json:"merchantName"`
-	City         string  `json:"city"`
-	Province     string  `json:"province"`
-	PriceZar     float64 `json:"priceZar"`
-	InStock      bool    `json:"inStock"`
-	LeadTimeDays int     `json:"leadTimeDays"`
-	Verified     bool    `json:"verified"`
-	WhatsApp     string  `json:"whatsapp"`
-	Rating       float64 `json:"rating"`
+	MerchantID      string          `json:"merchantId"`
+	MerchantName    string          `json:"merchantName"`
+	City            string          `json:"city"`
+	Province        string          `json:"province"`
+	PriceZar        float64         `json:"priceZar"`
+	InStock         bool            `json:"inStock"`
+	LeadTimeDays    int             `json:"leadTimeDays"`
+	Verified        bool            `json:"verified"`
+	WhatsApp        string          `json:"whatsapp"`
+	Rating          float64         `json:"rating"`
+	IsLocalSAStock  bool            `json:"isLocalSaStock"`
+	PickupAvailable bool            `json:"pickupAvailable"`
+	PickupTime      string          `json:"pickupTime,omitempty"` // "Ready in 2h"
+	Trust           *MerchantTrust  `json:"trust,omitempty"`
+	VolumeTiers     []VolumeTier    `json:"volumeTiers,omitempty"`
+	DeliveryOptions []DeliveryOption `json:"deliveryOptions,omitempty"`
 }
 
 // ProductDetail represents the canonical product view and BuyBox comparison.
@@ -48,6 +119,9 @@ type ProductDetail struct {
 	EstimatedPriceZar float64           `json:"estimatedPriceZar"`
 	LowestOfferPrice  float64           `json:"lowestOfferPrice"`
 	Offers            []MerchantOffer   `json:"offers"`
+	IsLocalSAStock    bool              `json:"isLocalSaStock"`
+	VolumeTiers       []VolumeTier      `json:"volumeTiers,omitempty"`
+	DeliveryOptions   []DeliveryOption  `json:"deliveryOptions,omitempty"`
 }
 
 // Mall represents a South African commercial shopping centre or wholesale hub.
@@ -78,12 +152,20 @@ type RetailerDeal struct {
 	DirectURL      string  `json:"directUrl"`
 	PriceZar       float64 `json:"priceZar"`
 	OldPriceZar    float64 `json:"oldPriceZar"`
+	SavingsZar     float64 `json:"savingsZar"`
 	DiscountPct    int     `json:"discountPct"`
 	Badge          string  `json:"badge"`
 	Availability   string  `json:"availability"`
 	LocationHint   string  `json:"locationHint"`
 	ImageURL       string  `json:"imageUrl"`
 	ValidUntil     string  `json:"validUntil"`
+	EndsIn         string  `json:"endsIn"`         // e.g. "Ends Sunday", "Valid for 3 days"
+	StockLevel     string  `json:"stockLevel"`     // e.g. "Limited Stock · 8 left"
+	StockPct       int     `json:"stockPct"`       // 0-100 for progress meter
+	BranchesCount  int     `json:"branchesCount"`  // e.g. 22
+	PudoCost       float64 `json:"pudoCost"`       // e.g. 60.00
+	IsLocalSAStock bool    `json:"isLocalSaStock"` // true
+	MallName       string  `json:"mallName,omitempty"`
 }
 
 // MerchantStorefront represents a public merchant profile page.

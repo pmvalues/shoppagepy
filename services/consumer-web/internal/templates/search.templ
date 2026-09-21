@@ -30,40 +30,60 @@ templ SearchResultsGridComponent(data SearchViewData) {
 		} else {
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
 				for _, prod := range data.Products {
-					<div class="bg-white rounded-2xl border border-slate-200/80 p-4 hover:shadow-md transition flex flex-col group">
+					<div class="bg-white rounded-2xl border border-slate-200/80 p-4 hover:shadow-md transition flex flex-col group relative">
 						<div class="relative w-full h-44 rounded-xl overflow-hidden bg-slate-100 mb-3">
 							<img src={ prod.ImageURL } alt={ prod.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy" decoding="async" width="320" height="176"/>
-							if prod.Verified {
-								<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-900/80 text-emerald-400 text-[10px] font-bold backdrop-blur-xs flex items-center gap-1">
-									✓ Verified
+							<div class="absolute top-2 left-2 flex flex-col gap-1">
+								<span class="px-2 py-0.5 rounded-md bg-slate-900/90 text-emerald-400 text-[10px] font-black backdrop-blur-xs flex items-center gap-1 shadow-2xs">
+									<span>🇿🇦</span> <span>Local SA Stock</span>
 								</span>
-							}
-							if prod.InStock {
-								<span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-bold">
-									In Stock
-								</span>
-							}
+								if prod.Verified {
+									<span class="px-2 py-0.5 rounded-md bg-emerald-700 text-white text-[9px] font-bold shadow-2xs">
+										✓ Verified
+									</span>
+								}
+							</div>
+							<span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-bold shadow-2xs">
+								Dispatches 24h
+							</span>
 						</div>
 						<div class="text-[11px] text-emerald-600 font-bold uppercase tracking-wider mb-0.5">{ prod.Brand } · { prod.Category }</div>
 						<h3 class="font-bold text-slate-900 text-sm leading-snug line-clamp-2 mb-2">
 							<a href={ templ.SafeURL(fmt.Sprintf("/p/%s", prod.ID)) } class="hover:text-emerald-600 transition">{ prod.Title }</a>
 						</h3>
-						<div class="text-xs text-slate-500 mb-3 flex items-center gap-1">
-							<span>📍</span> <span class="truncate">{ prod.City }</span>
+						
+						<!-- Delivery & Collection Pill -->
+						<div class="mb-3 p-2 rounded-xl bg-slate-50 border border-slate-100 text-[11px] text-slate-600 flex items-center justify-between">
+							<span class="flex items-center gap-1 truncate">
+								<span>🏬</span> <span>{ prod.City }</span>
+							</span>
+							<span class="text-emerald-700 font-bold shrink-0">Free Pickup</span>
 						</div>
-						<div class="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between">
+
+						<div class="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-1.5">
 							<div>
-								<div class="text-[10px] text-slate-400">price</div>
+								<div class="text-[10px] text-slate-400">Lowest landed price</div>
 								<div class="text-base font-black text-slate-900">R { fmt.Sprintf("%.2f", prod.PriceZar) }</div>
 							</div>
-							<button 
-								type="button"
-								hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", prod.ID))) } 
-								hx-target="#buybox-drawer"
-								class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs cursor-pointer"
-							>
-								BuyBox
-							</button>
+							<div class="flex items-center gap-1.5">
+								<button 
+									type="button"
+									hx-get={ string(templ.SafeURL(fmt.Sprintf("/offer/modal/%s?price=%.2f", prod.ID, prod.PriceZar))) }
+									hx-target="#modal-container"
+									class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition cursor-pointer"
+									title="Make a counter-offer"
+								>
+									🤝 Offer
+								</button>
+								<button 
+									type="button"
+									hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", prod.ID))) } 
+									hx-target="#buybox-drawer"
+									class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+								>
+									BuyBox
+								</button>
+							</div>
 						</div>
 					</div>
 				}

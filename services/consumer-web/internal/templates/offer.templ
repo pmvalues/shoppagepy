@@ -1,0 +1,248 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/shoppage/consumer-web/internal/models"
+)
+
+type OfferModalViewData struct {
+	Product     models.ProductDetail
+	Merchant    models.MerchantOffer
+	TargetPrice float64
+}
+
+templ OfferModalComponent(data OfferModalViewData) {
+	<div 
+		id="offer-modal-backdrop"
+		class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in"
+		onclick="document.getElementById('modal-container').innerHTML = '';"
+	>
+		<div 
+			class="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col relative animate-scale-up"
+			onclick="event.stopPropagation();"
+		>
+			<!-- Header -->
+			<div class="p-5 bg-gradient-to-r from-slate-900 to-slate-800 text-white flex items-center justify-between">
+				<div class="flex items-center gap-2.5">
+					<div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-base border border-emerald-500/30">
+						💬
+					</div>
+					<div>
+						<h3 class="text-base font-black tracking-tight text-white">Make an Offer · Counter-Negotiation</h3>
+						<p class="text-[11px] text-slate-300">Propose your price directly to verified South African suppliers</p>
+					</div>
+				</div>
+				<button 
+					type="button" 
+					onclick="document.getElementById('modal-container').innerHTML = '';"
+					class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold flex items-center justify-center transition cursor-pointer text-sm"
+				>
+					✕
+				</button>
+			</div>
+
+			<!-- Product Context Card -->
+			<div class="p-4 bg-slate-50 border-b border-slate-200 flex items-center gap-3.5">
+				<img src={ data.Product.ImageURL } alt={ data.Product.Title } class="w-14 h-14 rounded-xl object-contain bg-white border border-slate-200 p-1 shrink-0"/>
+				<div class="min-w-0 flex-1">
+					<div class="text-[11px] font-bold text-slate-500 uppercase truncate">{ data.Product.Brand } · { data.Product.Model }</div>
+					<h4 class="text-xs font-bold text-slate-900 truncate mt-0.5">{ data.Product.Title }</h4>
+					<div class="flex items-center gap-2 mt-1 text-xs">
+						<span class="text-slate-500">Listed Price:</span>
+						<span class="font-black text-slate-900">R { fmt.Sprintf("%.2f", data.TargetPrice) }</span>
+						<span class="text-slate-300">|</span>
+						<span class="text-emerald-700 font-bold">🇿🇦 Local SA Stock</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Dynamic Form / Result Container -->
+			<div id="offer-form-card" class="p-5 sm:p-6 space-y-4">
+				<form hx-post="/offer/submit" hx-target="#offer-form-card" class="space-y-4">
+					<input type="hidden" name="productId" value={ data.Product.CanonicalID }/>
+					<input type="hidden" name="productTitle" value={ data.Product.Title }/>
+					<input type="hidden" name="merchantId" value={ data.Merchant.MerchantID }/>
+					<input type="hidden" name="merchantName" value={ data.Merchant.MerchantName }/>
+					<input type="hidden" name="merchantPhone" value={ data.Merchant.WhatsApp }/>
+					<input type="hidden" name="listedPrice" value={ fmt.Sprintf("%.2f", data.TargetPrice) }/>
+
+					<!-- Quick Offer Percentage Calculator Pills -->
+					<div>
+						<label class="block text-xs font-bold text-slate-700 mb-1.5">
+							Your Proposed Price (Per Unit in ZAR)
+						</label>
+						<div class="relative">
+							<span class="absolute left-3.5 top-2.5 text-slate-400 font-bold text-sm">R</span>
+							<input 
+								type="number" 
+								id="offer-price-input"
+								name="offerPrice" 
+								value={ fmt.Sprintf("%.0f", data.TargetPrice * 0.90) } 
+								step="1"
+								min="1"
+								required
+								class="w-full pl-8 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-base font-black text-slate-900 outline-none transition"
+							/>
+						</div>
+						<!-- Quick Percentage Presets -->
+						<div class="flex items-center gap-2 mt-2 text-[11px] font-bold text-slate-600">
+							<span class="text-slate-400 font-normal">Presets:</span>
+							<button 
+								type="button" 
+								onclick={ templ.ComponentScript{Call: fmt.Sprintf("document.getElementById('offer-price-input').value = '%d'", int(data.TargetPrice * 0.95))} }
+								class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 transition"
+							>
+								-5% (R { fmt.Sprintf("%.0f", data.TargetPrice * 0.95) })
+							</button>
+							<button 
+								type="button" 
+								onclick={ templ.ComponentScript{Call: fmt.Sprintf("document.getElementById('offer-price-input').value = '%d'", int(data.TargetPrice * 0.90))} }
+								class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition"
+							>
+								-10% (R { fmt.Sprintf("%.0f", data.TargetPrice * 0.90) })
+							</button>
+							<button 
+								type="button" 
+								onclick={ templ.ComponentScript{Call: fmt.Sprintf("document.getElementById('offer-price-input').value = '%d'", int(data.TargetPrice * 0.85))} }
+								class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 transition"
+							>
+								-15% (R { fmt.Sprintf("%.0f", data.TargetPrice * 0.85) })
+							</button>
+						</div>
+					</div>
+
+					<!-- Quantity & Location -->
+					<div class="grid grid-cols-2 gap-3">
+						<div>
+							<label class="block text-xs font-bold text-slate-700 mb-1">Quantity</label>
+							<input 
+								type="number" 
+								name="quantity" 
+								value="1" 
+								min="1" 
+								max="500" 
+								required
+								class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:border-emerald-500 text-xs font-bold text-slate-900 outline-none"
+							/>
+						</div>
+						<div>
+							<label class="block text-xs font-bold text-slate-700 mb-1">Preferred Pickup / Delivery</label>
+							<select name="fulfillment" class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:border-emerald-500 text-xs font-semibold text-slate-700 outline-none bg-white">
+								<option value="pickup">🏬 Free Mall/Store Collection</option>
+								<option value="pudo">📦 Pudo Smart Locker (R60)</option>
+								<option value="courier">🚚 Door Courier (R85)</option>
+							</select>
+						</div>
+					</div>
+
+					<!-- Buyer Contact Info -->
+					<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+						<div>
+							<label class="block text-xs font-bold text-slate-700 mb-1">Your Name</label>
+							<input 
+								type="text" 
+								name="buyerName" 
+								placeholder="e.g. Johan / Thabo" 
+								required
+								class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:border-emerald-500 text-xs font-medium text-slate-900 outline-none"
+							/>
+						</div>
+						<div>
+							<label class="block text-xs font-bold text-slate-700 mb-1">Your Mobile / WhatsApp</label>
+							<input 
+								type="tel" 
+								name="buyerPhone" 
+								placeholder="e.g. 082 123 4567" 
+								required
+								class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:border-emerald-500 text-xs font-medium text-slate-900 outline-none"
+							/>
+						</div>
+					</div>
+
+					<!-- Note / Terms -->
+					<div>
+						<label class="block text-xs font-bold text-slate-700 mb-1">Message to Supplier (Optional)</label>
+						<input 
+							type="text" 
+							name="notes" 
+							placeholder="e.g. Cash / EFT on collection today at Cresta, or taking 3 units if approved" 
+							class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:border-emerald-500 text-xs text-slate-900 outline-none"
+						/>
+					</div>
+
+					<!-- Action Buttons -->
+					<div class="pt-2 flex items-center justify-end gap-3">
+						<button 
+							type="button" 
+							onclick="document.getElementById('modal-container').innerHTML = '';"
+							class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+						>
+							Cancel
+						</button>
+						<button 
+							type="submit" 
+							class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-sm transition flex items-center gap-1.5 cursor-pointer"
+						>
+							<span>Submit Offer &amp; Open WhatsApp</span>
+							<span>&rarr;</span>
+						</button>
+					</div>
+				</form>
+			</div>
+
+			<!-- Footer Guarantee -->
+			<div class="p-3 bg-slate-50 border-t border-slate-200 text-center text-[11px] text-slate-500">
+				🛡️ <strong>Shoppage SafeTrade Guarantee</strong> · Direct negotiation with CIPC verified merchant
+			</div>
+		</div>
+	</div>
+}
+
+templ OfferSuccessCardComponent(result models.OfferSubmissionResult) {
+	<div class="text-center py-4 space-y-4 animate-fade-in">
+		<div class="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 font-extrabold flex items-center justify-center text-2xl mx-auto shadow-inner">
+			✓
+		</div>
+		<div>
+			<h4 class="text-base font-black text-slate-900">Offer Successfully Submitted!</h4>
+			<p class="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+				{ result.Message }
+			</p>
+		</div>
+
+		<div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200/70 max-w-sm mx-auto text-left space-y-1">
+			<div class="text-xs text-emerald-800 flex justify-between">
+				<span>Offer Price:</span>
+				<strong class="text-emerald-950 font-black">R { fmt.Sprintf("%.2f", result.OfferPrice) }</strong>
+			</div>
+			<div class="text-xs text-emerald-800 flex justify-between">
+				<span>Quantity:</span>
+				<strong class="text-emerald-950 font-bold">{ fmt.Sprintf("%d units", result.Quantity) }</strong>
+			</div>
+			if result.TotalSavings > 0 {
+				<div class="text-xs text-emerald-800 flex justify-between pt-1 border-t border-emerald-200/50">
+					<span>Your Potential Savings:</span>
+					<strong class="text-emerald-600 font-black">R { fmt.Sprintf("%.2f", result.TotalSavings) }</strong>
+				</div>
+			}
+		</div>
+
+		<div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+			<a 
+				href={ templ.SafeURL(result.WhatsAppURL) } 
+				target="_blank"
+				class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition flex items-center justify-center gap-2 shadow-sm"
+			>
+				<span>💬 Open WhatsApp Chat with Supplier</span>
+				<span>&rarr;</span>
+			</a>
+			<button 
+				type="button" 
+				onclick="document.getElementById('modal-container').innerHTML = '';"
+				class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition"
+			>
+				Done
+			</button>
+		</div>
+	</div>
+}

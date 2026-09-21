@@ -41,7 +41,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d Threads", len(data.ChatThreads)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 32, Col: 139}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 32, Col: 139}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -64,7 +64,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var3).String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 1, Col: 0}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 1, Col: 0}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
@@ -77,7 +77,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/chat/thread/%s", thread.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 47, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 47, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
@@ -90,7 +90,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(thread.AvatarInit)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 55, Col: 28}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 55, Col: 28}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -113,7 +113,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(thread.BuyerName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 65, Col: 138}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 65, Col: 138}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -126,7 +126,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(thread.LastTime)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 66, Col: 80}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 66, Col: 80}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -139,7 +139,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(thread.BuyerCompany)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 68, Col: 124}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 68, Col: 124}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -152,7 +152,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(thread.LastMessage)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 69, Col: 143}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 69, Col: 143}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -165,7 +165,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(thread.Channel)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 72, Col: 92}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 72, Col: 92}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -183,7 +183,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d New", thread.UnreadCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 74, Col: 159}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 74, Col: 159}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -211,7 +211,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.AvatarInit)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 90, Col: 33}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 90, Col: 33}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -224,7 +224,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.BuyerName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 94, Col: 80}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 94, Col: 80}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -237,7 +237,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.BuyerCity)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 96, Col: 89}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 96, Col: 89}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -250,7 +250,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.BuyerCompany)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 99, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 99, Col: 39}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -263,7 +263,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.Channel)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 99, Col: 119}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 99, Col: 119}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -276,7 +276,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var18 templ.SafeURL
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("https://wa.me/27829012345?text=%s", "Hi%20there,%20following%20up%20on%20your%20Shoppage%20inquiry")))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 106, Col: 143}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 106, Col: 143}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -295,7 +295,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Text)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 131, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 131, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
@@ -313,7 +313,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 						var templ_7745c5c3_Var20 string
 						templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Quote.QuoteNumber)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 136, Col: 106}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 136, Col: 106}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 						if templ_7745c5c3_Err != nil {
@@ -326,7 +326,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 						var templ_7745c5c3_Var21 string
 						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Quote.Status)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 137, Col: 128}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 137, Col: 128}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 						if templ_7745c5c3_Err != nil {
@@ -339,7 +339,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 						var templ_7745c5c3_Var22 string
 						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Quote.ProductTitle)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 139, Col: 104}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 139, Col: 104}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 						if templ_7745c5c3_Err != nil {
@@ -352,7 +352,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 						var templ_7745c5c3_Var23 string
 						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Quote.SKU)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 141, Col: 36}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 141, Col: 36}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 						if templ_7745c5c3_Err != nil {
@@ -365,7 +365,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 						var templ_7745c5c3_Var24 string
 						templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d units", msg.Quote.Quantity))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 141, Col: 104}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 141, Col: 104}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 						if templ_7745c5c3_Err != nil {
@@ -378,7 +378,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 						var templ_7745c5c3_Var25 string
 						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", msg.Quote.UnitPriceZar))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 141, Col: 159}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 141, Col: 159}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 						if templ_7745c5c3_Err != nil {
@@ -391,7 +391,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 						var templ_7745c5c3_Var26 string
 						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", msg.Quote.SubtotalZar))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 144, Col: 75}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 144, Col: 75}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
@@ -404,7 +404,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 						var templ_7745c5c3_Var27 string
 						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", msg.Quote.VATZar))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 145, Col: 74}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 145, Col: 74}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 						if templ_7745c5c3_Err != nil {
@@ -417,7 +417,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 						var templ_7745c5c3_Var28 string
 						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", msg.Quote.TotalZar))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 149, Col: 62}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 149, Col: 62}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 						if templ_7745c5c3_Err != nil {
@@ -435,7 +435,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 					var templ_7745c5c3_Var29 string
 					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(msg.SenderName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 155, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 155, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 					if templ_7745c5c3_Err != nil {
@@ -448,7 +448,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 					var templ_7745c5c3_Var30 string
 					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Timestamp.Format("15:04"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 155, Col: 88}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 155, Col: 88}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 					if templ_7745c5c3_Err != nil {
@@ -466,7 +466,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 					var templ_7745c5c3_Var31 string
 					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Text)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 162, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 162, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 					if templ_7745c5c3_Err != nil {
@@ -479,7 +479,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 					var templ_7745c5c3_Var32 string
 					templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(msg.SenderName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 165, Col: 29}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 165, Col: 29}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 					if templ_7745c5c3_Err != nil {
@@ -492,7 +492,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 					var templ_7745c5c3_Var33 string
 					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Timestamp.Format("15:04"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 165, Col: 76}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 165, Col: 76}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 					if templ_7745c5c3_Err != nil {
@@ -505,7 +505,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 					var templ_7745c5c3_Var34 string
 					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.Channel)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 165, Col: 177}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 165, Col: 177}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 					if templ_7745c5c3_Err != nil {
@@ -524,7 +524,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var35 string
 			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(activeThread.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 206, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 206, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
 			if templ_7745c5c3_Err != nil {
@@ -547,7 +547,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var36 string
 			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.ResolveAttributeValue(activeThread.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 238, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 238, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
 			if templ_7745c5c3_Err != nil {
@@ -570,7 +570,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var37 string
 			templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.SKU)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 245, Col: 33}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 245, Col: 33}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var37)
 			if templ_7745c5c3_Err != nil {
@@ -583,7 +583,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var38 string
 			templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 245, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 245, Col: 59}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var38)
 			if templ_7745c5c3_Err != nil {
@@ -596,7 +596,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var39 string
 			templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.2f", item.WholesaleZar))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 245, Col: 113}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 245, Col: 113}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var39)
 			if templ_7745c5c3_Err != nil {
@@ -609,7 +609,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var40 string
 			templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(item.SKU)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 246, Col: 20}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 246, Col: 20}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 			if templ_7745c5c3_Err != nil {
@@ -622,7 +622,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var41 string
 			templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(item.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 246, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 246, Col: 39}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 			if templ_7745c5c3_Err != nil {
@@ -635,7 +635,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var42 string
 			templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.WholesaleZar))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 246, Col: 92}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/chat.templ`, Line: 246, Col: 92}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 			if templ_7745c5c3_Err != nil {

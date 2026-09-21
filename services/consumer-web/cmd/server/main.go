@@ -79,6 +79,8 @@ func main() {
 	r.Get("/search", h.HandleSearch)
 	r.Get("/p/{id}", h.HandleProduct)
 	r.Get("/buybox/{id}", h.HandleBuyBoxDrawer)
+	r.Get("/offer/modal/{id}", h.HandleOfferModal)
+	r.Post("/offer/submit", h.HandleSubmitOffer)
 	r.Post("/feed/post", h.HandleBroadcastPost)
 	r.Get("/location-modal", h.HandleLocationModal)
 	r.Get("/malls", h.HandleMalls)

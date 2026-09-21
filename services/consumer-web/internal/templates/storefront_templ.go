@@ -53,7 +53,7 @@ func StorefrontComponent(data StorefrontViewData) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/storefront.templ`, Line: 19, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/storefront.templ`, Line: 19, Col: 87}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -76,7 +76,7 @@ func StorefrontComponent(data StorefrontViewData) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.Address)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/storefront.templ`, Line: 24, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/storefront.templ`, Line: 24, Col: 66}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -89,7 +89,7 @@ func StorefrontComponent(data StorefrontViewData) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.CIPCNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/storefront.templ`, Line: 24, Col: 101}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/storefront.templ`, Line: 24, Col: 101}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -102,7 +102,7 @@ func StorefrontComponent(data StorefrontViewData) templ.Component {
 			var templ_7745c5c3_Var6 templ.SafeURL
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi,%%20I'm%%20contacting%%20you%%20via%%20Shoppage", data.Store.WhatsApp)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/storefront.templ`, Line: 28, Col: 136}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/storefront.templ`, Line: 28, Col: 136}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {

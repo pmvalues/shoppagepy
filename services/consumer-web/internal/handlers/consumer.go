@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -33,6 +35,7 @@ func (h *ConsumerHandler) HandleHome(w http.ResponseWriter, r *http.Request) {
 	category := r.URL.Query().Get("category")
 	retailer := r.URL.Query().Get("retailer")
 	province := r.URL.Query().Get("province")
+	sort := r.URL.Query().Get("sort")
 	q := r.URL.Query().Get("q")
 
 	if tab == "" {
@@ -41,7 +44,8 @@ func (h *ConsumerHandler) HandleHome(w http.ResponseWriter, r *http.Request) {
 
 	posts := h.store.GetFeedPosts(tab, q)
 	products := h.store.SearchProducts(q, category, province, false)
-	deals := h.store.GetDeals(retailer, category)
+	deals := h.store.GetDeals(retailer, category, sort)
+	dealsStats := h.store.GetDealsStats()
 	malls := h.store.GetAllMalls(province, q)
 	shorts := h.store.GetShorts(category)
 	trends := h.store.GetTrends()
@@ -71,6 +75,8 @@ func (h *ConsumerHandler) HandleHome(w http.ResponseWriter, r *http.Request) {
 		CurrentCategory: category,
 		CurrentRetailer: retailer,
 		CurrentProvince: province,
+		CurrentSort:     sort,
+		AvgSavingsPct:   dealsStats.AvgDiscountPct,
 		Posts:           posts,
 		Products:        products,
 		Deals:           deals,
@@ -606,5 +612,150 @@ func (h *ConsumerHandler) HandleChat(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
+
+// HandleOfferModal renders the interactive Bob Shop-style Make an Offer counter-negotiation modal
+func (h *ConsumerHandler) HandleOfferModal(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	priceParam := r.URL.Query().Get("price")
+	merchantParam := r.URL.Query().Get("merchant")
+
+	product, ok := h.store.GetProductByID(id)
+	if !ok {
+		// Fallback product stub
+		product = models.ProductDetail{
+			CanonicalID:       id,
+			Title:             "Special Commercial Item",
+			Brand:             "Verified Wholesaler",
+			Model:             "Trade Item",
+			ImageURL:          "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=400&auto=format&fit=crop&q=65",
+			LowestOfferPrice:  1000.0,
+			EstimatedPriceZar: 1000.0,
+		}
+	}
+
+	targetPrice := product.LowestOfferPrice
+	if priceParam != "" {
+		if p, err := strconv.ParseFloat(priceParam, 64); err == nil && p > 0 {
+			targetPrice = p
+		}
+	}
+
+	var targetOffer models.MerchantOffer
+	if len(product.Offers) > 0 {
+		targetOffer = product.Offers[0]
+		if merchantParam != "" {
+			for _, o := range product.Offers {
+				if o.MerchantID == merchantParam || strings.EqualFold(o.MerchantName, merchantParam) {
+					targetOffer = o
+					break
+				}
+			}
+		}
+	} else {
+		targetOffer = models.MerchantOffer{
+			MerchantID:   "loc_wholesaler",
+			MerchantName: "Verified SA Trade Supplier",
+			City:         "Johannesburg",
+			PriceZar:     targetPrice,
+			InStock:      true,
+			Verified:     true,
+			WhatsApp:     "27825551234",
+		}
+	}
+
+	data := templates.OfferModalViewData{
+		Product:     product,
+		Merchant:    targetOffer,
+		TargetPrice: targetPrice,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := templates.RenderOfferModal(w, data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// HandleSubmitOffer processes the counter-negotiation form and returns a confirmed WhatsApp handoff
+func (h *ConsumerHandler) HandleSubmitOffer(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "invalid form", http.StatusBadRequest)
+		return
+	}
+
+	productId := r.FormValue("productId")
+	_ = productId
+	productTitle := r.FormValue("productTitle")
+	merchantName := r.FormValue("merchantName")
+	merchantPhone := strings.TrimSpace(r.FormValue("merchantPhone"))
+	if merchantPhone == "" {
+		merchantPhone = "27825551234"
+	}
+	// Normalize phone for WhatsApp international link
+	cleanPhone := strings.Map(func(r rune) rune {
+		if r >= '0' && r <= '9' {
+			return r
+		}
+		return -1
+	}, merchantPhone)
+	if strings.HasPrefix(cleanPhone, "0") {
+		cleanPhone = "27" + cleanPhone[1:]
+	}
+
+	listedPrice, _ := strconv.ParseFloat(r.FormValue("listedPrice"), 64)
+	offerPrice, _ := strconv.ParseFloat(r.FormValue("offerPrice"), 64)
+	qty, _ := strconv.Atoi(r.FormValue("quantity"))
+	if qty <= 0 {
+		qty = 1
+	}
+
+	buyerName := strings.TrimSpace(r.FormValue("buyerName"))
+	buyerPhone := strings.TrimSpace(r.FormValue("buyerPhone"))
+	notes := strings.TrimSpace(r.FormValue("notes"))
+	fulfillment := r.FormValue("fulfillment")
+
+	fulfillmentLabel := "Mall Collection (FREE)"
+	if fulfillment == "pudo" {
+		fulfillmentLabel = "Pudo Smart Locker (R60)"
+	} else if fulfillment == "courier" {
+		fulfillmentLabel = "Door Courier (R85)"
+	}
+
+	totalSavings := 0.0
+	if listedPrice > offerPrice {
+		totalSavings = (listedPrice - offerPrice) * float64(qty)
+	}
+
+	// Construct pre-filled WhatsApp text
+	waMessage := fmt.Sprintf(
+		"Sawubona %s! I'm submitting a counter-offer on Shoppage for:\n\n*Item:* %s\n*Offer Price:* R %.2f each (Listed: R %.2f)\n*Quantity:* %d unit(s)\n*Preferred Delivery:* %s\n*Buyer:* %s (%s)\n*Note:* %s\n\nPlease let me know if this is approved for collection/invoice.",
+		merchantName,
+		productTitle,
+		offerPrice,
+		listedPrice,
+		qty,
+		fulfillmentLabel,
+		buyerName,
+		buyerPhone,
+		notes,
+	)
+
+	waURL := fmt.Sprintf("https://wa.me/%s?text=%s", cleanPhone, url.QueryEscape(waMessage))
+
+	result := models.OfferSubmissionResult{
+		OfferID:      fmt.Sprintf("off_%d", time.Now().UnixMilli()),
+		Status:       "received",
+		WhatsAppURL:  waURL,
+		Message:      fmt.Sprintf("Your counter-offer of R %.2f each for %d unit(s) has been routed to %s. Click below to confirm directly on WhatsApp.", offerPrice, qty, merchantName),
+		OfferPrice:   offerPrice,
+		Quantity:     qty,
+		TotalSavings: totalSavings,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := templates.RenderOfferSuccessCard(w, result); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 
 

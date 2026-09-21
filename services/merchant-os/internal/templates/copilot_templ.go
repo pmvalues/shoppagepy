@@ -46,7 +46,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var2 string
 				templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Timestamp.Format("15:04"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 33, Col: 107}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/copilot.templ`, Line: 33, Col: 107}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 				if templ_7745c5c3_Err != nil {
@@ -59,7 +59,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Content)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 36, Col: 21}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/copilot.templ`, Line: 36, Col: 21}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -77,7 +77,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(msg.ActionLabel)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 43, Col: 32}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/copilot.templ`, Line: 43, Col: 32}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -100,7 +100,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Timestamp.Format("15:04"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 53, Col: 107}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/copilot.templ`, Line: 53, Col: 107}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -113,7 +113,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Content)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 56, Col: 21}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/copilot.templ`, Line: 56, Col: 21}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
