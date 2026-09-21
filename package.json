@@ -12,6 +12,7 @@
     "build": "node scripts/go-run.mjs build -o bin/shoppage.exe ./services/consumer-web/cmd/server/main.go",
     "build:linux": "powershell -ExecutionPolicy Bypass -File deploy/build-linux.ps1",
     "test": "npm run go:test",
+    "test:speed": "node scripts/go-run.mjs run scripts/speedtest.go",
     "go:unified": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
     "go:chat": "node scripts/go-run.mjs run ./services/chat-gateway/cmd/server/main.go",
     "go:sweep": "node scripts/go-run.mjs run ./services/sweeper-engine/cmd/sweep/main.go",
