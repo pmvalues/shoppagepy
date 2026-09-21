@@ -475,9 +475,9 @@ templ LeftRail(currentTab string) {
 				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M3 3h18v18H3zM8 12h8M12 8v8"></path></svg>
 				<span class="sidebar-label text-emerald-700 font-bold">Sell on Shoppage</span>
 			</a>
-			<a href="/buyer-protection" title="Shoppage Trade Assurance & Escrow" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "protection"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "protection") }>
+			<a href="/enterprise-vetting" title="Enterprise Vetting & Supplier Verification Desk" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "vetting"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "vetting") }>
 				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-				<span class="sidebar-label">Buyer Protection</span>
+				<span class="sidebar-label">Enterprise Vetting</span>
 			</a>
 			<a href="/?tab=tradewire" title="Live Trade Wire" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "tradewire"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "tradewire") }>
 				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
@@ -648,7 +648,7 @@ templ CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, g
 templ CorporateFooter() {
 	<footer class="w-full bg-slate-900 text-slate-300 border-t border-slate-800 mt-12 py-12 px-4 sm:px-6 lg:px-8 select-none" style="background-color: #090d16; border-top: 1px solid #1e293b;">
 		<div class="max-w-7xl mx-auto space-y-10">
-			<!-- Top Row: Trust Assurance Bar -->
+			<!-- Top Row: Enterprise Vetting & Compliance Bar -->
 			<div class="p-6 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(51, 65, 85, 0.5);">
 				<div class="flex items-center gap-4">
 					<div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-2xl shrink-0">
@@ -656,20 +656,20 @@ templ CorporateFooter() {
 					</div>
 					<div>
 						<h4 class="text-sm font-black text-white flex items-center gap-2">
-							<span>Shoppage Trade Assurance &amp; Buyer Protection</span>
-							<span class="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">100% Escrow Protected</span>
+							<span>Shoppage Enterprise Vetting Desk</span>
+							<span class="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">100% CIPC &amp; SARS Vetted</span>
 						</h4>
 						<p class="text-xs text-slate-400 mt-0.5 max-w-xl">
-							Funds are held in secure South African bank trust until goods are inspected and scanned by The Courier Guy or collected at Pudo Smart Lockers.
+							Every commercial supplier indexed on Shoppage undergoes rigorous enterprise vetting: CIPC registration checks, SARS Tax PIN verification, and physical warehouse / depot authentication.
 						</p>
 					</div>
 				</div>
 				<div class="flex items-center gap-3 shrink-0">
-					<a href="/buyer-protection" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition border border-slate-700">
-						Read Trust Policy
+					<a href="/enterprise-vetting" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition border border-slate-700">
+						Vetting Standards &amp; Directory
 					</a>
 					<a href="/track" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm">
-						Track My Order &rarr;
+						Track Order &rarr;
 					</a>
 				</div>
 			</div>
@@ -702,16 +702,16 @@ templ CorporateFooter() {
 					</ul>
 				</div>
 
-				<!-- Col 3: Trust & Legal Compliance -->
+				<!-- Col 3: Enterprise Vetting Desk -->
 				<div>
-					<h5 class="text-xs font-black text-white uppercase tracking-wider mb-3.5">Trust &amp; Legal Compliance</h5>
+					<h5 class="text-xs font-black text-white uppercase tracking-wider mb-3.5">Enterprise Vetting Desk</h5>
 					<ul class="space-y-2.5 text-slate-400 font-medium">
-						<li><a href="/buyer-protection" class="hover:text-emerald-400 transition">Shoppage Trade Assurance</a></li>
-						<li><a href="/track" class="hover:text-emerald-400 transition">Waybill Tracking (The Courier Guy)</a></li>
-						<li><a href="/buyer-protection#cpa" class="hover:text-emerald-400 transition">14-Day CPA Returns Policy</a></li>
-						<li><a href="/buyer-protection#sars" class="hover:text-emerald-400 transition">SARS 15% VAT Tax Invoices</a></li>
-						<li><a href="/buyer-protection#popia" class="hover:text-emerald-400 transition">POPIA Data Privacy Shield</a></li>
-						<li><a href="/buyer-protection#escrow" class="hover:text-emerald-400 transition">South African Bank Escrow</a></li>
+						<li><a href="/enterprise-vetting#cipc" class="hover:text-emerald-400 transition">CIPC Corporate Registry Vetting</a></li>
+						<li><a href="/enterprise-vetting#sars" class="hover:text-emerald-400 transition">SARS Tax PIN &amp; VAT Compliance</a></li>
+						<li><a href="/enterprise-vetting#depot" class="hover:text-emerald-400 transition">Physical Depot &amp; Site Inspection</a></li>
+						<li><a href="/enterprise-vetting#bbbee" class="hover:text-emerald-400 transition">B-BBEE Procurement Recognition</a></li>
+						<li><a href="/enterprise-vetting#sabs" class="hover:text-emerald-400 transition">SABS &amp; Technical Standards</a></li>
+						<li><a href="/track" class="hover:text-emerald-400 transition">Freight Tracking (The Courier Guy)</a></li>
 					</ul>
 				</div>
 

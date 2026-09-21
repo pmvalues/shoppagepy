@@ -1332,16 +1332,23 @@ func (h *ConsumerHandler) HandleSellRegister(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-// HandleBuyerProtection renders the Trade Assurance & Escrow Guarantee policy hub
-func (h *ConsumerHandler) HandleBuyerProtection(w http.ResponseWriter, r *http.Request) {
-	data := templates.BuyerProtectionViewData{
-		Title:       "Buyer Protection & Escrow Guarantee | Shoppage South Africa",
-		Description: "Zero-risk wholesale procurement. Learn how Shoppage guarantees your order with verified CIPC suppliers, escrow settlements, and live courier tracking.",
-		CurrentTab:  "protection",
+// HandleEnterpriseVetting renders the official Enterprise Vetting and Supplier Compliance Desk
+func (h *ConsumerHandler) HandleEnterpriseVetting(w http.ResponseWriter, r *http.Request) {
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	data := templates.EnterpriseVettingViewData{
+		Title:       "Enterprise Vetting & Supplier Compliance Desk | Shoppage South Africa",
+		Description: "Eliminating ghost suppliers and procurement fraud. Discover Shoppage's rigorous enterprise vetting standards: CIPC corporate verification, SARS Tax PIN compliance, and physical depot authentication.",
+		Query:       q,
+		CurrentTab:  "vetting",
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := templates.RenderBuyerProtection(w, data); err != nil {
+	if err := templates.RenderEnterpriseVetting(w, data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+// HandleBuyerProtection redirects to HandleEnterpriseVetting
+func (h *ConsumerHandler) HandleBuyerProtection(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/enterprise-vetting", http.StatusMovedPermanently)
 }

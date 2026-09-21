@@ -1,0 +1,218 @@
+package templates
+
+import (
+	"github.com/shoppage/consumer-web/internal/models"
+)
+
+templ EnterpriseVettingPageComponent(data EnterpriseVettingViewData) {
+	@Layout(data.Title, data.Description, data.CurrentTab, []models.TradeTrend{}, []models.RetailerDeal{}, []models.CommunityGuild{}) {
+		<main class="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+			<!-- Hero Header -->
+			<div class="relative overflow-hidden rounded-3xl bg-slate-950 p-8 sm:p-12 text-white shadow-xl border border-slate-800 mb-10" style="background-color: #090d16; background-image: linear-gradient(135deg, #090d16 0%, #0f172a 55%, #064e3b 100%);">
+				<div class="relative z-10 max-w-2xl space-y-4">
+					<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider" style="background: rgba(16, 185, 129, 0.12); color: #34d399; border-color: rgba(52, 211, 153, 0.35);">
+						<span>🛡️ Shoppage Trust &amp; Verification Desk</span>
+					</div>
+					<h1 class="text-3xl sm:text-5xl font-extrabold font-display tracking-tight text-white leading-tight" style="color: #ffffff !important;">
+						Enterprise Vetting &amp; Supplier Compliance
+					</h1>
+					<p class="text-sm sm:text-base text-slate-200 leading-relaxed max-w-xl" style="color: #cbd5e1 !important;">
+						Eliminating ghost suppliers, procurement fraud, and unverified brokers. Every manufacturer, distributor, and wholesaler on Shoppage is vetted against official South African corporate, tax, and physical depot standards.
+					</p>
+				</div>
+			</div>
+
+			<!-- Quick Supplier Search / Verify Box -->
+			<div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm mb-10">
+				<div class="max-w-2xl">
+					<h2 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">Verify a Supplier's Enterprise Credentials</h2>
+					<p class="text-xs text-slate-500 mt-1">Search any supplier by CIPC Registration Number, Company Name, or Depot Location to verify compliance standing.</p>
+				</div>
+				<form action="/search" method="GET" class="mt-4 flex items-center gap-2 max-w-xl bg-slate-50 p-2 rounded-2xl border border-slate-200">
+					<div class="pl-3 text-slate-400">
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.35-4.35"></path></svg>
+					</div>
+					<input 
+						type="text" 
+						name="q" 
+						value={ data.Query }
+						placeholder="Search by CIPC # (e.g. 2023/104928/07) or Supplier Name..." 
+						class="flex-1 px-2 py-1.5 text-xs sm:text-sm font-medium outline-none bg-transparent text-slate-900 placeholder:text-slate-400"
+					/>
+					<button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs cursor-pointer shrink-0">
+						Verify Supplier
+					</button>
+				</form>
+			</div>
+
+			<!-- 5 Authoritative Enterprise Vetting Pillars -->
+			<div class="space-y-6">
+				<!-- Pillar 1: CIPC Corporate Registry -->
+				<div id="cipc" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-start gap-6">
+					<div class="w-14 h-14 rounded-2xl bg-slate-900 text-emerald-400 text-2xl font-bold flex items-center justify-center shrink-0">
+						🏢
+					</div>
+					<div class="space-y-2 flex-1">
+						<div class="flex items-center gap-2 flex-wrap">
+							<h3 class="text-base font-extrabold text-slate-900">1. CIPC Corporate Registry Vetting</h3>
+							<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Legally Verified</span>
+						</div>
+						<p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+							Every supplier on Shoppage must possess a verified legal entity registered with the Companies and Intellectual Property Commission (CIPC). We cross-reference active enterprise status, registered business names ((Pty) Ltd, CC, NPC), and verified directorships to prevent fraudulent ghost companies and shell entities.
+						</p>
+						<div class="pt-2 flex items-center gap-4 text-xs font-semibold text-slate-500 flex-wrap">
+							<span class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> Active CIPC Standing</span>
+							<span class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> Confirmed Registered Address</span>
+							<span class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> Verified Directors</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Pillar 2: SARS Tax PIN & VAT Compliance -->
+				<div id="sars" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-start gap-6">
+					<div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-700 text-2xl font-bold flex items-center justify-center shrink-0">
+						🧾
+					</div>
+					<div class="space-y-2 flex-1">
+						<div class="flex items-center gap-2 flex-wrap">
+							<h3 class="text-base font-extrabold text-slate-900">2. SARS Tax PIN &amp; 15% VAT Compliance</h3>
+							<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">SARS Verified</span>
+						</div>
+						<p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+							Commercial procurement requires audit-ready accounting. Shoppage verifies 10-digit South African Revenue Service (SARS) VAT registration numbers and active Tax Compliance Status (TCS). Every purchase order and proforma quote automatically generates a compliant tax invoice with itemized input VAT deductions.
+						</p>
+						<div class="pt-2 flex items-center gap-4 text-xs font-semibold text-slate-500 flex-wrap">
+							<span class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> 10-Digit VAT Verification</span>
+							<span class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> Active Tax Clearance Status</span>
+							<span class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> Statutory Input VAT Deductions</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Pillar 3: Physical Depot & Warehouse Authentication -->
+				<div id="depot" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-start gap-6">
+					<div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-700 text-2xl font-bold flex items-center justify-center shrink-0">
+						📍
+					</div>
+					<div class="space-y-2 flex-1">
+						<div class="flex items-center gap-2 flex-wrap">
+							<h3 class="text-base font-extrabold text-slate-900">3. Physical Depot &amp; Warehouse Authentication</h3>
+							<span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">Site Authenticated</span>
+						</div>
+						<p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+							We eliminate anonymous online brokers who take money with no inventory. Suppliers must authenticate actual physical warehouses, factories, trade depots, or commercial showrooms across recognized South African trade hubs (Midrand, Crown Mines, City Deep, Jet Park, Epping, Durban Harbor).
+						</p>
+						<div class="pt-2 flex items-center gap-4 text-xs font-semibold text-slate-500 flex-wrap">
+							<span class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> Geocoded Physical Depot</span>
+							<span class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> Trade Counter / Showroom</span>
+							<span class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> Commercial Dispatch Bays</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Pillar 4: B-BBEE Procurement Scorecard Recognition -->
+				<div id="bbbee" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-start gap-6">
+					<div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 text-2xl font-bold flex items-center justify-center shrink-0">
+						🇿🇦
+					</div>
+					<div class="space-y-2 flex-1">
+						<div class="flex items-center gap-2 flex-wrap">
+							<h3 class="text-base font-extrabold text-slate-900">4. B-BBEE Procurement Scorecard Recognition</h3>
+							<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Preferential Procurement</span>
+						</div>
+						<p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+							Enterprise procurement officers need verifiable supplier credentials for corporate scorecard reporting. Shoppage documents SANAS-accredited B-BBEE certificates and sworn affidavits (Level 1 through Level 4), providing the exact procurement recognition percentage (up to 135%) for corporate buyers.
+						</p>
+						<div class="pt-2 flex items-center gap-4 text-xs font-semibold text-slate-500 flex-wrap">
+							<span class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> SANAS Accredited Rating</span>
+							<span class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> 135% Preferential Recognition</span>
+							<span class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> Audited Sworn Affidavits</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Pillar 5: SABS & Standards Conformity -->
+				<div id="sabs" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-start gap-6">
+					<div class="w-14 h-14 rounded-2xl bg-purple-50 text-purple-700 text-2xl font-bold flex items-center justify-center shrink-0">
+						⚙️
+					</div>
+					<div class="space-y-2 flex-1">
+						<div class="flex items-center gap-2 flex-wrap">
+							<h3 class="text-base font-extrabold text-slate-900">5. SABS, CE &amp; ICASA Technical Conformity</h3>
+							<span class="px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 text-[10px] font-bold">Standards Vetted</span>
+						</div>
+						<p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+							For critical equipment including solar inverters, lithium batteries, electrical switchgear, and commercial packaging, Shoppage inspects SABS test certificates, NRCS Letters of Authority (LOA), and CE/ICASA type approvals. We ensure merchandise meets South African national grid regulations and safety standards.
+						</p>
+						<div class="pt-2 flex items-center gap-4 text-xs font-semibold text-slate-500 flex-wrap">
+							<span class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> SABS / NRCS LOA Verified</span>
+							<span class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> NRS 097 Solar Grid Code</span>
+							<span class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> Food-Grade AISI 304 Stainless</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Comparison Table: Unverified Online Classifieds vs Shoppage Vetted Enterprise -->
+			<div class="mt-12 bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+				<h3 class="text-base font-extrabold text-slate-900 mb-2">Comparison: Unverified Classifieds vs Shoppage Vetted Network</h3>
+				<p class="text-xs text-slate-500 mb-6">Why corporate procurement teams require enterprise vetting before issuing purchase orders.</p>
+				
+				<div class="overflow-x-auto">
+					<table class="w-full text-left text-xs border-collapse">
+						<thead>
+							<tr class="border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
+								<th class="py-3 px-4">Verification Check</th>
+								<th class="py-3 px-4 text-rose-600">Unverified Classifieds / Web</th>
+								<th class="py-3 px-4 text-emerald-700 bg-emerald-50/60 rounded-t-xl">Shoppage Vetted Supplier</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-slate-100 text-slate-700 font-medium">
+							<tr>
+								<td class="py-3.5 px-4 font-bold text-slate-900">CIPC Corporate Entity</td>
+								<td class="py-3.5 px-4 text-rose-600">❌ Unchecked (Shell companies common)</td>
+								<td class="py-3.5 px-4 text-emerald-800 bg-emerald-50/40 font-bold">✓ Verified Active CIPC Registration</td>
+							</tr>
+							<tr>
+								<td class="py-3.5 px-4 font-bold text-slate-900">SARS VAT Tax Invoice</td>
+								<td class="py-3.5 px-4 text-rose-600">❌ Missing or invalid VAT numbers</td>
+								<td class="py-3.5 px-4 text-emerald-800 bg-emerald-50/40 font-bold">✓ 100% Tax Compliant (Valid Input VAT)</td>
+							</tr>
+							<tr>
+								<td class="py-3.5 px-4 font-bold text-slate-900">Physical Stock / Depot</td>
+								<td class="py-3.5 px-4 text-rose-600">❌ Anonymous cell numbers, no depot</td>
+								<td class="py-3.5 px-4 text-emerald-800 bg-emerald-50/40 font-bold">✓ Geocoded Commercial Warehouse</td>
+							</tr>
+							<tr>
+								<td class="py-3.5 px-4 font-bold text-slate-900">B-BBEE Scorecard Rating</td>
+								<td class="py-3.5 px-4 text-rose-600">❌ Unavailable</td>
+								<td class="py-3.5 px-4 text-emerald-800 bg-emerald-50/40 font-bold">✓ Documented Level 1-4 Procurement Spend</td>
+							</tr>
+							<tr>
+								<td class="py-3.5 px-4 font-bold text-slate-900">Carrier Dispatch Integration</td>
+								<td class="py-3.5 px-4 text-rose-600">❌ Unverifiable dispatch tracking</td>
+								<td class="py-3.5 px-4 text-emerald-800 bg-emerald-50/40 font-bold">✓ Direct The Courier Guy Freight API</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- Operations & Audit Desk CTA -->
+			<div class="mt-10 p-8 rounded-3xl bg-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-6" style="background-color: #090d16;">
+				<div>
+					<h3 class="text-lg font-bold text-white">Need to report a supplier or submit enterprise audit documents?</h3>
+					<p class="text-xs text-slate-400 mt-1">Our Enterprise Compliance Desk in Midrand conducts quarterly physical audits of all indexed suppliers.</p>
+				</div>
+				<div class="flex items-center gap-3 shrink-0">
+					<a href="/sell" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition border border-slate-700">
+						Submit Business for Vetting
+					</a>
+					<a href="https://wa.me/27825551234?text=Hi%20Shoppage%20Compliance,%20I%20have%20an%20enterprise%20vetting%20inquiry" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm">
+						Contact Compliance Desk &rarr;
+					</a>
+				</div>
+			</div>
+		</main>
+	}
+}

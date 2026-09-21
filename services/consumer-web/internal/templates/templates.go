@@ -146,12 +146,14 @@ type SellViewData struct {
 	ErrorMsg    string
 }
 
-type BuyerProtectionViewData struct {
+type EnterpriseVettingViewData struct {
 	Title       string
 	Description string
 	Query       string
 	CurrentTab  string
 }
+
+type BuyerProtectionViewData = EnterpriseVettingViewData
 
 // -----------------------------------------------------------------------------
 // HELPERS
@@ -275,9 +277,14 @@ func RenderSell(w io.Writer, data SellViewData) error {
 	return SellPageComponent(data).Render(context.Background(), w)
 }
 
-// RenderBuyerProtection renders the Shoppage Trade Assurance & Escrow policy page
+// RenderEnterpriseVetting renders the official Enterprise Vetting & Supplier Compliance page
+func RenderEnterpriseVetting(w io.Writer, data EnterpriseVettingViewData) error {
+	return EnterpriseVettingPageComponent(data).Render(context.Background(), w)
+}
+
+// RenderBuyerProtection forwards to RenderEnterpriseVetting
 func RenderBuyerProtection(w io.Writer, data BuyerProtectionViewData) error {
-	return BuyerProtectionPageComponent(data).Render(context.Background(), w)
+	return RenderEnterpriseVetting(w, data)
 }
 
 func schemaOrgStoreJSON(store models.MerchantStorefront, desc string) string {

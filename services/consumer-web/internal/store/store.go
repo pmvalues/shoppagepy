@@ -1527,7 +1527,7 @@ func (s *Store) seedInitialOrders() {
 		VatZar:          4949.70,
 		GrandTotal:      37947.70,
 		Status:          "In Transit",
-		PaymentMethod:   "Ozow Instant EFT (Settled & Escrow Protected)",
+		PaymentMethod:   "Ozow Instant EFT (Direct Commercial Settlement)",
 		DateStr:         "Today, 09:15 SAST",
 		EstimatedEta:    "Tomorrow by 14:00 (Out from Midrand Hub)",
 		MerchantName:    "SunPower Crown Mines Wholesale",

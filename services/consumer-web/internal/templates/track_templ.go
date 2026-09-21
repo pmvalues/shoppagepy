@@ -380,7 +380,7 @@ func TrackPageComponent(data TrackViewData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-bold transition flex items-center gap-1.5\"><span>WhatsApp Helpdesk</span></a> <a href=\"/buyer-protection\" class=\"text-xs font-bold text-slate-500 hover:text-slate-800 transition\">Buyer Protection &amp; Returns &rarr;</a></div></div></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-bold transition flex items-center gap-1.5\"><span>WhatsApp Helpdesk</span></a> <a href=\"/enterprise-vetting\" class=\"text-xs font-bold text-slate-500 hover:text-slate-800 transition\">Enterprise Vetting &amp; Compliance &rarr;</a></div></div></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

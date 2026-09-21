@@ -117,7 +117,9 @@ func main() {
 	r.Get("/sell", h.HandleSell)
 	r.Post("/sell/register", h.HandleSellRegister)
 
-	// Buyer Protection & Escrow Guarantee Hub
+	// Enterprise Vetting & Supplier Compliance Desk
+	r.Get("/enterprise-vetting", h.HandleEnterpriseVetting)
+	r.Get("/vetting", h.HandleEnterpriseVetting)
 	r.Get("/buyer-protection", h.HandleBuyerProtection)
 
 	// Gemini AI Assistant endpoint

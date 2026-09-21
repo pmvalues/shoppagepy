@@ -562,23 +562,39 @@ func TestConsumerHandlers(t *testing.T) {
 		}
 	})
 
-	t.Run("HandleBuyerProtection renders Trade Assurance escrow policy", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/buyer-protection", nil)
+	t.Run("HandleEnterpriseVetting renders CIPC, SARS and depot compliance standards", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/enterprise-vetting", nil)
 		rec := httptest.NewRecorder()
-		h.HandleBuyerProtection(rec, req)
+		h.HandleEnterpriseVetting(rec, req)
 
 		if rec.Code != http.StatusOK {
 			t.Fatalf("expected 200, got %d", rec.Code)
 		}
 		body := rec.Body.String()
-		if !strings.Contains(body, "Buyer Protection") {
-			t.Errorf("expected body to contain 'Buyer Protection'")
+		if !strings.Contains(body, "Enterprise Vetting") {
+			t.Errorf("expected body to contain 'Enterprise Vetting'")
 		}
-		if !strings.Contains(body, "Trade Assurance") {
-			t.Errorf("expected body to contain 'Trade Assurance'")
+		if !strings.Contains(body, "CIPC") {
+			t.Errorf("expected body to contain 'CIPC'")
 		}
-		if !strings.Contains(body, "Escrow") {
-			t.Errorf("expected body to contain 'Escrow'")
+		if !strings.Contains(body, "SARS Tax PIN") {
+			t.Errorf("expected body to contain 'SARS Tax PIN'")
+		}
+		if !strings.Contains(body, "Physical Depot") {
+			t.Errorf("expected body to contain 'Physical Depot'")
+		}
+
+		// Test backward compatible redirect from /buyer-protection
+		reqLegacy := httptest.NewRequest("GET", "/buyer-protection", nil)
+		recLegacy := httptest.NewRecorder()
+		h.HandleBuyerProtection(recLegacy, reqLegacy)
+
+		if recLegacy.Code != http.StatusMovedPermanently {
+			t.Fatalf("expected 301 redirect, got %d", recLegacy.Code)
+		}
+		loc := recLegacy.Header().Get("Location")
+		if loc != "/enterprise-vetting" {
+			t.Errorf("expected Location /enterprise-vetting, got: %s", loc)
 		}
 	})
 }
