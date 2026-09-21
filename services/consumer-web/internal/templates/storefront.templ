@@ -2,37 +2,732 @@ package templates
 
 import (
 	"fmt"
+	"net/url"
+	"strings"
 	"github.com/shoppage/consumer-web/internal/models"
 )
 
 templ StorefrontComponent(data StorefrontViewData) {
 	@Layout(data.Title, data.Description, data.CurrentTab, []models.TradeTrend{}, []models.RetailerDeal{}, []models.CommunityGuild{}) {
-		<main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 mb-8 shadow-xs">
-				<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-					<div class="flex items-center gap-4">
-						<div class="w-16 h-16 rounded-2xl bg-emerald-600 text-white font-black text-2xl flex items-center justify-center shadow-lg shadow-emerald-700/30">
-							S
+		<main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8 font-sans">
+			<!-- 1. ANNOUNCEMENT RIBBON (Pemofy-style) -->
+			if data.AnnouncementText != "" {
+				<div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-900 via-slate-900 to-emerald-950 text-white px-4 py-2.5 shadow-xs border border-emerald-800/40">
+					<div class="flex items-center justify-between gap-4 text-xs font-medium">
+						<div class="flex items-center gap-2 truncate">
+							<span class="flex h-2 w-2 relative shrink-0">
+								<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+								<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+							</span>
+							<span class="text-emerald-300 font-bold uppercase tracking-wider text-[10px]">Trade Notice:</span>
+							<span class="truncate text-slate-200">{ data.AnnouncementText }</span>
 						</div>
-						<div>
-							<div class="flex items-center gap-2">
-								<h1 class="text-2xl font-black text-slate-900 tracking-tight">{ data.Store.Name }</h1>
-								if data.Store.Verified {
-									<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">✓ CIPC Verified</span>
-								}
-							</div>
-							<p class="text-xs text-slate-500 mt-1">{ data.Store.Address } · CIPC: { data.Store.CIPCNumber }</p>
+						<div class="hidden sm:flex items-center gap-3 shrink-0 text-[11px] text-emerald-400 font-bold">
+							<span>🇿🇦 Nationwide Logistics</span>
+							<span>•</span>
+							<span>Direct WhatsApp Active</span>
 						</div>
 					</div>
-					<a 
-						href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi,%%20I'm%%20contacting%%20you%%20via%%20Shoppage", data.Store.WhatsApp)) } 
-						target="_blank"
-						class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition shadow-sm inline-flex items-center justify-center gap-2"
+				</div>
+			}
+
+			<!-- 2. STOREFRONT IDENTITY & BRAND BAR -->
+			<div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xs">
+				<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+					<!-- Brand Avatar & Info -->
+					<div class="flex items-start sm:items-center gap-5">
+						<div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-800 text-white font-black text-3xl flex items-center justify-center shadow-lg shadow-emerald-700/20 shrink-0 border border-emerald-500/30">
+							if len(data.Store.Name) > 0 {
+								{ string([]rune(data.Store.Name)[0]) }
+							} else {
+								S
+							}
+						</div>
+						<div class="space-y-1.5">
+							<div class="flex flex-wrap items-center gap-2.5">
+								<h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{ data.Store.Name }</h1>
+								<span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase tracking-wider">Live Atelier</span>
+								if data.Store.Verified {
+									<span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold inline-flex items-center gap-1">
+										<span>✓</span> CIPC Verified
+									</span>
+								}
+							</div>
+							<p class="text-xs sm:text-sm text-slate-500 flex flex-wrap items-center gap-2">
+								<span>📍 { data.Store.Address }</span>
+								<span class="text-slate-300">•</span>
+								<span class="font-mono text-slate-600">CIPC: { data.Store.CIPCNumber }</span>
+								<span class="text-slate-300">•</span>
+								<span class="text-amber-600 font-bold">★ { fmt.Sprintf("%.1f", data.Store.Rating) } ({ fmt.Sprintf("%d", data.Store.ReviewsCount) }+ B2B Reviews)</span>
+							</p>
+						</div>
+					</div>
+
+					<!-- Quick Action CTAs -->
+					<div class="flex flex-wrap items-center gap-3 shrink-0">
+						<!-- Store Admin Quick Link to Merchant OS -->
+						<a 
+							href="/desk" 
+							target="_blank"
+							class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition inline-flex items-center gap-2 shadow-2xs"
+							title="Open Merchant OS Workstation"
+						>
+							<span class="text-emerald-600 font-bold">⚡</span>
+							<span>Store Admin</span>
+						</a>
+
+						<!-- Quote Basket Toggle -->
+						<button 
+							type="button" 
+							onclick="toggleQuoteDrawer();"
+							class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition inline-flex items-center gap-2 shadow-2xs relative"
+							title="View Quotation Basket"
+						>
+							<span>📋</span>
+							<span>Quote Basket</span>
+							<span id="quote-badge-count" class="w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center">0</span>
+						</button>
+
+						<!-- Direct WhatsApp Trade Desk -->
+						<a 
+							href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi,%%20I'm%%20contacting%%20you%%20via%%20Shoppage%%20Storefront%%20regarding%%20wholesale%%20supplies.", data.Store.WhatsApp)) } 
+							target="_blank"
+							class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition shadow-sm inline-flex items-center justify-center gap-2 shadow-emerald-600/20"
+						>
+							<span>💬 Direct WhatsApp Trade Desk</span>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- 3. STORE HERO SHOWCASE (Pemofy-style) -->
+			<section class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white rounded-3xl p-8 sm:p-12 shadow-lg border border-slate-800">
+				<div class="relative z-10 max-w-3xl">
+					<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-widest mb-4">
+						✨ Verified South African Supplier
+					</span>
+					<h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight mb-4">
+						{ data.HeroHeadline }
+					</h2>
+					<p class="text-sm sm:text-base text-slate-300 leading-relaxed mb-8 font-light">
+						Direct factory commercial wholesale from Midrand Warehouse Hub. SABS compliant coat hangers, food packaging containers, catering chafers, and logistics solutions dispatched nationwide.
+					</p>
+					<div class="flex flex-wrap items-center gap-3">
+						<a 
+							href="#catalog-section" 
+							class="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs sm:text-sm transition shadow-md inline-flex items-center gap-2"
+						>
+							<span>Browse Catalog ({ fmt.Sprintf("%d SKUs", data.TotalCount) })</span>
+							<span>↓</span>
+						</a>
+						<button 
+							type="button" 
+							onclick="toggleQuoteDrawer();"
+							class="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm backdrop-blur-md transition inline-flex items-center gap-2"
+						>
+							<span>📋 Request B2B Proforma Quote</span>
+						</button>
+					</div>
+				</div>
+
+				<!-- Decorative Ambient Glow -->
+				<div class="absolute -right-16 -bottom-16 w-80 h-80 bg-emerald-600/20 rounded-full blur-3xl pointer-events-none"></div>
+			</section>
+
+			<!-- 4. VALUE BADGES & CREDENTIALS BANNER (Pemofy-style) -->
+			<section class="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 px-6 rounded-2xl bg-white border border-slate-200/80 shadow-2xs">
+				<div class="flex items-center gap-3.5">
+					<div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg shrink-0">
+						🚚
+					</div>
+					<div>
+						<h4 class="text-xs font-bold text-slate-900">Worldwide &amp; Nationwide Express</h4>
+						<p class="text-[11px] text-slate-500">Tracked door couriers &amp; Pudo locker network across SA</p>
+					</div>
+				</div>
+				<div class="flex items-center gap-3.5">
+					<div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg shrink-0">
+						🛡️
+					</div>
+					<div>
+						<h4 class="text-xs font-bold text-slate-900">Authenticity Guarantee</h4>
+						<p class="text-[11px] text-slate-500">100% verified legal entity · CIPC: { data.Store.CIPCNumber }</p>
+					</div>
+				</div>
+				<div class="flex items-center gap-3.5">
+					<div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg shrink-0">
+						📋
+					</div>
+					<div>
+						<h4 class="text-xs font-bold text-slate-900">Instant B2B Proforma Invoices</h4>
+						<p class="text-[11px] text-slate-500">Official 15% VAT tax invoices &amp; bulk carton tiers</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- 5. PRODUCT CATALOG & INTERACTIVE FILTER TOOLBAR -->
+			<section id="catalog-section" class="space-y-6 pt-4">
+				<!-- Section Header & Controls -->
+				<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200/80 pb-5">
+					<div>
+						<span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Official Product Line</span>
+						<h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 mt-1">
+							Product Catalog
+						</h2>
+						<p class="text-xs text-slate-500 mt-1 flex items-center gap-2">
+							<span>Displaying { fmt.Sprintf("%d", len(data.Store.Catalog)) } active SKUs</span>
+							<span class="text-slate-300">•</span>
+							<span>Total collection: { fmt.Sprintf("%d", data.TotalCount) } verified products</span>
+						</p>
+					</div>
+
+					<!-- Filters: Search, In-Stock, Sort -->
+					<div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+						<!-- Live Search Input -->
+						<div class="relative">
+							<span class="absolute left-3 top-2.5 text-slate-400 text-xs">🔍</span>
+							<input 
+								type="search" 
+								name="q"
+								id="store-search-input"
+								placeholder="Search store catalog…" 
+								value={ data.Query }
+								hx-get={ string(templ.SafeURL(fmt.Sprintf("/m/%s", data.Store.ID))) }
+								hx-trigger="keyup changed delay:350ms, search"
+								hx-target="#store-catalog-grid"
+								hx-include="#store-category-select, #store-sort-select, #store-instock-toggle"
+								hx-push-url="true"
+								class="pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-xl w-48 sm:w-60 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 bg-white shadow-2xs"
+							/>
+						</div>
+
+						<!-- Sort Selector -->
+						<select 
+							name="sort"
+							id="store-sort-select"
+							hx-get={ string(templ.SafeURL(fmt.Sprintf("/m/%s", data.Store.ID))) }
+							hx-trigger="change"
+							hx-target="#store-catalog-grid"
+							hx-include="#store-search-input, #store-category-select, #store-instock-toggle"
+							hx-push-url="true"
+							class="px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer shadow-2xs"
+						>
+							<option value="newest" selected?={ data.Sort == "newest" || data.Sort == "" }>Sort: Newest First</option>
+							<option value="price-asc" selected?={ data.Sort == "price-asc" }>Price: Low to High</option>
+							<option value="price-desc" selected?={ data.Sort == "price-desc" }>Price: High to Low</option>
+							<option value="title-asc" selected?={ data.Sort == "title-asc" }>Alphabetical: A-Z</option>
+						</select>
+
+						<!-- In Stock Only Filter -->
+						<label class="px-3 py-2 text-xs rounded-xl font-medium border border-slate-200 bg-white text-slate-700 flex items-center gap-1.5 cursor-pointer shadow-2xs select-none">
+							<input 
+								type="checkbox" 
+								name="in_stock" 
+								value="true"
+								id="store-instock-toggle"
+								checked?={ data.InStockOnly }
+								hx-get={ string(templ.SafeURL(fmt.Sprintf("/m/%s", data.Store.ID))) }
+								hx-trigger="change"
+								hx-target="#store-catalog-grid"
+								hx-include="#store-search-input, #store-sort-select, #store-category-select"
+								hx-push-url="true"
+								class="accent-emerald-600 rounded"
+							/>
+							<span>In Stock Only</span>
+						</label>
+					</div>
+				</div>
+
+				<!-- Category Filter Pills -->
+				if len(data.Categories) > 0 {
+					<div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs font-semibold">
+						<input type="hidden" name="category" id="store-category-select" value={ data.ActiveCategory } />
+						
+						<a 
+							href={ templ.SafeURL(fmt.Sprintf("/m/%s", data.Store.ID)) }
+							hx-get={ string(templ.SafeURL(fmt.Sprintf("/m/%s", data.Store.ID))) }
+							hx-target="#store-catalog-grid"
+							hx-include="#store-search-input, #store-sort-select, #store-instock-toggle"
+							hx-push-url="true"
+							class={ "px-4 py-2 rounded-xl transition shadow-2xs whitespace-nowrap", templ.KV("bg-slate-900 text-white font-bold", data.ActiveCategory == "" || data.ActiveCategory == "All"), templ.KV("bg-white text-slate-600 border border-slate-200 hover:bg-slate-50", data.ActiveCategory != "" && data.ActiveCategory != "All") }
+						>
+							All Products ({ fmt.Sprintf("%d", data.TotalCount) })
+						</a>
+
+						for _, cat := range data.Categories {
+							<a 
+								href={ templ.SafeURL(fmt.Sprintf("/m/%s?category=%s", data.Store.ID, url.QueryEscape(cat))) }
+								hx-get={ string(templ.SafeURL(fmt.Sprintf("/m/%s?category=%s", data.Store.ID, url.QueryEscape(cat)))) }
+								hx-target="#store-catalog-grid"
+								hx-include="#store-search-input, #store-sort-select, #store-instock-toggle"
+								hx-push-url="true"
+								class={ "px-4 py-2 rounded-xl transition shadow-2xs whitespace-nowrap", templ.KV("bg-slate-900 text-white font-bold", data.ActiveCategory == cat), templ.KV("bg-white text-slate-600 border border-slate-200 hover:bg-slate-50", data.ActiveCategory != cat) }
+							>
+								{ cat }
+							</a>
+						}
+					</div>
+				}
+
+				<!-- Catalog Product Grid Container (HTMX swap target) -->
+				<div id="store-catalog-grid">
+					@StoreCatalogGridComponent(data)
+				</div>
+			</section>
+
+			<!-- 6. VERIFIED TRADE TESTIMONIALS (Pemofy-style) -->
+			<section class="py-8 border-t border-slate-200/80">
+				<div class="text-center max-w-2xl mx-auto mb-8">
+					<span class="text-[10px] font-bold uppercase tracking-widest text-emerald-600">Verified Client Feedback</span>
+					<h3 class="text-2xl font-extrabold text-slate-900 mt-1">What South African Trade Buyers Say</h3>
+				</div>
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+					<div class="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col justify-between">
+						<div>
+							<div class="flex text-amber-400 text-sm mb-3">★★★★★</div>
+							<p class="text-xs sm:text-sm text-slate-600 italic mb-4 leading-relaxed">
+								"The commercial anti-theft hangers have completely solved our room shrinkage issues across our 120 guest suites. Solid timber, clean chrome finish, and fast delivery to Cape Town."
+							</p>
+						</div>
+						<div class="border-t border-slate-100 pt-3">
+							<p class="text-xs font-bold text-slate-900">Marius van der Merwe</p>
+							<p class="text-[11px] text-slate-400">Head of Operations, Cape Coast Lodge Group</p>
+						</div>
+					</div>
+
+					<div class="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col justify-between">
+						<div>
+							<div class="flex text-amber-400 text-sm mb-3">★★★★★</div>
+							<p class="text-xs sm:text-sm text-slate-600 italic mb-4 leading-relaxed">
+								"Outstanding service. We ordered 10,000 food packaging tubs and snap-on lids with rapid delivery directly to our food processing plant in Midrand. Highly recommended supplier."
+							</p>
+						</div>
+						<div class="border-t border-slate-100 pt-3">
+							<p class="text-xs font-bold text-slate-900">Sipho Dlamini</p>
+							<p class="text-[11px] text-slate-400">Procurement Manager, Jozi Fresh Caterers</p>
+						</div>
+					</div>
+
+					<div class="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col justify-between">
+						<div>
+							<div class="flex text-amber-400 text-sm mb-3">★★★★★</div>
+							<p class="text-xs sm:text-sm text-slate-600 italic mb-4 leading-relaxed">
+								"Direct WhatsApp trade desk is a game changer. We generated an instant proforma invoice and received stock at our Durban hotel within 48 hours. Excellent SABS compliance."
+							</p>
+						</div>
+						<div class="border-t border-slate-100 pt-3">
+							<p class="text-xs font-bold text-slate-900">Nadine Pillay</p>
+							<p class="text-[11px] text-slate-400">General Manager, Umhlanga Boutique Resort</p>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- 7. STORE LOCATION & OPERATING HOURS FOOTER -->
+			<section class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xs">
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+					<div class="space-y-2">
+						<h4 class="text-sm font-bold text-slate-900">Warehouse &amp; Dispatch Hub</h4>
+						<p class="text-xs text-slate-500 leading-relaxed">
+							{ data.Store.Address }
+						</p>
+						<p class="text-xs text-slate-400 font-mono">
+							CIPC Registration: { data.Store.CIPCNumber }
+						</p>
+					</div>
+
+					<div class="space-y-2">
+						<h4 class="text-sm font-bold text-slate-900">Commercial Trading Hours</h4>
+						<ul class="text-xs text-slate-500 space-y-1">
+							<li class="flex justify-between"><span>Monday – Friday:</span> <span class="font-bold text-slate-700">08:00 – 17:00</span></li>
+							<li class="flex justify-between"><span>Saturday:</span> <span class="font-bold text-slate-700">08:30 – 13:00</span></li>
+							<li class="flex justify-between"><span>Sunday &amp; Public Holidays:</span> <span class="text-slate-400">Closed (Online Active)</span></li>
+						</ul>
+					</div>
+
+					<div class="space-y-2">
+						<h4 class="text-sm font-bold text-slate-900">Direct Contact &amp; Trade Terms</h4>
+						<p class="text-xs text-slate-500">Phone: <span class="font-bold text-slate-700">{ data.Store.Phone }</span></p>
+						<p class="text-xs text-slate-500">WhatsApp: <span class="font-bold text-slate-700">+{ data.Store.WhatsApp }</span></p>
+						<div class="pt-2">
+							<a 
+								href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi,%%20I'd%%20like%%20to%%20apply%%20for%%20a%%20wholesale%%20trade%%20account", data.Store.WhatsApp)) } 
+								target="_blank"
+								class="text-xs text-emerald-600 font-bold hover:underline"
+							>
+								→ Apply for 30-Day B2B Trade Terms
+							</a>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- 8. SLIDE-OVER QUOTATION & PROFORMA BASKET DRAWER -->
+			<div id="quote-drawer-backdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden transition-opacity" onclick="toggleQuoteDrawer();"></div>
+			
+			<div id="quote-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[460px] bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+				<!-- Drawer Header -->
+				<div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+					<div class="flex items-center gap-2.5">
+						<span class="text-lg">📋</span>
+						<div>
+							<h3 class="text-sm font-bold text-slate-900">Commercial Quotation Basket</h3>
+							<p class="text-[11px] text-slate-500">Instant South African B2B Proforma &amp; RFQ</p>
+						</div>
+					</div>
+					<button type="button" onclick="toggleQuoteDrawer();" class="w-8 h-8 rounded-lg hover:bg-slate-200 text-slate-500 text-lg flex items-center justify-center">
+						&times;
+					</button>
+				</div>
+
+				<!-- Drawer Item List -->
+				<div id="quote-drawer-items" class="flex-1 overflow-y-auto p-5 space-y-3">
+					<div id="quote-empty-state" class="text-center py-16 space-y-3">
+						<span class="text-4xl block">📦</span>
+						<h4 class="text-sm font-bold text-slate-700">Your quotation basket is empty</h4>
+						<p class="text-xs text-slate-400 max-w-xs mx-auto">
+							Click "Add to Quote" on any product in the catalog to prepare an instant proforma invoice.
+						</p>
+					</div>
+				</div>
+
+				<!-- Drawer Footer & Calculation -->
+				<div class="p-5 border-t border-slate-200 bg-slate-50 space-y-3">
+					<div class="space-y-1.5 text-xs text-slate-600">
+						<div class="flex justify-between">
+							<span>Subtotal (Excl. VAT):</span>
+							<span id="quote-subtotal" class="font-mono font-bold text-slate-900">R 0.00</span>
+						</div>
+						<div class="flex justify-between">
+							<span>VAT (15%):</span>
+							<span id="quote-vat" class="font-mono font-bold text-slate-900">R 0.00</span>
+						</div>
+						<div class="flex justify-between text-sm font-extrabold text-slate-900 pt-2 border-t border-slate-200">
+							<span>Total Estimated:</span>
+							<span id="quote-total" class="font-mono text-emerald-600">R 0.00</span>
+						</div>
+					</div>
+
+					<!-- Direct WhatsApp RFQ Dispatch -->
+					<button 
+						type="button" 
+						id="quote-send-wa-btn" 
+						onclick="dispatchWhatsAppQuote();"
+						class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-sm flex items-center justify-center gap-2"
 					>
-						<span>💬 Direct WhatsApp Trade Desk</span>
-					</a>
+						<span>💬 Send Quotation Bill to Merchant WhatsApp</span>
+					</button>
+
+					<button 
+						type="button" 
+						onclick="window.print();"
+						class="w-full py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition flex items-center justify-center gap-2"
+					>
+						<span>🖨️ Print / Save Official Proforma PDF</span>
+					</button>
 				</div>
 			</div>
 		</main>
+
+		<!-- JAVASCRIPT: QUOTE BASKET & LIVE INTERACTIONS -->
+		<script>
+			let quoteItems = [];
+
+			function toggleQuoteDrawer() {
+				const drawer = document.getElementById('quote-drawer');
+				const backdrop = document.getElementById('quote-drawer-backdrop');
+				if (!drawer || !backdrop) return;
+				const isClosed = drawer.classList.contains('translate-x-full');
+				if (isClosed) {
+					drawer.classList.remove('translate-x-full');
+					backdrop.classList.remove('hidden');
+				} else {
+					drawer.classList.add('translate-x-full');
+					backdrop.classList.add('hidden');
+				}
+			}
+
+			function addToQuote(id, title, priceZar, imageUrl) {
+				const existing = quoteItems.find(item => item.id === id);
+				if (existing) {
+					existing.qty += 1;
+				} else {
+					quoteItems.push({
+						id: id,
+						title: title,
+						priceZar: priceZar,
+						imageUrl: imageUrl,
+						qty: 1
+					});
+				}
+				renderQuoteDrawer();
+				// Flash badge
+				const badge = document.getElementById('quote-badge-count');
+				if (badge) {
+					badge.classList.add('scale-125');
+					setTimeout(() => badge.classList.remove('scale-125'), 300);
+				}
+				// Open drawer
+				const drawer = document.getElementById('quote-drawer');
+				if (drawer && drawer.classList.contains('translate-x-full')) {
+					toggleQuoteDrawer();
+				}
+			}
+
+			function removeQuoteItem(id) {
+				quoteItems = quoteItems.filter(item => item.id !== id);
+				renderQuoteDrawer();
+			}
+
+			function updateQuoteQty(id, delta) {
+				const item = quoteItems.find(i => i.id === id);
+				if (!item) return;
+				item.qty += delta;
+				if (item.qty <= 0) {
+					removeQuoteItem(id);
+				} else {
+					renderQuoteDrawer();
+				}
+			}
+
+			function renderQuoteDrawer() {
+				const container = document.getElementById('quote-drawer-items');
+				const badge = document.getElementById('quote-badge-count');
+				const subtotalEl = document.getElementById('quote-subtotal');
+				const vatEl = document.getElementById('quote-vat');
+				const totalEl = document.getElementById('quote-total');
+				if (!container) return;
+
+				const totalCount = quoteItems.reduce((acc, i) => acc + i.qty, 0);
+				if (badge) badge.textContent = totalCount;
+
+				if (quoteItems.length === 0) {
+					container.innerHTML = `
+						<div id="quote-empty-state" class="text-center py-16 space-y-3">
+							<span class="text-4xl block">📦</span>
+							<h4 class="text-sm font-bold text-slate-700">Your quotation basket is empty</h4>
+							<p class="text-xs text-slate-400 max-w-xs mx-auto">
+								Click "Add to Quote" on any product in the catalog to prepare an instant proforma invoice.
+							</p>
+						</div>
+					`;
+					if (subtotalEl) subtotalEl.textContent = 'R 0.00';
+					if (vatEl) vatEl.textContent = 'R 0.00';
+					if (totalEl) totalEl.textContent = 'R 0.00';
+					return;
+				}
+
+				let subtotal = 0;
+				let html = '';
+
+				quoteItems.forEach(item => {
+					const lineTotal = item.priceZar * item.qty;
+					subtotal += lineTotal;
+					html += `
+						<div class="p-3 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-3 shadow-2xs">
+							${item.imageUrl ? `<img src="${item.imageUrl}" class="w-12 h-12 rounded-lg object-contain bg-slate-50 border shrink-0" />` : '<div class="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center text-xs shrink-0">📦</div>'}
+							<div class="flex-1 min-w-0">
+								<h5 class="text-xs font-bold text-slate-900 truncate">${item.title}</h5>
+								<p class="text-[11px] font-mono text-emerald-700 font-bold">R ${item.priceZar.toFixed(2)} each</p>
+								<div class="flex items-center gap-2 mt-1">
+									<button type="button" onclick="updateQuoteQty('${item.id}', -1);" class="w-5 h-5 rounded bg-slate-100 hover:bg-slate-200 text-xs font-bold flex items-center justify-center">-</button>
+									<span class="text-xs font-bold font-mono px-1.5">${item.qty}</span>
+									<button type="button" onclick="updateQuoteQty('${item.id}', 1);" class="w-5 h-5 rounded bg-slate-100 hover:bg-slate-200 text-xs font-bold flex items-center justify-center">+</button>
+								</div>
+							</div>
+							<div class="text-right shrink-0">
+								<p class="text-xs font-extrabold font-mono text-slate-900">R ${lineTotal.toFixed(2)}</p>
+								<button type="button" onclick="removeQuoteItem('${item.id}');" class="text-[10px] text-rose-600 hover:underline mt-1">Remove</button>
+							</div>
+						</div>
+					`;
+				});
+
+				container.innerHTML = html;
+
+				const vat = subtotal * 0.15;
+				const total = subtotal + vat;
+
+				if (subtotalEl) subtotalEl.textContent = 'R ' + subtotal.toFixed(2);
+				if (vatEl) vatEl.textContent = 'R ' + vat.toFixed(2);
+				if (totalEl) totalEl.textContent = 'R ' + total.toFixed(2);
+			}
+
+			function dispatchWhatsAppQuote() {
+				if (quoteItems.length === 0) {
+					alert('Please add at least one product to your quotation basket first.');
+					return;
+				}
+				const merchantWa = '{ data.Store.WhatsApp }';
+				let subtotal = 0;
+				let billLines = [];
+				quoteItems.forEach((item, idx) => {
+					const lineTotal = item.priceZar * item.qty;
+					subtotal += lineTotal;
+					billLines.push(`${idx + 1}. ${item.title} x ${item.qty} units @ R${item.priceZar.toFixed(2)} = R${lineTotal.toFixed(2)} (SKU: ${item.id})`);
+				});
+				const vat = subtotal * 0.15;
+				const grandTotal = subtotal + vat;
+
+				let msg = `Sawubona! I would like to request an official B2B quotation / proforma invoice from ${data.Store.Name}:\n\n` +
+					billLines.join('\n') +
+					`\n\n--------------------------` +
+					`\nSubtotal (Excl. VAT): R ${subtotal.toFixed(2)}` +
+					`\nVAT (15%): R ${vat.toFixed(2)}` +
+					`\nTotal Estimated: R ${grandTotal.toFixed(2)}` +
+					`\n\nPlease confirm stock availability, lead time, and dispatch terms to our location. Thank you!`;
+
+				const targetUrl = `https://wa.me/${merchantWa}?text=${encodeURIComponent(msg)}`;
+				window.open(targetUrl, '_blank');
+			}
+		</script>
 	}
+}
+
+// -----------------------------------------------------------------------------
+// STORE CATALOG GRID COMPONENT (Supports instant HTMX partial swapping)
+// -----------------------------------------------------------------------------
+templ StoreCatalogGridComponent(data StorefrontViewData) {
+	if len(data.Store.Catalog) == 0 {
+		<div class="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3 my-4">
+			<span class="text-4xl block">🔍</span>
+			<h4 class="text-base font-bold text-slate-800">No products match your criteria</h4>
+			<p class="text-xs text-slate-500 max-w-sm mx-auto">
+				Try clearing your search query or selecting "All Products" to see the complete store inventory.
+			</p>
+			<a 
+				href={ templ.SafeURL(fmt.Sprintf("/m/%s", data.Store.ID)) } 
+				class="inline-block mt-2 px-4 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 transition"
+			>
+				Reset All Filters
+			</a>
+		</div>
+	} else {
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
+			for _, item := range data.Store.Catalog {
+				@ProductCardComponent(item, data.Store)
+			}
+		</div>
+	}
+}
+
+// -----------------------------------------------------------------------------
+// PRODUCT CARD COMPONENT (Direct Pemofy Parity)
+// -----------------------------------------------------------------------------
+templ ProductCardComponent(item models.SearchItem, store models.MerchantStorefront) {
+	<div class="group relative flex flex-col h-full bg-white rounded-2xl p-3 border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:border-slate-300 hover:shadow-[0_12px_32px_-12px_rgba(15,23,42,0.18)] hover:-translate-y-1 transition-all duration-300">
+		<!-- Image Stage with Hover Zoom -->
+		<div class="relative aspect-square w-full overflow-hidden rounded-xl bg-slate-50 border border-slate-100 p-3 mb-3 flex items-center justify-center">
+			<a href={ templ.SafeURL(fmt.Sprintf("/p/%s", item.ID)) } class="relative w-full h-full flex items-center justify-center focus:outline-none rounded-lg overflow-hidden">
+				if item.ImageURL != "" {
+					<img 
+						src={ item.ImageURL } 
+						alt={ item.Title } 
+						loading="lazy" 
+						class="max-h-full max-w-full object-contain object-center transition-all duration-500 group-hover:scale-105"
+					/>
+				} else {
+					<div class="w-full h-full flex items-center justify-center text-slate-300 text-3xl">
+						📦
+					</div>
+				}
+			</a>
+
+			<!-- Badges Stack (top-left) -->
+			<div class="absolute top-2.5 left-2.5 flex flex-col gap-1 pointer-events-none z-10">
+				if item.IsLocalSAStock {
+					<span class="bg-[#008060] text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wider">
+						🇿🇦 Local Stock
+					</span>
+				}
+				if item.Verified {
+					<span class="bg-slate-900 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wider">
+						CIPC Verified
+					</span>
+				}
+			</div>
+
+			<!-- Quick Add to Quote Button (bottom-right on image) -->
+			<button 
+				type="button" 
+				onclick={ templ.ComponentScript{Call: fmt.Sprintf("addToQuote('%s', '%s', %f, '%s')", item.ID, escapeJsString(item.Title), item.PriceZar, item.ImageURL)} }
+				aria-label={ fmt.Sprintf("Add %s to quotation basket", item.Title) }
+				class="absolute bottom-2.5 right-2.5 p-2.5 rounded-full shadow-lg border border-slate-900 bg-slate-900 hover:bg-black text-white transition-all duration-200 z-20 opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
+				title="Add to quotation basket"
+			>
+				<span class="text-xs font-bold">+</span>
+			</button>
+		</div>
+
+		<!-- Product Details (Title, Category, Price) -->
+		<div class="flex flex-col flex-1 px-1">
+			<div class="flex items-center justify-between gap-1 mb-1">
+				<span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold truncate">
+					if item.Category != "" {
+						{ item.Category }
+					} else {
+						Commercial
+					}
+				</span>
+				if item.Model != "" {
+					<span class="text-[9px] text-slate-400 font-mono">
+						{ item.Model }
+					</span>
+				}
+			</div>
+
+			<a 
+				href={ templ.SafeURL(fmt.Sprintf("/p/%s", item.ID)) } 
+				class="text-xs sm:text-[13px] font-bold text-slate-900 hover:text-emerald-700 transition line-clamp-2 mb-2 leading-snug tracking-tight"
+				title={ item.Title }
+			>
+				{ item.Title }
+			</a>
+
+			<!-- Pricing & Volume Tier Indicator -->
+			<div class="mt-auto pt-2 border-t border-slate-100">
+				<div class="flex items-baseline justify-between gap-2">
+					<div>
+						<span class="text-base font-extrabold text-slate-900 font-mono">
+							R { fmt.Sprintf("%.2f", item.PriceZar) }
+						</span>
+						<span class="text-[10px] text-slate-400 block">Excl. VAT · Carton Wholesale</span>
+					</div>
+					if item.InStock {
+						<span class="text-[10px] text-emerald-700 font-bold flex items-center gap-1">
+							<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> In Stock
+						</span>
+					}
+				</div>
+
+				<!-- Action Buttons Row -->
+				<div class="grid grid-cols-2 gap-2 mt-3 pt-2">
+					<a 
+						href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi,%%20I'm%%20interested%%20in%%20ordering%%20%s%%20(SKU:%%20%s)%%20via%%20Shoppage", store.WhatsApp, url.QueryEscape(item.Title), item.ID)) } 
+						target="_blank"
+						class="py-1.5 px-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[11px] font-bold transition flex items-center justify-center gap-1 text-center"
+						title="WhatsApp Direct Trade Desk"
+					>
+						<span>💬 WhatsApp</span>
+					</a>
+
+					<button 
+						type="button" 
+						onclick={ templ.ComponentScript{Call: fmt.Sprintf("addToQuote('%s', '%s', %f, '%s')", item.ID, escapeJsString(item.Title), item.PriceZar, item.ImageURL)} }
+						class="py-1.5 px-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold transition flex items-center justify-center gap-1 text-center"
+					>
+						<span>+ Quote</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+func escapeJsString(s string) string {
+	s = strings.ReplaceAll(s, "\\", "\\\\")
+	s = strings.ReplaceAll(s, "'", "\\'")
+	s = strings.ReplaceAll(s, "\"", "\\\"")
+	s = strings.ReplaceAll(s, "\n", " ")
+	return s
 }

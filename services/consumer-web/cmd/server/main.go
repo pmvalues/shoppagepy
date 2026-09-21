@@ -86,6 +86,7 @@ func main() {
 	r.Get("/malls", h.HandleMalls)
 	r.Get("/malls/{id}", h.HandleMallDetail)
 	r.Get("/m/{id}", h.HandleStorefront)
+	r.Get("/store/{id}", h.HandleStorefront)
 
 	// Short streams & Buyer wholesale RFQ
 	r.Get("/shorts", h.HandleShorts)

@@ -22,16 +22,34 @@ templ Layout(store models.StoreProfile, activeTab string) {
 			<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
 			<!-- HTMX 2.0.2 -->
 			<script src="https://unpkg.com/htmx.org@2.0.2"></script>
+			<script>
+				try {
+					var savedTheme = localStorage.getItem('pemofy_admin_theme') || 'artisan';
+					document.documentElement.setAttribute('data-theme', savedTheme);
+				} catch(e) {}
+			</script>
 			<style>
-				:root {
+				:root, [data-theme="artisan"] {
 					--bg: #edf1ec;
 					--surface: #ffffff;
 					--surface-2: #f5f7f4;
 					--sidebar: #0a2f24;
 					--sidebar-2: #0d3a2c;
+					--sidebar-border: rgba(255,255,255,.08);
+					--sidebar-brand-text: #ffffff;
+					--sidebar-label: #6f9384;
+					--sidebar-item-text: #c4d7cd;
+					--sidebar-item-hover-bg: rgba(255,255,255,.07);
+					--sidebar-item-hover-text: #ffffff;
+					--sidebar-badge-bg: rgba(255,255,255,.14);
+					--sidebar-badge-text: #ffffff;
+					--sidebar-note-bg: #0d3a2c;
+					--sidebar-note-text: #8fb3a3;
+					--sidebar-note-border: transparent;
+					--sidebar-btn-color: #8fb3a3;
 					--ink: #0d1c15;
 					--ink-2: #37473e;
-					--muted: #6b7a71;
+					--muted: #566d60;
 					--primary: #0e7c56;
 					--primary-2: #0a5c40;
 					--primary-soft: #dcefe4;
@@ -50,13 +68,65 @@ templ Layout(store models.StoreProfile, activeTab string) {
 					--shadow-side: 8px 0 30px -22px rgba(13,28,21,.55);
 					--nav-w: 260px;
 				}
+
+				[data-theme="graphite"] {
+					--bg: #0e0f14;
+					--surface: #141620;
+					--surface-2: #1b1e2b;
+					--sidebar: #0d0e15;
+					--sidebar-2: #141620;
+					--sidebar-border: rgba(255,255,255,.08);
+					--sidebar-brand-text: #ffffff;
+					--sidebar-label: #858da8;
+					--sidebar-item-text: #a8adbe;
+					--sidebar-item-hover-bg: rgba(255,255,255,.07);
+					--sidebar-item-hover-text: #ffffff;
+					--sidebar-badge-bg: rgba(255,255,255,.14);
+					--sidebar-badge-text: #ffffff;
+					--sidebar-note-bg: #141620;
+					--sidebar-note-text: #8fb3a3;
+					--sidebar-note-border: transparent;
+					--sidebar-btn-color: #8fb3a3;
+					--ink: #f0f2f5;
+					--ink-2: #c5c9d1;
+					--muted: #888d9e;
+					--line: rgba(255,255,255,.10);
+					--line-strong: rgba(255,255,255,.20);
+				}
+
+				/* STUDIO LIGHT: High Contrast, Legible, Crisp */
+				[data-theme="light"] {
+					--bg: #f0f4f1;
+					--surface: #ffffff;
+					--surface-2: #f2f7f4;
+					--sidebar: #ffffff;
+					--sidebar-2: #edf4f0;
+					--sidebar-border: #d2ddd5;
+					--sidebar-brand-text: #0d1c15;
+					--sidebar-label: #1b4d38;
+					--sidebar-item-text: #173628;
+					--sidebar-item-hover-bg: #e6f0e9;
+					--sidebar-item-hover-text: #0d1c15;
+					--sidebar-badge-bg: #dcece2;
+					--sidebar-badge-text: #0b6848;
+					--sidebar-note-bg: #e8f2ec;
+					--sidebar-note-text: #153828;
+					--sidebar-note-border: #c4d7cc;
+					--sidebar-btn-color: #173628;
+					--ink: #0d1c15;
+					--ink-2: #1e3529;
+					--muted: #456152;
+					--line: #d2ddd5;
+					--line-strong: #a4baa9;
+				}
+
 				* { box-sizing: border-box; }
 				html, body { margin: 0; padding: 0; min-height: 100%; }
 				body {
 					background: var(--bg);
 					color: var(--ink);
 					font-family: var(--body);
-					font-size: 14px;
+					font-size: 14.5px;
 					line-height: 1.5;
 					-webkit-font-smoothing: antialiased;
 				}
@@ -70,6 +140,114 @@ templ Layout(store models.StoreProfile, activeTab string) {
 				a { color: inherit; text-decoration: none; }
 				button, input, select, textarea { font: inherit; }
 				button { cursor: pointer; }
+
+				/* SIGNATURE PEMOFY DASHBOARD COMPONENTS */
+				.grid-kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px; }
+				.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--sh); }
+				.panel { padding: 18px; }
+				.panel-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+				.panel-head h3 { font-size: 15.5px; margin: 0; }
+				.panel-head .sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+				.panel-head .right { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+
+				.kpi { padding: 16px 17px; }
+				.kpi .k-label { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .02em; }
+				.kpi .k-val { font-family: var(--display); font-weight: 800; font-size: clamp(1.5rem, 2.4vw, 1.95rem); letter-spacing: -.04em; margin: 8px 0 2px; }
+				.kpi .k-val .sub { font-size: .9rem; font-weight: 600; color: var(--muted); letter-spacing: 0; }
+				.kpi .k-foot { display: flex; align-items: center; gap: 7px; font-size: 12px; margin-top: 6px; }
+				.chip { display: inline-flex; align-items: center; gap: 3px; font-size: 11.5px; font-weight: 700; padding: 2px 7px; border-radius: 999px; }
+				.chip.up { background: var(--primary-soft); color: var(--primary-2); }
+				.chip.down { background: var(--rose-soft); color: var(--rose); }
+				.chip.flat { background: var(--surface-2); color: var(--muted); }
+				.chip.warn { background: var(--amber-soft); color: #7a4e05; }
+				.k-foot .then { color: var(--muted); }
+				.spark { display: block; margin-top: 10px; width: 100%; height: 30px; }
+
+				/* SIGNATURE FREE GMV THRESHOLD METER */
+				.row-2 { display: grid; grid-template-columns: 1.6fr 1fr; gap: 14px; margin-bottom: 14px; }
+				.meter-card { padding: 18px; background: linear-gradient(140deg, #0a2f24, #12513c) !important; border: 1px solid rgba(255,255,255,.08); color: #dbe8e0 !important; border-radius: var(--r-lg); }
+				.meter-card h3 { color: #fff !important; font-size: 15.5px; margin: 0; }
+				.meter-card .sub { color: #9fc2b3 !important; font-size: 12px; margin-top: 2px; }
+				.meter-top { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin: 14px 0 4px; }
+				.meter-big { font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 2.6vw, 2.15rem); letter-spacing: -.04em; color: #fff !important; line-height: 1; }
+				.meter-big .t { font-size: 1rem; color: #9fc2b3 !important; font-weight: 600; letter-spacing: 0; }
+				.meter-flag { margin-left: auto; text-align: right; }
+				.meter-flag b { display: block; color: #4fe0a4 !important; font-family: var(--display); font-weight: 700; font-size: 15px; }
+				.meter-flag span { font-size: 11.5px; color: #9fc2b3 !important; }
+				.bar { height: 14px; border-radius: 999px; background: rgba(255,255,255,.15); overflow: hidden; margin-top: 14px; position: relative; display: flex; }
+				.bar .fill { height: 100%; background: linear-gradient(90deg, #3fb886, #5fe0a4); width: 0; border-radius: 999px; }
+				.bar .free-line { position: absolute; top: -4px; bottom: -4px; left: 82%; width: 2px; background: rgba(255,255,255,.55); }
+				.meter-scale { display: flex; justify-content: space-between; font-size: 11px; color: #9fc2b3 !important; margin-top: 7px; }
+				.meter-scale b { color: #e4f0ea !important; font-weight: 600; }
+
+				/* COPILOT EMBEDDED CARD */
+				.copilot { display: flex; flex-direction: column; gap: 12px; }
+				.msg { display: flex; gap: 10px; }
+				.msg .ava { width: 28px; height: 28px; border-radius: 9px; flex: none; display: grid; place-items: center; font-size: 12px; font-weight: 700; font-family: var(--display); }
+				.msg.bot .ava { background: var(--sidebar); color: #4fe0a4; }
+				.msg.me .ava { background: var(--primary-soft); color: var(--primary-2); }
+				.bubble { background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; font-size: 13px; line-height: 1.45; }
+				.msg.me .bubble { background: var(--primary-soft); border-color: #c6e2d5; }
+				.bubble .act { margin-top: 8px; display: flex; gap: 7px; flex-wrap: wrap; }
+				.mini-btn { font-size: 11.5px; font-weight: 600; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 8px; padding: 4px 10px; cursor: pointer; color: var(--ink); }
+				.mini-btn.done { background: var(--primary); color: #fff; border-color: var(--primary); }
+				.composer { display: flex; gap: 8px; align-items: center; margin-top: 2px; }
+				.composer input { flex: 1; border: 1px solid var(--line); background: var(--surface); border-radius: 11px; padding: 9px 12px; font-size: 13px; color: var(--ink); }
+				.composer input::placeholder { color: var(--muted); }
+				.composer .send { width: 38px; height: 38px; border-radius: 11px; background: var(--primary); color: #fff; border: 0; display: grid; place-items: center; cursor: pointer; flex: none; }
+				.suggest { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+				.suggest span { font-size: 11.5px; color: var(--primary-2); background: var(--primary-soft); border-radius: 999px; padding: 4px 10px; cursor: pointer; }
+
+				/* REVENUE CHART & RECENT ORDERS */
+				.seg { display: flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 2px; }
+				.seg span { font-size: 12px; font-weight: 600; color: var(--muted); padding: 3px 9px; border-radius: 7px; cursor: pointer; }
+				.seg span.on { background: var(--surface); color: var(--ink); box-shadow: var(--sh-sm); }
+				.chart-wrap { margin-top: 4px; }
+				.chart-legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+				.chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+				.lg-line { width: 16px; height: 3px; border-radius: 2px; background: var(--primary); }
+				.lg-bar { width: 10px; height: 10px; border-radius: 3px; background: var(--primary-soft); border: 1px solid #bcd9cb; }
+				svg.chart { width: 100%; height: 200px; display: block; overflow: visible; }
+				.who { display: flex; align-items: center; gap: 10px; }
+				.who .av { width: 30px; height: 30px; border-radius: 9px; background: var(--surface-2); display: grid; place-items: center; font-weight: 700; font-size: 12px; color: var(--ink-2); flex: none; font-family: var(--display); }
+				.who b { font-weight: 600; font-size: 13px; }
+				.who span { display: block; font-size: 11px; color: var(--muted); }
+				.oid { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+				.amt { font-weight: 700; font-family: var(--display); letter-spacing: -.01em; font-size: 13.5px; }
+				.pay { font-size: 12px; color: var(--ink-2); }
+				.status { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; }
+				.status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
+				.st-paid { background: var(--primary-soft); color: var(--primary-2); } .st-paid::before { background: var(--primary); }
+				.st-wait { background: var(--amber-soft); color: #7a4e05; } .st-wait::before { background: var(--amber); }
+				.st-ship { background: #e4ecf5; color: #31577e; } .st-ship::before { background: #3d6b9c; }
+				.st-run { background: var(--surface-2); color: var(--muted); } .st-run::before { background: var(--muted); }
+
+				/* BOTTOM ROW 3 PANELS */
+				.row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 14px; margin-bottom: 14px; }
+				.list { display: flex; flex-direction: column; }
+				.li { display: flex; align-items: center; gap: 11px; padding: 10px 0; border-top: 1px solid var(--line); }
+				.li:first-child { border-top: 0; }
+				.li .thumb { width: 34px; height: 34px; border-radius: 8px; background: var(--surface-2); flex: none; border: 1px solid var(--line); }
+				.li .thumb.a { background: var(--primary-soft); } .li .thumb.b { background: var(--amber-soft); } .li .thumb.c { background: var(--rose-soft); }
+				.li .txt { min-width: 0; }
+				.li .txt b { display: block; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+				.li .txt span { font-size: 11px; color: var(--muted); }
+				.li .val { margin-left: auto; text-align: right; flex: none; }
+				.li .val b { font-family: var(--display); font-size: 13.5px; }
+				.li .val span { font-size: 10.5px; color: var(--muted); margin-left: 3px; }
+				.chan-bar { height: 9px; border-radius: 999px; background: var(--surface-2); overflow: hidden; display: flex; margin-top: 4px; }
+				.chan-bar i { height: 100%; }
+				.chan-legend { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+				.chan-legend div { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+				.chan-legend .sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+				.chan-legend b { margin-left: auto; font-family: var(--display); }
+				.iso { display: flex; gap: 12px; align-items: flex-start; }
+				.iso .shield { width: 38px; height: 38px; border-radius: 11px; background: #0a2f24 !important; color: #4fe0a4 !important; display: grid; place-items: center; flex: none; }
+				.iso b { font-size: 13.5px; }
+				.iso p { margin: 3px 0 0; font-size: 12px; color: var(--muted); line-height: 1.45; }
+				.iso .kv { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+				.kv span { font-family: var(--mono); font-size: 10.5px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; color: var(--ink-2); }
+				footer.dash-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 11.5px; color: var(--muted); }
 				.app {
 					display: grid;
 					grid-template-columns: var(--nav-w) 1fr;
@@ -83,7 +261,8 @@ templ Layout(store models.StoreProfile, activeTab string) {
 				/* SIDEBAR */
 				.side {
 					background: var(--sidebar);
-					color: #dbe8e0;
+					color: var(--sidebar-item-text);
+					border-right: 1px solid var(--sidebar-border);
 					padding: 16px 10px;
 					display: flex;
 					flex-direction: column;
@@ -99,7 +278,7 @@ templ Layout(store models.StoreProfile, activeTab string) {
 					align-items: center;
 					gap: 10px;
 					padding: 4px 8px 12px;
-					color: #fff;
+					color: var(--sidebar-brand-text);
 					font-family: var(--display);
 					font-weight: 800;
 					font-size: 18px;
@@ -119,7 +298,7 @@ templ Layout(store models.StoreProfile, activeTab string) {
 					align-items: center;
 					gap: 10px;
 					background: var(--sidebar-2);
-					border: 1px solid rgba(255,255,255,.10);
+					border: 1px solid var(--sidebar-border);
 					border-radius: var(--r);
 					padding: 8px 10px;
 					margin-bottom: 8px;
@@ -140,7 +319,7 @@ templ Layout(store models.StoreProfile, activeTab string) {
 				.store-switch .meta { min-width: 0; }
 				.store-switch .meta b {
 					display: block;
-					color: #fff;
+					color: var(--sidebar-brand-text);
 					font-size: 12px;
 					font-weight: 600;
 					white-space: nowrap;
@@ -149,7 +328,7 @@ templ Layout(store models.StoreProfile, activeTab string) {
 				}
 				.store-switch .meta span {
 					font-size: 10.5px;
-					color: #8fb3a3;
+					color: var(--sidebar-label);
 					display: flex;
 					align-items: center;
 					gap: 4px;
@@ -165,7 +344,7 @@ templ Layout(store models.StoreProfile, activeTab string) {
 					font-size: 9.5px;
 					text-transform: uppercase;
 					letter-spacing: .14em;
-					color: #6f9384;
+					color: var(--sidebar-label);
 					padding: 10px 8px 3px;
 					font-weight: 700;
 				}
@@ -176,7 +355,7 @@ templ Layout(store models.StoreProfile, activeTab string) {
 					padding: 6px 10px;
 					border-radius: 8px;
 					font-size: 12.5px;
-					color: #c4d7cd;
+					color: var(--sidebar-item-text);
 					font-weight: 500;
 					border: 0;
 					background: transparent;
@@ -187,18 +366,18 @@ templ Layout(store models.StoreProfile, activeTab string) {
 					white-space: nowrap;
 				}
 				.nav-item:hover {
-					background: rgba(255,255,255,.07);
-					color: #fff;
+					background: var(--sidebar-item-hover-bg);
+					color: var(--sidebar-item-hover-text);
 				}
 				.nav-item.active {
-					background: var(--primary);
-					color: #fff;
+					background: var(--primary) !important;
+					color: #ffffff !important;
 					font-weight: 600;
 				}
 				.nav-item .badge {
 					margin-left: auto;
-					background: rgba(255,255,255,.14);
-					color: #fff;
+					background: var(--sidebar-badge-bg);
+					color: var(--sidebar-badge-text);
 					font-size: 10px;
 					font-weight: 600;
 					padding: 1px 6px;
@@ -212,7 +391,7 @@ templ Layout(store models.StoreProfile, activeTab string) {
 					margin-left: auto;
 					background: transparent;
 					border: 0;
-					color: #8fb3a3;
+					color: var(--sidebar-btn-color);
 					cursor: pointer;
 					display: inline-flex;
 					align-items: center;
@@ -225,8 +404,8 @@ templ Layout(store models.StoreProfile, activeTab string) {
 					flex: none;
 				}
 				.side-collapse-btn:hover {
-					background: rgba(255,255,255,.12);
-					color: #fff;
+					background: var(--sidebar-item-hover-bg);
+					color: var(--sidebar-item-hover-text);
 				}
 				.side-collapse-btn svg {
 					transition: transform .2s ease;
@@ -270,8 +449,9 @@ templ Layout(store models.StoreProfile, activeTab string) {
 					gap: 8px;
 					align-items: flex-start;
 					font-size: 10.5px;
-					color: #8fb3a3;
-					background: var(--sidebar-2);
+					color: var(--sidebar-note-text);
+					background: var(--sidebar-note-bg);
+					border: 1px solid var(--sidebar-note-border);
 					border-radius: 9px;
 					padding: 9px;
 					line-height: 1.4;
@@ -746,8 +926,8 @@ templ Layout(store models.StoreProfile, activeTab string) {
 						</button>
 
 						<div class="greet">
-							<h1>{ store.Name } Control Desk</h1>
-							<p>Enterprise Merchant OS · Sovereign Cloud on pod-za-01, Johannesburg</p>
+							<h1>Good morning, { store.Name }</h1>
+							<p>Enterprise Merchant OS · pod-za-01, Johannesburg · 12 orders need your attention</p>
 						</div>
 
 						<div class="top-tools">
@@ -758,14 +938,27 @@ templ Layout(store models.StoreProfile, activeTab string) {
 								<span style="font-family:var(--mono); font-size:10.5px; background:var(--surface-2); padding:1px 5px; border-radius:4px; border:1px solid var(--line);">Ctrl+K</span>
 							</div>
 
+							<!-- ERP Entity & Fiscal Context -->
+							<div class="fiscal-badge" style="display:inline-flex; align-items:center; gap:5px; padding:4px 8px; border-radius:7px; background:var(--surface-2); border:1px solid var(--line-strong); font-family:var(--mono); font-size:11px; color:var(--ink);">
+								<span style="color:var(--muted);">ENT:</span>
+								<span style="font-weight:700; color:var(--primary);">MITREND</span>
+								<span style="color:var(--muted);">·</span>
+								<span>FY26</span>
+								<span style="color:var(--muted);">·</span>
+								<span style="font-weight:700; color:var(--primary);">ZAR</span>
+							</div>
+
+							<!-- Global Accounting Period Calendar -->
+							@PeriodCalendarPicker()
+
 							<!-- Theme Switcher -->
-							<select class="select" onchange="applyTheme(this.value);" style="padding:5px 8px; font-size:11.5px; border-radius:8px; border:1px solid var(--line);">
+							<select id="theme-switcher-select" class="select" onchange="applyTheme(this.value);" style="padding:5px 8px; font-size:11.5px; border-radius:8px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink);">
 								<option value="artisan">Artisan Emerald</option>
 								<option value="graphite">Dark Graphite</option>
 								<option value="light">Studio Light</option>
 							</select>
 
-							<a href={ templ.SafeURL(fmt.Sprintf("http://localhost:3001/m/%s", store.ID)) } target="_blank" class="btn ghost small">
+							<a href={ templ.SafeURL(fmt.Sprintf("http://localhost:3000/m/%s", store.ID)) } target="_blank" class="btn ghost small">
 								<span>↗</span> Public Store
 							</a>
 
@@ -848,9 +1041,40 @@ templ Layout(store models.StoreProfile, activeTab string) {
 					}
 				});
 
-				window.addEventListener('popstate', syncActiveTabHighlight);
+				// Global Theme Management
+				window.applyTheme = function(theme) {
+					if (!theme) return;
+					document.documentElement.setAttribute('data-theme', theme);
+					try {
+						localStorage.setItem('pemofy_admin_theme', theme);
+					} catch(e) {}
+					var sel = document.getElementById('theme-switcher-select');
+					if (sel && sel.value !== theme) {
+						sel.value = theme;
+					}
+					// Sync theme cards if present in /tab/editor
+					document.querySelectorAll('.theme-preset-card').forEach(function(card) {
+						var cardTheme = card.getAttribute('data-theme-id') || '';
+						if (cardTheme === theme) {
+							card.style.borderColor = 'var(--primary)';
+							card.style.background = 'var(--primary-soft)';
+						} else {
+							card.style.borderColor = 'var(--line)';
+							card.style.background = 'transparent';
+						}
+					});
+				};
+
+				function syncThemeSwitcher() {
+					var curTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('pemofy_admin_theme') || 'artisan';
+					var sel = document.getElementById('theme-switcher-select');
+					if (sel) sel.value = curTheme;
+				}
+
+				document.addEventListener('DOMContentLoaded', syncThemeSwitcher);
 				document.body.addEventListener('htmx:afterOnLoad', function() {
 					syncActiveTabHighlight();
+					syncThemeSwitcher();
 				});
 
 				// Global Keyboard Shortcuts
@@ -910,121 +1134,114 @@ templ LeftSidebar(store models.StoreProfile, activeTab string) {
 			</div>
 		</div>
 
-		<!-- Nav: 1. ROLE CENTER -->
-		<div class="nav-label">Role Center</div>
+		<!-- Nav: 1. OPERATE -->
+		<div class="nav-label">Operate</div>
 		<button hx-get="/tab/overview" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "" || activeTab == "overview") }>
 			<span class="icon-span">📊</span>
-			<span>Overview &amp; Velocity</span>
-		</button>
-		<button hx-get="/tab/analytics" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "analytics") }>
-			<span class="icon-span">📈</span>
-			<span>Analytics &amp; Funnel</span>
-		</button>
-		<button hx-get="/tab/audit-logs" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "audit-logs") }>
-			<span class="icon-span">🔒</span>
-			<span>Audit Trail</span>
-		</button>
-		<button hx-get="/tab/copilot" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "copilot") }>
-			<span class="icon-span">✨</span>
-			<span>AI Studio</span>
-			<span class="badge" style="background:#4fe0a4; color:#0a2f24;">AI</span>
-		</button>
-
-		<!-- Nav: 2. SALES & ORDERS -->
-		<div class="nav-label">Sales &amp; Orders</div>
-		<button hx-get="/tab/chat" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "chat") }>
-			<span class="icon-span">💬</span>
-			<span>Direct Messages &amp; Chat</span>
-			<span class="badge" style="background:#4fe0a4; color:#0a2f24;">Live</span>
+			<span>Overview</span>
 		</button>
 		<button hx-get="/tab/orders" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "orders") }>
 			<span class="icon-span">📑</span>
-			<span>Sales Orders &amp; Proformas</span>
+			<span>Orders</span>
+			<span class="badge warn">12</span>
+		</button>
+		<button hx-get="/tab/catalog" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "catalog") }>
+			<span class="icon-span">📦</span>
+			<span>Products</span>
+		</button>
+		<button hx-get="/tab/inventory" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "inventory") }>
+			<span class="icon-span">🏢</span>
+			<span>Inventory</span>
+			<span class="badge warn">3</span>
+		</button>
+		<button hx-get="/tab/customers" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "customers") }>
+			<span class="icon-span">👥</span>
+			<span>Customers</span>
 		</button>
 		<button hx-get="/tab/pick-pack" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "pick-pack") }>
 			<span class="icon-span">🏷️</span>
-			<span>Pick &amp; Pack Station</span>
-			<span class="badge warn">WMS</span>
+			<span>Pick &amp; Pack</span>
+			<span class="badge" style="background:#e0f2fe; color:#0369a1;">WMS</span>
 		</button>
 		<button hx-get="/tab/manifests" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "manifests") }>
 			<span class="icon-span">🚚</span>
 			<span>Carrier Manifests</span>
 		</button>
-		<button hx-get="/tab/rfqs" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "rfqs") }>
-			<span class="icon-span">📑</span>
-			<span>Live RFQ Desk</span>
-			<span class="badge warn">Quotes</span>
-		</button>
-
-		<!-- Nav: 3. INVENTORY & WMS -->
-		<div class="nav-label">Inventory &amp; Logistics</div>
-		<button hx-get="/tab/catalog" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "catalog") }>
-			<span class="icon-span">📦</span>
-			<span>Catalog &amp; Stock Matrix</span>
-		</button>
-		<button hx-get="/tab/inventory" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "inventory") }>
-			<span class="icon-span">🏢</span>
-			<span>Stock Balances &amp; Hubs</span>
-		</button>
 		<button hx-get="/tab/transfers" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "transfers") }>
 			<span class="icon-span">🔄</span>
-			<span>Inter-Hub Transfers</span>
+			<span>Stock Transfers</span>
 		</button>
 		<button hx-get="/tab/scan" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "scan") }>
 			<span class="icon-span">📷</span>
 			<span>Barcode &amp; Audits</span>
 		</button>
 
-		<!-- Nav: 4. CUSTOMERS & TRADE -->
-		<div class="nav-label">Customers &amp; Trade</div>
-		<button hx-get="/tab/customers" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "customers") }>
-			<span class="icon-span">👥</span>
-			<span>B2B CRM Accounts</span>
+		<!-- Nav: 2. GROW -->
+		<div class="nav-label">Grow</div>
+		<button hx-get="/tab/analytics" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "analytics") }>
+			<span class="icon-span">📈</span>
+			<span>Analytics</span>
 		</button>
 		<button hx-get="/tab/discounts" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "discounts") }>
 			<span class="icon-span">🏷️</span>
-			<span>Wholesale Tiers &amp; Promos</span>
+			<span>Promotions</span>
+		</button>
+		<button hx-get="/tab/rfqs" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "rfqs") }>
+			<span class="icon-span">📑</span>
+			<span>B2B Wholesale</span>
+			<span class="badge warn">Quotes</span>
 		</button>
 		<button hx-get="/tab/pos" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "pos") }>
 			<span class="icon-span">💳</span>
 			<span>POS Trade Counter</span>
 		</button>
-
-		<!-- Nav: 5. GROWTH & CHANNELS -->
-		<div class="nav-label">Growth &amp; Channels</div>
 		<button hx-get="/tab/channels" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "channels") }>
 			<span class="icon-span">🌐</span>
-			<span>WhatsApp &amp; Channels</span>
-		</button>
-		<button hx-get="/tab/flow" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "flow") }>
-			<span class="icon-span">⚡</span>
-			<span>Flow Automations</span>
+			<span>Channels &amp; WhatsApp</span>
 		</button>
 		<button hx-get="/tab/feeds" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "feeds") }>
 			<span class="icon-span">🛒</span>
-			<span>Google Shopping Feeds</span>
+			<span>Google &amp; Meta Feeds</span>
 		</button>
 		<button hx-get="/tab/editor" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "editor") }>
 			<span class="icon-span">🎨</span>
-			<span>Theme Studio</span>
+			<span>SEO &amp; Content</span>
 		</button>
 		<button hx-get="/tab/media" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "media") }>
 			<span class="icon-span">📁</span>
 			<span>Media &amp; Documents</span>
 		</button>
 
-		<!-- Nav: 6. SETTINGS -->
-		<div class="nav-label">Configuration</div>
+		<!-- Nav: 3. CONFIGURE -->
+		<div class="nav-label">Configure</div>
+		<button hx-get="/tab/flow" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "flow") }>
+			<span class="icon-span">⚡</span>
+			<span>Flow Automations</span>
+		</button>
+		<button hx-get="/tab/copilot" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "copilot") }>
+			<span class="icon-span">✨</span>
+			<span>AI Studio</span>
+			<span class="badge" style="background:#4fe0a4; color:#0a2f24;">AI</span>
+		</button>
+		<button hx-get="/tab/chat" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "chat") }>
+			<span class="icon-span">💬</span>
+			<span>Direct Messages</span>
+			<span class="badge" style="background:#4fe0a4; color:#0a2f24;">Live</span>
+		</button>
+		<button hx-get="/tab/audit-logs" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "audit-logs") }>
+			<span class="icon-span">🔒</span>
+			<span>Audit Trail</span>
+		</button>
 		<button hx-get="/tab/settings" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "settings") }>
 			<span class="icon-span">⚙️</span>
-			<span>Settings &amp; Sovereign Pod</span>
+			<span>Settings</span>
 		</button>
 
 		<!-- Pod Security Note -->
 		<div class="side-foot">
 			<div class="side-note">
 				<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4fe0a4" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-				<span>Your store runs in its own database on <b style="color:#fff">pod-za-01</b>, Johannesburg.</span>
+				<span>Your store runs in its own database on <b style="color:#fff">pod-za-01</b>, Johannesburg. Backed up nightly.</span>
 			</div>
 		</div>
 	</aside>

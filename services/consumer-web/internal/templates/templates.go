@@ -84,11 +84,19 @@ type MallsViewData struct {
 }
 
 type StorefrontViewData struct {
-	Title       string
-	Description string
-	Query       string
-	CurrentTab  string
-	Store       models.MerchantStorefront
+	Title            string
+	Description      string
+	Query            string
+	CurrentTab       string
+	Store            models.MerchantStorefront
+	Categories       []string
+	ActiveCategory   string
+	Sort             string
+	InStockOnly      bool
+	TotalCount       int
+	HeroHeadline     string
+	AnnouncementText string
+	AccentColor      string
 }
 
 type ChatMerchantContact struct {
@@ -183,6 +191,11 @@ func RenderMalls(w io.Writer, data MallsViewData) error {
 // RenderStorefront renders the public merchant storefront
 func RenderStorefront(w io.Writer, data StorefrontViewData) error {
 	return StorefrontComponent(data).Render(context.Background(), w)
+}
+
+// RenderStoreCatalogGrid renders the HTMX partial product grid for the storefront
+func RenderStoreCatalogGrid(w io.Writer, data StorefrontViewData) error {
+	return StoreCatalogGridComponent(data).Render(context.Background(), w)
 }
 
 // RenderChat renders the live commerce chat and negotiation desk

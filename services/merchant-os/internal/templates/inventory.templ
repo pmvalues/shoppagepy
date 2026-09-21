@@ -2,6 +2,7 @@ package templates
 
 import (
 	"fmt"
+	"strings"
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
@@ -65,6 +66,74 @@ templ InventoryTab(data models.DashboardViewData) {
 		</div>
 	</div>
 
+	<!-- Inventory Multi-Criteria Filter Bar (Matching Pemofy Inventory Workbench) -->
+	<div class="card panel" style="padding:12px 16px; margin-bottom:14px; background:var(--surface); border:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+		<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+			<!-- Search Filter -->
+			<div class="search" style="min-width:240px;">
+				<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4a7 7 0 105 12l4 4"></path></svg>
+				<input 
+					type="text" 
+					id="inv-search-input" 
+					placeholder="Search SKU code, title, or category…" 
+					style="border:0; outline:0; background:transparent; width:100%; font-size:12.5px; color:var(--ink);"
+					onkeyup="filterInventoryTable();"
+				/>
+			</div>
+
+			<!-- Category Filter -->
+			<select id="inv-category-filter" onchange="filterInventoryTable();" style="padding:4px 8px; font-size:12px; border-radius:7px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); font-weight:500;">
+				<option value="">All Categories</option>
+				<option value="Hospitality Supplies">Hospitality Supplies</option>
+				<option value="Packaging & Catering">Packaging &amp; Catering</option>
+			</select>
+
+			<!-- Stock Level Status Filter -->
+			<select id="inv-stock-filter" onchange="filterInventoryTable();" style="padding:4px 8px; font-size:12px; border-radius:7px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); font-weight:500;">
+				<option value="">All Stock Levels</option>
+				<option value="instock">In Stock</option>
+				<option value="low">Low Stock Buffer Alert</option>
+				<option value="depleted">Depleted / Out of Stock</option>
+			</select>
+		</div>
+
+		<!-- Live Counter -->
+		<div style="display:flex; align-items:center; gap:6px; font-size:12px; font-family:var(--mono); color:var(--muted);">
+			<span>Showing:</span>
+			<span id="inv-matching-count" style="font-weight:700; color:var(--ink);">{ fmt.Sprintf("%d", len(data.Catalog)) }</span>
+			<span>of { fmt.Sprintf("%d", len(data.Catalog)) } SKUs</span>
+		</div>
+	</div>
+
+	<script>
+		function filterInventoryTable() {
+			var searchVal = (document.getElementById('inv-search-input')?.value || '').toLowerCase().trim();
+			var catVal = document.getElementById('inv-category-filter')?.value || '';
+			var stockVal = document.getElementById('inv-stock-filter')?.value || '';
+			var matchCount = 0;
+
+			document.querySelectorAll('.inv-row').forEach(function(row) {
+				var rowSearch = row.dataset.search || '';
+				var rowCat = row.dataset.category || '';
+				var rowStock = row.dataset.stockStatus || '';
+
+				var matchesSearch = !searchVal || rowSearch.includes(searchVal);
+				var matchesCat = !catVal || rowCat === catVal;
+				var matchesStock = !stockVal || rowStock === stockVal;
+
+				if (matchesSearch && matchesCat && matchesStock) {
+					row.style.display = '';
+					matchCount++;
+				} else {
+					row.style.display = 'none';
+				}
+			});
+
+			var countEl = document.getElementById('inv-matching-count');
+			if (countEl) countEl.textContent = matchCount;
+		}
+	</script>
+
 	<!-- Stock Levels Table -->
 	<div class="card panel" style="margin-bottom:18px;">
 		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
@@ -91,7 +160,7 @@ templ InventoryTab(data models.DashboardViewData) {
 				</thead>
 				<tbody>
 					for _, item := range data.Catalog {
-						<tr>
+						<tr class="inv-row" data-search={ strings.ToLower(fmt.Sprintf("%s %s %s", item.SKU, item.Title, item.Category)) } data-category={ item.Category } data-stock-status={ func() string { if !item.InStock || item.StockQuantity == 0 { return "depleted" } else if item.StockQuantity <= item.LowStockAlert { return "low" } else { return "instock" } }() }>
 							<td>
 								<b>{ item.SKU }</b>
 								<div style="font-size:12px; color:var(--muted);">{ item.Title }</div>

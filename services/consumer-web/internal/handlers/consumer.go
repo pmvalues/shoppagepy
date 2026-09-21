@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -390,15 +391,77 @@ func (h *ConsumerHandler) HandleStorefront(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	category := r.URL.Query().Get("category")
+	q := strings.TrimSpace(strings.ToLower(r.URL.Query().Get("q")))
+	sortParam := r.URL.Query().Get("sort")
+	inStockOnly := r.URL.Query().Get("in_stock") == "true"
+
+	allCategories := h.store.GetMerchantCategories(merchant.Catalog)
+	totalCount := len(merchant.Catalog)
+
+	// Filter catalog
+	var filtered []models.SearchItem
+	for _, item := range merchant.Catalog {
+		if category != "" && category != "All" && !strings.EqualFold(item.Category, category) {
+			continue
+		}
+		if q != "" {
+			combined := strings.ToLower(item.Title + " " + item.Description + " " + item.Brand + " " + item.Model + " " + item.Category)
+			if !strings.Contains(combined, q) {
+				continue
+			}
+		}
+		if inStockOnly && !item.InStock {
+			continue
+		}
+		filtered = append(filtered, item)
+	}
+
+	// Sort catalog
+	switch sortParam {
+	case "price-asc":
+		sort.Slice(filtered, func(i, j int) bool { return filtered[i].PriceZar < filtered[j].PriceZar })
+	case "price-desc":
+		sort.Slice(filtered, func(i, j int) bool { return filtered[i].PriceZar > filtered[j].PriceZar })
+	case "title-asc":
+		sort.Slice(filtered, func(i, j int) bool { return filtered[i].Title < filtered[j].Title })
+	}
+
+	merchant.Catalog = filtered
+
+	heroHeadline := "Hospitality, Packaging & Catering Wholesale Supplies"
+	if strings.Contains(strings.ToLower(merchant.Category), "solar") || strings.Contains(strings.ToLower(merchant.ID), "sunpower") {
+		heroHeadline = "Tier-1 Hybrid Inverters, Lithium Batteries & Renewable Energy Wholesale"
+	} else if merchant.Category != "" {
+		heroHeadline = fmt.Sprintf("%s · Commercial Supply & Wholesale Depot", merchant.Category)
+	}
+
+	announcementText := "⚡ Free commercial delivery on wholesale orders over R5,000 across Gauteng · Direct WhatsApp Trade Desk active"
+
 	data := templates.StorefrontViewData{
-		Title:       merchant.Name + " — Verified Storefront",
-		Description: merchant.Address + " · CIPC: " + merchant.CIPCNumber,
-		Query:       "",
-		CurrentTab:  "stores",
-		Store:       merchant,
+		Title:            merchant.Name + " — Official B2B Storefront & Trade Desk",
+		Description:      merchant.Address + " · CIPC: " + merchant.CIPCNumber + " · Direct WhatsApp Trade Desk",
+		Query:            q,
+		CurrentTab:       "stores",
+		Store:            merchant,
+		Categories:       allCategories,
+		ActiveCategory:   category,
+		Sort:             sortParam,
+		InStockOnly:      inStockOnly,
+		TotalCount:       totalCount,
+		HeroHeadline:     heroHeadline,
+		AnnouncementText: announcementText,
+		AccentColor:      "#0e7c56",
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if r.Header.Get("HX-Target") == "store-catalog-grid" {
+		if err := templates.RenderStoreCatalogGrid(w, data); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		return
+	}
+
 	if err := templates.RenderStorefront(w, data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

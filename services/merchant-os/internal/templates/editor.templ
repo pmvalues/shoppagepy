@@ -12,7 +12,7 @@ templ EditorTab(data models.DashboardViewData) {
 			<div class="sub">Storefront branding palettes, announcement ribbons &amp; public discovery appearance</div>
 		</div>
 		<div class="right">
-			<a href={ templ.SafeURL(fmt.Sprintf("http://localhost:3001/m/%s", data.Store.ID)) } target="_blank" class="btn solid small">
+			<a href={ templ.SafeURL(fmt.Sprintf("http://localhost:3000/m/%s", data.Store.ID)) } target="_blank" class="btn solid small">
 				<span>↗</span> Open Live Storefront
 			</a>
 		</div>
@@ -27,31 +27,34 @@ templ EditorTab(data models.DashboardViewData) {
 				<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:18px;">
 					<div 
 						class="card theme-preset-card" 
+						data-theme-id="artisan"
 						style="padding:12px; border:2px solid var(--primary); background:var(--primary-soft); cursor:pointer;" 
 						onclick="applyTheme('artisan');"
 					>
 						<div style="height:32px; border-radius:6px; background:#0a2f24; margin-bottom:6px;"></div>
-						<b style="font-size:13px;">Artisan Emerald</b>
+						<b style="font-size:13px; color:var(--ink);">Artisan Emerald</b>
 						<div style="font-size:11px; color:var(--muted);">Default Executive</div>
 					</div>
 
 					<div 
 						class="card theme-preset-card" 
+						data-theme-id="graphite"
 						style="padding:12px; border:1px solid var(--line); cursor:pointer;" 
 						onclick="applyTheme('graphite');"
 					>
 						<div style="height:32px; border-radius:6px; background:#0d0e15; margin-bottom:6px;"></div>
-						<b style="font-size:13px;">Dark Graphite</b>
+						<b style="font-size:13px; color:var(--ink);">Dark Graphite</b>
 						<div style="font-size:11px; color:var(--muted);">Deep Charcoal</div>
 					</div>
 
 					<div 
 						class="card theme-preset-card" 
+						data-theme-id="light"
 						style="padding:12px; border:1px solid var(--line); cursor:pointer;" 
 						onclick="applyTheme('light');"
 					>
 						<div style="height:32px; border-radius:6px; background:#ffffff; border:1px solid #d5ddd4; margin-bottom:6px;"></div>
-						<b style="font-size:13px;">Studio Light</b>
+						<b style="font-size:13px; color:var(--ink);">Studio Light</b>
 						<div style="font-size:11px; color:var(--muted);">Clean Minimal</div>
 					</div>
 				</div>
@@ -151,7 +154,7 @@ templ EditorTab(data models.DashboardViewData) {
 			</div>
 
 			<div style="margin-top:16px; text-align:center;">
-				<a href={ templ.SafeURL(fmt.Sprintf("http://localhost:3001/m/%s", data.Store.ID)) } target="_blank" class="btn ghost small" style="justify-content:center;">
+				<a href={ templ.SafeURL(fmt.Sprintf("http://localhost:3000/m/%s", data.Store.ID)) } target="_blank" class="btn ghost small" style="justify-content:center;">
 					<span>↗</span> Open Live Public Storefront
 				</a>
 			</div>
@@ -159,34 +162,18 @@ templ EditorTab(data models.DashboardViewData) {
 	</div>
 
 	<script>
-		function applyTheme(theme) {
-			if (theme === 'graphite') {
-				document.documentElement.style.setProperty('--sidebar', '#0d0e15');
-				document.documentElement.style.setProperty('--sidebar-2', '#141620');
-				document.documentElement.style.setProperty('--bg', '#12131a');
-				document.documentElement.style.setProperty('--surface', '#181922');
-				document.documentElement.style.setProperty('--surface-2', '#1f202b');
-				document.documentElement.style.setProperty('--ink', '#f0f2f5');
-				document.documentElement.style.setProperty('--ink-2', '#c5c9d1');
-			} else if (theme === 'light') {
-				document.documentElement.style.setProperty('--sidebar', '#ffffff');
-				document.documentElement.style.setProperty('--sidebar-2', '#f5f7f4');
-				document.documentElement.style.setProperty('--bg', '#f0f4f1');
-				document.documentElement.style.setProperty('--surface', '#ffffff');
-				document.documentElement.style.setProperty('--surface-2', '#f5f7f4');
-				document.documentElement.style.setProperty('--ink', '#0d1c15');
-				document.documentElement.style.setProperty('--ink-2', '#37473e');
-			} else {
-				// Artisan Emerald default
-				document.documentElement.style.setProperty('--sidebar', '#0a2f24');
-				document.documentElement.style.setProperty('--sidebar-2', '#0d3a2c');
-				document.documentElement.style.setProperty('--bg', '#edf1ec');
-				document.documentElement.style.setProperty('--surface', '#ffffff');
-				document.documentElement.style.setProperty('--surface-2', '#f5f7f4');
-				document.documentElement.style.setProperty('--ink', '#0d1c15');
-				document.documentElement.style.setProperty('--ink-2', '#37473e');
-			}
-			localStorage.setItem('pemofy_admin_theme', theme);
-		}
+		// Highlight active preset card on tab load
+		(function() {
+			var cur = document.documentElement.getAttribute('data-theme') || localStorage.getItem('pemofy_admin_theme') || 'artisan';
+			document.querySelectorAll('.theme-preset-card').forEach(function(card) {
+				if (card.getAttribute('data-theme-id') === cur) {
+					card.style.borderColor = 'var(--primary)';
+					card.style.background = 'var(--primary-soft)';
+				} else {
+					card.style.borderColor = 'var(--line)';
+					card.style.background = 'transparent';
+				}
+			});
+		})();
 	</script>
 }

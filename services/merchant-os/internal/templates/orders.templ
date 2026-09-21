@@ -2,6 +2,7 @@ package templates
 
 import (
 	"fmt"
+	"strings"
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
@@ -19,26 +20,84 @@ templ OrdersTab(data models.DashboardViewData) {
 			</div>
 		</div>
 
-		<!-- Status Filter Strip -->
-		<div class="filter-btn-group" style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
-			<button type="button" class="btn ghost small active" onclick="filterOrders('', this);">All Proformas ({ fmt.Sprintf("%d", len(data.Orders)) })</button>
-			<button type="button" class="btn ghost small" onclick="filterOrders('issued', this);">Issued</button>
-			<button type="button" class="btn ghost small" onclick="filterOrders('confirmed', this);">Confirmed</button>
-			<button type="button" class="btn ghost small" onclick="filterOrders('paid', this);">Paid (EFT)</button>
-			<button type="button" class="btn ghost small" onclick="filterOrders('dispatched', this);">Dispatched</button>
+		<!-- ERP Accounting Period & Filter Bar (Matching Pemofy OrderWorkbench) -->
+		<div class="card panel" style="padding:12px 16px; margin-bottom:14px; background:var(--surface); border:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+			<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+				<!-- Period Selector Button -->
+				<div style="display:flex; align-items:center; gap:6px;">
+					<span style="font-size:12px; font-weight:700; color:var(--ink);">Accounting Period:</span>
+					<button type="button" class="btn ghost small" onclick="togglePeriodPickerPopover();" style="display:inline-flex; align-items:center; gap:6px; font-weight:600; padding:4px 9px; border-radius:7px; border:1px solid var(--line-strong);">
+						<span style="color:var(--primary);">📅</span>
+						<span id="orders-period-label">This Month (MTD)</span>
+						<span style="color:var(--muted); font-size:10px;">▼</span>
+					</button>
+				</div>
+
+				<!-- Text Search Filter -->
+				<div class="search" style="min-width:230px;">
+					<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4a7 7 0 105 12l4 4"></path></svg>
+					<input 
+						type="text" 
+						id="orders-search-input" 
+						placeholder="Search order #, buyer, company…" 
+						style="border:0; outline:0; background:transparent; width:100%; font-size:12.5px; color:var(--ink);"
+						onkeyup="filterOrdersTable();"
+					/>
+				</div>
+
+				<!-- Status Filter Select -->
+				<select id="orders-status-filter" onchange="filterOrdersTable();" style="padding:4px 8px; font-size:12px; border-radius:7px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); font-weight:500;">
+					<option value="">All Statuses</option>
+					<option value="issued">Issued</option>
+					<option value="confirmed">Confirmed</option>
+					<option value="paid">Paid (EFT)</option>
+					<option value="dispatched">Dispatched</option>
+				</select>
+			</div>
+
+			<!-- Live Matching Metrics Counter -->
+			<div style="display:flex; align-items:center; gap:6px; font-size:12px; font-family:var(--mono); color:var(--muted);">
+				<span>Matching:</span>
+				<span id="orders-matching-count" style="font-weight:700; color:var(--ink);">{ fmt.Sprintf("%d", len(data.Orders)) }</span>
+				<span>transactions ·</span>
+				<span id="orders-matching-total" style="font-weight:800; color:var(--primary); font-family:var(--display); font-size:14px;">R 18,420.00</span>
+			</div>
 		</div>
+
 		<script>
-			function filterOrders(status, btn) {
-				btn.parentElement.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
-				btn.classList.add('active');
-				document.querySelectorAll('.order-row').forEach(row => {
-					if (!status || row.dataset.status === status) {
+			function filterOrdersTable() {
+				var searchVal = (document.getElementById('orders-search-input')?.value || '').toLowerCase().trim();
+				var statusVal = document.getElementById('orders-status-filter')?.value || '';
+				var matchCount = 0;
+				var totalZar = 0;
+
+				document.querySelectorAll('.order-row').forEach(function(row) {
+					var rowStatus = row.dataset.status || '';
+					var rowDate = row.dataset.date || '';
+					var rowSearch = row.dataset.search || '';
+					var rowTotal = parseFloat(row.dataset.total || '0');
+
+					var matchesStatus = !statusVal || rowStatus === statusVal;
+					var matchesSearch = !searchVal || rowSearch.includes(searchVal);
+					var matchesDate = !window.isDateInPeriod || window.isDateInPeriod(rowDate);
+
+					if (matchesStatus && matchesSearch && matchesDate) {
 						row.style.display = '';
+						matchCount++;
+						totalZar += rowTotal;
 					} else {
 						row.style.display = 'none';
 					}
 				});
+
+				var countEl = document.getElementById('orders-matching-count');
+				var totalEl = document.getElementById('orders-matching-total');
+				if (countEl) countEl.textContent = matchCount;
+				if (totalEl) totalEl.textContent = 'R ' + totalZar.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 			}
+
+			// Initialize filter on load
+			filterOrdersTable();
 		</script>
 
 		<!-- Orders Table Card -->
@@ -56,7 +115,7 @@ templ OrdersTab(data models.DashboardViewData) {
 				</thead>
 				<tbody>
 					for _, order := range data.Orders {
-						<tr class="order-row" data-status={ order.Status }>
+						<tr class="order-row" data-status={ order.Status } data-date={ order.Date.Format("2006-01-02T15:04:05Z") } data-total={ fmt.Sprintf("%.2f", order.GrandTotal) } data-search={ strings.ToLower(fmt.Sprintf("%s %s %s %s", order.OrderNumber, order.Customer, order.Company, order.Phone)) }>
 							<td style="padding-left: 20px;">
 								<a 
 									href="javascript:void(0)" 
