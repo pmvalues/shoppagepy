@@ -95,6 +95,43 @@ templ SearchResultsGridComponent(data SearchViewData) {
 templ SearchPageComponent(data SearchViewData) {
 	@Layout(data.Title, data.Description, data.CurrentTab, []models.TradeTrend{}, []models.RetailerDeal{}, []models.CommunityGuild{}) {
 		<main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+			<!-- Top Search Bar -->
+			<div class="mb-6 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs">
+				<form action="/search" method="GET" class="relative flex items-center w-full group">
+					<!-- Magnifying Glass Icon -->
+					<div class="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-600 transition-colors z-10">
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+							<circle cx="11" cy="11" r="7"></circle>
+							<path stroke-linecap="round" d="M21 21l-4.35-4.35"></path>
+						</svg>
+					</div>
+
+					<input 
+						type="text" 
+						name="q" 
+						value={ data.Query }
+						placeholder="Search 1,000,000+ products, inverters, boxes, cement, specials..."
+						class="w-full bg-slate-100 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-500 rounded-full py-2.5 pl-11 pr-24 text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 outline-none transition shadow-xs"
+						autocomplete="off"
+					/>
+
+					<!-- Right Search Button -->
+					<div class="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 z-10">
+						<button 
+							type="submit" 
+							class="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+							title="Search Shoppage"
+						>
+							<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+								<circle cx="11" cy="11" r="7"></circle>
+								<path stroke-linecap="round" d="M21 21l-4.35-4.35"></path>
+							</svg>
+							<span>Search</span>
+						</button>
+					</div>
+				</form>
+			</div>
+
 			<div class="flex flex-col md:flex-row gap-6">
 				<!-- Left Filter Facets Sidebar -->
 				<aside class="w-full md:w-64 shrink-0 space-y-6">

@@ -65,6 +65,44 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 				/* Scrollbar cleanup */
 				.scrollbar-none::-webkit-scrollbar { display: none; }
 				.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+				/* Collapsed Left Sidebar Styles */
+				#left-sidebar.is-collapsed {
+					width: 4.75rem !important; /* 76px */
+					padding-left: 0.5rem !important;
+					padding-right: 0.5rem !important;
+				}
+				#left-sidebar.is-collapsed .sidebar-wordmark,
+				#left-sidebar.is-collapsed .sidebar-label,
+				#left-sidebar.is-collapsed .sidebar-rfq-text,
+				#left-sidebar.is-collapsed .sidebar-user-meta,
+				#left-sidebar.is-collapsed .sidebar-deals-badge {
+					display: none !important;
+				}
+				#left-sidebar.is-collapsed .sidebar-nav-item {
+					justify-content: center !important;
+					padding-left: 0.5rem !important;
+					padding-right: 0.5rem !important;
+				}
+				#left-sidebar.is-collapsed .sidebar-rfq-btn {
+					width: 2.75rem !important;
+					height: 2.75rem !important;
+					padding: 0 !important;
+					border-radius: 9999px !important;
+					margin-left: auto !important;
+					margin-right: auto !important;
+				}
+				#left-sidebar.is-collapsed #sidebar-toggle-icon {
+					transform: rotate(180deg);
+				}
+				#left-sidebar.is-collapsed .sidebar-head {
+					justify-content: center !important;
+					flex-direction: column !important;
+					gap: 0.5rem !important;
+				}
+				#left-sidebar.is-collapsed .sidebar-user-row {
+					justify-content: center !important;
+				}
 			</style>
 		</head>
 		<body class="min-h-full flex flex-col antialiased bg-slate-100 text-slate-800 pb-16 lg:pb-0" hx-boost="true">
@@ -322,6 +360,25 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 					if (!txt) return '';
 					return txt.replace(/\*\*(.*?)\*\*/g, '<b class="text-emerald-400 font-bold">$1</b>');
 				}
+
+				function toggleLeftSidebar() {
+					const sb = document.getElementById('left-sidebar');
+					if (!sb) return;
+					const isCollapsed = sb.classList.toggle('is-collapsed');
+					const btn = document.getElementById('sidebar-toggle-btn');
+					if (btn) btn.title = isCollapsed ? 'Expand sidebar' : 'Minimise sidebar';
+					try { localStorage.setItem('shoppage_sidebar_collapsed', isCollapsed ? '1' : '0'); } catch(e){}
+				}
+
+				(function() {
+					try {
+						if (localStorage.getItem('shoppage_sidebar_collapsed') === '1') {
+							document.getElementById('left-sidebar')?.classList.add('is-collapsed');
+							const btn = document.getElementById('sidebar-toggle-btn');
+							if (btn) btn.title = 'Expand sidebar';
+						}
+					} catch(e){}
+				})();
 			</script>
 
 			<!-- PWA Service Worker Registration -->
@@ -338,66 +395,74 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 }
 
 templ LeftRail(currentTab string) {
-	<aside class="hidden lg:flex flex-col w-64 shrink-0 p-4 sticky top-7 h-[calc(100vh-2rem)] border-r border-slate-200/80 bg-white select-none">
-		<!-- Shoppage Brand Logo -->
-		<a href="/" class="flex items-center gap-3 px-3 py-2 rounded-2xl hover:bg-slate-50 transition group mb-4">
-			<svg viewBox="0 0 32 32" width="38" height="38" class="shrink-0 rounded-xl shadow-md shadow-emerald-600/20 group-hover:scale-105 transition">
-				<defs>
-					<linearGradient id="sp-brand-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-						<stop offset="0%" stopColor="#10B981"></stop>
-						<stop offset="100%" stopColor="#059669"></stop>
-					</linearGradient>
-					<linearGradient id="sp-bolt-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-						<stop offset="0%" stopColor="#FCD34D"></stop>
-						<stop offset="100%" stopColor="#F59E0B"></stop>
-					</linearGradient>
-				</defs>
-				<rect width="32" height="32" rx="8" fill="url(#sp-brand-grad)"></rect>
-				<path d="M8.5 12C8.5 10.8954 9.39543 10 10.5 10H21.5C22.6046 10 23.5 10.8954 23.5 12L24.5 24C24.5 25.1046 23.6046 26 22.5 26H9.5C8.39543 26 7.5 25.1046 7.5 24L8.5 12Z" fill="#FFFFFF"></path>
-				<path d="M12 10V7.5C12 5.567 13.567 4 15.5 4H16.5C18.433 4 20 5.567 20 7.5V10" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"></path>
-				<path d="M17 12L12 18H16L15 24L20 17H16.2L17 12Z" fill="url(#sp-bolt-grad)"></path>
-			</svg>
-			<div>
-				<div class="flex items-center gap-1.5">
-					<span class="font-display font-black text-xl tracking-tight text-slate-900">SHOPPAGE</span>
-					<span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-black">ZA</span>
-				</div>
-				<div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Commercial Grid</div>
-			</div>
-		</a>
+	<aside id="left-sidebar" class="hidden lg:flex flex-col w-64 shrink-0 p-4 sticky top-7 h-[calc(100vh-2rem)] border-r border-slate-200/80 bg-white select-none transition-all duration-200 ease-in-out">
+		<!-- Shoppage Brand Logo & Minimize Toggle -->
+		<div class="sidebar-head flex items-center justify-between gap-2 mb-4">
+			<a href="/" class="flex items-center gap-3 px-1 py-1 rounded-2xl hover:bg-slate-50 transition group min-w-0" title="Shoppage South Africa">
+				<svg viewBox="0 0 32 32" width="34" height="34" class="shrink-0 rounded-xl shadow-md shadow-emerald-600/20 group-hover:scale-105 transition">
+					<defs>
+						<linearGradient id="sp-brand-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+							<stop offset="0%" stopColor="#10B981"></stop>
+							<stop offset="100%" stopColor="#059669"></stop>
+						</linearGradient>
+						<linearGradient id="sp-bolt-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+							<stop offset="0%" stopColor="#FCD34D"></stop>
+							<stop offset="100%" stopColor="#F59E0B"></stop>
+						</linearGradient>
+					</defs>
+					<rect width="32" height="32" rx="8" fill="url(#sp-brand-grad)"></rect>
+					<path d="M8.5 12C8.5 10.8954 9.39543 10 10.5 10H21.5C22.6046 10 23.5 10.8954 23.5 12L24.5 24C24.5 25.1046 23.6046 26 22.5 26H9.5C8.39543 26 7.5 25.1046 7.5 24L8.5 12Z" fill="#FFFFFF"></path>
+					<path d="M12 10V7.5C12 5.567 13.567 4 15.5 4H16.5C18.433 4 20 5.567 20 7.5V10" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"></path>
+					<path d="M17 12L12 18H16L15 24L20 17H16.2L17 12Z" fill="url(#sp-bolt-grad)"></path>
+				</svg>
+				<span class="sidebar-wordmark font-display font-extrabold text-2xl tracking-tight text-slate-900">Shoppage</span>
+			</a>
+			<button 
+				id="sidebar-toggle-btn" 
+				type="button" 
+				onclick="toggleLeftSidebar();" 
+				class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition cursor-pointer shrink-0" 
+				title="Minimise sidebar"
+				aria-label="Minimise sidebar"
+			>
+				<svg id="sidebar-toggle-icon" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
+				</svg>
+			</button>
+		</div>
 
 		<!-- Primary Navigation Links -->
-		<nav class="space-y-1 text-sm font-semibold text-slate-700">
-			<a href="/?tab=foryou" class={ "flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "" || currentTab == "foryou"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "" && currentTab != "foryou") }>
-				<span class="text-lg">🏠</span>
-				<span>For You (Stream)</span>
+		<nav class="space-y-1 text-sm font-semibold text-slate-700 flex-1">
+			<a href="/?tab=foryou" title="For You (Stream)" class={ "sidebar-nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "" || currentTab == "foryou"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "" && currentTab != "foryou") }>
+				<span class="text-lg shrink-0">🏠</span>
+				<span class="sidebar-label">For You (Stream)</span>
 			</a>
-			<a href="/?tab=deals" class={ "flex items-center justify-between px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "deals"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "deals") }>
-				<div class="flex items-center gap-3.5">
-					<span class="text-lg">🛍️</span>
-					<span>Deals & Circulars</span>
+			<a href="/?tab=deals" title="Deals & Circulars" class={ "sidebar-nav-item flex items-center justify-between px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "deals"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "deals") }>
+				<div class="flex items-center gap-3.5 min-w-0">
+					<span class="text-lg shrink-0">🛍️</span>
+					<span class="sidebar-label truncate">Deals &amp; Circulars</span>
 				</div>
-				<span class="px-1.5 py-0.5 rounded-md bg-rose-500 text-white text-[10px] font-black tracking-wider animate-pulse">HOT</span>
+				<span class="sidebar-deals-badge px-1.5 py-0.5 rounded-md bg-rose-500 text-white text-[10px] font-black tracking-wider animate-pulse shrink-0">HOT</span>
 			</a>
-			<a href="/?tab=products" class={ "flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "products"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "products") }>
-				<span class="text-lg">📦</span>
-				<span>1,000,000+ Catalog</span>
+			<a href="/?tab=products" title="1,000,000+ Catalog" class={ "sidebar-nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "products"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "products") }>
+				<span class="text-lg shrink-0">📦</span>
+				<span class="sidebar-label">1,000,000+ Catalog</span>
 			</a>
-			<a href="/malls" class={ "flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "malls"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "malls") }>
-				<span class="text-lg">🏬</span>
-				<span>3,315 Malls & Hubs</span>
+			<a href="/malls" title="3,315 Malls & Hubs" class={ "sidebar-nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "malls"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "malls") }>
+				<span class="text-lg shrink-0">🏬</span>
+				<span class="sidebar-label">3,315 Malls &amp; Hubs</span>
 			</a>
-			<a href="/?tab=shorts" class={ "flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "shorts"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "shorts") }>
-				<span class="text-lg">🎬</span>
-				<span>Trade Shorts & Demos</span>
+			<a href="/?tab=shorts" title="Trade Shorts & Demos" class={ "sidebar-nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "shorts"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "shorts") }>
+				<span class="text-lg shrink-0">🎬</span>
+				<span class="sidebar-label">Trade Shorts &amp; Demos</span>
 			</a>
-			<a href="/chat" class={ "flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "chat"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "chat") }>
-				<span class="text-lg">💬</span>
-				<span>Live Direct Chat</span>
+			<a href="/chat" title="Live Direct Chat" class={ "sidebar-nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "chat"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "chat") }>
+				<span class="text-lg shrink-0">💬</span>
+				<span class="sidebar-label">Live Direct Chat</span>
 			</a>
-			<a href="/desk" target="_blank" class="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl hover:bg-slate-50 text-slate-700 transition">
-				<span class="text-lg">⚡</span>
-				<span>Merchant OS (Desk)</span>
+			<a href="/desk" target="_blank" title="Merchant OS (Desk)" class="sidebar-nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl hover:bg-slate-50 text-slate-700 transition">
+				<span class="text-lg shrink-0">⚡</span>
+				<span class="sidebar-label">Merchant OS (Desk)</span>
 			</a>
 		</nav>
 
@@ -405,29 +470,30 @@ templ LeftRail(currentTab string) {
 		<button 
 			type="button"
 			onclick="document.getElementById('trade-composer')?.scrollIntoView({behavior:'smooth'}); document.getElementById('composer-textarea')?.focus();"
-			class="mt-6 w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-md shadow-emerald-700/20 transition flex items-center justify-center gap-2 cursor-pointer"
+			class="sidebar-rfq-btn mt-4 w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-md shadow-emerald-700/20 transition flex items-center justify-center gap-2 cursor-pointer"
+			title="Post Trade RFQ"
 		>
-			<span>⚡</span> <span>Post Trade RFQ</span>
+			<span>⚡</span> <span class="sidebar-rfq-text">Post Trade RFQ</span>
 		</button>
 
 		<!-- User Profile Badge & Theme -->
 		<div class="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
-			<div class="flex items-center gap-2.5">
-				<div class="w-9 h-9 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold flex items-center justify-center text-sm shadow-sm">
+			<div class="sidebar-user-row flex items-center gap-2.5 min-w-0">
+				<div class="w-9 h-9 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold flex items-center justify-center text-sm shadow-sm shrink-0">
 					Y
 				</div>
-				<div>
-					<div class="text-xs font-bold text-slate-900 flex items-center gap-1">
+				<div class="sidebar-user-meta min-w-0">
+					<div class="text-xs font-bold text-slate-900 flex items-center gap-1 truncate">
 						<span>You (Verified)</span>
 						<span class="text-emerald-600 text-[10px]">✓</span>
 					</div>
-					<div class="text-[11px] text-slate-400">&#64;you_za</div>
+					<div class="text-[11px] text-slate-400 truncate">&#64;you_za</div>
 				</div>
 			</div>
 			<button 
 				type="button"
 				onclick="const cur = document.documentElement.getAttribute('data-theme'); const next = cur === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', next);"
-				class="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+				class="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition shrink-0"
 				title="Toggle Dark / Light Theme"
 			>
 				🌓

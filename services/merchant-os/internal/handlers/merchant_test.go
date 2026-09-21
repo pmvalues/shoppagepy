@@ -134,6 +134,46 @@ func TestServeAllERPModules(t *testing.T) {
 	}
 }
 
+func TestServeTabRefreshVsHTMX(t *testing.T) {
+	router := setupTestRouter()
+
+	// 1. Direct browser request / F5 refresh (no HX-Request header)
+	reqDirect := httptest.NewRequest("GET", "/tab/overview", nil)
+	recDirect := httptest.NewRecorder()
+	router.ServeHTTP(recDirect, reqDirect)
+
+	if recDirect.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK, got %d", recDirect.Code)
+	}
+	bodyDirect := recDirect.Body.String()
+	if !strings.Contains(strings.ToLower(bodyDirect), "<!doctype html>") {
+		t.Errorf("expected direct /tab/overview request to render full <!doctype html> layout shell")
+	}
+	if !strings.Contains(bodyDirect, "Shoppage Merchant OS") {
+		t.Errorf("expected direct /tab/overview request to contain page title")
+	}
+	if !strings.Contains(bodyDirect, "--primary: #0e7c56;") {
+		t.Errorf("expected direct /tab/overview request to include inline styling")
+	}
+
+	// 2. HTMX partial request (with HX-Request: true header)
+	reqHTMX := httptest.NewRequest("GET", "/tab/overview", nil)
+	reqHTMX.Header.Set("HX-Request", "true")
+	recHTMX := httptest.NewRecorder()
+	router.ServeHTTP(recHTMX, reqHTMX)
+
+	if recHTMX.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK, got %d", recHTMX.Code)
+	}
+	bodyHTMX := recHTMX.Body.String()
+	if strings.Contains(strings.ToLower(bodyHTMX), "<!doctype html>") {
+		t.Errorf("expected HTMX /tab/overview request to return only partial snippet, not <!doctype html>")
+	}
+	if !strings.Contains(bodyHTMX, "Free GMV Threshold Meter") {
+		t.Errorf("expected HTMX /tab/overview request to return tab content snippet")
+	}
+}
+
 func TestProductDetailAndEditModals(t *testing.T) {
 	router := setupTestRouter()
 

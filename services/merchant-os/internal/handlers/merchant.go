@@ -895,14 +895,18 @@ func (h *Handler) getViewData(activeTab string) models.DashboardViewData {
 	}
 }
 
-// ServeDashboard renders the full dashboard HTML
+// ServeDashboard renders the full dashboard HTML, optionally for a specific tab
 func (h *Handler) ServeDashboard(w http.ResponseWriter, r *http.Request) {
-	data := h.getViewData("overview")
+	tab := r.URL.Query().Get("tab")
+	if tab == "" {
+		tab = "overview"
+	}
+	data := h.getViewData(tab)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	_ = templates.RenderDashboard(w, data)
 }
 
-// ServeTab renders tab partials for HTMX swaps
+// ServeTab renders tab partials for HTMX swaps, or full dashboard layout on direct browser refresh
 func (h *Handler) ServeTab(w http.ResponseWriter, r *http.Request) {
 	tab := chi.URLParam(r, "tab")
 	if tab == "" {
@@ -911,6 +915,13 @@ func (h *Handler) ServeTab(w http.ResponseWriter, r *http.Request) {
 
 	data := h.getViewData(tab)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	// If request is from browser address bar or F5 refresh (non-HTMX), render the full dashboard layout shell
+	if r.Header.Get("HX-Request") == "" {
+		_ = templates.RenderDashboard(w, data)
+		return
+	}
+
 	_ = templates.RenderTabPartial(w, tab, data)
 }
 
@@ -2349,6 +2360,10 @@ func (h *Handler) UpdatePlan(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) ServeChatTab(w http.ResponseWriter, r *http.Request) {
 	data := h.getViewData("chat")
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if r.Header.Get("HX-Request") == "" {
+		_ = templates.RenderDashboard(w, data)
+		return
+	}
 	_ = templates.RenderTabPartial(w, "chat", data)
 }
 
@@ -2369,6 +2384,10 @@ func (h *Handler) SelectChatThread(w http.ResponseWriter, r *http.Request) {
 
 	data := h.getViewData("chat")
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if r.Header.Get("HX-Request") == "" {
+		_ = templates.RenderDashboard(w, data)
+		return
+	}
 	_ = templates.RenderTabPartial(w, "chat", data)
 }
 

@@ -56,6 +56,7 @@ func main() {
 
 	// Dashboard & Tab Navigation (All 12 Modules)
 	r.Get("/", h.ServeDashboard)
+	r.Get("/desk", h.ServeDashboard)
 	r.Get("/tab/{tab}", h.ServeTab)
 
 	// Catalog & Product Operations

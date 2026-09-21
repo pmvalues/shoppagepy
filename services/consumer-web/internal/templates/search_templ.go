@@ -289,107 +289,120 @@ func SearchPageComponent(data SearchViewData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<main class=\"flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6\"><div class=\"flex flex-col md:flex-row gap-6\"><!-- Left Filter Facets Sidebar --><aside class=\"w-full md:w-64 shrink-0 space-y-6\"><div class=\"bg-white rounded-2xl border border-slate-200 p-5 sticky top-28\"><h3 class=\"text-xs font-black text-slate-900 uppercase tracking-wider mb-3\">Search Mode</h3><div class=\"space-y-2 text-xs font-medium\"><label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"tab\" value=\"all\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<main class=\"flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6\"><!-- Top Search Bar --><div class=\"mb-6 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs\"><form action=\"/search\" method=\"GET\" class=\"relative flex items-center w-full group\"><!-- Magnifying Glass Icon --><div class=\"absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-600 transition-colors z-10\"><svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" viewBox=\"0 0 24 24\"><circle cx=\"11\" cy=\"11\" r=\"7\"></circle> <path stroke-linecap=\"round\" d=\"M21 21l-4.35-4.35\"></path></svg></div><input type=\"text\" name=\"q\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var17 string
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/search.templ`, Line: 112, Col: 24}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" placeholder=\"Search 1,000,000+ products, inverters, boxes, cement, specials...\" class=\"w-full bg-slate-100 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-500 rounded-full py-2.5 pl-11 pr-24 text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 outline-none transition shadow-xs\" autocomplete=\"off\"><!-- Right Search Button --><div class=\"absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 z-10\"><button type=\"submit\" class=\"px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5 cursor-pointer\" title=\"Search Shoppage\"><svg class=\"w-3.5 h-3.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" viewBox=\"0 0 24 24\"><circle cx=\"11\" cy=\"11\" r=\"7\"></circle> <path stroke-linecap=\"round\" d=\"M21 21l-4.35-4.35\"></path></svg> <span>Search</span></button></div></form></div><div class=\"flex flex-col md:flex-row gap-6\"><!-- Left Filter Facets Sidebar --><aside class=\"w-full md:w-64 shrink-0 space-y-6\"><div class=\"bg-white rounded-2xl border border-slate-200 p-5 sticky top-28\"><h3 class=\"text-xs font-black text-slate-900 uppercase tracking-wider mb-3\">Search Mode</h3><div class=\"space-y-2 text-xs font-medium\"><label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"tab\" value=\"all\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.CurrentTab == "" || data.CurrentTab == "all" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>All Products</span></label> <label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"tab\" value=\"deals\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>All Products</span></label> <label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"tab\" value=\"deals\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.CurrentTab == "deals" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span class=\"text-rose-600 font-bold\">🔥 Retailer Specials</span></label></div><h3 class=\"text-xs font-black text-slate-900 uppercase tracking-wider mt-6 mb-3\">Categories</h3><div class=\"space-y-2 text-xs font-medium\"><label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"category\" value=\"\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span class=\"text-rose-600 font-bold\">🔥 Retailer Specials</span></label></div><h3 class=\"text-xs font-black text-slate-900 uppercase tracking-wider mt-6 mb-3\">Categories</h3><div class=\"space-y-2 text-xs font-medium\"><label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"category\" value=\"\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.Category == "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>All Categories</span></label> <label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"category\" value=\"solar\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>All Categories</span></label> <label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"category\" value=\"solar\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.Category == "solar" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>Solar &amp; Power</span></label> <label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"category\" value=\"packaging\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>Solar &amp; Power</span></label> <label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"category\" value=\"packaging\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.Category == "packaging" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>Packaging &amp; Cartons</span></label> <label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"category\" value=\"hardware\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>Packaging &amp; Cartons</span></label> <label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"category\" value=\"hardware\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.Category == "hardware" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>Building &amp; Hardware</span></label></div><h3 class=\"text-xs font-black text-slate-900 uppercase tracking-wider mt-6 mb-3\">Province</h3><div class=\"space-y-2 text-xs font-medium\"><label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"province\" value=\"\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>Building &amp; Hardware</span></label></div><h3 class=\"text-xs font-black text-slate-900 uppercase tracking-wider mt-6 mb-3\">Province</h3><div class=\"space-y-2 text-xs font-medium\"><label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"province\" value=\"\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.Province == "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>Nationwide (All SA)</span></label> <label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"province\" value=\"Gauteng\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>Nationwide (All SA)</span></label> <label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"province\" value=\"Gauteng\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.Province == "Gauteng" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>Gauteng</span></label> <label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"province\" value=\"Western Cape\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>Gauteng</span></label> <label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"province\" value=\"Western Cape\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.Province == "Western Cape" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>Western Cape</span></label> <label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"province\" value=\"KwaZulu-Natal\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>Western Cape</span></label> <label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"province\" value=\"KwaZulu-Natal\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.Province == "KwaZulu-Natal" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>KwaZulu-Natal</span></label></div></div></aside><!-- Main Results Grid Area --><div class=\"flex-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, " hx-get=\"/search\" hx-target=\"#results-grid\" hx-include=\"[name='q']\" class=\"text-emerald-600\"> <span>KwaZulu-Natal</span></label></div></div></aside><!-- Main Results Grid Area --><div class=\"flex-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -397,7 +410,7 @@ func SearchPageComponent(data SearchViewData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div></div></main>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div></div></main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
