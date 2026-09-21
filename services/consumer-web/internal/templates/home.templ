@@ -55,30 +55,270 @@ templ HomeViewComponent(data HomeViewData) {
 					</form>
 				</div>
 
-				<!-- 5 Stream Mode Tabs -->
+				<!-- 6 Stream Mode Tabs -->
 				<div class="flex items-center px-4 gap-6 overflow-x-auto text-xs font-bold scrollbar-none border-t border-slate-100">
-					<a href="/?tab=foryou" class={ "py-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "" || data.CurrentTab == "foryou"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "" && data.CurrentTab != "foryou") }>
-						<span>⚡</span> <span>For You</span>
+					<a href="/?tab=foryou" class={ "py-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "" || data.CurrentTab == "foryou"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "" && data.CurrentTab != "foryou") }>
+						<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+						<span>Discovery</span>
 					</a>
-					<a href="/?tab=deals" class={ "py-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "deals"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "deals") }>
-						<span>🔥</span> <span>Deals &amp; Circulars</span>
+					<a href="/?tab=deals" class={ "py-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "deals"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "deals") }>
+						<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+						<span>Deals &amp; Circulars</span>
 					</a>
-					<a href="/?tab=products" class={ "py-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "products"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "products") }>
-						<span>📦</span> <span>Products (1M+)</span>
+					<a href="/?tab=products" class={ "py-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "products"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "products") }>
+						<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+						<span>Products (1M+)</span>
 					</a>
-					<a href="/malls" class={ "py-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "malls"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "malls") }>
-						<span>🏬</span> <span>3,315 Malls</span>
+					<a href="/malls" class={ "py-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "malls"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "malls") }>
+						<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M3 7v1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7M4 21V10.85a3 3 0 0 1 1-.85M20 21V10.85a3 3 0 0 0-1-.85M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"></path></svg>
+						<span>3,315 Malls</span>
 					</a>
-					<a href="/?tab=shorts" class={ "py-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "shorts"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "shorts") }>
-						<span>🎬</span> <span>Shorts &amp; Reels</span>
+					<a href="/?tab=tradewire" class={ "py-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "tradewire"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "tradewire") }>
+						<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+						<span>Trade Wire</span>
+					</a>
+					<a href="/?tab=shorts" class={ "py-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "shorts"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "shorts") }>
+						<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+						<span>Shorts &amp; Reels</span>
 					</a>
 				</div>
 			</div>
 
 			<!-- Dynamic Content Stream Container -->
 			<div id="main-stream-content">
-				<!-- TAB 1: FOR YOU SOCIAL STREAM & COMPOSER -->
+				<!-- TAB 1: COMMERCE & DISCOVERY HUB (Default) -->
 				if data.CurrentTab == "" || data.CurrentTab == "foryou" {
+					<div class="p-4 sm:p-6 space-y-8">
+						<!-- 1. HIGH-IMPACT COMMERCE HERO -->
+						<div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 p-6 sm:p-8 text-white shadow-xl border border-slate-800">
+							<div class="relative z-10 space-y-4 max-w-2xl">
+								<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+									<span>🇿🇦 South Africa Commercial Grid</span>
+									<span>•</span>
+									<span>Sub-3ms Search Engine</span>
+								</div>
+								<h1 class="text-2xl sm:text-4xl font-extrabold font-display tracking-tight text-white leading-tight">
+									Wholesale Inventory, Price Drops &amp; Verified Trade Desks
+								</h1>
+								<p class="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-xl">
+									Direct manufacturer catalog pricing, nationwide logistics via The Courier Guy &amp; Pudo, and instant WhatsApp proforma invoices.
+								</p>
+
+								<!-- Quick Filter Category Pills -->
+								<div class="pt-2 flex flex-wrap gap-2 text-xs font-semibold">
+									<a href="/?tab=products&category=solar" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-600 border border-white/10 transition backdrop-blur-md">
+										Solar &amp; Power
+									</a>
+									<a href="/?tab=products&category=packaging" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-600 border border-white/10 transition backdrop-blur-md">
+										Packaging &amp; Boxes
+									</a>
+									<a href="/?tab=products&category=hardware" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-600 border border-white/10 transition backdrop-blur-md">
+										Building &amp; Tools
+									</a>
+									<a href="/?tab=products&category=groceries" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-600 border border-white/10 transition backdrop-blur-md">
+										Wholesale FMCG
+									</a>
+									<a href="/?tab=deals" class="px-3 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold transition shadow-sm">
+										🔥 Top Specials ({ fmt.Sprintf("%d", len(data.Deals)) })
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<!-- 2. TOP WHOLESALE SPECIALS & PRICE DROPS -->
+						if len(data.Deals) > 0 {
+							<div class="space-y-3.5">
+								<div class="flex items-center justify-between">
+									<div>
+										<div class="flex items-center gap-2">
+											<h2 class="text-lg font-extrabold text-slate-900 tracking-tight font-display">Featured Specials &amp; Price Cuts</h2>
+											<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-black uppercase">Live Drops</span>
+										</div>
+										<p class="text-xs text-slate-500">Live verified savings from national retailers and wholesale distributors</p>
+									</div>
+									<a href="/?tab=deals" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 transition">
+										<span>View all specials</span>
+										<span>&rarr;</span>
+									</a>
+								</div>
+
+								<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+									for i, deal := range data.Deals {
+										if i < 3 {
+											<div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 hover:shadow-md hover:border-slate-300 transition flex flex-col justify-between group">
+												<div>
+													<div class="relative w-full h-36 rounded-xl overflow-hidden bg-slate-50 mb-2.5 border border-slate-100">
+														<img src={ deal.ImageURL } alt={ deal.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy" />
+														if deal.DiscountPct > 0 {
+															<span class="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-rose-600 text-white text-[10px] font-black uppercase shadow-xs">
+																-{ fmt.Sprintf("%d", deal.DiscountPct) }%
+															</span>
+														}
+														<span class="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-slate-950/80 text-white text-[9px] font-bold backdrop-blur-xs">
+															{ deal.MerchantName }
+														</span>
+													</div>
+													<div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">{ deal.CategoryLabel }</div>
+													<h3 class="font-bold text-slate-900 text-xs leading-snug line-clamp-2">{ deal.Title }</h3>
+												</div>
+												<div class="pt-3 border-t border-slate-100 mt-2.5 flex items-baseline justify-between">
+													<div>
+														<div class="text-sm font-black font-mono text-slate-900">R { fmt.Sprintf("%.2f", deal.PriceZar) }</div>
+														if deal.SavingsZar > 0 {
+															<div class="text-[10px] font-bold text-emerald-600">Save R { fmt.Sprintf("%.0f", deal.SavingsZar) }</div>
+														}
+													</div>
+													<button 
+														type="button" 
+														hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", deal.ID))) } 
+														hx-target="#buybox-drawer"
+														class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition cursor-pointer"
+													>
+														BuyBox &rarr;
+													</button>
+												</div>
+											</div>
+										}
+									}
+								</div>
+							</div>
+						}
+
+						<!-- 3. FEATURED VERIFIED SOUTH AFRICAN WHOLESALERS -->
+						<div class="space-y-3.5">
+							<div class="flex items-center justify-between">
+								<div>
+									<div class="flex items-center gap-2">
+										<h2 class="text-lg font-extrabold text-slate-900 tracking-tight font-display">Featured Verified Wholesalers</h2>
+										<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">CIPC Verified</span>
+									</div>
+									<p class="text-xs text-slate-500">Official commercial distributors with real-time stock and trade credit</p>
+								</div>
+							</div>
+
+							<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+								<!-- Wholesaler 1: MiTrend Midrand -->
+								<div class="bg-white rounded-2xl border border-slate-200/90 p-4 hover:shadow-md transition flex flex-col justify-between">
+									<div class="flex items-start gap-3.5 mb-3">
+										<div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-800 text-white font-black text-xl flex items-center justify-center shrink-0 shadow-sm">
+											M
+										</div>
+										<div class="min-w-0 flex-1">
+											<div class="flex items-center gap-2 flex-wrap">
+												<h3 class="font-extrabold text-slate-900 text-sm truncate">MiTrend Industrial Wholesalers</h3>
+												<span class="px-2 py-0.2 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">✓ CIPC Verified</span>
+											</div>
+											<p class="text-[11px] text-slate-500 mt-0.5 truncate">Unit 4B, Gallagher Convention Business Park, Midrand</p>
+											<div class="flex items-center gap-2 text-[10px] text-slate-400 mt-1">
+												<span class="font-semibold text-emerald-700">Level 1 B-BBEE</span>
+												<span>•</span>
+												<span>SABS SANS 1422</span>
+												<span>•</span>
+												<span>★ 4.95 (284 reviews)</span>
+											</div>
+										</div>
+									</div>
+									<div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+										<span class="text-xs text-slate-500 font-medium">Hospitality &amp; Food Packaging</span>
+										<a href="/m/loc_mitrend_midrand" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">
+											Open Storefront &rarr;
+										</a>
+									</div>
+								</div>
+
+								<!-- Wholesaler 2: SunPower Crown Mines -->
+								<div class="bg-white rounded-2xl border border-slate-200/90 p-4 hover:shadow-md transition flex flex-col justify-between">
+									<div class="flex items-start gap-3.5 mb-3">
+										<div class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-900 to-slate-800 text-white font-black text-xl flex items-center justify-center shrink-0 shadow-sm">
+											S
+										</div>
+										<div class="min-w-0 flex-1">
+											<div class="flex items-center gap-2 flex-wrap">
+												<h3 class="font-extrabold text-slate-900 text-sm truncate">SunPower Crown Mines Wholesale</h3>
+												<span class="px-2 py-0.2 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">✓ CIPC Verified</span>
+											</div>
+											<p class="text-[11px] text-slate-500 mt-0.5 truncate">Unit 14, Crown Commercial Park, Crown Mines, JHB</p>
+											<div class="flex items-center gap-2 text-[10px] text-slate-400 mt-1">
+												<span class="font-semibold text-emerald-700">Tier-1 Inverters</span>
+												<span>•</span>
+												<span>SABS Approved</span>
+												<span>•</span>
+												<span>★ 4.9 (142 reviews)</span>
+											</div>
+										</div>
+									</div>
+									<div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+										<span class="text-xs text-slate-500 font-medium">Solar, Inverters &amp; Batteries</span>
+										<a href="/m/loc_sunpower_crownmines" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">
+											Open Storefront &rarr;
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- 4. TRENDING PRODUCTS CATALOG PREVIEW -->
+						if len(data.Products) > 0 {
+							<div class="space-y-3.5">
+								<div class="flex items-center justify-between">
+									<div>
+										<div class="flex items-center gap-2">
+											<h2 class="text-lg font-extrabold text-slate-900 tracking-tight font-display">Trending Commercial Inventory</h2>
+											<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">1M+ Indexed</span>
+										</div>
+										<p class="text-xs text-slate-500">Live wholesale pricing available for instant quotation and delivery</p>
+									</div>
+									<a href="/?tab=products" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 transition">
+										<span>Browse all products</span>
+										<span>&rarr;</span>
+									</a>
+								</div>
+
+								<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+									for i, prod := range data.Products {
+										if i < 6 {
+											<div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 hover:shadow-md hover:border-slate-300 transition flex flex-col justify-between group">
+												<div>
+													<div class="relative w-full h-36 rounded-xl overflow-hidden bg-slate-50 mb-2.5 border border-slate-100 flex items-center justify-center">
+														if prod.ImageURL != "" {
+															<img src={ prod.ImageURL } alt={ prod.Title } class="w-full h-full object-contain p-2 group-hover:scale-105 transition duration-300" loading="lazy" />
+														} else {
+															<span class="text-3xl text-slate-300">📦</span>
+														}
+														<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-900/80 text-white text-[9px] font-bold backdrop-blur-xs">
+															🇿🇦 Local SA Stock
+														</span>
+													</div>
+													<div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">{ prod.Brand } · { prod.Category }</div>
+													<h3 class="font-bold text-slate-900 text-xs leading-snug line-clamp-2">
+														<a href={ templ.SafeURL(fmt.Sprintf("/p/%s", prod.ID)) } class="hover:text-emerald-700 transition">{ prod.Title }</a>
+													</h3>
+												</div>
+												<div class="pt-3 border-t border-slate-100 mt-2.5 flex items-baseline justify-between">
+													<div>
+														<div class="text-[10px] text-slate-400">Wholesale Excl. VAT</div>
+														<div class="text-sm font-black font-mono text-slate-900">R { fmt.Sprintf("%.2f", prod.PriceZar) }</div>
+													</div>
+													<button 
+														type="button" 
+														hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", prod.ID))) } 
+														hx-target="#buybox-drawer"
+														class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-2xs cursor-pointer"
+													>
+														BuyBox &rarr;
+													</button>
+												</div>
+											</div>
+										}
+									}
+								</div>
+							</div>
+						}
+					</div>
+				}
+
+				<!-- TAB: TRADE WIRE (Broadcasts & Community RFQs) -->
+				if data.CurrentTab == "tradewire" {
 					<!-- Live Trade Broadcast Composer -->
 					<div id="trade-composer" class="p-4 border-b border-slate-200 bg-white">
 						<form hx-post="/feed/post" hx-target="#timeline-posts" hx-swap="afterbegin" hx-on::after-request="this.reset(); document.getElementById('char-counter').textContent='280';">

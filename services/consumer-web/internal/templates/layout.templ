@@ -111,11 +111,11 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 		</head>
 		<body class="min-h-full flex flex-col antialiased bg-slate-100 text-slate-800 pb-16 lg:pb-0" hx-boost="true">
 			<!-- Location Sub-Bar (Shoppage GoogleHeader Style) -->
-			<div class="bg-white border-b border-slate-200/80 py-1.5 text-xs text-slate-600 sticky top-0 z-40">
+			<div class="bg-white/90 backdrop-blur-md border-b border-slate-200/80 py-2 text-xs text-slate-600 sticky top-0 z-40 transition shadow-2xs">
 				<div class="max-w-[1440px] mx-auto px-4 sm:px-6 flex items-center justify-between">
-					<div class="flex items-center gap-2">
-						<span class="text-emerald-600 flex items-center shrink-0">
-							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<div class="flex items-center gap-2.5">
+						<span class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200/60">
+							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 								<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
 								<circle cx="12" cy="10" r="3"></circle>
 							</svg>
@@ -126,17 +126,20 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 							type="button"
 							hx-get="/location-modal" 
 							hx-target="#modal-container"
-							class="text-emerald-700 hover:text-emerald-800 font-bold underline decoration-emerald-300 cursor-pointer"
+							class="text-emerald-700 hover:text-emerald-800 font-bold underline decoration-emerald-300 cursor-pointer text-xs"
 						>
 							Change Area (3,315 Malls)
 						</button>
 					</div>
-					<div class="hidden sm:flex items-center gap-4 text-[11px] text-slate-500 font-medium">
-						<span>🇿🇦 South Africa Commercial Grid</span>
-						<span>·</span>
-						<span class="text-emerald-700 font-bold">● Live Sub-3ms Pure Go Engine</span>
-						<span>·</span>
-						<span>CIPC Verified</span>
+					<div class="hidden sm:flex items-center gap-3 text-[11px] text-slate-500 font-medium">
+						<span class="inline-flex items-center gap-1.5 font-semibold text-slate-700">
+							<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+							<span>Commercial Grid</span>
+						</span>
+						<span class="text-slate-300">·</span>
+						<span class="text-emerald-700 font-mono font-bold">&lt; 3.0ms Pure Go Engine</span>
+						<span class="text-slate-300">·</span>
+						<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">CIPC Verified</span>
 					</div>
 				</div>
 			</div>
@@ -160,29 +163,29 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 			<div id="buybox-drawer"></div>
 
 			<!-- MOBILE BOTTOM PWA NAVIGATION BAR -->
-			<nav class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-6 flex items-center justify-between text-[11px] font-semibold text-slate-600">
+			<nav class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-6 flex items-center justify-between text-[11px] font-semibold text-slate-600 shadow-lg">
 				<a href="/?tab=foryou" class={ "flex flex-col items-center gap-1", templ.KV("text-emerald-600 font-bold", currentTab == "" || currentTab == "foryou"), templ.KV("text-slate-600", currentTab != "" && currentTab != "foryou") }>
-					<span class="text-lg">🏠</span>
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
 					<span>Home</span>
 				</a>
 				<a href="/?tab=deals" class={ "flex flex-col items-center gap-1", templ.KV("text-emerald-600 font-bold", currentTab == "deals"), templ.KV("text-rose-600 font-bold", currentTab != "deals") }>
-					<span class="text-lg">🔥</span>
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
 					<span>Deals</span>
 				</a>
 				<a href="/?tab=products" class={ "flex flex-col items-center gap-1", templ.KV("text-emerald-600 font-bold", currentTab == "products"), templ.KV("text-slate-600", currentTab != "products") }>
-					<span class="text-lg">📦</span>
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
 					<span>Products</span>
 				</a>
 				<a href="/malls" class={ "flex flex-col items-center gap-1", templ.KV("text-emerald-600 font-bold", currentTab == "malls"), templ.KV("text-slate-600", currentTab != "malls") }>
-					<span class="text-lg">🏬</span>
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M3 7v1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7M4 21V10.85a3 3 0 0 1 1-.85M20 21V10.85a3 3 0 0 0-1-.85M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"></path></svg>
 					<span>Malls</span>
 				</a>
 				<a href="/chat" class={ "flex flex-col items-center gap-1", templ.KV("text-emerald-600 font-bold", currentTab == "chat"), templ.KV("text-slate-600", currentTab != "chat") }>
-					<span class="text-lg">💬</span>
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
 					<span>Chat</span>
 				</a>
 				<a href="/desk" target="_blank" class="flex flex-col items-center gap-1 text-slate-600">
-					<span class="text-lg">⚡</span>
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>
 					<span>Desk</span>
 				</a>
 			</nav>
@@ -442,48 +445,52 @@ templ LeftRail(currentTab string) {
 
 		<!-- Primary Navigation Links -->
 		<nav class="space-y-1 text-sm font-semibold text-slate-700 flex-1">
-			<a href="/?tab=foryou" title="For You (Stream)" class={ "sidebar-nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "" || currentTab == "foryou"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "" && currentTab != "foryou") }>
-				<span class="text-lg shrink-0">🏠</span>
-				<span class="sidebar-label">For You (Stream)</span>
+			<a href="/?tab=foryou" title="Commerce Discovery" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "" || currentTab == "foryou"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "" && currentTab != "foryou") }>
+				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+				<span class="sidebar-label">Discovery</span>
 			</a>
 			<a href="/?tab=deals" title="Deals & Circulars" class={ "sidebar-nav-item flex items-center justify-between px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "deals"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "deals") }>
-				<div class="flex items-center gap-3.5 min-w-0">
-					<span class="text-lg shrink-0">🛍️</span>
+				<div class="flex items-center gap-3 min-w-0">
+					<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
 					<span class="sidebar-label truncate">Deals &amp; Circulars</span>
 				</div>
-				<span class="sidebar-deals-badge px-1.5 py-0.5 rounded-md bg-rose-500 text-white text-[10px] font-black tracking-wider animate-pulse shrink-0">HOT</span>
+				<span class="sidebar-deals-badge px-1.5 py-0.5 rounded-md bg-rose-500 text-white text-[10px] font-black tracking-wider shrink-0">HOT</span>
 			</a>
-			<a href="/?tab=products" title="1,000,000+ Catalog" class={ "sidebar-nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "products"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "products") }>
-				<span class="text-lg shrink-0">📦</span>
-				<span class="sidebar-label">1,000,000+ Catalog</span>
+			<a href="/?tab=products" title="1,000,000+ Catalog" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "products"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "products") }>
+				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+				<span class="sidebar-label">1M+ Products</span>
 			</a>
-			<a href="/malls" title="3,315 Malls & Hubs" class={ "sidebar-nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "malls"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "malls") }>
-				<span class="text-lg shrink-0">🏬</span>
-				<span class="sidebar-label">3,315 Malls &amp; Hubs</span>
+			<a href="/malls" title="3,315 Malls & Hubs" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "malls"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "malls") }>
+				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M3 7v1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7M4 21V10.85a3 3 0 0 1 1-.85M20 21V10.85a3 3 0 0 0-1-.85M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"></path></svg>
+				<span class="sidebar-label">3,315 Malls</span>
 			</a>
-			<a href="/?tab=shorts" title="Trade Shorts & Demos" class={ "sidebar-nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "shorts"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "shorts") }>
-				<span class="text-lg shrink-0">🎬</span>
-				<span class="sidebar-label">Trade Shorts &amp; Demos</span>
+			<a href="/?tab=tradewire" title="Live Trade Wire" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "tradewire"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "tradewire") }>
+				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+				<span class="sidebar-label">Trade Wire</span>
 			</a>
-			<a href="/chat" title="Live Direct Chat" class={ "sidebar-nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "chat"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "chat") }>
-				<span class="text-lg shrink-0">💬</span>
-				<span class="sidebar-label">Live Direct Chat</span>
+			<a href="/?tab=shorts" title="Trade Shorts & Demos" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "shorts"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "shorts") }>
+				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+				<span class="sidebar-label">Trade Shorts</span>
 			</a>
-			<a href="/desk" target="_blank" title="Merchant OS (Desk)" class="sidebar-nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl hover:bg-slate-50 text-slate-700 transition">
-				<span class="text-lg shrink-0">⚡</span>
-				<span class="sidebar-label">Merchant OS (Desk)</span>
+			<a href="/chat" title="Live Direct Chat" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "chat"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "chat") }>
+				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+				<span class="sidebar-label">Live Buyer Chat</span>
+			</a>
+			<a href="/desk" target="_blank" title="Merchant OS (Desk)" class="sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-50 text-slate-700 transition">
+				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>
+				<span class="sidebar-label">Merchant Desk</span>
 			</a>
 		</nav>
 
 		<!-- Broadcast RFQ CTA Button -->
-		<button 
-			type="button"
-			onclick="document.getElementById('trade-composer')?.scrollIntoView({behavior:'smooth'}); document.getElementById('composer-textarea')?.focus();"
-			class="sidebar-rfq-btn mt-4 w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-md shadow-emerald-700/20 transition flex items-center justify-center gap-2 cursor-pointer"
-			title="Post Trade RFQ"
+		<a 
+			href="/?tab=tradewire"
+			class="sidebar-rfq-btn mt-4 w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-xs shadow-md shadow-emerald-700/20 transition flex items-center justify-center gap-2 cursor-pointer text-center"
+			title="Create Trade RFQ"
 		>
-			<span>⚡</span> <span class="sidebar-rfq-text">Post Trade RFQ</span>
-		</button>
+			<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m-7-7h14"></path></svg>
+			<span class="sidebar-rfq-text">Post Trade RFQ</span>
+		</a>
 
 		<!-- User Profile Badge & Theme -->
 		<div class="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">

@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@source "../../internal/templates";
+@source "../../../merchant-os/internal/templates";
 
 @theme {
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
