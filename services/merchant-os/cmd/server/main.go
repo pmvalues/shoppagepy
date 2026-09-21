@@ -21,9 +21,12 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	slog.SetDefault(logger)
 
-	port := os.Getenv("PORT")
+	port := os.Getenv("MERCHANT_PORT")
 	if port == "" {
-		port = "8083"
+		port = os.Getenv("PORT")
+		if port == "" || port == "3000" || port == "80" {
+			port = "8083"
+		}
 	}
 
 	state := handlers.NewDefaultState()

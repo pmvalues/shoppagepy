@@ -25,9 +25,12 @@ func main() {
 	}))
 	slog.SetDefault(logger)
 
-	port := os.Getenv("PORT")
+	port := os.Getenv("CHAT_PORT")
 	if port == "" {
-		port = "8080"
+		port = os.Getenv("PORT")
+		if port == "" || port == "3000" || port == "80" {
+			port = "8080"
+		}
 	}
 
 	// Initialize Chat Hub

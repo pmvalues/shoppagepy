@@ -126,9 +126,12 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	slog.SetDefault(logger)
 
-	port := os.Getenv("PORT")
+	port := os.Getenv("SEARCH_PORT")
 	if port == "" {
-		port = "8082"
+		port = os.Getenv("PORT")
+		if port == "" || port == "3000" || port == "80" {
+			port = "8082"
+		}
 	}
 
 	searchEngine := index.NewEngine()

@@ -101,6 +101,10 @@ func main() {
 
 	// System Health
 	r.Get("/health", h.HandleHealth)
+	r.Get("/healthz", h.HandleHealth)
+	r.Get("/api/health", h.HandleHealth)
+	r.Get("/api/ops/health", h.HandleHealth)
+	r.Get("/api/ops/ready", h.HandleHealth)
 
 	// Unified Gateway Reverse Proxies
 	merchantURL := os.Getenv("MERCHANT_OS_URL")

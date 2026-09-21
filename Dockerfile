@@ -79,9 +79,10 @@ COPY data/ /app/data/
 COPY services/consumer-web/data/ /app/data/
 COPY shoppage-commerce-intelligence-foundation/ /app/shoppage-commerce-intelligence-foundation/
 
-RUN printf '#!/bin/sh\n/app/shoppage-chat &\n/app/shoppage-search &\n/app/shoppage-merchant &\nexec /app/shoppage-consumer\n' > /app/entrypoint.sh && \
+RUN chmod +x /app/shoppage-* && \
+    printf '#!/bin/sh\nset -e\nCHAT_PORT=8080 /app/shoppage-chat &\nSEARCH_PORT=8082 /app/shoppage-search &\nMERCHANT_PORT=8083 /app/shoppage-merchant &\nsleep 1\nexec /app/shoppage-consumer\n' > /app/entrypoint.sh && \
     chmod +x /app/entrypoint.sh
 
 ENV PORT=3000
-EXPOSE 3000 8080 8082 8083
+EXPOSE 3000 80 8080 8082 8083
 CMD ["/app/entrypoint.sh"]
