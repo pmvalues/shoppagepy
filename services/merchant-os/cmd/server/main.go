@@ -101,6 +101,7 @@ func main() {
 	r.Get("/chat/thread/{id}", h.SelectChatThread)
 	r.Post("/chat/send", h.SendChatMessage)
 	r.Post("/chat/quote", h.SendStructuredQuote)
+	r.Post("/chat/action", h.HandleChatAction)
 
 	// Pemofy AI Copilot Studio
 	r.Post("/copilot/ask", h.AskCopilot)

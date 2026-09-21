@@ -712,17 +712,21 @@ func NewDefaultState() *MerchantStoreState {
 		},
 		ChatThreads: []models.ChatThread{
 			{
-				ID:           "conv_protea",
-				BuyerID:      "buyer_protea_01",
-				BuyerName:    "Sipho Dlamini",
-				BuyerCompany: "Protea Hotel Balalaika Sandton",
-				BuyerCity:    "Sandton, JHB",
-				Channel:      "Shoppage DM",
-				UnreadCount:  1,
-				LastMessage:  "Can we get 200 wooden hangers delivered to Sandton before Thursday?",
-				LastTime:     "10:24",
-				AvatarInit:   "SD",
-				Online:       true,
+				ID:            "conv_protea",
+				BuyerID:       "buyer_protea_01",
+				BuyerName:     "Sipho Dlamini",
+				BuyerCompany:  "Protea Hotel Balalaika Sandton",
+				BuyerCity:     "Sandton, JHB",
+				Channel:       "Shoppage DM",
+				UnreadCount:   1,
+				LastMessage:   "Can we get 200 wooden hangers delivered to Sandton before Thursday?",
+				LastTime:      "10:24",
+				AvatarInit:    "SD",
+				Online:        true,
+				DealContext:   "RFQ #1042 — 200x Anti-Theft Wooden Hangers (MIT-3361)",
+				DealAmount:    4735.70,
+				DealStatus:    "Proforma Issued",
+				AssignedAgent: "Sipho Dlamini (Midrand Sales Desk)",
 				Messages: []models.ChatMessage{
 					{
 						ID:         "msg_p1",
@@ -732,6 +736,17 @@ func NewDefaultState() *MerchantStoreState {
 						Text:       "Good morning! We are currently refurbishing 40 executive guest suites at Protea Balalaika.",
 						Timestamp:  now.Add(-45 * time.Minute),
 						IsMerchant: false,
+					},
+					{
+						ID:             "msg_p_whisper1",
+						SenderID:       "staff_nomsa",
+						SenderName:     "Nomsa Sithole (Midrand Inventory)",
+						SenderRole:     "merchant",
+						Text:           "Physical stock count verified at Bay 4: 450 units on hand. 200 units ready to lock without affecting standard trade floor orders.",
+						Timestamp:      now.Add(-40 * time.Minute),
+						IsMerchant:     true,
+						IsInternalNote: true,
+						CardType:       "note",
 					},
 					{
 						ID:         "msg_p2",
@@ -752,6 +767,25 @@ func NewDefaultState() *MerchantStoreState {
 						IsMerchant: false,
 					},
 					{
+						ID:         "msg_p_stock",
+						SenderID:   "system_warehouse",
+						SenderName: "Midrand Hub Warehouse",
+						SenderRole: "system",
+						Text:       "Stock Lock active: 200 units reserved in Bay 4 for Protea Hotel Balalaika.",
+						Timestamp:  now.Add(-10 * time.Minute),
+						IsMerchant: true,
+						CardType:   "stock_lock",
+						StockLock: &models.StockLockInfo{
+							SKU:          "MIT-3361",
+							ProductTitle: "Commercial Anti-Theft Wooden Male Hanger 44cm",
+							Quantity:     200,
+							Warehouse:    "Midrand Central Hub, Bay 4",
+							LockID:       "LCK-MID-0814",
+							ExpiresAt:    now.Add(2 * time.Hour),
+							Status:       "Active (2 Hours Remaining)",
+						},
+					},
+					{
 						ID:         "msg_p4",
 						SenderID:   "loc_mitrend_midrand",
 						SenderName: "Mitrend Sales Desk",
@@ -760,6 +794,7 @@ func NewDefaultState() *MerchantStoreState {
 						Timestamp:  now.Add(-5 * time.Minute),
 						IsMerchant: true,
 						HasQuote:   true,
+						CardType:   "quote",
 						Quote: &models.StructuredQuote{
 							ID:           "quo_8814",
 							QuoteNumber:  "QUO-2026-0814",
@@ -777,17 +812,21 @@ func NewDefaultState() *MerchantStoreState {
 				},
 			},
 			{
-				ID:           "conv_goldreef",
-				BuyerID:      "buyer_goldreef_02",
-				BuyerName:    "Lindiwe Zulu",
-				BuyerCompany: "Gold Reef City Casino & Hotel",
-				BuyerCity:    "Ormonde, JHB",
-				Channel:      "Shoppage DM",
-				UnreadCount:  0,
-				LastMessage:  "Proforma approved, Standard Bank EFT payment dispatched.",
-				LastTime:     "Yesterday",
-				AvatarInit:   "LZ",
-				Online:       false,
+				ID:            "conv_goldreef",
+				BuyerID:       "buyer_goldreef_02",
+				BuyerName:     "Lindiwe Zulu",
+				BuyerCompany:  "Gold Reef City Casino & Hotel",
+				BuyerCity:     "Ormonde, JHB",
+				Channel:       "Shoppage DM",
+				UnreadCount:   0,
+				LastMessage:   "Proforma approved, Standard Bank EFT payment dispatched.",
+				LastTime:      "Yesterday",
+				AvatarInit:    "LZ",
+				Online:        false,
+				DealContext:   "RFQ #1039 — 300x Chrome Replacement Security Rings (MIT-2088)",
+				DealAmount:    6870.00,
+				DealStatus:    "Stock Reserved",
+				AssignedAgent: "Nomsa Sithole (Crown Mines)",
 				Messages: []models.ChatMessage{
 					{
 						ID:         "msg_g1",
@@ -816,20 +855,43 @@ func NewDefaultState() *MerchantStoreState {
 						Timestamp:  now.Add(-20 * time.Hour),
 						IsMerchant: false,
 					},
+					{
+						ID:         "msg_g_pop",
+						SenderID:   "buyer_goldreef_02",
+						SenderName: "Lindiwe Zulu",
+						SenderRole: "buyer",
+						Text:       "Bank POP remittance slip attached for Proforma #INV-2088.",
+						Timestamp:  now.Add(-18 * time.Hour),
+						IsMerchant: false,
+						CardType:   "pop_verification",
+						PaymentProof: &models.PaymentProofInfo{
+							BankName:        "Standard Bank South Africa",
+							AccountHolder:   "Gold Reef City Casino (Tsogo Sun Group)",
+							AmountZar:       6870.00,
+							ReferenceNumber: "INV-2088-GRC",
+							Verified:        true,
+							VerifiedBy:      "Finance (Nomsa Sithole)",
+							ProofFileName:   "StandardBank_EFT_INV-2088-GRC.pdf",
+						},
+					},
 				},
 			},
 			{
-				ID:           "conv_buildmax",
-				BuyerID:      "buyer_buildmax_03",
-				BuyerName:    "Johan van der Merwe",
-				BuyerCompany: "Buildmax Commercial Supplies",
-				BuyerCity:    "Centurion, PTA",
-				Channel:      "WhatsApp Business API",
-				UnreadCount:  0,
-				LastMessage:  "Do the silicone lids carry SABS food-safe compliance certificates?",
-				LastTime:     "2 days ago",
-				AvatarInit:   "JV",
-				Online:       true,
+				ID:            "conv_buildmax",
+				BuyerID:       "buyer_buildmax_03",
+				BuyerName:     "Johan van der Merwe",
+				BuyerCompany:  "Buildmax Commercial Supplies",
+				BuyerCity:     "Centurion, PTA",
+				Channel:       "WhatsApp Business API",
+				UnreadCount:   0,
+				LastMessage:   "Do the silicone lids carry SABS food-safe compliance certificates?",
+				LastTime:      "2 days ago",
+				AvatarInit:    "JV",
+				Online:        true,
+				DealContext:   "Inquiry #1045 — 500x SABS Food-Safe Silicone Lids (MIT-8609)",
+				DealAmount:    12450.00,
+				DealStatus:    "Negotiating",
+				AssignedAgent: "Sipho Dlamini (Technical Sales)",
 				Messages: []models.ChatMessage{
 					{
 						ID:         "msg_b1",
@@ -2543,11 +2605,12 @@ func (h *Handler) SelectChatThread(w http.ResponseWriter, r *http.Request) {
 	_ = templates.RenderTabPartial(w, "chat", data)
 }
 
-// SendChatMessage dispatches an outbound merchant message to the buyer
+// SendChatMessage dispatches an outbound merchant message to the buyer or logs an internal staff whisper
 func (h *Handler) SendChatMessage(w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	threadID := r.FormValue("thread_id")
-	messageText := r.FormValue("message")
+	messageText := strings.TrimSpace(r.FormValue("message"))
+	isInternal := r.FormValue("is_internal") == "true" || r.FormValue("is_internal") == "1"
 
 	if threadID == "" {
 		threadID = h.state.ActiveThreadID
@@ -2556,20 +2619,35 @@ func (h *Handler) SendChatMessage(w http.ResponseWriter, r *http.Request) {
 	if messageText != "" {
 		h.state.mu.Lock()
 		now := time.Now().UTC()
+		senderName := "Mitrend Sales Desk"
+		senderRole := "merchant"
+		auditAction := "Buyer Direct Message Sent"
+		if isInternal {
+			senderName = "Sipho Dlamini (Staff Whisper)"
+			senderRole = "merchant"
+			auditAction = "Internal Staff Note Logged"
+		}
+
 		msg := models.ChatMessage{
-			ID:         fmt.Sprintf("msg_%d", now.UnixNano()%100000),
-			SenderID:   h.state.Store.ID,
-			SenderName: "Mitrend Sales Desk",
-			SenderRole: "merchant",
-			Text:       messageText,
-			Timestamp:  now,
-			IsMerchant: true,
+			ID:             fmt.Sprintf("msg_%d", now.UnixNano()%100000),
+			SenderID:       h.state.Store.ID,
+			SenderName:     senderName,
+			SenderRole:     senderRole,
+			Text:           messageText,
+			Timestamp:      now,
+			IsMerchant:     true,
+			IsInternalNote: isInternal,
+			CardType:       "note",
 		}
 
 		for i := range h.state.ChatThreads {
 			if h.state.ChatThreads[i].ID == threadID {
 				h.state.ChatThreads[i].Messages = append(h.state.ChatThreads[i].Messages, msg)
-				h.state.ChatThreads[i].LastMessage = messageText
+				if !isInternal {
+					h.state.ChatThreads[i].LastMessage = messageText
+				} else {
+					h.state.ChatThreads[i].LastMessage = "🔒 Internal note: " + messageText
+				}
 				h.state.ChatThreads[i].LastTime = now.Format("15:04")
 				break
 			}
@@ -2578,10 +2656,10 @@ func (h *Handler) SendChatMessage(w http.ResponseWriter, r *http.Request) {
 		log := models.AuditLogEntry{
 			ID:        fmt.Sprintf("log_%d", now.UnixNano()%10000),
 			Actor:     "Sipho Dlamini (Admin)",
-			Action:    "Buyer Direct Message Sent",
+			Action:    auditAction,
 			Entity:    "ChatThread",
 			EntityID:  threadID,
-			Details:   fmt.Sprintf("Sent message: '%s'", messageText),
+			Details:   fmt.Sprintf("Text: '%s' (Internal: %t)", messageText, isInternal),
 			Timestamp: now,
 		}
 		h.state.AuditLogs = append([]models.AuditLogEntry{log}, h.state.AuditLogs...)
@@ -2653,6 +2731,7 @@ func (h *Handler) SendStructuredQuote(w http.ResponseWriter, r *http.Request) {
 		Timestamp:  now,
 		IsMerchant: true,
 		HasQuote:   true,
+		CardType:   "quote",
 		Quote:      quote,
 	}
 
@@ -2661,6 +2740,8 @@ func (h *Handler) SendStructuredQuote(w http.ResponseWriter, r *http.Request) {
 			h.state.ChatThreads[i].Messages = append(h.state.ChatThreads[i].Messages, msg)
 			h.state.ChatThreads[i].LastMessage = fmt.Sprintf("Quote %s (R %.2f ZAR)", quoteNo, grandTotal)
 			h.state.ChatThreads[i].LastTime = now.Format("15:04")
+			h.state.ChatThreads[i].DealStatus = "Proforma Issued"
+			h.state.ChatThreads[i].DealAmount = grandTotal
 			break
 		}
 	}
@@ -2675,6 +2756,113 @@ func (h *Handler) SendStructuredQuote(w http.ResponseWriter, r *http.Request) {
 		Timestamp: now,
 	}
 	h.state.AuditLogs = append([]models.AuditLogEntry{log}, h.state.AuditLogs...)
+	h.state.mu.Unlock()
+
+	data := h.getViewData("chat")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_ = templates.RenderTabPartial(w, "chat", data)
+}
+
+// HandleChatAction processes Slack/Teams Block Kit actions: stock locks, POP verification, deal status updates
+func (h *Handler) HandleChatAction(w http.ResponseWriter, r *http.Request) {
+	_ = r.ParseForm()
+	threadID := r.FormValue("thread_id")
+	if threadID == "" {
+		threadID = h.state.ActiveThreadID
+	}
+	action := r.FormValue("action")
+
+	h.state.mu.Lock()
+	now := time.Now().UTC()
+
+	switch action {
+	case "lock_stock":
+		sku := r.FormValue("sku")
+		if sku == "" {
+			sku = "MIT-3361"
+		}
+		qty, _ := strconv.Atoi(r.FormValue("quantity"))
+		if qty <= 0 {
+			qty = 200
+		}
+		lockID := fmt.Sprintf("LCK-MID-%04d", now.Unix()%10000)
+		msg := models.ChatMessage{
+			ID:         fmt.Sprintf("msg_%d", now.UnixNano()%100000),
+			SenderID:   "system_warehouse",
+			SenderName: "Midrand Hub Automation",
+			SenderRole: "system",
+			Text:       fmt.Sprintf("Inventory reserved: %d units of %s locked for 2 hours.", qty, sku),
+			Timestamp:  now,
+			IsMerchant: true,
+			CardType:   "stock_lock",
+			StockLock: &models.StockLockInfo{
+				SKU:          sku,
+				ProductTitle: "Commercial Anti-Theft Wooden Male Hanger 44cm",
+				Quantity:     qty,
+				Warehouse:    "Midrand Central Hub, Bay 4",
+				LockID:       lockID,
+				ExpiresAt:    now.Add(2 * time.Hour),
+				Status:       "Active (2 Hours Remaining)",
+			},
+		}
+		for i := range h.state.ChatThreads {
+			if h.state.ChatThreads[i].ID == threadID {
+				h.state.ChatThreads[i].Messages = append(h.state.ChatThreads[i].Messages, msg)
+				h.state.ChatThreads[i].DealStatus = "Stock Reserved"
+				h.state.ChatThreads[i].LastMessage = fmt.Sprintf("Stock Lock %s active (%d units)", lockID, qty)
+				h.state.ChatThreads[i].LastTime = now.Format("15:04")
+				break
+			}
+		}
+		log := models.AuditLogEntry{
+			ID:        fmt.Sprintf("log_%d", now.UnixNano()%10000),
+			Actor:     "Sipho Dlamini (Admin)",
+			Action:    "Warehouse Stock Locked",
+			Entity:    "StockLock",
+			EntityID:  lockID,
+			Details:   fmt.Sprintf("Reserved %d units of %s in thread %s", qty, sku, threadID),
+			Timestamp: now,
+		}
+		h.state.AuditLogs = append([]models.AuditLogEntry{log}, h.state.AuditLogs...)
+
+	case "verify_pop":
+		for i := range h.state.ChatThreads {
+			if h.state.ChatThreads[i].ID == threadID {
+				for j := range h.state.ChatThreads[i].Messages {
+					if h.state.ChatThreads[i].Messages[j].PaymentProof != nil {
+						h.state.ChatThreads[i].Messages[j].PaymentProof.Verified = true
+						h.state.ChatThreads[i].Messages[j].PaymentProof.VerifiedBy = "Finance (Sipho Dlamini)"
+					}
+				}
+				h.state.ChatThreads[i].DealStatus = "Paid & Dispatched"
+				h.state.ChatThreads[i].LastMessage = "POP Verified — Dispatched via The Courier Guy"
+				h.state.ChatThreads[i].LastTime = now.Format("15:04")
+				break
+			}
+		}
+
+	case "set_deal_status":
+		newStatus := r.FormValue("status")
+		if newStatus != "" {
+			for i := range h.state.ChatThreads {
+				if h.state.ChatThreads[i].ID == threadID {
+					h.state.ChatThreads[i].DealStatus = newStatus
+					break
+				}
+			}
+		}
+
+	case "assign_agent":
+		agent := r.FormValue("agent")
+		if agent != "" {
+			for i := range h.state.ChatThreads {
+				if h.state.ChatThreads[i].ID == threadID {
+					h.state.ChatThreads[i].AssignedAgent = agent
+					break
+				}
+			}
+		}
+	}
 	h.state.mu.Unlock()
 
 	data := h.getViewData("chat")

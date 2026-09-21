@@ -34,20 +34,20 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"margin-bottom: 20px;\"><!-- Header Panel --><div class=\"panel-head\" style=\"margin-bottom: 16px;\"><div><h3 style=\"font-size: 1.3rem;\">Direct Messages &amp; Buyer Chat Desk</h3><div class=\"sub\">Live commerce messaging, instant buyer negotiation, structured quote cards &amp; WebSocket gateway</div></div><div style=\"margin-left: auto; display:flex; align-items:center; gap:8px;\"><span class=\"chip up\" id=\"ws-indicator\">● Gateway: ws://localhost:8080/ws/chat (Connected)</span> <button type=\"button\" class=\"btn ghost small\" onclick=\"document.getElementById(&#39;quote-modal&#39;)?.showModal();\"><span>⚡</span> Create Structured Quote</button></div></div><!-- 2-Pane Direct Messaging Workstation --><div style=\"display: grid; grid-template-columns: 340px 1fr; gap: 16px; min-height: 640px;\"><!-- LEFT PANE: Conversations Inbox --><div class=\"card panel\" style=\"display: flex; flex-direction: column; padding: 0; overflow: hidden;\"><!-- Inbox Search & Filter --><div style=\"padding: 12px 14px; border-bottom: 1px solid var(--line); background: var(--surface-2);\"><div style=\"font-weight: 700; font-size: 13.5px; color: var(--ink); margin-bottom: 8px; display:flex; justify-content:space-between; align-items:center;\"><span>Active Direct Messages</span> <span class=\"badge\" style=\"background:var(--primary); color:#fff; font-size:11px;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"margin-bottom: 20px;\"><!-- Header Panel --><div class=\"panel-head\" style=\"margin-bottom: 16px;\"><div><h3 style=\"font-size: 1.3rem;\">Direct Messages &amp; Buyer Chat Desk</h3><div class=\"sub\">Slack/Teams-style B2B trade workstation: Block Kit action cards, internal team whispers, warehouse stock locks &amp; live negotiation</div></div><div style=\"margin-left: auto; display:flex; align-items:center; gap:8px;\"><span class=\"chip up\" id=\"ws-indicator\">● Gateway: ws://localhost:8080/ws/chat (Connected)</span> <button type=\"button\" class=\"btn ghost small\" onclick=\"document.getElementById(&#39;stock-lock-modal&#39;)?.showModal();\"><span>📦</span> Reserve Warehouse Stock</button> <button type=\"button\" class=\"btn solid small\" onclick=\"document.getElementById(&#39;quote-modal&#39;)?.showModal();\"><span>⚡</span> Create Structured Quote</button></div></div><!-- 2-Pane Direct Messaging Workstation --><div style=\"display: grid; grid-template-columns: 340px 1fr; gap: 16px; min-height: 680px;\"><!-- LEFT PANE: Conversations Inbox --><div class=\"card panel\" style=\"display: flex; flex-direction: column; padding: 0; overflow: hidden;\"><!-- Inbox Search & Filter --><div style=\"padding: 12px 14px; border-bottom: 1px solid var(--line); background: var(--surface-2);\"><div style=\"font-weight: 700; font-size: 13.5px; color: var(--ink); margin-bottom: 8px; display:flex; justify-content:space-between; align-items:center;\"><span>Active Trade Channels</span> <span class=\"badge\" style=\"background:var(--primary); color:#fff; font-size:11px;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d Threads", len(data.ChatThreads)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 32, Col: 139}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 35, Col: 139}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span></div><input type=\"text\" placeholder=\"Search buyer, company, or message…\" style=\"width: 100%; padding: 7px 10px; font-size: 12px; border: 1px solid var(--line-strong); border-radius: 7px; background: var(--surface); color: var(--ink);\" onkeyup=\"filterChatThreads(this.value);\"></div><!-- Conversation Threads List --><div id=\"thread-list\" style=\"flex: 1; overflow-y: auto; display: flex; flex-direction: column;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span></div><input type=\"text\" placeholder=\"Search buyer, company, RFQ or deal…\" style=\"width: 100%; padding: 7px 10px; font-size: 12px; border: 1px solid var(--line-strong); border-radius: 7px; background: var(--surface); color: var(--ink);\" onkeyup=\"filterChatThreads(this.value);\"></div><!-- Conversation Threads List --><div id=\"thread-list\" style=\"flex: 1; overflow-y: auto; display: flex; flex-direction: column;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -77,7 +77,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/chat/thread/%s", thread.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 47, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 50, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -90,7 +90,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(thread.AvatarInit)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 55, Col: 28}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 58, Col: 28}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -113,7 +113,7 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(thread.BuyerName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 65, Col: 138}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 68, Col: 138}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -126,523 +126,1118 @@ func ChatTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(thread.LastTime)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 66, Col: 80}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 69, Col: 80}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></div><div style=\"font-size: 11.5px; color: var(--primary-2); font-weight: 600; margin-bottom: 3px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></div><div style=\"font-size: 11.5px; color: var(--primary-2); font-weight: 600; margin-bottom: 2px;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(thread.BuyerCompany)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 68, Col: 124}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 71, Col: 124}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div style=\"font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><!-- Deal Context Tag -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(thread.LastMessage)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 69, Col: 143}
+			if thread.DealContext != "" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div style=\"font-size: 10.5px; color: var(--ink); background: var(--surface-2); border-radius: 4px; padding: 1px 5px; display: inline-block; margin-bottom: 3px; border: 1px solid var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;\">🏷️ ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var10 string
+				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(thread.DealContext)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 76, Col: 38}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div style=\"display: flex; gap: 6px; margin-top: 6px; align-items: center;\"><span class=\"chip flat\" style=\"font-size: 10px; padding: 1px 5px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div style=\"font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(thread.Channel)
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(thread.LastMessage)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 72, Col: 92}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 80, Col: 143}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div style=\"display: flex; gap: 6px; margin-top: 6px; align-items: center;\"><span class=\"chip flat\" style=\"font-size: 9.5px; padding: 1px 5px;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if thread.UnreadCount > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span class=\"badge\" style=\"background: var(--amber); color: #2e1e02; font-size: 10px; margin-left: auto;\">")
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(thread.Channel)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 83, Col: 93}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if thread.DealStatus != "" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span class=\"chip up\" style=\"font-size: 9.5px; padding: 1px 5px;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var12 string
-				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d New", thread.UnreadCount))
+				var templ_7745c5c3_Var13 string
+				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(thread.DealStatus)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 74, Col: 159}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 85, Col: 95}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div></div>")
+			if thread.UnreadCount > 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"badge\" style=\"background: var(--amber); color: #2e1e02; font-size: 10px; margin-left: auto;\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var14 string
+				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d New", thread.UnreadCount))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 88, Col: 159}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div><!-- RIGHT PANE: Active Direct Message Conversation --><div class=\"card panel\" style=\"display: flex; flex-direction: column; padding: 0; overflow: hidden;\"><!-- Active Thread Header -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div></div><!-- RIGHT PANE: Active Direct Message Conversation --><div class=\"card panel\" style=\"display: flex; flex-direction: column; padding: 0; overflow: hidden;\"><!-- Active Thread Header (Slack/Teams Deal Channel Header) -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if activeThread := data.GetActiveThread(); activeThread != nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div style=\"padding: 12px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; background: var(--surface-2); flex-wrap: wrap; gap: 10px;\"><div style=\"display: flex; align-items: center; gap: 12px;\"><div style=\"width: 38px; height: 38px; border-radius: 9px; background: var(--primary); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 14px;\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var13 string
-			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.AvatarInit)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 90, Col: 33}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><div><div style=\"display: flex; align-items: center; gap: 8px;\"><b style=\"font-size: 14px; color: var(--ink);\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var14 string
-			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.BuyerName)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 94, Col: 80}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</b> <span class=\"chip up\" style=\"font-size: 10.5px;\">Verified Buyer</span> <span class=\"chip flat\" style=\"font-size: 10.5px;\">📍 ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div style=\"padding: 12px 18px; border-bottom: 1px solid var(--line); background: var(--surface-2);\"><!-- Top row: Buyer details and CTAs --><div style=\"display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;\"><div style=\"display: flex; align-items: center; gap: 12px;\"><div style=\"width: 40px; height: 40px; border-radius: 10px; background: var(--primary); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 14px;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var15 string
-			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.BuyerCity)
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.AvatarInit)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 96, Col: 89}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 106, Col: 34}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></div><div style=\"font-size: 12px; color: var(--muted); margin-top: 1px;\"><b>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><div><div style=\"display: flex; align-items: center; gap: 8px;\"><b style=\"font-size: 14.5px; color: var(--ink);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var16 string
-			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.BuyerCompany)
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.BuyerName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 99, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 110, Col: 83}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</b> · Channel: <span style=\"color: var(--primary-2);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</b> <span class=\"chip up\" style=\"font-size: 10px;\">Verified Buyer</span> <span class=\"chip flat\" style=\"font-size: 10px;\">📍 ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var17 string
-			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.Channel)
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.BuyerCity)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 99, Col: 119}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 112, Col: 88}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span></div></div></div><div style=\"display: flex; gap: 8px;\"><a href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</span></div><div style=\"font-size: 12px; color: var(--muted); margin-top: 1px;\"><b>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var18 templ.SafeURL = templ.SafeURL(fmt.Sprintf("https://wa.me/27829012345?text=%s", "Hi%20there,%20following%20up%20on%20your%20Shoppage%20inquiry"))
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var18)))
+			var templ_7745c5c3_Var18 string
+			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.BuyerCompany)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 115, Col: 40}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" target=\"_blank\" class=\"btn ghost small\" style=\"font-size: 11.5px;\"><span>💬</span> Open in WhatsApp</a> <button type=\"button\" class=\"btn solid small\" onclick=\"document.getElementById(&#39;quote-modal&#39;)?.showModal();\" style=\"font-size: 11.5px;\"><span>⚡</span> Send Quote</button></div></div><!-- Direct Message Stream --> <div id=\"chat-messages-stream\" style=\"flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; background: var(--surface);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</b> · Channel: <span style=\"color: var(--primary-2); font-weight:600;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var19 string
+			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.Channel)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 115, Col: 137}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</span></div></div></div><div style=\"display: flex; gap: 8px; align-items: center;\"><a href=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var20 templ.SafeURL = templ.SafeURL(fmt.Sprintf("https://wa.me/27829012345?text=%s", "Hi%20there,%20following%20up%20on%20your%20Shoppage%20commerce%20inquiry"))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var20)))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" target=\"_blank\" class=\"btn ghost small\" style=\"font-size: 11.5px;\"><span>💬</span> Open in WhatsApp</a> <button type=\"button\" class=\"btn ghost small\" onclick=\"document.getElementById(&#39;stock-lock-modal&#39;)?.showModal();\" style=\"font-size: 11.5px;\"><span>📦</span> Reserve Stock</button> <button type=\"button\" class=\"btn solid small\" onclick=\"document.getElementById(&#39;quote-modal&#39;)?.showModal();\" style=\"font-size: 11.5px;\"><span>⚡</span> Send Quote</button></div></div><!-- Bottom row: Deal Context Pill & Status Controls (Slack Ergonomics) --><div style=\"display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 11.5px;\"><div style=\"display: flex; align-items: center; gap: 8px;\"><span style=\"font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 4px;\">🏷️ ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var21 string
+			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.DealContext)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 152, Col: 43}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</span> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if activeThread.DealAmount > 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span class=\"badge\" style=\"background: rgba(43, 114, 87, 0.15); color: var(--primary); font-weight: 800;\">R ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var22 string
+				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", activeThread.DealAmount))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 156, Col: 58}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, " ZAR</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</div><div style=\"display: flex; align-items: center; gap: 8px;\"><span style=\"color: var(--muted);\">Assigned: <b style=\"color: var(--ink);\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var23 string
+			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.AssignedAgent)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 162, Col: 111}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</b></span><form hx-post=\"/chat/action\" hx-target=\"#tab-content\" style=\"display: inline-flex; align-items: center; gap: 4px; margin: 0;\"><input type=\"hidden\" name=\"thread_id\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var24 string
+			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.ID)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 164, Col: 70}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\"> <input type=\"hidden\" name=\"action\" value=\"set_deal_status\"> <label style=\"color: var(--muted); font-size: 11px;\">Status:</label> <select name=\"status\" onchange=\"this.form.requestSubmit();\" style=\"padding: 2px 8px; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--primary);\"><option value=\"Negotiating\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if activeThread.DealStatus == "Negotiating" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, " selected")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, ">Negotiating</option> <option value=\"Proforma Issued\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if activeThread.DealStatus == "Proforma Issued" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, " selected")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, ">Proforma Issued</option> <option value=\"Stock Reserved\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if activeThread.DealStatus == "Stock Reserved" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, " selected")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, ">Stock Reserved</option> <option value=\"Paid &amp; Dispatched\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if activeThread.DealStatus == "Paid & Dispatched" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, " selected")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, ">Paid &amp; Dispatched</option></select></form></div></div></div><!-- Direct Message Stream --> <div id=\"chat-messages-stream\" style=\"flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; background: var(--surface);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, msg := range activeThread.Messages {
-				if msg.IsMerchant {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<!-- Outbound Merchant Message --> <div style=\"display: flex; flex-direction: column; align-items: flex-end; max-width: 78%; margin-left: auto;\"><div style=\"background: var(--primary); color: #fff; padding: 10px 14px; border-radius: 12px; border-bottom-right-radius: 2px; font-size: 13.5px; line-height: 1.45; box-shadow: var(--sh-sm);\">")
+				if msg.IsInternalNote {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<!-- SLACK-STYLE INTERNAL TEAM WHISPER / NOTE (Amber tinted, visible only to merchant staff) --> <div style=\"display: flex; flex-direction: column; max-width: 85%; margin: 4px auto 4px auto; width: 100%;\"><div style=\"background: rgba(245, 158, 11, 0.08); border: 1.5px dashed #f59e0b; border-radius: 10px; padding: 12px 14px; color: var(--ink); box-shadow: var(--sh-sm);\"><div style=\"display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid rgba(245, 158, 11, 0.2); padding-bottom: 4px;\"><div style=\"display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 800; color: #b45309;\"><span>🔒 INTERNAL TEAM NOTE</span> <span style=\"font-weight: 500; color: var(--muted);\">· ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var19 string
-					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Text)
+					var templ_7745c5c3_Var25 string
+					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(msg.SenderName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 131, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 192, Col: 84}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, " ")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					if msg.HasQuote && msg.Quote != nil {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<!-- Structured Quote Card inside Message --> <div style=\"margin-top: 10px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 12px; color: #fff; text-align: left;\"><div style=\"display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 6px; margin-bottom: 8px;\"><b style=\"font-family: var(--mono); font-size: 12px; color: #4fe0a4;\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var20 string
-						templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Quote.QuoteNumber)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 136, Col: 106}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</b> <span class=\"chip up\" style=\"font-size: 10px; background: rgba(79,224,164,0.2); color: #4fe0a4;\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var21 string
-						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Quote.Status)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 137, Col: 128}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</span></div><div style=\"font-weight: 700; font-size: 13px; margin-bottom: 4px;\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var22 string
-						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Quote.ProductTitle)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 139, Col: 104}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div><div style=\"font-size: 12px; color: #d0e8dd; margin-bottom: 8px;\">SKU: <b>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var23 string
-						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Quote.SKU)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 141, Col: 36}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</b> · Quantity: <b>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var24 string
-						templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d units", msg.Quote.Quantity))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 141, Col: 104}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</b> (R ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var25 string
-						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", msg.Quote.UnitPriceZar))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 141, Col: 159}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, " / unit)</div><div style=\"display: flex; justify-content: space-between; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 6px;\"><span>Subtotal: R ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var26 string
-						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", msg.Quote.SubtotalZar))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 144, Col: 75}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span> <span>SARS 15% VAT: R ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var27 string
-						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", msg.Quote.VATZar))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 145, Col: 74}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span></div><div style=\"display: flex; justify-content: space-between; font-size: 13.5px; font-weight: 700; color: #4fe0a4; margin-top: 4px;\"><span>Grand Total:</span> <span>R ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var28 string
-						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", msg.Quote.TotalZar))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 149, Col: 62}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, " ZAR</span></div></div>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</span></div><span style=\"font-size: 10px; background: rgba(245, 158, 11, 0.2); color: #b45309; padding: 1px 6px; border-radius: 4px; font-weight: 700;\">Staff Only (Hidden from Buyer)</span></div><div style=\"font-size: 13px; line-height: 1.45; color: var(--ink);\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div><div style=\"font-size: 10.5px; color: var(--muted); margin-top: 3px; display: flex; gap: 6px;\"><span>You (")
+					var templ_7745c5c3_Var26 string
+					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Text)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 199, Col: 21}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div><div style=\"font-size: 10px; color: var(--muted); margin-top: 6px; text-align: right;\">Logged ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var27 string
+					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Timestamp.Format("15:04"))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 202, Col: 49}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, " · Visible across Midrand Trade Desk</div></div></div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else if msg.CardType == "stock_lock" && msg.StockLock != nil {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<!-- BLOCK KIT ACTION CARD: Warehouse Stock Reservation Pill --> <div style=\"display: flex; flex-direction: column; max-width: 82%; margin-right: auto;\"><div style=\"background: var(--surface-2); border: 1.5px solid #2563eb; border-radius: 12px; padding: 14px; box-shadow: var(--sh-sm); color: var(--ink);\"><div style=\"display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid var(--line); padding-bottom: 6px;\"><div style=\"display: flex; align-items: center; gap: 6px;\"><span style=\"font-size: 16px;\">📦</span> <b style=\"font-size: 12.5px; color: #2563eb; font-family: var(--mono);\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var28 string
+					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(msg.StockLock.LockID)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 213, Col: 106}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</b></div><span class=\"chip up\" style=\"font-size: 10px; background: rgba(37, 99, 235, 0.1); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.3);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var29 string
-					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(msg.SenderName)
+					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(msg.StockLock.Status)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 155, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 216, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, ")</span> · <span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</span></div><div style=\"font-weight: 700; font-size: 13.5px; margin-bottom: 4px;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var30 string
-					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Timestamp.Format("15:04"))
+					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(msg.StockLock.ProductTitle)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 155, Col: 88}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 219, Col: 108}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span> · <span style=\"color: var(--primary-2);\">✓ Delivered</span></div></div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<!-- Inbound Buyer Message --> <div style=\"display: flex; flex-direction: column; align-items: flex-start; max-width: 78%;\"><div style=\"background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--ink); padding: 10px 14px; border-radius: 12px; border-bottom-left-radius: 2px; font-size: 13.5px; line-height: 1.45;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</div><div style=\"font-size: 12px; color: var(--ink); margin-bottom: 6px;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var31 string
 					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Text)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 162, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 220, Col: 89}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div><div style=\"font-size: 10.5px; color: var(--muted); margin-top: 3px; display: flex; gap: 6px;\"><b>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</div><div style=\"font-size: 12px; color: var(--muted); margin-bottom: 10px;\">SKU: <b>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var32 string
-					templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(msg.SenderName)
+					templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(msg.StockLock.SKU)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 165, Col: 29}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 222, Col: 38}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</b> · <span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</b> · Quantity Locked: <b style=\"color: #2563eb;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var33 string
-					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Timestamp.Format("15:04"))
+					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d Units", msg.StockLock.Quantity))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 165, Col: 76}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 222, Col: 141}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</span> · <span class=\"chip flat\" style=\"font-size: 9.5px; padding: 0 4px;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</b><br>Location: <b>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var34 string
-					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.Channel)
+					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(msg.StockLock.Warehouse)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 165, Col: 177}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 224, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</span></div></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</b></div><div style=\"display: flex; gap: 8px; border-top: 1px solid var(--line); padding-top: 8px;\"><button type=\"button\" class=\"btn ghost small\" style=\"font-size: 11px; padding: 4px 8px;\" onclick=\"alert(&#39;Stock lock extended by 2 hours at Midrand Hub.&#39;);\">⏳ Extend 2h</button> <button type=\"button\" class=\"btn ghost small\" style=\"font-size: 11px; padding: 4px 8px;\" onclick=\"alert(&#39;Viewing live inventory levels for Bay 4.&#39;);\">📍 View Bay 4 Bin</button></div></div><div style=\"font-size: 10.5px; color: var(--muted); margin-top: 3px; display: flex; gap: 6px;\"><b>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var35 string
+					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(msg.SenderName)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 236, Col: 29}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</b> · <span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var36 string
+					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Timestamp.Format("15:04"))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 236, Col: 76}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</span> · <span style=\"color: #2563eb;\">● Warehouse Sync</span></div></div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else if msg.CardType == "pop_verification" && msg.PaymentProof != nil {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<!-- BLOCK KIT ACTION CARD: Proof of Payment (POP) Dropzone & Status --> <div style=\"display: flex; flex-direction: column; max-width: 82%; margin-right: auto;\"><div style=\"background: var(--surface-2); border: 1.5px solid #059669; border-radius: 12px; padding: 14px; box-shadow: var(--sh-sm); color: var(--ink);\"><div style=\"display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid var(--line); padding-bottom: 6px;\"><div style=\"display: flex; align-items: center; gap: 6px;\"><span style=\"font-size: 16px;\">🏦</span> <b style=\"font-size: 12.5px; color: #059669;\">EFT Proof of Payment</b></div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if msg.PaymentProof.Verified {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<span class=\"chip up\" style=\"font-size: 10px; background: rgba(5, 150, 105, 0.1); color: #059669; border: 1px solid rgba(5, 150, 105, 0.3);\">✓ Verified &amp; Settled</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<span class=\"chip warn\" style=\"font-size: 10px;\">Verification Pending</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</div><div style=\"font-size: 12.5px; margin-bottom: 6px;\">Bank: <b>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var37 string
+					templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(msg.PaymentProof.BankName)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 257, Col: 47}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</b> · Account: <b>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var38 string
+					templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(msg.PaymentProof.AccountHolder)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 257, Col: 101}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</b></div><div style=\"display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 10px; background: var(--surface); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--line);\"><span>Amount Transferred:</span> <span style=\"color: var(--primary);\">R ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var39 string
+					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", msg.PaymentProof.AmountZar))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 261, Col: 99}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, " ZAR</span></div><div style=\"font-size: 11.5px; color: var(--muted); margin-bottom: 10px;\">Remittance Ref: <span style=\"font-family: var(--mono); color: var(--ink);\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var40 string
+					templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(msg.PaymentProof.ReferenceNumber)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 264, Col: 120}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</span> · Document: <span style=\"text-decoration: underline;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var41 string
+					templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(msg.PaymentProof.ProofFileName)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 264, Col: 217}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</span></div><div style=\"display: flex; gap: 8px; border-top: 1px solid var(--line); padding-top: 8px; align-items: center;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if msg.PaymentProof.Verified {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<span style=\"font-size: 11px; color: #059669; font-weight: 600;\">✓ Verified by ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var42 string
+						templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(msg.PaymentProof.VerifiedBy)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 269, Col: 58}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, " · Order marked for dispatch</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<form hx-post=\"/chat/action\" hx-target=\"#tab-content\" style=\"display: inline; margin: 0;\"><input type=\"hidden\" name=\"thread_id\" value=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var43 string
+						templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.ID)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 273, Col: 74}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\"> <input type=\"hidden\" name=\"action\" value=\"verify_pop\"> <button type=\"submit\" class=\"btn solid small\" style=\"font-size: 11px;\">✓ Approve &amp; Verify Payment</button></form>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</div></div><div style=\"font-size: 10.5px; color: var(--muted); margin-top: 3px; display: flex; gap: 6px;\"><b>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var44 string
+					templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(msg.SenderName)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 283, Col: 29}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</b> · <span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var45 string
+					templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Timestamp.Format("15:04"))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 283, Col: 76}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</span></div></div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else if msg.IsMerchant {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<!-- Outbound Merchant Message --> <div style=\"display: flex; flex-direction: column; align-items: flex-end; max-width: 78%; margin-left: auto;\"><div style=\"background: var(--primary); color: #fff; padding: 10px 14px; border-radius: 12px; border-bottom-right-radius: 2px; font-size: 13.5px; line-height: 1.45; box-shadow: var(--sh-sm);\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var46 string
+					templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Text)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 290, Col: 20}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, " ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if msg.HasQuote && msg.Quote != nil {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<!-- BLOCK KIT ACTION CARD: Proforma Invoice Card inside Message --> <div style=\"margin-top: 10px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 12px; color: #fff; text-align: left;\"><div style=\"display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 6px; margin-bottom: 8px;\"><b style=\"font-family: var(--mono); font-size: 12px; color: #4fe0a4;\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var47 string
+						templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Quote.QuoteNumber)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 295, Col: 106}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</b> <span class=\"chip up\" style=\"font-size: 10px; background: rgba(79,224,164,0.2); color: #4fe0a4;\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var48 string
+						templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Quote.Status)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 296, Col: 128}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</span></div><div style=\"font-weight: 700; font-size: 13px; margin-bottom: 4px;\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var49 string
+						templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Quote.ProductTitle)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 298, Col: 104}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</div><div style=\"font-size: 12px; color: #d0e8dd; margin-bottom: 8px;\">SKU: <b>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var50 string
+						templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Quote.SKU)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 300, Col: 36}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</b> · Quantity: <b>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var51 string
+						templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d units", msg.Quote.Quantity))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 300, Col: 104}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</b> (R ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var52 string
+						templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", msg.Quote.UnitPriceZar))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 300, Col: 159}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, " / unit)</div><div style=\"display: flex; justify-content: space-between; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 6px;\"><span>Subtotal: R ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var53 string
+						templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", msg.Quote.SubtotalZar))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 303, Col: 75}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</span> <span>SARS 15% VAT: R ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var54 string
+						templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", msg.Quote.VATZar))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 304, Col: 74}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</span></div><div style=\"display: flex; justify-content: space-between; font-size: 13.5px; font-weight: 700; color: #4fe0a4; margin-top: 4px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.15);\"><span>Grand Total:</span> <span>R ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var55 string
+						templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", msg.Quote.TotalZar))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 308, Col: 62}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, " ZAR</span></div><!-- Block Kit Action Buttons --><div style=\"display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;\"><form hx-post=\"/chat/action\" hx-target=\"#tab-content\" style=\"display: inline; margin: 0;\"><input type=\"hidden\" name=\"thread_id\" value=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var56 string
+						templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.ID)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 314, Col: 75}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "\"> <input type=\"hidden\" name=\"action\" value=\"lock_stock\"> <input type=\"hidden\" name=\"sku\" value=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var57 string
+						templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Quote.SKU)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 316, Col: 67}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "\"> <input type=\"hidden\" name=\"quantity\" value=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var58 string
+						templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", msg.Quote.Quantity))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 317, Col: 96}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var58))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "\"> <button type=\"submit\" class=\"btn solid small\" style=\"background: #4fe0a4; color: #0f3825; font-weight: 700; font-size: 11px; padding: 4px 8px;\">✓ Approve &amp; Reserve Stock</button></form><button type=\"button\" class=\"btn ghost small\" style=\"font-size: 11px; color: #fff; border-color: rgba(255,255,255,0.3); padding: 4px 8px;\" onclick=\"window.print();\">📄 Download VAT PDF</button> <a href=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var59 templ.SafeURL = templ.SafeURL(fmt.Sprintf("https://wa.me/27829012345?text=%s", fmt.Sprintf("Hi, here is your Shoppage quotation %s for %d units of %s. Total R %.2f ZAR with VAT.", msg.Quote.QuoteNumber, msg.Quote.Quantity, msg.Quote.SKU, msg.Quote.TotalZar)))
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var59)))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "\" target=\"_blank\" class=\"btn ghost small\" style=\"font-size: 11px; color: #fff; border-color: rgba(255,255,255,0.3); padding: 4px 8px;\">💬 WhatsApp Forward</a></div></div>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "</div><div style=\"font-size: 10.5px; color: var(--muted); margin-top: 3px; display: flex; gap: 6px;\"><span>You (")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var60 string
+					templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.JoinStringErrs(msg.SenderName)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 338, Col: 37}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var60))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, ")</span> · <span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var61 string
+					templ_7745c5c3_Var61, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Timestamp.Format("15:04"))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 338, Col: 88}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var61))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "</span> · <span style=\"color: var(--primary-2);\">✓ Delivered</span></div></div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "<!-- Inbound Buyer Message --> <div style=\"display: flex; flex-direction: column; align-items: flex-start; max-width: 78%;\"><div style=\"background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--ink); padding: 10px 14px; border-radius: 12px; border-bottom-left-radius: 2px; font-size: 13.5px; line-height: 1.45;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var62 string
+					templ_7745c5c3_Var62, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Text)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 345, Col: 20}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var62))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "</div><div style=\"font-size: 10.5px; color: var(--muted); margin-top: 3px; display: flex; gap: 6px;\"><b>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var63 string
+					templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.JoinStringErrs(msg.SenderName)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 348, Col: 29}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var63))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "</b> · <span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var64 string
+					templ_7745c5c3_Var64, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Timestamp.Format("15:04"))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 348, Col: 76}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var64))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "</span> · <span class=\"chip flat\" style=\"font-size: 9.5px; padding: 0 4px;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var65 string
+					templ_7745c5c3_Var65, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.Channel)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 348, Col: 177}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var65))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "</span></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div><!-- Quick Replies Chips --> <div style=\"padding: 6px 14px; background: var(--surface-2); border-top: 1px solid var(--line); display: flex; gap: 8px; overflow-x: auto;\"><button type=\"button\" class=\"chip flat\" style=\"cursor: pointer; border: 1px solid var(--line); white-space: nowrap; font-size: 11px;\" onclick=\"document.getElementById(&#39;chat-input-text&#39;).value = &#39;Yes, we have stock on hand at Midrand Hub ready for same-day dispatch via The Courier Guy.&#39;; document.getElementById(&#39;chat-input-text&#39;).focus();\">📦 Stock Available (Midrand Hub)</button> <button type=\"button\" class=\"chip flat\" style=\"cursor: pointer; border: 1px solid var(--line); white-space: nowrap; font-size: 11px;\" onclick=\"document.getElementById(&#39;chat-input-text&#39;).value = &#39;I have approved an extra 10% wholesale volume discount for this order.&#39;; document.getElementById(&#39;chat-input-text&#39;).focus();\">🏷️ 10% Trade Discount</button> <button type=\"button\" class=\"chip flat\" style=\"cursor: pointer; border: 1px solid var(--line); white-space: nowrap; font-size: 11px;\" onclick=\"document.getElementById(&#39;chat-input-text&#39;).value = &#39;Our bank details: Standard Bank Acc: 001892810 Branch: 051001. Please use Proforma number as reference.&#39;; document.getElementById(&#39;chat-input-text&#39;).focus();\">🏦 Standard Bank EFT Details</button></div><!-- Message Input Bar --> <form hx-post=\"/chat/send\" hx-target=\"#tab-content\" style=\"padding: 12px 16px; border-top: 1px solid var(--line); display: flex; gap: 10px; background: var(--surface); align-items: center;\"><input type=\"hidden\" name=\"thread_id\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "</div><!-- Quick Replies Chips --> <div style=\"padding: 6px 14px; background: var(--surface-2); border-top: 1px solid var(--line); display: flex; gap: 8px; overflow-x: auto;\"><button type=\"button\" class=\"chip flat\" style=\"cursor: pointer; border: 1px solid var(--line); white-space: nowrap; font-size: 11px;\" onclick=\"document.getElementById(&#39;chat-input-text&#39;).value = &#39;Yes, we have stock on hand at Midrand Hub ready for same-day dispatch via The Courier Guy.&#39;; document.getElementById(&#39;chat-input-text&#39;).focus();\">📦 Stock Available (Midrand Hub)</button> <button type=\"button\" class=\"chip flat\" style=\"cursor: pointer; border: 1px solid var(--line); white-space: nowrap; font-size: 11px;\" onclick=\"document.getElementById(&#39;chat-input-text&#39;).value = &#39;I have approved an extra 10% wholesale volume discount for this order.&#39;; document.getElementById(&#39;chat-input-text&#39;).focus();\">🏷️ 10% Trade Discount</button> <button type=\"button\" class=\"chip flat\" style=\"cursor: pointer; border: 1px solid var(--line); white-space: nowrap; font-size: 11px;\" onclick=\"document.getElementById(&#39;chat-input-text&#39;).value = &#39;Our bank details: Standard Bank Acc: 001892810 Branch: 051001. Please use Proforma number as reference.&#39;; document.getElementById(&#39;chat-input-text&#39;).focus();\">🏦 Standard Bank EFT Details</button> <button type=\"button\" class=\"chip flat\" style=\"cursor: pointer; border: 1px solid var(--line); white-space: nowrap; font-size: 11px;\" onclick=\"switchChatMode(&#39;internal&#39;); document.getElementById(&#39;chat-input-text&#39;).value = &#39;Physical count verified at Bay 4. Ready for lock.&#39;; document.getElementById(&#39;chat-input-text&#39;).focus();\">🔒 Internal Note Shortcut</button></div><!-- Dual-Mode Input Bar (Slack/Teams Ergonomics: Buyer Reply vs. Internal Team Note) --> <div style=\"border-top: 1px solid var(--line); background: var(--surface);\"><!-- Mode Selector Bar --><div style=\"display: flex; gap: 4px; padding: 6px 14px 0 14px; background: var(--surface-2); border-bottom: 1px solid var(--line);\"><button type=\"button\" id=\"tab-mode-buyer\" class=\"chat-mode-tab active-mode\" onclick=\"switchChatMode(&#39;buyer&#39;);\" style=\"padding: 5px 12px; font-size: 12px; font-weight: 700; border: none; border-bottom: 2px solid var(--primary); background: transparent; color: var(--ink); cursor: pointer; display: flex; align-items: center; gap: 5px;\"><span>💬 Reply to Buyer</span></button> <button type=\"button\" id=\"tab-mode-internal\" class=\"chat-mode-tab\" onclick=\"switchChatMode(&#39;internal&#39;);\" style=\"padding: 5px 12px; font-size: 12px; font-weight: 600; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--muted); cursor: pointer; display: flex; align-items: center; gap: 5px;\"><span>🔒 Internal Team Note (Whisper)</span> <span style=\"font-size: 9.5px; background: rgba(245, 158, 11, 0.2); color: #b45309; padding: 0 5px; border-radius: 4px;\">Staff Only</span></button></div><form hx-post=\"/chat/send\" hx-target=\"#tab-content\" id=\"chat-send-form\" style=\"padding: 12px 16px; display: flex; gap: 10px; background: var(--surface); align-items: center; transition: background .15s;\"><input type=\"hidden\" name=\"thread_id\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var35 string
-			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.ID)
+			var templ_7745c5c3_Var66 string
+			templ_7745c5c3_Var66, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 206, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 422, Col: 68}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var66))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\"> <input type=\"text\" id=\"chat-input-text\" name=\"message\" placeholder=\"Type your message to the buyer… (Enter to send)\" style=\"flex: 1; padding: 10px 14px; font-size: 13.5px; border: 1px solid var(--line-strong); border-radius: 9px; background: var(--surface-2); color: var(--ink);\" required autocomplete=\"off\"> <button type=\"submit\" class=\"btn solid\"><span>Send</span> <span>➤</span></button></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "\"> <input type=\"hidden\" name=\"is_internal\" id=\"is-internal-flag\" value=\"false\"><div style=\"flex: 1; position: relative;\"><input type=\"text\" id=\"chat-input-text\" name=\"message\" placeholder=\"Type message to buyer… (Press Enter to send)\" style=\"width: 100%; padding: 10px 14px; font-size: 13.5px; border: 1px solid var(--line-strong); border-radius: 9px; background: var(--surface-2); color: var(--ink); transition: border-color .15s, background-color .15s;\" required autocomplete=\"off\"></div><button type=\"submit\" id=\"chat-send-button\" class=\"btn solid\" style=\"display: flex; align-items: center; gap: 6px; min-width: 120px; justify-content: center;\"><span id=\"send-btn-label\">Send ➤</span></button></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</div></div><!-- Send Structured Quote Modal --><dialog id=\"quote-modal\" class=\"modal-dialog\"><div class=\"modal-card\"><div class=\"modal-head\"><div><div class=\"breadcrumb\" style=\"margin-bottom: 2px;\"><span>Direct Messages</span> <span>&gt;</span> <b>Commerce Quote Builder</b></div><h4 style=\"font-size: 16px;\">Generate &amp; Inject Structured Quote</h4></div><button type=\"button\" class=\"close-btn\" onclick=\"document.getElementById(&#39;quote-modal&#39;).close();\">&times;</button></div><form hx-post=\"/chat/quote\" hx-target=\"#tab-content\" onsubmit=\"document.getElementById(&#39;quote-modal&#39;).close();\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "</div></div><!-- Send Structured Quote Modal --><dialog id=\"quote-modal\" class=\"modal-dialog\"><div class=\"modal-card\"><div class=\"modal-head\"><div><div class=\"breadcrumb\" style=\"margin-bottom: 2px;\"><span>Direct Messages</span> <span>&gt;</span> <b>Commerce Quote Builder</b></div><h4 style=\"font-size: 16px;\">Generate &amp; Inject Structured Quote</h4></div><button type=\"button\" class=\"close-btn\" onclick=\"document.getElementById(&#39;quote-modal&#39;).close();\">&times;</button></div><form hx-post=\"/chat/quote\" hx-target=\"#tab-content\" onsubmit=\"document.getElementById(&#39;quote-modal&#39;).close();\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if activeThread := data.GetActiveThread(); activeThread != nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<input type=\"hidden\" name=\"thread_id\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "<input type=\"hidden\" name=\"thread_id\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var36 string
-			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.ID)
+			var templ_7745c5c3_Var67 string
+			templ_7745c5c3_Var67, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 238, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 465, Col: 67}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var67))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<div class=\"modal-body\"><div class=\"form-group\"><label>Select Product SKU</label> <select name=\"sku\" class=\"select-full\" id=\"quote-sku-select\" onchange=\"updateQuotePricing();\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "<div class=\"modal-body\"><div class=\"form-group\"><label>Select Product SKU</label> <select name=\"sku\" class=\"select-full\" id=\"quote-sku-select\" onchange=\"updateQuotePricing();\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, item := range data.Catalog {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<option value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "<option value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var37 string
-			templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(item.SKU)
+			var templ_7745c5c3_Var68 string
+			templ_7745c5c3_Var68, templ_7745c5c3_Err = templ.JoinStringErrs(item.SKU)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 245, Col: 33}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 472, Col: 33}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\" data-title=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var68))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var38 string
-			templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(item.Title)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 245, Col: 59}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "\" data-title=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" data-price=\"")
+			var templ_7745c5c3_Var69 string
+			templ_7745c5c3_Var69, templ_7745c5c3_Err = templ.JoinStringErrs(item.Title)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 472, Col: 59}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var69))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var39 string
-			templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.WholesaleZar))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 245, Col: 113}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "\" data-price=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\">")
+			var templ_7745c5c3_Var70 string
+			templ_7745c5c3_Var70, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.WholesaleZar))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 472, Col: 113}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var70))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var40 string
-			templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(item.SKU)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 246, Col: 20}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, " — ")
+			var templ_7745c5c3_Var71 string
+			templ_7745c5c3_Var71, templ_7745c5c3_Err = templ.JoinStringErrs(item.SKU)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 473, Col: 20}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var71))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var41 string
-			templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(item.Title)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 246, Col: 39}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, " — ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, " (Trade: R ")
+			var templ_7745c5c3_Var72 string
+			templ_7745c5c3_Var72, templ_7745c5c3_Err = templ.JoinStringErrs(item.Title)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 473, Col: 39}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var72))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var42 string
-			templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.WholesaleZar))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 246, Col: 92}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, " (Trade: R ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, ")</option>")
+			var templ_7745c5c3_Var73 string
+			templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.WholesaleZar))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 473, Col: 92}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var73))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, ")</option>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</select></div><div class=\"two-col\"><div class=\"form-group\"><label>Quantity (Units)</label> <input type=\"number\" id=\"quote-qty\" name=\"quantity\" class=\"input\" value=\"100\" min=\"1\" oninput=\"updateQuotePricing();\" required></div><div class=\"form-group\"><label>Trade Discount Tier</label> <select id=\"quote-discount\" name=\"discount_tier\" class=\"select-full\" onchange=\"updateQuotePricing();\"><option value=\"0\">Standard Wholesale (0%)</option> <option value=\"10\">Bulk Commercial (-10%)</option> <option value=\"18\">Regional Wholesale (-18%)</option> <option value=\"25\">Direct Container (-25%)</option></select></div></div><!-- Live Pricing Calculation Card --><div style=\"background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 12px; margin-top: 10px;\"><div style=\"font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 6px;\">Quote Summary Calculation</div><div style=\"display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px;\"><span style=\"color: var(--muted);\">Unit Base Price:</span> <b id=\"calc-unit-price\">R 22.88 ZAR</b></div><div style=\"display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px;\"><span style=\"color: var(--muted);\">Subtotal (Excl. VAT):</span> <b id=\"calc-subtotal\">R 2,288.00 ZAR</b></div><div style=\"display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px;\"><span style=\"color: var(--muted);\">SARS 15% VAT:</span> <b id=\"calc-vat\" style=\"color: var(--primary-2);\">R 343.20 ZAR</b></div><div style=\"display: flex; justify-content: space-between; font-size: 14px; font-weight: 800; border-top: 1px solid var(--line); padding-top: 6px; margin-top: 4px;\"><span>Total Quoted Amount:</span> <span id=\"calc-total\" style=\"color: var(--primary);\">R 2,631.20 ZAR</span></div></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn ghost\" onclick=\"document.getElementById(&#39;quote-modal&#39;).close();\">Cancel</button> <button type=\"submit\" class=\"btn solid\">Send Quote to Buyer DM</button></div></form></div></dialog></div><style>\n\t\t.thread-item:hover {\n\t\t\tbackground: var(--surface-2);\n\t\t}\n\t\t.thread-item.active-thread {\n\t\t\tbackground: var(--surface-2);\n\t\t\tborder-left: 3px solid var(--primary);\n\t\t}\n\t</style><script>\n\t\t// Real-time Chat WebSocket Connection\n\t\t(function() {\n\t\t\tvar activeThreadId = document.querySelector('.thread-item.active-thread')?.getAttribute('hx-get')?.split('/').pop() || 'conv_mitrend';\n\t\t\tif (!activeThreadId) return;\n\n\t\t\ttry {\n\t\t\t\tvar wsUrl = \"ws://\" + window.location.hostname + \":8080/ws/chat?roomId=\" + encodeURIComponent(activeThreadId) + \"&userId=merchant_mitrend&role=merchant\";\n\t\t\t\tvar socket = new WebSocket(wsUrl);\n\n\t\t\t\tsocket.onopen = function() {\n\t\t\t\t\tvar ind = document.getElementById(\"ws-indicator\");\n\t\t\t\t\tif (ind) {\n\t\t\t\t\t\tind.textContent = \"● WebSocket: Connected (ws://localhost:8080)\";\n\t\t\t\t\t\tind.className = \"chip up\";\n\t\t\t\t\t}\n\t\t\t\t};\n\n\t\t\t\tsocket.onmessage = function(event) {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tvar data = JSON.parse(event.data);\n\t\t\t\t\t\tif (data.event === \"message_received\" && data.message) {\n\t\t\t\t\t\t\t// Append incoming message dynamically to the stream\n\t\t\t\t\t\t\tvar stream = document.getElementById(\"chat-messages-stream\");\n\t\t\t\t\t\t\tif (stream) {\n\t\t\t\t\t\t\t\tvar bubble = document.createElement(\"div\");\n\t\t\t\t\t\t\t\tbubble.style.cssText = \"display: flex; flex-direction: column; align-items: flex-start; max-width: 78%;\";\n\t\t\t\t\t\t\t\tbubble.innerHTML = '<div style=\"background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--ink); padding: 10px 14px; border-radius: 12px; border-bottom-left-radius: 2px; font-size: 13.5px; line-height: 1.45;\">' + \n\t\t\t\t\t\t\t\t\tescapeHtml(data.message.content) + \n\t\t\t\t\t\t\t\t\t'</div><div style=\"font-size: 10.5px; color: var(--muted); margin-top: 3px;\">' + \n\t\t\t\t\t\t\t\t\tescapeHtml(data.message.senderId) + ' · Just now · Live WebSocket</div>';\n\t\t\t\t\t\t\t\tstream.appendChild(bubble);\n\t\t\t\t\t\t\t\tstream.scrollTop = stream.scrollHeight;\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(e) {}\n\t\t\t\t};\n\n\t\t\t\tsocket.onerror = function() {\n\t\t\t\t\tvar ind = document.getElementById(\"ws-indicator\");\n\t\t\t\t\tif (ind) {\n\t\t\t\t\t\tind.textContent = \"● WebSocket: REST Fallback\";\n\t\t\t\t\t\tind.className = \"chip warn\";\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t} catch(e) {}\n\n\t\t\tfunction escapeHtml(text) {\n\t\t\t\tvar div = document.createElement('div');\n\t\t\t\tdiv.textContent = text;\n\t\t\t\treturn div.innerHTML;\n\t\t\t}\n\t\t})();\n\n\t\t// Live Quote Pricing Calculator\n\t\tfunction updateQuotePricing() {\n\t\t\tvar select = document.getElementById(\"quote-sku-select\");\n\t\t\tvar opt = select ? select.options[select.selectedIndex] : null;\n\t\t\tvar basePrice = opt ? parseFloat(opt.getAttribute(\"data-price\") || \"0\") : 0;\n\t\t\tvar qty = parseInt(document.getElementById(\"quote-qty\")?.value || \"1\", 10);\n\t\t\tvar discount = parseFloat(document.getElementById(\"quote-discount\")?.value || \"0\");\n\n\t\t\tvar effectivePrice = basePrice * (1 - (discount / 100));\n\t\t\tvar subtotal = effectivePrice * qty;\n\t\t\tvar vat = subtotal * 0.15;\n\t\t\tvar total = subtotal + vat;\n\n\t\t\tvar elUnit = document.getElementById(\"calc-unit-price\");\n\t\t\tif (elUnit) elUnit.textContent = \"R \" + effectivePrice.toFixed(2) + \" ZAR\" + (discount > 0 ? \" (-\" + discount + \"%)\" : \"\");\n\n\t\t\tvar elSub = document.getElementById(\"calc-subtotal\");\n\t\t\tif (elSub) elSub.textContent = \"R \" + subtotal.toFixed(2) + \" ZAR\";\n\n\t\t\tvar elVat = document.getElementById(\"calc-vat\");\n\t\t\tif (elVat) elVat.textContent = \"R \" + vat.toFixed(2) + \" ZAR\";\n\n\t\t\tvar elTot = document.getElementById(\"calc-total\");\n\t\t\tif (elTot) elTot.textContent = \"R \" + total.toFixed(2) + \" ZAR\";\n\t\t}\n\n\t\t// Filter Chat Threads\n\t\tfunction filterChatThreads(q) {\n\t\t\tvar query = q.toLowerCase();\n\t\t\tdocument.querySelectorAll('.thread-item').forEach(function(item) {\n\t\t\t\tvar text = item.textContent.toLowerCase();\n\t\t\t\titem.style.display = text.includes(query) ? 'flex' : 'none';\n\t\t\t});\n\t\t}\n\n\t\t// Scroll to bottom of message stream\n\t\tvar stream = document.getElementById(\"chat-messages-stream\");\n\t\tif (stream) {\n\t\t\tstream.scrollTop = stream.scrollHeight;\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "</select></div><div class=\"two-col\"><div class=\"form-group\"><label>Quantity (Units)</label> <input type=\"number\" id=\"quote-qty\" name=\"quantity\" class=\"input\" value=\"100\" min=\"1\" oninput=\"updateQuotePricing();\" required></div><div class=\"form-group\"><label>Trade Discount Tier</label> <select id=\"quote-discount\" name=\"discount_tier\" class=\"select-full\" onchange=\"updateQuotePricing();\"><option value=\"0\">Standard Wholesale (0%)</option> <option value=\"10\">Bulk Commercial (-10%)</option> <option value=\"18\">Regional Wholesale (-18%)</option> <option value=\"25\">Direct Container (-25%)</option></select></div></div><!-- Live Pricing Calculation Card --><div style=\"background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 12px; margin-top: 10px;\"><div style=\"font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 6px;\">Quote Summary Calculation</div><div style=\"display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px;\"><span style=\"color: var(--muted);\">Unit Base Price:</span> <b id=\"calc-unit-price\">R 22.88 ZAR</b></div><div style=\"display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px;\"><span style=\"color: var(--muted);\">Subtotal (Excl. VAT):</span> <b id=\"calc-subtotal\">R 2,288.00 ZAR</b></div><div style=\"display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px;\"><span style=\"color: var(--muted);\">SARS 15% VAT:</span> <b id=\"calc-vat\" style=\"color: var(--primary-2);\">R 343.20 ZAR</b></div><div style=\"display: flex; justify-content: space-between; font-size: 14px; font-weight: 800; border-top: 1px solid var(--line); padding-top: 6px; margin-top: 4px;\"><span>Total Quoted Amount:</span> <span id=\"calc-total\" style=\"color: var(--primary);\">R 2,631.20 ZAR</span></div></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn ghost\" onclick=\"document.getElementById(&#39;quote-modal&#39;).close();\">Cancel</button> <button type=\"submit\" class=\"btn solid\">Send Quote to Buyer DM</button></div></form></div></dialog><!-- Reserve Warehouse Stock Modal --><dialog id=\"stock-lock-modal\" class=\"modal-dialog\"><div class=\"modal-card\"><div class=\"modal-head\"><div><div class=\"breadcrumb\" style=\"margin-bottom: 2px;\"><span>Direct Messages</span> <span>&gt;</span> <b>Warehouse Inventory Lock</b></div><h4 style=\"font-size: 16px;\">Reserve Stock for Active Deal</h4></div><button type=\"button\" class=\"close-btn\" onclick=\"document.getElementById(&#39;stock-lock-modal&#39;).close();\">&times;</button></div><form hx-post=\"/chat/action\" hx-target=\"#tab-content\" onsubmit=\"document.getElementById(&#39;stock-lock-modal&#39;).close();\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if activeThread := data.GetActiveThread(); activeThread != nil {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "<input type=\"hidden\" name=\"thread_id\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var74 string
+			templ_7745c5c3_Var74, templ_7745c5c3_Err = templ.JoinStringErrs(activeThread.ID)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 538, Col: 67}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var74))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "\"> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 114, "<input type=\"hidden\" name=\"action\" value=\"lock_stock\"><div class=\"modal-body\"><div class=\"form-group\"><label>Select SKU to Lock</label> <select name=\"sku\" class=\"select-full\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, item := range data.Catalog {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 115, "<option value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var75 string
+			templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.JoinStringErrs(item.SKU)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 546, Col: 33}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var75))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var76 string
+			templ_7745c5c3_Var76, templ_7745c5c3_Err = templ.JoinStringErrs(item.SKU)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 546, Col: 46}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var76))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 117, " — ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var77 string
+			templ_7745c5c3_Var77, templ_7745c5c3_Err = templ.JoinStringErrs(item.Title)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 546, Col: 65}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var77))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, " (")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var78 string
+			templ_7745c5c3_Var78, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d on hand", item.StockQuantity))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `chat.templ`, Line: 546, Col: 116}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var78))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, ")</option>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "</select></div><div class=\"two-col\"><div class=\"form-group\"><label>Units to Lock</label> <input type=\"number\" name=\"quantity\" class=\"input\" value=\"200\" min=\"1\" required></div><div class=\"form-group\"><label>Warehouse Hub</label> <select class=\"select-full\" name=\"warehouse\"><option value=\"Midrand Central Hub, Bay 4\">Midrand Central Hub (Bay 4)</option> <option value=\"Crown Mines Wholesale Depot\">Crown Mines Wholesale Depot</option> <option value=\"Cape Town Logistics Hub\">Cape Town Logistics Hub</option></select></div></div><div style=\"background: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--ink);\">ℹ️ Stock reservation locks units in the warehouse WMS for 2 hours, generating a Block Kit reservation card in this trade channel.</div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn ghost\" onclick=\"document.getElementById(&#39;stock-lock-modal&#39;).close();\">Cancel</button> <button type=\"submit\" class=\"btn solid\" style=\"background: #2563eb;\">🔒 Confirm Stock Lock</button></div></form></div></dialog></div><style>\n\t\t.thread-item:hover {\n\t\t\tbackground: var(--surface-2);\n\t\t}\n\t\t.thread-item.active-thread {\n\t\t\tbackground: var(--surface-2);\n\t\t\tborder-left: 3px solid var(--primary);\n\t\t}\n\t\t.chat-mode-tab.active-mode {\n\t\t\tcolor: var(--ink) !important;\n\t\t\tborder-bottom-color: var(--primary) !important;\n\t\t}\n\t\t.chat-mode-tab.active-internal {\n\t\t\tcolor: #b45309 !important;\n\t\t\tborder-bottom-color: #f59e0b !important;\n\t\t}\n\t</style><script>\n\t\t// Slack/Teams Chat Mode Switcher: Buyer Reply vs Internal Team Note\n\t\tfunction switchChatMode(mode) {\n\t\t\tvar flag = document.getElementById('is-internal-flag');\n\t\t\tvar input = document.getElementById('chat-input-text');\n\t\t\tvar btn = document.getElementById('chat-send-button');\n\t\t\tvar btnLabel = document.getElementById('send-btn-label');\n\t\t\tvar tabBuyer = document.getElementById('tab-mode-buyer');\n\t\t\tvar tabInternal = document.getElementById('tab-mode-internal');\n\t\t\tvar form = document.getElementById('chat-send-form');\n\n\t\t\tif (mode === 'internal') {\n\t\t\t\tif (flag) flag.value = 'true';\n\t\t\t\tif (tabBuyer) {\n\t\t\t\t\ttabBuyer.classList.remove('active-mode');\n\t\t\t\t\ttabBuyer.style.borderBottomColor = 'transparent';\n\t\t\t\t\ttabBuyer.style.color = 'var(--muted)';\n\t\t\t\t}\n\t\t\t\tif (tabInternal) {\n\t\t\t\t\ttabInternal.classList.add('active-internal');\n\t\t\t\t\ttabInternal.style.borderBottomColor = '#f59e0b';\n\t\t\t\t\ttabInternal.style.color = '#b45309';\n\t\t\t\t}\n\t\t\t\tif (input) {\n\t\t\t\t\tinput.placeholder = '🔒 Staff note visible ONLY to merchant team (inventory check, credit, bay location)…';\n\t\t\t\t\tinput.style.borderColor = '#f59e0b';\n\t\t\t\t\tinput.style.background = 'rgba(245, 158, 11, 0.08)';\n\t\t\t\t}\n\t\t\t\tif (btn) {\n\t\t\t\t\tbtn.style.background = '#f59e0b';\n\t\t\t\t\tbtn.style.color = '#2e1e02';\n\t\t\t\t}\n\t\t\t\tif (btnLabel) btnLabel.textContent = 'Post Whisper 🔒';\n\t\t\t} else {\n\t\t\t\tif (flag) flag.value = 'false';\n\t\t\t\tif (tabInternal) {\n\t\t\t\t\ttabInternal.classList.remove('active-internal');\n\t\t\t\t\ttabInternal.style.borderBottomColor = 'transparent';\n\t\t\t\t\ttabInternal.style.color = 'var(--muted)';\n\t\t\t\t}\n\t\t\t\tif (tabBuyer) {\n\t\t\t\t\ttabBuyer.classList.add('active-mode');\n\t\t\t\t\ttabBuyer.style.borderBottomColor = 'var(--primary)';\n\t\t\t\t\ttabBuyer.style.color = 'var(--ink)';\n\t\t\t\t}\n\t\t\t\tif (input) {\n\t\t\t\t\tinput.placeholder = 'Type message to buyer… (Press Enter to send)';\n\t\t\t\t\tinput.style.borderColor = 'var(--line-strong)';\n\t\t\t\t\tinput.style.background = 'var(--surface-2)';\n\t\t\t\t}\n\t\t\t\tif (btn) {\n\t\t\t\t\tbtn.style.background = 'var(--primary)';\n\t\t\t\t\tbtn.style.color = '#ffffff';\n\t\t\t\t}\n\t\t\t\tif (btnLabel) btnLabel.textContent = 'Send ➤';\n\t\t\t}\n\t\t\tif (input) input.focus();\n\t\t}\n\n\t\t// Real-time Chat WebSocket Connection\n\t\t(function() {\n\t\t\tvar activeThreadId = document.querySelector('.thread-item.active-thread')?.getAttribute('hx-get')?.split('/').pop() || 'conv_protea';\n\t\t\tif (!activeThreadId) return;\n\n\t\t\ttry {\n\t\t\t\tvar wsUrl = \"ws://\" + window.location.hostname + \":8080/ws/chat?roomId=\" + encodeURIComponent(activeThreadId) + \"&userId=merchant_mitrend&role=merchant\";\n\t\t\t\tvar socket = new WebSocket(wsUrl);\n\n\t\t\t\tsocket.onopen = function() {\n\t\t\t\t\tvar ind = document.getElementById(\"ws-indicator\");\n\t\t\t\t\tif (ind) {\n\t\t\t\t\t\tind.textContent = \"● Gateway: Connected (:8080)\";\n\t\t\t\t\t\tind.className = \"chip up\";\n\t\t\t\t\t}\n\t\t\t\t};\n\n\t\t\t\tsocket.onmessage = function(event) {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tvar data = JSON.parse(event.data);\n\t\t\t\t\t\tif (data.event === \"message_received\" && data.message) {\n\t\t\t\t\t\t\t// Append incoming message dynamically to the stream\n\t\t\t\t\t\t\tvar stream = document.getElementById(\"chat-messages-stream\");\n\t\t\t\t\t\t\tif (stream) {\n\t\t\t\t\t\t\t\tvar bubble = document.createElement(\"div\");\n\t\t\t\t\t\t\t\tbubble.style.cssText = \"display: flex; flex-direction: column; align-items: flex-start; max-width: 78%;\";\n\t\t\t\t\t\t\t\tbubble.innerHTML = '<div style=\"background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--ink); padding: 10px 14px; border-radius: 12px; border-bottom-left-radius: 2px; font-size: 13.5px; line-height: 1.45;\">' + \n\t\t\t\t\t\t\t\t\tescapeHtml(data.message.content) + \n\t\t\t\t\t\t\t\t\t'</div><div style=\"font-size: 10.5px; color: var(--muted); margin-top: 3px;\">' + \n\t\t\t\t\t\t\t\t\tescapeHtml(data.message.senderId) + ' · Just now · Live WebSocket</div>';\n\t\t\t\t\t\t\t\tstream.appendChild(bubble);\n\t\t\t\t\t\t\t\tstream.scrollTop = stream.scrollHeight;\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(e) {}\n\t\t\t\t};\n\n\t\t\t\tsocket.onerror = function() {\n\t\t\t\t\tvar ind = document.getElementById(\"ws-indicator\");\n\t\t\t\t\tif (ind) {\n\t\t\t\t\t\tind.textContent = \"● Gateway: REST Fallback\";\n\t\t\t\t\t\tind.className = \"chip warn\";\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t} catch(e) {}\n\n\t\t\tfunction escapeHtml(text) {\n\t\t\t\tvar div = document.createElement('div');\n\t\t\t\tdiv.textContent = text;\n\t\t\t\treturn div.innerHTML;\n\t\t\t}\n\t\t})();\n\n\t\t// Live Quote Pricing Calculator\n\t\tfunction updateQuotePricing() {\n\t\t\tvar select = document.getElementById(\"quote-sku-select\");\n\t\t\tvar opt = select ? select.options[select.selectedIndex] : null;\n\t\t\tvar basePrice = opt ? parseFloat(opt.getAttribute(\"data-price\") || \"0\") : 0;\n\t\t\tvar qty = parseInt(document.getElementById(\"quote-qty\")?.value || \"1\", 10);\n\t\t\tvar discount = parseFloat(document.getElementById(\"quote-discount\")?.value || \"0\");\n\n\t\t\tvar effectivePrice = basePrice * (1 - (discount / 100));\n\t\t\tvar subtotal = effectivePrice * qty;\n\t\t\tvar vat = subtotal * 0.15;\n\t\t\tvar total = subtotal + vat;\n\n\t\t\tvar elUnit = document.getElementById(\"calc-unit-price\");\n\t\t\tif (elUnit) elUnit.textContent = \"R \" + effectivePrice.toFixed(2) + \" ZAR\" + (discount > 0 ? \" (-\" + discount + \"%)\" : \"\");\n\n\t\t\tvar elSub = document.getElementById(\"calc-subtotal\");\n\t\t\tif (elSub) elSub.textContent = \"R \" + subtotal.toFixed(2) + \" ZAR\";\n\n\t\t\tvar elVat = document.getElementById(\"calc-vat\");\n\t\t\tif (elVat) elVat.textContent = \"R \" + vat.toFixed(2) + \" ZAR\";\n\n\t\t\tvar elTot = document.getElementById(\"calc-total\");\n\t\t\tif (elTot) elTot.textContent = \"R \" + total.toFixed(2) + \" ZAR\";\n\t\t}\n\n\t\t// Filter Chat Threads\n\t\tfunction filterChatThreads(q) {\n\t\t\tvar query = q.toLowerCase();\n\t\t\tdocument.querySelectorAll('.thread-item').forEach(function(item) {\n\t\t\t\tvar text = item.textContent.toLowerCase();\n\t\t\t\titem.style.display = text.includes(query) ? 'flex' : 'none';\n\t\t\t});\n\t\t}\n\n\t\t// Scroll to bottom of message stream\n\t\tvar stream = document.getElementById(\"chat-messages-stream\");\n\t\tif (stream) {\n\t\t\tstream.scrollTop = stream.scrollHeight;\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -131,8 +131,12 @@ templ ChatComponent(data ChatViewData) {
 							<div class="font-mono font-bold text-slate-900">R 4,118.00</div>
 						</div>
 						<div class="flex items-center justify-between pt-1">
-							<div class="text-[11px] text-slate-500 flex items-center gap-1">
+							<div class="text-[11px] text-slate-500 flex items-center gap-1 flex-wrap">
 								<span>🚚</span> <span>Delivery: The Courier Guy Express (Gauteng 24h)</span>
+								<span class="mx-1 text-slate-300">·</span>
+								<span class="inline-flex items-center gap-1 text-emerald-800 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+									<span>📦</span> <span>200 Units Reserved (Midrand Hub Bay 4 · LCK-MID-0814)</span>
+								</span>
 							</div>
 							<div class="flex items-center gap-2">
 								<button type="button" onclick="alert('Quotation accepted! Proforma tax invoice #INV-3361 generated. EFT details dispatched to buyer email.');" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition">

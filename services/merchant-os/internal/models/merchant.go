@@ -314,33 +314,64 @@ type StructuredQuote struct {
 	ValidUntil   time.Time `json:"validUntil"`
 }
 
+// StockLockInfo represents a real-time warehouse inventory reservation
+type StockLockInfo struct {
+	SKU          string    `json:"sku"`
+	ProductTitle string    `json:"productTitle"`
+	Quantity     int       `json:"quantity"`
+	Warehouse    string    `json:"warehouse"` // e.g. "Midrand Central Hub, Bay 4"
+	LockID       string    `json:"lockId"`    // e.g. "LCK-MID-2026-09"
+	ExpiresAt    time.Time `json:"expiresAt"`
+	Status       string    `json:"status"` // "Active", "Released", "Converted to Order"
+}
+
+// PaymentProofInfo represents an electronic funds transfer (EFT) proof of payment
+type PaymentProofInfo struct {
+	BankName        string  `json:"bankName"` // "Standard Bank", "Capitec", "FNB", "Nedbank", "Absa"
+	AccountHolder   string  `json:"accountHolder"`
+	AmountZar       float64 `json:"amountZar"`
+	ReferenceNumber string  `json:"referenceNumber"`
+	Verified        bool    `json:"verified"`
+	VerifiedBy      string  `json:"verifiedBy"`
+	ProofFileName   string  `json:"proofFileName"`
+}
+
 // ChatMessage represents a single message in a direct message thread
 type ChatMessage struct {
-	ID         string           `json:"id"`
-	SenderID   string           `json:"senderId"`
-	SenderName string           `json:"senderName"`
-	SenderRole string           `json:"senderRole"` // "buyer", "merchant", "agent", "system"
-	Text       string           `json:"text"`
-	Timestamp  time.Time        `json:"timestamp"`
-	IsMerchant bool             `json:"isMerchant"`
-	HasQuote   bool             `json:"hasQuote"`
-	Quote      *StructuredQuote `json:"quote,omitempty"`
+	ID             string            `json:"id"`
+	SenderID       string            `json:"senderId"`
+	SenderName     string            `json:"senderName"`
+	SenderRole     string            `json:"senderRole"` // "buyer", "merchant", "agent", "system"
+	Text           string            `json:"text"`
+	Timestamp      time.Time         `json:"timestamp"`
+	IsMerchant     bool              `json:"isMerchant"`
+	IsInternalNote bool              `json:"isInternalNote"` // Slack-style internal team whisper (merchant-only)
+	CardType       string            `json:"cardType,omitempty"` // "quote", "stock_lock", "pop_verification", "note"
+	HasQuote       bool              `json:"hasQuote"`
+	Quote          *StructuredQuote  `json:"quote,omitempty"`
+	StockLock      *StockLockInfo    `json:"stockLock,omitempty"`
+	PaymentProof   *PaymentProofInfo `json:"paymentProof,omitempty"`
+	Reactions      []string          `json:"reactions,omitempty"`
 }
 
 // ChatThread represents an active direct message conversation between a buyer and the merchant
 type ChatThread struct {
-	ID           string        `json:"id"`
-	BuyerID      string        `json:"buyerId"`
-	BuyerName    string        `json:"buyerName"`
-	BuyerCompany string        `json:"buyerCompany"`
-	BuyerCity    string        `json:"buyerCity"`
-	Channel      string        `json:"channel"` // "Shoppage DM", "WhatsApp Business API"
-	UnreadCount  int           `json:"unreadCount"`
-	LastMessage  string        `json:"lastMessage"`
-	LastTime     string        `json:"lastTime"`
-	AvatarInit   string        `json:"avatarInit"`
-	Online       bool          `json:"online"`
-	Messages     []ChatMessage `json:"messages"`
+	ID            string        `json:"id"`
+	BuyerID       string        `json:"buyerId"`
+	BuyerName     string        `json:"buyerName"`
+	BuyerCompany  string        `json:"buyerCompany"`
+	BuyerCity     string        `json:"buyerCity"`
+	Channel       string        `json:"channel"` // "Shoppage DM", "WhatsApp Business API"
+	UnreadCount   int           `json:"unreadCount"`
+	LastMessage   string        `json:"lastMessage"`
+	LastTime      string        `json:"lastTime"`
+	AvatarInit    string        `json:"avatarInit"`
+	Online        bool          `json:"online"`
+	DealContext   string        `json:"dealContext"`   // e.g. "RFQ #1042 — 200x Anti-Theft Wooden Hangers"
+	DealAmount    float64       `json:"dealAmount"`    // 4735.70
+	DealStatus    string        `json:"dealStatus"`    // "Negotiating", "Proforma Issued", "Stock Reserved", "Paid & Dispatched"
+	AssignedAgent string        `json:"assignedAgent"` // "Sipho Dlamini (Midrand Hub)"
+	Messages      []ChatMessage `json:"messages"`
 }
 
 // DashboardViewData encapsulates the full page state for Go HTML rendering across all modules

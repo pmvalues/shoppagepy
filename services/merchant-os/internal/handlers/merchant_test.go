@@ -60,6 +60,7 @@ func setupTestRouter() http.Handler {
 	r.Get("/chat/thread/{id}", h.SelectChatThread)
 	r.Post("/chat/send", h.SendChatMessage)
 	r.Post("/chat/quote", h.SendStructuredQuote)
+	r.Post("/chat/action", h.HandleChatAction)
 	r.Post("/feeds/validate", h.ValidateFeeds)
 	return r
 }
@@ -834,5 +835,102 @@ func TestPemofyProductViews(t *testing.T) {
 	bodyDetailFull := recDetailFull.Body.String()
 	if !strings.Contains(bodyDetailFull, "Shoppage Merchant OS") {
 		t.Errorf("expected full page layout on direct browser request")
+	}
+}
+
+func TestSlackTeamsChatWorkstation(t *testing.T) {
+	router := setupTestRouter()
+
+	// 1. Verify /tab/chat renders Slack/Teams channel header, internal whispers, and block cards
+	req := httptest.NewRequest("GET", "/tab/chat", nil)
+	req.Header.Set("HX-Request", "true")
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK for /tab/chat, got %d", rec.Code)
+	}
+	body := rec.Body.String()
+
+	expectedSnippets := []string{
+		"Direct Messages &amp; Buyer Chat Desk",
+		"Active Trade Channels",
+		"RFQ #1042",
+		"INTERNAL TEAM NOTE",
+		"Staff Only (Hidden from Buyer)",
+		"Midrand Hub Warehouse",
+		"Stock Lock active",
+		"tab-mode-internal",
+		"tab-mode-buyer",
+		"Post Whisper 🔒",
+	}
+
+	for _, s := range expectedSnippets {
+		if !strings.Contains(body, s) {
+			t.Errorf("expected /tab/chat to contain %q", s)
+		}
+	}
+
+	// 2. Post an internal staff whisper
+	whisperForm := url.Values{}
+	whisperForm.Set("thread_id", "conv_protea")
+	whisperForm.Set("message", "Midrand Bay 4: Reserve an additional 50 units for Protea Hotel VIP suite annex.")
+	whisperForm.Set("is_internal", "true")
+
+	reqWhisper := httptest.NewRequest("POST", "/chat/send", strings.NewReader(whisperForm.Encode()))
+	reqWhisper.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	reqWhisper.Header.Set("HX-Request", "true")
+	recWhisper := httptest.NewRecorder()
+	router.ServeHTTP(recWhisper, reqWhisper)
+
+	if recWhisper.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK for posting whisper, got %d", recWhisper.Code)
+	}
+	bodyWhisper := recWhisper.Body.String()
+	if !strings.Contains(bodyWhisper, "Midrand Bay 4: Reserve an additional 50 units") {
+		t.Errorf("expected whisper message in chat stream")
+	}
+	if !strings.Contains(bodyWhisper, "Staff Whisper") {
+		t.Errorf("expected Staff Whisper sender badge")
+	}
+
+	// 3. Trigger Block Kit action: Lock Stock
+	stockForm := url.Values{}
+	stockForm.Set("thread_id", "conv_protea")
+	stockForm.Set("action", "lock_stock")
+	stockForm.Set("sku", "MIT-3361")
+	stockForm.Set("quantity", "150")
+
+	reqStock := httptest.NewRequest("POST", "/chat/action", strings.NewReader(stockForm.Encode()))
+	reqStock.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	reqStock.Header.Set("HX-Request", "true")
+	recStock := httptest.NewRecorder()
+	router.ServeHTTP(recStock, reqStock)
+
+	if recStock.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK for locking stock, got %d", recStock.Code)
+	}
+	bodyStock := recStock.Body.String()
+	if !strings.Contains(bodyStock, "LCK-MID-") {
+		t.Errorf("expected new stock lock ID in response")
+	}
+
+	// 4. Trigger Block Kit action: Verify POP in conv_goldreef
+	popForm := url.Values{}
+	popForm.Set("thread_id", "conv_goldreef")
+	popForm.Set("action", "verify_pop")
+
+	reqPOP := httptest.NewRequest("POST", "/chat/action", strings.NewReader(popForm.Encode()))
+	reqPOP.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	reqPOP.Header.Set("HX-Request", "true")
+	recPOP := httptest.NewRecorder()
+	router.ServeHTTP(recPOP, reqPOP)
+
+	if recPOP.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK for verifying POP, got %d", recPOP.Code)
+	}
+	bodyPOP := recPOP.Body.String()
+	if !strings.Contains(bodyPOP, "Paid &amp; Dispatched") && !strings.Contains(bodyPOP, "Paid & Dispatched") {
+		t.Errorf("expected deal status to be updated to Paid & Dispatched")
 	}
 }
