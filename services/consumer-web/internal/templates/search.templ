@@ -19,15 +19,120 @@ templ SearchResultsGridComponent(data SearchViewData) {
 			</div>
 		</div>
 
-		if len(data.Products) == 0 {
+		<!-- MATCHING MERCHANTS & BUSINESSES -->
+		if len(data.MatchingMerchants) > 0 {
+			<div class="mb-6">
+				<div class="flex items-center gap-2 mb-3">
+					<h3 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Matching Businesses &amp; Suppliers</h3>
+					<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">{ fmt.Sprintf("%d Found", len(data.MatchingMerchants)) }</span>
+				</div>
+				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+					for _, m := range data.MatchingMerchants {
+						<div class="bg-white rounded-2xl border border-slate-200/90 p-4 hover:shadow-md hover:border-emerald-500/50 transition flex flex-col justify-between group">
+							<div>
+								<div class="flex items-start gap-3 mb-2.5">
+									<div class="w-10 h-10 rounded-xl bg-slate-900 text-white font-black text-lg flex items-center justify-center shrink-0 shadow-xs">
+										{ FirstRune(m.Name) }
+									</div>
+									<div class="min-w-0 flex-1">
+										<div class="flex items-center gap-1.5 flex-wrap">
+											<h4 class="font-bold text-slate-900 text-sm truncate">
+												<a href={ templ.SafeURL(fmt.Sprintf("/m/%s", m.ID)) } class="hover:text-emerald-600 transition">{ m.Name }</a>
+											</h4>
+											if m.Verified {
+												<span class="px-1.5 py-0.2 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-bold">✓ CIPC Verified</span>
+											}
+										</div>
+										<p class="text-[11px] text-slate-500 truncate">{ m.Address }</p>
+										<div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+											<span class="text-amber-500 font-bold">★ { fmt.Sprintf("%.1f", m.Rating) }</span>
+											<span>({ fmt.Sprintf("%d", m.ReviewsCount) })</span>
+											<span>•</span>
+											<span class="text-emerald-700 font-semibold truncate">{ m.Category }</span>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+								<a href={ templ.SafeURL(fmt.Sprintf("/m/%s", m.ID)) } class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1">
+									<span>Open Storefront</span>
+									<span>&rarr;</span>
+								</a>
+								if m.WhatsApp != "" {
+									<a href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi%%20%s,%%20I%%20found%%20your%%20business%%20on%%20Shoppage", m.WhatsApp, m.Name)) } target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-bold transition flex items-center gap-1">
+										<span>WhatsApp</span>
+									</a>
+								}
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		}
+
+		<!-- MATCHING PLACES & SHOPPING CENTRES -->
+		if len(data.MatchingMalls) > 0 {
+			<div class="mb-6">
+				<div class="flex items-center gap-2 mb-3">
+					<h3 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Matching Places &amp; Shopping Centres</h3>
+					<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[10px] font-bold">{ fmt.Sprintf("%d Places", len(data.MatchingMalls)) }</span>
+				</div>
+				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+					for _, mall := range data.MatchingMalls {
+						<div class="bg-white rounded-2xl border border-slate-200/90 p-4 hover:shadow-md transition flex flex-col justify-between group">
+							<div>
+								<div class="flex items-start gap-3 mb-2.5">
+									<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 text-emerald-400 font-bold text-base flex items-center justify-center shrink-0 shadow-xs">
+										🏬
+									</div>
+									<div class="min-w-0 flex-1">
+										<h4 class="font-bold text-slate-900 text-sm truncate">
+											<a href={ templ.SafeURL(fmt.Sprintf("/malls/%s", mall.ID)) } class="hover:text-emerald-600 transition">{ mall.Name }</a>
+										</h4>
+										<p class="text-[11px] text-slate-500 truncate">{ mall.StreetAddress }, { mall.Suburb }</p>
+										<div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+											<span class="font-semibold text-slate-700">{ fmt.Sprintf("%d Stores", mall.StoreCount) }</span>
+											<span>•</span>
+											<span>{ mall.Metro }, { mall.Province }</span>
+										</div>
+									</div>
+								</div>
+								if len(mall.AnchorTenants) > 0 {
+									<div class="flex items-center gap-1.5 flex-wrap my-2">
+										for _, tenant := range mall.AnchorTenants {
+											<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-medium">{ tenant }</span>
+										}
+									</div>
+								}
+							</div>
+							<div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+								<span class="text-[11px] text-slate-400 font-medium">{ mall.MarketType }</span>
+								<a href={ templ.SafeURL(fmt.Sprintf("/malls/%s", mall.ID)) } class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1">
+									<span>Directory</span>
+									<span>&rarr;</span>
+								</a>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		}
+
+		if len(data.Products) == 0 && len(data.MatchingMerchants) == 0 && len(data.MatchingMalls) == 0 {
 			<div class="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center">
 				<div class="text-3xl mb-2">🔍</div>
-				<h3 class="text-base font-bold text-slate-900 mb-1">No products found</h3>
+				<h3 class="text-base font-bold text-slate-900 mb-1">No products or businesses found</h3>
 				<p class="text-xs text-slate-500 max-w-md mx-auto">
-					Try searching for "Sunsynk", "Deye", "Cement", "Carton", or browsing the Specials tab.
+					Try searching for "Sunsynk", "Deye", "Cement", "Carton", "Mall of Africa", or browsing the Specials tab.
 				</p>
 			</div>
-		} else {
+		} else if len(data.Products) > 0 {
+			if len(data.MatchingMerchants) > 0 || len(data.MatchingMalls) > 0 {
+				<div class="flex items-center gap-2 mb-3 mt-6">
+					<h3 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Matching Products &amp; Catalog Inventory</h3>
+					<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">{ fmt.Sprintf("%d Products", len(data.Products)) }</span>
+				</div>
+			}
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
 				for _, prod := range data.Products {
 					<div class="bg-white rounded-2xl border border-slate-200/80 p-4 hover:shadow-md transition flex flex-col group relative">

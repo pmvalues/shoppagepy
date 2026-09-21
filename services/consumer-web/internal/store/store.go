@@ -888,6 +888,32 @@ func (s *Store) GetSearchSuggestions(query string) []string {
 		}
 	}
 
+	// Search merchants (businesses/suppliers)
+	for _, m := range s.merchants {
+		if strings.Contains(strings.ToLower(m.Name), qLower) {
+			if !seen[m.Name] {
+				seen[m.Name] = true
+				suggestions = append(suggestions, m.Name)
+			}
+		}
+		if len(suggestions) >= 8 {
+			return suggestions
+		}
+	}
+
+	// Search malls (places/shopping centres)
+	for _, mall := range s.malls {
+		if strings.Contains(strings.ToLower(mall.Name), qLower) {
+			if !seen[mall.Name] {
+				seen[mall.Name] = true
+				suggestions = append(suggestions, mall.Name)
+			}
+		}
+		if len(suggestions) >= 8 {
+			return suggestions
+		}
+	}
+
 	return suggestions
 }
 
@@ -1174,6 +1200,36 @@ func (s *Store) GetAllMerchants() []models.MerchantStorefront {
 	}
 	return list
 }
+
+// SearchMerchants finds matching merchants by name, category, or location
+func (s *Store) SearchMerchants(query string, limit int) []models.MerchantStorefront {
+	if query == "" {
+		return nil
+	}
+	qLower := strings.ToLower(strings.TrimSpace(query))
+	if len(qLower) < 2 {
+		return nil
+	}
+
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	var matches []models.MerchantStorefront
+	for _, m := range s.merchants {
+		if strings.Contains(strings.ToLower(m.Name), qLower) ||
+			strings.Contains(strings.ToLower(m.Category), qLower) ||
+			strings.Contains(strings.ToLower(m.Suburb), qLower) ||
+			strings.Contains(strings.ToLower(m.City), qLower) {
+			s.enrichStorefront(&m)
+			matches = append(matches, m)
+			if limit > 0 && len(matches) >= limit {
+				return matches
+			}
+		}
+	}
+
+	return matches
+}
+
 
 func (s *Store) GetMerchantByID(id string) (models.MerchantStorefront, bool) {
 	s.mu.RLock()

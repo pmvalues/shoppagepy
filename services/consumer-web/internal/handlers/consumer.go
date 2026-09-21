@@ -69,8 +69,8 @@ func (h *ConsumerHandler) HandleHome(w http.ResponseWriter, r *http.Request) {
 	latencyMs := float64(time.Since(start).Microseconds()) / 1000.0
 
 	data := templates.HomeViewData{
-		Title:           "South Africa Commercial Discovery Grid · 1,000,000+ Products, 3,315 Malls",
-		Description:     fmt.Sprintf("Live price drops, circulars, and verified stock from %d malls and %d suppliers across South Africa.", totalMalls, totalMerchants),
+		Title:           "South Africa Commercial Discovery Grid · 1,000,000+ Products",
+		Description:     "Compare wholesale prices, live retailer specials, and verified suppliers across South Africa.",
 		Query:           q,
 		CurrentTab:      tab,
 		CurrentCategory: category,
@@ -282,21 +282,35 @@ func (h *ConsumerHandler) HandleSearch(w http.ResponseWriter, r *http.Request) {
 		products = h.store.SearchProducts(q, category, province, inStockOnly)
 	}
 
+	var matchingMerchants []models.MerchantStorefront
+	var matchingMalls []models.Mall
+	if q != "" {
+		matchingMerchants = h.store.SearchMerchants(q, 3)
+		allMalls := h.store.GetAllMalls("", q)
+		if len(allMalls) > 3 {
+			matchingMalls = allMalls[:3]
+		} else {
+			matchingMalls = allMalls
+		}
+	}
+
 	latencyMs := float64(time.Since(start).Microseconds()) / 1000.0
 	isHX := r.Header.Get("HX-Request") == "true"
 
 	data := templates.SearchViewData{
-		Title:       "Product Search Grid",
-		Description: "Compare wholesale prices and verified suppliers across South Africa.",
-		Query:       q,
-		CurrentTab:  tab,
-		Category:    category,
-		Province:    province,
-		Retailer:    retailer,
-		InStockOnly: inStockOnly,
-		Products:    products,
-		Deals:       deals,
-		LatencyMs:   latencyMs,
+		Title:             "Search Results",
+		Description:       "Compare wholesale prices, verified businesses, and shopping centres across South Africa.",
+		Query:             q,
+		CurrentTab:        tab,
+		Category:          category,
+		Province:          province,
+		Retailer:          retailer,
+		InStockOnly:       inStockOnly,
+		Products:          products,
+		Deals:             deals,
+		MatchingMerchants: matchingMerchants,
+		MatchingMalls:     matchingMalls,
+		LatencyMs:         latencyMs,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

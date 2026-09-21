@@ -53,17 +53,19 @@ type LocationModalViewData struct {
 }
 
 type SearchViewData struct {
-	Title       string
-	Description string
-	Query       string
-	CurrentTab  string
-	Category    string
-	Province    string
-	Retailer    string
-	InStockOnly bool
-	Products    []models.SearchItem
-	Deals       []models.RetailerDeal
-	LatencyMs   float64
+	Title             string
+	Description       string
+	Query             string
+	CurrentTab        string
+	Category          string
+	Province          string
+	Retailer          string
+	InStockOnly       bool
+	Products          []models.SearchItem
+	Deals             []models.RetailerDeal
+	MatchingMerchants []models.MerchantStorefront
+	MatchingMalls     []models.Mall
+	LatencyMs         float64
 }
 
 type ProductViewData struct {
@@ -146,6 +148,13 @@ func formatComma(n int) string {
 		res = append(res, s[i:i+3])
 	}
 	return strings.Join(res, ",")
+}
+
+func FirstRune(s string) string {
+	for _, r := range s {
+		return string(r)
+	}
+	return "M"
 }
 
 // -----------------------------------------------------------------------------

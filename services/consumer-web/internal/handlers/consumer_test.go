@@ -70,6 +70,59 @@ func TestConsumerHandlers(t *testing.T) {
 		}
 	})
 
+	t.Run("HandleHome does not show prominent wholesalers or malls shelf", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/", nil)
+		rec := httptest.NewRecorder()
+
+		h.HandleHome(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rec.Code)
+		}
+		body := rec.Body.String()
+		if strings.Contains(body, "Featured Verified Wholesalers") {
+			t.Fatalf("did not expect static 'Featured Verified Wholesalers' shelf on homepage")
+		}
+	})
+
+	t.Run("HandleSearch omnisearch finds matching merchants when searching business", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/search?q=Mitrend", nil)
+		req.Header.Set("HX-Request", "true")
+		rec := httptest.NewRecorder()
+
+		h.HandleSearch(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rec.Code)
+		}
+		body := rec.Body.String()
+		if !strings.Contains(body, "Matching Businesses &amp; Suppliers") && !strings.Contains(body, "Matching Businesses & Suppliers") {
+			t.Fatalf("expected Matching Businesses section in search results")
+		}
+		if !strings.Contains(body, "MiTrend") {
+			t.Fatalf("expected MiTrend in search results")
+		}
+	})
+
+	t.Run("HandleSearch omnisearch finds matching malls when searching places", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/search?q=Africa", nil)
+		req.Header.Set("HX-Request", "true")
+		rec := httptest.NewRecorder()
+
+		h.HandleSearch(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rec.Code)
+		}
+		body := rec.Body.String()
+		if !strings.Contains(body, "Matching Places &amp; Shopping Centres") && !strings.Contains(body, "Matching Places & Shopping Centres") {
+			t.Fatalf("expected Matching Places section in search results")
+		}
+		if !strings.Contains(body, "Mall of Africa") {
+			t.Fatalf("expected Mall of Africa in search results")
+		}
+	})
+
 	t.Run("HandleProduct returns BuyBox for valid product", func(t *testing.T) {
 		req := httptest.NewRequest("GET", "/p/p_sunsynk_5k", nil)
 		rctx := chi.NewRouteContext()
