@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 )
@@ -33,19 +35,46 @@ type BenchResult struct {
 
 func main() {
 	baseURL := "http://localhost:3000"
+	if len(os.Args) > 1 && os.Args[1] != "" {
+		baseURL = strings.TrimRight(os.Args[1], "/")
+	} else if envTarget := os.Getenv("TARGET_URL"); envTarget != "" {
+		baseURL = strings.TrimRight(envTarget, "/")
+	}
 
 	// Verify server is reachable
-	resp, err := http.Get(baseURL + "/health")
+	client := &http.Client{
+		Transport: &http.Transport{
+			MaxIdleConns:        100,
+			MaxIdleConnsPerHost: 100,
+			IdleConnTimeout:     90 * time.Second,
+		},
+		Timeout: 15 * time.Second,
+	}
+
+	resp, err := client.Get(baseURL + "/health")
 	if err != nil || resp.StatusCode != http.StatusOK {
-		fmt.Printf("❌ Error: Shoppage server is unreachable at %s\n", baseURL)
-		fmt.Printf("   Ensure 'npm run dev' or 'PORT=3000' server is running.\n")
+		fmt.Printf("❌ Error: Target server is unreachable at %s\n", baseURL)
+		if err != nil {
+			fmt.Printf("   Details: %v\n", err)
+		}
 		return
 	}
 	_ = resp.Body.Close()
 
+	isRemote := strings.HasPrefix(baseURL, "https://")
+	reqCount := 200
+	concurrency := 15
+	warmup := 15
+
+	if isRemote {
+		reqCount = 60
+		concurrency = 8
+		warmup = 5
+	}
+
 	routes := []RouteBenchmark{
 		{
-			Name:   "1. Raw Health Check",
+			Name:   "1. Health API",
 			Method: "GET",
 			Path:   "/health",
 		},
@@ -75,7 +104,7 @@ func main() {
 			Path:   "/chat",
 		},
 		{
-			Name:        "7. AI Assistant Solar Sizing Tool",
+			Name:        "7. AI Solar Sizing Assistant",
 			Method:      "POST",
 			Path:        "/api/assistant",
 			Body:        []byte(`{"message":"calculate backup for 800W load for 4 hours"}`),
@@ -84,49 +113,33 @@ func main() {
 	}
 
 	fmt.Println("==========================================================================================")
-	fmt.Println("⚡ SHOPPAGE PURE GO BENCHMARK & LATENCY AUDIT")
-	fmt.Printf("   Target: %s | Warmup: 50 reqs | Load: 250 requests per endpoint | Concurrency: 15 workers\n", baseURL)
+	fmt.Println("⚡ SHOPPAGE LIVE SPEED TEST & LATENCY AUDIT")
+	fmt.Printf("   Target: %s\n", baseURL)
+	fmt.Printf("   Config: %d requests per route | %d concurrent connections | %d warmup\n", reqCount, concurrency, warmup)
 	fmt.Println("==========================================================================================")
-
-	client := &http.Client{
-		Transport: &http.Transport{
-			MaxIdleConns:        100,
-			MaxIdleConnsPerHost: 100,
-			IdleConnTimeout:     90 * time.Second,
-		},
-		Timeout: 10 * time.Second,
-	}
-
-	var results []BenchResult
-
-	for _, rt := range routes {
-		res := benchmarkRoute(client, baseURL, rt, 250, 15)
-		results = append(results, res)
-	}
-
-	// Print Results Table
-	fmt.Printf("\n%-36s | %8s | %10s | %10s | %10s | %10s | %10s\n", "Endpoint / Feature", "RPS", "Min", "P50 (Med)", "P90", "P99", "Mean")
+	fmt.Printf("%-36s | %8s | %10s | %10s | %10s | %10s | %10s\n", "Endpoint / Feature", "RPS", "Min", "P50 (Med)", "P90", "P99", "Mean")
 	fmt.Println("-------------------------------------+----------+------------+------------+------------+------------+-----------")
 
-	for _, r := range results {
-		fmt.Printf("%-36s | %8.0f | %10s | %10s | %10s | %10s | %10s\n",
-			r.Name,
-			r.RPS,
-			formatDuration(r.Min),
-			formatDuration(r.P50),
-			formatDuration(r.P90),
-			formatDuration(r.P99),
-			formatDuration(r.Mean),
+	for _, rt := range routes {
+		res := benchmarkRoute(client, baseURL, rt, reqCount, concurrency, warmup)
+		fmt.Printf("%-36s | %8.1f | %10s | %10s | %10s | %10s | %10s\n",
+			res.Name,
+			res.RPS,
+			formatDuration(res.Min),
+			formatDuration(res.P50),
+			formatDuration(res.P90),
+			formatDuration(res.P99),
+			formatDuration(res.Mean),
 		)
 	}
 	fmt.Println("==========================================================================================")
 }
 
-func benchmarkRoute(client *http.Client, base string, rt RouteBenchmark, total int, concurrency int) BenchResult {
+func benchmarkRoute(client *http.Client, base string, rt RouteBenchmark, total int, concurrency int, warmup int) BenchResult {
 	url := base + rt.Path
 
-	// Warmup 20 requests
-	for i := 0; i < 20; i++ {
+	// Warmup
+	for i := 0; i < warmup; i++ {
 		var bodyReader io.Reader
 		if len(rt.Body) > 0 {
 			bodyReader = bytes.NewReader(rt.Body)
@@ -141,9 +154,8 @@ func benchmarkRoute(client *http.Client, base string, rt RouteBenchmark, total i
 		}
 	}
 
-	latencies := make([]time.Duration, total)
+	latencies := make([]time.Duration, 0, total)
 	var mu sync.Mutex
-	idx := 0
 	successCount := 0
 
 	var wg sync.WaitGroup
@@ -175,21 +187,15 @@ func benchmarkRoute(client *http.Client, base string, rt RouteBenchmark, total i
 				resp, err := client.Do(req)
 				dur := time.Since(t0)
 
+				mu.Lock()
+				latencies = append(latencies, dur)
 				if err == nil {
 					_, _ = io.Copy(io.Discard, resp.Body)
 					_ = resp.Body.Close()
 					if resp.StatusCode >= 200 && resp.StatusCode < 400 {
-						mu.Lock()
-						latencies[idx] = dur
-						idx++
 						successCount++
-						mu.Unlock()
-						continue
 					}
 				}
-				mu.Lock()
-				latencies[idx] = dur
-				idx++
 				mu.Unlock()
 			}
 		}(count)
@@ -197,6 +203,10 @@ func benchmarkRoute(client *http.Client, base string, rt RouteBenchmark, total i
 
 	wg.Wait()
 	totalDuration := time.Since(startAll)
+
+	if len(latencies) == 0 {
+		return BenchResult{Name: rt.Name}
+	}
 
 	sort.Slice(latencies, func(i, j int) bool {
 		return latencies[i] < latencies[j]
@@ -212,11 +222,11 @@ func benchmarkRoute(client *http.Client, base string, rt RouteBenchmark, total i
 	p90 := latencies[int(float64(len(latencies))*0.90)]
 	p99 := latencies[int(float64(len(latencies))*0.99)]
 
-	rps := float64(total) / totalDuration.Seconds()
+	rps := float64(len(latencies)) / totalDuration.Seconds()
 
 	return BenchResult{
 		Name:        rt.Name,
-		TotalReqs:   total,
+		TotalReqs:   len(latencies),
 		SuccessReqs: successCount,
 		RPS:         rps,
 		Min:         latencies[0],
