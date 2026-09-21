@@ -1,41 +1,30 @@
 {
   "name": "shoppage-platform",
-  "version": "7.0.0",
+  "version": "10.0.0",
   "private": true,
-  "description": "Shoppage v7.0 — Global Product Intelligence, Local Commerce, Media & Platform",
+  "description": "Shoppage — 100% Pure Go National Commerce Intelligence Grid & Merchant OS",
   "workspaces": [
-    "packages/*",
-    "apps/*"
+    "packages/*"
   ],
   "scripts": {
-    "build:contracts": "npm run build --workspace=@shoppage/contracts",
-    "build:kernel": "npm run build --workspace=@shoppage/kernel",
-    "build:adapters": "npm run build --workspace=@shoppage/adapters",
-    "build:eval": "npm run build --workspace=@shoppage/eval",
-    "build:packages": "npm run build:contracts && npm run build:kernel && npm run build:adapters && npm run build:eval",
-    "build:web": "npm run build --workspace=@shoppage/web",
-    "build": "npm run build:packages && npm run build:web",
-    "test": "npm run test --workspaces --if-present",
-    "test:contracts": "npm run test --workspace=@shoppage/contracts",
-    "test:kernel": "npm run test --workspace=@shoppage/kernel",
-    "test:adapters": "npm run test --workspace=@shoppage/adapters",
-    "test:eval": "npm run test --workspace=@shoppage/eval",
-    "test:web": "npm run test --workspace=@shoppage/web",
-    "dev": "npm run dev --workspace=@shoppage/web",
-    "lint": "npm run lint --workspaces --if-present",
-    "seed": "npm run seed --workspace=@shoppage/kernel",
+    "dev": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
+    "start": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
+    "build": "node scripts/go-run.mjs build -o bin/shoppage.exe ./services/consumer-web/cmd/server/main.go",
+    "build:linux": "powershell -ExecutionPolicy Bypass -File deploy/build-linux.ps1",
+    "test": "npm run go:test",
+    "go:unified": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
+    "go:chat": "node scripts/go-run.mjs run ./services/chat-gateway/cmd/server/main.go",
+    "go:sweep": "node scripts/go-run.mjs run ./services/sweeper-engine/cmd/sweep/main.go",
+    "go:search": "node scripts/go-run.mjs run ./services/search-core/cmd/searchd/main.go",
+    "go:merchant": "node scripts/go-run.mjs run ./services/merchant-os/cmd/server/main.go",
+    "go:consumer": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
+    "go:test": "node scripts/go-run.mjs test ./services/chat-gateway/... ./services/sweeper-engine/... ./services/search-core/... ./services/merchant-os/... ./services/consumer-web/...",
     "scrape:guzzle": "python scripts/scrapers/shoppage_scrape_guzzle_specials.py",
     "scout:once": "python scripts/orchestrator/shoppage_scouting_daemon.py --run-once",
-    "scout:daemon": "python scripts/orchestrator/shoppage_scouting_daemon.py --daemon",
-    "sync:typesense": "node scripts/search/sync_typesense.mjs",
-    "agents:sweep": "node scripts/agents/run_retail_agents.mjs",
-    "agents:dry": "node scripts/agents/run_retail_agents.mjs --dry-run"
+    "scout:daemon": "python scripts/orchestrator/shoppage_scouting_daemon.py --daemon"
   },
   "devDependencies": {
     "typescript": "^5.5.4",
     "vitest": "^2.0.5"
-  },
-  "engines": {
-    "node": ">=20.0.0"
   }
 }

@@ -1,0 +1,96 @@
+package templates
+
+templ OmnibarDialog() {
+	<dialog id="omnibar-dialog" class="modal-dialog" style="max-width:640px; top:12vh;">
+		<div class="modal-card" style="box-shadow:0 25px 60px -15px rgba(0,0,0,.5); border:1px solid var(--line-strong);">
+			<div style="padding:14px 16px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:10px;">
+				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4a7 7 0 105 12l4 4"></path></svg>
+				<input 
+					type="text" 
+					id="omnibar-search" 
+					placeholder="Search products, orders, customers, or jump to tab... (ESC to exit)" 
+					style="border:0; outline:0; width:100%; font-size:14.5px; background:transparent;"
+					onkeyup="filterOmnibar(this.value);"
+				/>
+				<span style="font-family:var(--mono); font-size:11px; color:var(--muted); background:var(--surface-2); padding:2px 6px; border-radius:4px; border:1px solid var(--line);">ESC</span>
+			</div>
+
+			<div id="omnibar-results" style="max-height:360px; overflow-y:auto; padding:8px;">
+				<div class="omni-section" style="font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:700; padding:6px 10px;">Quick Navigation</div>
+				
+				<button type="button" class="omni-item" hx-get="/tab/overview" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
+					<span>📊</span> Overview &amp; Velocity Desk
+				</button>
+				<button type="button" class="omni-item" hx-get="/tab/chat" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
+					<span>💬</span> Direct Messages &amp; Chat Desk
+				</button>
+				<button type="button" class="omni-item" hx-get="/tab/catalog" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
+					<span>📦</span> Catalog &amp; SKU Matrix
+				</button>
+				<button type="button" class="omni-item" hx-get="/tab/orders" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
+					<span>📑</span> Proforma B2B Orders Ledger
+				</button>
+				<button type="button" class="omni-item" hx-get="/tab/pick-pack" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
+					<span>🏷️</span> WMS Pick &amp; Pack Station
+				</button>
+				<button type="button" class="omni-item" hx-get="/tab/pos" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
+					<span>💳</span> POS Trade Counter Register
+				</button>
+				<button type="button" class="omni-item" hx-get="/tab/inventory" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
+					<span>🏢</span> Multi-Warehouse Hubs
+				</button>
+				<button type="button" class="omni-item" hx-get="/tab/transfers" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
+					<span>🚚</span> Inter-Hub Stock Transfers
+				</button>
+				<button type="button" class="omni-item" hx-get="/tab/copilot" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
+					<span>✨</span> Pemofy AI Copilot Studio
+				</button>
+
+				<div class="omni-section" style="font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:700; padding:10px 10px 6px;">Quick Actions</div>
+
+				<button type="button" class="omni-item" onclick="document.getElementById('omnibar-dialog').close(); document.getElementById('new-sku-dialog')?.showModal();">
+					<span>+</span> Add New Product SKU
+				</button>
+				<button type="button" class="omni-item" onclick="document.getElementById('omnibar-dialog').close(); document.getElementById('new-order-dialog')?.showModal();">
+					<span>+</span> Issue B2B Proforma Invoice
+				</button>
+				<button type="button" class="omni-item" onclick="document.getElementById('omnibar-dialog').close(); document.getElementById('new-customer-dialog')?.showModal();">
+					<span>+</span> Add Wholesale Trade Account
+				</button>
+			</div>
+		</div>
+	</dialog>
+
+	<style>
+		.omni-item {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 8px 12px;
+			border-radius: 8px;
+			border: 0;
+			background: transparent;
+			width: 100%;
+			text-align: left;
+			font-size: 13.5px;
+			color: var(--ink);
+			cursor: pointer;
+			transition: all .1s;
+		}
+		.omni-item:hover, .omni-item:focus {
+			background: var(--surface-2);
+			color: var(--primary-2);
+			font-weight: 600;
+		}
+	</style>
+
+	<script>
+		function filterOmnibar(q) {
+			var query = q.toLowerCase();
+			document.querySelectorAll('.omni-item').forEach(function(el) {
+				var match = el.textContent.toLowerCase().includes(query);
+				el.style.display = match ? 'flex' : 'none';
+			});
+		}
+	</script>
+}

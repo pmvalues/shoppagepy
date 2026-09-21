@@ -1,0 +1,191 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/shoppage/merchant-os/internal/models"
+)
+
+templ DiscountsTab(data models.DashboardViewData) {
+	<div class="panel-head">
+		<div>
+			<h3>Wholesale Tier Pricing &amp; Promotional Discounts</h3>
+			<div class="sub">Volume-based wholesale price matrices, trade discounts &amp; promo coupons</div>
+		</div>
+		<div class="right" style="display:flex; gap:8px;">
+			<button class="btn ghost small" onclick="document.getElementById('new-tier-dialog')?.showModal();">
+				<span>+</span> Add Wholesale Tier
+			</button>
+			<button class="btn solid small" onclick="document.getElementById('new-coupon-dialog')?.showModal();">
+				<span>+</span> Create Promo Coupon
+			</button>
+		</div>
+	</div>
+
+	<!-- Wholesale Volume Pricing Table -->
+	<div class="card panel" style="margin-bottom:18px;">
+		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+			<div>
+				<h4 style="font-size:15px; font-weight:700;">Automatic Wholesale Volume Tier Matrix</h4>
+				<p style="margin:2px 0 0; font-size:12px; color:var(--muted);">Applied automatically on B2B proforma generation based on carton order quantities.</p>
+			</div>
+			<span class="chip up">Active on All Catalog SKUs</span>
+		</div>
+
+		<div class="table-wrap">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Tier Name</th>
+						<th>Minimum Units</th>
+						<th>Maximum Units</th>
+						<th>Wholesale Discount</th>
+						<th>Commercial Note</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, tier := range data.WholesaleTiers {
+						<tr>
+							<td><b>{ tier.TierName }</b></td>
+							<td><span style="font-family:var(--mono); font-weight:600;">{ fmt.Sprintf("%d units", tier.MinUnits) }</span></td>
+							<td>
+								if tier.MaxUnits > 0 {
+									<span style="font-family:var(--mono);">{ fmt.Sprintf("%d units", tier.MaxUnits) }</span>
+								} else {
+									<span class="chip up">Unlimited</span>
+								}
+							</td>
+							<td><span class="chip up" style="font-size:12.5px;">{ fmt.Sprintf("-%.1f%% off retail", tier.DiscountPct) }</span></td>
+							<td><span style="font-size:12px; color:var(--muted);">{ tier.Description }</span></td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- Promo Coupon Codes -->
+	<div class="card panel">
+		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+			<div>
+				<h4 style="font-size:15px; font-weight:700;">Promotional Coupons &amp; Trade Incentives</h4>
+				<p style="margin:2px 0 0; font-size:12px; color:var(--muted);">Redeemable via Web Storefront checkout or WhatsApp proforma invoice quoting.</p>
+			</div>
+			<span style="font-size:12px; color:var(--muted);">{ fmt.Sprintf("%d Coupons Configured", len(data.Coupons)) }</span>
+		</div>
+
+		<div class="table-wrap">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Coupon Code</th>
+						<th>Discount</th>
+						<th>Description</th>
+						<th>Redemptions</th>
+						<th>Status</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, coup := range data.Coupons {
+						<tr>
+							<td><b style="font-family:var(--mono); color:var(--primary-2); font-size:14px;">{ coup.Code }</b></td>
+							<td><span class="chip up">{ fmt.Sprintf("%.0f%% Off", coup.DiscountPct) }</span></td>
+							<td><span style="font-size:12.5px;">{ coup.Description }</span></td>
+							<td><span style="font-family:var(--mono); font-size:12px;">{ fmt.Sprintf("%d uses", coup.UsageCount) }</span></td>
+							<td>
+								if coup.Active {
+									<span class="chip up">Active</span>
+								} else {
+									<span class="chip flat">Paused</span>
+								}
+							</td>
+							<td>
+								<form hx-post={ fmt.Sprintf("/discounts/%s/toggle", coup.ID) } hx-target="#tab-content">
+									if coup.Active {
+										<button type="submit" class="btn ghost small" style="padding:4px 8px; font-size:11px;">Pause</button>
+									} else {
+										<button type="submit" class="btn solid small" style="padding:4px 8px; font-size:11px;">Activate</button>
+									}
+								</form>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- New Wholesale Tier Modal Dialog -->
+	<dialog id="new-tier-dialog" class="modal-dialog">
+		<div class="modal-card">
+			<div class="modal-head">
+				<h4>Add Wholesale Pricing Tier Rule</h4>
+				<button type="button" class="close-btn" onclick="document.getElementById('new-tier-dialog').close();">&times;</button>
+			</div>
+			<form hx-post="/discounts/tier/new" hx-target="#tab-content" onsubmit="document.getElementById('new-tier-dialog').close();">
+				<div class="modal-body">
+					<div class="form-group">
+						<label>Tier Name</label>
+						<input type="text" name="tierName" class="input" placeholder="e.g. Master Distributor Tier" required />
+					</div>
+					<div class="two-col">
+						<div class="form-group">
+							<label>Minimum Units</label>
+							<input type="number" name="minUnits" class="input" value="100" required />
+						</div>
+						<div class="form-group">
+							<label>Maximum Units (0 for Unlimited)</label>
+							<input type="number" name="maxUnits" class="input" value="0" />
+						</div>
+					</div>
+					<div class="two-col">
+						<div class="form-group">
+							<label>Wholesale Discount Percentage (%)</label>
+							<input type="number" step="0.5" name="discountPct" class="input" value="28.0" required />
+						</div>
+						<div class="form-group">
+							<label>Commercial Note</label>
+							<input type="text" name="description" class="input" placeholder="FOB Warehouse Dispatch" required />
+						</div>
+					</div>
+				</div>
+				<div class="modal-foot">
+					<button type="button" class="btn ghost" onclick="document.getElementById('new-tier-dialog').close();">Cancel</button>
+					<button type="submit" class="btn solid">Save Wholesale Tier</button>
+				</div>
+			</form>
+		</div>
+	</dialog>
+
+	<!-- New Coupon Modal Dialog -->
+	<dialog id="new-coupon-dialog" class="modal-dialog">
+		<div class="modal-card">
+			<div class="modal-head">
+				<h4>Create Promotional Discount Coupon</h4>
+				<button type="button" class="close-btn" onclick="document.getElementById('new-coupon-dialog').close();">&times;</button>
+			</div>
+			<form hx-post="/discounts/new" hx-target="#tab-content" onsubmit="document.getElementById('new-coupon-dialog').close();">
+				<div class="modal-body">
+					<div class="form-group">
+						<label>Coupon Code</label>
+						<input type="text" name="code" class="input" placeholder="e.g. EXPO2026" style="text-transform:uppercase;" required />
+					</div>
+					<div class="two-col">
+						<div class="form-group">
+							<label>Discount Percentage (%)</label>
+							<input type="number" name="discountPct" class="input" value="15" min="1" max="100" required />
+						</div>
+						<div class="form-group">
+							<label>Description</label>
+							<input type="text" name="description" class="input" placeholder="Trade Fair Special" required />
+						</div>
+					</div>
+				</div>
+				<div class="modal-foot">
+					<button type="button" class="btn ghost" onclick="document.getElementById('new-coupon-dialog').close();">Cancel</button>
+					<button type="submit" class="btn solid">Publish Coupon</button>
+				</div>
+			</form>
+		</div>
+	</dialog>
+}

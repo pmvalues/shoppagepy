@@ -1,0 +1,310 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/shoppage/merchant-os/internal/models"
+)
+
+templ POSTerminalTab(data models.DashboardViewData) {
+	<div class="panel-head">
+		<div>
+			<h3>Trade Counter POS Terminal &amp; Walk-In Sales</h3>
+			<div class="sub">Cashier register for physical warehouse &amp; shopping centre counter collections with instant Capitec Pay &amp; till slip printing</div>
+		</div>
+		<div class="right">
+			<span class="chip up">● Register #01 · Midrand Central Hub</span>
+		</div>
+	</div>
+
+	<div class="row-2">
+		<!-- Left: Quick Tap Product Grid -->
+		<div class="card panel">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+				<div>
+					<h4 style="font-size:15px; font-weight:700;">Catalog Quick Select</h4>
+					<span style="font-size:12px; color:var(--muted);">Tap SKU to add to register cart</span>
+				</div>
+				<!-- Category Filter Pills -->
+				<div style="display:flex; gap:6px;">
+					<button type="button" class="chip flat" onclick="filterPOS('all');">All SKUs</button>
+					<button type="button" class="chip flat" onclick="filterPOS('hospitality');">Hospitality</button>
+					<button type="button" class="chip flat" onclick="filterPOS('packaging');">Packaging</button>
+				</div>
+			</div>
+
+			<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:10px;">
+				for _, item := range data.Catalog {
+					<button 
+						type="button" 
+						class="card pos-sku-btn" 
+						data-category={ item.Category }
+						style="padding:12px; text-align:left; border:1px solid var(--line); cursor:pointer; background:var(--surface); display:flex; flex-direction:column; justify-content:space-between; min-height:115px;"
+						onclick={ templ.ComponentScript{Call: fmt.Sprintf("addToCart('%s', '%s', %.2f)", item.SKU, item.Title, item.WholesaleZar)} }
+					>
+						<div>
+							<span style="font-family:var(--mono); font-size:10.5px; color:var(--muted);">{ item.SKU }</span>
+							<b style="display:block; font-size:12px; line-height:1.3; margin-top:2px;">{ item.Title }</b>
+						</div>
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; border-top:1px solid var(--line); padding-top:4px;">
+							<b style="font-family:var(--display); font-size:14px; color:var(--primary-2);">{ fmt.Sprintf("R%.2f", item.WholesaleZar) }</b>
+							<span class="chip up" style="font-size:10px;">+ Tap</span>
+						</div>
+					</button>
+				}
+			</div>
+		</div>
+
+		<!-- Right: Active Till Register Cart -->
+		<div class="card panel" style="display:flex; flex-direction:column; justify-content:space-between;">
+			<div>
+				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:8px; margin-bottom:12px;">
+					<h4 style="font-size:15px; font-weight:700;">Current Register Cart</h4>
+					<button type="button" class="btn ghost small" onclick="clearCart();">Clear Cart</button>
+				</div>
+
+				<!-- Cart Items Container -->
+				<div id="pos-cart-items" style="display:grid; gap:8px; max-height:220px; overflow-y:auto; margin-bottom:14px;">
+					<div id="empty-cart-msg" style="text-align:center; padding:24px 0; color:var(--muted); font-size:13px;">
+						Till register empty. Tap any SKU from the left to add.
+					</div>
+				</div>
+			</div>
+
+			<!-- Checkout Form -->
+			<form hx-post="/pos/checkout" hx-target="#tab-content">
+				<div style="border-top:1px solid var(--line); padding-top:10px; margin-bottom:12px;">
+					<div class="form-group">
+						<label>Customer Name / Account</label>
+						<input type="text" name="customer" class="input" placeholder="Walk-in Trade / Protea Hotel" value="Walk-in Trade (Balalaika Sandton)" required />
+					</div>
+
+					<!-- Discount Promo Code in Register -->
+					<div style="display:flex; gap:6px; margin-bottom:10px;">
+						<input type="text" id="pos-coupon-input" placeholder="Trade Promo (e.g. HOSPITALITY15)" style="flex:1; padding:6px 10px; font-family:var(--mono); font-size:12px; border:1px solid var(--line); border-radius:6px;" />
+						<button type="button" class="btn ghost small" onclick="applyPOSDiscount();">Apply</button>
+					</div>
+
+					<div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;">
+						<span style="color:var(--muted);">Subtotal</span>
+						<b id="pos-subtotal" style="font-family:var(--mono);">R 0.00</b>
+					</div>
+					<div id="pos-discount-row" style="display:none; justify-content:space-between; font-size:13px; margin-bottom:4px; color:var(--primary-2);">
+						<span>Trade Discount</span>
+						<b id="pos-discount" style="font-family:var(--mono);">-R 0.00</b>
+					</div>
+					<div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;">
+						<span style="color:var(--muted);">SARS VAT (15%)</span>
+						<b id="pos-vat" style="font-family:var(--mono);">R 0.00</b>
+					</div>
+					<div style="display:flex; justify-content:space-between; font-size:18px; border-top:2px solid var(--ink); padding-top:6px; margin-top:6px;">
+						<b>Total Due</b>
+						<b id="pos-total" style="font-family:var(--display); color:var(--primary-2);">R 0.00</b>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label>Tender Method</label>
+					<select name="paymentMethod" class="select-full" onchange="toggleCashCalculator(this.value);">
+						<option value="Capitec Pay QR">Capitec Pay Instant QR (Scan-to-Pay)</option>
+						<option value="Speedpoint Card Terminal">Speedpoint Card Terminal (EMV Chip &amp; PIN)</option>
+						<option value="Direct Bank EFT">Direct Bank EFT Remittance</option>
+						<option value="Cash Tender">Cash Tender</option>
+					</select>
+				</div>
+
+				<!-- Cash Tender & Change Due Calculator -->
+				<div id="cash-calculator" style="display:none; background:var(--surface-2); padding:10px; border-radius:8px; margin-bottom:12px;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+						<span style="font-size:12px; color:var(--muted);">Cash Tendered:</span>
+						<input type="number" id="cash-tendered-input" placeholder="0.00" step="10" style="width:110px; padding:4px 8px; font-family:var(--mono); font-weight:700; border:1px solid var(--line); border-radius:6px;" oninput="calculateChange(this.value);" />
+					</div>
+					<div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700;">
+						<span>Change Due:</span>
+						<b id="cash-change-due" style="color:var(--primary-2); font-family:var(--mono);">R 0.00</b>
+					</div>
+				</div>
+
+				<button type="submit" class="btn solid" style="width:100%; padding:10px; font-size:14px;">
+					💳 Complete Counter Sale (Print Till Slip)
+				</button>
+			</form>
+		</div>
+	</div>
+
+	<!-- Recent Counter Transactions Table -->
+	<div class="card panel" style="margin-top:20px;">
+		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+			<div>
+				<h4 style="font-size:15px; font-weight:700;">Recent Counter Transactions (Shift Log)</h4>
+				<div style="font-size:12px; color:var(--muted);">Current cashier shift register settlements</div>
+			</div>
+			<span style="font-size:12px; color:var(--muted);">{ fmt.Sprintf("%d Transactions Today", len(data.RecentPOSTxns)) }</span>
+		</div>
+
+		<div class="table-wrap">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Receipt #</th>
+						<th>Time</th>
+						<th>Customer / Account</th>
+						<th>Tender Method</th>
+						<th>Items</th>
+						<th style="text-align:right;">Amount (ZAR)</th>
+						<th style="text-align:right;">Till Slip</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, txn := range data.RecentPOSTxns {
+						<tr>
+							<td style="font-family:var(--mono); font-size:12px; font-weight:600;">{ txn.ReceiptNumber }</td>
+							<td style="font-size:12px; color:var(--muted);">{ txn.Timestamp.Format("15:04:05") }</td>
+							<td><b>{ txn.Customer }</b></td>
+							<td><span class="chip up">{ txn.PaymentMethod }</span></td>
+							<td style="font-size:12px; color:var(--muted);">{ fmt.Sprintf("%d items", len(txn.Items)) }</td>
+							<td style="text-align:right; font-family:var(--display); font-weight:700;">R { fmt.Sprintf("%.2f", txn.TotalZar) }</td>
+							<td style="text-align:right;">
+								<button type="button" class="btn ghost small" onclick="window.print();">
+									Reprint Slip
+								</button>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<script>
+		var cart = [];
+		var discountPct = 0;
+		var grandTotalDue = 0;
+
+		function addToCart(sku, title, price) {
+			var existing = cart.find(function(it) { return it.sku === sku; });
+			if (existing) {
+				existing.qty += 1;
+			} else {
+				cart.push({ sku: sku, title: title, price: price, qty: 1 });
+			}
+			renderCart();
+		}
+
+		function updateCartQty(sku, delta) {
+			var item = cart.find(function(it) { return it.sku === sku; });
+			if (!item) return;
+			item.qty += delta;
+			if (item.qty <= 0) {
+				cart = cart.filter(function(it) { return it.sku !== sku; });
+			}
+			renderCart();
+		}
+
+		function clearCart() {
+			cart = [];
+			discountPct = 0;
+			renderCart();
+		}
+
+		function applyPOSDiscount() {
+			var code = (document.getElementById('pos-coupon-input')?.value || '').trim().toUpperCase();
+			var couponInput = document.getElementById('pos-coupon-input');
+			if (code === 'HOSPITALITY15') {
+				discountPct = 0.15;
+				if (couponInput) couponInput.style.borderColor = 'var(--primary)';
+			} else if (code === 'BULK2026') {
+				discountPct = 0.20;
+				if (couponInput) couponInput.style.borderColor = 'var(--primary)';
+			} else {
+				discountPct = 0;
+				if (couponInput) couponInput.style.borderColor = 'var(--rose)';
+			}
+			renderCart();
+		}
+
+		function toggleCashCalculator(method) {
+			var el = document.getElementById('cash-calculator');
+			if (!el) return;
+			el.style.display = method === 'Cash Tender' ? 'block' : 'none';
+		}
+
+		function calculateChange(tenderVal) {
+			var tender = parseFloat(tenderVal) || 0;
+			var change = tender - grandTotalDue;
+			var chEl = document.getElementById('cash-change-due');
+			if (!chEl) return;
+			if (change >= 0) {
+				chEl.textContent = 'R ' + change.toFixed(2);
+				chEl.style.color = 'var(--primary-2)';
+			} else {
+				chEl.textContent = 'Short by R ' + Math.abs(change).toFixed(2);
+				chEl.style.color = 'var(--rose)';
+			}
+		}
+
+		function filterPOS(category) {
+			var btns = document.querySelectorAll('.pos-sku-btn');
+			btns.forEach(function(btn) {
+				if (category === 'all') {
+					btn.style.display = 'flex';
+				} else if (category === 'hospitality') {
+					btn.style.display = btn.dataset.category.toLowerCase().includes('hospitality') ? 'flex' : 'none';
+				} else if (category === 'packaging') {
+					btn.style.display = btn.dataset.category.toLowerCase().includes('packaging') ? 'flex' : 'none';
+				}
+			});
+		}
+
+		function renderCart() {
+			var cont = document.getElementById('pos-cart-items');
+			if (!cont) return;
+			if (cart.length === 0) {
+				cont.innerHTML = '<div style="text-align:center; padding:24px 0; color:var(--muted); font-size:13px;">Till register empty. Tap any SKU from the left to add.</div>';
+				document.getElementById('pos-subtotal').textContent = 'R 0.00';
+				document.getElementById('pos-vat').textContent = 'R 0.00';
+				document.getElementById('pos-total').textContent = 'R 0.00';
+				document.getElementById('pos-discount-row').style.display = 'none';
+				grandTotalDue = 0;
+				return;
+			}
+
+			var subtotal = 0;
+			var html = '';
+			cart.forEach(function(it) {
+				var lineTotal = it.price * it.qty;
+				subtotal += lineTotal;
+				html += '<div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-2); padding:6px 10px; border-radius:6px; font-size:12.5px;">' +
+					'<div style="min-width:0; flex:1;"><b>' + it.sku + '</b> <span style="color:var(--muted); font-size:11.5px;">' + it.title + '</span></div>' +
+					'<div style="display:flex; align-items:center; gap:6px; margin:0 10px;">' +
+						'<button type="button" style="width:22px; height:22px; border-radius:4px; border:1px solid var(--line); background:#fff; cursor:pointer;" onclick="updateCartQty(\'' + it.sku + '\', -1)">-</button>' +
+						'<b style="font-family:var(--mono);">' + it.qty + '</b>' +
+						'<button type="button" style="width:22px; height:22px; border-radius:4px; border:1px solid var(--line); background:#fff; cursor:pointer;" onclick="updateCartQty(\'' + it.sku + '\', 1)">+</button>' +
+					'</div>' +
+					'<b style="font-family:var(--mono); min-width:65px; text-align:right;">R ' + lineTotal.toFixed(2) + '</b>' +
+				'</div>';
+			});
+			cont.innerHTML = html;
+
+			var discAmount = subtotal * discountPct;
+			var discRow = document.getElementById('pos-discount-row');
+			if (discAmount > 0 && discRow) {
+				discRow.style.display = 'flex';
+				document.getElementById('pos-discount').textContent = '-R ' + discAmount.toFixed(2);
+			} else if (discRow) {
+				discRow.style.display = 'none';
+			}
+
+			var taxableSubtotal = subtotal - discAmount;
+			var vat = taxableSubtotal * 0.15;
+			var total = taxableSubtotal + vat;
+			grandTotalDue = total;
+
+			document.getElementById('pos-subtotal').textContent = 'R ' + subtotal.toFixed(2);
+			document.getElementById('pos-vat').textContent = 'R ' + vat.toFixed(2);
+			document.getElementById('pos-total').textContent = 'R ' + total.toFixed(2);
+
+			var cashIn = document.getElementById('cash-tendered-input');
+			if (cashIn && cashIn.value) calculateChange(cashIn.value);
+		}
+	</script>
+}

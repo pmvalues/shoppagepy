@@ -1,0 +1,2439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shoppage — Platform Model & Build Plan v10.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0f19;
+  --surface: #111827;
+  --surface-raised: #1f2937;
+  --ink: #f3f4f6;
+  --ink-muted: #9ca3af;
+  --ink-dim: #6b7280;
+  --accent: #3b82f6;
+  --accent-glow: #60a5fa;
+  --accent-weak: rgba(59,130,246,0.10);
+  --accent-border: rgba(59,130,246,0.25);
+  --heat: #f59e0b;
+  --heat-weak: rgba(245,158,11,0.12);
+  --heat-border: rgba(245,158,11,0.30);
+  --success: #10b981;
+  --success-weak: rgba(16,185,129,0.12);
+  --success-border: rgba(16,185,129,0.30);
+  --danger: #ef4444;
+  --danger-weak: rgba(239,68,68,0.12);
+  --danger-border: rgba(239,68,68,0.30);
+  --line: rgba(255,255,255,0.06);
+  --line-strong: rgba(255,255,255,0.12);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --step--1: clamp(0.85rem, 0.82rem + 0.15vw, 0.95rem);
+  --step-0: clamp(0.95rem, 0.9rem + 0.25vw, 1.05rem);
+  --step-1: clamp(1.15rem, 1.05rem + 0.5vw, 1.35rem);
+  --step-2: clamp(1.5rem, 1.3rem + 1vw, 2rem);
+  --step-3: clamp(2rem, 1.6rem + 2vw, 3.2rem);
+  --step-4: clamp(2.5rem, 2rem + 2.5vw, 4.5rem);
+  --space: clamp(1.5rem, 1.2rem + 1.5vw, 2.5rem);
+}
+
+* { box-sizing: border-box; margin: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Inter", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.65;
+  font-size: var(--step-0);
+  -webkit-font-smoothing: antialiased;
+}
+
+header {
+  position: relative;
+  padding: calc(var(--space) * 3) var(--space) calc(var(--space) * 2.5);
+  max-width: 72rem;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+header::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+header::after {
+  content: "";
+  position: absolute;
+  bottom: -20%;
+  left: -5%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(245,158,11,0.10) 0%, transparent 70%);
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.version-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--step--1);
+  font-weight: 500;
+  color: var(--accent-glow);
+  background: var(--accent-weak);
+  border: 1px solid var(--accent-border);
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.02em;
+}
+
+.version-badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent);
+}
+
+h1 {
+  font-family: "Space Grotesk", "Hiragino Sans", sans-serif;
+  font-size: var(--step-4);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  max-width: 18ch;
+}
+
+h1 span { color: var(--accent-glow); }
+
+.lead {
+  font-size: var(--step-1);
+  color: var(--ink-muted);
+  max-width: 56ch;
+  margin-top: 1.25rem;
+  line-height: 1.55;
+}
+
+main {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 var(--space) calc(var(--space) * 3);
+}
+
+section { margin-top: calc(var(--space) * 2.5); }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-number {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-weak);
+  border: 1px solid var(--accent-border);
+  width: 2.2rem;
+  height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+h2 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: var(--step-2);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: var(--step-1);
+  font-weight: 600;
+  margin-top: 1.8rem;
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.01em;
+}
+
+h4 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1.2rem;
+  margin-bottom: 0.4rem;
+}
+
+p + p { margin-top: 0.85rem; }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.card:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-2px);
+}
+
+.card-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.card-icon.blue { background: var(--accent-weak); border: 1px solid var(--accent-border); }
+.card-icon.amber { background: var(--heat-weak); border: 1px solid var(--heat-border); }
+.card-icon.green { background: var(--success-weak); border: 1px solid var(--success-border); }
+.card-icon.red { background: var(--danger-weak); border: 1px solid var(--danger-border); }
+
+.card h4 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  margin-top: 0;
+}
+
+.card p {
+  font-size: var(--step--1);
+  color: var(--ink-muted);
+  line-height: 1.55;
+}
+
+.card .meta {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.78rem;
+  color: var(--ink-dim);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.card .meta span {
+  background: var(--surface-raised);
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+}
+
+.context-map {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.context-block {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.context-block::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+.context-block.heat::before { background: var(--heat); }
+.context-block.success::before { background: var(--success); }
+.context-block.danger::before { background: var(--danger); }
+
+.context-block h4 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+}
+
+.context-block ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: var(--step--1);
+  color: var(--ink-muted);
+}
+
+.context-block li {
+  margin-bottom: 0.35rem;
+  line-height: 1.5;
+}
+
+.context-block .store-label {
+  margin-top: 0.85rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-dim);
+  font-weight: 500;
+}
+
+.callout {
+  background: var(--accent-weak);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.callout.heat {
+  background: var(--heat-weak);
+  border-color: var(--heat-border);
+}
+
+.callout.green {
+  background: var(--success-weak);
+  border-color: var(--success-border);
+}
+
+.callout.red {
+  background: var(--danger-weak);
+  border-color: var(--danger-border);
+}
+
+.callout p {
+  font-size: var(--step--1);
+  color: var(--ink-muted);
+  margin: 0;
+}
+
+.callout strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+ul.clean {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+ul.clean li {
+  padding: 0.5rem 0;
+  padding-left: 1.4rem;
+  position: relative;
+  color: var(--ink-muted);
+  font-size: var(--step--1);
+}
+
+ul.clean li::before {
+  content: "\2014";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+
+ol.clean {
+  margin-top: 1rem;
+  padding-left: 1.4rem;
+}
+
+ol.clean li {
+  padding: 0.4rem 0;
+  color: var(--ink-muted);
+  font-size: var(--step--1);
+  line-height: 1.6;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.25rem;
+  font-size: var(--step--1);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+th, td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+
+th {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-dim);
+  background: var(--surface-raised);
+}
+
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+td:first-child { font-weight: 500; color: var(--ink); }
+
+.arch-diagram {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-top: 1.5rem;
+  overflow-x: auto;
+}
+
+.arch-layer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  padding: 1rem 0;
+  position: relative;
+}
+
+.arch-layer:not(:last-child)::after {
+  content: "\2193";
+  position: absolute;
+  bottom: -0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--ink-dim);
+  font-size: 1.2rem;
+}
+
+.arch-node {
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  min-width: 120px;
+}
+
+.arch-node.accent {
+  border-color: var(--accent-border);
+  background: var(--accent-weak);
+  color: var(--accent-glow);
+}
+
+.arch-node.heat {
+  border-color: var(--heat-border);
+  background: var(--heat-weak);
+  color: var(--heat);
+}
+
+.arch-node.green {
+  border-color: var(--success-border);
+  background: var(--success-weak);
+  color: var(--success);
+}
+
+.arch-node.red {
+  border-color: var(--danger-border);
+  background: var(--danger-weak);
+  color: var(--danger);
+}
+
+.arch-label {
+  width: 100%;
+  text-align: center;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-dim);
+  margin-bottom: 0.25rem;
+}
+
+.phase-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--step--1);
+  align-items: start;
+}
+
+.phase-row.header {
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-dim);
+  border-bottom: 1px solid var(--line-strong);
+  padding-bottom: 0.5rem;
+}
+
+.phase-row .phase-name {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 600;
+  color: var(--accent-glow);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+}
+
+.status-badge.active {
+  background: var(--success-weak);
+  color: var(--success);
+  border: 1px solid var(--success-border);
+}
+
+.status-badge.provisioned {
+  background: var(--heat-weak);
+  color: var(--heat);
+  border: 1px solid var(--heat-border);
+}
+
+.status-badge.gap {
+  background: var(--danger-weak);
+  color: var(--danger);
+  border: 1px solid var(--danger-border);
+}
+
+footer {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--space);
+  border-top: 1px solid var(--line);
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+}
+
+@media (max-width: 640px) {
+  .phase-row { grid-template-columns: 1fr; gap: 0.35rem; }
+  .phase-row.header { display: none; }
+}
+
+@media print {
+  body { background: #fff; color: #111; }
+  .arch-diagram, .card, .context-block, table, .callout {
+    background: #f8f9fa;
+    border-color: #ddd;
+  }
+  header::before, header::after { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="version-badge">Platform Model &amp; Build Plan v10.0 &middot; Reconciled Live Baseline</div>
+  <h1>Shoppage is South Africa's <span>commerce-native super-platform</span></h1>
+  <p class="lead">A master model and engineering build plan synthesising the v9.1 verified runtime, the 20 September 2026 live site reconnaissance, the 244-test hardened monorepo, the six-context commerce vision, and the Pemofy merchant channel strategy.</p>
+</header>
+
+<main>
+
+<!-- PART 1: CURRENT STATE -->
+<section>
+  <div class="section-header">
+    <div class="section-number">01</div>
+    <h2>Current State: v10.0 Verified Runtime &amp; Reconciled Reality</h2>
+  </div>
+  <p>Shoppage v10.0 is an investment-grade technical specification reconciling empirical live site reconnaissance with active monorepo verification. Prior assessments assuming the live site at shoppage.co.za was merely a WordPress placeholder have been definitively corrected: beneath the landing cloaking layer operates an active Next.js commerce discovery engine serving real inventory signals, 36+ verified multi-provincial merchants, and 3,296 catalogued shopping centres. The underlying engineering core is a 5-package TypeScript monorepo with <strong>244 passing tests (100% green across all 5 packages)</strong>, edge security middleware, and a modularized merchant cockpit.</p>
+
+  <h3>Live Site Reconnaissance (Empirical Reality)</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon green">&#10004;</div>
+      <h4>Discovery Engine (/search)</h4>
+      <p>Active product discovery with real inventory signals, SABS compliance passport specs, restock notifications, and 100+ Builders Warehouse &amp; Express dispatch store claims across 1M+ catalog items.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon green">&#10004;</div>
+      <h4>Mall Catalogue (/malls)</h4>
+      <p>3,296 shopping centres mapped across all 9 South African provinces with anchor tenants, store counts, operating hours, and live "Solar &amp; Lithium Backup" resilience tags.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon green">&#10004;</div>
+      <h4>Verified Merchant Directory (/merchants)</h4>
+      <p>36+ verified specialist and retail merchants (e.g. Mitrend Products, SunPower Crown Mines, SolarBros Sandton) with WhatsApp links, reviews, stock counts, and physical trade counter coordinates.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon blue">&#9881;</div>
+      <h4>Monorepo Engineering Core</h4>
+      <p>Next.js 16.3.3 App Router, TypeScript 5.5, in-process SQLite FTS5, Gemini 3.6 Flash assistant, and 244 automated unit/integration tests passing with 0 failures across 5 monorepo packages.</p>
+    </div>
+  </div>
+
+  <h3>Runtime Truth Matrix</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Component</th>
+        <th>Status</th>
+        <th>Active Role</th>
+        <th>Target Role (v10.x Scaled Topology)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Next.js 16.3 + React 19</td>
+        <td><span class="status-badge active">Active</span></td>
+        <td>SSR/SSG/ISR App Router, UI Shell, API routes</td>
+        <td>Primary application authority and UI</td>
+      </tr>
+      <tr>
+        <td>TypeScript 5.5</td>
+        <td><span class="status-badge active">Active</span></td>
+        <td>Monorepo language across all 5 packages</td>
+        <td>Universal application &amp; edge language</td>
+      </tr>
+      <tr>
+        <td>Edge Security Middleware</td>
+        <td><span class="status-badge active">Active</span></td>
+        <td>Next.js Edge Middleware (<code>apps/web/src/middleware.ts</code>) guarding <code>/admin/*</code>, <code>/merchant/*</code>, HMAC sessions</td>
+        <td>Zero-trust edge gateway &amp; tenant isolation</td>
+      </tr>
+      <tr>
+        <td>Modular Merchant OS</td>
+        <td><span class="status-badge active">Active</span></td>
+        <td>6 discrete domain modules (<code>Overview</code>, <code>AiStoreCrew</code>, <code>Orders</code>, <code>Catalog</code>, <code>Feeds</code>, <code>Compliance</code>)</td>
+        <td>Embedded Merchant Cockpit &amp; Pemofy sync node</td>
+      </tr>
+      <tr>
+        <td>In-Process SQLite FTS5</td>
+        <td><span class="status-badge active">Active</span></td>
+        <td>Serves 100% of live catalog search, merchants, malls (&lt;1ms reads)</td>
+        <td>Derived read distribution &amp; fast local index</td>
+      </tr>
+      <tr>
+        <td>Gemini 3.6 Flash Agent</td>
+        <td><span class="status-badge active">Active</span></td>
+        <td>Server-side LLM via REST with 5 native retail tools</td>
+        <td>Pluggable provider behind Model-Agnostic AI Gateway</td>
+      </tr>
+      <tr>
+        <td>Python 3 Toolkit</td>
+        <td><span class="status-badge active">Active</span></td>
+        <td>Sitemap scrapers, retail sweepers, ETL data ingestion</td>
+        <td>Distributed scraping plane, Whisper GPU &amp; ML inference</td>
+      </tr>
+      <tr>
+        <td>PostgreSQL 16 + pgvector</td>
+        <td><span class="status-badge provisioned">Provisioned</span></td>
+        <td>Container running in <code>docker-compose.yml</code></td>
+        <td>Canonical write authority, RFQs, quotes &amp; mutable truth</td>
+      </tr>
+      <tr>
+        <td>Typesense 26.0</td>
+        <td><span class="status-badge provisioned">Provisioned</span></td>
+        <td>Container running in <code>docker-compose.yml</code></td>
+        <td>Dedicated discovery, geo-radius &amp; typo-tolerant search</td>
+      </tr>
+      <tr>
+        <td>Redis 7 (Alpine)</td>
+        <td><span class="status-badge provisioned">Provisioned</span></td>
+        <td>Container running in <code>docker-compose.yml</code></td>
+        <td>Session store, rate-limiting, AI cache, chat presence, BullMQ</td>
+      </tr>
+      <tr>
+        <td>Payload CMS 3.88</td>
+        <td><span class="status-badge provisioned">Partial</span></td>
+        <td>Packages installed; SQLite CMS service active</td>
+        <td>Editorial &amp; merchant content over PostgreSQL</td>
+      </tr>
+      <tr>
+        <td>Go Microservices Plane</td>
+        <td><span class="status-badge provisioned">Target</span></td>
+        <td>Architecture planned (Echo / Chi + Gorilla WS)</td>
+        <td>High-RPS Discovery, Chat WS Manager, B2B Quote Engine</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Audit of Critical Gaps &amp; Completed Fixes</h3>
+  <div class="callout green">
+    <p><strong>Security Gate &amp; Route Protection (P0 — RESOLVED IN CODE, READY FOR DEPLOY):</strong> Live reconnaissance detected that legacy deployed routes (<code>/admin</code> and <code>/merchant/dashboard</code>) lacked session validation. This vulnerability has been completely resolved in the monorepo via Next.js Edge Middleware (<code>apps/web/src/middleware.ts</code>) enforcing cryptographically signed HMAC session cookies (<code>shoppage_session</code>), role checks (<code>superadmin</code>, <code>merchant_owner</code>, <code>merchant_staff</code>), strict multi-tenant store isolation, and <code>assertEnvironmentIsSafe()</code> deployment assertion — validated by 21 dedicated passing security tests.</p>
+  </div>
+  <div class="callout green">
+    <p><strong>Merchant Dashboard Modularization (P5 — RESOLVED IN CODE):</strong> The former 3,747-line monolithic merchant dashboard has been refactored into 6 isolated domain modules (<code>OverviewModule</code>, <code>AiStoreCrewModule</code>, <code>OrdersModule</code>, <code>CatalogModule</code>, <code>FeedsModule</code>, <code>ComplianceModule</code>), ensuring modular extensibility.</p>
+  </div>
+  <div class="callout heat">
+    <p><strong>Active Implementation Queue (Phase 1: Wire the Data Layer):</strong> PostgreSQL 16, Typesense 26, Redis 7, and Payload 3.88 are running in <code>docker-compose.yml</code>. The active monorepo currently executes fast read queries against SQLite FTS5; the immediate roadmap wires PostgreSQL ORM schemas and Typesense indexing into the active write/query paths.</p>
+  </div>
+</section>
+
+<!-- PART 2: THE SIX BOUNDED CONTEXTS -->
+<section>
+  <div class="section-header">
+    <div class="section-number">02</div>
+    <h2>The Six Bounded Contexts</h2>
+  </div>
+  <p>Shoppage is not one product. It is six distinct platforms that share a common identity, event bus, and merchant graph. Each context has its own data model, scale profile, and user mental model. The expanded vision moves Shoppage from a discovery grid to a commerce-native super-platform.</p>
+
+  <div class="context-map">
+    <div class="context-block">
+      <h4>01. Discovery Engine</h4>
+      <ul>
+        <li>Product search across all merchants</li>
+        <li>Price alerts & watchlists</li>
+        <li>Category, brand, and geo filtering</li>
+        <li>Live inventory surfacing</li>
+        <li>"People also ask" Q&A on product pages</li>
+        <li>Video reviews and unboxing content</li>
+        <li>International review aggregation</li>
+      </ul>
+      <div class="store-label">Goal: Be the Google Search of products for South Africa</div>
+    </div>
+
+    <div class="context-block heat">
+      <h4>02. Markets & Communities</h4>
+      <ul>
+        <li>Virtual market groups (Facebook Groups alternative)</li>
+        <li>Trade counter directories</li>
+        <li>Social commerce feeds</li>
+        <li>Mall / district / niche hubs</li>
+        <li>Group buying and deal sharing</li>
+        <li>Creator and merchant communities</li>
+      </ul>
+      <div class="store-label">Goal: Be the Facebook Groups of SA markets and trade</div>
+    </div>
+
+    <div class="context-block success">
+      <h4>03. Commerce Chat + Mini ERP</h4>
+      <ul>
+        <li>WhatsApp Business clone</li>
+        <li>Merchant-customer messaging</li>
+        <li>Order management inside chat threads</li>
+        <li>Product catalog, stock, customer CRM</li>
+        <li>Delivery status and payment links in chat</li>
+        <li>WhatsApp Cloud API bridging</li>
+      </ul>
+      <div class="store-label">Goal: Replace WhatsApp Business + spreadsheets for SA traders</div>
+    </div>
+
+    <div class="context-block">
+      <h4>04. Product Intelligence & Enrichment</h4>
+      <ul>
+        <li>AI product enrichment from multiple sources</li>
+        <li>Spec extraction & normalisation</li>
+        <li>Image analysis & categorisation</li>
+        <li>International review aggregation (Amazon, Trustpilot, forums)</li>
+        <li>Video transcription and chapter extraction</li>
+        <li>Compatibility matrices and fitment data</li>
+        <li>Price history and deal detection</li>
+      </ul>
+      <div class="store-label">Goal: Richest product knowledge base in South Africa</div>
+    </div>
+
+    <div class="context-block heat">
+      <h4>05. Quotes & B2B RFQ</h4>
+      <ul>
+        <li>Buyer RFQ creation in natural language</li>
+        <li>Merchant quote responses with line items</li>
+        <li>Volume pricing & negotiation workflows</li>
+        <li>B2B trade counter workflows</li>
+        <li>Quote revision, expiry, and approval chains</li>
+        <li>AI requirement parsing for complex B2B needs</li>
+      </ul>
+      <div class="store-label">Goal: Digitise SA wholesale, trade, and B2B quoting</div>
+    </div>
+
+    <div class="context-block success">
+      <h4>06. Geolocation & GMB</h4>
+      <ul>
+        <li>Merchant location profiles with rich data</li>
+        <li>Nearby search & map-integrated discovery</li>
+        <li>Operating hours, services, photos, reviews</li>
+        <li>Delivery zone mapping</li>
+        <li>"Plumber near me" with commerce actions</li>
+        <li>Mass merchant onboarding via location</li>
+      </ul>
+      <div class="store-label">Goal: Be the Google My Business of SA commerce</div>
+    </div>
+  </div>
+
+  <h3>The Flywheel</h3>
+  <div class="callout">
+    <p><strong>Discovery</strong> brings buyers. <strong>Markets</strong> create community and retention. <strong>Chat + Mini ERP</strong> converts discovery into transactions. <strong>Product Intelligence</strong> makes every page a destination. <strong>Quotes / RFQ</strong> unlocks B2B, the least contested segment. <strong>Geolocation</strong> anchors everything to physical SA commerce. Each context feeds the others. The event bus is the nervous system that makes six products feel like one platform.</p>
+  </div>
+</section>
+
+<!-- PART 3: TARGET ARCHITECTURE -->
+<section>
+  <div class="section-header">
+    <div class="section-number">03</div>
+    <h2>Target Architecture: Go-Powered Polyglot Platform</h2>
+  </div>
+  <p>The v9.1 target architecture is correct in principle but incomplete for the expanded vision. The updated v10.0 architecture adds Go as the primary backend language, separates the six contexts into dedicated services, and introduces the AI Requirements Engine and Product Intelligence pipeline as first-class infrastructure.</p>
+
+  <h3>Architecture Principles</h3>
+  <ul class="clean">
+    <li><strong>Go owns concurrency and serving.</strong> Every context that handles high-RPS APIs, long-lived connections, or batch workers runs Go.</li>
+    <li><strong>Node.js owns SDK-rich integrations.</strong> SA payment gateways with official Node SDKs stay in Node.js microservices.</li>
+    <li><strong>Python owns scraping and AI inference.</strong> Scrapy, Playwright, Whisper, and transformer models stay in Python.</li>
+    <li><strong>NATS JetStream is the nervous system.</strong> All services communicate via normalized events. No direct service-to-service HTTP calls except at the edge.</li>
+    <li><strong>Each context owns its data.</strong> No shared database. PostgreSQL for canonical data, ScyllaDB for chat, ClickHouse for analytics, Typesense for search, Redis for ephemeral state.</li>
+    <li><strong>Next.js 16 stays the frontend.</strong> The App Router, SSR, and React ecosystem are correct. Go replaces the API layer, not the UI layer.</li>
+  </ul>
+
+  <h3>Full Platform Architecture</h3>
+  <div class="arch-diagram">
+    <div class="arch-label">Client Layer</div>
+    <div class="arch-layer">
+      <div class="arch-node">Next.js 16 Web (Buyers)</div>
+      <div class="arch-node">Next.js 16 (Merchant Dashboard)</div>
+      <div class="arch-node">React Native (Future)</div>
+      <div class="arch-node">WhatsApp Cloud API</div>
+    </div>
+
+    <div class="arch-label">Edge & Gateway</div>
+    <div class="arch-layer">
+      <div class="arch-node accent">Cloudflare / OCI CDN</div>
+      <div class="arch-node accent">OCI Load Balancer</div>
+      <div class="arch-node accent">WAF / DDoS Protection</div>
+      <div class="arch-node accent">Rate Limit (Redis)</div>
+    </div>
+
+    <div class="arch-label">Go Microservices (Six Contexts)</div>
+    <div class="arch-layer">
+      <div class="arch-node accent">Discovery API</div>
+      <div class="arch-node accent">Market Community</div>
+      <div class="arch-node accent">Chat Service</div>
+      <div class="arch-node accent">Product Intelligence</div>
+      <div class="arch-node accent">Quote / RFQ Engine</div>
+      <div class="arch-node accent">Geo / GMB Service</div>
+    </div>
+
+    <div class="arch-label">Integration Workers (Go + Node + Python)</div>
+    <div class="arch-layer">
+      <div class="arch-node accent">ERP Sync Worker</div>
+      <div class="arch-node accent">WhatsApp Bridge</div>
+      <div class="arch-node accent">Storefront Sync</div>
+      <div class="arch-node heat">Payment Webhook (Node)</div>
+      <div class="arch-node heat">Python Scrapers</div>
+      <div class="arch-node heat">Python LLM Service</div>
+    </div>
+
+    <div class="arch-label">Event Bus</div>
+    <div class="arch-layer">
+      <div class="arch-node green">NATS JetStream</div>
+    </div>
+
+    <div class="arch-label">Data Layer</div>
+    <div class="arch-layer">
+      <div class="arch-node">PostgreSQL 16 (canonical)</div>
+      <div class="arch-node">PostGIS (geo)</div>
+      <div class="arch-node">pgvector (embeddings)</div>
+      <div class="arch-node">Typesense 26 (search)</div>
+      <div class="arch-node">ScyllaDB (chat)</div>
+      <div class="arch-node">ClickHouse (analytics)</div>
+      <div class="arch-node">Redis 7 (cache / sessions)</div>
+      <div class="arch-node">OCI Object Store (media)</div>
+    </div>
+
+    <div class="arch-label">External Systems</div>
+    <div class="arch-layer">
+      <div class="arch-node">Dynamics 365 BC</div>
+      <div class="arch-node">Sage / Xero</div>
+      <div class="arch-node">PayFast / Ozow / Yoco</div>
+      <div class="arch-node">The Courier Guy</div>
+      <div class="arch-node">WhatsApp Cloud API</div>
+      <div class="arch-node">YouTube / Review APIs</div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 4: SERVICE BREAKDOWN -->
+<section>
+  <div class="section-header">
+    <div class="section-number">04</div>
+    <h2>Service Breakdown by Bounded Context</h2>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Service</th>
+        <th>Language</th>
+        <th>Router / Framework</th>
+        <th>Data Stores</th>
+        <th>Traffic Pattern</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Discovery API</td>
+        <td>Go</td>
+        <td>Echo</td>
+        <td>Typesense, PostgreSQL, Redis</td>
+        <td>High-RPS, read-heavy, stateless</td>
+      </tr>
+      <tr>
+        <td>Market Community</td>
+        <td>Go</td>
+        <td>Echo</td>
+        <td>PostgreSQL, Redis, Typesense</td>
+        <td>Social feed, moderate RPS</td>
+      </tr>
+      <tr>
+        <td>Chat Service</td>
+        <td>Go</td>
+        <td>Chi + Gorilla WS</td>
+        <td>ScyllaDB, Redis, NATS</td>
+        <td>Stateful WS, write-heavy</td>
+      </tr>
+      <tr>
+        <td>Product Intelligence</td>
+        <td>Go + Python</td>
+        <td>Chi (API) + Workers</td>
+        <td>PostgreSQL, ClickHouse, pgvector, OCI Object</td>
+        <td>Batch, CPU-heavy, async</td>
+      </tr>
+      <tr>
+        <td>Quote / RFQ Engine</td>
+        <td>Go</td>
+        <td>Echo</td>
+        <td>PostgreSQL, NATS</td>
+        <td>Stateful workflows, moderate</td>
+      </tr>
+      <tr>
+        <td>Geo / GMB Service</td>
+        <td>Go</td>
+        <td>Chi</td>
+        <td>PostGIS, Redis, Typesense</td>
+        <td>Geo-radius queries, read-heavy</td>
+      </tr>
+      <tr>
+        <td>WhatsApp Bridge</td>
+        <td>Go</td>
+        <td>stdlib</td>
+        <td>NATS, Redis, PostgreSQL</td>
+        <td>Webhook ingest, high concurrency</td>
+      </tr>
+      <tr>
+        <td>ERP Sync Worker</td>
+        <td>Go</td>
+        <td>Worker (no HTTP)</td>
+        <td>NATS, PostgreSQL</td>
+        <td>Scheduled batch, idempotent</td>
+      </tr>
+      <tr>
+        <td>Storefront Sync</td>
+        <td>Go</td>
+        <td>Worker</td>
+        <td>NATS, PostgreSQL, Typesense</td>
+        <td>Scheduled batch, concurrent</td>
+      </tr>
+      <tr>
+        <td>Payment Webhook</td>
+        <td>Node.js</td>
+        <td>Fastify / Express</td>
+        <td>NATS, PostgreSQL</td>
+        <td>Low volume, high value</td>
+      </tr>
+      <tr>
+        <td>Python Scrapers</td>
+        <td>Python</td>
+        <td>Scrapy / Playwright</td>
+        <td>NATS, OCI Object</td>
+        <td>Background, long-running</td>
+      </tr>
+      <tr>
+        <td>Python LLM Service</td>
+        <td>Python</td>
+        <td>FastAPI</td>
+        <td>GPU instance</td>
+        <td>Inference, async</td>
+      </tr>
+      <tr>
+        <td>Payload CMS</td>
+        <td>Node.js / Next.js</td>
+        <td>Payload 3.88</td>
+        <td>PostgreSQL</td>
+        <td>Editorial, low RPS</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- PART 5: DISCOVERY ENGINE -->
+<section>
+  <div class="section-header">
+    <div class="section-number">05</div>
+    <h2>Context 1: Discovery Engine</h2>
+  </div>
+  <p>The Discovery Engine is the flagship surface. It must answer product searches with the depth of Google Search: reviews, videos, Q&A, price history, compatibility, and merchant availability. But unlike Google, every result leads to a commerce action with a verified South African merchant.</p>
+
+  <h3>What Makes It Different from PriceCheck</h3>
+  <ul class="clean">
+    <li>PriceCheck lists products with prices. Shoppage answers "is this good for me?" with evidence.</li>
+    <li>PriceCheck shows static listings. Shoppage shows live inventory, local stock, and delivery options.</li>
+    <li>PriceCheck is search-then-leave. Shoppage is search-then-chat-then-buy-then-review, all in one platform.</li>
+    <li>PriceCheck does ~$3.3M ARR with 17M shoppers and 6.5M products. That proves the model works in SA but also shows its ceiling without commerce-native features.</li>
+  </ul>
+
+  <h3>Discovery Data Model</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Entity</th>
+        <th>Store</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Product Master</td>
+        <td>PostgreSQL</td>
+        <td>Canonical identity, taxonomy, brand, category hierarchy</td>
+      </tr>
+      <tr>
+        <td>Offer / Listing</td>
+        <td>PostgreSQL</td>
+        <td>Merchant-specific price, stock, condition, warranty, delivery</td>
+      </tr>
+      <tr>
+        <td>Search Index</td>
+        <td>Typesense</td>
+        <td>Typo-tolerant, faceted, geo-radius product discovery</td>
+      </tr>
+      <tr>
+        <td>Review Corpus</td>
+        <td>ClickHouse + pgvector</td>
+        <td>Sentiment, pros/cons, SA-relevant insights from international sources</td>
+      </tr>
+      <tr>
+        <td>Video Index</td>
+        <td>PostgreSQL + OCI Object</td>
+        <td>Transcripts, chapters, creator attribution, product timestamps</td>
+      </tr>
+      <tr>
+        <td>Q&A Graph</td>
+        <td>PostgreSQL + Typesense</td>
+        <td>"People also ask" style related questions with merchant answers</td>
+      </tr>
+      <tr>
+        <td>Price History</td>
+        <td>ClickHouse</td>
+        <td>Time-series price tracking, deal detection, drop alerts</td>
+      </tr>
+      <tr>
+        <td>Compatibility</td>
+        <td>PostgreSQL (graph)</td>
+        <td>"Fits my car / phone / device" relationship data</td>
+      </tr>
+      <tr>
+        <td>Embeddings</td>
+        <td>pgvector</td>
+        <td>Semantic similarity for requirement-to-product matching</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Discovery API Endpoints (Go / Echo)</h3>
+  <ul class="clean">
+    <li><code>GET /search?q=&category=&brand=&price_min=&price_max=&lat=&lng=&radius=</code> — Typo-tolerant faceted search via Typesense proxy</li>
+    <li><code>GET /products/:id</code> — Rich product page with reviews, videos, Q&A, price history, compatibility</li>
+    <li><code>GET /products/:id/offers</code> — Live merchant offers with stock status and delivery options</li>
+    <li><code>POST /watchlists</code> — Save product to watchlist with price alert threshold</li>
+    <li><code>POST /alerts/price-drop</code> — Subscribe to price drop alerts per product or category</li>
+    <li><code>POST /ask</code> — AI Requirements Engine: natural language query to ranked products with evidence</li>
+    <li><code>GET /products/:id/reviews</code> — Aggregated reviews with sentiment, source weighting, SA context</li>
+    <li><code>GET /products/:id/videos</code> — Video reviews with transcript excerpts and key timestamps</li>
+    <li><code>GET /products/:id/qa</code> — Related questions and answers from forums and merchant responses</li>
+    <li><code>GET /products/:id/compatibility</code> — Compatibility matrix and fitment verification</li>
+  </ul>
+</section>
+
+<!-- PART 6: MARKETS & COMMUNITIES -->
+<section>
+  <div class="section-header">
+    <div class="section-number">06</div>
+    <h2>Context 2: Markets & Communities</h2>
+  </div>
+  <p>Facebook Groups dominates informal trade in South Africa. WhatsApp groups, Facebook marketplace communities, and niche buy/sell groups are where real commerce happens outside formal platforms. Shoppage Markets replaces this with a structured, searchable, commerce-native community layer.</p>
+
+  <h3>Core Concepts</h3>
+  <ul class="clean">
+    <li><strong>Market:</strong> A themed community space (e.g., "Johannesburg Hardware Traders", "Cape Town Wedding Suppliers", "SA Load-Shedding Gear"). Has admins, rules, categories, and moderation.</li>
+    <li><strong>Trade Counter:</strong> A merchant's presence within a market. Not just a profile — a live storefront with inventory, reviews, and chat.</li>
+    <li><strong>Post Types:</strong> Product listing, deal alert, buying request, review, question, poll, live sale announcement.</li>
+    <li><strong>Discovery:</strong> Markets are searchable and discoverable via the Geo and Discovery contexts. A user searching "inverter" may land in the "SA Solar & Backup Power" market.</li>
+  </ul>
+
+  <h3>Data Model</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Entity</th>
+        <th>Store</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Markets / Groups</td>
+        <td>PostgreSQL</td>
+        <td>Market metadata, rules, admins, membership, categories</td>
+      </tr>
+      <tr>
+        <td>Posts / Listings</td>
+        <td>PostgreSQL</td>
+        <td>Content, author, market, product links, engagement metrics</td>
+      </tr>
+      <tr>
+        <td>Feed Timeline</td>
+        <td>Redis sorted sets</td>
+        <td>Personalised feed generation (fan-out on write for small markets, fan-out on read for large)</td>
+      </tr>
+      <tr>
+        <td>Market Search</td>
+        <td>Typesense</td>
+        <td>Discover markets by name, category, location, member count</td>
+      </tr>
+      <tr>
+        <td>Engagement</td>
+        <td>PostgreSQL + Redis</td>
+        <td>Likes, shares, saves, comments, poll votes</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Integration with Other Contexts</h3>
+  <ul class="clean">
+    <li>A market post can link to a Discovery product page, creating a direct commerce action from community content.</li>
+    <li>A merchant's Trade Counter in a market is powered by their Pemofy storefront sync, so inventory is always live.</li>
+    <li>Chat threads started from market posts are handled by the Commerce Chat context, with WhatsApp bridging for merchants who prefer it.</li>
+    <li>Geo context surfaces nearby markets and trade counters on the map.</li>
+  </ul>
+</section>
+
+<!-- PART 7: COMMERCE CHAT + MINI ERP -->
+<section>
+  <div class="section-header">
+    <div class="section-number">07</div>
+    <h2>Context 3: Commerce Chat + Mini ERP</h2>
+  </div>
+  <p>WhatsApp is South Africa's dominant digital storefront channel. 71% of online purchases are mobile. Shoppage Chat replaces the informal WhatsApp Business + spreadsheet workflow with a structured, commerce-native messaging platform that includes order management, catalog, stock, and customer CRM.</p>
+
+  <h3>Why This Is Not Just a Chat App</h3>
+  <ul class="clean">
+    <li><strong>Mini ERP:</strong> Merchants manage products, stock, customers, orders, and deliveries inside the same interface they use to chat. No context switching to a separate admin panel.</li>
+    <li><strong>Commerce Actions in Chat:</strong> Send product cards, create orders, process payments, track deliveries, and issue refunds — all within a message thread.</li>
+    <li><strong>WhatsApp Bridge:</strong> Merchants who already use WhatsApp Business can bridge their account. Buyers on Shoppage chat; merchants reply from WhatsApp. The bridge normalises both directions.</li>
+    <li><strong>AI Merchant Assistant:</strong> Auto-replies to common questions using the Product Intelligence corpus. "Is this in stock?" "What are the delivery options?" "Does this fit a 2019 Hilux?"</li>
+  </ul>
+
+  <h3>Chat Data Model</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Entity</th>
+        <th>Store</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Messages</td>
+        <td>ScyllaDB</td>
+        <td>Chat timeline — infinite growth, write-heavy, time-ordered</td>
+      </tr>
+      <tr>
+        <td>Threads / Conversations</td>
+        <td>PostgreSQL</td>
+        <td>Thread metadata, participants, subject, status</td>
+      </tr>
+      <tr>
+        <td>Presence / Typing</td>
+        <td>Redis</td>
+        <td>Online status, typing indicators, last seen</td>
+      </tr>
+      <tr>
+        <td>Delivery Receipts</td>
+        <td>NATS JetStream</td>
+        <td>Message status events: sent, delivered, read, failed</td>
+      </tr>
+      <tr>
+        <td>Media</td>
+        <td>OCI Object + imgproxy</td>
+        <td>Images, videos, documents with on-the-fly resizing</td>
+      </tr>
+      <tr>
+        <td>CRM / Customers</td>
+        <td>PostgreSQL</td>
+        <td>Customer profiles, tags, notes, order history per merchant</td>
+      </tr>
+      <tr>
+        <td>Catalog in Chat</td>
+        <td>PostgreSQL + Typesense</td>
+        <td>Merchant product catalog surfaced as cards in chat</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Chat Service Architecture (Go)</h3>
+  <div class="arch-diagram">
+    <div class="arch-label">Clients</div>
+    <div class="arch-layer">
+      <div class="arch-node">Next.js Chat UI</div>
+      <div class="arch-node">WhatsApp Business</div>
+      <div class="arch-node">Merchant Dashboard</div>
+    </div>
+
+    <div class="arch-label">Go Chat Service</div>
+    <div class="arch-layer">
+      <div class="arch-node accent">WebSocket Manager</div>
+      <div class="arch-node accent">Message Router</div>
+      <div class="arch-node accent">Presence Manager</div>
+      <div class="arch-node accent">Order Bot</div>
+      <div class="arch-node accent">AI Merchant Assistant</div>
+    </div>
+
+    <div class="arch-label">Bridge & Events</div>
+    <div class="arch-layer">
+      <div class="arch-node heat">WhatsApp Bridge</div>
+      <div class="arch-node heat">NATS JetStream</div>
+    </div>
+
+    <div class="arch-label">Stores</div>
+    <div class="arch-layer">
+      <div class="arch-node">ScyllaDB (messages)</div>
+      <div class="arch-node">Redis (presence)</div>
+      <div class="arch-node">PostgreSQL (CRM)</div>
+      <div class="arch-node">OCI Object (media)</div>
+    </div>
+  </div>
+
+  <h3>Core Relational Schema (PostgreSQL 16)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Table</th>
+        <th>Key Columns & Constraints</th>
+        <th>Functional Responsibility</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>conversations</code></td>
+        <td><code>id UUID PK, buyer_id UUID, merchant_id UUID, product_id UUID, status, quote_id, order_id, channel</code></td>
+        <td>Root thread connecting buyer, merchant, and product commerce context</td>
+      </tr>
+      <tr>
+        <td><code>messages</code></td>
+        <td><code>id UUID PK, conversation_id UUID FK, sender_type, sender_id, message_type, content JSONB, status</code></td>
+        <td>Chronological event stream carrying typed commerce payloads</td>
+      </tr>
+      <tr>
+        <td><code>quotes</code></td>
+        <td><code>id UUID PK, conversation_id UUID FK, quote_number UNIQUE, status, subtotal, delivery, vat, total, valid_until</code></td>
+        <td>Legally binding, structured proforma quote with reserved inventory timeout</td>
+      </tr>
+      <tr>
+        <td><code>quote_lines</code></td>
+        <td><code>id UUID PK, quote_id UUID FK, product_id, quantity, unit_price, line_total, stock_confirmed</code></td>
+        <td>Line-item pricing, warehouse location assignment, and SKU verification</td>
+      </tr>
+      <tr>
+        <td><code>buyer_chat_profiles</code></td>
+        <td><code>buyer_id UUID PK, display_name, phone_hash, default_postal_code, whatsapp_opt_in</code></td>
+        <td>POPIA-compliant buyer identity, channel preference, and address context</td>
+      </tr>
+      <tr>
+        <td><code>merchant_chat_settings</code></td>
+        <td><code>merchant_id UUID PK, auto_quote_enabled, auto_quote_rules JSONB, ai_suggestions_enabled, response_time_sla</code></td>
+        <td>Merchant automation policies, SLA targets, and auto-quote rulebook</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Message Type Taxonomy (11 Message Types)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Buyer UX Representation</th>
+        <th>Merchant UX Representation</th>
+        <th>Payload Schema</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>text</code></td>
+        <td>Standard message bubble</td>
+        <td>Standard team message bubble</td>
+        <td><code>{ "text": string }</code></td>
+      </tr>
+      <tr>
+        <td><code>inquiry</code></td>
+        <td>"Inquiry sent for 5x Deye 5kW"</td>
+        <td>Structured card with product, qty, postal code, urgency badge</td>
+        <td><code>{ "product_id", "quantity", "postal_code", "urgency" }</code></td>
+      </tr>
+      <tr>
+        <td><code>quote</code></td>
+        <td>Interactive quote card with [Approve] [Modify]</td>
+        <td>"Quote sent" with view status and expiry tracker</td>
+        <td><code>{ "quote_id", "quote_number", "lines", "total", "valid_until" }</code></td>
+      </tr>
+      <tr>
+        <td><code>quote_action</code></td>
+        <td>"You approved Quote #QUO-..."</td>
+        <td>"Buyer approved quote — Order auto-created"</td>
+        <td><code>{ "action": "approve" | "modify" | "reject", "quote_id" }</code></td>
+      </tr>
+      <tr>
+        <td><code>order_created</code></td>
+        <td>Order confirmation with checkout link</td>
+        <td>New order badge and Pemofy WMS dispatch link</td>
+        <td><code>{ "order_id", "total", "payment_link" }</code></td>
+      </tr>
+      <tr>
+        <td><code>payment_request</code></td>
+        <td>One-tap payment sheet (Ozow/Stitch/EFT)</td>
+        <td>"Payment requested" timeline indicator</td>
+        <td><code>{ "amount", "method", "link", "expires_at" }</code></td>
+      </tr>
+      <tr>
+        <td><code>payment_confirmed</code></td>
+        <td>"Payment verified. Preparing dispatch."</td>
+        <td>"Payment verified. Pick wave triggered."</td>
+        <td><code>{ "amount", "method", "ref" }</code></td>
+      </tr>
+      <tr>
+        <td><code>fulfillment_update</code></td>
+        <td>"Dispatched. Track: t.cg/..."</td>
+        <td>Pemofy fulfillment sync update</td>
+        <td><code>{ "status", "carrier", "tracking_ref", "eta" }</code></td>
+      </tr>
+      <tr>
+        <td><code>product_card</code></td>
+        <td>Rich card with image, price, specs</td>
+        <td>"Buyer viewed product" card with Quick Quote</td>
+        <td><code>{ "product_id", "name", "price", "stock_status" }</code></td>
+      </tr>
+      <tr>
+        <td><code>image</code></td>
+        <td>Photo attachment with zoom viewer</td>
+        <td>Photo attachment with full-resolution link</td>
+        <td><code>{ "url", "caption" }</code></td>
+      </tr>
+      <tr>
+        <td><code>system</code></td>
+        <td>System alert banner (stock held)</td>
+        <td>Audit timeline notice</td>
+        <td><code>{ "code", "text", "metadata" }</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Core API Contracts</h3>
+  <h4>1. Generate Structured Quote (POST /api/v1/chat/quotes/generate)</h4>
+  <pre><code>POST /api/v1/chat/quotes/generate
+Content-Type: application/json
+Authorization: Bearer {buyer_jwt}
+
+{
+  "conversation_id": "b65e2cd5-b787-4be1-bc42-53936330bef5",
+  "product_id": "prod_deye_5kw_hybrid",
+  "quantity": 5,
+  "postal_code": "0181",
+  "customer_type": "trade",
+  "quote_expiry_hours": 24,
+  "notes": "Need by Friday for Midrand installation"
+}
+
+// 201 Created Response
+{
+  "quote_id": "quo_8f6b518f_c3b7",
+  "quote_number": "QUO-2026-008912",
+  "merchant_id": "loc_sunpower_crownmines",
+  "status": "sent",
+  "items": [
+    {
+      "product_id": "prod_deye_5kw_hybrid",
+      "product_name": "Deye 5kW Hybrid Inverter SUN-5K-SG03LP1-EU",
+      "quantity": 5,
+      "unit_price": 9500.00,
+      "line_total": 47500.00,
+      "stock_confirmed": true,
+      "stock_location": "Crown Mines Warehouse",
+      "stock_available": 14
+    }
+  ],
+  "subtotal": 47500.00,
+  "delivery_estimate": 850.00,
+  "vat": 7252.50,
+  "total": 55602.50,
+  "stock_reserved_until": "2026-09-21T18:00:00Z",
+  "valid_until": "2026-09-21T18:00:00Z",
+  "pdf_url": "https://chat.shoppage.co.za/q/QUO-2026-008912"
+}</code></pre>
+
+  <h4>2. Approve Quote (POST /api/v1/chat/quotes/{id}/approve)</h4>
+  <pre><code>POST /api/v1/chat/quotes/quo_8f6b518f_c3b7/approve
+Authorization: Bearer {buyer_jwt}
+
+{
+  "payment_method": "ozow",
+  "delivery_address_id": "addr_991823"
+}
+
+// 200 OK Response
+{
+  "quote_id": "quo_8f6b518f_c3b7",
+  "status": "approved",
+  "order_id": "ORD-2026-004519",
+  "payment_link": "https://pay.ozow.com/shoppage/checkout/ord_004519",
+  "payment_expiry": "2026-09-21T12:00:00Z",
+  "stock_reservation_extended": "2026-09-21T23:59:59Z"
+}</code></pre>
+
+  <h3>Auto-Quote Rule Configuration (Merchant Configurable)</h3>
+  <pre><code>{
+  "auto_quote_enabled": true,
+  "rules": [
+    {
+      "condition": "product.category == 'solar' AND buyer.type == 'trade'",
+      "action": "apply_discount",
+      "value": 0.10,
+      "max_quantity": 50
+    },
+    {
+      "condition": "quantity >= 10",
+      "action": "apply_bulk_discount",
+      "value": 0.05,
+      "message": "Bulk trade discount applied: 5% off"
+    },
+    {
+      "condition": "delivery.postal_code IN ['0181','0182','0183']",
+      "action": "free_delivery",
+      "min_order_value": 25000
+    },
+    {
+      "condition": "stock.available < inquiry.quantity",
+      "action": "partial_quote",
+      "message": "Only {stock.available} units in Crown Mines. Backorder remaining balance?"
+    }
+  ],
+  "default_expiry_hours": 24,
+  "trade_account_required": true
+}</code></pre>
+
+  <h3>WhatsApp Fallback & Mobile Inbound Parsing</h3>
+  <p>For merchants operating on-site without desktop dashboard access, the bridge parses structured replies directly into system mutations:</p>
+  <pre><code>// 1. Merchant receives automated WhatsApp notification:
+"New inquiry from Thabo M. (Trade Buyer)
+Product: 5x Deye 5kW Hybrid Inverter
+Stock Available: 14 units at Crown Mines
+Reply with:
+QUOTE 52000 DELIVERY 0
+or
+QUOTE 9500 EACH DELIVERY 850
+or
+NOSTOCK"
+
+// 2. Merchant replies via WhatsApp:
+"QUOTE 52000 DELIVERY 0 VALID 6"
+
+// 3. Bridge regex parser executes internal mutation:
+POST /api/v1/chat/quotes/generate
+{
+  "conversation_id": "conv_active_uuid",
+  "merchant_override": {
+    "total": 52000.00,
+    "delivery": 0.00,
+    "expiry_hours": 6
+  }
+}
+// Quote automatically updates in Shoppage Chat and sends SMS summary link to buyer.</code></pre>
+</section>
+
+<!-- PART 8: PRODUCT INTELLIGENCE -->
+<section>
+  <div class="section-header">
+    <div class="section-number">08</div>
+    <h2>Context 4: Product Intelligence & Enrichment</h2>
+  </div>
+  <p>This is the moat. A product page with only a title, price, and image is a commodity. A product page with international reviews, video excerpts, Q&A, price history, compatibility data, and AI-powered requirement matching is a destination. Product Intelligence turns Shoppage from a search engine into a product expert.</p>
+
+  <h3>Enrichment Sources</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon blue">&#9733;</div>
+      <h4>International Reviews</h4>
+      <p>Amazon, Trustpilot, specialist forums, Reddit, local review sites. Normalised sentiment, extracted pros/cons, SA-relevant context injection.</p>
+      <div class="meta"><span>Sentiment model</span><span>Source weighting</span><span>SA context</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon amber">&#9654;</div>
+      <h4>Video Content</h4>
+      <p>YouTube reviews, unboxing, tutorials from local and international creators. Whisper transcription, chapter extraction, product timestamp linking.</p>
+      <div class="meta"><span>Whisper</span><span>Chapter extract</span><span>Creator network</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon green">&#9733;</div>
+      <h4>Spec Sheets & Manuals</h4>
+      <p>PDF extraction from manufacturer docs, datasheets, product manuals. Structured spec normalisation, unit conversion, schema validation.</p>
+      <div class="meta"><span>PDF parser</span><span>Schema validation</span><span>Unit normalise</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon blue">&#9737;</div>
+      <h4>Q&A from Forums</h4>
+      <p>"People also ask" from Reddit, Quora, local forums, merchant responses. Paired questions and answers mapped to product attributes.</p>
+      <div class="meta"><span>Forum scrapers</span><span>Q&A pairing</span><span>Merchant reply</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon amber">&#9878;</div>
+      <h4>Price History</h4>
+      <p>Track price movements across merchants and time. "Good deal" indicators, price-drop alerts, historical context at point of search.</p>
+      <div class="meta"><span>ClickHouse</span><span>Time-series</span><span>Alert triggers</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon green">&#9733;</div>
+      <h4>Compatibility & Fit</h4>
+      <p>"Will this fit my car?" Extract compatibility from manuals, forums, merchant KBs. Build "fits" and "works with" relationship graphs.</p>
+      <div class="meta"><span>Compat graph</span><span>Fitment DB</span><span>Merchant verify</span></div>
+    </div>
+  </div>
+
+  <h3>AI Requirements Engine</h3>
+  <p>The AI Requirements Engine is not a chatbot. It is a product expert that understands human needs in natural language, searches the entire enriched corpus, and explains its reasoning with evidence.</p>
+
+  <div class="callout green">
+    <p><strong>Core principle:</strong> The AI does not just return products. It explains why each product matches, cites evidence (reviews, specs, videos), and surfaces trade-offs. Every recommendation is verifiable, not a black box.</p>
+  </div>
+
+  <h3>How It Works</h3>
+  <ol class="clean">
+    <li><strong>Requirement Parsing:</strong> Natural language query is decomposed into structured requirements: must-haves, nice-to-haves, constraints, exclusions. "Good camera" becomes quantified thresholds.</li>
+    <li><strong>Attribute Matching:</strong> Requirements matched against the enriched product graph: specs, review sentiment, compatibility, inventory. Vector similarity finds products with similar profiles.</li>
+    <li><strong>Evidence Retrieval:</strong> For each match, retrieve supporting evidence: review excerpts, video timestamps, spec comparisons, merchant claims. Rank by relevance and authority.</li>
+    <li><strong>Ranking & Explanation:</strong> Products ranked by match confidence, evidence strength, merchant verification, price fairness, local availability. AI generates natural-language explanations with citations.</li>
+    <li><strong>Conversational Refinement:</strong> Customer refines: "Too expensive." "What about used?" "Show me ones with local warranty." Engine updates requirements and re-ranks in real time.</li>
+  </ol>
+
+  <h3>Enrichment Pipeline Workers (Go)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Worker</th>
+        <th>Input</th>
+        <th>Output</th>
+        <th>AI Component</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Spec Extractor</td>
+        <td>PDFs, manufacturer APIs</td>
+        <td>Structured JSON specs</td>
+        <td>Python LLM for unstructured extraction</td>
+      </tr>
+      <tr>
+        <td>Review Ingestor</td>
+        <td>Amazon, Trustpilot, forums</td>
+        <td>Sentiment, pros/cons, scores</td>
+        <td>Python sentiment model</td>
+      </tr>
+      <tr>
+        <td>Video Processor</td>
+        <td>YouTube URLs, local creators</td>
+        <td>Transcripts, chapters, timestamps</td>
+        <td>Whisper (GPU)</td>
+      </tr>
+      <tr>
+        <td>Q&A Miner</td>
+        <td>Forums, Reddit, Quora</td>
+        <td>Paired Q&A mapped to products</td>
+        <td>Python LLM for pairing</td>
+      </tr>
+      <tr>
+        <td>Price Tracker</td>
+        <td>Merchant feeds, scrapers</td>
+        <td>Price snapshots, alerts</td>
+        <td>Anomaly detection (Python)</td>
+      </tr>
+      <tr>
+        <td>Compat Builder</td>
+        <td>Manuals, forums, merchant KBs</td>
+        <td>"Fits" / "works with" graph</td>
+        <td>Python LLM for extraction</td>
+      </tr>
+      <tr>
+        <td>Embed Generator</td>
+        <td>Enriched product corpus</td>
+        <td>Vector embeddings</td>
+        <td>Embedding model (Python/GPU)</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- PART 9: QUOTES & B2B RFQ -->
+<section>
+  <div class="section-header">
+    <div class="section-number">09</div>
+    <h2>Context 5: Quotes & B2B RFQ</h2>
+  </div>
+  <p>B2B/wholesale online is growing at 10%+ CAGR and is the least contested segment in South African e-commerce. Most B2B quoting still happens via email, WhatsApp, and spreadsheets. Shoppage Quotes digitises this with structured RFQ workflows, AI requirement parsing, and merchant quote management.</p>
+
+  <h3>Core Workflow</h3>
+  <ol class="clean">
+    <li><strong>Buyer creates RFQ:</strong> Describes needs in natural language or structured form. "I need 500 metres of 4mm armoured cable, delivered to Pretoria by Friday, with a 30-day account."</li>
+    <li><strong>AI parses requirements:</strong> Extracts quantity, specifications, delivery constraints, payment terms, and urgency.</li>
+    <li><strong>System matches suppliers:</strong> Finds merchants in the trade counter directory who stock the product category, serve the region, and accept the payment terms.</li>
+    <li><strong>Merchants respond with quotes:</strong> Line-item quotes with unit price, total, delivery cost, lead time, validity period, and terms.</li>
+    <li><strong>Buyer compares and negotiates:</strong> Side-by-side quote comparison, revision requests, and approval workflows.</li>
+    <li><strong>Accepted quote becomes an order:</strong> Flows into Commerce Chat or Pemofy for fulfillment and invoicing.</li>
+  </ol>
+
+  <h3>Quote Engine Data Model</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Entity</th>
+        <th>Store</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>RFQ / Tender</td>
+        <td>PostgreSQL</td>
+        <td>Buyer requirements, specifications, delivery, payment terms</td>
+      </tr>
+      <tr>
+        <td>Quote Response</td>
+        <td>PostgreSQL</td>
+        <td>Merchant line-item quotes, validity, revisions</td>
+      </tr>
+      <tr>
+        <td>Quote Workflow</td>
+        <td>PostgreSQL + Temporal</td>
+        <td>State machine: draft → sent → revised → accepted → expired → rejected</td>
+      </tr>
+      <tr>
+        <td>Merchant Matching</td>
+        <td>Typesense + PostGIS</td>
+        <td>Find suppliers by category, location, trade type, verification status</td>
+      </tr>
+      <tr>
+        <td>Events</td>
+        <td>NATS JetStream</td>
+        <td>Quote created, revised, accepted, expired notifications</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Why Go for the Quote Engine</h3>
+  <ul class="clean">
+    <li>Quote workflows are stateful and failure-sensitive. A missed state transition can corrupt a deal worth millions. Go's explicit error handling prevents silent failures.</li>
+    <li>Temporal (workflow engine) has excellent Go SDK support. Long-running quote workflows with timeouts, retries, and sagas are idiomatic in Go + Temporal.</li>
+    <li>B2B quote volume is lower than discovery but higher value. Reliability matters more than raw RPS. Go's predictable latency and low memory fit this profile.</li>
+  </ul>
+</section>
+
+<!-- PART 10: GEOLOCATION & GMB -->
+<section>
+  <div class="section-header">
+    <div class="section-number">10</div>
+    <h2>Context 6: Geolocation & GMB</h2>
+  </div>
+  <p>Google My Business is the de facto standard for local merchant discovery, but it is not commerce-native. A GMB listing tells you a plumber exists; it does not tell you if they have the part you need, if they accept SnapScan, or if they can deliver today. Shoppage Geo merges location discovery with live inventory, verified merchant data, and commerce actions.</p>
+
+  <h3>Core Concepts</h3>
+  <ul class="clean">
+    <li><strong>Merchant Location Profile:</strong> Address, coordinates, service area, operating hours, photos, services, payment methods accepted, delivery options.</li>
+    <li><strong>Verified Merchant Badge:</strong> CIPC-linked, bank-verified, review-threshold met. Verified merchants rank higher in geo search.</li>
+    <li><strong>Live Inventory on Map:</strong> Search "Deye 5kW inverter near me" and see not just merchants, but which ones have stock right now.</li>
+    <li><strong>Commerce Actions from Map:</strong> Chat, call, get quote, view catalog, book service — all from the location profile.</li>
+    <li><strong>Mass Onboarding:</strong> Bulk import and claim flow for merchant directories, mall associations, and trade organisations.</li>
+  </ul>
+
+  <h3>Geo Data Model</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Entity</th>
+        <th>Store</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Merchant Locations</td>
+        <td>PostgreSQL + PostGIS</td>
+        <td>Coordinates, address, service area polygons, delivery zones</td>
+      </tr>
+      <tr>
+        <td>Location Search</td>
+        <td>Typesense + Redis geo</td>
+        <td>Nearby search, geo-radius queries, category + location combos</td>
+      </tr>
+      <tr>
+        <td>Operating Hours</td>
+        <td>PostgreSQL</td>
+        <td>Structured hours, holiday exceptions, after-hours service flags</td>
+      </tr>
+      <tr>
+        <td>Photos / Media</td>
+        <td>OCI Object Store</td>
+        <td>Storefront photos, product photos, service evidence</td>
+      </tr>
+      <tr>
+        <td>Reviews / Ratings</td>
+        <td>PostgreSQL + ClickHouse</td>
+        <td>Location-specific reviews, response rates, sentiment over time</td>
+      </tr>
+      <tr>
+        <td>Service Categories</td>
+        <td>PostgreSQL + Typesense</td>
+        <td>Taxonomy of services, specialisations, trade types</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Geo API Endpoints (Go / Chi)</h3>
+  <ul class="clean">
+    <li><code>GET /geo/nearby?lat=&lng=&radius=&category=</code> — Geo-radius merchant discovery with live inventory filter</li>
+    <li><code>GET /geo/merchants/:id</code> — Full location profile with hours, services, photos, reviews, catalog</li>
+    <li><code>POST /geo/merchants/:id/claim</code> — Merchant claim flow with verification</li>
+    <li><code>GET /geo/search?q=&location=</code> — "Plumber in Sandton" style search with commerce actions</li>
+    <li><code>GET /geo/delivery-zones/:merchant_id</code> — Delivery polygon and zone-based availability</li>
+    <li><code>POST /geo/bulk-import</code> — Mass onboarding for mall associations and trade orgs</li>
+  </ul>
+</section>
+
+<!-- PART 11: EXTERNAL INTEGRATIONS -->
+<section>
+  <div class="section-header">
+    <div class="section-number">11</div>
+    <h2>External Systems & Integration Strategy</h2>
+  </div>
+  <p>Shoppage does not exist in isolation. It must connect to the systems South African merchants already use: ERPs, accounting software, payment gateways, couriers, and WhatsApp. The integration strategy is polyglot by necessity: use the language with the best SDK or API support for each external system, normalise to internal events via NATS.</p>
+
+  <h3>ERP & Accounting Integrations</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>System</th>
+        <th>Language</th>
+        <th>Protocol</th>
+        <th>Sync Direction</th>
+        <th>Data</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Dynamics 365 Business Central</td>
+        <td>Go</td>
+        <td>OData v4 + OAuth2</td>
+        <td>Bidirectional</td>
+        <td>Products, stock, customers, invoices, pricing</td>
+      </tr>
+      <tr>
+        <td>Sage Pastel</td>
+        <td>Go</td>
+        <td>REST / file export</td>
+        <td>Import (mainly)</td>
+        <td>Products, stock, customers</td>
+      </tr>
+      <tr>
+        <td>Sage Business Cloud</td>
+        <td>Go</td>
+        <td>REST API</td>
+        <td>Bidirectional</td>
+        <td>Products, accounting, invoicing</td>
+      </tr>
+      <tr>
+        <td>Xero</td>
+        <td>Go</td>
+        <td>REST API + OAuth2</td>
+        <td>Bidirectional</td>
+        <td>Products, invoices, contacts, payments</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Payment Gateway Integrations</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Gateway</th>
+        <th>Language</th>
+        <th>Why</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Ozow</td>
+        <td>Node.js</td>
+        <td>Official SDK, webhook handling</td>
+        <td>Instant EFT, popular in SA</td>
+      </tr>
+      <tr>
+        <td>Stitch</td>
+        <td>Node.js</td>
+        <td>GraphQL API, Node-first docs</td>
+        <td>Pay-by-bank, growing rapidly</td>
+      </tr>
+      <tr>
+        <td>PayFast</td>
+        <td>Node.js</td>
+        <td>Mature Node SDK, ITN webhooks</td>
+        <td>Established SA standard</td>
+      </tr>
+      <tr>
+        <td>Yoco</td>
+        <td>Node.js</td>
+        <td>Node SDK for online payments</td>
+        <td>Strong SME brand in SA</td>
+      </tr>
+      <tr>
+        <td>Peach Payments</td>
+        <td>Node.js</td>
+        <td>REST API, Node examples</td>
+        <td>Enterprise-focused</td>
+      </tr>
+      <tr>
+        <td>Capitec Pay</td>
+        <td>Node.js</td>
+        <td> Emerging, likely Node-first</td>
+        <td>Bank-owned, trust advantage</td>
+      </tr>
+      <tr>
+        <td>SnapScan</td>
+        <td>Node.js</td>
+        <td>REST API, webhook-based</td>
+        <td>QR + online hybrid</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Courier & Logistics</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Courier</th>
+        <th>Language</th>
+        <th>Integration</th>
+        <th>Data</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>The Courier Guy</td>
+        <td>Go</td>
+        <td>REST API polling</td>
+        <td>Tracking, rates, label generation</td>
+      </tr>
+      <tr>
+        <td>Fastway / Aramex</td>
+        <td>Go</td>
+        <td>REST API polling</td>
+        <td>Tracking, waybill status</td>
+      </tr>
+      <tr>
+        <td>Pargo</td>
+        <td>Go</td>
+        <td>REST API</td>
+        <td>Pick-up point tracking, delivery status</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>WhatsApp Cloud API</h3>
+  <ul class="clean">
+    <li><strong>Inbound:</strong> Meta sends webhooks for messages, message statuses, and errors. Go webhook receiver verifies HMAC-SHA256 signatures, deduplicates via Redis, and publishes to NATS.</li>
+    <li><strong>Outbound:</strong> Go Chat Service calls WhatsApp Cloud API directly for message sending, template messages, and media uploads.</li>
+    <li><strong>Bridge:</strong> Messages from Shoppage Chat appear in merchant's WhatsApp Business. Merchant replies from WhatsApp appear in Shoppage Chat. Both directions normalised to internal format.</li>
+  </ul>
+
+  <h3>Storefront Sync (WooCommerce, Shopify, Pemofy)</h3>
+  <ul class="clean">
+    <li><strong>WooCommerce:</strong> REST API v3. Go worker polls products, variants, stock, prices. Diffs and emits catalog events.</li>
+    <li><strong>Shopify:</strong> GraphQL Admin API + REST. Go worker handles rate limits and pagination. Webhooks for real-time updates.</li>
+    <li><strong>Pemofy:</strong> Native channel sync. Pemofy merchants auto-list as verified offers on Shoppage. Full checkout lives in Pemofy after free GMV threshold.</li>
+  </ul>
+</section>
+
+<!-- PART 12: PEMOFY RELATIONSHIP -->
+<section>
+  <div class="section-header">
+    <div class="section-number">12</div>
+    <h2>The Pemofy Channel: Merchant OS Meets Discovery Grid</h2>
+  </div>
+  <p>Pemofy and Shoppage are complementary products, not competitors. Pemofy is the merchant operating system: storefronts, inventory, orders, payments, ERP sync. Shoppage is the buyer discovery grid: search, communities, chat, quotes, geo. The relationship is a channel/sync contract, not a merged codebase.</p>
+
+  <h3>Core Principles of the Relationship</h3>
+  <ul class="clean">
+    <li><strong>Shoppage stays 0% take-rate.</strong> No custody of buyer funds. Monetisation is B2B brand/distributor intelligence, not transaction fees.</li>
+    <li><strong>Pemofy merchants auto-list as verified offers.</strong> When a Pemofy merchant publishes a product, it appears as a verified offer on Shoppage with live stock and price.</li>
+    <li><strong>Full checkout lives in Pemofy.</strong> Shoppage discovery leads to Pemofy checkout. The buyer journey is: search on Shoppage → view merchant profile → chat or buy on Pemofy.</li>
+    <li><strong>Free GMV threshold before fees.</strong> Pemofy's pricing model (Free up to R25k GMV/mo, 1% above) applies to Shoppage-originated traffic. This incentivises merchant onboarding.</li>
+    <li><strong>Shared merchant graph.</strong> Merchant identity, verification status, reviews, and location data are shared. A merchant verified on Pemofy is verified on Shoppage.</li>
+  </ul>
+
+  <h3>Sync Architecture</h3>
+  <div class="arch-diagram">
+    <div class="arch-label">Pemofy (Merchant OS)</div>
+    <div class="arch-layer">
+      <div class="arch-node">Storefront Builder</div>
+      <div class="arch-node">Inventory / Orders</div>
+      <div class="arch-node">ERP Sync (BC, Sage, Xero)</div>
+      <div class="arch-node">Payments (PayFast, Ozow, Yoco)</div>
+    </div>
+
+    <div class="arch-label">Channel Sync (Go Workers)</div>
+    <div class="arch-layer">
+      <div class="arch-node accent">Product Sync</div>
+      <div class="arch-node accent">Stock Sync</div>
+      <div class="arch-node accent">Order Event Sync</div>
+      <div class="arch-node accent">Merchant Verify Sync</div>
+    </div>
+
+    <div class="arch-label">Event Bus</div>
+    <div class="arch-layer">
+      <div class="arch-node green">NATS JetStream</div>
+    </div>
+
+    <div class="arch-label">Shoppage (Discovery Grid)</div>
+    <div class="arch-layer">
+      <div class="arch-node">Verified Offers</div>
+      <div class="arch-node">Merchant Profiles</div>
+      <div class="arch-node">Discovery Search</div>
+      <div class="arch-node">Chat / Quotes</div>
+      <div class="arch-node">Geo / GMB</div>
+    </div>
+  </div>
+
+  <h3>Shared Events</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Event</th>
+        <th>Source</th>
+        <th>Consumers</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>pemofy.product_published</td>
+        <td>Pemofy</td>
+        <td>Shoppage Discovery, Product Intelligence</td>
+      </tr>
+      <tr>
+        <td>pemofy.stock_changed</td>
+        <td>Pemofy</td>
+        <td>Shoppage Discovery, Chat (stock alerts)</td>
+      </tr>
+      <tr>
+        <td>pemofy.price_changed</td>
+        <td>Pemofy</td>
+        <td>Shoppage Discovery, Price Tracker</td>
+      </tr>
+      <tr>
+        <td>pemofy.order_completed</td>
+        <td>Pemofy</td>
+        <td>Shoppage Attribution, Geo (trending merchants)</td>
+      </tr>
+      <tr>
+        <td>pemofy.merchant_verified</td>
+        <td>Pemofy</td>
+        <td>Shoppage Geo, Discovery (verified badge)</td>
+      </tr>
+      <tr>
+        <td>shoppage.lead_generated</td>
+        <td>Shoppage</td>
+        <td>Pemofy (attribution, merchant dashboard)</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- PART 13: EVENT SCHEMA -->
+<section>
+  <div class="section-header">
+    <div class="section-number">13</div>
+    <h2>NATS JetStream Event Schema</h2>
+  </div>
+  <p>Every service communicates via NATS JetStream using a canonical event envelope. This is what makes six contexts feel like one platform. Go defines the schema as structs; Node.js and Python workers emit JSON matching it.</p>
+
+  <div class="callout">
+    <p><strong>Core principle:</strong> All events are idempotent, ordered per tenant, and persisted with replay capability. NATS JetStream provides at-least-once delivery, consumer groups, and dead-letter queues for permanent failures.</p>
+  </div>
+
+  <h3>Canonical Event Envelope</h3>
+  <pre style="background:var(--surface-raised);border:1px solid var(--line);border-radius:var(--radius-sm);padding:1rem;margin-top:1rem;font-size:0.82rem;color:var(--ink-muted);overflow-x:auto;">{
+  "id": "evt_2vPqN5L8wR1sT9xY",
+  "timestamp": "2026-09-20T21:46:00Z",
+  "source": "pemofy",           // pemofy | shoppage | whatsapp | erp | payment | scraper
+  "type": "product.changed",    // dot-notation event type
+  "tenant_id": "merch_abc123",  // merchant identifier
+  "user_id": "usr_xyz789",      // optional: user who triggered
+  "payload": { ... },           // event-specific data
+  "correlation_id": "corr_...", // traces request across services
+  "version": "1.0"              // schema version for evolution
+}</pre>
+
+  <h3>Key Event Types by Context</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Context</th>
+        <th>Event Types</th>
+        <th>Producers</th>
+        <th>Consumers</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Discovery</td>
+        <td>catalog.product_changed, catalog.stock_changed, catalog.price_changed, search.index_updated</td>
+        <td>ERP Sync, Storefront Sync, Pemofy</td>
+        <td>Typesense, Discovery API, Price Tracker</td>
+      </tr>
+      <tr>
+        <td>Markets</td>
+        <td>market.post_created, market.member_joined, market.deal_shared</td>
+        <td>Market Community Service</td>
+        <td>Feed, Notifications, Discovery</td>
+      </tr>
+      <tr>
+        <td>Chat</td>
+        <td>chat.message_sent, chat.message_delivered, chat.message_read, chat.thread_created</td>
+        <td>Chat Service, WhatsApp Bridge</td>
+        <td>Notifications, CRM, Discovery (response rate)</td>
+      </tr>
+      <tr>
+        <td>Product Intelligence</td>
+        <td>enrichment.spec_extracted, enrichment.reviews_ingested, enrichment.video_processed, enrichment.embeddings_updated</td>
+        <td>Enrichment Workers</td>
+        <td>Discovery, Typesense, pgvector</td>
+      </tr>
+      <tr>
+        <td>Quotes</td>
+        <td>quote.created, quote.revised, quote.accepted, quote.expired</td>
+        <td>Quote Engine</td>
+        <td>Chat, Notifications, Analytics</td>
+      </tr>
+      <tr>
+        <td>Geo</td>
+        <td>geo.merchant_claimed, geo.location_updated, geo.review_added</td>
+        <td>Geo Service, Discovery</td>
+        <td>Typesense, Discovery, Community</td>
+      </tr>
+      <tr>
+        <td>Payments</td>
+        <td>payment.succeeded, payment.failed, payment.pending, payment.refunded</td>
+        <td>Payment Webhook (Node)</td>
+        <td>Chat, Order Management, Analytics</td>
+      </tr>
+      <tr>
+        <td>WhatsApp</td>
+        <td>whatsapp.message_received, whatsapp.message_status, whatsapp.template_sent</td>
+        <td>WhatsApp Bridge</td>
+        <td>Chat Service, Notifications</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- PART 14: SECURITY & AUTH -->
+<section>
+  <div class="section-header">
+    <div class="section-number">14</div>
+    <h2>Security, Auth & Compliance</h2>
+  </div>
+
+  <h3>P0: Route Protection &amp; Zero-Trust Authentication — &#9989; RESOLVED IN CODE</h3>
+  <div class="callout green">
+    <p><strong>Status: RESOLVED IN ACTIVE MONOREPO (Validated by 21 Passing Security Tests):</strong> While empirical reconnaissance of the older deployed instance observed unprotected <code>/admin</code> and <code>/merchant/dashboard</code> routes, this vulnerability has been completely resolved in the monorepo. <code>apps/web/src/middleware.ts</code> enforces Edge-runtime HMAC session cookies (<code>shoppage_session</code>), role-based access control (RBAC: <code>superadmin</code>, <code>merchant_owner</code>, <code>merchant_staff</code>), multi-tenant merchant store isolation, CSRF protection, and startup environment validation (<code>assertEnvironmentIsSafe()</code>). Deploying the current monorepo baseline permanently eliminates this exposure on the live site.</p>
+  </div>
+
+  <h3>Auth Architecture</h3>
+  <ul class="clean">
+    <li><strong>HTTP-only encrypted session cookies</strong> (<code>shoppage_session</code>) for all <code>/admin/*</code>, <code>/merchant/*</code>, and <code>/api/*</code> paths.</li>
+    <li><strong>Next.js Edge Middleware</strong> (<code>middleware.ts</code>) validates sessions server-side before rendering protected layouts or returning JSON.</li>
+    <li><strong>JWT for service-to-service</strong> internal communication with short expiry and rotation.</li>
+    <li><strong>RBAC:</strong> Role-based access control — superadmin, merchant admin, staff, buyer, guest. Permissions enforced at API gateway and service level.</li>
+    <li><strong>API Rate Limiting:</strong> Redis-backed per-IP and per-user rate limits. Stricter limits on AI and scraper endpoints.</li>
+  </ul>
+
+  <h3>Data Protection</h3>
+  <ul class="clean">
+    <li><strong>POPIA Compliance:</strong> South Africa's data protection law. Explicit consent for data collection, right to deletion, data minimisation.</li>
+    <li><strong>Encryption at Rest:</strong> PostgreSQL, Redis, and object storage encrypted. OCI provides this by default.</li>
+    <li><strong>Encryption in Transit:</strong> TLS 1.3 for all external and internal communication. mTLS for service-to-service where applicable.</li>
+    <li><strong>Audit Logging:</strong> All admin actions, merchant changes, and payment events logged immutably to ClickHouse.</li>
+  </ul>
+</section>
+
+<!-- PART 15: INFRASTRUCTURE -->
+<section>
+  <div class="section-header">
+    <div class="section-number">15</div>
+    <h2>Infrastructure on OCI</h2>
+  </div>
+
+  <h3>Compute</h3>
+  <ul class="clean">
+    <li><strong>OCI Ampere A1 ARM</strong> shapes for all Go services. Go binaries run efficiently on ARM with low memory footprint.</li>
+    <li><strong>Separate instance pools</strong> per context: Discovery pool, Chat pool, Worker pool. Scale independently.</li>
+    <li><strong>Python LLM Service</strong> runs on GPU-enabled shapes (or OCI AI platform) for model inference.</li>
+    <li><strong>Node.js Payment Service</strong> runs on small x86 instances — low volume, high value, does not need ARM optimisation.</li>
+  </ul>
+
+  <h3>Orchestration</h3>
+  <ul class="clean">
+    <li><strong>Phase 1 (Now):</strong> Docker Compose on OCI Compute. Simple, debuggable, cost-effective for pre-launch.</li>
+    <li><strong>Phase 2 (Growth):</strong> K3s (lightweight Kubernetes) on OCI. Go containers start in milliseconds, making auto-scaling responsive.</li>
+    <li><strong>Phase 3 (Scale):</strong> OCI Kubernetes (OKE) for full orchestration with service mesh, observability, and multi-region.</li>
+  </ul>
+
+  <h3>Database Hosting</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Store</th>
+        <th>Hosting</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>PostgreSQL 16</td>
+        <td>OCI PostgreSQL or self-managed with replication</td>
+        <td>Primary + read replica minimum</td>
+      </tr>
+      <tr>
+        <td>Typesense</td>
+        <td>Self-managed on OCI Compute</td>
+        <td>Typesense Cloud is expensive; self-host on OCI</td>
+      </tr>
+      <tr>
+        <td>Redis</td>
+        <td>OCI Cache (Redis-compatible) or self-managed</td>
+        <td>Cluster mode for sessions + cache separation</td>
+      </tr>
+      <tr>
+        <td>ScyllaDB</td>
+        <td>Self-managed on dedicated compute</td>
+        <td>Chat messages grow infinitely; plan for sharding</td>
+      </tr>
+      <tr>
+        <td>ClickHouse</td>
+        <td>Self-managed or ClickHouse Cloud</td>
+        <td>Analytics and time-series; can start single-node</td>
+      </tr>
+      <tr>
+        <td>OCI Object Storage</td>
+        <td>Managed OCI service</td>
+        <td>Cheap, durable, CDN-integrated</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- PART 16: BUILD ROADMAP -->
+<section>
+  <div class="section-header">
+    <div class="section-number">16</div>
+    <h2>Build Roadmap: From v9.1 to v10 Launch</h2>
+  </div>
+
+  <h3>Phase 0: Security &amp; Foundation (Weeks 1-2) — &#9989; COMPLETED IN CODE</h3>
+  <ol class="clean">
+    <li>&#10004; <strong>Implement middleware.ts:</strong> Edge runtime HMAC encrypted session cookies (<code>shoppage_session</code>) for all protected routes (<code>/admin/*</code>, <code>/merchant/*</code>, <code>/api/cms/*</code>) validated across 21 unit tests.</li>
+    <li>&#10004; <strong>Eliminate client-side pseudo-authentication:</strong> Hardened server-side session checks and multi-tenant isolation (<code>requestedStore === session.merchantId</code>).</li>
+    <li>&#10004; <strong>Implement RBAC:</strong> Role boundaries (<code>superadmin</code>, <code>merchant_owner</code>, <code>merchant_staff</code>) strictly enforced at edge middleware and route level.</li>
+    <li>&#10004; <strong>Modularize Merchant Dashboard:</strong> Decomposed monolithic page into 6 independent domain components (Overview, AiStoreCrew, Orders, Catalog, Feeds, Compliance).</li>
+    <li>Set up NATS JetStream with core event schema and dead-letter queues. (Planned scale target)</li>
+    <li>Deploy Go API skeleton for Discovery service (Echo + pgx + Typesense client). (Planned polyglot roadmap)</li>
+  </ol>
+
+  <h3>Phase 1: Wire the Data Layer (Weeks 3-4) — &#128994; NEXT IN QUEUE (ACTIVE)</h3>
+  <ol class="clean">
+    <li>Connect PostgreSQL 16 as canonical write authority. Migrate from SQLite for state mutations (quotes, orders, RFQs).</li>
+    <li>Wire Typesense 26 for search. Build sync worker from PostgreSQL to Typesense.</li>
+    <li>Wire Redis 7 for sessions, rate limiting, and AI response caching.</li>
+    <li>Configure Payload CMS over PostgreSQL. Migrate bespoke SQLite CMS data.</li>
+    <li>Retain SQLite FTS5 as fast read distribution and resilient offline index.</li>
+  </ol>
+
+  <h3>Phase 2: Discovery Engine MVP (Weeks 5-7)</h3>
+  <ol class="clean">
+    <li>Build Discovery API with faceted search, product pages, and offer listings.</li>
+    <li>Implement watchlists and price alerts.</li>
+    <li>Launch with SQLite product corpus as initial catalog.</li>
+    <li>Build storefront sync worker for WooCommerce and Shopify merchants.</li>
+    <li>Integrate Pemofy product sync channel. Verified Pemofy merchants appear as offers.</li>
+  </ol>
+
+  <h3>Phase 3: Chat + WhatsApp Bridge (Weeks 8-10)</h3>
+  <ol class="clean">
+    <li>Build Go Chat Service with Gorilla WebSocket.</li>
+    <li>Implement message persistence in ScyllaDB, presence in Redis.</li>
+    <li>Build WhatsApp Bridge webhook receiver with signature verification.</li>
+    <li>Implement bidirectional message sync between Shoppage Chat and WhatsApp.</li>
+    <li>Add mini ERP features: catalog cards, order creation, payment links in chat.</li>
+  </ol>
+
+  <h3>Phase 4: Geo / GMB + Markets (Weeks 11-13)</h3>
+  <ol class="clean">
+    <li>Build Geo Service with PostGIS for merchant locations and radius search.</li>
+    <li>Implement merchant claim flow with verification.</li>
+    <li>Build Market Community service with posts, feeds, and membership.</li>
+    <li>Integrate markets with Discovery and Geo contexts.</li>
+    <li>Launch first vertical market (e.g., SA Solar & Backup Power).</li>
+  </ol>
+
+  <h3>Phase 5: Product Intelligence Pipeline (Weeks 14-17)</h3>
+  <ol class="clean">
+    <li>Build Python scrapers for Amazon, Trustpilot, YouTube, and local review sites.</li>
+    <li>Implement review ingestor with sentiment analysis.</li>
+    <li>Build video processor with Whisper transcription.</li>
+    <li>Launch spec extractor for PDF manufacturer docs.</li>
+    <li>Generate embeddings and load into pgvector.</li>
+    <li>Build AI Requirements Engine v1: natural language to ranked products.</li>
+  </ol>
+
+  <h3>Phase 6: Quotes / RFQ + B2B (Weeks 18-20)</h3>
+  <ol class="clean">
+    <li>Build Quote / RFQ Engine with state machine and Temporal workflows.</li>
+    <li>Implement AI requirement parsing for B2B natural language RFQs.</li>
+    <li>Build merchant matching by category, location, and trade type.</li>
+    <li>Add side-by-side quote comparison and negotiation features.</li>
+    <li>Integrate accepted quotes into Chat and Pemofy order flow.</li>
+  </ol>
+
+  <h3>Phase 7: Harden & Scale (Weeks 21-24)</h3>
+  <ol class="clean">
+    <li>Load testing: 10, 50, 100, 250 concurrent connections per service.</li>
+    <li>Event-loop latency monitoring for Node.js services.</li>
+    <li>Database query optimisation and index review.</li>
+    <li>Implement circuit breakers for all external API calls.</li>
+    <li>Observability: structured logging (slog), Prometheus metrics, distributed tracing (OpenTelemetry).</li>
+    <li>Disaster recovery: backup strategy, point-in-time recovery for PostgreSQL, multi-AZ where applicable.</li>
+  </ol>
+</section>
+
+<!-- PART 17: SUCCESS METRICS -->
+<section>
+  <div class="section-header">
+    <div class="section-number">17</div>
+    <h2>Success Metrics</h2>
+  </div>
+
+  <h3>Discovery Engine</h3>
+  <ul class="clean">
+    <li>Search p99 latency under 200ms (Typesense + Redis cache)</li>
+    <li>1M+ products indexed within 3 months of launch</li>
+    <li>Product page engagement: 3+ enrichment sections viewed per session (reviews, videos, Q&A, price history)</li>
+    <li>Click-through rate from search to merchant: target 15%+</li>
+  </ul>
+
+  <h3>Markets & Communities</h3>
+  <ul class="clean">
+    <li>50+ active markets within 6 months</li>
+    <li>10,000+ merchant trade counter profiles</li>
+    <li>Market post engagement rate: 5%+ (likes, comments, shares)</li>
+  </ul>
+
+  <h3>Commerce Chat</h3>
+  <ul class="clean">
+    <li>10,000+ concurrent WebSocket connections on single OCI Ampere instance</li>
+    <li>Message delivery latency under 100ms for online users</li>
+    <li>WhatsApp bridge message sync success rate: 99.9%+</li>
+    <li>Order creation rate from chat: 20%+ of active merchant threads</li>
+  </ul>
+
+  <h3>Product Intelligence</h3>
+  <ul class="clean">
+    <li>Enrichment coverage: 80%+ of top 10,000 products have reviews, specs, or videos</li>
+    <li>AI Requirements Engine match relevance: 85%+ user satisfaction on follow-up survey</li>
+    <li>Price alert accuracy: 90%+ of alerts represent genuine deals</li>
+  </ul>
+
+  <h3>Quotes / RFQ</h3>
+  <ul class="clean">
+    <li>1,000+ B2B quotes created in first 6 months</li>
+    <li>Quote response rate by merchants: 60%+</li>
+    <li>Average quote-to-order conversion: 25%+</li>
+  </ul>
+
+  <h3>Geo / GMB</h3>
+  <ul class="clean">
+    <li>50,000+ merchant location profiles within 12 months</li>
+    <li>Merchant claim rate: 30%+ of auto-imported profiles</li>
+    <li>Geo search conversion: 10%+ of nearby searches lead to chat or quote</li>
+  </ul>
+</section>
+
+<!-- PART 18: RISKS & MITIGATIONS -->
+<section>
+  <div class="section-header">
+    <div class="section-number">18</div>
+    <h2>Risks & Mitigations</h2>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Risk</th>
+        <th>Likelihood</th>
+        <th>Impact</th>
+        <th>Mitigation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Security gap on legacy deployed /admin and /merchant routes</td>
+        <td>Low</td>
+        <td>Critical</td>
+        <td>P0 Priority. RESOLVED IN ACTIVE MONOREPO: Next.js Edge Middleware (<code>apps/web/src/middleware.ts</code>), cryptographic HMAC session signing, role validation, and tenant store isolation active with 21 passing security tests. Ready for immediate deployment rollout.</td>
+      </tr>
+      <tr>
+        <td>Typesense hits scale ceiling at 50M+ offers</td>
+        <td>Medium</td>
+        <td>High</td>
+        <td>Architect migration path to OpenSearch from day one. Abstract search client.</td>
+      </tr>
+      <tr>
+        <td>SA payment SDKs lack Go support</td>
+        <td>High</td>
+        <td>Medium</td>
+        <td>Keep Node.js payment microservices. Do not force Go where ecosystem is weak.</td>
+      </tr>
+      <tr>
+        <td>Chat message store (ScyllaDB) grows uncontrollably</td>
+        <td>Medium</td>
+        <td>High</td>
+        <td>Implement TTL-based archiving. Move messages older than 1 year to cold storage.</td>
+      </tr>
+      <tr>
+        <td>AI enrichment pipeline costs too much</td>
+        <td>Medium</td>
+        <td>Medium</td>
+        <td>Prioritise top 10,000 products first. Use smaller models for bulk work, large models for edge cases.</td>
+      </tr>
+      <tr>
+        <td>Pemofy sync becomes bottleneck</td>
+        <td>Low</td>
+        <td>High</td>
+        <td>Event-driven async sync with NATS. Never synchronous blocking calls.</td>
+      </tr>
+      <tr>
+        <td>Team cannot hire Go developers in SA</td>
+        <td>Low</td>
+        <td>Medium</td>
+        <td>Go has growing adoption in SA fintech. NestJS developers can learn Go quickly with AI assistance.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- PART 19: WHY THIS WINS -->
+<section>
+  <div class="section-header">
+    <div class="section-number">19</div>
+    <h2>Why This Platform Wins in South Africa</h2>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon blue">&#9733;</div>
+      <h4>SA-First by Design</h4>
+      <p>Not a global platform adapted to SA. Built for load shedding, mobile-first usage, WhatsApp commerce, local payment methods, and SA merchant realities from day one.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon amber">&#9733;</div>
+      <h4>Commerce-Native, Not Ad-Native</h4>
+      <p>Google Search shows ads. Shoppage shows verified merchants with live stock, local delivery, and chat. Every search result is a potential transaction, not a click-away.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon green">&#9733;</div>
+      <h4>Verified Merchant Graph</h4>
+      <p>Bank verification, CIPC linkage, review history, and transaction data create a trust layer that Facebook Groups and WhatsApp status updates cannot replicate.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon blue">&#9733;</div>
+      <h4>AI That Understands SA Context</h4>
+      <p>"Works during load shedding" is not a spec on Amazon. It is a real requirement in Johannesburg. The AI Requirements Engine understands local constraints.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon amber">&#9733;</div>
+      <h4>B2B Is the Uncontested Segment</h4>
+      <p>While everyone chases B2C, SA B2B wholesale online grows at 10%+ CAGR with almost no dedicated platform. Quotes + RFQ is the wedge.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon green">&#9733;</div>
+      <h4>Pemofy Is the Merchant Supply Line</h4>
+      <p>Shoppage does not need to build merchant tooling from scratch. Pemofy provides verified, ERP-synced merchants with live inventory. Shoppage provides the demand.</p>
+    </div>
+  </div>
+
+  <h3>The North Star</h3>
+  <div class="callout green">
+    <p><strong>Shoppage's north star metric:</strong> Time from discovery to first commerce action. Whether that is a chat message, a quote request, a watchlist save, or a purchase — the platform wins when South Africans stop googling products and start shopping them.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Shoppage Platform Model &amp; Build Plan v10.0 &middot; Reconciled Live Baseline &amp; Hardened Monorepo (244 Tests Passing) &middot; September 2026
+</footer>
+
+</body>
+</html>

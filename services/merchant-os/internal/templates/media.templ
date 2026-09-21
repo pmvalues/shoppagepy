@@ -1,0 +1,151 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/shoppage/merchant-os/internal/models"
+)
+
+templ MediaTab(data models.DashboardViewData) {
+	<div class="panel-head">
+		<div>
+			<h3>Media Assets &amp; Compliance Documents</h3>
+			<div class="sub">Product photography, SABS test certificates, material datasheets &amp; wholesale trade brochures on sovereign pod storage</div>
+		</div>
+		<div class="right">
+			<button class="btn solid small" onclick="document.getElementById('upload-media-dialog')?.showModal();">
+				<span>+</span> Upload Asset
+			</button>
+		</div>
+	</div>
+
+	<!-- Storage Metrics -->
+	<div class="three-col" style="margin-bottom:18px;">
+		<div class="card kpi">
+			<div class="k-label"><span>Assets Stored</span><span class="chip up">Pod Storage</span></div>
+			<div class="k-val" style="font-size:1.5rem; margin:6px 0 2px;">{ fmt.Sprintf("%d Files", len(data.MediaAssets)) }</div>
+			<div class="k-foot"><span class="then">Encrypted at rest on pod-za-01</span></div>
+		</div>
+		<div class="card kpi">
+			<div class="k-label"><span>Compliance Docs</span><span class="chip up">SABS Verified</span></div>
+			<div class="k-val" style="font-size:1.5rem; margin:6px 0 2px;">2 <span class="sub">Certificates</span></div>
+			<div class="k-foot"><span class="then">Food grade &amp; hotel furniture</span></div>
+		</div>
+		<div class="card kpi">
+			<div class="k-label"><span>CDN Bandwidth</span><span class="chip up">Fast Track</span></div>
+			<div class="k-val" style="font-size:1.5rem; margin:6px 0 2px;">2.28 <span class="sub">MB Total</span></div>
+			<div class="k-foot"><span class="then">Cached at local JHB/CPT edge</span></div>
+		</div>
+	</div>
+
+	<!-- Category Filter Toolbar -->
+	<div class="card panel" style="padding:10px 14px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+		<div style="display:flex; gap:6px; flex-wrap:wrap;">
+			<button type="button" class="chip flat" onclick="filterMedia('all');">All Documents &amp; Photos</button>
+			<button type="button" class="chip flat" onclick="filterMedia('sabs');">SABS Certificates</button>
+			<button type="button" class="chip flat" onclick="filterMedia('photo');">Packshots &amp; Studio</button>
+			<button type="button" class="chip flat" onclick="filterMedia('spec');">Datasheets</button>
+		</div>
+		<span style="font-size:12px; color:var(--muted);">{ fmt.Sprintf("%d Assets Synced to Storefront", len(data.MediaAssets)) }</span>
+	</div>
+
+	<!-- Media Asset Grid -->
+	<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:14px;">
+		for _, asset := range data.MediaAssets {
+			<div class="card panel media-card" data-category={ asset.Category } style="display:flex; flex-direction:column; justify-content:space-between;">
+				<div>
+					<div style="height:110px; border-radius:8px; background:var(--surface-2); display:grid; place-items:center; font-size:38px; margin-bottom:12px; border:1px solid var(--line);">
+						if asset.Category == "SABS Certificate" {
+							📜
+						} else if asset.Category == "Spec Sheet" {
+							📄
+						} else {
+							🖼️
+						}
+					</div>
+					<b style="font-size:13.5px; display:block; word-break:break-all; line-height:1.35;">{ asset.Name }</b>
+					<div style="font-size:11.5px; color:var(--muted); margin-top:4px;">
+						<span class="chip flat">{ asset.Category }</span> · { fmt.Sprintf("%d KB", asset.SizeKb) }
+					</div>
+				</div>
+
+				<div style="border-top:1px solid var(--line); padding-top:10px; margin-top:14px; display:flex; justify-content:space-between; align-items:center;">
+					<span style="font-size:11px; color:var(--muted);">{ asset.UploadedAt.Format("02 Jan 2006") }</span>
+					<div style="display:flex; gap:6px;">
+						<button type="button" class="btn ghost small" onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('%s'); this.textContent = '✓ Copied!'; var b=this; setTimeout(function(){ b.textContent='Copy Link'; }, 2000);", asset.URL)} }>
+							Copy Link
+						</button>
+						<a href={ templ.SafeURL(asset.URL) } target="_blank" class="btn solid small">
+							View
+						</a>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+
+	<!-- Upload Media Dialog -->
+	<dialog id="upload-media-dialog" class="modal-dialog">
+		<div class="modal-card">
+			<div class="modal-head">
+				<h4>Upload Media Asset or Compliance Document</h4>
+				<button type="button" class="close-btn" onclick="document.getElementById('upload-media-dialog').close();">&times;</button>
+			</div>
+			<form hx-post="/media/new" hx-target="#tab-content" onsubmit="document.getElementById('upload-media-dialog').close();">
+				<div class="modal-body">
+					<div class="form-group">
+						<label>Document / Asset Name</label>
+						<input type="text" name="name" class="input" placeholder="e.g. SABS 1422 Commercial Hotel Certificate 2026.pdf" required />
+					</div>
+					<div class="form-group">
+						<label>Asset Category</label>
+						<select name="category" class="select-full">
+							<option value="SABS Certificate">SABS Compliance Certificate</option>
+							<option value="Product Photography">Product Photography (Packshot)</option>
+							<option value="Spec Sheet">Material Safety / Tech Datasheet</option>
+							<option value="Trade Brochure">Wholesale Commercial Trade Brochure</option>
+						</select>
+					</div>
+					<div class="two-col">
+						<div class="form-group">
+							<label>File Size (KB)</label>
+							<input type="number" name="sizeKb" class="input" value="480" min="1" required />
+						</div>
+						<div class="form-group">
+							<label>MIME Type</label>
+							<select name="mimeType" class="select-full">
+								<option value="application/pdf">PDF Document (application/pdf)</option>
+								<option value="image/jpeg">JPEG Image (image/jpeg)</option>
+								<option value="image/png">PNG Image (image/png)</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label>Asset URL / Local Path</label>
+						<input type="text" name="url" class="input" value="/media/uploaded_doc.pdf" required />
+					</div>
+				</div>
+				<div class="modal-foot">
+					<button type="button" class="btn ghost" onclick="document.getElementById('upload-media-dialog').close();">Cancel</button>
+					<button type="submit" class="btn solid">Upload to Pod Vault</button>
+				</div>
+			</form>
+		</div>
+	</dialog>
+
+	<script>
+		function filterMedia(cat) {
+			var cards = document.querySelectorAll('.media-card');
+			cards.forEach(function(card) {
+				if (cat === 'all') {
+					card.style.display = 'flex';
+				} else if (cat === 'sabs') {
+					card.style.display = card.dataset.category.includes('SABS') ? 'flex' : 'none';
+				} else if (cat === 'photo') {
+					card.style.display = card.dataset.category.includes('Photography') ? 'flex' : 'none';
+				} else if (cat === 'spec') {
+					card.style.display = card.dataset.category.includes('Spec') ? 'flex' : 'none';
+				}
+			});
+		}
+	</script>
+}

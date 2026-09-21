@@ -282,3 +282,134 @@ export const evidenceArtifacts = pgTable(
     evidenceHashIdx: index('evidence_hash_idx').on(table.sha256Hash),
   })
 );
+
+/**
+ * ============================================================================
+ * Section 3.1: Shoppage Commerce Chat & Structured Quote Relational Schemas
+ * ============================================================================
+ */
+
+export const buyerChatProfiles = pgTable(
+  'buyer_chat_profiles',
+  {
+    buyerId: uuid('buyer_id').primaryKey(),
+    displayName: text('display_name').notNull(),
+    phoneHash: text('phone_hash').notNull(),
+    email: text('email'),
+    defaultPostalCode: text('default_postal_code'),
+    preferences: jsonb('preferences').default({}).notNull(),
+    lastActiveAt: timestamp('last_active_at', { withTimezone: true }).defaultNow().notNull(),
+    whatsappOptIn: boolean('whatsapp_opt_in').default(true).notNull(),
+    pushEnabled: boolean('push_enabled').default(true).notNull(),
+  },
+  (table) => ({
+    buyerPhoneIdx: index('buyer_phone_idx').on(table.phoneHash),
+  })
+);
+
+export const conversations = pgTable(
+  'conversations',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    buyerId: uuid('buyer_id').notNull(),
+    merchantId: text('merchant_id').notNull(), // loc_...
+    productId: text('product_id'),
+    status: text('status').default('active').notNull(), // active, closed, archived
+    quoteId: uuid('quote_id'),
+    orderId: uuid('order_id'),
+    lastMessageAt: timestamp('last_message_at', { withTimezone: true }).defaultNow().notNull(),
+    unreadBuyer: integer('unread_buyer').default(0).notNull(),
+    unreadMerchant: integer('unread_merchant').default(0).notNull(),
+    channel: text('channel').default('shoppage').notNull(), // shoppage, whatsapp, mixed
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    convBuyerIdx: index('conv_buyer_idx').on(table.buyerId),
+    convMerchantIdx: index('conv_merchant_idx').on(table.merchantId),
+    convLastMsgIdx: index('conv_last_msg_idx').on(table.lastMessageAt),
+  })
+);
+
+export const messages = pgTable(
+  'messages',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    conversationId: uuid('conversation_id').references(() => conversations.id).notNull(),
+    senderType: text('sender_type').notNull(), // buyer, merchant, system, ai
+    senderId: text('sender_id').notNull(),
+    messageType: text('message_type').notNull(), // text, inquiry, quote, quote_action, proforma_invoice, payment_link
+    content: jsonb('content').default({}).notNull(),
+    text: text('text').default('').notNull(),
+    status: text('status').default('sending').notNull(), // sending, sent, delivered, read, failed
+    replyToId: uuid('reply_to_id'),
+    metadata: jsonb('metadata').default({}),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    msgConvIdx: index('msg_conv_idx').on(table.conversationId),
+    msgCreatedIdx: index('msg_created_idx').on(table.createdAt),
+  })
+);
+
+export const quotes = pgTable(
+  'quotes',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    conversationId: uuid('conversation_id').references(() => conversations.id).notNull(),
+    quoteNumber: text('quote_number').unique().notNull(), // e.g. QUO-2026-001234
+    status: text('status').default('draft').notNull(), // draft, sent, viewed, approved, expired, cancelled
+    subtotal: numeric('subtotal', { precision: 12, scale: 2 }).notNull(),
+    deliveryEstimate: numeric('delivery_estimate', { precision: 12, scale: 2 }).default('0.00').notNull(),
+    vat: numeric('vat', { precision: 12, scale: 2 }).default('0.00').notNull(),
+    total: numeric('total', { precision: 12, scale: 2 }).notNull(),
+    validUntil: timestamp('valid_until', { withTimezone: true }).notNull(),
+    stockReservedUntil: timestamp('stock_reserved_until', { withTimezone: true }).notNull(),
+    buyerApprovalAt: timestamp('buyer_approval_at', { withTimezone: true }),
+    orderId: uuid('order_id'),
+    pdfUrl: text('pdf_url'),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    quoteConvIdx: index('quote_conv_idx').on(table.conversationId),
+    quoteNumIdx: index('quote_num_idx').on(table.quoteNumber),
+    quoteStatusIdx: index('quote_status_idx').on(table.status),
+  })
+);
+
+export const quoteLines = pgTable(
+  'quote_lines',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    quoteId: uuid('quote_id').references(() => quotes.id).notNull(),
+    productId: text('product_id').notNull(),
+    variantId: uuid('variant_id'),
+    productName: text('product_name').notNull(),
+    quantity: integer('quantity').notNull(),
+    unitPrice: numeric('unit_price', { precision: 12, scale: 2 }).notNull(),
+    lineTotal: numeric('line_total', { precision: 12, scale: 2 }).notNull(),
+    stockConfirmed: boolean('stock_confirmed').default(false).notNull(),
+    stockLocationId: text('stock_location_id'),
+    metadata: jsonb('metadata').default({}),
+  },
+  (table) => ({
+    quoteLineQuoteIdx: index('quote_line_quote_idx').on(table.quoteId),
+  })
+);
+
+export const merchantChatSettings = pgTable(
+  'merchant_chat_settings',
+  {
+    merchantId: text('merchant_id').primaryKey(),
+    autoQuoteEnabled: boolean('auto_quote_enabled').default(false).notNull(),
+    autoQuoteRules: jsonb('auto_quote_rules').default([]).notNull(),
+    aiSuggestionsEnabled: boolean('ai_suggestions_enabled').default(true).notNull(),
+    responseTimeSla: integer('response_time_sla').default(30).notNull(), // minutes
+    teamSize: integer('team_size').default(1).notNull(),
+    awayMessage: text('away_message'),
+    businessHours: jsonb('business_hours').default({}).notNull(),
+    maxOpenQuotes: integer('max_open_quotes').default(50).notNull(),
+  }
+);
+

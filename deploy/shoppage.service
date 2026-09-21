@@ -1,0 +1,29 @@
+[Unit]
+Description=Shoppage 100% Pure Go Unified Platform
+After=network.target
+
+[Service]
+Type=simple
+User=shoppage
+Group=shoppage
+WorkingDirectory=/opt/shoppage
+ExecStart=/opt/shoppage/shoppage
+Restart=always
+RestartSec=3s
+LimitNOFILE=65535
+
+# Environment Configuration
+Environment=PORT=3000
+Environment=ENVIRONMENT=production
+Environment=GEMINI_API_KEY=
+Environment=GEMINI_MODEL=gemini-2.5-flash
+Environment=FOUNDATION_DATA_DIR=/opt/shoppage/shoppage-commerce-intelligence-foundation/data/study
+Environment=DATA_DIR=/opt/shoppage/data
+
+# Security Hardening
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

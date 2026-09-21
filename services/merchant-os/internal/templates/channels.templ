@@ -1,0 +1,116 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/shoppage/merchant-os/internal/models"
+)
+
+templ ChannelsTab(data models.DashboardViewData) {
+	<div class="panel-head">
+		<div>
+			<h3>Omnichannel Commerce &amp; WhatsApp Trade Desks</h3>
+			<div class="sub">Multi-channel catalog syndication, WhatsApp conversational trade &amp; storefront endpoints</div>
+		</div>
+		<div class="right">
+			<form hx-post="/channels/sync" hx-target="#tab-content" style="display:inline;">
+				<button type="submit" class="btn solid small">
+					<span>🔄</span> Force Sync All Channels
+				</button>
+			</form>
+		</div>
+	</div>
+
+	<!-- Channel Cards -->
+	<div class="grid-kpi" style="margin-bottom:18px;">
+		for _, ch := range data.Channels {
+			<div class="card kpi">
+				<div class="k-label">
+					<span>{ ch.Name }</span>
+					if ch.Status == "Active" {
+						<span class="chip up">Live Sync</span>
+					} else {
+						<span class="chip warn">{ ch.Status }</span>
+					}
+				</div>
+				<div class="k-val" style="font-size:1.4rem; margin:8px 0 2px;">
+					{ ch.Type }
+				</div>
+				<div class="k-foot">
+					<span class="then">{ fmt.Sprintf("%d SKUs Synced", ch.ItemsSynced) }</span>
+				</div>
+				<div style="margin-top:10px; font-size:11.5px; color:var(--muted); word-break:break-all;">
+					<code>{ ch.Endpoint }</code>
+				</div>
+			</div>
+		}
+	</div>
+
+	<!-- WhatsApp Gateway Deep Dive & Diagnostics -->
+	<div class="row-2">
+		<div class="card panel">
+			<h4 style="font-size:15px; font-weight:700; margin-bottom:12px;">WhatsApp Trade Automation Settings</h4>
+			<p style="font-size:13px; color:var(--muted); margin-bottom:14px;">
+				Pemofy connects directly to your verified South African WhatsApp Business API, allowing automatic catalog lookups, quote requests, and proforma PDF dispatch.
+			</p>
+
+			<form hx-post="/channels/settings" hx-target="#tab-content">
+				<div style="display:grid; gap:12px; margin-bottom:16px;">
+					<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--surface-2); border-radius:9px;">
+						<div>
+							<b>Automated Instant Quote Replies</b>
+							<p style="margin:2px 0 0; font-size:12px; color:var(--muted);">Sends standard wholesale carton pricing on keyword inquiry.</p>
+						</div>
+						<input type="checkbox" name="autoQuotes" checked="checked" style="width:18px; height:18px; accent-color:var(--primary);" />
+					</div>
+
+					<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--surface-2); border-radius:9px;">
+						<div>
+							<b>Proforma Invoice PDF Attachment</b>
+							<p style="margin:2px 0 0; font-size:12px; color:var(--muted);">Generates bank-ready PDF proformas with EFT banking QR codes.</p>
+						</div>
+						<input type="checkbox" name="proformaPdf" checked="checked" style="width:18px; height:18px; accent-color:var(--primary);" />
+					</div>
+
+					<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--surface-2); border-radius:9px;">
+						<div>
+							<b>Delivery Dispatch SMS / WhatsApp Alert</b>
+							<p style="margin:2px 0 0; font-size:12px; color:var(--muted);">Sends The Courier Guy tracking link when order leaves warehouse.</p>
+						</div>
+						<input type="checkbox" name="dispatchAlert" checked="checked" style="width:18px; height:18px; accent-color:var(--primary);" />
+					</div>
+				</div>
+
+				<div style="text-align:right;">
+					<button type="submit" class="btn solid small">Save WhatsApp Automation Preferences</button>
+				</div>
+			</form>
+		</div>
+
+		<div class="card panel">
+			<h4 style="font-size:15px; font-weight:700; margin-bottom:12px;">Syndication Diagnostics</h4>
+			
+			<div style="display:grid; gap:10px; font-size:12.5px;">
+				<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:8px;">
+					<span style="color:var(--muted);">Cloud Pod Node</span>
+					<b>pod-za-01 (Johannesburg)</b>
+				</div>
+				<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:8px;">
+					<span style="color:var(--muted);">Webhook Ingestion Latency</span>
+					<b style="color:var(--primary-2);">12 ms avg</b>
+				</div>
+				<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:8px;">
+					<span style="color:var(--muted);">Google Merchant Status</span>
+					<b style="color:var(--primary-2);">All 4 Products Approved (ZAR)</b>
+				</div>
+				<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:8px;">
+					<span style="color:var(--muted);">Shoppage Public Grid</span>
+					<b style="color:var(--primary-2);">Indexed in Midrand Mall Node</b>
+				</div>
+				<div style="display:flex; justify-content:space-between;">
+					<span style="color:var(--muted);">Last Full Catalog Sync</span>
+					<b>Today, 10:14 SAST (Auto)</b>
+				</div>
+			</div>
+		</div>
+	</div>
+}

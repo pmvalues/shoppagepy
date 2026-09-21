@@ -1,0 +1,233 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/shoppage/consumer-web/internal/models"
+)
+
+templ SearchResultsGridComponent(data SearchViewData) {
+	<div id="results-grid">
+		<div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200">
+			<div class="text-xs font-semibold text-slate-500">
+				Found <span class="font-bold text-slate-900">{ fmt.Sprintf("%d", len(data.Products)) }</span> matching items
+				if data.Query != "" {
+					<span>{ fmt.Sprintf(" for \"%s\"", data.Query) }</span>
+				}
+			</div>
+			<div class="text-xs font-mono text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+				Go Search Core: { fmt.Sprintf("%.2f", data.LatencyMs) } ms
+			</div>
+		</div>
+
+		if len(data.Products) == 0 {
+			<div class="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center">
+				<div class="text-3xl mb-2">🔍</div>
+				<h3 class="text-base font-bold text-slate-900 mb-1">No products found</h3>
+				<p class="text-xs text-slate-500 max-w-md mx-auto">
+					Try searching for "Sunsynk", "Deye", "Cement", "Carton", or browsing the Specials tab.
+				</p>
+			</div>
+		} else {
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+				for _, prod := range data.Products {
+					<div class="bg-white rounded-2xl border border-slate-200/80 p-4 hover:shadow-md transition flex flex-col group">
+						<div class="relative w-full h-44 rounded-xl overflow-hidden bg-slate-100 mb-3">
+							<img src={ prod.ImageURL } alt={ prod.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-300"/>
+							if prod.Verified {
+								<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-900/80 text-emerald-400 text-[10px] font-bold backdrop-blur-xs flex items-center gap-1">
+									✓ Verified
+								</span>
+							}
+							if prod.InStock {
+								<span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-bold">
+									In Stock
+								</span>
+							}
+						</div>
+						<div class="text-[11px] text-emerald-600 font-bold uppercase tracking-wider mb-0.5">{ prod.Brand } · { prod.Category }</div>
+						<h3 class="font-bold text-slate-900 text-sm leading-snug line-clamp-2 mb-2">
+							<a href={ templ.SafeURL(fmt.Sprintf("/p/%s", prod.ID)) } class="hover:text-emerald-600 transition">{ prod.Title }</a>
+						</h3>
+						<div class="text-xs text-slate-500 mb-3 flex items-center gap-1">
+							<span>📍</span> <span class="truncate">{ prod.City }</span>
+						</div>
+						<div class="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between">
+							<div>
+								<div class="text-[10px] text-slate-400">price</div>
+								<div class="text-base font-black text-slate-900">R { fmt.Sprintf("%.2f", prod.PriceZar) }</div>
+							</div>
+							<button 
+								type="button"
+								hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", prod.ID))) } 
+								hx-target="#buybox-drawer"
+								class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+							>
+								BuyBox
+							</button>
+						</div>
+					</div>
+				}
+			</div>
+		}
+	</div>
+}
+
+templ SearchPageComponent(data SearchViewData) {
+	@Layout(data.Title, data.Description, data.CurrentTab, []models.TradeTrend{}, []models.RetailerDeal{}, []models.CommunityGuild{}) {
+		<main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+			<div class="flex flex-col md:flex-row gap-6">
+				<!-- Left Filter Facets Sidebar -->
+				<aside class="w-full md:w-64 shrink-0 space-y-6">
+					<div class="bg-white rounded-2xl border border-slate-200 p-5 sticky top-28">
+						<h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-3">Search Mode</h3>
+						<div class="space-y-2 text-xs font-medium">
+							<label class="flex items-center gap-2 cursor-pointer">
+								<input 
+									type="radio" 
+									name="tab" 
+									value="all" 
+									checked?={ data.CurrentTab == "" || data.CurrentTab == "all" }
+									hx-get="/search" 
+									hx-target="#results-grid" 
+									hx-include="[name='q']" 
+									class="text-emerald-600"
+								/>
+								<span>All Products</span>
+							</label>
+							<label class="flex items-center gap-2 cursor-pointer">
+								<input 
+									type="radio" 
+									name="tab" 
+									value="deals" 
+									checked?={ data.CurrentTab == "deals" }
+									hx-get="/search" 
+									hx-target="#results-grid" 
+									hx-include="[name='q']" 
+									class="text-emerald-600"
+								/>
+								<span class="text-rose-600 font-bold">🔥 Retailer Specials</span>
+							</label>
+						</div>
+
+						<h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mt-6 mb-3">Categories</h3>
+						<div class="space-y-2 text-xs font-medium">
+							<label class="flex items-center gap-2 cursor-pointer">
+								<input 
+									type="radio" 
+									name="category" 
+									value="" 
+									checked?={ data.Category == "" }
+									hx-get="/search" 
+									hx-target="#results-grid" 
+									hx-include="[name='q']" 
+									class="text-emerald-600"
+								/>
+								<span>All Categories</span>
+							</label>
+							<label class="flex items-center gap-2 cursor-pointer">
+								<input 
+									type="radio" 
+									name="category" 
+									value="solar" 
+									checked?={ data.Category == "solar" }
+									hx-get="/search" 
+									hx-target="#results-grid" 
+									hx-include="[name='q']" 
+									class="text-emerald-600"
+								/>
+								<span>Solar &amp; Power</span>
+							</label>
+							<label class="flex items-center gap-2 cursor-pointer">
+								<input 
+									type="radio" 
+									name="category" 
+									value="packaging" 
+									checked?={ data.Category == "packaging" }
+									hx-get="/search" 
+									hx-target="#results-grid" 
+									hx-include="[name='q']" 
+									class="text-emerald-600"
+								/>
+								<span>Packaging &amp; Cartons</span>
+							</label>
+							<label class="flex items-center gap-2 cursor-pointer">
+								<input 
+									type="radio" 
+									name="category" 
+									value="hardware" 
+									checked?={ data.Category == "hardware" }
+									hx-get="/search" 
+									hx-target="#results-grid" 
+									hx-include="[name='q']" 
+									class="text-emerald-600"
+								/>
+								<span>Building &amp; Hardware</span>
+							</label>
+						</div>
+
+						<h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mt-6 mb-3">Province</h3>
+						<div class="space-y-2 text-xs font-medium">
+							<label class="flex items-center gap-2 cursor-pointer">
+								<input 
+									type="radio" 
+									name="province" 
+									value="" 
+									checked?={ data.Province == "" }
+									hx-get="/search" 
+									hx-target="#results-grid" 
+									hx-include="[name='q']" 
+									class="text-emerald-600"
+								/>
+								<span>Nationwide (All SA)</span>
+							</label>
+							<label class="flex items-center gap-2 cursor-pointer">
+								<input 
+									type="radio" 
+									name="province" 
+									value="Gauteng" 
+									checked?={ data.Province == "Gauteng" }
+									hx-get="/search" 
+									hx-target="#results-grid" 
+									hx-include="[name='q']" 
+									class="text-emerald-600"
+								/>
+								<span>Gauteng</span>
+							</label>
+							<label class="flex items-center gap-2 cursor-pointer">
+								<input 
+									type="radio" 
+									name="province" 
+									value="Western Cape" 
+									checked?={ data.Province == "Western Cape" }
+									hx-get="/search" 
+									hx-target="#results-grid" 
+									hx-include="[name='q']" 
+									class="text-emerald-600"
+								/>
+								<span>Western Cape</span>
+							</label>
+							<label class="flex items-center gap-2 cursor-pointer">
+								<input 
+									type="radio" 
+									name="province" 
+									value="KwaZulu-Natal" 
+									checked?={ data.Province == "KwaZulu-Natal" }
+									hx-get="/search" 
+									hx-target="#results-grid" 
+									hx-include="[name='q']" 
+									class="text-emerald-600"
+								/>
+								<span>KwaZulu-Natal</span>
+							</label>
+						</div>
+					</div>
+				</aside>
+
+				<!-- Main Results Grid Area -->
+				<div class="flex-1">
+					@SearchResultsGridComponent(data)
+				</div>
+			</div>
+		</main>
+	}
+}

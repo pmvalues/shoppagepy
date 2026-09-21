@@ -1,0 +1,60 @@
+package templates
+
+import (
+	"github.com/shoppage/merchant-os/internal/models"
+)
+
+templ DashboardPage(data models.DashboardViewData) {
+	@Layout(data.Store, data.ActiveTab) {
+		@TabPartialComponent(data.ActiveTab, data)
+	}
+}
+
+templ TabPartialComponent(activeTab string, data models.DashboardViewData) {
+	switch activeTab {
+		case "chat":
+			@ChatTab(data)
+		case "catalog":
+			@CatalogTab(data)
+		case "orders":
+			@OrdersTab(data)
+		case "inventory":
+			@InventoryTab(data)
+		case "customers":
+			@CustomersTab(data)
+		case "rfqs":
+			@RFQsTab(data)
+		case "analytics":
+			@AnalyticsTab(data)
+		case "discounts":
+			@DiscountsTab(data)
+		case "channels":
+			@ChannelsTab(data)
+		case "feeds":
+			@FeedsTab(data)
+		case "copilot":
+			@CopilotTab(data)
+		case "settings":
+			@SettingsTab(data)
+		case "pick-pack":
+			@PickPackTab(data)
+		case "manifests":
+			@ManifestsTab(data)
+		case "transfers":
+			@TransfersTab(data)
+		case "scan":
+			@ScanStationTab(data)
+		case "pos":
+			@POSTerminalTab(data)
+		case "flow":
+			@FlowTab(data)
+		case "media":
+			@MediaTab(data)
+		case "audit-logs":
+			@AuditLogsTab(data)
+		case "editor":
+			@EditorTab(data)
+		default:
+			@OverviewTab(data)
+	}
+}

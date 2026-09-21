@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shoppage Chat — Technical Module Specification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface-raised: #334155;
+  --ink: #f8fafc;
+  --ink-muted: #94a3b8;
+  --ink-dim: #64748b;
+  --accent: #f59e0b;
+  --accent-weak: color-mix(in oklab, var(--accent) 15%, var(--surface));
+  --accent-glow: color-mix(in oklab, var(--accent) 25%, transparent);
+  --success: #10b981;
+  --success-weak: color-mix(in oklab, var(--success) 15%, var(--surface));
+  --info: #0ea5e9;
+  --info-weak: color-mix(in oklab, var(--info) 15%, var(--surface));
+  --line: color-mix(in oklab, var(--ink) 8%, transparent);
+  --line-strong: color-mix(in oklab, var(--ink) 18%, transparent);
+  --step--2: clamp(0.64rem, 0.62rem + 0.15vw, 0.75rem);
+  --step--1: clamp(0.8rem, 0.77rem + 0.2vw, 0.9rem);
+  --step-0: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.6vw, 1.5rem);
+  --step-2: clamp(1.5rem, 1.3rem + 1.2vw, 2.25rem);
+  --step-3: clamp(2rem, 1.6rem + 2.4vw, 3.5rem);
+  --step-4: clamp(2.5rem, 2rem + 3vw, 4.5rem);
+  --space: clamp(1rem, 0.8rem + 1vw, 1.5rem);
+  --radius: 12px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 32px -12px rgba(0,0,0,0.5);
+}
+
+* { box-sizing: border-box; margin: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.65;
+  font-size: var(--step-0);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header */
+header {
+  background: linear-gradient(165deg, var(--bg) 0%, var(--surface) 60%, color-mix(in oklab, var(--accent) 8%, var(--surface)) 100%);
+  border-bottom: 1px solid var(--line);
+  padding: calc(var(--space) * 4) calc(var(--space) * 2);
+  position: relative;
+  overflow: hidden;
+}
+
+header::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+header .container { position: relative; z-index: 1; }
+
+.eyebrow {
+  font-family: "JetBrains Mono", monospace;
+  font-size: var(--step--2);
+  font-weight: 500;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: calc(var(--space) * 0.75);
+}
+
+h1 {
+  font-size: var(--step-4);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  max-width: 18ch;
+  margin-bottom: calc(var(--space) * 1.25);
+}
+
+h1 .accent { color: var(--accent); }
+
+.lead {
+  font-size: var(--step-1);
+  color: var(--ink-muted);
+  max-width: 52ch;
+  line-height: 1.5;
+  font-weight: 300;
+}
+
+/* Layout */
+.container {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 calc(var(--space) * 1.5);
+}
+
+main { padding: calc(var(--space) * 3) 0 calc(var(--space) * 5); }
+
+section {
+  margin-bottom: calc(var(--space) * 3.5);
+  scroll-margin-top: calc(var(--space) * 2);
+}
+
+/* Section header */
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--space) * 0.75);
+  margin-bottom: calc(var(--space) * 1.25);
+  border-bottom: 1px solid var(--line-strong);
+  padding-bottom: calc(var(--space) * 0.6);
+}
+
+.section-num {
+  font-family: "JetBrains Mono", monospace;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--accent);
+  min-width: 2.2em;
+}
+
+h2 {
+  font-size: var(--step-2);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  flex: 1;
+}
+
+h3 {
+  font-size: var(--step-1);
+  font-weight: 600;
+  margin-top: calc(var(--space) * 1.5);
+  margin-bottom: calc(var(--space) * 0.6);
+  color: var(--ink);
+}
+
+h4 {
+  font-size: var(--step-0);
+  font-weight: 600;
+  margin-top: calc(var(--space) * 1);
+  margin-bottom: calc(var(--space) * 0.4);
+  color: var(--ink-muted);
+}
+
+p {
+  max-width: 68ch;
+  margin-bottom: calc(var(--space) * 0.8);
+  color: var(--ink-muted);
+}
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: calc(var(--space) * 1.25);
+  margin-bottom: calc(var(--space) * 1);
+}
+
+.card-title {
+  font-weight: 600;
+  font-size: var(--step--1);
+  color: var(--ink);
+  margin-bottom: calc(var(--space) * 0.4);
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.card-body {
+  font-size: var(--step--1);
+  color: var(--ink-muted);
+  line-height: 1.6;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--step--1);
+  margin: calc(var(--space) * 1) 0;
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+
+th, td {
+  padding: calc(var(--space) * 0.55) calc(var(--space) * 0.75);
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+th {
+  background: color-mix(in oklab, var(--surface) 80%, var(--bg));
+  font-weight: 600;
+  color: var(--ink);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+tr:last-child td { border-bottom: none; }
+
+tr:hover td { background: color-mix(in oklab, var(--accent) 3%, var(--surface)); }
+
+td { color: var(--ink-muted); }
+
+td strong { color: var(--ink); font-weight: 600; }
+
+/* Code blocks */
+pre {
+  background: #0b1120;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: calc(var(--space) * 1);
+  overflow-x: auto;
+  font-family: "JetBrains Mono", monospace;
+  font-size: var(--step--2);
+  line-height: 1.6;
+  margin: calc(var(--space) * 1) 0;
+}
+
+code {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.9em;
+}
+
+pre code { font-size: inherit; }
+
+:not(pre) > code {
+  background: var(--surface-raised);
+  padding: 0.15em 0.4em;
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  font-size: var(--step--2);
+}
+
+/* Lists */
+ul, ol {
+  margin-left: calc(var(--space) * 1.2);
+  margin-bottom: calc(var(--space) * 1);
+  color: var(--ink-muted);
+}
+
+li { margin-bottom: calc(var(--space) * 0.35); }
+
+/* Diagram boxes */
+.diagram {
+  background: #0b1120;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: calc(var(--space) * 1.25);
+  font-family: "JetBrains Mono", monospace;
+  font-size: var(--step--2);
+  line-height: 1.7;
+  overflow-x: auto;
+  margin: calc(var(--space) * 1) 0;
+  color: var(--ink-muted);
+}
+
+.diagram .label { color: var(--accent); font-weight: 600; }
+.diagram .box { color: var(--info); }
+.diagram .arrow { color: var(--ink-dim); }
+.diagram .comment { color: var(--ink-dim); font-style: italic; }
+.diagram .highlight { color: var(--success); }
+
+/* Flow states */
+.flow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: calc(var(--space) * 0.75);
+  margin: calc(var(--space) * 1) 0;
+}
+
+.flow-item {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: calc(var(--space) * 0.9);
+  position: relative;
+}
+
+.flow-item::before {
+  content: attr(data-step);
+  position: absolute;
+  top: -10px;
+  left: 14px;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.flow-item h4 {
+  margin-top: 0.4em;
+  color: var(--ink);
+  font-size: var(--step--1);
+}
+
+.flow-item p {
+  font-size: var(--step--2);
+  margin-bottom: 0;
+}
+
+/* Tags */
+.tag {
+  display: inline-block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tag-api { background: var(--info-weak); color: var(--info); }
+.tag-event { background: var(--success-weak); color: var(--success); }
+.tag-ws { background: var(--accent-weak); color: var(--accent); }
+
+/* Note boxes */
+.note {
+  background: var(--accent-weak);
+  border-left: 3px solid var(--accent);
+  padding: calc(var(--space) * 0.75) calc(var(--space) * 1);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin: calc(var(--space) * 1) 0;
+  font-size: var(--step--1);
+}
+
+.note p { margin-bottom: 0; color: var(--ink-muted); }
+
+.note strong { color: var(--accent); }
+
+/* Two column */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(var(--space) * 1);
+}
+
+@media (max-width: 640px) {
+  .two-col { grid-template-columns: 1fr; }
+  h1 { font-size: var(--step-3); }
+}
+
+/* Message bubble mockups */
+.chat-mockup {
+  background: #0b1120;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: calc(var(--space) * 1);
+  margin: calc(var(--space) * 1) 0;
+  font-size: var(--step--1);
+}
+
+.bubble {
+  max-width: 80%;
+  padding: calc(var(--space) * 0.6) calc(var(--space) * 0.9);
+  border-radius: 16px;
+  margin-bottom: calc(var(--space) * 0.5);
+  line-height: 1.5;
+}
+
+.bubble-buyer {
+  background: var(--info-weak);
+  color: var(--info);
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+}
+
+.bubble-merchant {
+  background: var(--surface-raised);
+  color: var(--ink-muted);
+  border-bottom-left-radius: 4px;
+}
+
+.bubble-system {
+  background: var(--accent-weak);
+  color: var(--accent);
+  margin: 0 auto;
+  text-align: center;
+  font-size: var(--step--2);
+  font-family: "JetBrains Mono", monospace;
+  max-width: 90%;
+}
+
+/* Entity relation */
+.entity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: calc(var(--space) * 0.75);
+  margin: calc(var(--space) * 1) 0;
+}
+
+.entity-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: calc(var(--space) * 1);
+}
+
+.entity-card h4 {
+  margin-top: 0;
+  color: var(--accent);
+  font-family: "JetBrains Mono", monospace;
+  font-size: var(--step--1);
+}
+
+.entity-card ul {
+  font-size: var(--step--2);
+  margin-bottom: 0;
+  color: var(--ink-muted);
+}
+
+/* Nav */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: calc(var(--space) * 1);
+  margin-bottom: calc(var(--space) * 2);
+}
+
+.toc h3 {
+  margin-top: 0;
+  font-size: var(--step--1);
+}
+
+.toc ul {
+  list-style: none;
+  margin-left: 0;
+  columns: 2;
+  column-gap: calc(var(--space) * 1.5);
+}
+
+.toc li { break-inside: avoid; }
+
+.toc a {
+  color: var(--ink-muted);
+  text-decoration: none;
+  font-size: var(--step--1);
+  display: block;
+  padding: 0.15em 0;
+  transition: color 0.2s;
+}
+
+.toc a:hover { color: var(--accent); }
+
+@media (max-width: 640px) {
+  .toc ul { columns: 1; }
+}
+
+/* Print */
+@media print {
+  body { background: #fff; color: #000; }
+  header { background: #f5f5f5; }
+  .card, .entity-card, .flow-item, .toc, table, pre, .diagram, .chat-mockup {
+    background: #f9f9f9;
+    border-color: #ddd;
+    break-inside: avoid;
+  }
+}
+@page { size: A4; margin: 15mm; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="eyebrow">Technical Specification v1.0</div>
+    <h1>Shoppage <span class="accent">Chat</span> Module</h1>
+    <p class="lead">Commerce-native messaging embedded in Shoppage for buyers, powered by Pemofy for merchants. Structured quotes, live inventory, AI-assisted conversations, and WhatsApp fallback. One app. One loop. Zero fragmentation.</p>
+  </div>
+</header>
+
+<main class="container">
+
+<nav class="toc">
+  <h3>Contents</h3>
+  <ul>
+    <li><a href="#s1">1. Module Overview</a></li>
+    <li><a href="#s2">2. System Architecture</a></li>
+    <li><a href="#s3">3. Data Model</a></li>
+    <li><a href="#s4">4. API Contract</a></li>
+    <li><a href="#s5">5. Message Types & States</a></li>
+    <li><a href="#s6">6. Buyer UX Flow</a></li>
+    <li><a href="#s7">7. Merchant UX (Pemofy)</a></li>
+    <li><a href="#s8">8. AI Agent Integration</a></li>
+    <li><a href="#s9">9. WhatsApp Fallback</a></li>
+    <li><a href="#s10">10. Real-time Infrastructure</a></li>
+    <li><a href="#s11">11. Security & Compliance</a></li>
+    <li><a href="#s12">12. Implementation Roadmap</a></li>
+  </ul>
+</nav>
+
+<!-- Section 1 -->
+<section id="s1">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2>Module Overview</h2>
+  </div>
+
+  <p>Shoppage Chat is not a separate app. It is a <strong>service layer and embedded UI module</strong> that turns every product inquiry into a structured commerce event. It lives inside the Shoppage buyer app and inside the Pemofy merchant dashboard.</p>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">For Buyers (Shoppage App)</div>
+      <div class="card-body">
+        Search a product, tap "Chat with Seller," and enter a structured conversation where every message has commerce meaning. Quotes are auto-generated from live inventory. Approvals create real orders. Tracking updates arrive in-thread.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">For Merchants (Pemofy Dashboard)</div>
+      <div class="card-body">
+        All buyer conversations appear in a unified team inbox inside Pemofy. AI suggests replies based on inventory, pricing rules, and conversation history. Quotes, orders, and fulfillment status sync automatically. No manual re-keying.
+      </div>
+    </div>
+  </div>
+
+  <h3>Core Principles</h3>
+  <table>
+    <tr><th>Principle</th><th>What It Means</th></tr>
+    <tr><td><strong>Every message is structured</strong></td><td>Not free text. Every message has a type, intent, and commerce payload that the system can act on.</td></tr>
+    <tr><td><strong>Inventory is the source of truth</strong></td><td>No quote can be generated without validating stock against Pemofy's <code>inventory_levels</code> table.</td></tr>
+    <tr><td><strong>Approval is binding</strong></td><td>When a buyer taps "Approve Quote," an order is created, stock is reserved, and a payment link is generated. No ambiguity.</td></tr>
+    <tr><td><strong>Conversations are persistent</strong></td><td>A buyer's full conversation history, all quotes, all orders, all tracking, lives in one thread per merchant.</td></tr>
+    <tr><td><strong>WhatsApp is fallback only</strong></td><td>Shoppage Chat is primary. WhatsApp handles notifications and conversations with non-onboarded merchants.</td></tr>
+  </table>
+</section>
+
+<!-- Section 2 -->
+<section id="s2">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2>System Architecture</h2>
+  </div>
+
+  <p>The architecture separates concerns into three bounded contexts: <strong>Shoppage</strong> (buyer-facing), <strong>Shoppage Chat Service</strong> (messaging backend), and <strong>Pemofy</strong> (merchant OS and system of record).</p>
+
+  <div class="diagram">
+<span class="label">┌─────────────────────────────────────────────────────────────────────────────┐</span>
+<span class="label">│                         SHOPPAGE CHAT MODULE ARCHITECTURE                    │</span>
+<span class="label">└─────────────────────────────────────────────────────────────────────────────┘</span>
+
+<span class="box">  BUYER LAYER (Shoppage App)          </span>        <span class="box">  MERCHANT LAYER (Pemofy)           </span>
+<span class="box">  ┌─────────────────────────┐         </span>        <span class="box">  ┌─────────────────────────┐        </span>
+<span class="box">  │  Next.js 16 App Router  │         </span>        <span class="box">  │  NestJS API + Dashboard │        </span>
+<span class="box">  │  ┌─────────────────┐    │         </span>        <span class="box">  │  ┌─────────────────┐    │        </span>
+<span class="box">  │  │  Search / Grid  │    │         </span>        <span class="box">  │  │  Team Inbox      │    │        </span>
+<span class="box">  │  └────────┬────────┘    │         </span>        <span class="box">  │  │  (Chat Module)   │            </span>
+<span class="box">  │           │ [Chat btn]   │         </span>        <span class="box">  │  └────────┬────────┘    │        </span>
+<span class="box">  │           ▼              │         </span>        <span class="box">  │           │ AI Suggest  │        </span>
+<span class="box">  │  ┌─────────────────┐    │         </span>        <span class="box">  │           ▼             │        </span>
+<span class="box">  │  │  Chat Interface │◄───┼─────────┼────────<span class="arrow">──WebSocket──</span>──┼───►│  Quote / Order   │    │        </span>
+<span class="box">  │  │  (Embedded)     │    │         </span>        <span class="box">  │  │  Management      │    │        </span>
+<span class="box">  │  │  • Messages     │    │         </span>        <span class="box">  │  │  • Inventory     │    │        </span>
+<span class="box">  │  │  • Quote cards  │    │         </span>        <span class="box">  │  │  • Pricing       │    │        </span>
+<span class="box">  │  │  • Pay buttons  │    │         </span>        <span class="box">  │  │  • Fulfillment   │    │        </span>
+<span class="box">  │  │  • Tracking     │    │         </span>        <span class="box">  │  └─────────────────┘    │        </span>
+<span class="box">  │  └────────┬────────┘    │         </span>        <span class="box">  └────────────────────────┘        </span>
+<span class="box">  └───────────┼─────────────┘</span>
+              │
+              ▼
+<span class="highlight">  ┌─────────────────────────────────────────────────────────────┐</span>
+<span class="highlight">  │              SHOPPAGE CHAT SERVICE (Node.js / NestJS)        │</span>
+<span class="highlight">  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌────────┐  │</span>
+<span class="highlight">  │  │  Message    │ │  Intent     │ │  Quote      │ │  Notif │  │</span>
+<span class="highlight">  │  │  Router     │ │  Extractor  │ │  Engine     │ │  Engine│  │</span>
+<span class="highlight">  │  └─────────────┘ └─────────────┘ └─────────────┘ └────────┘  │</span>
+<span class="highlight">  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌────────┐  │</span>
+<span class="highlight">  │  │  WebSocket    │ │  Gemini     │ │  Broadcast  │ │  WA    │  │</span>
+<span class="highlight">  │  │  Manager      │ │  Agent      │ │  Engine     │ │  Bridge│  │</span>
+<span class="highlight">  │  └─────────────┘ └─────────────┘ └─────────────┘ └────────┘  │</span>
+<span class="highlight">  └─────────────────────────────────────────────────────────────┘</span>
+              │
+              ▼
+<span class="box">  ┌─────────────────────────────────────────────────────────────┐</span>
+<span class="box">  │                     DATA LAYER                               │</span>
+<span class="box">  │  PostgreSQL 16  │  Redis 7  │  Typesense 26  │  SQLite FTS5  │</span>
+<span class="box">  │  (canonical)    │  (sessions│  (discovery)   │  (offline)    │</span>
+<span class="box">  │                 │  /cache)  │                │               │</span>
+<span class="box">  └─────────────────────────────────────────────────────────────┘</span>
+  </div>
+
+  <h3>Component Responsibilities</h3>
+  <table>
+    <tr><th>Component</th><th>Responsibility</th><th>Tech</th></tr>
+    <tr><td><strong>Message Router</strong></td><td>Routes messages between buyer and merchant; handles delivery guarantees, retries, and ordering</td><td>Node.js / BullMQ</td></tr>
+    <tr><td><strong>Intent Extractor</strong></td><td>Parses natural language into structured commerce intent (product, qty, location, urgency)</td><td>Gemini Flash + Rules</td></tr>
+    <tr><td><strong>Quote Engine</strong></td><td>Generates structured quotes by querying Pemofy inventory, pricing, and delivery APIs</td><td>NestJS service</td></tr>
+    <tr><td><strong>Notification Engine</strong></td><td>Push (web/mobile), SMS, email, WhatsApp fallback — ordered by user preference and cost</td><td>BullMQ + CM.com</td></tr>
+    <tr><td><strong>WebSocket Manager</strong></td><td>Real-time bidirectional messaging; presence detection; typing indicators</td><td>Socket.io / ws</td></tr>
+    <tr><td><strong>Gemini Agent</strong></td><td>AI suggested replies, intent extraction, sentiment analysis, escalation detection</td><td>Gemini 3.6 Flash</td></tr>
+    <tr><td><strong>Broadcast Engine</strong></td><td>Segmented promotional messaging to buyer audiences</td><td>BullMQ + batching</td></tr>
+    <tr><td><strong>WhatsApp Bridge</strong></td><td>Fallback channel; inbound parsing; outbound structured message delivery</td><td>CM.com / Twilio</td></tr>
+  </table>
+</section>
+
+<!-- Section 3 -->
+<section id="s3">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2>Data Model</h2>
+  </div>
+
+  <p>The canonical data lives in PostgreSQL. Redis handles ephemeral state (presence, typing, unread counts). Typesense powers merchant search within the team inbox.</p>
+
+  <h3>Core Entities</h3>
+  <div class="entity-grid">
+    <div class="entity-card">
+      <h4>conversations</h4>
+      <ul>
+        <li><code>id</code> UUID PK</li>
+        <li><code>buyer_id</code> UUID → buyers</li>
+        <li><code>merchant_id</code> UUID → merchants</li>
+        <li><code>product_id</code> UUID? (optional context)</li>
+        <li><code>status</code> enum: active, closed, archived</li>
+        <li><code>quote_id</code> UUID? (current open quote)</li>
+        <li><code>order_id</code> UUID? (if converted)</li>
+        <li><code>last_message_at</code> timestamp</li>
+        <li><code>unread_buyer</code> int</li>
+        <li><code>unread_merchant</code> int</li>
+        <li><code>channel</code> enum: shoppage, whatsapp, mixed</li>
+        <li><code>created_at</code>, <code>updated_at</code></li>
+      </ul>
+    </div>
+    <div class="entity-card">
+      <h4>messages</h4>
+      <ul>
+        <li><code>id</code> UUID PK</li>
+        <li><code>conversation_id</code> UUID FK</li>
+        <li><code>sender_type</code> enum: buyer, merchant, system, ai</li>
+        <li><code>sender_id</code> UUID</li>
+        <li><code>message_type</code> enum (see below)</li>
+        <li><code>content</code> JSONB (structured payload)</li>
+        <li><code>text</code> text (rendered text)</li>
+        <li><code>status</code> enum: sending, sent, delivered, read, failed</li>
+        <li><code>reply_to_id</code> UUID? (threading)</li>
+        <li><code>metadata</code> JSONB</li>
+        <li><code>created_at</code></li>
+      </ul>
+    </div>
+    <div class="entity-card">
+      <h4>quotes</h4>
+      <ul>
+        <li><code>id</code> UUID PK</li>
+        <li><code>conversation_id</code> UUID FK</li>
+        <li><code>quote_number</code> string (e.g. QUO-2026-001234)</li>
+        <li><code>status</code> enum: draft, sent, viewed, approved, expired, cancelled</li>
+        <li><code>subtotal</code> decimal</li>
+        <li><code>delivery_estimate</code> decimal</li>
+        <li><code>vat</code> decimal</li>
+        <li><code>total</code> decimal</li>
+        <li><code>valid_until</code> timestamp</li>
+        <li><code>stock_reserved_until</code> timestamp</li>
+        <li><code>buyer_approval_at</code> timestamp?</li>
+        <li><code>order_id</code> UUID? (on approval)</li>
+        <li><code>pdf_url</code> string</li>
+        <li><code>created_at</code>, <code>updated_at</code></li>
+      </ul>
+    </div>
+    <div class="entity-card">
+      <h4>quote_lines</h4>
+      <ul>
+        <li><code>id</code> UUID PK</li>
+        <li><code>quote_id</code> UUID FK</li>
+        <li><code>product_id</code> UUID</li>
+        <li><code>variant_id</code> UUID?</li>
+        <li><code>product_name</code> string</li>
+        <li><code>quantity</code> int</li>
+        <li><code>unit_price</code> decimal</li>
+        <li><code>line_total</code> decimal</li>
+        <li><code>stock_confirmed</code> boolean</li>
+        <li><code>stock_location_id</code> UUID?</li>
+        <li><code>metadata</code> JSONB</li>
+      </ul>
+    </div>
+    <div class="entity-card">
+      <h4>buyer_chat_profiles</h4>
+      <ul>
+        <li><code>buyer_id</code> UUID PK</li>
+        <li><code>display_name</code> string</li>
+        <li><code>phone</code> string (hashed)</li>
+        <li><code>email</code> string?</li>
+        <li><code>default_postal_code</code> string?</li>
+        <li><code>preferences</code> JSONB</li>
+        <li><code>last_active_at</code> timestamp</li>
+        <li><code>whatsapp_opt_in</code> boolean</li>
+        <li><code>push_enabled</code> boolean</li>
+      </ul>
+    </div>
+    <div class="entity-card">
+      <h4>merchant_chat_settings</h4>
+      <ul>
+        <li><code>merchant_id</code> UUID PK</li>
+        <li><code>auto_quote_enabled</code> boolean</li>
+        <li><code>auto_quote_rules</code> JSONB</li>
+        <li><code>ai_suggestions_enabled</code> boolean</li>
+        <li><code>response_time_sla</code> int (minutes)</li>
+        <li><code>team_size</code> int</li>
+        <li><code>away_message</code> text?</li>
+        <li><code>business_hours</code> JSONB</li>
+        <li><code>max_open_quotes</code> int</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Message Type Enum</h3>
+  <table>
+    <tr><th>Type</th><th>Description</th><th>Content Payload</th></tr>
+    <tr><td><code>text</code></td><td>Plain text message</td><td><code>{ text: string }</code></td></tr>
+    <tr><td><code>inquiry</code></td><td>Structured product inquiry</td><td><code>{ product_query, quantity, postal_code, urgency }</code></td></tr>
+    <tr><td><code>quote</code></td><td>Structured quote card</td><td><code>{ quote_id, lines, totals, expiry }</code></td></tr>
+    <tr><td><code>quote_action</code></td><td>Approve / modify / cancel quote</td><td><code>{ action, quote_id, reason? }</code></td></tr>
+    <tr><td><code>order_created</code></td><td>System message: order confirmed</td><td><code>{ order_id, total, payment_link }</code></td></tr>
+    <tr><td><code>payment_request</code></td><td>Payment link or EFT details</td><td><code>{ amount, method, link, expiry }</code></td></tr>
+    <tr><td><code>payment_confirmed</code></td><td>Payment received</td><td><code>{ amount, method, ref }</code></td></tr>
+    <tr><td><code>fulfillment_update</code></td><td>Delivery status change</td><td><code>{ status, tracking_ref, eta }</code></td></tr>
+    <tr><td><code>image</code></td><td>Image attachment</td><td><code>{ url, caption? }</code></td></tr>
+    <tr><td><code>product_card</code></td><td>Rich product reference</td><td><code>{ product_id, name, price, stock, image }</code></td></tr>
+    <tr><td><code>system</code></td><td>System notification</td><td><code>{ code, text, metadata? }</code></td></tr>
+  </table>
+
+  <div class="note">
+    <p><strong>Design Note:</strong> All monetary values stored as <code>DECIMAL(12,2)</code> in ZAR. All timestamps UTC. <code>content</code> JSONB is schema-versioned (v1) to allow evolution without migrations.</p>
+  </div>
+</section>
+
+<!-- Section 4 -->
+<section id="s4">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2>API Contract</h2>
+  </div>
+
+  <h3>4.1 Quote Generation <span class="tag tag-api">POST</span></h3>
+  <pre><code>POST /api/v1/chat/quotes/generate
+Content-Type: application/json
+Authorization: Bearer {buyer_token}
+
+{
+  "conversation_id": "550e8400-e29b-41d4-a716-446655440000",
+  "product_query": "Deye 5kW hybrid inverter",
+  "quantity": 5,
+  "postal_code": "0181",
+  "customer_type": "trade",
+  "delivery_preference": "standard",
+  "quote_expiry_hours": 24,
+  "notes": "Need by Friday for installation job in Midrand"
+}
+
+// 201 Created
+{
+  "quote_id": "550e8400-e29b-41d4-a716-446655440001",
+  "quote_number": "QUO-2026-001234",
+  "merchant_id": "550e8400-e29b-41d4-a716-446655440002",
+  "status": "sent",
+  "items": [
+    {
+      "product_id": "...",
+      "product_name": "Deye 5kW Hybrid Inverter SUN-5K-SG03LP1-EU",
+      "quantity": 5,
+      "unit_price": 9500.00,
+      "line_total": 47500.00,
+      "stock_confirmed": true,
+      "stock_location": "Pretoria Warehouse",
+      "stock_available": 12
+    }
+  ],
+  "subtotal": 47500.00,
+  "delivery_estimate": 850.00,
+  "vat": 7600.00,
+  "total": 55950.00,
+  "stock_reserved_until": "2026-09-20T18:00:00Z",
+  "valid_until": "2026-09-20T18:00:00Z",
+  "pdf_url": "https://chat.shoppage.co.za/q/QUO-2026-001234",
+  "delivery_eta": "2026-09-21T14:00:00Z",
+  "message_id": "550e8400-e29b-41d4-a716-446655440003"
+}</code></pre>
+
+  <h3>4.2 Quote Approval <span class="tag tag-api">POST</span></h3>
+  <pre><code>POST /api/v1/chat/quotes/{quote_id}/approve
+Authorization: Bearer {buyer_token}
+
+{
+  "payment_method": "ozow",
+  "delivery_address_id": "..."
+}
+
+// 200 OK
+{
+  "quote_id": "...",
+  "status": "approved",
+  "order_id": "ORD-2026-008901",
+  "payment_link": "https://pay.ozow.com/shoppage/abc123",
+  "payment_expiry": "2026-09-19T23:59:59Z",
+  "stock_reservation_extended": "2026-09-20T12:00:00Z"
+}</code></pre>
+
+  <h3>4.3 Send Message <span class="tag tag-api">POST</span> / WebSocket</h3>
+  <pre><code>// REST fallback
+POST /api/v1/chat/conversations/{id}/messages
+{
+  "message_type": "text",
+  "content": { "text": "Can you do R52,000 all-in?" },
+  "reply_to_id": "..."
+}
+
+// WebSocket (primary)
+// Client → Server
+{
+  "event": "message:send",
+  "payload": {
+    "conversation_id": "...",
+    "message_type": "text",
+    "content": { "text": "Can you do R52,000 all-in?" }
+  },
+  "client_message_id": "client-uuid-for-dedup"
+}
+
+// Server → Client (broadcast to participants)
+{
+  "event": "message:received",
+  "payload": {
+    "message_id": "...",
+    "conversation_id": "...",
+    "sender_type": "buyer",
+    "sender_id": "...",
+    "message_type": "text",
+    "content": { "text": "Can you do R52,000 all-in?" },
+    "status": "delivered",
+    "created_at": "2026-09-19T14:32:00Z"
+  }
+}</code></pre>
+
+  <h3>4.4 Merchant Team Inbox <span class="tag tag-api">GET</span></h3>
+  <pre><code>GET /api/v1/chat/merchant/inbox?status=active&assigned_to=me&priority=high&page=1
+Authorization: Bearer {merchant_token}
+
+{
+  "conversations": [
+    {
+      "id": "...",
+      "buyer": { "name": "Thabo M.", "phone_hash": "a1b2...", "type": "trade" },
+      "last_message": { "type": "inquiry", "preview": "5x Deye inverters...", "at": "..." },
+      "unread": 3,
+      "status": "active",
+      "open_quote": { "id": "...", "total": 55950.00, "expires_in": 14400 },
+      "priority": "high",
+      "assigned_to": "<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e5968c958d8aa5888097868d848b91cb868acb9f84">[email&#160;protected]</a>",
+      "product_context": { "name": "Deye 5kW Inverter", "category": "Solar" }
+    }
+  ],
+  "stats": {
+    "active": 47,
+    "unassigned": 12,
+    "pending_quotes": 8,
+    "avg_response_time": 4.2
+  }
+}</code></pre>
+
+  <h3>4.5 AI Suggested Reply <span class="tag tag-api">GET</span></h3>
+  <pre><code>GET /api/v1/chat/conversations/{id}/suggest-reply
+
+{
+  "suggestions": [
+    {
+      "id": "sg-1",
+      "text": "We can offer R54,500 including delivery if you confirm today. Stock is reserved for 6 more hours.",
+      "confidence": 0.91,
+      "action": "quote_counter",
+      "metadata": { "counter_price": 54500.00 }
+    },
+    {
+      "id": "sg-2",
+      "text": "I can check with my manager and get back to you within 30 minutes.",
+      "confidence": 0.76,
+      "action": "defer"
+    }
+  ]
+}</code></pre>
+</section>
+
+<!-- Section 5 -->
+<section id="s5">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2>Message Types & State Machine</h2>
+  </div>
+
+  <h3>Conversation State Machine</h3>
+  <div class="diagram">
+<span class="label">[inactive] ──buyer inquiry──► [inquiry_received]</span>
+<span class="label">                                │</span>
+<span class="label">                                ▼</span>
+<span class="label">                           [quote_generated] ◄──modify──┐</span>
+<span class="label">                                │                      │</span>
+<span class="label">                    ┌───────────┴───────────┐          │</span>
+<span class="label">                    ▼                       ▼          │</span>
+<span class="label">              [quote_sent] ◄──resend──► [quote_viewed] │</span>
+<span class="label">                    │                       │          │</span>
+<span class="label">                    │         ┌─────────────┘          │</span>
+<span class="label">                    │         ▼                        │</span>
+<span class="label">                    │    [quote_modified] ──────────────┘</span>
+<span class="label">                    │         │</span>
+<span class="label">                    ▼         ▼</span>
+<span class="label">              [quote_approved]</span>
+<span class="label">                    │</span>
+<span class="label">                    ▼</span>
+<span class="label">              [order_created]</span>
+<span class="label">                    │</span>
+<span class="label">         ┌─────────┼─────────┐</span>
+<span class="label">         ▼         ▼         ▼</span>
+<span class="label">   [payment_]  [fulfill_]  [closed]</span>
+<span class="label">   [pending]   [ment_active]</span>
+<span class="label">         │         │</span>
+<span class="label">         ▼         ▼</span>
+<span class="label">   [payment_]  [fulfill_]</span>
+<span class="label">   [confirmed] [ed_delivered]</span>
+<span class="label">         │         │</span>
+<span class="label">         └────┬────┘</span>
+<span class="label">              ▼</span>
+<span class="label">         [completed]</span>
+<span class="label">              │</span>
+<span class="label">              ▼</span>
+<span class="label">         [archived]</span>
+  </div>
+
+  <h3>Message Rendering by Type</h3>
+  <table>
+    <tr><th>Type</th><th>Buyer Sees</th><th>Merchant Sees</th></tr>
+    <tr><td><code>inquiry</code></td><td>"You asked about Deye 5kW inverters (x5) for delivery to 0181"</td><td>Structured inquiry card with product, qty, location, urgency badge</td></tr>
+    <tr><td><code>quote</code></td><td>Rich quote card with line items, totals, expiry countdown, [Approve] [Modify] [Cancel]</td><td>"Quote sent to buyer" with view tracking and approval probability</td></tr>
+    <tr><td><code>quote_action</code></td><td>"You approved the quote. Order #12345 created."</td><td>"Buyer approved quote. Order auto-created." with [View Order] button</td></tr>
+    <tr><td><code>order_created</code></td><td>Order confirmation with payment link and summary</td><td>New order notification in inbox + order management link</td></tr>
+    <tr><td><code>payment_request</code></td><td>Payment button (Ozow/Stitch/Yoco/EFT) with amount and expiry</td><td>"Payment requested" status on order</td></tr>
+    <tr><td><code>payment_confirmed</code></td><td>"Payment received. Preparing for dispatch."</td><td>"Payment confirmed. Trigger fulfillment."</td></tr>
+    <tr><td><code>fulfillment_update</code></td><td>"Dispatched. Track: t.cg/abc123. ETA: Thursday 2pm."</td><td>Fulfillment status sync from Pemofy</td></tr>
+    <tr><td><code>product_card</code></td><td>Rich product preview with image, price, stock badge</td><td>"Buyer viewed [product]" with quick-quote button</td></tr>
+  </table>
+</section>
+
+<!-- Section 6 -->
+<section id="s6">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <h2>Buyer UX Flow</h2>
+  </div>
+
+  <h3>6.1 Entry Points</h3>
+  <div class="flow-grid">
+    <div class="flow-item" data-step="A">
+      <h4>Product Detail Page</h4>
+      <p>"Chat with Seller" button on every product. Pre-fills product context in the chat.</p>
+    </div>
+    <div class="flow-item" data-step="B">
+      <h4>Search Results</h4>
+      <p>"Get Quote" button on each result. For B2B buyers, "Request Bulk Quote" option.</p>
+    </div>
+    <div class="flow-item" data-step="C">
+      <h4>Merchant Profile</h4>
+      <p>"Message [Merchant Name]" from trade counter / merchant directory pages.</p>
+    </div>
+    <div class="flow-item" data-step="D">
+      <h4>Existing Conversation</h4>
+      <p>"Continue Chat" from buyer portal. All conversations per merchant in one thread.</p>
+    </div>
+  </div>
+
+  <h3>6.2 Conversation Flow Example</h3>
+  <div class="chat-mockup">
+    <div class="bubble bubble-buyer">Hi, I need 5 Deye 5kW inverters for a job in Midrand. Need them by Friday.</div>
+    <div class="bubble bubble-system">Shoppage AI is drafting a quote from live inventory...</div>
+    <div class="bubble bubble-merchant" style="background: var(--accent-weak); color: var(--accent);">
+      <strong>Quote #QUO-2026-001234</strong><br>
+      5 x Deye 5kW Hybrid Inverter @ R9,500 each<br>
+      Subtotal: R47,500<br>
+      Delivery (Midrand): R850<br>
+      VAT (15%): R7,600<br>
+      <strong>Total: R55,950</strong><br>
+      Stock confirmed: 12 units in Pretoria<br>
+      Delivery: Thursday before 2pm<br>
+      Quote expires in 24 hours<br><br>
+      [Approve Quote] [Modify] [Ask Question]
+    </div>
+    <div class="bubble bubble-buyer">Can you do R52,000 all-in?</div>
+    <div class="bubble bubble-merchant" style="background: var(--accent-weak); color: var(--accent);">
+      <strong>Updated Quote #QUO-2026-001234</strong><br>
+      Counter offer accepted: R52,000 including delivery<br>
+      Valid for 6 hours<br><br>
+      [Approve Quote] [Decline]
+    </div>
+    <div class="bubble bubble-buyer" style="background: var(--success-weak); color: var(--success);">Approved</div>
+    <div class="bubble bubble-system">Order #ORD-2026-008901 created. Stock reserved. Payment required within 24 hours.</div>
+    <div class="bubble bubble-merchant" style="background: var(--info-weak); color: var(--info);">
+      <strong>Payment Request</strong><br>
+      Amount: R52,000.00<br>
+      [Pay with Ozow] [Pay with Stitch] [EFT Details]
+    </div>
+    <div class="bubble bubble-system">Payment confirmed via Ozow. Order being prepared for dispatch.</div>
+    <div class="bubble bubble-merchant">
+      Dispatched via The Courier Guy. Track: t.cg/abc123. ETA: Thursday 11am.
+    </div>
+  </div>
+
+  <h3>6.3 Buyer Chat Interface Components</h3>
+  <table>
+    <tr><th>Component</th><th>Function</th></tr>
+    <tr><td><strong>Conversation List</strong></td><td>All active conversations, sorted by last message. Unread badges. Merchant avatar + last message preview.</td></tr>
+    <tr><td><strong>Chat Thread</strong></td><td>Bubble-based messaging. Structured message cards (quotes, products, payments) render differently from text. Swipe to reply.</td></tr>
+    <tr><td><strong>Quote Card</strong></td><td>Rich card with line items, expandable details, expiry countdown timer, action buttons. PDF download link.</td></tr>
+    <tr><td><strong>Quick Actions</strong></td><td>"Ask about delivery," "Request bulk price," "Is this in stock?" — one-tap structured inquiries.</td></tr>
+    <tr><td><strong>Product Context Bar</strong></td><td>Sticky bar at top showing the product this conversation is about. Tap to view product detail.</td></tr>
+    <tr><td><strong>Payment Sheet</strong></td><td>Bottom sheet that slides up with payment options. Pre-filled amount from quote/order.</td></tr>
+    <tr><td><strong>Order Tracker</strong></td><td>In-thread delivery updates with map preview (if available) and status timeline.</td></tr>
+  </table>
+</section>
+
+<!-- Section 7 -->
+<section id="s7">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <h2>Merchant UX (Pemofy Dashboard)</h2>
+  </div>
+
+  <p>The merchant experience lives entirely within Pemofy. Chat is a module, not a separate product.</p>
+
+  <h3>7.1 Team Inbox Layout</h3>
+  <div class="diagram">
+<span class="label">┌──────────────────────────────────────────────────────────────┐</span>
+<span class="label">│  PEMOFY DASHBOARD  >  SALES  >  CHAT INBOX                   │</span>
+<span class="label">├──────────────┬──────────────────────────┬────────────────────┤</span>
+<span class="label">│              │                          │                    │</span>
+<span class="label">│  FILTERS     │  CONVERSATION LIST       │  CHAT PANEL        │</span>
+<span class="label">│              │                          │                    │</span>
+<span class="label">│  All (47)    │  [U] Thabo M.            │  Product Context   │</span>
+<span class="label">│  Unread (12) │  5x Deye inverters...    │  Bar               │</span>
+<span class="label">│  Mine (8)    │  3m ago | R55,950 quote  │  ────────────────  │</span>
+<span class="label">│  Quotes (8)  │                          │                    │</span>
+<span class="label">│  Orders (3)  │  [U] Sarah K.            │  Chat Thread       │</span>
+<span class="label">│  Priority    │  Solar panel quote...    │  (with structured  │</span>
+<span class="label">│              │  12m ago | awaiting reply│   message cards)   │</span>
+<span class="label">│  ──────────  │                          │                    │</span>
+<span class="label">│  STATS       │  [R] JHB Solar           │  AI Suggestion     │</span>
+<span class="label">│  Avg resp:   │  Bulk RFQ: 20 panels     │  Bar               │</span>
+<span class="label">│  4.2 min     │  1h ago | trade account │  "Offer R54,500..."│</span>
+<span class="label">│  Conv rate:  │                          │  [Use] [Tweak]     │</span>
+<span class="label">│  34%         │                          │                    │</span>
+<span class="label">│              │                          │  Quick Reply       │</span>
+<span class="label">│              │                          │  + [Quote] [Stock] │</span>
+<span class="label">│              │                          │   [Delivery] [Img] │</span>
+<span class="label">│              │                          │                    │</span>
+<span class="label">├──────────────┴──────────────────────────┴────────────────────┤</span>
+<span class="label">│  [=] Assign  [↑] Priority  [🤖] AI Mode  [📊] Analytics      │</span>
+<span class="label">└──────────────────────────────────────────────────────────────┘</span>
+  </div>
+
+  <h3>7.2 Merchant Actions</h3>
+  <table>
+    <tr><th>Action</th><th>Trigger</th><th>Result</th></tr>
+    <tr><td><strong>Generate Quote</strong></td><td>Tap [Quote] in quick actions or AI suggestion</td><td>Opens quote builder with pre-filled products, prices from inventory, delivery calc</td></tr>
+    <tr><td><strong>Counter Offer</strong></td><td>Modify existing quote line items or total</td><td>New quote version sent; old quote marked superseded</td></tr>
+    <tr><td><strong>Check Stock</strong></td><td>Tap [Stock] or AI auto-checks on inquiry</td><td>Real-time query to inventory_levels; shows location breakdown</td></tr>
+    <tr><td><strong>Calculate Delivery</strong></td><td>Tap [Delivery] or auto-calc from postal code</td><td>Queries delivery_schedules; shows options and prices</td></tr>
+    <tr><td><strong>Assign Conversation</strong></td><td>Tap [=] Assign; select team member</td><td>Conversation routed; previous owner notified</td></tr>
+    <tr><td><strong>Set Priority</strong></td><td>Tap [↑] Priority (low/normal/high/urgent)</td><td>Affects inbox sorting and SLA alerts</td></tr>
+    <tr><td><strong>Enable AI Mode</strong></td><td>Toggle [🤖] AI Mode</td><td>AI drafts all replies; merchant approves before send</td></tr>
+    <tr><td><strong>Broadcast</strong></td><td>Select buyers → Compose → Send</td><td>Segmented message to buyer audience; tracked opens/clicks</td></tr>
+  </table>
+
+  <h3>7.3 Auto-Quote Rules (Merchant Configurable)</h3>
+  <pre><code>{
+  "auto_quote_enabled": true,
+  "rules": [
+    {
+      "condition": "product.category == 'solar' AND buyer.type == 'trade'",
+      "action": "apply_discount",
+      "value": 0.10,
+      "max_quantity": 50
+    },
+    {
+      "condition": "quantity >= 10",
+      "action": "apply_bulk_discount",
+      "value": 0.05,
+      "message": "Bulk discount applied: 5% off"
+    },
+    {
+      "condition": "delivery.postal_code IN ['0181','0182','0183']",
+      "action": "free_delivery",
+      "min_order_value": 25000
+    },
+    {
+      "condition": "stock.available < inquiry.quantity",
+      "action": "partial_quote",
+      "message": "Only {stock.available} units available. Backorder {diff} units?"
+    }
+  ],
+  "default_expiry_hours": 24,
+  "trade_account_required": true
+}</code></pre>
+</section>
+
+<!-- Section 8 -->
+<section id="s8">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <h2>AI Agent Integration</h2>
+  </div>
+
+  <p>The Gemini Flash agent (already in Shoppage v9.1) is extended with commerce-specific tools for chat.</p>
+
+  <h3>8.1 Agent Tools</h3>
+  <table>
+    <tr><th>Tool</th><th>Input</th><th>Output</th></tr>
+    <tr><td><code>extract_inquiry_intent</code></td><td>Raw buyer message text</td><td>Structured intent: product, qty, location, urgency, budget</td></tr>
+    <tr><td><code>check_inventory</code></td><td>Product query + merchant_id</td><td>Stock levels by location, pricing, variants</td></tr>
+    <tr><td><code>calculate_delivery</code></td><td>Postal code + product + qty</td><td>Delivery options, costs, ETA</td></tr>
+    <tr><td><code>generate_quote</code></td><td>Intent + inventory + delivery + rules</td><td>Structured quote payload</td></tr>
+    <tr><td><code>suggest_reply</code></td><td>Conversation history + merchant context</td><td>2-3 reply options with confidence scores</td></tr>
+    <tr><td><code>detect_escalation</code></td><td>Conversation + sentiment</td><td>Escalation score, reason, recommended action</td></tr>
+    <tr><td><code>summarize_conversation</code></td><td>Full thread</td><td>One-paragraph summary for merchant handoff</td></tr>
+    <tr><td><code>detect_price_sensitivity</code></td><td>Buyer messages in thread</td><td>Price sensitivity score, negotiation style</td></tr>
+  </table>
+
+  <h3>8.2 AI Reply Suggestion Prompt (Simplified)</h3>
+  <pre><code>You are a sales assistant for a South African merchant.
+Context:
+- Merchant: {merchant_name} ({merchant_category})
+- Buyer type: {buyer_type} (retail | trade | wholesale)
+- Product: {product_name} (R{unit_price} each, {stock} in stock)
+- Conversation history: {thread_summary}
+- Open quote: {quote_summary} (expires in {hours} hours)
+- Merchant pricing rules: {rules_json}
+
+Buyer just said: "{last_buyer_message}"
+
+Generate 2-3 reply suggestions. Each should:
+1. Be conversational and natural for WhatsApp-style chat
+2. Reference actual inventory, pricing, and delivery data
+3. Include a clear next step (approve quote, ask question, etc.)
+4. Be under 200 characters if possible
+5. For trade buyers, use appropriate B2B language
+
+Return JSON:
+{
+  "suggestions": [
+    { "id": "...", "text": "...", "confidence": 0.0-1.0,
+      "action": "quote_counter|ask_clarify|confirm_stock|etc",
+      "metadata": {} }
+  ]
+}</code></pre>
+
+  <h3>8.3 Escalation Detection</h3>
+  <p>The agent monitors every conversation for signals that require human intervention:</p>
+  <ul>
+    <li><strong>Sentiment drop</strong>: Negative sentiment score below -0.3 on any message</li>
+    <li><strong>Price dispute</strong>: Buyer mentions competitor price or asks for >15% discount</li>
+    <li><strong>Complex request</strong>: Multiple products, custom specifications, or installation requirements</li>
+    <li><strong>SLA breach</strong>: Merchant has not replied within configured SLA (default 30 min)</li>
+    <li><strong>Repeat inquiry</strong>: Same buyer asking same question 3+ times without resolution</li>
+    <li><strong>High-value quote</strong>: Quote total exceeds R50,000</li>
+  </ul>
+  <p>Escalation triggers: push notification to assigned merchant, highlight in inbox (red border), add to "Needs Attention" filter.</p>
+</section>
+
+<!-- Section 9 -->
+<section id="s9">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <h2>WhatsApp Fallback Integration</h2>
+  </div>
+
+  <h3>9.1 Fallback Decision Matrix</h3>
+  <table>
+    <tr><th>Scenario</th><th>Primary Channel</th><th>Fallback</th><th>Content</th></tr>
+    <tr><td>Buyer not on Shoppage app</td><td>N/A</td><td>WhatsApp</td><td>Structured inquiry link: "Get a verified quote: [link]"</td></tr>
+    <tr><td>Merchant not on Pemofy Chat</td><td>Shoppage Chat backend</td><td>WhatsApp to merchant</td><td>Parsed inquiry + "Reply with QUOTE [amount] DELIVERY [amount]"</td></tr>
+    <tr><td>Push notification fails</td><td>Web Push</td><td>SMS then WhatsApp</td><td>"New quote ready. View: [link]"</td></tr>
+    <tr><td>Quote expiry warning</td><td>In-app notification</td><td>WhatsApp + SMS</td><td>"Your quote expires in 4 hours. [link]"</td></tr>
+    <tr><td>Buyer abandons cart</td><td>In-app reminder</td><td>WhatsApp after 1 hour</td><td>"Still interested in Deye inverters? Quote valid for 18 more hours."</td></tr>
+    <tr><td>Delivery update</td><td>In-app tracker</td><td>WhatsApp</td><td>"Order #12345 dispatched. Track: [link]"</td></tr>
+  </table>
+
+  <h3>9.2 WhatsApp Inbound Parsing</h3>
+  <p>When a merchant replies via WhatsApp instead of Pemofy, the bridge parses structured commands:</p>
+  <pre><code>// Merchant receives via WhatsApp:
+"New inquiry from Thabo M. (Trade buyer)
+Product: 5x Deye 5kW Inverter
+Reply with:
+QUOTE 52000 DELIVERY 0
+or
+QUOTE 9500 EACH DELIVERY 850
+or
+NOSTOCK"
+
+// Merchant replies:
+"QUOTE 52000 DELIVERY 0 VALID 6"
+
+// Bridge parses and calls:
+POST /api/v1/chat/quotes/generate
+{ "conversation_id": "...", "merchant_override": { "total": 52000, "delivery": 0, "expiry_hours": 6 } }
+
+// Quote generated and sent to buyer in Shoppage Chat + WhatsApp summary</code></pre>
+
+  <h3>9.3 Cost Comparison</h3>
+  <table>
+    <tr><th>Message Type</th><th>WhatsApp Cost</th><th>Shoppage Chat Cost</th><th>Savings</th></tr>
+    <tr><td>Utility (order update)</td><td>R0.12</td><td>R0.00 (WebSocket push)</td><td>100%</td></tr>
+    <tr><td>Marketing (broadcast)</td><td>R0.62</td><td>R0.05 (SMS fallback rate)</td><td>92%</td></tr>
+    <tr><td>Quote delivery</td><td>R0.12</td><td>R0.00</td><td>100%</td></tr>
+    <tr><td>Monthly 10K messages</td><td>R1,200-6,200</td><td>R0-500</td><td>58-100%</td></tr>
+  </table>
+</section>
+
+<!-- Section 10 -->
+<section id="s10">
+  <div class="section-header">
+    <span class="section-num">10</span>
+    <h2>Real-time Infrastructure</h2>
+  </div>
+
+  <h3>10.1 WebSocket Events</h3>
+  <table>
+    <tr><th>Event</th><th>Direction</th><th>Payload</th></tr>
+    <tr><td><code>connection:authenticate</code></td><td>C→S</td><td><code>{ token, device_id }</code></td></tr>
+    <tr><td><code>conversation:join</code></td><td>C→S</td><td><code>{ conversation_id }</code></td></tr>
+    <tr><td><code>conversation:leave</code></td><td>C→S</td><td><code>{ conversation_id }</code></td></tr>
+    <tr><td><code>message:send</code></td><td>C→S</td><td><code>{ conversation_id, message_type, content, client_message_id }</code></td></tr>
+    <tr><td><code>message:received</code></td><td>S→C</td><td><code>{ message_id, sender_type, content, created_at }</code></td></tr>
+    <tr><td><code>message:status</code></td><td>S→C</td><td><code>{ message_id, status: sent|delivered|read }</code></td></tr>
+    <tr><td><code>typing:start</code></td><td>Bi</td><td><code>{ conversation_id, user_id }</code></td></tr>
+    <tr><td><code>typing:stop</code></td><td>Bi</td><td><code>{ conversation_id, user_id }</code></td></tr>
+    <tr><td><code>presence:update</code></td><td>S→C</td><td><code>{ user_id, status: online|away|offline, last_seen }</code></td></tr>
+    <tr><td><code>quote:updated</code></td><td>S→C</td><td><code>{ quote_id, status, expiry_remaining_seconds }</code></td></tr>
+    <tr><td><code>notification:new</code></td><td>S→C</td><td><code>{ type, title, body, deep_link }</code></td></tr>
+  </table>
+
+  <h3>10.2 Redis Key Patterns</h3>
+  <pre><code>// Presence
+chat:presence:{user_id} → "online|away|offline"
+chat:presence:{user_id}:last_seen → timestamp
+
+// Typing
+chat:typing:{conversation_id} → Hash { user_id: expiry_timestamp }
+
+// Unread counts
+chat:unread:{conversation_id}:{user_type} → int
+chat:unread:total:{buyer_id} → int
+chat:unread:total:{merchant_id} → int
+
+// Rate limiting
+chat:rl:send:{user_id} → counter (10 msg/min)
+chat:rl:quote:{buyer_id} → counter (5 quotes/hour)
+
+// Stock reservations
+chat:reservation:{quote_id} → { product_id, quantity, location_id, expires_at }
+
+// Session binding
+chat:socket:{socket_id} → { user_id, user_type, device_id }
+chat:user:{user_id}:sockets → Set of socket_ids</code></pre>
+
+  <h3>10.3 Delivery Guarantees</h3>
+  <table>
+    <tr><th>Level</th><th>Mechanism</th><th>Applies To</th></tr>
+    <tr><td><strong>At-most-once</strong></td><td>Client-generated message UUID; server deduplicates</td><td>All messages</td></tr>
+    <tr><td><strong>At-least-once</strong></td><td>BullMQ job with retries (3x, exponential backoff)</td><td>Quote generation, order creation, notifications</td></tr>
+    <tr><td><strong>Exactly-once</strong></td><td>Idempotent operations + DB unique constraints</td><td>Quote approval, payment confirmation, stock reservation</td></tr>
+  </table>
+</section>
+
+<!-- Section 11 -->
+<section id="s11">
+  <div class="section-header">
+    <span class="section-num">11</span>
+    <h2>Security & Compliance</h2>
+  </div>
+
+  <h3>11.1 Authentication</h3>
+  <ul>
+    <li><strong>Buyers</strong>: JWT via Shoppage auth (Google/Apple/phone OTP). Short-lived access tokens (15 min), refresh tokens (7 days).</li>
+    <li><strong>Merchants</strong>: Pemofy session auth. Same auth system as dashboard. No separate chat login.</li>
+    <li><strong>WebSocket</strong>: Token passed in connection query param; validated on connect. Reject unauthenticated connections.</li>
+  </ul>
+
+  <h3>11.2 Authorization</h3>
+  <pre><code>// Conversation access rules
+Buyer can access conversation IF conversation.buyer_id == buyer.id
+Merchant can access conversation IF conversation.merchant_id == merchant.id
+Merchant team member can access IF assigned OR has "chat:read" role
+AI agent can access ALL for processing but logs are anonymized
+
+// Message actions
+Buyer can send text, inquiry, quote_action in their conversations only
+Merchant can send all message types in their conversations only
+System can send system, order_created, payment, fulfillment messages
+AI can suggest replies but cannot send without merchant approval (in review mode)</code></pre>
+
+  <h3>11.3 POPIA Compliance</h3>
+  <table>
+    <tr><th>Requirement</th><th>Implementation</th></tr>
+    <tr><td>Consent for marketing messages</td><td>Explicit opt-in during signup; granular channel preferences; one-tap unsubscribe</td></tr>
+    <tr><td>Data minimization</td><td>Phone numbers hashed at rest; only conversation metadata retained long-term; message content archived after 90 days</td></tr>
+    <tr><td>Right to deletion</td><td>GDPR-style data export and deletion API; conversation soft-delete with 30-day purge</td></tr>
+    <tr><td>Secure transmission</td><td>TLS 1.3 for all API/WebSocket; end-to-end encryption not claimed (POPIA does not require it)</td></tr>
+    <tr><td>Audit trail</td><td>All quote approvals, payment events, stock reservations logged immutably</td></tr>
+  </table>
+
+  <h3>11.4 Fraud Prevention</h3>
+  <ul>
+    <li><strong>Quote abuse</strong>: Rate limit 5 quotes/hour per buyer per merchant; CAPTCHA after 3 rapid inquiries</li>
+    <li><strong>Fake merchant accounts</strong>: CIPC + bank verification (inherited from Pemofy) required before chat enabled</li>
+    <li><strong>Payment interception</strong>: Payment links generated server-side with signed tokens; URL tampering detected</li>
+    <li><strong>Conversation hijacking</strong>: WebSocket connections bound to authenticated user; cannot spoof sender_id</li>
+  </ul>
+</section>
+
+<!-- Section 12 -->
+<section id="s12">
+  <div class="section-header">
+    <span class="section-num">12</span>
+    <h2>Implementation Roadmap</h2>
+  </div>
+
+  <h3>Phase 1: Foundation (Weeks 1-4)</h3>
+  <table>
+    <tr><th>Deliverable</th><th>Owner</th><th>Success Criteria</th></tr>
+    <tr><td>PostgreSQL schema: conversations, messages, quotes, quote_lines</td><td>Backend</td><td>Migrations pass; seed data loads</td></tr>
+    <tr><td>WebSocket server + connection management</td><td>Backend</td><td>1,000 concurrent connections stable</td></tr>
+    <tr><td>REST API: send message, get conversations, get messages</td><td>Backend</td><td>All endpoints pass integration tests</td></tr>
+    <tr><td>Buyer chat UI (embedded in Shoppage web)</td><td>Frontend</td><td>Message send/receive/render working</td></tr>
+    <tr><td>Auth middleware for chat routes</td><td>Backend</td><td>No unauthenticated access possible</td></tr>
+  </table>
+
+  <h3>Phase 2: Quotes (Weeks 5-8)</h3>
+  <table>
+    <tr><th>Deliverable</th><th>Owner</th><th>Success Criteria</th></tr>
+    <tr><td>Quote generation API with Pemofy inventory integration</td><td>Backend</td><td>Quote generated in &lt;500ms with stock validation</td></tr>
+    <tr><td>Quote card UI (buyer + merchant)</td><td>Frontend</td><td>Rich rendering with actions</td></tr>
+    <tr><td>Quote approval → order creation flow</td><td>Backend</td><td>End-to-end test: inquiry → quote → approval → order</td></tr>
+    <tr><td>Stock reservation + expiry logic</td><td>Backend</td><td>Reserved stock released after expiry; no oversell</td></tr>
+    <tr><td>PDF quote generation</td><td>Backend</td><td>Branded PDF downloadable</td></tr>
+  </table>
+
+  <h3>Phase 3: Merchant Inbox (Weeks 9-12)</h3>
+  <table>
+    <tr><th>Deliverable</th><th>Owner</th><th>Success Criteria</th></tr>
+    <tr><td>Pemofy Chat module (team inbox UI)</td><td>Pemofy FE</td><td>Conversations list, chat panel, quick actions</td></tr>
+    <tr><td>Assignment + priority system</td><td>Backend</td><td>Conversations routable to team members</td></tr>
+    <tr><td>AI suggested replies (v1)</td><td>AI</td><td>2 suggestions per message; 70% relevance score</td></tr>
+    <tr><td>Merchant settings (auto-quote rules, SLA, business hours)</td><td>Backend + FE</td><td>Rules applied automatically to inquiries</td></tr>
+    <tr><td>Analytics dashboard (response time, conversion rate)</td><td>Frontend</td><td>Real-time metrics visible</td></tr>
+  </table>
+
+  <h3>Phase 4: AI & Intelligence (Weeks 13-16)</h3>
+  <table>
+    <tr><th>Deliverable</th><th>Owner</th><th>Success Criteria</th></tr>
+    <tr><td>Intent extraction from natural language</td><td>AI</td><td>90%+ accuracy on product/quantity/location extraction</td></tr>
+    <tr><td>Auto-quote generation (no merchant touch)</td><td>Backend + AI</td><td>80% of simple inquiries auto-quoted within 10 seconds</td></tr>
+    <tr><td>Escalation detection</td><td>AI</td><td>&lt;5% false positive rate on escalation alerts</td></tr>
+    <tr><td>Buyer price sensitivity scoring</td><td>AI</td><td>Score correlates with negotiation outcome</td></tr>
+    <tr><td>Conversation summarization</td><td>AI</td><td>Summary captures key points for merchant handoff</td></tr>
+  </table>
+
+  <h3>Phase 5: Scale & Fallback (Weeks 17-20)</h3>
+  <table>
+    <tr><th>Deliverable</th><th>Owner</th><th>Success Criteria</th></tr>
+    <tr><td>WhatsApp Bridge (CM.com integration)</td><td>Backend</td><td>Inbound/outbound WhatsApp messages parsed and routed</td></tr>
+    <tr><td>Push notifications (web + mobile)</td><td>Backend</td><td>Delivery rate >95%</td></tr>
+    <tr><td>Broadcast engine</td><td>Backend</td><td>10K messages/hour throughput</td></tr>
+    <tr><td>Load testing: 10K concurrent conversations</td><td>DevOps</td><td>&lt;100ms p99 latency on message send</td></tr>
+    <tr><td>Security audit + penetration test</td><td>Security</td><td>No critical vulnerabilities</td></tr>
+  </table>
+
+  <div class="note">
+    <p><strong>Target Metrics at Launch:</strong> 500 merchant onboardings in Month 1, 5,000 conversations in Month 1, 15% quote-to-order conversion, &lt;2 min average merchant response time with AI assistance.</p>
+  </div>
+</section>
+
+</main>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+</html>

@@ -1,109 +1,106 @@
 version: '3.8'
 
 # ==============================================================================
-# Shoppage Platform Production Stack (Next.js 16 + Payload CMS 3)
+# Shoppage 100% Pure Go Platform Production Stack
+# Zero Node.js / Zero Python / Zero external databases required
+# Runs on Embedded SQLite + Pure Go microservices with Caddy automatic SSL
 # ==============================================================================
 
 services:
-  # 1. Unified Next.js 16 + Payload CMS 3 Customer Front-End & Admin OS
-  web:
+  # 1. Main Unified Gateway & Consumer Web Front-End (:3000)
+  consumer-web:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: shoppage-web
+      target: consumer-web
+    container_name: shoppage-consumer
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/ops/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 60s
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=production
       - PORT=3000
-      - PAYLOAD_SECRET=${PAYLOAD_SECRET:?PAYLOAD_SECRET is required}
-      - DATABASE_URI=postgres://${POSTGRES_USER:?POSTGRES_USER required}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}@postgres:5432/${POSTGRES_DB:?POSTGRES_DB required}
-      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD required}@redis:6379/0
-      - TYPESENSE_URL=http://typesense:8108
-      - TYPESENSE_API_KEY=${TYPESENSE_API_KEY:?TYPESENSE_API_KEY is required}
+      - MERCHANT_OS_URL=http://merchant-os:8083
+      - CHAT_GATEWAY_URL=http://chat-gateway:8080
+      - SEARCH_CORE_URL=http://search-core:8082
+      - FOUNDATION_DATA_DIR=/app/shoppage-commerce-intelligence-foundation/data/study
+      - DATA_DIR=/app/data
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
-      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3.6-flash}
-      - SHOPPAGE_GITHUB_TOKEN=${SHOPPAGE_GITHUB_TOKEN:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
     volumes:
-      - foundation_data:/app/shoppage-commerce-intelligence-foundation/data/study
+      - ./data:/app/data
+      - ./shoppage-commerce-intelligence-foundation/data/study:/app/shoppage-commerce-intelligence-foundation/data/study
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - merchant-os
+      - chat-gateway
+      - search-core
     networks:
       - shoppage-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.shoppage-web.rule=Host(`${DOMAIN:-shoppage.co.za}`, `www.${DOMAIN:-shoppage.co.za}`)"
-      - "traefik.http.routers.shoppage-web.entrypoints=websecure"
-      - "traefik.http.routers.shoppage-web.tls=true"
-      - "traefik.http.routers.shoppage-web.tls.certresolver=letsencrypt"
-      - "traefik.http.services.shoppage-web.loadbalancer.server.port=3000"
 
-  # 3. PostgreSQL 16 + pgvector Database
-  postgres:
-    image: pgvector/pgvector:pg16
-    container_name: shoppage-postgres
+  # 2. Merchant OS Workstation & POS (:8083)
+  merchant-os:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: merchant-os
+    container_name: shoppage-merchant
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER required}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
-      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB required}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:?POSTGRES_USER required} -d ${POSTGRES_DB:?POSTGRES_DB required}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - PORT=8083
     networks:
       - shoppage-network
 
-  # 4. Redis 7 Cache & Queue Broker
-  redis:
-    image: redis:7-alpine
-    container_name: shoppage-redis
+  # 3. Chat Gateway & WebSockets (:8080)
+  chat-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: chat-gateway
+    container_name: shoppage-chat
     restart: unless-stopped
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD required}
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:?REDIS_PASSWORD required}", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
     networks:
       - shoppage-network
 
-  # 5. Typesense Search Engine
-  typesense:
-    image: typesense/typesense:26.0
-    container_name: shoppage-typesense
+  # 4. Search Core SQLite Engine (:8082)
+  search-core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: search-core
+    container_name: shoppage-search
     restart: unless-stopped
-    command: '--data-dir /data --api-key=${TYPESENSE_API_KEY:?TYPESENSE_API_KEY required} --enable-cors'
-    volumes:
-      - typesense_data:/data
+    environment:
+      - PORT=8082
     networks:
       - shoppage-network
 
-volumes:
-  postgres_data:
-    driver: local
-  redis_data:
-    driver: local
-  typesense_data:
-    driver: local
-  foundation_data:
-    driver: local
+  # 5. Caddy Reverse Proxy (Automatic Let's Encrypt SSL & HTTPS)
+  # Uncomment below when pointing your production domain (e.g. shoppage.co.za) to this host
+  # caddy:
+  #   image: caddy:2-alpine
+  #   container_name: shoppage-caddy
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   environment:
+  #     - DOMAIN=${DOMAIN:-shoppage.co.za}
+  #   volumes:
+  #     - ./Caddyfile:/etc/caddy/Caddyfile
+  #     - caddy_data:/data
+  #     - caddy_config:/config
+  #   depends_on:
+  #     - consumer-web
+  #   networks:
+  #     - shoppage-network
 
 networks:
   shoppage-network:
     driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:

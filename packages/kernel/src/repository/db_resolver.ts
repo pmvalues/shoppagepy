@@ -42,7 +42,7 @@ export function getSqliteDatabase(filename: string, options: { readOnly?: boolea
       ];
 
       for (const p of possiblePaths) {
-        if (fs.existsSync(p)) {
+        if (fs.existsSync(p) && fs.statSync(p).size > 0) {
           const db = new DatabaseSync(p, { open: true, readOnly: options.readOnly ?? true });
           try {
             db.exec('PRAGMA busy_timeout = 5000;');

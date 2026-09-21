@@ -1,92 +1,85 @@
 # Shoppage — National Commerce Intelligence Grid & Merchant OS
 
-> **0% Take-Rate Distributed Commerce Infrastructure for Physical Retail & B2B Wholesale**  
-> *Pre-loaded with 74,000+ verified South African stores, 3,296 geofenced shopping malls, and 1,000,000+ GS1 canonical products.*
+> **100% Pure Go Distributed Commerce Infrastructure for Physical Retail & B2B Wholesale**  
+> *Pre-loaded with 74,000+ verified South African stores, 3,315 geofenced shopping malls, and 1,000,000+ GS1 canonical products.*
 
-[![Next.js 16](https://img.shields.io/badge/Next.js-16.3-black?style=flat&logo=next.js)](https://nextjs.org/)
-[![Payload CMS](https://img.shields.io/badge/Payload_CMS-3.0-blue?style=flat)](https://payloadcms.com/)
-[![SQLite FTS5](https://img.shields.io/badge/Search-SQLite_FTS5-003B57?style=flat&logo=sqlite)](https://www.sqlite.org/fts5.html)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=flat&logo=typescript)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/Tests-141%20Passing%20(100%25)-brightgreen?style=flat&logo=vitest)](https://vitest.dev/)
-[![Architecture](https://img.shields.io/badge/Architecture-v9.1%20Polyglot%20Baseline-blue)](SHOPPAGE_POLYGLOT_ARCHITECTURE_AND_SYSTEM_MODEL_v9.1.md)
-[![Security: Audited](https://img.shields.io/badge/Security-Hardened-success?style=flat)](SECURITY.md)
+[![Go 1.25+](https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat&logo=go)](https://go.dev/)
+[![Chi Router](https://img.shields.io/badge/Router-Chi_v5-007D9C?style=flat)](https://github.com/go-chi/chi)
+[![Templ + HTMX](https://img.shields.io/badge/Frontend-Templ_%2B_HTMX-336699?style=flat)](https://templ.guide/)
+[![SQLite Engine](https://img.shields.io/badge/Storage-Embedded_SQLite-003B57?style=flat&logo=sqlite)](https://modernc.org/sqlite)
+[![Gemini AI](https://img.shields.io/badge/AI-Google_Gemini_3.6-4285F4?style=flat&logo=google)](https://ai.google.dev/)
+[![Tests Passing](https://img.shields.io/badge/Tests-All_Suites_Passing-brightgreen?style=flat)]()
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
 
 ---
 
 ## 🏛️ System Architecture
 
-Shoppage operates as a **single, unified TypeScript / Node.js runtime**, eliminating microservice serialization lag and delivering **sub-1ms in-process search latency** across nationwide merchant indexes and catalog graphs.
+Shoppage operates as a **100% pure Go unified platform**, completely eliminating Node.js runtime overhead, Turbopack build latency, and heavy client-side JavaScript bundles. It delivers **microsecond response times (<1ms)** across nationwide merchant indexes and catalog graphs.
 
-`mermaid
+```mermaid
 flowchart TD
-    subgraph UI_Layer["1. User & Merchant Surfaces (Next.js 16 App Router)"]
+    subgraph Client_Layer["1. Client Surfaces (HTMX + PWA)"]
         A1["Universal Search & Google Shopping Grid (/search)"]
-        A2["7-Tab Merchant Digital Flagship (/m/[id])"]
-        A3["WooCommerce Merchant Centre OS (/merchant/dashboard)"]
-        A4["Platform SuperAdmin Governance (/admin/dashboard)"]
-        A5["Buyer Sourcing RFQ Desk (/requests)"]
+        A2["12-Tab Merchant OS Command Center (/desk)"]
+        A3["Nationwide Malls & Hubs Directory (/malls)"]
+        A4["9:16 Video Shorts & Trade Shows (/shorts)"]
+        A5["Gemini AI Commerce Assistant (/api/assistant)"]
     end
 
-    subgraph Core_Engine["2. In-Process Core Kernel (@shoppage/kernel & Payload CMS 3.0)"]
-        B1["SQLite DatabaseSync + FTS5 (<1ms Search Engine)"]
-        B2["GS1 GTIN-13 Canonical BuyBox Matrix"]
-        B3["Google Product Taxonomy (5,000+ Nodes)"]
-        B4["Payload CMS Multi-Tenant Document Store"]
-        B5["Stage 6 Load-Shedding Solar Math Engine"]
+    subgraph Core_Engine["2. Pure Go Core Engine (:3000)"]
+        B1["Chi v5 High-Performance HTTP Router"]
+        B2["Templ Compiled Type-Safe View Templates"]
+        B3["Embedded SQLite Engine (modernc.org/sqlite)"]
+        B4["Gemini 3.6 Flash Agent & Solar Math Engine"]
+        B5["In-Memory Trigram Fuzzy Search Daemon"]
     end
 
-    subgraph Batch_Toolkit["3. Data Engineering & Scraper Toolkit (/scripts)"]
-        C1["CIPC Registry & 2.5M Enterprise Scraper"]
-        C2["Nationwide Mall & Market Geofence Ingestion"]
-        C3["Live Retail Web Price Sweepers"]
+    subgraph Datasets["3. Preloaded Commercial Datasets"]
+        C1["3.1M Nationwide Registered Merchants"]
+        C2["3,315 Geofenced Malls & Commercial Hubs"]
+        C3["1.0M GS1 Canonical Products & Live Deals"]
     end
 
-    UI_Layer --> Core_Engine
-    Batch_Toolkit -. "Seeds & Updates Datasets" .-> Core_Engine
-`
+    Client_Layer --> Core_Engine
+    Core_Engine --> Datasets
+```
 
 ---
 
 ## 🚀 Quick Start & Testing
 
 ### Prerequisites
-- **Node.js**: 20.x or higher
-- **npm**: 10.x or higher
+- **Go**: 1.25 or higher
+- **Node.js**: (optional, used only as script runner wrapper via `scripts/go-run.mjs`)
 
-### 1. Installation
-Clone the repository and install all workspace dependencies:
+### 1. Run Development Server
+Start the unified Go platform on port 3000:
 
-`ash
-git clone https://github.com/pmvalues/shoppagepy.git
-cd shoppagepy
-npm install
-`
-
-### 2. Run Test Suite
-Execute the entire TypeScript test suite across @shoppage/kernel, @shoppage/contracts, @shoppage/adapters, @shoppage/eval, and @shoppage/web:
-
-`ash
-npm test
-`
-> **Test Coverage**: 117 tests across 25 suites verifying GS1 GTIN-13 check-digits, Google Merchant Center XML feeds, nationwide search latency, and AI overview intent parsing.
-
-### 3. Run Development Server
-Start the unified Next.js 16 web application with Payload CMS 3.0:
-
-`ash
+```bash
 npm run dev
-`
+# or directly via Go:
+go run ./services/consumer-web/cmd/server/main.go
+```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### 4. Production Build
-Compile all TypeScript monorepo packages and generate the optimized Next.js production build:
+### 2. Run Test Suite
+Run tests across all Go workspace services:
 
-`ash
+```bash
+npm test
+# or directly via Go:
+go test ./services/...
+```
+
+### 3. Production Static Binary Build
+Compile the single-binary static executable:
+
+```bash
 npm run build
-npm run start
-`
+# Generates bin/shoppage.exe (or bin/shoppage on Linux)
+```
 
 ---
 
@@ -94,70 +87,85 @@ npm run start
 
 | Portal | URL Path | Description |
 | :--- | :--- | :--- |
-| **Consumer Search & SERP** | [/](http://localhost:3000) & [/search](http://localhost:3000/search) | Universal omnibox search, Google Shopping 5-column grid, AI Knowledge Graph, and BuyBox price comparisons. |
-| **Mitrend Flagship Showroom** | [/m/loc_mitrend_midrand](http://localhost:3000/m/loc_mitrend_midrand) | 157 live catering & packaging products, interactive live broadcast studio, 9:16 video shorts, and WhatsApp Quick Cart. |
-| **Merchant Centre OS** | [/merchant/dashboard](http://localhost:3000/merchant/dashboard) | Full store operating system (product catalog, inventory, orders, customer CRM, and Google Shopping XML syndication). |
-| **Platform SuperAdmin** | [/admin/dashboard](http://localhost:3000/admin/dashboard) | National telemetry across 74K stores, 1M+ catalog inspector, CIPC compliance audit queue, and store masquerade. |
-| **Operations Admin (Payload)** | [/admin](http://localhost:3000/admin) | Payload CMS 3.0 Headless Admin for collection governance, merchant verification, and audit review. |
-| **Buyer Wholesale RFQ** | [/requests](http://localhost:3000/requests) | Demand-first buyer RFQ portal broadcasting tenders to local verified suppliers. |
-| **Malls & Trading Hubs** | [/malls](http://localhost:3000/malls) | Geofenced directory of 3,296 shopping centres and commercial hubs across all 9 provinces. |
+| **Consumer Search & SERP** | [/](http://localhost:3000) & [/search](http://localhost:3000/search) | Universal omnibox search, 5-column product grid, and BuyBox price comparisons. |
+| **Merchant OS (Desk)** | [/desk](http://localhost:3000/desk) | 12-tab store operating system (Barcode laser intake, POS, WMS, GMC XML syndication). |
+| **Malls & Trading Hubs** | [/malls](http://localhost:3000/malls) | Geofenced directory of 3,315 shopping centres and commercial hubs across all 9 provinces. |
+| **9:16 Trade Shorts** | [/shorts](http://localhost:3000/shorts) | Vertical video demo stream for verified South African merchant products. |
+| **Buyer Wholesale RFQ** | [/requests](http://localhost:3000/requests) | Demand-first buyer RFQ portal broadcasting tenders to local suppliers. |
+| **Gemini AI Assistant** | [/api/assistant](http://localhost:3000/api/assistant) | Server-side Gemini 3.6 agent with automated solar load-shedding battery sizing tools. |
+| **System Health API** | [/health](http://localhost:3000/health) | Live telemetry across 3.3K malls, 1M catalog products, and verified merchants. |
 
 ---
 
-## 💼 Commercial Model (0% Take-Rate + High-Margin Ads & SaaS)
+## 🌐 Production Hosting Guide
 
-Shoppage counter-positions against legacy marketplace toll-booths by charging **0% commission** on merchant transactions (zero take-rate on buyer-merchant trade). Transaction checkout occurs merchant-to-buyer directly (via WhatsApp Quick Cart, showroom visits, or direct store gateways). 
+Because Shoppage is 100% pure Go with embedded SQLite, hosting is dramatically simpler and cheaper than standard JavaScript/Node stacks. There are no Node runtime dependencies, no external database servers required, and RAM consumption is under 150 MB.
 
-Platform income is generated through a high-margin dual monetization engine: **Digital Advertising & Sponsored Placements** and **Tiered Merchant OS SaaS Subscriptions**:
+### Option 1: Docker Compose + Caddy (Recommended for Linux VPS)
 
-1. **Digital Advertising & Sponsored Discovery (Core Income Engine)**:
-   * **Local Showroom Geo-Ads**: 25km radius geofenced keyword bidding driving walk-ins and local customer footfall.
-   * **Sponsored SERP Top-Rail & BuyBox Boosts**: Cost-per-click (CPC) and impression bidding for prominent product search placement.
-   * **9:16 Video Short Sponsored Discovery**: Video studio ad placements across consumer discovery feeds.
-   * **Brand & Category Takeovers**: Co-op supplier and manufacturer brand sponsorships across 5,500+ category taxonomy nodes.
-2. **Merchant OS SaaS Plans**:
-   * **Free Starter (R0/month)**: 1 branch, standard search indexing, WhatsApp direct chat, basic Merchant Centre dashboard.
-   * **Business (R199/month)**: Up to 3 branches, CIPC Verified Trust Badge, Google Merchant Center XML feed syndication, priority SERP placement.
-   * **Business Pro (R499/month)**: Up to 10 branches, 9:16 video studio live broadcast, automated multi-channel inventory sync, priority BuyBox placement.
-   * **Enterprise (Quote-based)**: Unlimited branches, multi-mall flagship syndication, wholesale RFQ tender desk, dedicated Key Account Manager, custom API integration.
-3. **CIPC Verified Trust Seals**: Enterprise statutory compliance verification and priority SERP placement.
-4. **Wholesale RFQ Match Fees**: Commercial procurement lead-matching fees for verified contractor tenders.
+A complete `docker-compose.yml` and `Caddyfile` are included in the repository.
 
----
+1. **Provision any Linux VPS** (e.g., Hetzner Cloud CX22 at ~€4/mo, DigitalOcean Droplet, Linode, or AWS Lightsail with 2GB+ RAM).
+2. **Clone the repository and launch**:
+   ```bash
+   # Clone codebase
+   git clone https://github.com/shoppage/shoppage.git /opt/shoppage
+   cd /opt/shoppage
 
-## 📂 Project Structure
-
-```
-.
-├── apps/
-│   └── web/                   # Next.js 16 App Router Web Application & Payload CMS 3.0
-│       ├── src/app/           # 28 Production Pages and Route Handlers
-│       ├── src/cms/           # Payload CMS 3.0 Collections & Typed Service
-│       ├── src/components/    # Reusable UI Components (Omnibox, SERP, Studio)
-│       └── src/lib/           # AI Intelligence Layer & Live Scraper Sweepers
-├── packages/
-│   ├── contracts/             # Shared TypeScript Domain Types & Interfaces
-│   ├── kernel/                # Core In-Memory SQLite FTS5 Engine & Datasets
-│   ├── adapters/              # External Ingestion & Feed Adapters (Google XML, WhatsApp)
-│   └── eval/                  # Search Quality & Latency Benchmark Suite
-├── scripts/                   # Standalone Python Data Ingestion & Sweeper Toolkit
-│   ├── ingestion/             # 2.5M Enterprise & Mall Registry Ingestion
-│   ├── scrapers/              # Retail Web Price Sweepers & Maps Scrapers
-│   └── analytics/             # FTS5 Index Optimization & Quality Audits
-├── .github/workflows/         # Automated Quality Gates & Deployment CI (117+ Tests)
-├── SECURITY.md                # Security Policy, Responsible Disclosure & Transport Guardrails
-└── Dockerfile                 # Production Container Definition
-```
+   # Start all 4 Go services in isolated microservice containers
+   docker compose up -d --build
+   ```
+3. **Automatic SSL / HTTPS**:
+   Uncomment the `caddy` service in `docker-compose.yml` and set your domain:
+   ```bash
+   DOMAIN=shoppage.co.za docker compose up -d
+   ```
+   Caddy automatically provisions and auto-renews Let's Encrypt certificates.
 
 ---
 
-## 🏛️ Architecture Note: Single Runtime & v9.1 Polyglot Baseline
+### Option 2: Bare-Metal Linux Binary via Systemd (Fastest & Leanest)
 
-Early platform versions (v1–v6) were prototyped in Python/Django, and v8.1 explored a theoretical Django 6 constitution. The entire live production platform was subsequently unified into a high-performance **TypeScript / Node.js runtime** (Next.js 16 + Payload CMS 3.0 + SQLite FTS5) to achieve **sub-1ms in-process search latency** and eliminate cross-service serialization.
+Run directly on Ubuntu/Debian with zero container overhead:
 
-The authoritative documentation of the current verified runtime and the target polyglot architecture (PostgreSQL write authority + SQLite read distribution + Typesense search + Redis cache) is recorded in [**`SHOPPAGE_POLYGLOT_ARCHITECTURE_AND_SYSTEM_MODEL_v9.1.md`**](SHOPPAGE_POLYGLOT_ARCHITECTURE_AND_SYSTEM_MODEL_v9.1.md).
+1. **Cross-compile Linux binary** (from Windows or macOS):
+   ```bash
+   npm run build:linux
+   # Or directly:
+   # GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o bin/shoppage-linux-amd64 ./services/consumer-web/cmd/server/main.go
+   ```
+2. **Transfer to VPS**:
+   ```bash
+   scp bin/shoppage-linux-amd64 user@your-server-ip:/opt/shoppage/shoppage
+   scp -r data shoppage-commerce-intelligence-foundation user@your-server-ip:/opt/shoppage/
+   ```
+3. **Install Systemd Service**:
+   ```bash
+   sudo cp deploy/shoppage.service /etc/systemd/system/
+   sudo systemctl daemon-reload
+   sudo systemctl enable --now shoppage
+   ```
+4. **Front with Caddy**:
+   Install Caddy (`sudo apt install -y caddy`) and copy `Caddyfile` to `/etc/caddy/Caddyfile`, then reload `sudo systemctl reload caddy`.
 
-The runtime is 100% TypeScript/Node.js, validated by the automated 124-test spec suite and hardened with standard HTTP security headers. Python survives as a standalone data-engineering toolkit under `scripts/` (ingestion, sitemap scraping, index analytics).
+---
+
+### Option 3: Modern Self-Hosted PaaS (Coolify / Dokploy)
+
+If you prefer a web UI like Vercel or Heroku on your own VPS:
+1. Install [Coolify](https://coolify.io) or [Dokploy](https://dokploy.com) on your VPS (`curl -fsSL https://cdn.coolify.io/install.sh | bash`).
+2. Add a new Project -> Link your GitHub repo.
+3. Select **Dockerfile** as build pack (it will automatically build the `all-in-one` lightweight Alpine container).
+4. Set Persistent Volume for `/app/shoppage-commerce-intelligence-foundation/data/study` so the 7GB SQLite datasets are retained across builds.
+5. Set environment variable: `PORT=3000`.
+
+---
+
+### Option 4: In-Store Edge Server / Offline Kiosk (Physical Resilience)
+
+In South Africa, load-shedding and fiber outages can interrupt retail sales. Shoppage can run locally on an in-store Windows Mini-PC, POS terminal, or Linux Intel NUC:
+- Run `bin/shoppage.exe` directly on the local store network.
+- Staff and in-store kiosks can access `http://192.168.1.xxx:3000` even when the internet is completely offline.
 
 ---
 

@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shoppage — Business Model Analysis & Updated Platform Reality v12.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c10;
+  --surface: #13161f;
+  --surface-2: #1a1e2b;
+  --surface-3: #222838;
+  --ink: #e2e5ec;
+  --ink-dim: #8b92a8;
+  --accent: #f5a623;
+  --accent-weak: rgba(245,166,35,0.10);
+  --live: #34d399;
+  --live-weak: rgba(52,211,153,0.10);
+  --warn: #fbbf24;
+  --warn-weak: rgba(251,191,36,0.10);
+  --danger: #f87171;
+  --danger-weak: rgba(248,113,113,0.10);
+  --info: #60a5fa;
+  --info-weak: rgba(96,165,250,0.10);
+  --line: rgba(255,255,255,0.05);
+  --line-strong: rgba(255,255,255,0.10);
+  --step--2: clamp(0.7rem, 0.68rem + 0.1vw, 0.8rem);
+  --step--1: clamp(0.8rem, 0.78rem + 0.12vw, 0.9rem);
+  --step-0: clamp(0.95rem, 0.9rem + 0.25vw, 1.05rem);
+  --step-1: clamp(1.15rem, 1.05rem + 0.5vw, 1.5rem);
+  --step-2: clamp(1.6rem, 1.35rem + 1.25vw, 2.4rem);
+  --step-3: clamp(2.2rem, 1.7rem + 2.5vw, 3.8rem);
+  --space: clamp(1rem, 0.85rem + 0.75vw, 1.5rem);
+  --radius: 10px;
+}
+* { box-sizing: border-box; margin: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: "Inter", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.65;
+  font-size: var(--step-0);
+}
+header {
+  padding: calc(var(--space)*3) var(--space) calc(var(--space)*2);
+  max-width: 76rem;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--line-strong);
+  position: relative;
+}
+header::before {
+  content: "";
+  position: absolute;
+  top: -30%;
+  right: -5%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(245,166,35,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  border-radius: 50%;
+}
+header h1 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: var(--step-3);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--space);
+  position: relative;
+}
+header h1 span { color: var(--accent); }
+header .meta {
+  color: var(--ink-dim);
+  font-size: var(--step--1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: calc(var(--space)*0.75);
+  position: relative;
+}
+header .meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.pulse {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--live);
+  box-shadow: 0 0 0 0 rgba(52,211,153,0.4);
+  animation: pulse-dot 2s infinite;
+}
+.pulse-warn {
+  background: var(--warn);
+  animation: pulse-warn 2s infinite;
+}
+.pulse-danger {
+  background: var(--danger);
+  animation: pulse-danger 2s infinite;
+}
+.pulse-info {
+  background: var(--info);
+  animation: pulse-info 2s infinite;
+}
+@keyframes pulse-dot {
+  0% { box-shadow: 0 0 0 0 rgba(52,211,153,0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(52,211,153,0); }
+  100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
+}
+@keyframes pulse-warn {
+  0% { box-shadow: 0 0 0 0 rgba(251,191,36,0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(251,191,36,0); }
+  100% { box-shadow: 0 0 0 0 rgba(251,191,36,0); }
+}
+@keyframes pulse-danger {
+  0% { box-shadow: 0 0 0 0 rgba(248,113,113,0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(248,113,113,0); }
+  100% { box-shadow: 0 0 0 0 rgba(248,113,113,0); }
+}
+@keyframes pulse-info {
+  0% { box-shadow: 0 0 0 0 rgba(96,165,250,0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(96,165,250,0); }
+  100% { box-shadow: 0 0 0 0 rgba(96,165,250,0); }
+}
+main {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: calc(var(--space)*2) var(--space);
+}
+section {
+  margin-bottom: calc(var(--space)*3);
+}
+h2 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: var(--step-2);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: calc(var(--space)*1.25);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+h2 .num {
+  font-size: var(--step--2);
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+h3 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: var(--step-1);
+  font-weight: 600;
+  margin: calc(var(--space)*1.5) 0 calc(var(--space)*0.6);
+  color: var(--ink);
+}
+h4 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: var(--step-0);
+  font-weight: 600;
+  margin: calc(var(--space)*1.2) 0 calc(var(--space)*0.4);
+  color: var(--ink-dim);
+}
+p { margin-bottom: calc(var(--space)*0.75); max-width: 68ch; }
+.lead {
+  font-size: var(--step-1);
+  color: var(--ink-dim);
+  line-height: 1.5;
+  max-width: 62ch;
+  margin-bottom: calc(var(--space)*1.5);
+  position: relative;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: calc(var(--space)*1.25);
+  margin-bottom: var(--space);
+}
+.card h4 { margin-top: 0; }
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space);
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space);
+}
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space);
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--step--2);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.badge-live {
+  background: var(--live-weak);
+  color: var(--live);
+  border: 1px solid rgba(52,211,153,0.2);
+}
+.badge-warn {
+  background: var(--warn-weak);
+  color: var(--warn);
+  border: 1px solid rgba(251,191,36,0.2);
+}
+.badge-danger {
+  background: var(--danger-weak);
+  color: var(--danger);
+  border: 1px solid rgba(248,113,113,0.2);
+}
+.badge-accent {
+  background: var(--accent-weak);
+  color: var(--accent);
+  border: 1px solid rgba(245,166,35,0.2);
+}
+.badge-muted {
+  background: rgba(255,255,255,0.04);
+  color: var(--ink-dim);
+  border: 1px solid var(--line);
+}
+.badge-info {
+  background: var(--info-weak);
+  color: var(--info);
+  border: 1px solid rgba(96,165,250,0.2);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--step--1);
+  margin: calc(var(--space)*1) 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+th, td {
+  text-align: left;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+th {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 600;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: var(--step--2);
+  background: var(--surface-2);
+}
+tr:hover td { background: rgba(255,255,255,0.02); }
+td .badge { font-size: 0.65rem; }
+.metric {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: calc(var(--space)*1);
+  text-align: center;
+}
+.metric .value {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: var(--step-2);
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1.1;
+}
+.metric .label {
+  font-size: var(--step--2);
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.35rem;
+}
+.metric .sub {
+  font-size: var(--step--2);
+  color: var(--ink-dim);
+  margin-top: 0.2rem;
+}
+ul, ol { margin: 0.5rem 0 0.75rem 1.25rem; }
+li { margin-bottom: 0.35rem; }
+.callout {
+  background: var(--surface-2);
+  border-left: 3px solid var(--accent);
+  padding: calc(var(--space)*0.75) calc(var(--space)*1);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin: calc(var(--space)*1) 0;
+  font-size: var(--step--1);
+}
+.callout-danger {
+  border-left-color: var(--danger);
+  background: var(--danger-weak);
+}
+.callout-warn {
+  border-left-color: var(--warn);
+  background: var(--warn-weak);
+}
+.callout-live {
+  border-left-color: var(--live);
+  background: var(--live-weak);
+}
+.callout-info {
+  border-left-color: var(--info);
+  background: var(--info-weak);
+}
+.callout p { margin-bottom: 0; color: var(--ink); }
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.status-row:last-child { border-bottom: none; }
+.status-row .path {
+  font-family: "Space Grotesk", monospace;
+  font-size: var(--step--1);
+  color: var(--accent);
+  min-width: 200px;
+  flex-shrink: 0;
+}
+.status-row .desc {
+  flex: 1;
+  font-size: var(--step--1);
+  color: var(--ink-dim);
+  min-width: 200px;
+}
+.timeline {
+  position: relative;
+  padding-left: 1.5rem;
+}
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 0.35rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 2px;
+  background: var(--line-strong);
+}
+.timeline-item {
+  position: relative;
+  padding-bottom: calc(var(--space)*1.25);
+}
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -1.25rem;
+  top: 0.35rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+}
+.timeline-item.done::before { background: var(--live); }
+.timeline-item.risk::before { background: var(--danger); }
+.timeline-item.warn::before { background: var(--warn); }
+.timeline-item.info::before { background: var(--info); }
+.timeline-item .week {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: var(--step--2);
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.timeline-item h4 { margin: 0.2rem 0 0.3rem; }
+.timeline-item p {
+  font-size: var(--step--1);
+  color: var(--ink-dim);
+  margin-bottom: 0;
+}
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+footer {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: calc(var(--space)*2) var(--space);
+  border-top: 1px solid var(--line);
+  color: var(--ink-dim);
+  font-size: var(--step--2);
+  text-align: center;
+}
+@media print {
+  body { background: #fff; color: #111; }
+  .no-print { display: none; }
+  :root {
+    --bg: #fff; --surface: #f5f5f5; --surface-2: #eee;
+    --ink: #111; --ink-dim: #444;
+    --accent: #b37300; --live: #059669; --warn: #b45309; --danger: #dc2626; --info: #2563eb;
+    --line: #ddd; --line-strong: #bbb;
+  }
+}
+@page { size: A4; margin: 16mm; }
+@media (prefers-reduced-motion: reduce) {
+  .pulse, .pulse-warn, .pulse-danger, .pulse-info { animation: none; }
+}
+pre {
+  background: var(--surface-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem;
+  overflow-x: auto;
+  font-size: var(--step--2);
+  line-height: 1.5;
+  color: var(--ink-dim);
+}
+code {
+  font-family: "Space Grotesk", "SF Mono", Monaco, monospace;
+  font-size: 0.9em;
+  color: var(--accent);
+}
+pre code { color: var(--ink-dim); }
+.tag {
+  display: inline-block;
+  font-size: var(--step--2);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--ink-dim);
+  margin-right: 0.3rem;
+}
+.section-note {
+  font-size: var(--step--1);
+  color: var(--ink-dim);
+  font-style: italic;
+  margin-bottom: calc(var(--space)*0.75);
+}
+.score-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+}
+.score-card .score {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.score-card .score-label {
+  font-size: var(--step--2);
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.5rem;
+}
+.score-card .score-desc {
+  font-size: var(--step--1);
+  color: var(--ink-dim);
+  margin-top: 0.5rem;
+}
+.verdict-box {
+  background: var(--surface-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  padding: calc(var(--space)*1.5);
+  margin: calc(var(--space)*1.5) 0;
+}
+.verdict-box h3 {
+  margin-top: 0;
+  font-size: var(--step-2);
+}
+.pro-con {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space);
+}
+@media (max-width: 640px) {
+  .pro-con { grid-template-columns: 1fr; }
+  .status-row { flex-direction: column; align-items: flex-start; }
+  .status-row .path { min-width: auto; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Shoppage <span>v12.0</span></h1>
+  <p class="lead">Business Model Analysis & Updated Platform Reality. Full reconnaissance of live commerce surface, video commerce, social timeline, structured API, and investment viability assessment.</p>
+  <div class="meta">
+    <span><span class="pulse"></span> Live site deep recon 20 Sep 2026</span>
+    <span><span class="pulse-live"></span> 244 tests, security resolved</span>
+    <span><span class="pulse-info"></span> Video commerce + social timeline discovered</span>
+    <span><span class="pulse-warn"></span> Business model viability analysis</span>
+    <span>Document version 12.0</span>
+  </div>
+</header>
+
+<main>
+
+<!-- SECTION 1: WHAT WE MISSED -->
+<section>
+  <h2><span class="num">01</span> What We Missed: The Real Platform Surface</h2>
+
+  <div class="callout callout-danger">
+    <p><strong>Prior reconnaissance was incomplete.</strong> The live site at shoppage.co.za is not merely a product search engine with merchant listings. It is a functioning commerce-native super-platform combining TikTok-style video commerce, a real-time social trade timeline, Google Shopping-style structured discovery, and Facebook Marketplace-style community trade — all already live and serving real data.</p>
+  </div>
+
+  <h3>Newly Discovered Live Surfaces</h3>
+  <div class="card">
+    <div class="status-row">
+      <span class="path">/time</span>
+      <span class="desc"><strong>Shoppage Time</strong> — Real-time commercial timeline. 5,200+ contractor networks, community trade hubs, verified showrooms. For You feed, Price Drops, Contractor RFQs, Facebook Groups, Verified Stockists, Video Proof Shorts.</span>
+      <span class="badge badge-live">Live</span>
+    </div>
+    <div class="status-row">
+      <span class="path">/shorts</span>
+      <span class="desc"><strong>Video Shorts & Product Teardowns</strong> — TikTok-style vertical video commerce. Product teardowns, factory tours, warehouse price walks. Verified stock badges, view counts, like counts, merchant attribution. 12+ videos with up to 92,400 views.</span>
+      <span class="badge badge-live">Live</span>
+    </div>
+    <div class="status-row">
+      <span class="path">/api/v1/products</span>
+      <span class="desc"><strong>Structured Product API</strong> — Returns 181 products with canonical IDs, GTINs, MPNs, attributes, aliases, media gallery, videos, documents, reviews, guides, troubleshooting, FAQs, compliance data.</span>
+      <span class="badge badge-live">Live</span>
+    </div>
+    <div class="status-row">
+      <span class="path">/api/v1/merchants</span>
+      <span class="desc"><strong>Structured Merchant API</strong> — Returns 36 merchants with verificationState, marketId, stallIdentifier, contacts (whatsapp/telephone/email/website), Google Maps and Reviews URLs.</span>
+      <span class="badge badge-live">Live</span>
+    </div>
+    <div class="status-row">
+      <span class="path">/login</span>
+      <span class="desc">Authentication surface exists and renders a login page. Auth infrastructure is present.</span>
+      <span class="badge badge-live">Live</span>
+    </div>
+  </div>
+
+  <h3>Shoppage Time (/time) — The Commerce Social Feed</h3>
+  <p>This is not a blog. It is a real-time commercial timeline that fundamentally changes what Shoppage is:</p>
+  <ul>
+    <li><strong>LIVE PULSE feeds:</strong> For You (All Sources), Price Drops & Clearance, Contractor RFQs, Facebook Groups, Verified Stockists</li>
+    <li><strong>Video Proof Shorts embedded in timeline:</strong> 0:48 proof videos from verified merchants with stock confirmation</li>
+    <li><strong>Contractor RFQ Broadcasts:</strong> "URGENT RFQ: Seeking stockist with 80x 550W Mono PERC Solar Panels in Cape Town for immediate Monday collection"</li>
+    <li><strong>Facebook Groups integration:</strong> Posts sourced from "Sandton & Bryanston Buy, Sell & Direct Trade (142k Members)"</li>
+    <li><strong>Verified merchant posts:</strong> SunPower Crown Mines flash trade drops with stock counts, warranty info, compliance badges</li>
+    <li><strong>Engagement metrics:</strong> Reposts, likes, RFQ counts on timeline items</li>
+    <li><strong>0% middleman toll positioning:</strong> Explicitly stated as the value proposition</li>
+  </ul>
+
+  <h3>Video Shorts (/shorts) — TikTok-Style Commerce</h3>
+  <p>12+ product teardown and proof videos with substantial view counts:</p>
+  <table>
+    <tr>
+      <th>Video</th>
+      <th>Merchant</th>
+      <th>Duration</th>
+      <th>Views</th>
+      <th>Likes</th>
+    </tr>
+    <tr><td>Deye 5kW Hybrid Inverter Full Teardown & Real Load Test under Stage 6</td><td>SolarBros Sandton</td><td>0:58</td><td>48,500</td><td>2,140</td></tr>
+    <tr><td>Dyness BX51100 5.12kWh Lithium Battery Inside Look & Runtime</td><td>SunPower Crown Mines</td><td>0:48</td><td>34,900</td><td>1,620</td></tr>
+    <tr><td>Unboxing 157 Commercial Food Packaging & Catering Items</td><td>Mitrend Products</td><td>0:55</td><td>41,200</td><td>1,950</td></tr>
+    <tr><td>Dragon City Wholesale Mall: Walking the Solar & Tech Aisles</td><td>Dragon City Traders</td><td>1:12</td><td>92,400</td><td>4,780</td></tr>
+    <tr><td>Sunsynk 8kW Single Phase vs Three Phase</td><td>SolarBros Sandton</td><td>0:55</td><td>39,800</td><td>1,840</td></tr>
+    <tr><td>Building SABS Approved: Cement, Brick & Steel Price Walk</td><td>Builders Wholesale</td><td>0:51</td><td>24,600</td><td>1,120</td></tr>
+    <tr><td>Xiaomi Redmi 13 128GB: Unboxing 50-Unit Wholesale Master Carton</td><td>Fordsburg Wholesale</td><td>0:42</td><td>68,400</td><td>3,410</td></tr>
+    <tr><td>VW Polo Vivo Ferodo Front Brake Pads Fitment & Counter Price</td><td>Auto Parts Counter</td><td>0:49</td><td>51,200</td><td>2,430</td></tr>
+    <tr><td>Super Sun Maize Meal 10kg & 12.5kg Pallet Rates</td><td>JHB Cash & Carry</td><td>0:38</td><td>73,100</td><td>3,890</td></tr>
+    <tr><td>Luxpower SNA5000 Off-Grid Inverter Setup with Hubble AM-2</td><td>Solar Installer</td><td>1:04</td><td>42,300</td><td>1,980</td></tr>
+    <tr><td>Oriental Plaza Fordsburg: Textile, Fabric & Homeware Direct Bulk</td><td>Oriental Plaza Guild</td><td>1:15</td><td>88,500</td><td>4,210</td></tr>
+    <tr><td>Kraft Takeaway Bags & Heavy Duty Corrugated Cartons Crush Test</td><td>Packaging Wholesale</td><td>0:44</td><td>31,700</td><td>1,450</td></tr>
+  </table>
+  <p>Every video has: verified stock badge, merchant attribution with location, price, delivery info, view count, like count. Categories: Solar & Load-Shedding, Mitrend Packaging, Wholesale Malls, Building & Hardware.</p>
+
+  <h3>Structured API v1 — The Data Layer Is Real</h3>
+  <p>The /api/v1/products endpoint returns 181 products with extraordinary depth:</p>
+  <ul>
+    <li><strong>Canonical identity:</strong> canonicalId, familyRef, categoryRef, GTIN-13, MPN</li>
+    <li><strong>Structured attributes:</strong> ratedPowerKw, dcBusVoltage, maxPvInputVoltage, mpptVoltageRange, ipRating, warrantyYears</li>
+    <li><strong>Search aliases:</strong> Multi-language aliases with confidence scores (e.g., "Deye omsetter 5kw" in Afrikaans at 0.90 confidence, "amapaneli sunsynk 8kw" in Zulu at 0.88)</li>
+    <li><strong>Media gallery:</strong> Packshots, images, proof demo videos with duration and author, datasheet PDFs, user manuals</li>
+    <li><strong>Reviews with structured pros/cons:</strong> Verified contractor reviews with SSEG register citations, wholesale stockist benchmarks</li>
+    <li><strong>Installation guides:</strong> SANS 10142-1 compliance notes, CoC requirements, cable sizing</li>
+    <li><strong>Troubleshooting codes:</strong> F18 (AC Grid Over-Frequency), F20 (DC Bus High Voltage), F56 (Battery Communication Loss) with causes and solutions</li>
+    <li><strong>FAQs:</strong> Sizing, installation, warranty questions with answers</li>
+    <li><strong>Compliance:</strong> SABS approval, NRS 097 certification, ICASA approval, certification numbers</li>
+    <li><strong>Provenance tracking:</strong> sourceRef, rightsClass, confidence, fieldOwner, validFrom</li>
+    <li><strong>Country scope:</strong> ZA, ZW, KE, NG — indicating regional expansion intent</li>
+  </ul>
+
+  <h3>Updated Live Reality Metrics</h3>
+  <div class="grid-4">
+    <div class="metric">
+      <div class="value">181</div>
+      <div class="label">Structured Products</div>
+      <div class="sub">Full canonical data via API</div>
+    </div>
+    <div class="metric">
+      <div class="value">12+</div>
+      <div class="label">Video Shorts</div>
+      <div class="sub">Up to 92,400 views each</div>
+    </div>
+    <div class="metric">
+      <div class="value">5,200+</div>
+      <div class="label">Contractor Networks</div>
+      <div class="sub">On Shoppage Time timeline</div>
+    </div>
+    <div class="metric">
+      <div class="value">36</div>
+      <div class="label">Verified Merchants</div>
+      <div class="sub">Fully verified via API</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: WHAT SHOPPAGE ACTUALLY IS -->
+<section>
+  <h2><span class="num">02</span> What Shoppage Actually Is (Corrected Understanding)</h2>
+
+  <div class="callout callout-info">
+    <p><strong>Shoppage is not six separate bounded contexts waiting to be built.</strong> It is a functioning commerce-native hybrid platform where four of those contexts are already live and interleaved: Discovery Engine, Geo/GMB, Product Intelligence, and Markets & Communities (via Shoppage Time and Video Shorts). Only Chat (deep links only) and formal RFQ (timeline posts only) remain partially unbuilt.</p>
+  </div>
+
+  <h3>The Four Live Contexts — Interleaved, Not Separate</h3>
+
+  <div class="grid-2">
+    <div class="card">
+      <h4><span class="badge badge-live">Live & Interleaved</span> Discovery + Product Intelligence</h4>
+      <p>/search provides product discovery. /api/v1/products provides structured canonical data with GTINs, MPNs, attributes, aliases, media, reviews, guides, troubleshooting, FAQs, and compliance. This is not "planned Product Intelligence" — it is already operational with 181 products carrying full enrichment.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-live">Live & Interleaved</span> Geo/GMB + Merchant Verification</h4>
+      <p>/merchants and /api/v1/merchants provide 36 fully verified merchants with marketId, stallIdentifier, contacts, and Google Maps integration. /malls provides 3,296 shopping centres. Merchant verification is not a future feature — it is the current data model.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-live">Live & Interleaved</span> Markets & Communities</h4>
+      <p>/time is a real-time commercial timeline aggregating 5,200+ contractor networks, Facebook Groups (142k members), verified stockist posts, and RFQ broadcasts. /shorts is a TikTok-style video commerce feed. These are not "planned community features" — they are live social commerce surfaces with engagement metrics.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-warn">Partial</span> Chat + RFQ</h4>
+      <p>WhatsApp deep links exist on every merchant card. Contractor RFQ broadcasts exist on Shoppage Time. But there is no structured chat interface, no WebSocket infrastructure, and no formal quote management portal. These are the only genuinely incomplete contexts.</p>
+    </div>
+  </div>
+
+  <h3>The Product-Market Fit Hypothesis — Now Testable</h3>
+  <p>Prior assessments treated Shoppage as a vision document with a thin live surface. The corrected understanding is that Shoppage has built a <strong>minimum viable platform</strong> that tests four hypotheses simultaneously:</p>
+  <ol>
+    <li><strong>Hypothesis 1:</strong> South African buyers want structured product data with local compliance context (SABS, NRS 097, CoC) — <span class="badge badge-live">Tested</span> via /api/v1/products with 181 enriched products</li>
+    <li><strong>Hypothesis 2:</strong> South African buyers want video proof before buying high-ticket items — <span class="badge badge-live">Tested</span> via /shorts with 12 videos, up to 92,400 views</li>
+    <li><strong>Hypothesis 3:</strong> South African trade communities want a structured alternative to Facebook Groups and WhatsApp for commerce — <span class="badge badge-live">Tested</span> via /time with 5,200+ contractor networks and Facebook Group integration</li>
+    <li><strong>Hypothesis 4:</strong> South African B2B buyers want to broadcast RFQs to verified stockists — <span class="badge badge-warn">Partially Tested</span> via timeline RFQ posts, no formal workflow yet</li>
+  </ol>
+</section>
+
+<!-- SECTION 3: BUSINESS MODEL ANALYSIS -->
+<section>
+  <h2><span class="num">03</span> Business Model Analysis: Will It Succeed?</h2>
+
+  <div class="verdict-box">
+    <h3 style="color: var(--live);">Verdict: Conditionally Yes</h3>
+    <p style="font-size: var(--step-1); color: var(--ink-dim); margin-bottom: 0;">Shoppage has a viable path to success if three conditions are met: (1) the 0% take-rate model is replaced with a real monetisation engine within 12 months, (2) merchant acquisition outpaces content production costs, and (3) the platform avoids the "everything to everyone" trap by sequencing context launches correctly. The product surface is significantly stronger than previously assessed. The business model is the primary risk.</p>
+  </div>
+
+  <h3>Overall Viability Scorecard</h3>
+  <div class="grid-4">
+    <div class="score-card">
+      <div class="score" style="color: var(--live);">8.5/10</div>
+      <div class="score-label">Product Surface</div>
+      <div class="score-desc">Video commerce, social timeline, structured API, verified merchants all live</div>
+    </div>
+    <div class="score-card">
+      <div class="score" style="color: var(--warn);">4/10</div>
+      <div class="score-label">Monetisation Model</div>
+      <div class="score-desc">0% take-rate with no clear revenue engine is unsustainable</div>
+    </div>
+    <div class="score-card">
+      <div class="score" style="color: var(--live);">8/10</div>
+      <div class="score-label">Market Timing</div>
+      <div class="score-desc">SA mobile commerce, load shedding, B2B gap all align</div>
+    </div>
+    <div class="score-card">
+      <div class="score" style="color: var(--warn);">5/10</div>
+      <div class="score-label">Execution Risk</div>
+      <div class="score-desc">Scope is massive; team size and funding unknown</div>
+    </div>
+  </div>
+
+  <h3>The Core Problem: 0% Take-Rate Is Not a Business Model</h3>
+  <p>Shoppage's stated revenue model is "0% take-rate with no custody of buyer funds; monetisation via B2B brand/distributor intelligence." This is a mission statement, not a business model. Here is why it is problematic:</p>
+
+  <table>
+    <tr>
+      <th>Claim</th>
+      <th>Reality</th>
+      <th>Risk Level</th>
+    </tr>
+    <tr>
+      <td>0% take-rate attracts merchants</td>
+      <td>True initially, but creates no revenue to fund platform development, content production, or merchant acquisition</td>
+      <td><span class="badge badge-danger">Critical</span></td>
+    </tr>
+    <tr>
+      <td>B2B brand/distributor intelligence monetisation</td>
+      <td>Vague. What is sold? To whom? At what price? Market intelligence is a crowded space (Nielsen, Euromonitor, Kantar). Why would brands buy from Shoppage instead?</td>
+      <td><span class="badge badge-danger">High</span></td>
+    </tr>
+    <tr>
+      <td>No custody of buyer funds</td>
+      <td>Reduces regulatory risk but also eliminates payment float revenue, transaction fees, and merchant cash advance opportunities</td>
+      <td><span class="badge badge-warn">Medium</span></td>
+    </tr>
+    <tr>
+      <td>Video commerce generates engagement</td>
+      <td>True, but video production is expensive. 12 videos with 92k views cost money to produce. Who pays?</td>
+      <td><span class="badge badge-warn">Medium</span></td>
+    </tr>
+  </table>
+
+  <h3>What Actually Works: The Live Surface Reveals the Real Model</h3>
+  <p>The live platform suggests four monetisation paths that are more concrete than "B2B intelligence":</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h4><span class="badge badge-live">Proven</span> Merchant Verification & Premium Listings</h4>
+      <p>36 merchants are "fully_verified" with structured data, Google Maps integration, and video proof. This is a freemium model waiting to happen: free listing for basic merchants, premium tiers for verified badges, video shorts, priority placement, and analytics. The infrastructure is already built.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-live">Proven</span> Video Commerce Native Ads</h4>
+      <p>12 product teardown videos with 24k-92k views each. If even 1% of viewers click through, that is 240-920 qualified commerce intents per video. Product placement, sponsored teardowns, and pre-roll ads from manufacturers (Deye, Sunsynk, Dyness) are natural monetisation. The content format is already established.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-warn">Emerging</span> RFQ Lead Generation</h4>
+      <p>Contractor RFQ broadcasts on Shoppage Time ("URGENT: 80x 550W panels needed Monday") are lead generation events. Merchants pay per qualified lead or per RFQ response. This is a proven model (ThomasNet, Alibaba RFQ) and Shoppage has the merchant density and verification to execute it.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-warn">Emerging</span> Data & Market Intelligence</h4>
+      <p>The structured API captures: product pricing, stock levels, merchant locations, review sentiment, search aliases, compatibility data, and regional demand signals. This is valuable to manufacturers, distributors, and retailers. But it requires scale (10,000+ products, 1,000+ merchants) before it becomes commercially interesting.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: SWOT ANALYSIS -->
+<section>
+  <h2><span class="num">04</span> SWOT Analysis</h2>
+
+  <div class="pro-con">
+    <div>
+      <h3 style="color: var(--live);">Strengths</h3>
+      <div class="card">
+        <ul>
+          <li><strong>Product surface is far ahead of assessment.</strong> Video commerce, social timeline, structured API, and verified merchant graph are all operational — not planned.</li>
+          <li><strong>SA-first by design.</strong> Load shedding context, SABS compliance, NRS 097 certification, CoC requirements, local warranty support — these are not features, they are the product's DNA.</li>
+          <li><strong>Video commerce format is validated.</strong> 92,400 views on a wholesale mall walk video proves demand for transparent commerce content in SA.</li>
+          <li><strong>Structured data quality is exceptional.</strong> GTINs, MPNs, multi-language aliases, troubleshooting codes, compliance data — this is investment-grade product enrichment.</li>
+          <li><strong>Merchant verification is operational.</strong> 36 fully verified merchants with structured contact data, stall identifiers, and Google Maps integration.</li>
+          <li><strong>0% take-rate is a powerful merchant acquisition tool.</strong> While not sustainable as the sole model, it removes the primary barrier to merchant onboarding.</li>
+          <li><strong>Builders Warehouse integration provides credibility.</strong> "100+ stores nationwide" language on live listings signals enterprise-grade partnerships.</li>
+          <li><strong>244 passing tests across 5 packages.</strong> Engineering discipline is present. Security middleware is resolved in active code.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <h3 style="color: var(--danger);">Weaknesses</h3>
+      <div class="card">
+        <ul>
+          <li><strong>No clear revenue engine.</strong> "B2B brand/distributor intelligence" is not a monetisation plan. It is a hope.</li>
+          <li><strong>181 products is not a catalogue.</strong> It is a proof of concept. PriceCheck has 6.5 million. Takealot has millions. Shoppage needs 10,000+ products to be a serious discovery destination.</li>
+          <li><strong>36 merchants is not a marketplace.</strong> It is a directory. For RFQ lead generation to work, Shoppage needs 500+ verified merchants per major category.</li>
+          <li><strong>Video content production does not scale cheaply.</strong> 12 videos covering solar, packaging, wholesale malls, and hardware required significant production effort. Scaling to 100+ videos per category is expensive.</li>
+          <li><strong>Facebook Groups integration is a dependency risk.</strong> If Meta changes API access or group scraping policies, Shoppage Time loses a content source.</li>
+          <li><strong>Country scope (ZA, ZW, KE, NG) is premature.</strong> 181 products and 36 merchants in South Africa does not justify regional expansion claims in the API.</li>
+          <li><strong>No visible checkout or transaction flow.</strong> The platform drives discovery and intent but does not capture the transaction. This is the classic lead-gen trap: high engagement, low monetisation.</li>
+          <li><strong>Pemofy relationship is undefined in user-facing terms.</strong> Buyers see "0% take-rate" but do not understand how merchants make money or why they should list.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pro-con" style="margin-top: var(--space);">
+    <div>
+      <h3 style="color: var(--info);">Opportunities</h3>
+      <div class="card">
+        <ul>
+          <li><strong>B2B RFQ is the uncontested wedge.</strong> 10%+ CAGR growth, no dominant platform, and Shoppage already has timeline RFQ posts live. This is the fastest path to monetisation.</li>
+          <li><strong>Video commerce is underdeveloped in African e-commerce.</strong> TikTok Shop is not in South Africa. YouTube Shopping is nascent. Shoppage has first-mover advantage in video-native commerce for SA.</li>
+          <li><strong>Load shedding creates permanent demand.</strong> Solar, inverters, batteries, and backup power are not discretionary purchases in South Africa. They are necessities. This is recession-resistant demand.</li>
+          <li><strong>Merchant premium tiers are low-hanging fruit.</strong> The verification infrastructure exists. Charge R199-499/month for verified badges, video shorts, analytics, and priority placement. This is immediate revenue.</li>
+          <li><strong>Manufacturer sponsorship of video content.</strong> Deye, Sunsynk, Dyness, JA Solar all benefit from verified teardown content. Sponsored proof videos are a natural B2B revenue stream.</li>
+          <li><strong>Expansion into adjacent categories.</strong> Solar is the beachhead. The same model applies to automotive parts, building materials, catering supplies, electronics — all visible in the current merchant directory.</li>
+          <li><strong>Data monetisation at scale.</strong> Price tracking, stock level monitoring, regional demand mapping, and review sentiment across categories becomes valuable market intelligence at 10,000+ products.</li>
+          <li><strong>WhatsApp commerce integration.</strong> 71% of SA online purchases are mobile. If Shoppage can own the WhatsApp commerce workflow (not just deep links), it captures the dominant SA commerce channel.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <h3 style="color: var(--warn);">Threats</h3>
+      <div class="card">
+        <ul>
+          <li><strong>PriceCheck responds with video and verification.</strong> PriceCheck has 17M shoppers and 6.5M products. If they add verified merchant badges and video content, Shoppage's differentiation narrows.</li>
+          <li><strong>Takealot launches B2B or trade counter features.</strong> Takealot has the capital, logistics, and merchant relationships to enter B2B quoting. They are the sleeping giant.</li>
+          <li><strong>TikTok Shop enters South Africa.</strong> TikTok's video commerce engine is superior. If they launch in SA with local merchant partnerships, Shoppage's video advantage disappears.</li>
+          <li><strong>Meta builds commerce-native Facebook Groups.</strong> If Facebook adds structured product posts, inventory tracking, and quote requests to Groups, Shoppage Time's core use case is absorbed.</li>
+          <li><strong>Capital requirements exceed funding.</strong> Video production, merchant acquisition, data enrichment, and platform development all require capital. If funding is limited, the platform stalls before reaching monetisable scale.</li>
+          <li><strong>Merchant churn after free period.</strong> If merchants join for 0% take-rate but see no value beyond listing, they churn. The platform must demonstrate ROI before charging.</li>
+          <li><strong>POPIA enforcement on scraped merchant data.</strong> The live site displays merchant contact details sourced from Google Maps, OSM, and trade registries. Without explicit consent, this is a regulatory risk.</li>
+          <li><strong>Load shedding ends or solar demand saturates.</strong> Unlikely in the near term, but a change in SA energy policy could reduce the primary demand driver.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: COMPETITIVE POSITION -->
+<section>
+  <h2><span class="num">05</span> Competitive Positioning</h2>
+
+  <table>
+    <tr>
+      <th>Competitor</th>
+      <th>Strength</th>
+      <th>Weakness vs. Shoppage</th>
+      <th>Threat Level</th>
+    </tr>
+    <tr>
+      <td><strong>PriceCheck</strong><br><span style="font-size:0.8rem;color:var(--ink-dim);">$3.3M ARR, 17M shoppers, 6.5M products</span></td>
+      <td>Massive product catalogue, established brand, high traffic</td>
+      <td>No video commerce, no verified merchant badges, no B2B RFQ, no social timeline, no local compliance context</td>
+      <td><span class="badge badge-warn">High</span> (if they copy features)</td>
+    </tr>
+    <tr>
+      <td><strong>Takealot</strong><br><span style="font-size:0.8rem;color:var(--ink-dim);">Dominant SA B2C marketplace</span></td>
+      <td>Capital, logistics, brand trust, merchant base</td>
+      <td>No B2B quoting, no video commerce, no trade counter discovery, no contractor networks</td>
+      <td><span class="badge badge-danger">Critical</span> (if they expand)</td>
+    </tr>
+    <tr>
+      <td><strong>Facebook Groups / Marketplace</strong></td>
+      <td>Network effects, existing communities, zero cost</td>
+      <td>No structured product data, no verification, no compliance, no search, no RFQ workflow, no video commerce</td>
+      <td><span class="badge badge-warn">Medium</span> (if Meta builds commerce features)</td>
+    </tr>
+    <tr>
+      <td><strong>WhatsApp Business</strong></td>
+      <td>Dominant SA commerce channel, merchant familiarity</td>
+      <td>No discovery, no structured catalogues, no comparison, no verification layer, no video content</td>
+      <td><span class="badge badge-warn">Medium</span> (complement, not competitor)</td>
+    </tr>
+    <tr>
+      <td><strong>TikTok Shop</strong></td>
+      <td>Superior video commerce engine, algorithmic discovery</td>
+      <td>Not in South Africa yet; no B2B focus; no local compliance context</td>
+      <td><span class="badge badge-warn">High</span> (if they enter SA)</td>
+    </tr>
+    <tr>
+      <td><strong>Google Shopping</strong></td>
+      <td>Search dominance, massive reach</td>
+      <td>No SA-specific compliance, no verified local stock, no video, no B2B, no community</td>
+      <td><span class="badge badge-muted">Low</span> (generic, not SA-native)</td>
+    </tr>
+    <tr>
+      <td><strong>Alibaba / Global Sources</strong></td>
+      <td>B2B quoting, global supplier base</td>
+      <td>Not SA-focused; no local stock verification; no load shedding context; high minimum orders; long lead times</td>
+      <td><span class="badge badge-muted">Low</span> (different market)</td>
+    </tr>
+  </table>
+
+  <h3>Shoppage's Defensible Moat</h3>
+  <div class="callout callout-live">
+    <p><strong>The moat is not any single feature.</strong> It is the intersection of four things that no competitor currently offers together: (1) SA-specific compliance and warranty context (SABS, NRS 097, CoC), (2) verified local merchant stock with trade counter discovery, (3) video proof commerce with teardown and load test content, and (4) real-time contractor RFQ broadcasts within a social timeline. PriceCheck has catalogue breadth. Takealot has logistics. TikTok has video. WhatsApp has ubiquity. None have all four.</p>
+  </div>
+</section>
+
+<!-- SECTION 6: MONETISATION ROADMAP -->
+<section>
+  <h2><span class="num">06</span> Monetisation Roadmap: From 0% to Sustainable</h2>
+
+  <h3>Phase 1: Immediate (Months 1-3) — Merchant Premium Tiers</h3>
+  <table>
+    <tr>
+      <th>Tier</th>
+      <th>Price (ZAR/month)</th>
+      <th>Features</th>
+      <th>Target</th>
+    </tr>
+    <tr>
+      <td>Free</td>
+      <td>R0</td>
+      <td>Basic listing, contact details, 3 product slots</td>
+      <td>Merchant acquisition, volume</td>
+    </tr>
+    <tr>
+      <td>Verified</td>
+      <td>R299</td>
+      <td>Verified badge, unlimited products, Google Maps integration, basic analytics</td>
+      <td>Established traders, SMEs</td>
+    </tr>
+    <tr>
+      <td>Professional</td>
+      <td>R799</td>
+      <td>Video shorts (3/month), priority placement, RFQ access, review management, advanced analytics</td>
+      <td>Active sellers, wholesalers</td>
+    </tr>
+    <tr>
+      <td>Enterprise</td>
+      <td>R2,499</td>
+      <td>Unlimited video shorts, sponsored placement, API access, dedicated support, white-label quotes</td>
+      <td>Distributors, manufacturers</td>
+    </tr>
+  </table>
+  <p><strong>Revenue projection:</strong> 500 Verified merchants = R149,500/month. 100 Professional = R79,900/month. 20 Enterprise = R49,980/month. Total: ~R279,000/month (approx. $15,500/month or $186,000 ARR) at modest merchant penetration.</p>
+
+  <h3>Phase 2: Short-Term (Months 4-6) — Video Sponsorship & Lead Generation</h3>
+  <ul>
+    <li><strong>Sponsored proof videos:</strong> Manufacturers pay R5,000-15,000 per verified teardown video. Deye, Sunsynk, Dyness, JA Solar are natural first sponsors. Target: 10 sponsored videos/month = R100,000/month.</li>
+    <li><strong>RFQ lead fees:</strong> Merchants pay R50-200 per qualified RFQ lead depending on category and order value. Target: 500 RFQs/month at R100 average = R50,000/month.</li>
+    <li><strong>Featured placement:</strong> Priority search results, homepage features, category sponsorships. Target: R30,000/month.</li>
+  </ul>
+
+  <h3>Phase 3: Medium-Term (Months 7-12) — Data & Intelligence</h3>
+  <ul>
+    <li><strong>Market intelligence reports:</strong> Monthly category reports on pricing trends, stock availability, regional demand, and review sentiment. Sold to manufacturers and distributors. Target: R25,000-50,000 per report, 5 subscribers = R125,000-250,000/month.</li>
+    <li><strong>API access for ERP integrations:</strong> Charge merchants and third parties for structured product data API access beyond basic tier. Target: R5,000-20,000/month per integration.</li>
+    <li><strong>Advertising network:</strong> Display and video ads from brands targeting specific categories, regions, or buyer segments. Target: R100,000/month at scale.</li>
+  </ul>
+
+  <h3>Phase 4: Long-Term (Year 2+) — Transaction Adjacent Revenue</h3>
+  <ul>
+    <li><strong>Shoppage Pay (optional):</strong> While maintaining 0% take-rate for direct merchant transactions, introduce Shoppage-backed buyer protection, escrow for high-value B2B orders, and instalment financing. Revenue from protection fees (1-2%) and financing spreads.</li>
+    <li><strong>Shoppage Logistics:</strong> Negotiate bulk courier rates and resell to merchants. Revenue from margin on shipping.</li>
+    <li><strong>Shoppage Finance:</strong> Merchant cash advances against verified sales data. Revenue from interest spreads.</li>
+  </ul>
+
+  <div class="callout callout-warn">
+    <p><strong>Critical insight:</strong> The 0% take-rate should be repositioned from "we make no money" to "merchants keep 100% of direct sales; Shoppage monetises discovery, verification, and intelligence." This is the Amazon Marketplace model (free to list, pay for visibility) adapted for South African trade commerce.</p>
+  </div>
+</section>
+
+<!-- SECTION 7: WHAT MUST HAPPEN FOR SUCCESS -->
+<section>
+  <h2><span class="num">07</span> Critical Success Factors</h2>
+
+  <div class="grid-2">
+    <div class="card">
+      <h4><span class="badge badge-live">Must Do</span> 1. Deploy the Active Monorepo Immediately</h4>
+      <p>The legacy deployed instance still exposes unprotected routes. The active monorepo with 244 passing tests, edge security middleware, and modular merchant dashboard must be cut over to production. Every day of delay is a liability.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-live">Must Do</span> 2. Launch Merchant Premium Tiers Within 30 Days</h4>
+      <p>The verification infrastructure, structured API, and merchant dashboard are operational. The monetisation model should be live before spending another rand on development. Free tier for acquisition, Verified/Pro/Enterprise for revenue.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-live">Must Do</span> 3. Scale Products from 181 to 10,000+</h4>
+      <p>181 products is not a discovery destination. The Python scrapers and structured data pipeline must scale aggressively. Target: 2,000 products by Month 3, 10,000 by Month 6. Solar, batteries, inverters, and building materials are the beachhead.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-live">Must Do</span> 4. Scale Merchants from 36 to 500+</h4>
+      <p>36 merchants is a directory, not a marketplace. The merchant acquisition playbook must target 100 merchants by Month 3, 500 by Month 12. Focus on Gauteng, Western Cape, KZN trade hubs first.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-warn">Should Do</span> 5. Build Formal RFQ Workflow</h4>
+      <p>Timeline RFQ posts prove demand. The formal RFQ module (structured request, merchant matching, quote response, approval) should be built in Months 4-6. This is the fastest path to B2B monetisation.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-warn">Should Do</span> 6. Build WhatsApp Chat Bridge</h4>
+      <p>Deep links are not enough. A structured chat interface with message persistence, quote cards, and order status would convert Shoppage from a discovery engine into a transaction platform. Months 3-5.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-warn">Should Do</span> 7. Secure Video Content Pipeline</h4>
+      <p>12 videos with 92k views is a proof of concept. A sustainable content model (merchant-generated, sponsored, or in-house) must be established. Target: 50 new videos per month by Month 6.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-muted">Can Wait</span> 8. Go Microservice Extraction</h4>
+      <p>The TypeScript kernel is working. Go extraction is an optimisation for scale, not a prerequisite for success. It can wait until the platform has 1,000+ merchants and R500k+ MRR.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 8: FINANCIAL VIABILITY MODEL -->
+<section>
+  <h2><span class="num">08</span> Financial Viability Model</h2>
+
+  <h3>Assumptions</h3>
+  <table>
+    <tr>
+      <th>Metric</th>
+      <th>Month 3</th>
+      <th>Month 6</th>
+      <th>Month 12</th>
+    </tr>
+    <tr>
+      <td>Verified merchants</td>
+      <td>150</td>
+      <td>350</td>
+      <td>800</td>
+    </tr>
+    <tr>
+      <td>Paid merchant tiers (% of total)</td>
+      <td>20% (30)</td>
+      <td>25% (88)</td>
+      <td>30% (240)</td>
+    </tr>
+    <tr>
+      <td>Average revenue per paying merchant</td>
+      <td>R450</td>
+      <td>R550</td>
+      <td>R650</td>
+    </tr>
+    <tr>
+      <td>Monthly RFQ leads</td>
+      <td>200</td>
+      <td>800</td>
+      <td>2,500</td>
+    </tr>
+    <tr>
+      <td>Average lead fee</td>
+      <td>R80</td>
+      <td>R100</td>
+      <td>R120</td>
+    </tr>
+    <tr>
+      <td>Sponsored videos per month</td>
+      <td>4</td>
+      <td>8</td>
+      <td>15</td>
+    </tr>
+    <tr>
+      <td>Average sponsorship fee</td>
+      <td>R8,000</td>
+      <td>R10,000</td>
+      <td>R12,000</td>
+    </tr>
+    <tr>
+      <td>Monthly operating costs</td>
+      <td>R180,000</td>
+      <td>R280,000</td>
+      <td>R450,000</td>
+    </tr>
+  </table>
+
+  <h3>Revenue Projection</h3>
+  <table>
+    <tr>
+      <th>Revenue Stream</th>
+      <th>Month 3</th>
+      <th>Month 6</th>
+      <th>Month 12</th>
+    </tr>
+    <tr>
+      <td>Merchant premium tiers</td>
+      <td>R13,500</td>
+      <td>R48,400</td>
+      <td>R156,000</td>
+    </tr>
+    <tr>
+      <td>RFQ lead fees</td>
+      <td>R16,000</td>
+      <td>R80,000</td>
+      <td>R300,000</td>
+    </tr>
+    <tr>
+      <td>Sponsored videos</td>
+      <td>R32,000</td>
+      <td>R80,000</td>
+      <td>R180,000</td>
+    </tr>
+    <tr>
+      <td>Featured placement & ads</td>
+      <td>R8,000</td>
+      <td>R25,000</td>
+      <td>R80,000</td>
+    </tr>
+    <tr>
+      <td><strong>Total Monthly Revenue</strong></td>
+      <td><strong>R69,500</strong></td>
+      <td><strong>R233,400</strong></td>
+      <td><strong>R716,000</strong></td>
+    </tr>
+    <tr>
+      <td>Monthly operating costs</td>
+      <td>R180,000</td>
+      <td>R280,000</td>
+      <td>R450,000</td>
+    </tr>
+    <tr>
+      <td><strong>Net Monthly</strong></td>
+      <td><strong style="color:var(--danger);">-R110,500</strong></td>
+      <td><strong style="color:var(--danger);">-R46,600</strong></td>
+      <td><strong style="color:var(--live);">+R266,000</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Annualised (ARR)</strong></td>
+      <td><strong>R834,000</strong></td>
+      <td><strong>R2,800,800</strong></td>
+      <td><strong>R8,592,000</strong></td>
+    </tr>
+  </table>
+
+  <div class="callout callout-warn">
+    <p><strong>Reality check:</strong> The platform will burn cash for 6-9 months before reaching profitability. This requires approximately R1.5-2.5M in working capital to cover the gap. The funding thesis must account for this burn period. The good news: the product surface is strong enough to justify the investment. The risk is that merchant acquisition and content production costs are higher than modelled.</p>
+  </div>
+</section>
+
+<!-- SECTION 9: UPDATED PLATFORM REALITY -->
+<section>
+  <h2><span class="num">09</span> Updated Platform Reality: v12.0 Runtime Truth</h2>
+
+  <h3>What Is Actually Live (Corrected Hierarchy)</h3>
+  <table>
+    <tr>
+      <th>Surface</th>
+      <th>Path</th>
+      <th>Status</th>
+      <th>Evidence</th>
+    </tr>
+    <tr>
+      <td>Product Discovery</td>
+      <td>/search</td>
+      <td><span class="badge badge-live">Live</span></td>
+      <td>Live inventory, merchant offers, SABS compliance, restock notifications</td>
+    </tr>
+    <tr>
+      <td>Structured Product API</td>
+      <td>/api/v1/products</td>
+      <td><span class="badge badge-live">Live</span></td>
+      <td>181 products with GTINs, MPNs, aliases, media, reviews, guides, troubleshooting, FAQs, compliance</td>
+    </tr>
+    <tr>
+      <td>Structured Merchant API</td>
+      <td>/api/v1/merchants</td>
+      <td><span class="badge badge-live">Live</span></td>
+      <td>36 merchants with verificationState, marketId, stallIdentifier, contacts, Google Maps/Reviews URLs</td>
+    </tr>
+    <tr>
+      <td>Video Commerce</td>
+      <td>/shorts</td>
+      <td><span class="badge badge-live">Live</span></td>
+      <td>12+ product teardown videos, up to 92,400 views, verified stock badges, merchant attribution</td>
+    </tr>
+    <tr>
+      <td>Social Trade Timeline</td>
+      <td>/time</td>
+      <td><span class="badge badge-live">Live</span></td>
+      <td>5,200+ contractor networks, Facebook Groups, RFQ broadcasts, price drops, verified stockist posts</td>
+    </tr>
+    <tr>
+      <td>Mall Catalogue</td>
+      <td>/malls</td>
+      <td><span class="badge badge-live">Live</span></td>
+      <td>3,296 shopping centres with anchor tenants, store counts, hours, solar backup tags</td>
+    </tr>
+    <tr>
+      <td>Merchant Directory</td>
+      <td>/merchants</td>
+      <td><span class="badge badge-live">Live</span></td>
+      <td>36 verified merchants with stock, ratings, WhatsApp contacts, mall associations</td>
+    </tr>
+    <tr>
+      <td>Authentication Surface</td>
+      <td>/login</td>
+      <td><span class="badge badge-live">Live</span></td>
+      <td>Login page renders; auth infrastructure present</td>
+    </tr>
+    <tr>
+      <td>Admin / Merchant Dashboard</td>
+      <td>/admin, /merchant/dashboard</td>
+      <td><span class="badge badge-warn">Fixed in Code</span></td>
+      <td>Legacy instance exposed; active monorepo has HMAC session enforcement, RBAC, 21 security tests</td>
+    </tr>
+    <tr>
+      <td>WhatsApp Deep Links</td>
+      <td>On merchant cards</td>
+      <td><span class="badge badge-live">Live</span></td>
+      <td>Direct WhatsApp contact buttons on all merchant listings</td>
+    </tr>
+    <tr>
+      <td>Formal Chat Interface</td>
+      <td>/chat</td>
+      <td><span class="badge badge-muted">Not Built</span></td>
+      <td>No dedicated chat path found</td>
+    </tr>
+    <tr>
+      <td>Formal RFQ Workflow</td>
+      <td>/quote</td>
+      <td><span class="badge badge-muted">Not Built</span></td>
+      <td>Timeline RFQ posts exist; no structured workflow or portal</td>
+    </tr>
+    <tr>
+      <td>Individual Product Pages</td>
+      <td>/product/[slug]</td>
+      <td><span class="badge badge-muted">Not Routed</span></td>
+      <td>Product data exists in API; no dedicated pages</td>
+    </tr>
+    <tr>
+      <td>Category Pages</td>
+      <td>/category/*</td>
+      <td><span class="badge badge-muted">Not Routed</span></td>
+      <td>Category data exists; no surface pages</td>
+    </tr>
+  </table>
+</section>
+
+<!-- SECTION 10: CONCLUSION -->
+<section>
+  <h2><span class="num">10</span> Conclusion</h2>
+
+  <p>Shoppage is not a vision document with a thin live surface. It is a functioning commerce-native super-platform with four of six bounded contexts already operational and interleaved. The discovery engine serves real product data. The social timeline aggregates real contractor networks. The video commerce feed has real view counts. The structured API carries investment-grade product enrichment. The merchant verification system is live. The security middleware is resolved in active code with 244 passing tests.</p>
+
+  <p>The business model question is not "can they build it?" — they have already built more than previously understood. The question is "can they monetise it before running out of capital?"</p>
+
+  <p>The answer is <strong>conditionally yes</strong> if:</p>
+  <ol>
+    <li><strong>Merchant premium tiers launch within 30 days.</strong> The verification infrastructure exists. Charge for it.</li>
+    <li><strong>Product catalogue scales from 181 to 10,000+ within 6 months.</strong> 181 products is not a discovery destination.</li>
+    <li><strong>Merchant base scales from 36 to 500+ within 12 months.</strong> 36 merchants is a directory, not a marketplace.</li>
+    <li><strong>RFQ workflow is formalised within 6 months.</strong> Timeline posts prove demand. Structured workflow captures revenue.</li>
+    <li><strong>Working capital of R1.5-2.5M is secured.</strong> The platform will burn cash for 6-9 months before profitability.</li>
+    <li><strong>The "0% take-rate" positioning is refined.</strong> It should mean "merchants keep 100% of direct sales" while Shoppage monetises discovery, verification, leads, and intelligence. Not "we have no revenue model."</li>
+  </ol>
+
+  <p>The competitive moat is real: no competitor offers SA-specific compliance context, verified local merchant stock, video proof commerce, and real-time contractor RFQs in a single platform. But moats only matter if the company survives long enough to deepen them. The next 6 months are about merchant acquisition, content scaling, and revenue activation — not architecture perfection.</p>
+
+  <div class="callout callout-live">
+    <p><strong>Final assessment:</strong> Shoppage has built something genuinely differentiated for South African commerce. The product is stronger than the business model. The risk is not technical execution — it is commercial execution. If the team can shift from "build everything" to "monetise what works," this platform has a real chance of becoming the definitive commerce layer for South African trade.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Shoppage Business Model Analysis v12.0 — 20 September 2026<br>
+  Deep reconnaissance, updated platform reality, and investment viability assessment
+</footer>
+
+</body>
+</html>

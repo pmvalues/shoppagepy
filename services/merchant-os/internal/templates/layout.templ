@@ -1,0 +1,778 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/shoppage/merchant-os/internal/models"
+)
+
+templ Layout(store models.StoreProfile, activeTab string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<meta name="description" content="Shoppage Merchant OS — Enterprise SME B2B catalog, orders, WMS, POS, GMV threshold, and Pemofy AI copilot."/>
+			<title>{ store.Name } — Shoppage Merchant OS</title>
+			<!-- Google Fonts: Bricolage Grotesque & Instrument Sans & JetBrains Mono -->
+			<link rel="preconnect" href="https://fonts.googleapis.com"/>
+			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+			<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+			<!-- HTMX 2.0.2 -->
+			<script src="https://unpkg.com/htmx.org@2.0.2"></script>
+			<style>
+				:root {
+					--bg: #edf1ec;
+					--surface: #ffffff;
+					--surface-2: #f5f7f4;
+					--sidebar: #0a2f24;
+					--sidebar-2: #0d3a2c;
+					--ink: #0d1c15;
+					--ink-2: #37473e;
+					--muted: #6b7a71;
+					--primary: #0e7c56;
+					--primary-2: #0a5c40;
+					--primary-soft: #dcefe4;
+					--amber: #c47c14;
+					--amber-soft: #faecd3;
+					--rose: #b5483a;
+					--rose-soft: #f7e2de;
+					--line: rgba(13,28,21,.10);
+					--line-strong: rgba(13,28,21,.20);
+					--display: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont, sans-serif;
+					--body: "Instrument Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+					--mono: "JetBrains Mono", ui-monospace, monospace;
+					--r-sm: 8px; --r: 12px; --r-lg: 18px;
+					--sh-sm: 0 1px 2px rgba(13,28,21,.05);
+					--sh: 0 1px 2px rgba(13,28,21,.05), 0 12px 28px -18px rgba(13,28,21,.30);
+					--shadow-side: 8px 0 30px -22px rgba(13,28,21,.55);
+					--nav-w: 260px;
+				}
+				* { box-sizing: border-box; }
+				html, body { margin: 0; padding: 0; min-height: 100%; }
+				body {
+					background: var(--bg);
+					color: var(--ink);
+					font-family: var(--body);
+					font-size: 14px;
+					line-height: 1.5;
+					-webkit-font-smoothing: antialiased;
+				}
+				h1, h2, h3, h4 {
+					font-family: var(--display);
+					margin: 0;
+					letter-spacing: -.025em;
+					line-height: 1.15;
+					font-weight: 700;
+				}
+				a { color: inherit; text-decoration: none; }
+				button, input, select, textarea { font: inherit; }
+				button { cursor: pointer; }
+				.app {
+					display: grid;
+					grid-template-columns: var(--nav-w) 1fr;
+					min-height: 100vh;
+					transition: grid-template-columns .2s;
+				}
+				.app.collapsed {
+					grid-template-columns: 68px 1fr;
+				}
+
+				/* SIDEBAR */
+				.side {
+					background: var(--sidebar);
+					color: #dbe8e0;
+					padding: 16px 10px;
+					display: flex;
+					flex-direction: column;
+					gap: 3px;
+					box-shadow: var(--shadow-side);
+					position: sticky;
+					top: 0;
+					height: 100vh;
+					overflow-y: auto;
+				}
+				.brand {
+					display: flex;
+					align-items: center;
+					gap: 10px;
+					padding: 4px 8px 12px;
+					color: #fff;
+					font-family: var(--display);
+					font-weight: 800;
+					font-size: 18px;
+					letter-spacing: -.04em;
+				}
+				.brand .mark {
+					width: 32px;
+					height: 32px;
+					border-radius: 9px;
+					background: var(--primary);
+					display: grid;
+					place-items: center;
+					flex: none;
+				}
+				.store-switch {
+					display: flex;
+					align-items: center;
+					gap: 10px;
+					background: var(--sidebar-2);
+					border: 1px solid rgba(255,255,255,.10);
+					border-radius: var(--r);
+					padding: 8px 10px;
+					margin-bottom: 8px;
+				}
+				.store-switch .av {
+					width: 30px;
+					height: 30px;
+					border-radius: 8px;
+					background: linear-gradient(135deg, #0e7c56, #3fb886);
+					display: grid;
+					place-items: center;
+					color: #fff;
+					font-family: var(--display);
+					font-weight: 700;
+					font-size: 13px;
+					flex: none;
+				}
+				.store-switch .meta { min-width: 0; }
+				.store-switch .meta b {
+					display: block;
+					color: #fff;
+					font-size: 12px;
+					font-weight: 600;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+				.store-switch .meta span {
+					font-size: 10.5px;
+					color: #8fb3a3;
+					display: flex;
+					align-items: center;
+					gap: 4px;
+				}
+				.live-dot {
+					width: 6px;
+					height: 6px;
+					border-radius: 50%;
+					background: #4fe0a4;
+					box-shadow: 0 0 0 3px rgba(79,224,164,.25);
+				}
+				.nav-label {
+					font-size: 9.5px;
+					text-transform: uppercase;
+					letter-spacing: .14em;
+					color: #6f9384;
+					padding: 10px 8px 3px;
+					font-weight: 700;
+				}
+				.nav-item {
+					display: flex;
+					align-items: center;
+					gap: 10px;
+					padding: 6px 10px;
+					border-radius: 8px;
+					font-size: 12.5px;
+					color: #c4d7cd;
+					font-weight: 500;
+					border: 0;
+					background: transparent;
+					width: 100%;
+					text-align: left;
+					transition: all .15s;
+					cursor: pointer;
+					white-space: nowrap;
+				}
+				.nav-item:hover {
+					background: rgba(255,255,255,.07);
+					color: #fff;
+				}
+				.nav-item.active {
+					background: var(--primary);
+					color: #fff;
+					font-weight: 600;
+				}
+				.nav-item .badge {
+					margin-left: auto;
+					background: rgba(255,255,255,.14);
+					color: #fff;
+					font-size: 10px;
+					font-weight: 600;
+					padding: 1px 6px;
+					border-radius: 999px;
+				}
+				.nav-item .badge.warn {
+					background: var(--amber);
+					color: #3a2600;
+				}
+				.app.collapsed .nav-item span, 
+				.app.collapsed .nav-label, 
+				.app.collapsed .store-switch .meta, 
+				.app.collapsed .brand span:not(.mark), 
+				.app.collapsed .side-foot {
+					display: none;
+				}
+				.app.collapsed .nav-item {
+					justify-content: center;
+					padding: 10px 0;
+				}
+				.side-foot {
+					margin-top: auto;
+					padding-top: 14px;
+				}
+				.side-note {
+					display: flex;
+					gap: 8px;
+					align-items: flex-start;
+					font-size: 10.5px;
+					color: #8fb3a3;
+					background: var(--sidebar-2);
+					border-radius: 9px;
+					padding: 9px;
+					line-height: 1.4;
+				}
+
+				/* MAIN CONTENT */
+				.main {
+					padding: 18px clamp(14px, 2.5vw, 28px) 36px;
+					max-width: 1440px;
+					width: 100%;
+				}
+				.topbar {
+					display: flex;
+					align-items: center;
+					gap: 12px;
+					flex-wrap: wrap;
+					margin-bottom: 18px;
+				}
+				.greet h1 { font-size: clamp(1.25rem, 1.8vw, 1.55rem); }
+				.greet p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
+				.top-tools { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+				
+				.omni-btn {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					background: var(--surface);
+					border: 1px solid var(--line);
+					border-radius: 999px;
+					padding: 6px 14px;
+					color: var(--muted);
+					font-size: 12.5px;
+					box-shadow: var(--sh-sm);
+					cursor: pointer;
+				}
+				.omni-btn:hover {
+					border-color: var(--line-strong);
+					color: var(--ink);
+				}
+				.btn {
+					display: inline-flex;
+					align-items: center;
+					justify-content: center;
+					gap: 6px;
+					font-weight: 600;
+					font-size: 12.5px;
+					padding: 7px 13px;
+					border-radius: 8px;
+					border: 1px solid transparent;
+					cursor: pointer;
+					white-space: nowrap;
+					transition: all .15s;
+				}
+				.btn.solid {
+					background: var(--primary);
+					color: #fff;
+					box-shadow: var(--sh-sm);
+				}
+				.btn.solid:hover { background: var(--primary-2); }
+				.btn.ghost {
+					background: var(--surface);
+					border-color: var(--line);
+					color: var(--ink);
+				}
+				.btn.ghost:hover { border-color: var(--line-strong); }
+				.btn.dark {
+					background: var(--sidebar);
+					color: #fff;
+				}
+				.btn.dark:hover { background: var(--sidebar-2); }
+				.btn.small {
+					padding: 4px 8px;
+					font-size: 11px;
+					border-radius: 6px;
+				}
+
+				/* CARDS & PANELS */
+				.card {
+					background: var(--surface);
+					border: 1px solid var(--line);
+					border-radius: var(--r-lg);
+					box-shadow: var(--sh);
+				}
+				.panel { padding: 18px; }
+				.panel-head {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					gap: 10px;
+					margin-bottom: 14px;
+				}
+				.panel-head h3 { font-size: 16px; }
+				.panel-head .sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+				.grid-kpi {
+					display: grid;
+					grid-template-columns: repeat(4, 1fr);
+					gap: 12px;
+				}
+				.kpi { padding: 14px 16px; }
+				.kpi .k-label {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					font-size: 11.5px;
+					color: var(--muted);
+					font-weight: 600;
+				}
+				.kpi .k-val {
+					font-family: var(--display);
+					font-weight: 800;
+					font-size: clamp(1.4rem, 2vw, 1.8rem);
+					letter-spacing: -.04em;
+					margin: 6px 0 2px;
+				}
+				.kpi .k-val .sub { font-size: .85rem; font-weight: 600; color: var(--muted); }
+				.kpi .k-foot {
+					display: flex;
+					align-items: center;
+					gap: 6px;
+					font-size: 11.5px;
+					margin-top: 4px;
+				}
+				.k-foot .then { color: var(--muted); }
+
+				.chip {
+					display: inline-flex;
+					align-items: center;
+					gap: 3px;
+					font-size: 11px;
+					font-weight: 700;
+					padding: 2px 7px;
+					border-radius: 999px;
+				}
+				.chip.up { background: var(--primary-soft); color: var(--primary-2); }
+				.chip.down { background: var(--rose-soft); color: var(--rose); }
+				.chip.warn { background: var(--amber-soft); color: #7a4e05; }
+				.chip.flat { background: var(--surface-2); color: var(--muted); }
+
+				.meter-card {
+					padding: 18px;
+					background: linear-gradient(140deg, var(--sidebar), #12513c);
+					border: 1px solid rgba(255,255,255,.08);
+					color: #dbe8e0;
+				}
+				.meter-card h3 { color: #fff; font-size: 15.5px; }
+				.meter-card .sub { color: #9fc2b3; font-size: 12px; margin-top: 2px; }
+				.meter-top {
+					display: flex;
+					align-items: flex-end;
+					gap: 12px;
+					flex-wrap: wrap;
+					margin: 14px 0 4px;
+				}
+				.meter-big {
+					font-family: var(--display);
+					font-weight: 800;
+					font-size: clamp(1.5rem, 2.2vw, 2rem);
+					letter-spacing: -.04em;
+					color: #fff;
+					line-height: 1;
+				}
+				.meter-big .t { font-size: 1rem; color: #9fc2b3; font-weight: 600; }
+				.meter-flag { margin-left: auto; text-align: right; }
+				.meter-flag b { display: block; color: #4fe0a4; font-family: var(--display); font-weight: 700; font-size: 14px; }
+				.meter-flag span { font-size: 11.5px; color: #9fc2b3; }
+				.bar {
+					height: 12px;
+					border-radius: 999px;
+					background: rgba(255,255,255,.12);
+					overflow: hidden;
+					margin-top: 12px;
+					position: relative;
+				}
+				.bar .fill {
+					height: 100%;
+					background: linear-gradient(90deg, #3fb886, #5fe0a4);
+					border-radius: 999px;
+				}
+				.meter-scale {
+					display: flex;
+					justify-content: space-between;
+					font-size: 11px;
+					color: #9fc2b3;
+					margin-top: 6px;
+				}
+				.meter-scale b { color: #e4f0ea; font-weight: 600; }
+
+				.row-2 {
+					display: grid;
+					grid-template-columns: 1.5fr 1fr;
+					gap: 14px;
+					margin-bottom: 14px;
+				}
+				.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+				.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+				.table-wrap { overflow-x: auto; width: 100%; }
+				.table {
+					width: 100%;
+					border-collapse: collapse;
+					font-size: 13px;
+				}
+				.table th {
+					text-align: left;
+					padding: 10px 14px;
+					font-size: 11px;
+					text-transform: uppercase;
+					letter-spacing: .06em;
+					color: var(--muted);
+					border-bottom: 1px solid var(--line);
+					background: var(--surface-2);
+					font-weight: 700;
+				}
+				.table td {
+					padding: 10px 14px;
+					border-bottom: 1px solid var(--line);
+					vertical-align: middle;
+				}
+				.table tr:last-child td { border-bottom: 0; }
+				.table tr:hover td { background: var(--surface-2); }
+
+				/* FORM ELEMENTS */
+				.form-group { margin-bottom: 12px; }
+				.form-group label {
+					display: block;
+					font-size: 12px;
+					font-weight: 700;
+					margin-bottom: 4px;
+					color: var(--ink);
+				}
+				.input, .textarea, .select-full {
+					width: 100%;
+					border: 1px solid var(--line-strong);
+					background: var(--surface);
+					border-radius: 8px;
+					padding: 8px 11px;
+					color: var(--ink);
+					font-size: 13px;
+				}
+				.input:focus, .textarea:focus, .select-full:focus {
+					border-color: var(--primary);
+					outline: 0;
+					box-shadow: 0 0 0 3px rgba(14,124,86,.12);
+				}
+
+				/* MODAL CONTAINER & DIALOG */
+				#modal-container:not(:empty) {
+					position: fixed;
+					inset: 0;
+					background: rgba(10,47,36,.65);
+					backdrop-filter: blur(4px);
+					z-index: 1000;
+					display: grid;
+					place-items: center;
+					padding: 20px;
+					overflow-y: auto;
+				}
+				.modal-card {
+					background: var(--surface);
+					border-radius: var(--r-lg);
+					box-shadow: 0 20px 50px -15px rgba(0,0,0,.35);
+					width: 100%;
+					max-height: 90vh;
+					overflow-y: auto;
+					border: 1px solid var(--line);
+				}
+				.modal-head {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					padding: 16px 20px;
+					border-bottom: 1px solid var(--line);
+				}
+				.modal-head h3, .modal-head h4 { font-size: 16px; margin: 0; }
+				.modal-body { padding: 18px 20px; }
+				.modal-foot {
+					display: flex;
+					justify-content: flex-end;
+					gap: 8px;
+					padding: 14px 20px;
+					border-top: 1px solid var(--line);
+					background: var(--surface-2);
+					border-radius: 0 0 var(--r-lg) var(--r-lg);
+				}
+				.close-btn {
+					background: transparent;
+					border: 0;
+					font-size: 22px;
+					color: var(--muted);
+					cursor: pointer;
+					line-height: 1;
+				}
+				.close-btn:hover { color: var(--rose); }
+
+				dialog.modal-dialog {
+					border: 0;
+					border-radius: var(--r-lg);
+					padding: 0;
+					background: transparent;
+					box-shadow: 0 24px 60px -15px rgba(0,0,0,.4);
+					max-width: 600px;
+					width: 90%;
+				}
+				dialog::backdrop {
+					background: rgba(10,47,36,.65);
+					backdrop-filter: blur(4px);
+				}
+
+				@media(max-width: 1120px) {
+					.grid-kpi { grid-template-columns: repeat(2, 1fr); }
+					.app { grid-template-columns: 1fr; }
+					.side { position: static; height: auto; }
+					.row-2 { grid-template-columns: 1fr; }
+					.three-col { grid-template-columns: 1fr; }
+				}
+			</style>
+		</head>
+		<body>
+			<div class="app" id="app-root">
+				<!-- SIDEBAR -->
+				@LeftSidebar(store, activeTab)
+
+				<!-- MAIN CONTENT -->
+				<main class="main">
+					<header class="topbar">
+						<button 
+							type="button" 
+							class="btn ghost small" 
+							title="Toggle Sidebar (Ctrl+B)" 
+							onclick="document.getElementById('app-root').classList.toggle('collapsed');"
+						>
+							<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"></path></svg>
+						</button>
+
+						<div class="greet">
+							<h1>{ store.Name } Control Desk</h1>
+							<p>Enterprise Merchant OS · Sovereign Cloud on pod-za-01, Johannesburg</p>
+						</div>
+
+						<div class="top-tools">
+							<!-- Omnibar Search Trigger -->
+							<div class="omni-btn" onclick="document.getElementById('omnibar-dialog')?.showModal(); document.getElementById('omnibar-search')?.focus();">
+								<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4a7 7 0 105 12l4 4"></path></svg>
+								<span>Quick Search…</span>
+								<span style="font-family:var(--mono); font-size:10.5px; background:var(--surface-2); padding:1px 5px; border-radius:4px; border:1px solid var(--line);">Ctrl+K</span>
+							</div>
+
+							<!-- Theme Switcher -->
+							<select class="select" onchange="applyTheme(this.value);" style="padding:5px 8px; font-size:11.5px; border-radius:8px; border:1px solid var(--line);">
+								<option value="artisan">Artisan Emerald</option>
+								<option value="graphite">Dark Graphite</option>
+								<option value="light">Studio Light</option>
+							</select>
+
+							<a href={ templ.SafeURL(fmt.Sprintf("http://localhost:3001/m/%s", store.ID)) } target="_blank" class="btn ghost small">
+								<span>↗</span> Public Store
+							</a>
+
+							<button 
+								hx-get="/tab/copilot" 
+								hx-target="#tab-content" 
+								hx-push-url="true" 
+								class="btn dark small"
+							>
+								<span>✨</span> Copilot (Ctrl+J)
+							</button>
+						</div>
+					</header>
+
+					<!-- DYNAMIC TAB CONTENT CONTAINER -->
+					<div id="tab-content">
+						{ children... }
+					</div>
+				</main>
+
+				<!-- MODAL CONTAINER (Populated via HTMX swaps) -->
+				<div id="modal-container"></div>
+
+				<!-- OMNIBAR DIALOG -->
+				@OmnibarDialog()
+			</div>
+
+			<script>
+				// Global Keyboard Shortcuts
+				window.addEventListener('keydown', function(e) {
+					if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+						e.preventDefault();
+						var omni = document.getElementById('omnibar-dialog');
+						if (omni) {
+							if (omni.open) omni.close();
+							else { omni.showModal(); document.getElementById('omnibar-search')?.focus(); }
+						}
+					}
+					if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+						e.preventDefault();
+						document.getElementById('app-root')?.classList.toggle('collapsed');
+					}
+					if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'j') {
+						e.preventDefault();
+						var btn = document.querySelector('[hx-get="/tab/copilot"]');
+						if (btn) btn.click();
+					}
+				});
+			</script>
+		</body>
+	</html>
+}
+
+templ LeftSidebar(store models.StoreProfile, activeTab string) {
+	<aside class="side">
+		<!-- Brand Header -->
+		<div class="brand">
+			<span class="mark">
+				<svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+					<path d="M12 2l2.6 6.3L21 11l-6.4 2.7L12 20l-2.6-6.3L3 11l6.4-2.7L12 2z" fill="#fff"></path>
+				</svg>
+			</span>
+			<span>PEMOFY OS</span>
+		</div>
+
+		<!-- Store Switcher Pill -->
+		<div class="store-switch">
+			<span class="av">M</span>
+			<div class="meta">
+				<b>{ store.Name }</b>
+				<span><i class="live-dot"></i> Live · CIPC: { store.CIPCRegistration }</span>
+			</div>
+		</div>
+
+		<!-- Nav: 1. ROLE CENTER -->
+		<div class="nav-label">Role Center</div>
+		<button hx-get="/tab/overview" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "" || activeTab == "overview") }>
+			<span>📊</span>
+			<span>Overview &amp; Velocity</span>
+		</button>
+		<button hx-get="/tab/analytics" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "analytics") }>
+			<span>📈</span>
+			<span>Analytics &amp; Funnel</span>
+		</button>
+		<button hx-get="/tab/audit-logs" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "audit-logs") }>
+			<span>🔒</span>
+			<span>Audit Trail</span>
+		</button>
+		<button hx-get="/tab/copilot" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "copilot") }>
+			<span>✨</span>
+			<span>AI Studio</span>
+			<span class="badge" style="background:#4fe0a4; color:#0a2f24;">AI</span>
+		</button>
+
+		<!-- Nav: 2. SALES & ORDERS -->
+		<div class="nav-label">Sales &amp; Orders</div>
+		<button hx-get="/tab/chat" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "chat") }>
+			<span>💬</span>
+			<span>Direct Messages &amp; Chat</span>
+			<span class="badge" style="background:#4fe0a4; color:#0a2f24;">Live</span>
+		</button>
+		<button hx-get="/tab/orders" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "orders") }>
+			<span>📑</span>
+			<span>Sales Orders &amp; Proformas</span>
+		</button>
+		<button hx-get="/tab/pick-pack" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "pick-pack") }>
+			<span>🏷️</span>
+			<span>Pick &amp; Pack Station</span>
+			<span class="badge warn">WMS</span>
+		</button>
+		<button hx-get="/tab/manifests" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "manifests") }>
+			<span>🚚</span>
+			<span>Carrier Manifests</span>
+		</button>
+		<button hx-get="/tab/rfqs" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "rfqs") }>
+			<span>📑</span>
+			<span>Live RFQ Desk</span>
+			<span class="badge warn">Quotes</span>
+		</button>
+
+		<!-- Nav: 3. INVENTORY & WMS -->
+		<div class="nav-label">Inventory &amp; Logistics</div>
+		<button hx-get="/tab/catalog" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "catalog") }>
+			<span>📦</span>
+			<span>Catalog &amp; Stock Matrix</span>
+		</button>
+		<button hx-get="/tab/inventory" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "inventory") }>
+			<span>🏢</span>
+			<span>Stock Balances &amp; Hubs</span>
+		</button>
+		<button hx-get="/tab/transfers" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "transfers") }>
+			<span>🔄</span>
+			<span>Inter-Hub Transfers</span>
+		</button>
+		<button hx-get="/tab/scan" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "scan") }>
+			<span>📷</span>
+			<span>Barcode &amp; Audits</span>
+		</button>
+
+		<!-- Nav: 4. CUSTOMERS & TRADE -->
+		<div class="nav-label">Customers &amp; Trade</div>
+		<button hx-get="/tab/customers" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "customers") }>
+			<span>👥</span>
+			<span>B2B CRM Accounts</span>
+		</button>
+		<button hx-get="/tab/discounts" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "discounts") }>
+			<span>🏷️</span>
+			<span>Wholesale Tiers &amp; Promos</span>
+		</button>
+		<button hx-get="/tab/pos" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "pos") }>
+			<span>💳</span>
+			<span>POS Trade Counter</span>
+		</button>
+
+		<!-- Nav: 5. GROWTH & CHANNELS -->
+		<div class="nav-label">Growth &amp; Channels</div>
+		<button hx-get="/tab/channels" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "channels") }>
+			<span>🌐</span>
+			<span>WhatsApp &amp; Channels</span>
+		</button>
+		<button hx-get="/tab/flow" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "flow") }>
+			<span>⚡</span>
+			<span>Flow Automations</span>
+		</button>
+		<button hx-get="/tab/feeds" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "feeds") }>
+			<span>🛒</span>
+			<span>Google Shopping Feeds</span>
+		</button>
+		<button hx-get="/tab/editor" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "editor") }>
+			<span>🎨</span>
+			<span>Theme Studio</span>
+		</button>
+		<button hx-get="/tab/media" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "media") }>
+			<span>📁</span>
+			<span>Media &amp; Documents</span>
+		</button>
+
+		<!-- Nav: 6. SETTINGS -->
+		<div class="nav-label">Configuration</div>
+		<button hx-get="/tab/settings" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "settings") }>
+			<span>⚙️</span>
+			<span>Settings &amp; Sovereign Pod</span>
+		</button>
+
+		<!-- Pod Security Note -->
+		<div class="side-foot">
+			<div class="side-note">
+				<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4fe0a4" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+				<span>Your store runs in its own database on <b style="color:#fff">pod-za-01</b>, Johannesburg.</span>
+			</div>
+		</div>
+	</aside>
+}

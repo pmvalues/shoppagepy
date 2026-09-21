@@ -1,0 +1,177 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/shoppage/merchant-os/internal/models"
+)
+
+func stockPercent(qty int) int {
+	pct := qty / 10
+	if pct > 100 {
+		return 100
+	}
+	if pct < 5 {
+		return 5
+	}
+	return pct
+}
+
+templ ProductDetailModal(sku models.CatalogSKU) {
+	<div class="modal-card" style="max-width:960px;">
+		<div class="modal-head">
+			<div>
+				<div class="breadcrumb" style="margin-bottom:4px;">
+					<span>Catalog</span>
+					<span>&gt;</span>
+					<span>{ sku.Category }</span>
+					<span>&gt;</span>
+					<b>{ sku.SKU }</b>
+				</div>
+				<h3 style="display:flex; align-items:center; gap:8px;">
+					{ sku.Title }
+					if sku.InStock {
+						<span class="chip up">Published · In Stock</span>
+					} else {
+						<span class="chip down">Out of Stock</span>
+					}
+				</h3>
+			</div>
+			<div style="display:flex; gap:8px; align-items:center;">
+				<button 
+					hx-get={ fmt.Sprintf("/catalog/%s/edit", sku.ID) } 
+					hx-target="#modal-container" 
+					class="btn solid small"
+				>
+					<span>✏️</span> Edit Product
+				</button>
+				<button type="button" class="close-btn" onclick="document.getElementById('modal-container').innerHTML = '';">&times;</button>
+			</div>
+		</div>
+
+		<div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
+			<div class="detail-grid">
+				<!-- Hero Gallery Simulation -->
+				<div class="card gallery-card" style="padding:14px; background:var(--surface-2); border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:260px;">
+					<div style="width:120px; height:120px; border-radius:16px; background:linear-gradient(135deg,#0e7c56,#4fe0a4); display:grid; place-items:center; color:#fff; font-size:48px; box-shadow:0 8px 24px -10px rgba(14,124,86,.4);">
+						📦
+					</div>
+					<div style="margin-top:14px; text-align:center;">
+						<b>{ sku.Brand } — { sku.Title }</b>
+						<div style="font-size:12px; color:var(--muted); margin-top:2px;">CIPC / SABS Verified Commercial SKU · Standard Carton Unit</div>
+					</div>
+				</div>
+
+				<!-- Pricing & Inventory Panel -->
+				<div class="card panel">
+					<div style="font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; font-weight:700;">
+						{ sku.Category }
+					</div>
+					<div style="display:flex; align-items:baseline; gap:10px; margin:8px 0 12px;">
+						<span style="font-family:var(--display); font-size:2rem; font-weight:800; color:var(--primary-2);">
+							{ fmt.Sprintf("R%.2f", sku.WholesaleZar) }
+						</span>
+						<span style="text-decoration:line-through; color:var(--muted); font-size:14px;">
+							{ fmt.Sprintf("R%.2f Retail", sku.RetailZar) }
+						</span>
+						<span class="chip up">Wholesale Margin</span>
+					</div>
+
+					<p style="font-size:13.5px; color:var(--ink-2); line-height:1.5; margin-bottom:14px;">
+						{ sku.Spec.LongDesc }
+					</p>
+
+					<div class="info-grid">
+						<div class="info-cell">
+							<label>Available Stock</label>
+							<b>{ fmt.Sprintf("%d units", sku.StockQuantity) }</b>
+							<div class="progress">
+								<span style={ fmt.Sprintf("width:%d%%;", stockPercent(sku.StockQuantity)) }></span>
+							</div>
+						</div>
+						<div class="info-cell">
+							<label>Reorder Buffer</label>
+							<b>{ fmt.Sprintf("%d units", sku.LowStockAlert) }</b>
+							<div class="micro" style="color:var(--primary);">Auto-trigger active</div>
+						</div>
+						<div class="info-cell">
+							<label>HS Code</label>
+							<b>{ sku.Spec.HSCode }</b>
+							<div class="micro">SABS Compliant</div>
+						</div>
+						<div class="info-cell">
+							<label>Weight (kg)</label>
+							<b>{ fmt.Sprintf("%.2f kg", sku.Spec.WeightKg) }</b>
+							<div class="micro">{ sku.Spec.Dimensions }</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Lower Detail Panels -->
+			<div class="detail-lower">
+				<!-- Product Specifications -->
+				<div class="card panel">
+					<div class="panel-title">
+						<h3>Product Specs</h3>
+					</div>
+					<div class="kv-list">
+						<div class="kv-row">
+							<span>SKU Code</span>
+							<b style="font-family:var(--mono);">{ sku.SKU }</b>
+						</div>
+						<div class="kv-row">
+							<span>Brand</span>
+							<b>{ sku.Brand }</b>
+						</div>
+						<div class="kv-row">
+							<span>Material</span>
+							<b>{ sku.Spec.Material }</b>
+						</div>
+						<div class="kv-row">
+							<span>Barcode (EAN-13)</span>
+							<b style="font-family:var(--mono);">{ sku.Spec.Barcode }</b>
+						</div>
+					</div>
+				</div>
+
+				<!-- SEO & Discovery -->
+				<div class="card panel">
+					<div class="panel-title">
+						<h3>Search &amp; Discovery</h3>
+						<span class="chip up">{ fmt.Sprintf("SEO %d/100", sku.Spec.SEOScore) }</span>
+					</div>
+					<div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+						<div style="width:48px; height:48px; border-radius:50%; background:var(--primary-soft); display:grid; place-items:center; font-weight:800; font-family:var(--display); color:var(--primary-2); font-size:16px;">
+							{ fmt.Sprintf("%d", sku.Spec.SEOScore) }
+						</div>
+						<div>
+							<b>Ready for Google Merchant Sync</b>
+							<p style="margin:2px 0 0; font-size:12px; color:var(--muted);">Product JSON-LD and OpenGraph tags are valid.</p>
+						</div>
+					</div>
+					<div style="display:flex; gap:6px; flex-wrap:wrap;">
+						for _, tag := range sku.Spec.SEOTags {
+							<span style="font-size:11.5px; padding:3px 8px; background:var(--surface-2); border-radius:6px; color:var(--ink-2);">{ tag }</span>
+						}
+					</div>
+				</div>
+
+				<!-- Activity Log -->
+				<div class="card panel">
+					<div class="panel-title">
+						<h3>Recent Activity</h3>
+					</div>
+					<div class="activity">
+						for _, act := range sku.Spec.Activities {
+							<div class="activity-row">
+								<span class="bullet"></span>
+								<span>{ act.Description }</span>
+								<span class="time">{ act.TimeAgo }</span>
+							</div>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}

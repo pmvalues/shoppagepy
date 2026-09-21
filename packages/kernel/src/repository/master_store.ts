@@ -91,7 +91,7 @@ export class MasterProductStore {
       if (p.modelNumber === id || p.identifiers.mpn === id || p.identifiers.gtin13 === id) return true;
       const pClean = p.canonicalId.replace(/^(?:prod_|var_|ext_|p_)/, '').toLowerCase();
       if (pClean === idClean) return true;
-      if (p.aliases?.some((a) => a.phrase.toLowerCase() === id.toLowerCase())) return true;
+      if (p.aliases?.some((a: { phrase: string }) => a.phrase.toLowerCase() === id.toLowerCase())) return true;
       return false;
     });
     if (altSeed) return altSeed;
@@ -152,7 +152,7 @@ export class MasterProductStore {
         (p.attributes?.description as string)?.toLowerCase().includes(tok) ||
         p.identifiers.mpn?.toLowerCase().includes(tok) ||
         p.identifiers.gtin13?.includes(tok) ||
-        p.aliases?.some((a) => a.phrase.toLowerCase().includes(tok))
+        p.aliases?.some((a: { phrase: string }) => a.phrase.toLowerCase().includes(tok))
       );
     });
 

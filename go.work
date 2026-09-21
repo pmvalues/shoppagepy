@@ -1,0 +1,9 @@
+go 1.25.0
+
+use (
+	./services/chat-gateway
+	./services/consumer-web
+	./services/merchant-os
+	./services/search-core
+	./services/sweeper-engine
+)

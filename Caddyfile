@@ -1,0 +1,37 @@
+# ==============================================================================
+# Shoppage Caddyfile (Production Automatic SSL Reverse Proxy)
+# Zero SSL maintenance — Let's Encrypt & ZeroSSL certificates auto-provisioned
+# ==============================================================================
+
+{$DOMAIN:shoppage.co.za}, www.{$DOMAIN:shoppage.co.za} {
+    # 1. Reverse proxy WebSockets directly to Chat Gateway (:8080)
+    @websockets {
+        header Connection *Upgrade*
+        header Upgrade websocket
+    }
+    reverse_proxy @websockets consumer-web:3000
+
+    # 2. Reverse proxy all web traffic to the Unified Gateway (:3000)
+    reverse_proxy consumer-web:3000 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    # 3. Modern high-speed compression
+    encode zstd gzip
+
+    # 4. Security & Caching Headers
+    @static {
+        path *.js *.css *.png *.jpg *.jpeg *.svg *.woff2 *.ico *.webp
+    }
+    header @static Cache-Control "public, max-age=31536000, immutable"
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+}

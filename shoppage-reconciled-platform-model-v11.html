@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shoppage — Reconciled Platform Model & Build Plan v11.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c10;
+  --surface: #13161f;
+  --surface-2: #1a1e2b;
+  --surface-3: #222838;
+  --ink: #e2e5ec;
+  --ink-dim: #8b92a8;
+  --accent: #f5a623;
+  --accent-weak: rgba(245,166,35,0.10);
+  --accent-glow: rgba(245,166,35,0.30);
+  --live: #34d399;
+  --live-weak: rgba(52,211,153,0.10);
+  --warn: #fbbf24;
+  --warn-weak: rgba(251,191,36,0.10);
+  --danger: #f87171;
+  --danger-weak: rgba(248,113,113,0.10);
+  --info: #60a5fa;
+  --info-weak: rgba(96,165,250,0.10);
+  --line: rgba(255,255,255,0.05);
+  --line-strong: rgba(255,255,255,0.10);
+  --step--2: clamp(0.7rem, 0.68rem + 0.1vw, 0.8rem);
+  --step--1: clamp(0.8rem, 0.78rem + 0.12vw, 0.9rem);
+  --step-0: clamp(0.95rem, 0.9rem + 0.25vw, 1.05rem);
+  --step-1: clamp(1.15rem, 1.05rem + 0.5vw, 1.5rem);
+  --step-2: clamp(1.6rem, 1.35rem + 1.25vw, 2.4rem);
+  --step-3: clamp(2.2rem, 1.7rem + 2.5vw, 3.8rem);
+  --space: clamp(1rem, 0.85rem + 0.75vw, 1.5rem);
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Inter", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.65;
+  font-size: var(--step-0);
+}
+
+header {
+  padding: calc(var(--space)*3) var(--space) calc(var(--space)*2);
+  max-width: 76rem;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--line-strong);
+  position: relative;
+}
+
+header::before {
+  content: "";
+  position: absolute;
+  top: -30%;
+  right: -5%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(245,166,35,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+header h1 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: var(--step-3);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--space);
+  position: relative;
+}
+
+header h1 span { color: var(--accent); }
+
+header .meta {
+  color: var(--ink-dim);
+  font-size: var(--step--1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: calc(var(--space)*0.75);
+  position: relative;
+}
+
+header .meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pulse {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--live);
+  box-shadow: 0 0 0 0 rgba(52,211,153,0.4);
+  animation: pulse-dot 2s infinite;
+}
+
+.pulse-warn {
+  background: var(--warn);
+  animation: pulse-warn 2s infinite;
+}
+
+.pulse-danger {
+  background: var(--danger);
+  animation: pulse-danger 2s infinite;
+}
+
+.pulse-info {
+  background: var(--info);
+  animation: pulse-info 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { box-shadow: 0 0 0 0 rgba(52,211,153,0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(52,211,153,0); }
+  100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
+}
+
+@keyframes pulse-warn {
+  0% { box-shadow: 0 0 0 0 rgba(251,191,36,0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(251,191,36,0); }
+  100% { box-shadow: 0 0 0 0 rgba(251,191,36,0); }
+}
+
+@keyframes pulse-danger {
+  0% { box-shadow: 0 0 0 0 rgba(248,113,113,0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(248,113,113,0); }
+  100% { box-shadow: 0 0 0 0 rgba(248,113,113,0); }
+}
+
+@keyframes pulse-info {
+  0% { box-shadow: 0 0 0 0 rgba(96,165,250,0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(96,165,250,0); }
+  100% { box-shadow: 0 0 0 0 rgba(96,165,250,0); }
+}
+
+main {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: calc(var(--space)*2) var(--space);
+}
+
+section {
+  margin-bottom: calc(var(--space)*3);
+}
+
+h2 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: var(--step-2);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: calc(var(--space)*1.25);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+h2 .num {
+  font-size: var(--step--2);
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+h3 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: var(--step-1);
+  font-weight: 600;
+  margin: calc(var(--space)*1.5) 0 calc(var(--space)*0.6);
+  color: var(--ink);
+}
+
+h4 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: var(--step-0);
+  font-weight: 600;
+  margin: calc(var(--space)*1.2) 0 calc(var(--space)*0.4);
+  color: var(--ink-dim);
+}
+
+p { margin-bottom: calc(var(--space)*0.75); max-width: 68ch; }
+
+.lead {
+  font-size: var(--step-1);
+  color: var(--ink-dim);
+  line-height: 1.5;
+  max-width: 62ch;
+  margin-bottom: calc(var(--space)*1.5);
+  position: relative;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: calc(var(--space)*1.25);
+  margin-bottom: var(--space);
+}
+
+.card h4 { margin-top: 0; }
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space);
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space);
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--step--2);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-live {
+  background: var(--live-weak);
+  color: var(--live);
+  border: 1px solid rgba(52,211,153,0.2);
+}
+
+.badge-warn {
+  background: var(--warn-weak);
+  color: var(--warn);
+  border: 1px solid rgba(251,191,36,0.2);
+}
+
+.badge-danger {
+  background: var(--danger-weak);
+  color: var(--danger);
+  border: 1px solid rgba(248,113,113,0.2);
+}
+
+.badge-accent {
+  background: var(--accent-weak);
+  color: var(--accent);
+  border: 1px solid rgba(245,166,35,0.2);
+}
+
+.badge-muted {
+  background: rgba(255,255,255,0.04);
+  color: var(--ink-dim);
+  border: 1px solid var(--line);
+}
+
+.badge-info {
+  background: var(--info-weak);
+  color: var(--info);
+  border: 1px solid rgba(96,165,250,0.2);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--step--1);
+  margin: calc(var(--space)*1) 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+th, td {
+  text-align: left;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+th {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 600;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: var(--step--2);
+  background: var(--surface-2);
+}
+
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+td .badge { font-size: 0.65rem; }
+
+.metric {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: calc(var(--space)*1);
+  text-align: center;
+}
+
+.metric .value {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: var(--step-2);
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1.1;
+}
+
+.metric .label {
+  font-size: var(--step--2);
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.35rem;
+}
+
+.metric .sub {
+  font-size: var(--step--2);
+  color: var(--ink-dim);
+  margin-top: 0.2rem;
+}
+
+ul, ol { margin: 0.5rem 0 0.75rem 1.25rem; }
+li { margin-bottom: 0.35rem; }
+
+.callout {
+  background: var(--surface-2);
+  border-left: 3px solid var(--accent);
+  padding: calc(var(--space)*0.75) calc(var(--space)*1);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin: calc(var(--space)*1) 0;
+  font-size: var(--step--1);
+}
+
+.callout-danger {
+  border-left-color: var(--danger);
+  background: var(--danger-weak);
+}
+
+.callout-warn {
+  border-left-color: var(--warn);
+  background: var(--warn-weak);
+}
+
+.callout-live {
+  border-left-color: var(--live);
+  background: var(--live-weak);
+}
+
+.callout-info {
+  border-left-color: var(--info);
+  background: var(--info-weak);
+}
+
+.callout p { margin-bottom: 0; color: var(--ink); }
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.status-row:last-child { border-bottom: none; }
+
+.status-row .path {
+  font-family: "Space Grotesk", monospace;
+  font-size: var(--step--1);
+  color: var(--accent);
+  min-width: 200px;
+  flex-shrink: 0;
+}
+
+.status-row .desc {
+  flex: 1;
+  font-size: var(--step--1);
+  color: var(--ink-dim);
+  min-width: 200px;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 0.35rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 2px;
+  background: var(--line-strong);
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: calc(var(--space)*1.25);
+}
+
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -1.25rem;
+  top: 0.35rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+}
+
+.timeline-item.done::before { background: var(--live); }
+.timeline-item.risk::before { background: var(--danger); }
+.timeline-item.warn::before { background: var(--warn); }
+.timeline-item.info::before { background: var(--info); }
+
+.timeline-item .week {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: var(--step--2);
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.timeline-item h4 { margin: 0.2rem 0 0.3rem; }
+
+.timeline-item p {
+  font-size: var(--step--1);
+  color: var(--ink-dim);
+  margin-bottom: 0;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover { text-decoration: underline; }
+
+footer {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: calc(var(--space)*2) var(--space);
+  border-top: 1px solid var(--line);
+  color: var(--ink-dim);
+  font-size: var(--step--2);
+  text-align: center;
+}
+
+@media print {
+  body { background: #fff; color: #111; }
+  .no-print { display: none; }
+  :root {
+    --bg: #fff; --surface: #f5f5f5; --surface-2: #eee;
+    --ink: #111; --ink-dim: #444;
+    --accent: #b37300; --live: #059669; --warn: #b45309; --danger: #dc2626; --info: #2563eb;
+    --line: #ddd; --line-strong: #bbb;
+  }
+}
+
+@page { size: A4; margin: 16mm; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse, .pulse-warn, .pulse-danger, .pulse-info { animation: none; }
+}
+
+pre {
+  background: var(--surface-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem;
+  overflow-x: auto;
+  font-size: var(--step--2);
+  line-height: 1.5;
+  color: var(--ink-dim);
+}
+
+code {
+  font-family: "Space Grotesk", "SF Mono", Monaco, monospace;
+  font-size: 0.9em;
+  color: var(--accent);
+}
+
+pre code { color: var(--ink-dim); }
+
+.tag {
+  display: inline-block;
+  font-size: var(--step--2);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--ink-dim);
+  margin-right: 0.3rem;
+}
+
+.section-note {
+  font-size: var(--step--1);
+  color: var(--ink-dim);
+  font-style: italic;
+  margin-bottom: calc(var(--space)*0.75);
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space);
+}
+
+@media (max-width: 640px) {
+  .two-col { grid-template-columns: 1fr; }
+  .status-row { flex-direction: column; align-items: flex-start; }
+  .status-row .path { min-width: auto; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Shoppage <span>v11.0</span></h1>
+  <p class="lead">Reconciled Platform Model & Build Plan. Synthesises the v10.0 authoritative specification, live site reconnaissance, TypeScript kernel reality, corrected security posture, and RFQ strategic recommendation.</p>
+  <div class="meta">
+    <span><span class="pulse"></span> Live site verified 20 Sep 2026</span>
+    <span><span class="pulse-live"></span> Security resolved in active monorepo</span>
+    <span><span class="pulse-info"></span> 244 tests passing (5 packages)</span>
+    <span><span class="pulse-warn"></span> 6 bounded contexts, 3 fully active</span>
+    <span>Document version 11.0</span>
+  </div>
+</header>
+
+<main>
+
+<!-- SECTION 1: CORRECTIONS FROM PRIOR ASSESSMENTS -->
+<section>
+  <h2><span class="num">01</span> Corrections from Prior Assessments</h2>
+
+  <div class="callout callout-info">
+    <p><strong>This document supersedes all prior assessments.</strong> The v10.0 specification (SHOPPAGE_PLATFORM_ARCHITECTURE_AND_SYSTEM_MODEL_v10.0.md) is the authoritative technical baseline. The following corrections reconcile external reconnaissance with the actual active monorepo state.</p>
+  </div>
+
+  <h3>Correction 1: Security Gap Status</h3>
+  <p><strong>Prior assessment (wrong):</strong> The /admin and /merchant/dashboard routes were exploitable on the live site, with no authentication middleware.</p>
+  <p><strong>Corrected reality:</strong> The legacy deployed instance did expose these routes. However, the active monorepo has completely resolved this. The v10.0 spec confirms:</p>
+  <ul>
+    <li><code>apps/web/src/middleware.ts</code> enforces Edge-runtime HMAC encrypted session cookies (<code>shoppage_session</code>)</li>
+    <li>RBAC with role boundaries: <code>superadmin</code>, <code>merchant_owner</code>, <code>merchant_staff</code></li>
+    <li>Multi-tenant store isolation: <code>requestedStore === session.merchantId</code></li>
+    <li>CSRF protection and <code>assertEnvironmentIsSafe()</code> deployment assertion</li>
+    <li><strong>21 dedicated security tests passing with 0 failures</strong> in <code>apps/web/test/security.test.ts</code></li>
+  </ul>
+  <p>The security gap was real on the legacy deployment. It is fixed in code and ready for production cutover.</p>
+
+  <h3>Correction 2: Test Count</h3>
+  <p><strong>Prior assessment (wrong):</strong> 124 tests passing.</p>
+  <p><strong>Corrected reality:</strong> <strong>244 tests passing</strong> (100% green) across 5 monorepo packages: 127 kernel, 96 web, 11 contracts, 9 adapters, 1 eval.</p>
+
+  <h3>Correction 3: Runtime Kernel</h3>
+  <p><strong>Prior assessment (partially wrong):</strong> The backend was described as NestJS-based or framework-heavy.</p>
+  <p><strong>Corrected reality:</strong> The active runtime kernel is <strong>direct TypeScript</strong> — Next.js 16 App Router API route handlers, not NestJS, not Express with heavy framework abstractions. The CMS (Payload, when wired) is separate from the data system. This makes the eventual Go migration simpler: there is no NestJS module graph to untangle, no 46-module dependency tree, no decorators-to-Go translation problem. The API surface is thin route handlers that map cleanly to Go HTTP handlers + pgx queries.</p>
+
+  <h3>Correction 4: Live Site vs. Root Path</h3>
+  <p><strong>Prior assessment (wrong):</strong> The site was a WordPress placeholder.</p>
+  <p><strong>Corrected reality:</strong> The root path renders a cloaking/cached landing shell to some user agents, but sub-routes (<code>/search</code>, <code>/merchants</code>, <code>/malls</code>) expose an active Next.js commerce application with real merchant data, product listings, and 3,296 mall catalogues.</p>
+
+  <h3>Correction 5: Merchant Dashboard</h3>
+  <p><strong>Prior assessment (wrong):</strong> The merchant dashboard was a monolithic liability.</p>
+  <p><strong>Corrected reality:</strong> The former 3,747-line monolithic dashboard has been refactored into 6 discrete domain modules: <code>Overview</code>, <code>AiStoreCrew</code>, <code>Orders</code>, <code>Catalog</code>, <code>Feeds</code>, and <code>Compliance</code>. This is resolved in active code.</p>
+</section>
+
+<!-- SECTION 2: LIVE SITE REALITY -->
+<section>
+  <h2><span class="num">02</span> Live Site Reality (Reconciled)</h2>
+
+  <div class="grid-4">
+    <div class="metric">
+      <div class="value">1M+</div>
+      <div class="label">Products Claimed</div>
+      <div class="sub">Live inventory signals</div>
+    </div>
+    <div class="metric">
+      <div class="value">3,296</div>
+      <div class="label">Shopping Centres</div>
+      <div class="sub">All 9 provinces mapped</div>
+    </div>
+    <div class="metric">
+      <div class="value">36+</div>
+      <div class="label">Verified Merchants</div>
+      <div class="sub">Stock, ratings, contacts</div>
+    </div>
+    <div class="metric">
+      <div class="value">244</div>
+      <div class="label">Tests Passing</div>
+      <div class="sub">5-package monorepo, 100% green</div>
+    </div>
+  </div>
+
+  <h3>Active Routes (Empirically Verified)</h3>
+  <div class="card">
+    <div class="status-row">
+      <span class="path">/robots.txt</span>
+      <span class="desc">Discloses protected routes: /admin, /merchant/dashboard, /api/, /merchant/os</span>
+      <span class="badge badge-live">Live</span>
+    </div>
+    <div class="status-row">
+      <span class="path">/search</span>
+      <span class="desc">Active product discovery: Deye inverters, Sunsynk, Dyness batteries, JA Solar panels, Builders Warehouse integration, restock notifications</span>
+      <span class="badge badge-live">Live</span>
+    </div>
+    <div class="status-row">
+      <span class="path">/merchants</span>
+      <span class="desc">36 verified merchants across all 9 provinces with stock counts, ratings (hundreds of reviews), WhatsApp contacts, mall associations</span>
+      <span class="badge badge-live">Live</span>
+    </div>
+    <div class="status-row">
+      <span class="path">/malls</span>
+      <span class="desc">3,296 shopping centres with anchor tenants, store counts, hours, solar backup tags</span>
+      <span class="badge badge-live">Live</span>
+    </div>
+    <div class="status-row">
+      <span class="path">/admin</span>
+      <span class="desc">Legacy deployed instance returned live Mitrend data without auth. Active monorepo has HMAC session enforcement.</span>
+      <span class="badge badge-warn">Fixed in Code</span>
+    </div>
+    <div class="status-row">
+      <span class="path">/merchant/dashboard</span>
+      <span class="desc">Same as /admin — legacy instance exposed data. Active monorepo has cryptographic session validation and RBAC.</span>
+      <span class="badge badge-warn">Fixed in Code</span>
+    </div>
+  </div>
+
+  <h3>Verified Merchant Sample</h3>
+  <table>
+    <tr>
+      <th>Merchant</th>
+      <th>Location</th>
+      <th>Stock</th>
+      <th>Category</th>
+      <th>Rating</th>
+    </tr>
+    <tr><td>SunPower Solutions Crown Mines</td><td>Dragon City, JHB</td><td>3 SKUs</td><td>Solar</td><td>—</td></tr>
+    <tr><td>SolarBros Sandton City</td><td>Sandton City</td><td>3 SKUs</td><td>Solar</td><td>4.8 (164 reviews)</td></tr>
+    <tr><td>Mama's Phone & Solar Spaza (Bara)</td><td>Baragwanath, Soweto</td><td>—</td><td>Solar</td><td>4.9 (189 reviews)</td></tr>
+    <tr><td>Mitrend Products (Pty) Ltd</td><td>Halfway Gardens, Midrand</td><td>157 SKUs</td><td>Multi</td><td>—</td></tr>
+    <tr><td>Rubicon Electrical & Solar Sandton</td><td>Sandton</td><td>1 SKU</td><td>Solar</td><td>5.0 (78 reviews)</td></tr>
+    <tr><td>Umhlanga Solar & Inverter Hub</td><td>Gateway, Durban</td><td>—</td><td>Solar</td><td>4.8 (142 reviews)</td></tr>
+    <tr><td>Century Power Solutions Cape Town</td><td>Century City, CT</td><td>—</td><td>Solar</td><td>4.8 (95 reviews)</td></tr>
+    <tr><td>Garden Route Solar & Building Supplies</td><td>George, WC</td><td>—</td><td>Solar</td><td>4.9 (176 reviews)</td></tr>
+    <tr><td>TechHub Cellular & Electronics</td><td>Oriental Plaza, Fordsburg</td><td>5 SKUs</td><td>Electronics</td><td>—</td></tr>
+    <tr><td>Builders Warehouse Sandton</td><td>Sandton City</td><td>2 SKUs</td><td>Hardware</td><td>—</td></tr>
+  </table>
+
+  <h3>Builders Warehouse Integration</h3>
+  <p>Live listings show "Stock dispatched from 100+ Builders Warehouse & Express Stores Nationwide" with genuine direct store checkout links. This is not placeholder data — it is a live retail integration providing nationwide dispatch coverage.</p>
+
+  <h3>Review Data Quality</h3>
+  <p>Review counts are substantial and category-specific: SolarBros Sandton (4.8/164), Mama's Spaza (4.9/189), Umhlanga Solar (4.8/142), Garden Route Solar (4.9/176). These are not synthetic single-digit counts. Data attribution includes "Swept from Google Maps, OpenStreetMap, Bing Places, and verified trade registries."</p>
+</section>
+
+<!-- SECTION 3: RUNTIME TRUTH MATRIX -->
+<section>
+  <h2><span class="num">03</span> Runtime Truth Matrix (Reconciled)</h2>
+  <p class="section-note">Synthesises v10.0 authoritative spec with live reconnaissance. Status reflects the active monorepo baseline, not legacy deployed instances.</p>
+
+  <table>
+    <tr>
+      <th>Component</th>
+      <th>Status</th>
+      <th>Active Role</th>
+      <th>Target Role (v11.x)</th>
+    </tr>
+    <tr>
+      <td>Next.js 16.3 + React 19</td>
+      <td><span class="badge badge-live">Active</span></td>
+      <td>SSR/SSG/ISR App Router, UI Shell, API route handlers</td>
+      <td>Primary unified customer & buyer interface</td>
+    </tr>
+    <tr>
+      <td>TypeScript 5.5 (Direct Kernel)</td>
+      <td><span class="badge badge-live">Active</span></td>
+      <td>Universal language across all 5 monorepo packages. Direct route handlers, no NestJS framework.</td>
+      <td>Universal application & edge language until Go extraction</td>
+    </tr>
+    <tr>
+      <td>Edge Security Middleware</td>
+      <td><span class="badge badge-live">Active</span></td>
+      <td><code>apps/web/src/middleware.ts</code> guards /admin/*, /merchant/*, /api/cms/* with HMAC sessions & tenant isolation. 21 tests.</td>
+      <td>Zero-trust edge gateway & route guard</td>
+    </tr>
+    <tr>
+      <td>Modular Merchant OS</td>
+      <td><span class="badge badge-live">Active</span></td>
+      <td>6 domain modules: Overview, AiStoreCrew, Orders, Catalog, Feeds, Compliance</td>
+      <td>Embedded Merchant Cockpit & Pemofy Sync Node</td>
+    </tr>
+    <tr>
+      <td>In-Process SQLite FTS5</td>
+      <td><span class="badge badge-live">Active</span></td>
+      <td>Serves 100% of live catalog search, merchants, malls (&lt;1ms reads)</td>
+      <td>Derived read distribution & fast local offline index</td>
+    </tr>
+    <tr>
+      <td>Gemini 3.6 Flash Agent</td>
+      <td><span class="badge badge-live">Active</span></td>
+      <td>Server-side LLM via REST with 5 native retail tools</td>
+      <td>Pluggable provider behind Model-Agnostic AI Gateway</td>
+    </tr>
+    <tr>
+      <td>Python 3 Toolkit</td>
+      <td><span class="badge badge-live">Active</span></td>
+      <td>Sitemap scrapers, retail sweepers, ETL data ingestion</td>
+      <td>Distributed scraping plane, Whisper GPU & ML inference</td>
+    </tr>
+    <tr>
+      <td>PostgreSQL 16 + pgvector</td>
+      <td><span class="badge badge-warn">Provisioned</span></td>
+      <td>Container running in docker-compose.yml (pgvector:pg16)</td>
+      <td>Canonical write authority: RFQs, quotes, orders & mutable truth</td>
+    </tr>
+    <tr>
+      <td>Typesense 26.0</td>
+      <td><span class="badge badge-warn">Provisioned</span></td>
+      <td>Container running in docker-compose.yml</td>
+      <td>Dedicated discovery, geo-radius & typo-tolerant search</td>
+    </tr>
+    <tr>
+      <td>Redis 7 (Alpine)</td>
+      <td><span class="badge badge-warn">Provisioned</span></td>
+      <td>Container running in docker-compose.yml</td>
+      <td>Session store, rate-limiting, AI cache, chat presence, BullMQ</td>
+    </tr>
+    <tr>
+      <td>Payload CMS 3.88</td>
+      <td><span class="badge badge-warn">Partial</span></td>
+      <td>Packages installed; SQLite CMS service active</td>
+      <td>Editorial & merchant content over PostgreSQL</td>
+    </tr>
+    <tr>
+      <td>Go Microservices Plane</td>
+      <td><span class="badge badge-muted">Target</span></td>
+      <td>Architecture planned (Echo / Chi + Gorilla WS)</td>
+      <td>High-RPS Discovery, Chat WS Manager, B2B Quote Engine</td>
+    </tr>
+    <tr>
+      <td>ScyllaDB / ClickHouse</td>
+      <td><span class="badge badge-muted">Target</span></td>
+      <td>Planned for scale</td>
+      <td>ScyllaDB: chat timelines / ClickHouse: price & review analytics</td>
+    </tr>
+    <tr>
+      <td>NATS JetStream</td>
+      <td><span class="badge badge-muted">Target</span></td>
+      <td>Planned message bus</td>
+      <td>Async event backbone across microservices & bridges</td>
+    </tr>
+    <tr>
+      <td>RFQ / Quote Engine</td>
+      <td><span class="badge badge-muted">Not Built</span></td>
+      <td>Schema and API contracts specified in v10.0. No live interface.</td>
+      <td>B2B wholesale quoting with Temporal workflows (Go)</td>
+    </tr>
+    <tr>
+      <td>Chat / WhatsApp Bridge</td>
+      <td><span class="badge badge-muted">Not Built</span></td>
+      <td>Deep links only on merchant cards. No /chat path or WebSocket infra.</td>
+      <td>Embedded commerce chat + WhatsApp Business bridge</td>
+    </tr>
+  </table>
+</section>
+
+<!-- SECTION 4: SIX BOUNDED CONTEXTS -->
+<section>
+  <h2><span class="num">04</span> Six Bounded Contexts — Current State</h2>
+
+  <div class="grid-2">
+    <div class="card">
+      <h4><span class="badge badge-live">Active</span> Discovery Engine</h4>
+      <p>/search serves live product discovery with inventory signals, merchant offers, SABS compliance language, restock notifications, and Builders Warehouse nationwide dispatch. SQLite FTS5 powers &lt;1ms reads. This is the most mature context.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-live">Active</span> Geo / GMB Alternative</h4>
+      <p>/malls catalogues 3,296 shopping centres. /merchants maps 36+ merchants to specific malls and addresses with "Located in" badges, map links, and WhatsApp contacts. PostGIS-ready in target architecture.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-warn">Partial</span> Product Intelligence</h4>
+      <p>SABS compliance passport language and verified specs exist on product pages. International review aggregation, video content, Q&A, price history, compatibility matrices, and the AI Requirements Engine are specified but not yet built.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-warn">Partial</span> Commerce Chat</h4>
+      <p>WhatsApp deep links exist on every merchant card. The v10.0 spec defines full schema (conversations, messages, quotes, quote_lines), 11 message types, and API contracts. But no /chat path, no WebSocket infrastructure, no message persistence, and no WhatsApp Cloud API bridge are live.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-muted">Not Built</span> Quotes / B2B RFQ</h4>
+      <p>"Compare quotes" language appears on product pages. The v10.0 spec includes complete PostgreSQL schema, quote state machines, API contracts, auto-quote rules, and WhatsApp inbound parsing. No /quote path, no RFQ interface, no merchant quote management portal. This document recommends building it in Weeks 17-20.</p>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-muted">Not Built</span> Markets & Communities</h4>
+      <p>No /market path, no community hub surface. Conceptualised as Facebook Groups alternative for SA trade. Lowest priority among the six contexts.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: ARCHITECTURE REALITY -->
+<section>
+  <h2><span class="num">05</span> Architecture Reality: TypeScript Kernel, Go Target</h2>
+
+  <div class="callout callout-info">
+    <p><strong>Core principle:</strong> The current live kernel is direct TypeScript (Next.js API route handlers), not NestJS, not a heavy framework. Go is a target extraction for high-RPS services, not a rewrite of working code. The TypeScript-to-Go migration is safer than a greenfield rewrite because frontend contracts, data models, and API shapes are already proven with 244 passing tests.</p>
+  </div>
+
+  <h3>Current vs. Target Stack</h3>
+  <table>
+    <tr>
+      <th>Layer</th>
+      <th>Current (Live)</th>
+      <th>Target (Migration)</th>
+    </tr>
+    <tr>
+      <td>Frontend</td>
+      <td>Next.js 16 App Router (TypeScript)</td>
+      <td>Next.js 16 App Router (unchanged)</td>
+    </tr>
+    <tr>
+      <td>API / Backend Kernel</td>
+      <td>Direct TypeScript (Next.js API routes, framework-light)</td>
+      <td>Go (Chi/Echo) for high-RPS extraction</td>
+    </tr>
+    <tr>
+      <td>Search</td>
+      <td>SQLite FTS5 (in-process, &lt;1ms reads)</td>
+      <td>Typesense 26 (typo-tolerant, faceted, geo-radius)</td>
+    </tr>
+      <td>Database</td>
+      <td>SQLite (inferred from FTS5 co-location)</td>
+      <td>PostgreSQL 16 + pgvector (canonical write authority)</td>
+    </tr>
+    <tr>
+      <td>Cache / Sessions</td>
+      <td>In-memory or file-based</td>
+      <td>Redis 7 (sessions, rate limits, presence, AI cache)</td>
+    </tr>
+    <tr>
+      <td>CMS</td>
+      <td>Payload 3.88 (packages installed, SQLite active)</td>
+      <td>Payload over PostgreSQL</td>
+    </tr>
+    <tr>
+      <td>Scraping / AI</td>
+      <td>Python 3 (Scrapy, Playwright, Gemini tooling)</td>
+      <td>Python 3 (unchanged)</td>
+    </tr>
+    <tr>
+      <td>Payments</td>
+      <td>Node.js (if any live integrations)</td>
+      <td>Node.js (unchanged, SDK reality)</td>
+    </tr>
+  </table>
+
+  <h3>Why the TypeScript Kernel Makes Go Migration Easier</h3>
+  <ol>
+    <li><strong>No framework lock-in to break.</strong> NestJS has opinions about modules, providers, guards, interceptors, pipes. A direct TypeScript kernel has none of that. The Go equivalent is <code>chi.NewRouter()</code>, handler functions, and middleware. No conceptual translation layer needed.</li>
+    <li><strong>API contracts are thin and proven.</strong> The current backend is route handlers and data access functions with straightforward request/response shapes. Porting to Chi is moving handler logic and SQL from TypeScript to Go, not reverse-engineering a framework.</li>
+    <li><strong>Frontend contracts are validated.</strong> 244 passing tests mean the Next.js frontend already works against the current API. Go services must maintain backward compatibility, not invent new contracts.</li>
+    <li><strong>Data models are already validated.</strong> 36 merchants, live search, real mall catalogue — the schema is proven. The migration challenge is SQLite-to-Postgres, not schema design.</li>
+    <li><strong>Python and Node.js layers do not move.</strong> Scrapers, AI inference, and payment gateways stay in their optimal languages. Only the high-RPS API layer moves to Go.</li>
+  </ol>
+
+  <h3>Go Extraction Priority (When Ready)</h3>
+  <table>
+    <tr>
+      <th>Service</th>
+      <th>Framework</th>
+      <th>Rationale</th>
+    </tr>
+    <tr>
+      <td>Discovery API</td>
+      <td>Echo</td>
+      <td>Highest RPS, read-heavy, stateless. Immediate value from Go's throughput.</td>
+    </tr>
+    <tr>
+      <td>Chat Service</td>
+      <td>Chi + Gorilla WS</td>
+      <td>Stateful WebSockets, presence, high concurrency. Go's goroutines fit naturally.</td>
+    </tr>
+    <tr>
+      <td>Quote / RFQ Engine</td>
+      <td>Echo</td>
+      <td>Stateful workflows, Temporal integration. Go's error handling prevents silent failures.</td>
+    </tr>
+    <tr>
+      <td>Geo Service</td>
+      <td>Chi</td>
+      <td>PostGIS radius queries, read-heavy. Low-latency requirements.</td>
+    </tr>
+    <tr>
+      <td>WhatsApp Bridge</td>
+      <td>stdlib</td>
+      <td>Webhook ingest, high concurrency, signature verification.</td>
+    </tr>
+    <tr>
+      <td>Sync Workers</td>
+      <td>Go (no framework)</td>
+      <td>ERP sync, storefront sync, scraper coordination. Idempotent batch processing.</td>
+    </tr>
+  </table>
+</section>
+
+<!-- SECTION 6: MARKET POSITION -->
+<section>
+  <h2><span class="num">06</span> Market Position & Competitive Reality</h2>
+
+  <div class="grid-2">
+    <div class="card">
+      <h4>South African E-commerce Context</h4>
+      <ul>
+        <li>Online retail: <strong>R159 billion</strong> in 2026, crossing 10% of total retail</li>
+        <li>Growth: <strong>22.5% YoY</strong>, slowing from 35%+</li>
+        <li>Mobile purchases: <strong>71%</strong> of all online transactions</li>
+        <li>Cross-border shopping: <strong>48.5%</strong> use Temu/Shein/AliExpress</li>
+        <li>Payment innovation: <strong>93.3%</strong> tried a new payment method in the past year</li>
+        <li>WhatsApp commerce: becoming the dominant digital storefront channel</li>
+        <li>B2B/wholesale online: growing at <strong>10%+ CAGR</strong>, least contested segment</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>PriceCheck Benchmark</h4>
+      <ul>
+        <li>ARR: approximately <strong>$3.3M</strong></li>
+        <li>Team: <strong>10 employees</strong></li>
+        <li>Unique shoppers: <strong>17 million</strong></li>
+        <li>Product catalogue: <strong>6.5 million</strong></li>
+        <li>Connected stores: <strong>1,500+</strong></li>
+        <li>Model: pure price comparison, no commerce actions</li>
+        <li>Ceiling: no live inventory, no verified merchants, no WhatsApp, no B2B</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><strong>Funding thesis:</strong> Shoppage does not need to defeat Google Shopping. The goal is to capture a small, defensible share of the broader South African commerce discovery and transaction market by being the platform that knows local stock, local delivery, and local merchants. Revenue model remains 0% take-rate with no custody of buyer funds. Monetisation is via B2B brand and distributor intelligence.</p>
+  </div>
+</section>
+
+<!-- SECTION 7: CHAT MODULE SPECIFICATION -->
+<section>
+  <h2><span class="num">07</span> Chat Module Specification (v10.0 Baseline)</h2>
+  <p class="section-note">The following is reproduced from the authoritative v10.0 specification. Schema, message types, API contracts, and state machines are designed and ready for implementation.</p>
+
+  <h3>Core Relational Schema (PostgreSQL 16)</h3>
+  <pre>CREATE TABLE conversations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    buyer_id UUID NOT NULL,
+    merchant_id UUID NOT NULL,
+    product_id UUID,
+    status VARCHAR(32) NOT NULL DEFAULT 'active',
+    quote_id UUID,
+    order_id UUID,
+    last_message_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    unread_buyer INT NOT NULL DEFAULT 0,
+    unread_merchant INT NOT NULL DEFAULT 0,
+    channel VARCHAR(32) NOT NULL DEFAULT 'shoppage',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+    sender_type VARCHAR(16) NOT NULL, -- buyer, merchant, system, ai
+    sender_id UUID NOT NULL,
+    message_type VARCHAR(32) NOT NULL,
+    content JSONB NOT NULL DEFAULT '{}'::jsonb,
+    text TEXT NOT NULL DEFAULT '',
+    status VARCHAR(16) NOT NULL DEFAULT 'sending',
+    reply_to_id UUID REFERENCES messages(id),
+    metadata JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE quotes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+    quote_number VARCHAR(32) NOT NULL UNIQUE,
+    status VARCHAR(32) NOT NULL DEFAULT 'draft',
+    subtotal DECIMAL(12,2) NOT NULL,
+    delivery_estimate DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    vat DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    total DECIMAL(12,2) NOT NULL,
+    valid_until TIMESTAMPTZ NOT NULL,
+    stock_reserved_until TIMESTAMPTZ NOT NULL,
+    buyer_approval_at TIMESTAMPTZ,
+    order_id UUID,
+    pdf_url TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE quote_lines (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    quote_id UUID NOT NULL REFERENCES quotes(id) ON DELETE CASCADE,
+    product_id UUID NOT NULL,
+    variant_id UUID,
+    product_name TEXT NOT NULL,
+    quantity INT NOT NULL CHECK (quantity > 0),
+    unit_price DECIMAL(12,2) NOT NULL,
+    line_total DECIMAL(12,2) NOT NULL,
+    stock_confirmed BOOLEAN NOT NULL DEFAULT FALSE,
+    stock_location_id UUID,
+    metadata JSONB DEFAULT '{}'::jsonb
+);</pre>
+
+  <h3>Message Type Taxonomy (11 Types)</h3>
+  <table>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Payload Schema</th>
+    </tr>
+    <tr><td><code>text</code></td><td>Plain text message</td><td><code>{"text": string}</code></td></tr>
+    <tr><td><code>inquiry</code></td><td>Structured product inquiry</td><td><code>{"product_id", "quantity", "postal_code", "urgency"}</code></td></tr>
+    <tr><td><code>quote</code></td><td>Interactive quote card</td><td><code>{"quote_id", "quote_number", "lines", "total", "valid_until"}</code></td></tr>
+    <tr><td><code>quote_action</code></td><td>Approve, modify, or reject</td><td><code>{"action": "approve" | "modify" | "reject", "quote_id"}</code></td></tr>
+    <tr><td><code>order_created</code></td><td>Binding order confirmation</td><td><code>{"order_id", "total", "payment_link"}</code></td></tr>
+    <tr><td><code>payment_request</code></td><td>Hosted payment or EFT</td><td><code>{"amount", "method", "link", "expires_at"}</code></td></tr>
+    <tr><td><code>payment_confirmed</code></td><td>Settlement receipt</td><td><code>{"amount", "method", "ref"}</code></td></tr>
+    <tr><td><code>fulfillment_update</code></td><td>Courier milestone</td><td><code>{"status", "carrier", "tracking_ref", "eta"}</code></td></tr>
+    <tr><td><code>product_card</code></td><td>Rich product recommendation</td><td><code>{"product_id", "name", "price", "stock_status"}</code></td></tr>
+    <tr><td><code>image</code></td><td>Photo attachment</td><td><code>{"url", "caption"}</code></td></tr>
+    <tr><td><code>system</code></td><td>Audit / notification event</td><td><code>{"code", "text", "metadata"}</code></td></tr>
+  </table>
+
+  <h3>Quote Generation API Contract</h3>
+  <pre>POST /api/v1/chat/quotes/generate
+Content-Type: application/json
+Authorization: Bearer {buyer_jwt}
+
+{
+  "conversation_id": "b65e2cd5-b787-4be1-bc42-53936330bef5",
+  "product_id": "prod_deye_5kw_hybrid",
+  "quantity": 5,
+  "postal_code": "0181",
+  "customer_type": "trade",
+  "quote_expiry_hours": 24,
+  "notes": "Need by Friday for Midrand installation"
+}
+
+// 201 Created Response
+{
+  "quote_id": "quo_8f6b518f_c3b7",
+  "quote_number": "QUO-2026-008912",
+  "merchant_id": "loc_sunpower_crownmines",
+  "status": "sent",
+  "items": [
+    {
+      "product_id": "prod_deye_5kw_hybrid",
+      "product_name": "Deye 5kW Hybrid Inverter SUN-5K-SG03LP1-EU",
+      "quantity": 5,
+      "unit_price": 9500.00,
+      "line_total": 47500.00,
+      "stock_confirmed": true,
+      "stock_location": "Crown Mines Warehouse",
+      "stock_available": 14
+    }
+  ],
+  "subtotal": 47500.00,
+  "delivery_estimate": 850.00,
+  "vat": 7252.50,
+  "total": 55602.50,
+  "stock_reserved_until": "2026-09-21T18:00:00Z",
+  "valid_until": "2026-09-21T18:00:00Z",
+  "pdf_url": "https://chat.shoppage.co.za/q/QUO-2026-008912"
+}</pre>
+
+  <h3>WhatsApp Inbound Parsing Bridge</h3>
+  <pre>// Merchant receives automated WhatsApp notification:
+"New inquiry from Thabo M. (Trade Buyer)
+Product: 5x Deye 5kW Hybrid Inverter
+Stock Available: 14 units at Crown Mines
+Reply with:
+QUOTE 52000 DELIVERY 0
+or QUOTE 9500 EACH DELIVERY 850
+or NOSTOCK"
+
+// Merchant replies:
+"QUOTE 52000 DELIVERY 0 VALID 6"
+
+// Bridge parses regex and dispatches:
+POST /api/v1/chat/quotes/generate
+{
+  "conversation_id": "conv_active_uuid",
+  "merchant_override": {
+    "total": 52000.00,
+    "delivery": 0.00,
+    "expiry_hours": 6
+  }
+}</pre>
+</section>
+
+<!-- SECTION 8: RFQ STRATEGIC RECOMMENDATION -->
+<section>
+  <h2><span class="num">08</span> RFQ / B2B Module: Strategic Recommendation</h2>
+
+  <div class="callout callout-live">
+    <p><strong>Verdict: Build it. Do not launch with it.</strong> The B2B quote/RFQ module is the strategic feature that turns Shoppage from "a better PriceCheck" into a commerce-native platform with a real moat. But it depends on three other contexts being live first: verified merchants, functional chat, and enriched product data.</p>
+  </div>
+
+  <h3>Why RFQ Is Necessary</h3>
+  <div class="grid-2">
+    <div class="card">
+      <h4>1. Least Contested, Fastest-Growing Segment</h4>
+      <p>B2B/wholesale online in South Africa is growing at 10%+ CAGR with almost no dedicated platform. PriceCheck ($3.3M ARR, 17M shoppers) is purely B2C. The B2B ceiling does not exist yet.</p>
+    </div>
+    <div class="card">
+      <h4>2. Live Site Already Signals Intent</h4>
+      <p>/search pages contain "Compare quotes and order via WhatsApp or direct counter dispatch." Buyers are primed. The merchant directory lists trade counters and wholesale hubs. The surface is there.</p>
+    </div>
+    <div class="card">
+      <h4>3. SA Commerce Reality Demands It</h4>
+      <p>Most B2B quoting happens via WhatsApp, email with PDFs, spreadsheets, or phone calls. A structured RFQ workflow is a genuine 10x improvement: natural language requirement → AI parsing → merchant matching → line-item quote → approval → order.</p>
+    </div>
+    <div class="card">
+      <h4>4. Pemofy Makes It Possible</h4>
+      <p>Shoppage does not need WMS, invoicing, or delivery management. Pemofy owns order execution and fulfillment. Shoppage owns the quoting layer. Clean architectural boundary.</p>
+    </div>
+  </div>
+
+  <h3>Why RFQ Should Not Be Built First</h3>
+  <ol>
+    <li><strong>Highest dependency chain.</strong> RFQ requires verified merchant profiles (Geo), functional chat for quote delivery (Chat), and enriched product data for accurate requirement parsing (Product Intelligence). Building RFQ before Chat is like building checkout before a cart.</li>
+    <li><strong>Schema is designed but not implemented.</strong> The v10.0 spec includes full <code>quotes</code>, <code>quote_lines</code>, and <code>conversations</code> schemas. API contracts for generation and approval are specified. But no /quote path, no RFQ interface, and no merchant quote portal exist.</li>
+    <li><strong>B2B has higher trust requirements than B2C.</strong> A contractor requesting a quote for 500m of armoured cable with a 30-day account cannot tolerate a rough experience. RFQ requires merchant verification, buyer verification, quote validity enforcement, stock reservation, and audit trails.</li>
+  </ol>
+
+  <h3>Recommended Build Sequence</h3>
+  <table>
+    <tr>
+      <th>Priority</th>
+      <th>Context</th>
+      <th>Rationale</th>
+    </tr>
+    <tr>
+      <td><span class="badge badge-live">P0</span></td>
+      <td>Security + Auth</td>
+      <td>Fixed in active monorepo. Deploy to production.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-live">P1</span></td>
+      <td>Discovery Hardening</td>
+      <td>Already live. Add product pages, categories, filters. Lowest risk, highest user value.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">P2</span></td>
+      <td>Data Layer Wiring</td>
+      <td>PostgreSQL, Typesense, Redis. Required by everything downstream.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">P3</span></td>
+      <td>Chat Platform</td>
+      <td>Required for quote delivery, negotiation, and approval.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">P4</span></td>
+      <td>Product Intelligence</td>
+      <td>Required for accurate requirement parsing and line-item generation.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-accent">P5</span></td>
+      <td><strong>RFQ / B2B</strong></td>
+      <td><strong>Build on top of verified merchants, chat, and enriched data.</strong></td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-muted">P6</span></td>
+      <td>Markets & Communities</td>
+      <td>Network effect layer. Launch after core commerce loop is proven.</td>
+    </tr>
+  </table>
+
+  <h3>The Counter-Argument: Skip RFQ, Focus on B2C Discovery</h3>
+  <p>You could decide B2C discovery is large enough and RFQ is a distraction. The case: PriceCheck proves B2C product search works in SA; B2C has lower trust barriers, faster conversion cycles, simpler merchant onboarding; the live site already works for B2C.</p>
+  <p><strong>Response:</strong> This is defensible for a Phase 1 launch, but it leaves Shoppage vulnerable. PriceCheck, Google Shopping, and Takealot all chase B2C discovery. B2B RFQ is the uncontested ground. If Shoppage wins B2B trade first, B2C discovery follows naturally (merchants bring retail catalogues). If Shoppage wins B2C first, B2B remains open for a competitor.</p>
+
+  <div class="callout">
+    <p><strong>Bottom line:</strong> Launching without RFQ is acceptable. Never building it is not. It belongs in Weeks 17-20 of the roadmap, after Chat and Product Intelligence are operational. It is the strategic differentiator that makes Shoppage a platform rather than a search engine.</p>
+  </div>
+</section>
+
+<!-- SECTION 9: 24-WEEK ROADMAP -->
+<section>
+  <h2><span class="num">09</span> 24-Week Build Roadmap (Reconciled v11.0)</h2>
+  <p class="section-note">Priorities reordered based on v10.0 authoritative spec, live site reality, TypeScript kernel baseline, and RFQ strategic recommendation.</p>
+
+  <div class="timeline">
+    <div class="timeline-item done">
+      <div class="week">Completed</div>
+      <h4>P0: Security Gate & Edge Middleware</h4>
+      <p>RESOLVED in active monorepo. Edge runtime HMAC session cookies, RBAC (superadmin, merchant_owner, merchant_staff), multi-tenant store isolation, CSRF protection, assertEnvironmentIsSafe(). 21 passing security tests. Ready for production deployment.</p>
+    </div>
+    <div class="timeline-item done">
+      <div class="week">Completed</div>
+      <h4>P5: Modularize Merchant Dashboard</h4>
+      <p>RESOLVED in active monorepo. Former 3,747-line monolith decomposed into 6 domain modules: Overview, AiStoreCrew, Orders, Catalog, Feeds, Compliance.</p>
+    </div>
+    <div class="timeline-item warn">
+      <div class="week">Week 1-2</div>
+      <h4>Production Deployment & Auth Hardening</h4>
+      <p>Deploy current monorepo baseline to production. Cutover from legacy exposed /admin and /merchant/dashboard instances to middleware-protected routes. Production smoke tests. POPIA compliance framework initiation.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Week 3-4</div>
+      <h4>P1: Canonical PostgreSQL Schema & ORM Wiring</h4>
+      <p>Define Drizzle/Prisma schemas in @shoppage/kernel matching v10.0 chat and quote schemas. Execute migrations against docker-compose PostgreSQL 16 container. Route all state mutations (quotes, orders, conversations) to PostgreSQL. Retain SQLite FTS5 as fast read distribution.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Week 5-6</div>
+      <h4>P2: Typesense & Redis Integration</h4>
+      <p>Wire @shoppage/adapters to stream product mutations into Typesense 26. Direct /search and /api/search to Typesense with transparent SQLite fallback. Connect Redis 7 for rate-limiting, session caching, and AI response caching.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Week 7-8</div>
+      <h4>Discovery Hardening</h4>
+      <p>Individual product pages (/product/[slug]). Category taxonomy pages (/category/*). Enhanced search with filters, price ranges, stock availability. Product enrichment pipeline (specs, compliance). Builders Warehouse integration hardening.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Week 9-10</div>
+      <h4>P3: Embedded Commerce Chat & Quote Generator</h4>
+      <p>Embed Chat UI into Next.js buyer pages. Implement Quote Generation API validating stock against active merchant catalog. Wire quote approval state transitions to automated proforma order creation. Begin with TypeScript kernel; extract to Go Chat Service when WebSocket load demands it.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Week 11-12</div>
+      <h4>WhatsApp Bridge & Chat Scale Prep</h4>
+      <p>Build WhatsApp Bridge webhook receiver with HMAC-SHA256 signature verification. Bidirectional message sync between Shoppage Chat and WhatsApp. Redis presence and typing indicators. Message persistence in PostgreSQL (ScyllaDB target for scale phase).</p>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Week 13-15</div>
+      <h4>P4: Product Intelligence Pipeline</h4>
+      <p>Python scrapers for Amazon, Trustpilot, YouTube, local forums. Review ingestor with sentiment analysis. Video processor with Whisper transcription. Spec extractor for PDF manufacturer docs. Generate embeddings and load into pgvector. AI Requirements Engine v1.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Week 16</div>
+      <h4>SQLite Concurrency Hardening & Benchmarks</h4>
+      <p>Benchmark node:sqlite under 10, 50, 100 concurrent requests. Monitor event-loop latency (target &lt;50ms p95). Offload intensive text search to Worker Threads if threshold breached. Validate Typesense cutover readiness.</p>
+    </div>
+    <div class="timeline-item info">
+      <div class="week">Week 17-20</div>
+      <h4>P5: Quotes / B2B RFQ Engine</h4>
+      <p><strong>Strategic priority per Section 8.</strong> Build RFQ interface. Buyer RFQ forms, merchant quote management portal, quote comparison, approval workflows. AI requirement parsing for B2B natural language. Temporal workflow state machines. Integrate accepted quotes into Chat and Pemofy order flow. Begin with TypeScript; extract to Go Quote Service for workflow reliability.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Week 21-22</div>
+      <h4>P6: Polyglot Go Extraction & NATS</h4>
+      <p>Extract high-RPS Discovery API to Go (Echo). Extract Chat WebSocket manager to Go (Chi + Gorilla WS). Deploy NATS JetStream for async event coordination. Temporal for RFQ workflows. Maintain backward compatibility with Next.js frontend.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Week 23-24</div>
+      <h4>Geo / GMB + Markets Launch</h4>
+      <p>Geo Service with PostGIS for merchant locations and radius search. Merchant claim flow with verification. Market Community service with posts, feeds, membership. Launch first vertical market (e.g., SA Solar & Backup Power). Load testing, OCI ARM optimisation, SEO hardening.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 10: TARGET DATA ARCHITECTURE -->
+<section>
+  <h2><span class="num">10</span> Target Polyglot Data Architecture</h2>
+
+  <table>
+    <tr>
+      <th>Data Class</th>
+      <th>Storage Engine</th>
+      <th>Rationale</th>
+      <th>Write Freq</th>
+      <th>Read Latency</th>
+    </tr>
+    <tr>
+      <td>Canonical Truth (Merchants, Users, Quotes, Orders)</td>
+      <td><strong>PostgreSQL 16 + pgvector</strong></td>
+      <td>Strict ACID, relational integrity, financial accuracy, row-level locking</td>
+      <td>Medium</td>
+      <td>2-5ms</td>
+    </tr>
+    <tr>
+      <td>Product Discovery & Search</td>
+      <td><strong>Typesense 26.0</strong></td>
+      <td>Typo-tolerance, facets, geofenced radius, memory-efficient</td>
+      <td>Low (sync)</td>
+      <td>&lt;10ms</td>
+    </tr>
+    <tr>
+      <td>Edge Read Distribution / Offline Fallback</td>
+      <td><strong>SQLite FTS5</strong></td>
+      <td>Packaged read-only release zips; zero network serialization</td>
+      <td>Batch</td>
+      <td><strong>&lt;1ms</strong></td>
+    </tr>
+    <tr>
+      <td>Ephemeral State & Cache</td>
+      <td><strong>Redis 7 (Alpine)</strong></td>
+      <td>Presence, typing, socket mapping, rate limits, AI cache</td>
+      <td>Extremely High</td>
+      <td>&lt;0.5ms</td>
+    </tr>
+    <tr>
+      <td>Chat Timeline Ledger</td>
+      <td><strong>ScyllaDB</strong> (scale target)</td>
+      <td>High-throughput distributed append-only messages; no GC pauses</td>
+      <td>High</td>
+      <td>&lt;2ms</td>
+    </tr>
+    <tr>
+      <td>Time-Series Analytics</td>
+      <td><strong>ClickHouse</strong> (scale target)</td>
+      <td>Price drops, sentiment trends, impression attribution</td>
+      <td>Async batch</td>
+      <td>&lt;15ms</td>
+    </tr>
+    <tr>
+      <td>Media & Blobs</td>
+      <td><strong>OCI Object Storage</strong></td>
+      <td>PDF quotes, manuals, video transcripts, creator media</td>
+      <td>Low</td>
+      <td>CDN edge</td>
+    </tr>
+  </table>
+</section>
+
+<!-- SECTION 11: PEMOFY INTEGRATION -->
+<section>
+  <h2><span class="num">11</span> The Pemofy Channel</h2>
+
+  <div class="grid-2">
+    <div class="card">
+      <h4>Pemofy → Shoppage (NATS Events)</h4>
+      <ul>
+        <li>pemofy.product_published / updated / unpublished</li>
+        <li>pemofy.stock_changed</li>
+        <li>pemofy.price_changed</li>
+        <li>pemofy.order_completed</li>
+        <li>pemofy.merchant_verified</li>
+        <li>pemofy.storefront_theme_updated</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Shoppage → Pemofy (API Calls)</h4>
+      <ul>
+        <li>Buyer quote request forwarded to merchant</li>
+        <li>Chat initiation event (merchant notification)</li>
+        <li>Product view analytics (merchant dashboard)</li>
+        <li>Review / rating submission</li>
+        <li>Merchant claim verification request</li>
+      </ul>
+    </div>
+  </div>
+
+  <p>Shoppage remains 0% take-rate with no custody of buyer funds. Pemofy handles transaction processing, payment reconciliation, and merchant billing. Shoppage surfaces verified offers from Pemofy merchants as enriched discovery listings. Full checkout lives in Pemofy after free GMV threshold.</p>
+
+  <h3>Shared Events</h3>
+  <table>
+    <tr>
+      <th>Event</th>
+      <th>Source</th>
+      <th>Consumers</th>
+    </tr>
+    <tr><td>pemofy.product_published</td><td>Pemofy</td><td>Shoppage Discovery, Product Intelligence</td></tr>
+    <tr><td>pemofy.stock_changed</td><td>Pemofy</td><td>Shoppage Discovery, Chat (stock alerts)</td></tr>
+    <tr><td>pemofy.price_changed</td><td>Pemofy</td><td>Shoppage Discovery, Price Tracker</td></tr>
+    <tr><td>pemofy.order_completed</td><td>Pemofy</td><td>Shoppage Attribution, Geo (trending)</td></tr>
+    <tr><td>pemofy.merchant_verified</td><td>Pemofy</td><td>Shoppage Geo, Discovery (verified badge)</td></tr>
+    <tr><td>shoppage.lead_generated</td><td>Shoppage</td><td>Pemofy (attribution, merchant dashboard)</td></tr>
+  </table>
+</section>
+
+<!-- SECTION 12: RISKS -->
+<section>
+  <h2><span class="num">12</span> Risks & Mitigations</h2>
+  <table>
+    <tr>
+      <th>Risk</th>
+      <th>Severity</th>
+      <th>Mitigation</th>
+    </tr>
+    <tr>
+      <td>Legacy deployed /admin and /merchant routes remain exposed until cutover</td>
+      <td><span class="badge badge-danger">Critical</span></td>
+      <td>Immediate production deployment of active monorepo. Decommission legacy instances. 21 security tests validate the fix.</td>
+    </tr>
+    <tr>
+      <td>POPIA non-compliance with merchant contact data</td>
+      <td><span class="badge badge-danger">High</span></td>
+      <td>Legal review, consent framework, data processing agreements, deletion capability.</td>
+    </tr>
+    <tr>
+      <td>Typesense migration complexity from SQLite FTS5</td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td>Dual-write period. Gradual cutover with rollback plan. Feature flags. Retain SQLite as fallback.</td>
+    </tr>
+    <tr>
+      <td>Go backend extraction breaks frontend contracts</td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td>API versioning. Backward compatibility layer. Incremental extraction, not big-bang. 244 tests as regression suite.</td>
+    </tr>
+    <tr>
+      <td>Builders Warehouse integration dependency</td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td>Diversify merchant sources. Build direct ERP sync. Reduce single-source risk.</td>
+    </tr>
+    <tr>
+      <td>WhatsApp Cloud API rate limits and policy changes</td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td>Abstraction layer. Fallback to SMS/email. Multi-channel notification strategy.</td>
+    </tr>
+    <tr>
+      <td>PriceCheck competitive response</td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td>Speed to market on commerce-native features. Defensible data moat through merchant verification.</td>
+    </tr>
+    <tr>
+      <td>RFQ built before dependencies are ready</td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td>Strict sequencing: Chat and Product Intelligence must be operational before RFQ. No exceptions.</td>
+    </tr>
+    <tr>
+      <td>Team cannot hire Go developers in SA</td>
+      <td><span class="badge badge-muted">Low</span></td>
+      <td>Go has growing adoption in SA fintech. TypeScript developers can learn Go quickly. Extraction is gradual, not immediate.</td>
+    </tr>
+  </table>
+</section>
+
+<!-- SECTION 13: SUCCESS METRICS -->
+<section>
+  <h2><span class="num">13</span> Success Metrics</h2>
+
+  <h3>Discovery Engine</h3>
+  <ul>
+    <li>Search p99 latency under 200ms (Typesense + Redis cache)</li>
+    <li>1M+ products indexed within 3 months of launch</li>
+    <li>Product page engagement: 3+ enrichment sections viewed per session</li>
+    <li>Click-through rate from search to merchant: target 15%+</li>
+  </ul>
+
+  <h3>Commerce Chat</h3>
+  <ul>
+    <li>10,000+ concurrent WebSocket connections on single OCI Ampere instance</li>
+    <li>Message delivery latency under 100ms for online users</li>
+    <li>WhatsApp bridge message sync success rate: 99.9%+</li>
+    <li>Order creation rate from chat: 20%+ of active merchant threads</li>
+  </ul>
+
+  <h3>Quotes / RFQ</h3>
+  <ul>
+    <li>1,000+ B2B quotes created in first 6 months</li>
+    <li>Quote response rate by merchants: 60%+</li>
+    <li>Average quote-to-order conversion: 25%+</li>
+  </ul>
+
+  <h3>Product Intelligence</h3>
+  <ul>
+    <li>Enrichment coverage: 80%+ of top 10,000 products have reviews, specs, or videos</li>
+    <li>AI Requirements Engine match relevance: 85%+ user satisfaction</li>
+    <li>Price alert accuracy: 90%+ of alerts represent genuine deals</li>
+  </ul>
+
+  <h3>Geo / GMB</h3>
+  <ul>
+    <li>50,000+ merchant location profiles within 12 months</li>
+    <li>Merchant claim rate: 30%+ of auto-imported profiles</li>
+    <li>Geo search conversion: 10%+ of nearby searches lead to chat or quote</li>
+  </ul>
+</section>
+
+<!-- SECTION 14: CONCLUSION -->
+<section>
+  <h2><span class="num">14</span> Conclusion</h2>
+
+  <p>Shoppage is significantly further along than any external reconnaissance initially suggested. The v10.0 authoritative specification reveals a hardened, tested, modular platform with 244 passing tests, edge security middleware, a decomposed merchant dashboard, and a complete chat/quote schema ready for implementation. The live site demonstrates that Discovery Engine and Geo/GMB are not theoretical — they are operational with real merchant data, real product signals, and real mall catalogues.</p>
+
+  <p>The corrected priority order is:</p>
+  <ol>
+    <li><strong>Deploy the active monorepo</strong> — security is fixed in code, not on the legacy instance</li>
+    <li><strong>Wire the data layer</strong> — PostgreSQL, Typesense, Redis. This is the foundation for everything else</li>
+    <li><strong>Harden Discovery</strong> — product pages, categories, filters. The surface is live; make it complete</li>
+    <li><strong>Build Chat</strong> — the v10.0 spec has the schema and contracts. Implementation is the work</li>
+    <li><strong>Build Product Intelligence</strong> — the moat. Reviews, videos, specs, AI Requirements Engine</li>
+    <li><strong>Build RFQ / B2B</strong> — the strategic differentiator. Necessary, but only after Chat and Intelligence are operational</li>
+    <li><strong>Extract Go services</strong> — when RPS and concurrency demands justify it, not before</li>
+    <li><strong>Launch Markets</strong> — the network effect layer, last in sequence</li>
+  </ol>
+
+  <div class="callout callout-live">
+    <p><strong>The platform is not starting from zero.</strong> It is a live commerce discovery grid with a tested monorepo, a specified chat and quote architecture, and a clear path to the six-context vision. The work ahead is execution, not invention.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Shoppage Platform Model v11.0 — Reconciled 20 September 2026<br>
+  Synthesises: v10.0 Authoritative Spec, Live Site Reconnaissance, TypeScript Kernel Reality, RFQ Strategic Recommendation
+</footer>
+
+</body>
+</html>

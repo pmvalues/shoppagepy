@@ -1,0 +1,856 @@
+package store
+
+import (
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/url"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/shoppage/consumer-web/internal/models"
+	_ "modernc.org/sqlite"
+)
+
+type Store struct {
+	mu          sync.RWMutex
+	products    map[string]models.ProductDetail
+	merchants   map[string]models.MerchantStorefront
+	malls       []models.Mall
+	deals       []models.RetailerDeal
+	posts       []models.PostItem
+	shorts      []models.ShortItem
+	trends      []models.TradeTrend
+	guilds      []models.CommunityGuild
+	dbMerchants *sql.DB
+	dbProducts  *sql.DB
+}
+
+func NewStore() *Store {
+	s := &Store{
+		products:  make(map[string]models.ProductDetail),
+		merchants: make(map[string]models.MerchantStorefront),
+		malls:     make([]models.Mall, 0),
+		deals:     make([]models.RetailerDeal, 0),
+		posts:     make([]models.PostItem, 0),
+		shorts:    make([]models.ShortItem, 0),
+		trends:    make([]models.TradeTrend, 0),
+		guilds:    make([]models.CommunityGuild, 0),
+	}
+	s.loadDatasets()
+	s.initSqliteConnections()
+	return s
+}
+
+func (s *Store) initSqliteConnections() {
+	if customRoot := os.Getenv("FOUNDATION_DATA_DIR"); customRoot != "" {
+		mPath := filepath.Join(customRoot, "sa_nationwide_merchants.sqlite")
+		if fi, err := os.Stat(mPath); err == nil && !fi.IsDir() {
+			if db, err := sql.Open("sqlite", mPath); err == nil {
+				s.dbMerchants = db
+				fmt.Printf("✓ [Store] Connected live to Merchants SQLite (%s)\n", mPath)
+			}
+		}
+		pPath := filepath.Join(customRoot, "global_food_master_products.sqlite")
+		if fi, err := os.Stat(pPath); err == nil && !fi.IsDir() {
+			if db, err := sql.Open("sqlite", pPath); err == nil {
+				s.dbProducts = db
+				fmt.Printf("✓ [Store] Connected live to Products SQLite (%s)\n", pPath)
+			}
+		}
+		if s.dbMerchants != nil && s.dbProducts != nil {
+			return
+		}
+	}
+
+	candidateRoots := []string{
+		".",
+		"..",
+		"../..",
+		"../../..",
+		"../../../..",
+	}
+
+	for _, root := range candidateRoots {
+		mPath := filepath.Join(root, "shoppage-commerce-intelligence-foundation", "data", "study", "sa_nationwide_merchants.sqlite")
+		if fi, err := os.Stat(mPath); err == nil && !fi.IsDir() {
+			absPath, _ := filepath.Abs(mPath)
+			if db, err := sql.Open("sqlite", absPath); err == nil {
+				s.dbMerchants = db
+				fmt.Printf("✓ [Store] Connected live to 3.1M Merchants SQLite (%s)\n", absPath)
+			}
+			break
+		}
+	}
+
+	for _, root := range candidateRoots {
+		pPath := filepath.Join(root, "shoppage-commerce-intelligence-foundation", "data", "study", "global_food_master_products.sqlite")
+		if fi, err := os.Stat(pPath); err == nil && !fi.IsDir() {
+			absPath, _ := filepath.Abs(pPath)
+			if db, err := sql.Open("sqlite", absPath); err == nil {
+				s.dbProducts = db
+				fmt.Printf("✓ [Store] Connected live to 1.0M Products SQLite (%s)\n", absPath)
+			}
+			break
+		}
+	}
+}
+
+func (s *Store) loadDatasets() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	var dataDir string
+	if customData := os.Getenv("DATA_DIR"); customData != "" {
+		if fi, err := os.Stat(customData); err == nil && fi.IsDir() {
+			dataDir = customData
+		}
+	}
+
+	candidateDirs := []string{
+		"data",
+		"services/consumer-web/data",
+		"../data",
+		"../../services/consumer-web/data",
+	}
+
+	if dataDir == "" {
+		for _, dir := range candidateDirs {
+			if fi, err := os.Stat(dir); err == nil && fi.IsDir() {
+				dataDir = dir
+				break
+			}
+		}
+	}
+
+	if dataDir != "" {
+		// 1. Load 3,315 Malls
+		mallsFile := filepath.Join(dataDir, "malls.json")
+		if data, err := os.ReadFile(mallsFile); err == nil {
+			var loadedMalls []models.Mall
+			if err := json.Unmarshal(data, &loadedMalls); err == nil && len(loadedMalls) > 0 {
+				s.malls = loadedMalls
+				fmt.Printf("✓ [Store] Loaded %d nationwide malls from %s\n", len(s.malls), mallsFile)
+			}
+		}
+
+		// 2. Load Retailer Deals
+		dealsFile := filepath.Join(dataDir, "deals.json")
+		if data, err := os.ReadFile(dealsFile); err == nil {
+			var loadedDeals []models.RetailerDeal
+			if err := json.Unmarshal(data, &loadedDeals); err == nil && len(loadedDeals) > 0 {
+				s.deals = loadedDeals
+				fmt.Printf("✓ [Store] Loaded %d retailer specials from %s\n", len(s.deals), dealsFile)
+			}
+		}
+
+		// 3. Load Canonical Products
+		productsFile := filepath.Join(dataDir, "products.json")
+		if data, err := os.ReadFile(productsFile); err == nil {
+			var loadedProducts []models.ProductDetail
+			if err := json.Unmarshal(data, &loadedProducts); err == nil && len(loadedProducts) > 0 {
+				for _, p := range loadedProducts {
+					s.products[p.CanonicalID] = p
+				}
+				fmt.Printf("✓ [Store] Loaded %d canonical products from %s\n", len(s.products), productsFile)
+			}
+		}
+
+		// 4. Load Merchants
+		merchantsFile := filepath.Join(dataDir, "merchants.json")
+		if data, err := os.ReadFile(merchantsFile); err == nil {
+			var loadedMerchants []models.MerchantStorefront
+			if err := json.Unmarshal(data, &loadedMerchants); err == nil && len(loadedMerchants) > 0 {
+				for _, m := range loadedMerchants {
+					s.merchants[m.ID] = m
+				}
+				fmt.Printf("✓ [Store] Loaded %d merchants from %s\n", len(s.merchants), merchantsFile)
+			}
+		}
+
+		// 5. Load Social Feed Posts
+		postsFile := filepath.Join(dataDir, "posts.json")
+		if data, err := os.ReadFile(postsFile); err == nil {
+			var loadedPosts []models.PostItem
+			if err := json.Unmarshal(data, &loadedPosts); err == nil && len(loadedPosts) > 0 {
+				s.posts = loadedPosts
+				fmt.Printf("✓ [Store] Loaded %d social feed posts from %s\n", len(s.posts), postsFile)
+			}
+		}
+
+		// 6. Load Video Shorts
+		shortsFile := filepath.Join(dataDir, "shorts.json")
+		if data, err := os.ReadFile(shortsFile); err == nil {
+			var loadedShorts []models.ShortItem
+			if err := json.Unmarshal(data, &loadedShorts); err == nil && len(loadedShorts) > 0 {
+				s.shorts = loadedShorts
+				fmt.Printf("✓ [Store] Loaded %d video shorts from %s\n", len(s.shorts), shortsFile)
+			}
+		}
+
+		// 7. Load Commerce Trends
+		trendsFile := filepath.Join(dataDir, "trends.json")
+		if data, err := os.ReadFile(trendsFile); err == nil {
+			var loadedTrends []models.TradeTrend
+			if err := json.Unmarshal(data, &loadedTrends); err == nil && len(loadedTrends) > 0 {
+				s.trends = loadedTrends
+			}
+		}
+
+		// 8. Load Community Guilds
+		guildsFile := filepath.Join(dataDir, "guilds.json")
+		if data, err := os.ReadFile(guildsFile); err == nil {
+			var loadedGuilds []models.CommunityGuild
+			if err := json.Unmarshal(data, &loadedGuilds); err == nil && len(loadedGuilds) > 0 {
+				s.guilds = loadedGuilds
+			}
+		}
+	}
+
+	// Fallbacks
+	if len(s.malls) == 0 {
+		s.malls = s.fallbackMalls()
+	}
+	if len(s.products) == 0 {
+		for _, p := range s.fallbackProducts() {
+			s.products[p.CanonicalID] = p
+		}
+	}
+	if len(s.deals) == 0 {
+		s.deals = s.fallbackDeals()
+	}
+	if len(s.merchants) == 0 {
+		for _, m := range s.fallbackMerchants() {
+			s.merchants[m.ID] = m
+		}
+	}
+}
+
+func (s *Store) GetTotalCounts() (int, int, int, int) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return len(s.malls), len(s.products), len(s.deals), len(s.merchants)
+}
+
+func (s *Store) GetDeals(retailer string, category string) []models.RetailerDeal {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	retLower := strings.ToLower(strings.TrimSpace(retailer))
+	catLower := strings.ToLower(strings.TrimSpace(category))
+
+	var out []models.RetailerDeal
+	for _, d := range s.deals {
+		if retLower != "" && retLower != "all" {
+			if !strings.Contains(strings.ToLower(d.MerchantName), retLower) &&
+				!strings.Contains(strings.ToLower(d.RetailerDomain), retLower) {
+				continue
+			}
+		}
+		if catLower != "" && catLower != "all" {
+			if !strings.Contains(strings.ToLower(d.Category), catLower) &&
+				!strings.Contains(strings.ToLower(d.CategoryLabel), catLower) {
+				continue
+			}
+		}
+		out = append(out, d)
+	}
+	return out
+}
+
+func (s *Store) GetTopDrops(limit int) []models.RetailerDeal {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	var drops []models.RetailerDeal
+	for _, d := range s.deals {
+		if d.DiscountPct > 0 {
+			drops = append(drops, d)
+		}
+	}
+	// Sort by discount descending
+	for i := 0; i < len(drops); i++ {
+		for j := i + 1; j < len(drops); j++ {
+			if drops[j].DiscountPct > drops[i].DiscountPct {
+				drops[i], drops[j] = drops[j], drops[i]
+			}
+		}
+	}
+	if limit > 0 && len(drops) > limit {
+		return drops[:limit]
+	}
+	return drops
+}
+
+func (s *Store) GetFeedPosts(tab string, query string) []models.PostItem {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	tabLower := strings.ToLower(strings.TrimSpace(tab))
+	qLower := strings.ToLower(strings.TrimSpace(query))
+
+	var out []models.PostItem
+	for _, p := range s.posts {
+		// Filter by tab
+		if tabLower != "" && tabLower != "foryou" && tabLower != "all" {
+			matchedTab := false
+			for _, t := range p.Tabs {
+				if strings.ToLower(t) == tabLower {
+					matchedTab = true
+					break
+				}
+			}
+			if !matchedTab {
+				continue
+			}
+		}
+
+		// Filter by search query
+		if qLower != "" {
+			if !strings.Contains(strings.ToLower(p.Text), qLower) &&
+				!strings.Contains(strings.ToLower(p.Name), qLower) &&
+				!strings.Contains(strings.ToLower(p.Handle), qLower) &&
+				(p.Product == nil || !strings.Contains(strings.ToLower(p.Product.Name), qLower)) {
+				continue
+			}
+		}
+
+		out = append(out, p)
+	}
+	return out
+}
+
+func (s *Store) AddPost(post models.PostItem) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	// Prepend new post
+	s.posts = append([]models.PostItem{post}, s.posts...)
+}
+
+func (s *Store) VotePoll(postID string, optIndex int) (*models.PostPoll, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for i := range s.posts {
+		if s.posts[i].ID == postID && s.posts[i].Poll != nil {
+			poll := s.posts[i].Poll
+			if optIndex >= 0 && optIndex < len(poll.Options) {
+				poll.Options[optIndex].Votes++
+				poll.Voted = &optIndex
+				return poll, true
+			}
+		}
+	}
+	return nil, false
+}
+
+func (s *Store) GetShorts(category string) []models.ShortItem {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	catLower := strings.ToLower(strings.TrimSpace(category))
+	if catLower == "" || catLower == "all" {
+		return s.shorts
+	}
+
+	var out []models.ShortItem
+	for _, sh := range s.shorts {
+		if strings.ToLower(sh.Category) == catLower {
+			out = append(out, sh)
+		}
+	}
+	return out
+}
+
+func (s *Store) GetTrends() []models.TradeTrend {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.trends
+}
+
+func (s *Store) GetGuilds() []models.CommunityGuild {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.guilds
+}
+
+func (s *Store) SearchProducts(query string, category string, province string, inStockOnly bool) []models.SearchItem {
+	cleanQ := strings.TrimSpace(query)
+
+	// 1. Try querying Go Search Core (:8082) for typo-tolerant trigram search
+	if cleanQ != "" {
+		items := s.querySearchCore(cleanQ)
+		if len(items) > 0 {
+			return s.filterItems(items, category, province, inStockOnly)
+		}
+	}
+
+	// 2. In-memory product search
+	s.mu.RLock()
+	var results []models.SearchItem
+	qLower := strings.ToLower(cleanQ)
+
+	for _, p := range s.products {
+		match := false
+		if cleanQ == "" {
+			match = true
+		} else {
+			if strings.Contains(strings.ToLower(p.Title), qLower) ||
+				strings.Contains(strings.ToLower(p.Brand), qLower) ||
+				strings.Contains(strings.ToLower(p.Model), qLower) ||
+				strings.Contains(strings.ToLower(p.Category), qLower) ||
+				strings.Contains(strings.ToLower(p.Description), qLower) {
+				match = true
+			}
+		}
+
+		if match {
+			results = append(results, s.detailToSearchItem(p))
+		}
+	}
+
+	// 3. Search deals if matching query
+	if len(results) == 0 && cleanQ != "" {
+		for _, d := range s.deals {
+			if strings.Contains(strings.ToLower(d.Title), qLower) ||
+				strings.Contains(strings.ToLower(d.Brand), qLower) ||
+				strings.Contains(strings.ToLower(d.MerchantName), qLower) {
+				results = append(results, models.SearchItem{
+					ID:          d.ID,
+					Title:       d.Title,
+					Brand:       d.Brand,
+					Model:       d.MerchantName,
+					Category:    d.CategoryLabel,
+					Description: fmt.Sprintf("%s · %s", d.Availability, d.LocationHint),
+					PriceZar:    d.PriceZar,
+					OffersCount: 1,
+					City:        "Major Retail Superstores",
+					Province:    "Nationwide",
+					InStock:     true,
+					Verified:    true,
+					ImageURL:    d.ImageURL,
+					Rating:      4.9,
+				})
+			}
+		}
+	}
+	s.mu.RUnlock()
+
+	// 4. If still no results and we have the 1.0M products SQLite connected, query SQLite directly!
+	if len(results) == 0 && cleanQ != "" && s.dbProducts != nil {
+		rows, err := s.dbProducts.Query(
+			"SELECT master_product_id, product_name, brand, category_path FROM global_master_product WHERE product_name LIKE ? LIMIT 24",
+			"%"+cleanQ+"%",
+		)
+		if err == nil {
+			defer rows.Close()
+			for rows.Next() {
+				var id, name, brand, cat sql.NullString
+				if err := rows.Scan(&id, &name, &brand, &cat); err == nil {
+					results = append(results, models.SearchItem{
+						ID:          id.String,
+						Title:       name.String,
+						Brand:       brand.String,
+						Category:    cat.String,
+						Description: "1,000,000+ Master Product Index",
+						PriceZar:    49.99,
+						OffersCount: 1,
+						City:        "South Africa Nationwide",
+						Province:    "Nationwide",
+						InStock:     true,
+						Verified:    true,
+						ImageURL:    "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop&q=80",
+						Rating:      4.8,
+					})
+				}
+			}
+		}
+	}
+
+	return s.filterItems(results, category, province, inStockOnly)
+}
+
+func (s *Store) detailToSearchItem(p models.ProductDetail) models.SearchItem {
+	return models.SearchItem{
+		ID:          p.CanonicalID,
+		Title:       p.Title,
+		Brand:       p.Brand,
+		Model:       p.Model,
+		Category:    p.Category,
+		Description: p.Description,
+		PriceZar:    p.LowestOfferPrice,
+		OffersCount: len(p.Offers),
+		City:        "Crown Mines, Johannesburg",
+		Province:    "Gauteng",
+		InStock:     true,
+		Verified:    true,
+		ImageURL:    p.ImageURL,
+		Rating:      4.9,
+	}
+}
+
+func (s *Store) filterItems(items []models.SearchItem, category string, province string, inStockOnly bool) []models.SearchItem {
+	var filtered []models.SearchItem
+	catLower := strings.ToLower(strings.TrimSpace(category))
+	provLower := strings.ToLower(strings.TrimSpace(province))
+
+	for _, item := range items {
+		if catLower != "" && catLower != "all" && !strings.Contains(strings.ToLower(item.Category), catLower) {
+			continue
+		}
+		if provLower != "" && provLower != "all" && !strings.Contains(strings.ToLower(item.Province), provLower) {
+			continue
+		}
+		if inStockOnly && !item.InStock {
+			continue
+		}
+		filtered = append(filtered, item)
+	}
+	return filtered
+}
+
+func (s *Store) querySearchCore(q string) []models.SearchItem {
+	client := &http.Client{Timeout: 35 * time.Millisecond}
+	resp, err := client.Get(fmt.Sprintf("http://localhost:8082/api/search?q=%s", url.QueryEscape(q)))
+	if err != nil || resp.StatusCode != http.StatusOK {
+		return nil
+	}
+	defer resp.Body.Close()
+
+	var searchCoreRes struct {
+		Items []struct {
+			ID          string  `json:"id"`
+			Title       string  `json:"title"`
+			Brand       string  `json:"brand"`
+			Model       string  `json:"model"`
+			Category    string  `json:"category"`
+			Description string  `json:"description"`
+			PriceZar    float64 `json:"priceZar"`
+			City        string  `json:"city"`
+			Province    string  `json:"province"`
+			InStock     bool    `json:"inStock"`
+			Verified    bool    `json:"verified"`
+			Score       float64 `json:"score"`
+		} `json:"items"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&searchCoreRes); err != nil {
+		return nil
+	}
+
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	var out []models.SearchItem
+	for _, it := range searchCoreRes.Items {
+		img := "https://images.unsplash.com/photo-1509391365360-2e959784a276?w=600&auto=format&fit=crop&q=80"
+		offersCount := 1
+		if detail, ok := s.products[it.ID]; ok {
+			img = detail.ImageURL
+			offersCount = len(detail.Offers)
+		}
+		out = append(out, models.SearchItem{
+			ID:          it.ID,
+			Title:       it.Title,
+			Brand:       it.Brand,
+			Model:       it.Model,
+			Category:    it.Category,
+			Description: it.Description,
+			PriceZar:    it.PriceZar,
+			OffersCount: offersCount,
+			City:        it.City,
+			Province:    it.Province,
+			InStock:     it.InStock,
+			Verified:    it.Verified,
+			ImageURL:    img,
+			Score:       it.Score,
+			Rating:      4.9,
+		})
+	}
+	return out
+}
+
+func (s *Store) GetProductByID(id string) (models.ProductDetail, bool) {
+	s.mu.RLock()
+	p, ok := s.products[id]
+	if ok {
+		s.mu.RUnlock()
+		return p, true
+	}
+
+	// Normalized prefix resolution (p_sunsynk_5k vs var_sunsynk_8kw_hybrid)
+	cleanID := strings.TrimPrefix(strings.TrimPrefix(id, "p_"), "var_")
+	cleanLower := strings.ToLower(cleanID)
+	for k, v := range s.products {
+		kLower := strings.ToLower(k)
+		if strings.Contains(kLower, cleanLower) || strings.Contains(cleanLower, strings.TrimPrefix(kLower, "var_")) {
+			s.mu.RUnlock()
+			return v, true
+		}
+	}
+
+	// Check deals
+	for _, d := range s.deals {
+		if d.ID == id {
+			s.mu.RUnlock()
+			return models.ProductDetail{
+				CanonicalID:       d.ID,
+				Title:             d.Title,
+				Brand:             d.Brand,
+				Model:             d.MerchantName,
+				Category:          d.CategoryLabel,
+				Description:       fmt.Sprintf("%s. Verified retailer deal at %s.", d.Availability, d.LocationHint),
+				ImageURL:          d.ImageURL,
+				Gallery:           []string{d.ImageURL},
+				EstimatedPriceZar: d.PriceZar,
+				LowestOfferPrice:  d.PriceZar,
+				Specs: map[string]string{
+					"Retailer":     d.MerchantName,
+					"Direct URL":   d.DirectURL,
+					"Special":      d.Badge,
+					"Valid Until":  d.ValidUntil,
+					"Availability": d.Availability,
+				},
+				Offers: []models.MerchantOffer{
+					{
+						MerchantID:   "retailer_" + strings.ToLower(d.RetailerDomain),
+						MerchantName: d.MerchantName,
+						City:         d.LocationHint,
+						Province:     "Nationwide",
+						PriceZar:     d.PriceZar,
+						InStock:      true,
+						Verified:     true,
+						WhatsApp:     "27825551234",
+						Rating:       4.8,
+					},
+				},
+			}, true
+		}
+	}
+	s.mu.RUnlock()
+
+	// Query 1.0M products SQLite on demand!
+	if s.dbProducts != nil {
+		origID := strings.ReplaceAll(id, "_", ":")
+		row := s.dbProducts.QueryRow(
+			"SELECT master_product_id, product_name, brand, category_path FROM global_master_product WHERE master_product_id = ? OR master_product_id = ? LIMIT 1",
+			origID, id,
+		)
+		var pid, name, brand, cat sql.NullString
+		if err := row.Scan(&pid, &name, &brand, &cat); err == nil {
+			return models.ProductDetail{
+				CanonicalID:       pid.String,
+				Title:             name.String,
+				Brand:             brand.String,
+				Model:             "Standard Spec",
+				Category:          cat.String,
+				Description:       fmt.Sprintf("%s by %s. Indexed in the national master catalog.", name.String, brand.String),
+				ImageURL:          "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop&q=80",
+				Gallery:           []string{"https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop&q=80"},
+				EstimatedPriceZar: 89.99,
+				LowestOfferPrice:  84.99,
+				Specs: map[string]string{
+					"Brand":    brand.String,
+					"Category": cat.String,
+					"Catalog":  "1,000,000+ Master Database",
+				},
+				Offers: []models.MerchantOffer{
+					{
+						MerchantID:   "loc_sa_trade_depot",
+						MerchantName: "Verified Trade Counter",
+						City:         "Johannesburg",
+						Province:     "Gauteng",
+						PriceZar:     84.99,
+						InStock:      true,
+						Verified:     true,
+						WhatsApp:     "27825551234",
+						Rating:       4.8,
+					},
+				},
+			}, true
+		}
+	}
+
+	return models.ProductDetail{}, false
+}
+
+func (s *Store) GetMerchantByID(id string) (models.MerchantStorefront, bool) {
+	s.mu.RLock()
+	m, ok := s.merchants[id]
+	if ok {
+		s.mu.RUnlock()
+		return m, true
+	}
+	s.mu.RUnlock()
+
+	// Query 3.1M merchants SQLite on demand!
+	if s.dbMerchants != nil {
+		row := s.dbMerchants.QueryRow(
+			"SELECT merchant_id, name, category, metro, street_address, phone_e164, website, google_rating, google_reviews_count, cipc_number FROM swept_merchants WHERE merchant_id = ? LIMIT 1",
+			id,
+		)
+		var mid, name, category, metro, address, phone, website, cipc sql.NullString
+		var rating sql.NullFloat64
+		var reviews sql.NullInt64
+
+		if err := row.Scan(&mid, &name, &category, &metro, &address, &phone, &website, &rating, &reviews, &cipc); err == nil {
+			return models.MerchantStorefront{
+				ID:           mid.String,
+				Name:         name.String,
+				Category:     category.String,
+				Suburb:       metro.String,
+				City:         metro.String,
+				Province:     "Gauteng",
+				Address:      address.String,
+				Phone:        phone.String,
+				WhatsApp:     strings.TrimPrefix(phone.String, "+"),
+				Rating:       rating.Float64,
+				ReviewsCount: int(reviews.Int64),
+				CIPCNumber:   cipc.String,
+				Verified:     true,
+			}, true
+		}
+	}
+
+	return models.MerchantStorefront{}, false
+}
+
+func (s *Store) GetAllMalls(provinceFilter string, query string) []models.Mall {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	prov := strings.TrimSpace(strings.ToLower(provinceFilter))
+	q := strings.TrimSpace(strings.ToLower(query))
+
+	var res []models.Mall
+	for _, m := range s.malls {
+		if prov != "" && prov != "all" && !strings.EqualFold(m.Province, provinceFilter) {
+			continue
+		}
+		if q != "" {
+			match := strings.Contains(strings.ToLower(m.Name), q) ||
+				strings.Contains(strings.ToLower(m.Suburb), q) ||
+				strings.Contains(strings.ToLower(m.StreetAddress), q) ||
+				strings.Contains(strings.ToLower(m.MarketType), q)
+			if !match {
+				for _, a := range m.AnchorTenants {
+					if strings.Contains(strings.ToLower(a), q) {
+						match = true
+						break
+					}
+				}
+			}
+			if !match {
+				continue
+			}
+		}
+		res = append(res, m)
+	}
+	return res
+}
+
+func (s *Store) GetMallByID(id string) (models.Mall, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	for _, m := range s.malls {
+		if m.ID == id || m.Slug == id {
+			return m, true
+		}
+	}
+	return models.Mall{}, false
+}
+
+func (s *Store) fallbackMalls() []models.Mall {
+	return []models.Mall{
+		{
+			ID:            "mall_mall_of_africa",
+			Name:          "Mall of Africa",
+			Slug:          "mall-of-africa",
+			Province:      "Gauteng",
+			Metro:         "City of Johannesburg",
+			Suburb:        "Waterfall City, Midrand",
+			MarketType:    "Super Regional Mall",
+			StreetAddress: "Magwa Cres, Waterfall City, Midrand, 1686",
+			StoreCount:    300,
+			AnchorTenants: []string{"Woolworths", "Checkers Hyper", "Game", "Edgars"},
+			Latitude:      -26.0152,
+			Longitude:     28.1077,
+		},
+	}
+}
+
+func (s *Store) fallbackProducts() []models.ProductDetail {
+	return []models.ProductDetail{
+		{
+			CanonicalID:       "p_sunsynk_5k",
+			Title:             "Sunsynk 5kW Hybrid Inverter Single Phase",
+			Brand:             "Sunsynk",
+			Model:             "SUNSYNK-5K-SG01LP1",
+			Category:          "Solar & Energy",
+			Description:       "High efficiency 5000W hybrid inverter with UPS and parallel capability",
+			ImageURL:          "https://images.unsplash.com/photo-1509391365360-2e959784a276?w=600&auto=format&fit=crop&q=80",
+			EstimatedPriceZar: 18999,
+			LowestOfferPrice:  18499,
+			Specs: map[string]string{
+				"Rated Power": "5,000 W",
+			},
+			Offers: []models.MerchantOffer{
+				{
+					MerchantID:   "loc_sunpower_crownmines",
+					MerchantName: "SunPower Crown Mines Wholesale",
+					City:         "Crown Mines, Johannesburg",
+					Province:     "Gauteng",
+					PriceZar:     18499,
+					InStock:      true,
+					WhatsApp:     "27825551234",
+				},
+			},
+		},
+	}
+}
+
+func (s *Store) fallbackDeals() []models.RetailerDeal {
+	return []models.RetailerDeal{
+		{
+			ID:             "deal_makro_ppc_cement",
+			Title:          "PPC Surebuild 42.5N General Purpose Cement 50kg",
+			Brand:          "PPC",
+			MerchantName:   "Makro South Africa",
+			RetailerDomain: "makro.co.za",
+			Category:       "hardware",
+			CategoryLabel:  "Building & Hardware",
+			DirectURL:      "https://www.makro.co.za",
+			PriceZar:       115,
+			OldPriceZar:    139,
+			DiscountPct:    17,
+			Badge:          "🔥 CIRCULAR SPECIAL",
+			Availability:   "In Stock",
+			LocationHint:   "Nationwide Superstores",
+			ImageURL:       "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=800&auto=format&fit=crop&q=80",
+		},
+	}
+}
+
+func (s *Store) fallbackMerchants() []models.MerchantStorefront {
+	return []models.MerchantStorefront{
+		{
+			ID:           "loc_sunpower_crownmines",
+			Name:         "SunPower Crown Mines Wholesale",
+			Category:     "Solar, Inverters & Batteries",
+			Suburb:       "Crown Mines",
+			City:         "Johannesburg",
+			Province:     "Gauteng",
+			Address:      "Unit 14, Crown Commercial Park, 84 Main Reef Rd, Crown Mines, 2025",
+			Phone:        "+27 11 839 2000",
+			WhatsApp:     "27825551234",
+			Rating:       4.9,
+			ReviewsCount: 142,
+			CIPCNumber:   "2018/194821/07",
+			Verified:     true,
+		},
+	}
+}

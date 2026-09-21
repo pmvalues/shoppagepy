@@ -1,0 +1,393 @@
+package templates
+
+import (
+	"fmt"
+)
+
+templ HomeViewComponent(data HomeViewData) {
+	@Layout(data.Title, data.Description, data.CurrentTab, data.Trends, data.TopDrops, data.Guilds) {
+		<!-- CENTER DISCOVERY COLUMN -->
+		<main class="flex-1 min-w-0 bg-white border-r border-slate-200/80 flex flex-col min-h-screen">
+			<!-- Global Search Bar & Mode Tabs Sub-Bar -->
+			<div class="sticky top-7 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200">
+				<div class="p-3.5">
+					<form action="/search" method="GET" class="relative">
+						<input 
+							type="text" 
+							name="q" 
+							value={ data.Query }
+							placeholder="Search 1,000,000+ products, inverters, boxes, cement, specials..."
+							hx-get="/search" 
+							hx-trigger="keyup changed delay:200ms, search" 
+							hx-target="#main-stream-content"
+							hx-indicator="#search-spinner"
+							hx-push-url="true"
+							class="w-full bg-slate-100 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-500 rounded-full py-2.5 pl-11 pr-10 text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 outline-none transition"
+						/>
+						<span class="absolute left-3.5 top-3 text-slate-400">
+							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+						</span>
+						<div id="search-spinner" class="htmx-indicator absolute right-3.5 top-3">
+							<div class="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+						</div>
+					</form>
+				</div>
+
+				<!-- 5 Stream Mode Tabs -->
+				<div class="flex items-center px-4 gap-6 overflow-x-auto text-xs font-bold scrollbar-none border-t border-slate-100">
+					<a href="/?tab=foryou" class={ "py-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "" || data.CurrentTab == "foryou"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "" && data.CurrentTab != "foryou") }>
+						<span>⚡</span> <span>For You</span>
+					</a>
+					<a href="/?tab=deals" class={ "py-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "deals"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "deals") }>
+						<span>🔥</span> <span>Deals &amp; Circulars</span>
+					</a>
+					<a href="/?tab=products" class={ "py-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "products"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "products") }>
+						<span>📦</span> <span>Products (1M+)</span>
+					</a>
+					<a href="/malls" class={ "py-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "malls"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "malls") }>
+						<span>🏬</span> <span>3,315 Malls</span>
+					</a>
+					<a href="/?tab=shorts" class={ "py-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "shorts"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "shorts") }>
+						<span>🎬</span> <span>Shorts &amp; Reels</span>
+					</a>
+				</div>
+			</div>
+
+			<!-- Dynamic Content Stream Container -->
+			<div id="main-stream-content">
+				<!-- TAB 1: FOR YOU SOCIAL STREAM & COMPOSER -->
+				if data.CurrentTab == "" || data.CurrentTab == "foryou" {
+					<!-- Live Trade Broadcast Composer -->
+					<div id="trade-composer" class="p-4 border-b border-slate-200 bg-white">
+						<form hx-post="/feed/post" hx-target="#timeline-posts" hx-swap="afterbegin" hx-on::after-request="this.reset(); document.getElementById('char-counter').textContent='280';">
+							<div class="flex gap-3">
+								<div class="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold flex items-center justify-center text-sm shrink-0">
+									Y
+								</div>
+								<div class="flex-1 min-w-0">
+									<textarea 
+										id="composer-textarea"
+										name="text" 
+										rows="2" 
+										placeholder="What's happening in trade?! Request quotations, announce price drops..."
+										oninput="const left = 280 - this.value.length; document.getElementById('char-counter').textContent = left;"
+										class="w-full text-sm font-medium text-slate-900 placeholder-slate-400 outline-none resize-none bg-transparent"
+										required
+									></textarea>
+
+									<!-- Poll Setup Box (collapsible) -->
+									<div id="poll-setup" class="hidden my-2 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2">
+										<div class="flex items-center justify-between font-bold text-slate-700">
+											<span>📊 Trade Poll Options</span>
+											<button type="button" onclick="document.getElementById('poll-setup').classList.add('hidden');" class="text-slate-400 hover:text-rose-600">✕</button>
+										</div>
+										<input type="text" name="pollOpt1" placeholder="Option 1 (e.g. 5kW Hybrid)" class="w-full p-2 bg-white border border-slate-200 rounded-lg outline-none"/>
+										<input type="text" name="pollOpt2" placeholder="Option 2 (e.g. 8kW Hybrid)" class="w-full p-2 bg-white border border-slate-200 rounded-lg outline-none"/>
+										<input type="text" name="pollOpt3" placeholder="Option 3 (Optional, e.g. 10kW 3-Phase)" class="w-full p-2 bg-white border border-slate-200 rounded-lg outline-none"/>
+									</div>
+
+									<!-- Composer Actions -->
+									<div class="pt-2 flex items-center justify-between border-t border-slate-100 mt-2">
+										<div class="flex items-center gap-1 text-slate-400">
+											<button type="button" onclick="document.getElementById('poll-setup').classList.toggle('hidden');" class="p-1.5 rounded-lg hover:bg-slate-100 hover:text-emerald-600 transition" title="Add Trade Poll">
+												📊
+											</button>
+											<button type="button" onclick="alert('Media attachment ready on trade counter.');" class="p-1.5 rounded-lg hover:bg-slate-100 hover:text-emerald-600 transition" title="Attach Spec Sheet">
+												📎
+											</button>
+											<button type="button" onclick="alert('Midrand Trade Counter location tagged.');" class="p-1.5 rounded-lg hover:bg-slate-100 hover:text-emerald-600 transition" title="Tag Location">
+												📍
+											</button>
+										</div>
+										<div class="flex items-center gap-3">
+											<span id="char-counter" class="text-xs font-mono text-slate-400">280</span>
+											<button 
+												type="submit" 
+												class="px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition cursor-pointer"
+											>
+												Broadcast
+											</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+
+					<!-- Timeline Posts Stream -->
+					<div id="timeline-posts" class="divide-y divide-slate-100">
+						for _, post := range data.Posts {
+							<article class="p-4 sm:p-5 hover:bg-slate-50/70 transition">
+								<div class="flex gap-3">
+									<div class="w-10 h-10 rounded-full bg-slate-900 text-white font-extrabold flex items-center justify-center text-sm shrink-0">
+										{ post.Initials }
+									</div>
+									<div class="flex-1 min-w-0">
+										<div class="flex items-center gap-1.5 flex-wrap">
+											<span class="font-bold text-sm text-slate-900">{ post.Name }</span>
+											if post.Verified {
+												<span class="text-emerald-600 text-xs">✓</span>
+											}
+											<span class="text-xs text-slate-400">{ post.Handle }</span>
+											<span class="text-slate-300">·</span>
+											<span class="text-xs text-slate-400">{ post.Time }</span>
+											if post.Badge != nil {
+												<span class="ml-auto px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase">
+													{ post.Badge.Label }
+												</span>
+											}
+										</div>
+
+										<p class="text-sm text-slate-800 mt-1.5 leading-relaxed">
+											{ post.Text }
+										</p>
+
+										if post.Product != nil {
+											<div class="mt-3 rounded-2xl border border-slate-200 bg-white overflow-hidden group">
+												<div class="p-3.5 flex items-center justify-between gap-4">
+													<div class="min-w-0">
+														<div class="text-xs font-bold text-slate-900 truncate">{ post.Product.Name }</div>
+														<div class="text-[11px] text-slate-400">{ post.Product.Note }</div>
+														<div class="flex items-baseline gap-2 mt-1">
+															<span class="text-base font-black text-slate-900">{ post.Product.Price }</span>
+															if post.Product.Old != "" {
+																<span class="text-xs text-slate-400 line-through">{ post.Product.Old }</span>
+															}
+															if post.Product.Off != "" {
+																<span class="px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 text-[10px] font-black">{ post.Product.Off }</span>
+															}
+														</div>
+													</div>
+													<button 
+														type="button"
+														hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", post.ID))) } 
+														hx-target="#buybox-drawer"
+														class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-bold transition shadow-xs shrink-0 cursor-pointer"
+													>
+														Get Deal / BuyBox &rarr;
+													</button>
+												</div>
+											</div>
+										}
+
+										if post.Poll != nil {
+											<div class="mt-3 p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+												<div class="text-xs font-bold text-slate-700">📊 Interactive Community Poll</div>
+												for _, opt := range post.Poll.Options {
+													<button 
+														type="button"
+														onclick="alert('Vote recorded');"
+														class="w-full text-left p-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-500 transition text-xs font-semibold flex items-center justify-between"
+													>
+														<span>{ opt.Label }</span>
+														<span class="text-slate-400 font-mono">{ fmt.Sprintf("%d", opt.Votes) } votes</span>
+													</button>
+												}
+											</div>
+										}
+
+										<div class="mt-3.5 flex items-center justify-between text-xs text-slate-500 max-w-md">
+											<button type="button" class="hover:text-emerald-600 transition flex items-center gap-1.5">
+												<span>💬</span> <span>{ fmt.Sprintf("%d", post.Stats.Replies) }</span>
+											</button>
+											<button type="button" class="hover:text-emerald-600 transition flex items-center gap-1.5">
+												<span>🔁</span> <span>{ fmt.Sprintf("%d", post.Stats.Reposts) }</span>
+											</button>
+											<button type="button" onclick="const s = this.querySelector('.likes-count'); s.textContent = parseInt(s.textContent)+1;" class="hover:text-rose-600 transition flex items-center gap-1.5">
+												<span>❤️</span> <span class="likes-count">{ fmt.Sprintf("%d", post.Stats.Likes) }</span>
+											</button>
+											<button type="button" class="hover:text-slate-900 transition flex items-center gap-1.5">
+												<span>👁️</span> <span>{ post.Stats.Views }</span>
+											</button>
+											<button type="button" onclick="navigator.clipboard?.writeText(window.location.href); alert('Trade link copied!');" class="hover:text-slate-900 transition">
+												<span>↗️</span>
+											</button>
+										</div>
+									</div>
+								</div>
+							</article>
+						}
+					</div>
+				}
+
+				<!-- TAB 2: PRODUCTS CATALOG -->
+				if data.CurrentTab == "products" {
+					<div class="p-4 sm:p-6">
+						<div class="flex items-center justify-between mb-4">
+							<div>
+								<h2 class="text-xl font-display font-black text-slate-900 tracking-tight">Products &amp; Trade Catalog</h2>
+								<p class="text-xs text-slate-500">1,000,000+ products across verified South African commercial suppliers</p>
+							</div>
+						</div>
+
+						<!-- Category Filter Pills -->
+						<div class="flex items-center gap-2 overflow-x-auto pb-3 mb-4 scrollbar-none text-xs font-bold">
+							<a href="/?tab=products" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-slate-900 text-white", data.CurrentCategory == "" || data.CurrentCategory == "all"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentCategory != "" && data.CurrentCategory != "all") }>All Categories</a>
+							<a href="/?tab=products&category=solar" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentCategory == "solar"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentCategory != "solar") }>⚡ Solar &amp; Power</a>
+							<a href="/?tab=products&category=electronics" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentCategory == "electronics"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentCategory != "electronics") }>📱 Phones &amp; Tech</a>
+							<a href="/?tab=products&category=packaging" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentCategory == "packaging"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentCategory != "packaging") }>📦 Packaging &amp; Catering</a>
+							<a href="/?tab=products&category=hardware" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentCategory == "hardware"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentCategory != "hardware") }>🧱 Building &amp; Hardware</a>
+							<a href="/?tab=products&category=automotive" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentCategory == "automotive"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentCategory != "automotive") }>🚗 Automotive Spares</a>
+							<a href="/?tab=products&category=groceries" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentCategory == "groceries"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentCategory != "groceries") }>🛒 Wholesale FMCG</a>
+						</div>
+
+						<!-- Products Grid -->
+						<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+							for _, prod := range data.Products {
+								<div class="bg-white rounded-2xl border border-slate-200 p-4 hover:shadow-md hover:border-emerald-500 transition flex flex-col group">
+									<div class="relative w-full h-44 rounded-xl overflow-hidden bg-slate-100 mb-3">
+										<img src={ prod.ImageURL } alt={ prod.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-300"/>
+										if prod.Verified {
+											<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-900/80 text-emerald-400 text-[10px] font-bold backdrop-blur-xs">
+												✓ Verified Trade
+											</span>
+										}
+										if prod.InStock {
+											<span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-bold">
+												In Stock
+											</span>
+										}
+									</div>
+									<div class="text-[11px] text-emerald-600 font-bold uppercase tracking-wider mb-1">{ prod.Brand } · { prod.Category }</div>
+									<h3 class="font-bold text-slate-900 text-sm leading-snug line-clamp-2 mb-2">
+										<a href={ templ.SafeURL(fmt.Sprintf("/p/%s", prod.ID)) } class="hover:text-emerald-600 transition">{ prod.Title }</a>
+									</h3>
+									<div class="text-xs text-slate-500 mb-3 flex items-center gap-1">
+										<span>📍</span> <span class="truncate">{ prod.City }</span>
+									</div>
+									<div class="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between">
+										<div>
+											<div class="text-[10px] text-slate-400">Lowest landed price</div>
+											<div class="text-base font-black text-slate-900">R { fmt.Sprintf("%.2f", prod.PriceZar) }</div>
+										</div>
+										<button 
+											type="button"
+											hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", prod.ID))) } 
+											hx-target="#buybox-drawer"
+											class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+										>
+											BuyBox &rarr;
+										</button>
+									</div>
+								</div>
+							}
+						</div>
+					</div>
+				}
+
+				<!-- TAB 3: DEALS & CIRCULARS -->
+				if data.CurrentTab == "deals" {
+					<div class="p-4 sm:p-6">
+						<div class="flex items-center justify-between mb-4">
+							<div>
+								<h2 class="text-xl font-display font-black text-slate-900 tracking-tight">Verified Retailer Specials &amp; Circulars</h2>
+								<p class="text-xs text-slate-500">Live circular deals from Makro, BUCO, Builders, Game, Leroy Merlin &amp; SPAR</p>
+							</div>
+						</div>
+
+						<!-- Retailer Selector Pills -->
+						<div class="flex items-center gap-2 overflow-x-auto pb-3 mb-4 scrollbar-none text-xs font-bold">
+							<a href="/?tab=deals" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-slate-900 text-white", data.CurrentRetailer == "" || data.CurrentRetailer == "all"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentRetailer != "" && data.CurrentRetailer != "all") }>All Major Retailers</a>
+							<a href="/?tab=deals&retailer=buco" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentRetailer == "buco"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentRetailer != "buco") }>🟡 BUCO</a>
+							<a href="/?tab=deals&retailer=spar" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentRetailer == "spar"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentRetailer != "spar") }>🟢 SPAR</a>
+							<a href="/?tab=deals&retailer=builders" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentRetailer == "builders"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentRetailer != "builders") }>🟠 Builders</a>
+							<a href="/?tab=deals&retailer=game" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentRetailer == "game"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentRetailer != "game") }>🔵 Game</a>
+							<a href="/?tab=deals&retailer=leroy" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentRetailer == "leroy"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentRetailer != "leroy") }>🟢 Leroy Merlin</a>
+							<a href="/?tab=deals&retailer=makro" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentRetailer == "makro"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentRetailer != "makro") }>🔴 Makro</a>
+						</div>
+
+						<!-- Deals Grid -->
+						<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+							for _, deal := range data.Deals {
+								<div class="bg-white rounded-2xl border border-slate-200 p-4 hover:shadow-md transition flex flex-col group relative">
+									if deal.DiscountPct > 0 {
+										<div class="absolute top-3 left-3 z-10 px-2 py-0.5 rounded-md bg-rose-600 text-white text-[10px] font-black uppercase shadow-xs">
+											-{ fmt.Sprintf("%d", deal.DiscountPct) }% OFF
+										</div>
+									}
+									<div class="relative w-full h-44 rounded-xl overflow-hidden bg-slate-100 mb-3">
+										<img src={ deal.ImageURL } alt={ deal.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-300"/>
+									</div>
+									<div class="text-[11px] text-emerald-700 font-bold uppercase tracking-wider mb-1">{ deal.MerchantName }</div>
+									<h3 class="font-bold text-slate-900 text-sm leading-snug line-clamp-2 mb-2">
+										{ deal.Title }
+									</h3>
+									<div class="text-xs text-slate-500 mb-3 line-clamp-1">{ deal.LocationHint }</div>
+									<div class="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between">
+										<div>
+											if deal.OldPriceZar > 0.0 {
+												<div class="text-[10px] text-slate-400 line-through">R { fmt.Sprintf("%.2f", deal.OldPriceZar) }</div>
+											}
+											<div class="text-base font-black text-slate-900">R { fmt.Sprintf("%.2f", deal.PriceZar) }</div>
+										</div>
+										<div class="flex items-center gap-2">
+											<button 
+												type="button"
+												hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", deal.ID))) } 
+												hx-target="#buybox-drawer"
+												class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition cursor-pointer"
+											>
+												BuyBox
+											</button>
+											<a href={ templ.SafeURL(deal.DirectURL) } target="_blank" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition shadow-xs flex items-center gap-1">
+												<span>View Deal</span> <span>↗</span>
+											</a>
+										</div>
+									</div>
+								</div>
+							}
+						</div>
+					</div>
+				}
+
+				<!-- TAB 4: SHORTS & REELS -->
+				if data.CurrentTab == "shorts" {
+					<div class="p-4 sm:p-6">
+						<div class="flex items-center justify-between mb-4">
+							<div>
+								<h2 class="text-xl font-display font-black text-slate-900 tracking-tight">Trade Shorts &amp; Unboxings</h2>
+								<p class="text-xs text-slate-500">Vertical product demonstrations, load-shedding stress tests, and unboxings</p>
+							</div>
+						</div>
+
+						<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+							for _, short := range data.Shorts {
+								<div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition flex flex-col group">
+									<div class="relative w-full h-80 bg-slate-900 overflow-hidden">
+										<img src={ short.Image } alt={ short.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-90"/>
+										<div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+										<button 
+											type="button"
+											onclick="alert('Playing trade demo');"
+											class="absolute inset-0 m-auto w-12 h-12 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center text-white text-xl hover:scale-110 transition cursor-pointer"
+										>
+											▶
+										</button>
+										<div class="absolute top-3 right-3 px-2 py-0.5 rounded-md bg-black/60 text-white text-[10px] font-bold">
+											{ short.Duration }
+										</div>
+										<div class="absolute bottom-3 left-3 right-3 text-white">
+											<div class="text-[10px] text-emerald-400 font-bold uppercase">{ short.MerchantName }</div>
+											<h4 class="text-xs font-bold leading-snug line-clamp-2 mt-0.5">{ short.Title }</h4>
+											<div class="text-[10px] text-slate-300 mt-1">👁️ { short.Views } views · ❤️ { fmt.Sprintf("%d", short.Likes) }</div>
+										</div>
+									</div>
+									<div class="p-3 bg-white flex items-center justify-between">
+										<div class="text-xs font-black text-slate-900">R { fmt.Sprintf("%.2f", short.PriceZar) }</div>
+										<a 
+											href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi,%%20I'm%%20inquiring%%20about%%20%s%%20on%%20Shoppage", short.MerchantWhatsApp, short.Title)) } 
+											target="_blank"
+											class="px-2.5 py-1 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition"
+										>
+											WhatsApp Trade
+										</a>
+									</div>
+								</div>
+							}
+						</div>
+					</div>
+				}
+			</div>
+		</main>
+	}
+}

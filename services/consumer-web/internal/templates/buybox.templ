@@ -1,0 +1,110 @@
+package templates
+
+import (
+	"fmt"
+)
+
+templ BuyBoxDrawerComponent(data BuyBoxViewData) {
+	<div 
+		class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex justify-end transition-opacity"
+		onclick="document.getElementById('buybox-drawer').innerHTML = '';"
+	>
+		<div 
+			class="w-full max-w-xl bg-white h-full shadow-2xl flex flex-col animate-slide-in-right relative"
+			onclick="event.stopPropagation();"
+		>
+			<!-- Drawer Header -->
+			<div class="p-5 border-b border-slate-200 flex items-center justify-between">
+				<div>
+					<div class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+						South Africa · Multi-Merchant BuyBox Comparison
+					</div>
+					<h2 class="text-lg font-display font-black text-slate-900 mt-0.5">
+						Where to Buy in South Africa
+					</h2>
+				</div>
+				<button 
+					type="button"
+					onclick="document.getElementById('buybox-drawer').innerHTML = '';"
+					class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold flex items-center justify-center transition cursor-pointer"
+				>
+					✕
+				</button>
+			</div>
+
+			<!-- Product Summary Card -->
+			<div class="p-4 bg-slate-50 border-b border-slate-200 flex items-center gap-4">
+				<img src={ data.Product.ImageURL } alt={ data.Product.Title } class="w-16 h-16 rounded-xl object-contain bg-white border border-slate-200 p-1 shrink-0"/>
+				<div class="min-w-0 flex-1">
+					<div class="text-xs text-slate-500 font-bold">{ data.Product.Brand } · { data.Product.Model }</div>
+					<h3 class="text-sm font-bold text-slate-900 truncate mt-0.5">{ data.Product.Title }</h3>
+					<div class="flex items-baseline gap-2 mt-1">
+						<span class="text-lg font-black text-emerald-950">From R { fmt.Sprintf("%.2f", data.LowestPrice) }</span>
+						<span class="text-xs text-slate-500">
+							· { fmt.Sprintf("%d", len(data.Offers)) } verified store offer{ func() string { if len(data.Offers) != 1 { return "s" }; return "" }() }
+						</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Controls Sub-Row -->
+			<div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between text-xs text-slate-500">
+				<div class="flex items-center gap-1.5 font-semibold">
+					<span>Sort:</span>
+					<button type="button" class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold">Lowest Price</button>
+					<button type="button" class="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700">📍 Closest</button>
+				</div>
+				<span class="text-[11px] text-slate-400">📍 Near <strong>{ data.UserLocation }</strong></span>
+			</div>
+
+			<!-- Merchant Offers Comparison List -->
+			<div class="flex-1 overflow-y-auto p-5 space-y-3">
+				for idx, offer := range data.Offers {
+					<div class={ "p-4 rounded-2xl border hover:shadow-xs transition flex flex-col gap-3", templ.KV("border-emerald-500 bg-emerald-50/30", idx == 0), templ.KV("border-slate-200 bg-white", idx != 0) }>
+						<div class="flex items-start justify-between">
+							<div>
+								<div class="flex items-center gap-2">
+									<span class="font-bold text-sm text-slate-900">{ offer.MerchantName }</span>
+									if offer.Verified {
+										<span class="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold">✓ Verified Trade</span>
+									}
+									if idx == 0 {
+										<span class="px-1.5 py-0.2 rounded bg-emerald-600 text-white text-[9px] font-black">BEST BUYBOX</span>
+									}
+								</div>
+								<div class="text-xs text-slate-500 mt-0.5">
+									<span>📍 { offer.City }</span> · <strong>1.8 km away</strong>
+								</div>
+							</div>
+							<div class="text-right">
+								<div class="text-base font-black text-slate-900">R { fmt.Sprintf("%.2f", offer.PriceZar) }</div>
+								<div class="text-[10px] text-emerald-700 font-bold">🟢 Ready for Collection</div>
+							</div>
+						</div>
+
+						<div class="pt-2 border-t border-slate-100 flex items-center gap-2">
+							<a 
+								href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi,%%20I'm%%20inquiring%%20about%%20%s%%20listed%%20on%%20Shoppage", offer.WhatsApp, data.Product.Title)) } 
+								target="_blank"
+								class="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs text-center transition flex items-center justify-center gap-1.5"
+							>
+								<span>💬 WhatsApp Quote</span>
+							</a>
+							<button 
+								type="button"
+								class="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition"
+							>
+								📄 Quote
+							</button>
+						</div>
+					</div>
+				}
+			</div>
+
+			<!-- Footer Guarantee -->
+			<div class="p-3.5 bg-slate-50 border-t border-slate-200 text-center text-xs text-slate-500">
+				🛡️ 100% Free for Shoppers · Direct CIPC Verified South African Retailers
+			</div>
+		</div>
+	</div>
+}

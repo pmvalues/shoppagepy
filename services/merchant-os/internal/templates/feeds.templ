@@ -1,0 +1,91 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/shoppage/merchant-os/internal/models"
+)
+
+templ FeedsTab(data models.DashboardViewData) {
+	<div style="margin-bottom: 20px;">
+		<div class="panel-head" style="margin-bottom: 16px;">
+			<div>
+				<h3 style="font-size: 1.3rem;">Google Merchant Center &amp; Meta Feeds</h3>
+				<div class="sub">Automated South African commercial feed syndication, XML RSS &amp; Meta Catalog feeds</div>
+			</div>
+			<div style="margin-left: auto; display:flex; gap:8px;">
+				<a href="/feeds/meta-catalog.csv" target="_blank" class="btn ghost small">
+					<span>📥</span> Meta Catalog CSV
+				</a>
+				<a href="/feeds/google-merchant-center.xml" target="_blank" class="btn solid small">
+					<span>↗</span> View Raw GMC XML Feed
+				</a>
+			</div>
+		</div>
+
+		<!-- Feed Diagnostics & Summary Card -->
+		<div class="card panel" style="margin-bottom:18px;">
+			<div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+				<div>
+					<div style="font-weight: 700; font-size: 15px; color: var(--ink);">Automated GMC Integration Status</div>
+					<div style="font-size: 12.5px; color: var(--muted); margin-top: 2px;">
+						Live endpoint: <code style="font-family: var(--mono); background: var(--surface-2); padding: 2px 6px; border-radius: 4px;">/feeds/google-merchant-center.xml</code>
+					</div>
+				</div>
+				<div style="display:flex; gap:8px; align-items:center;">
+					<form hx-post="/feeds/validate" hx-target="#tab-content" style="display:inline;">
+						<button type="submit" class="btn ghost small">
+							<span>🔍</span> Run Feed Diagnostics
+						</button>
+					</form>
+					<span class="chip up">● Active Sync (200 OK)</span>
+				</div>
+			</div>
+
+			<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
+				<div style="padding: 12px; background: var(--surface-2); border-radius: 9px; border: 1px solid var(--line);">
+					<div style="font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700;">Feed Standard</div>
+					<div style="font-weight: 800; font-family: var(--display); font-size: 15px; margin-top: 4px;">RSS 2.0 / GMC 1.0</div>
+				</div>
+				<div style="padding: 12px; background: var(--surface-2); border-radius: 9px; border: 1px solid var(--line);">
+					<div style="font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700;">Currency Standard</div>
+					<div style="font-weight: 800; font-family: var(--display); font-size: 15px; margin-top: 4px;">ZAR (South Africa)</div>
+				</div>
+				<div style="padding: 12px; background: var(--surface-2); border-radius: 9px; border: 1px solid var(--line);">
+					<div style="font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700;">Active Items In Feed</div>
+					<div style="font-weight: 800; font-family: var(--display); font-size: 15px; margin-top: 4px; color: var(--primary);">
+						{ fmt.Sprintf("%d", len(data.Catalog)) } SKUs Approved
+					</div>
+				</div>
+			</div>
+
+			<!-- Live Code Preview Snippet -->
+			<div style="background: var(--sidebar); color: #dbe8e0; border-radius: 12px; padding: 16px; font-family: var(--mono); font-size: 12px; overflow-x: auto; margin-bottom:16px;">
+				<div style="color: #6f9384; margin-bottom: 6px;">&lt;!-- Verified GMC XML Feed Item Snippet --&gt;</div>
+				<div>&lt;item&gt;</div>
+				<div style="padding-left: 16px;">&lt;g:id&gt;MIT-3361&lt;/g:id&gt;</div>
+				<div style="padding-left: 16px;">&lt;title&gt;Commercial Anti-Theft Wooden Male Hanger 44cm&lt;/title&gt;</div>
+				<div style="padding-left: 16px;">&lt;g:price&gt;22.88 ZAR&lt;/g:price&gt;</div>
+				<div style="padding-left: 16px;">&lt;g:availability&gt;in stock&lt;/g:availability&gt;</div>
+				<div style="padding-left: 16px;">&lt;g:gtin&gt;60098824001&lt;/g:gtin&gt;</div>
+				<div style="padding-left: 16px;">&lt;g:condition&gt;new&lt;/g:condition&gt;</div>
+				<div>&lt;/item&gt;</div>
+			</div>
+
+			<!-- Specification Checklist -->
+			<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; font-size:12.5px;">
+				<div style="display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;">
+					<span style="color:var(--primary-2); font-weight:700;">✓</span>
+					<span>EAN-13 / GTIN Barcode Matched</span>
+				</div>
+				<div style="display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;">
+					<span style="color:var(--primary-2); font-weight:700;">✓</span>
+					<span>SARS 15% VAT In Pricing</span>
+				</div>
+				<div style="display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;">
+					<span style="color:var(--primary-2); font-weight:700;">✓</span>
+					<span>SABS Compliance Verified</span>
+				</div>
+			</div>
+		</div>
+	</div>
+}

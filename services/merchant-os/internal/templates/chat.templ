@@ -1,0 +1,403 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/shoppage/merchant-os/internal/models"
+)
+
+templ ChatTab(data models.DashboardViewData) {
+	<div style="margin-bottom: 20px;">
+		<!-- Header Panel -->
+		<div class="panel-head" style="margin-bottom: 16px;">
+			<div>
+				<h3 style="font-size: 1.3rem;">Direct Messages &amp; Buyer Chat Desk</h3>
+				<div class="sub">Live commerce messaging, instant buyer negotiation, structured quote cards &amp; WebSocket gateway</div>
+			</div>
+			<div style="margin-left: auto; display:flex; align-items:center; gap:8px;">
+				<span class="chip up" id="ws-indicator">● Gateway: ws://localhost:8080/ws/chat (Connected)</span>
+				<button type="button" class="btn ghost small" onclick="document.getElementById('quote-modal')?.showModal();">
+					<span>⚡</span> Create Structured Quote
+				</button>
+			</div>
+		</div>
+
+		<!-- 2-Pane Direct Messaging Workstation -->
+		<div style="display: grid; grid-template-columns: 340px 1fr; gap: 16px; min-height: 640px;">
+			<!-- LEFT PANE: Conversations Inbox -->
+			<div class="card panel" style="display: flex; flex-direction: column; padding: 0; overflow: hidden;">
+				<!-- Inbox Search & Filter -->
+				<div style="padding: 12px 14px; border-bottom: 1px solid var(--line); background: var(--surface-2);">
+					<div style="font-weight: 700; font-size: 13.5px; color: var(--ink); margin-bottom: 8px; display:flex; justify-content:space-between; align-items:center;">
+						<span>Active Direct Messages</span>
+						<span class="badge" style="background:var(--primary); color:#fff; font-size:11px;">{ fmt.Sprintf("%d Threads", len(data.ChatThreads)) }</span>
+					</div>
+					<input 
+						type="text" 
+						placeholder="Search buyer, company, or message…" 
+						style="width: 100%; padding: 7px 10px; font-size: 12px; border: 1px solid var(--line-strong); border-radius: 7px; background: var(--surface); color: var(--ink);"
+						onkeyup="filterChatThreads(this.value);"
+					/>
+				</div>
+
+				<!-- Conversation Threads List -->
+				<div id="thread-list" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;">
+					for _, thread := range data.ChatThreads {
+						<div 
+							class={ "thread-item", templ.KV("active-thread", thread.ID == data.ActiveThreadID) }
+							hx-get={ fmt.Sprintf("/chat/thread/%s", thread.ID) }
+							hx-target="#tab-content"
+							hx-push-url="true"
+							style="display: flex; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); cursor: pointer; transition: background .12s;"
+						>
+							<!-- Avatar -->
+							<div style="position: relative; flex: none;">
+								<div style="width: 40px; height: 40px; border-radius: 10px; background: var(--primary); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; font-family: var(--display);">
+									{ thread.AvatarInit }
+								</div>
+								if thread.Online {
+									<span style="position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; border-radius: 50%; background: #4fe0a4; border: 2px solid var(--surface);"></span>
+								}
+							</div>
+
+							<!-- Thread Summary -->
+							<div style="flex: 1; min-width: 0;">
+								<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
+									<b style="font-size: 13px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{ thread.BuyerName }</b>
+									<span style="font-size: 10.5px; color: var(--muted);">{ thread.LastTime }</span>
+								</div>
+								<div style="font-size: 11.5px; color: var(--primary-2); font-weight: 600; margin-bottom: 3px;">{ thread.BuyerCompany }</div>
+								<div style="font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{ thread.LastMessage }</div>
+								
+								<div style="display: flex; gap: 6px; margin-top: 6px; align-items: center;">
+									<span class="chip flat" style="font-size: 10px; padding: 1px 5px;">{ thread.Channel }</span>
+									if thread.UnreadCount > 0 {
+										<span class="badge" style="background: var(--amber); color: #2e1e02; font-size: 10px; margin-left: auto;">{ fmt.Sprintf("%d New", thread.UnreadCount) }</span>
+									}
+								</div>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+
+			<!-- RIGHT PANE: Active Direct Message Conversation -->
+			<div class="card panel" style="display: flex; flex-direction: column; padding: 0; overflow: hidden;">
+				<!-- Active Thread Header -->
+				if activeThread := data.GetActiveThread(); activeThread != nil {
+					<div style="padding: 12px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; background: var(--surface-2); flex-wrap: wrap; gap: 10px;">
+						<div style="display: flex; align-items: center; gap: 12px;">
+							<div style="width: 38px; height: 38px; border-radius: 9px; background: var(--primary); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 14px;">
+								{ activeThread.AvatarInit }
+							</div>
+							<div>
+								<div style="display: flex; align-items: center; gap: 8px;">
+									<b style="font-size: 14px; color: var(--ink);">{ activeThread.BuyerName }</b>
+									<span class="chip up" style="font-size: 10.5px;">Verified Buyer</span>
+									<span class="chip flat" style="font-size: 10.5px;">📍 { activeThread.BuyerCity }</span>
+								</div>
+								<div style="font-size: 12px; color: var(--muted); margin-top: 1px;">
+									<b>{ activeThread.BuyerCompany }</b> · Channel: <span style="color: var(--primary-2);">{ activeThread.Channel }</span>
+								</div>
+							</div>
+						</div>
+
+						<div style="display: flex; gap: 8px;">
+							<a 
+								href={ templ.SafeURL(fmt.Sprintf("https://wa.me/27829012345?text=%s", "Hi%20there,%20following%20up%20on%20your%20Shoppage%20inquiry")) }
+								target="_blank"
+								class="btn ghost small"
+								style="font-size: 11.5px;"
+							>
+								<span>💬</span> Open in WhatsApp
+							</a>
+							<button 
+								type="button" 
+								class="btn solid small"
+								onclick="document.getElementById('quote-modal')?.showModal();"
+								style="font-size: 11.5px;"
+							>
+								<span>⚡</span> Send Quote
+							</button>
+						</div>
+					</div>
+
+					<!-- Direct Message Stream -->
+					<div id="chat-messages-stream" style="flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; background: var(--surface);">
+						for _, msg := range activeThread.Messages {
+							if msg.IsMerchant {
+								<!-- Outbound Merchant Message -->
+								<div style="display: flex; flex-direction: column; align-items: flex-end; max-width: 78%; margin-left: auto;">
+									<div style="background: var(--primary); color: #fff; padding: 10px 14px; border-radius: 12px; border-bottom-right-radius: 2px; font-size: 13.5px; line-height: 1.45; box-shadow: var(--sh-sm);">
+										{ msg.Text }
+										if msg.HasQuote && msg.Quote != nil {
+											<!-- Structured Quote Card inside Message -->
+											<div style="margin-top: 10px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 12px; color: #fff; text-align: left;">
+												<div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 6px; margin-bottom: 8px;">
+													<b style="font-family: var(--mono); font-size: 12px; color: #4fe0a4;">{ msg.Quote.QuoteNumber }</b>
+													<span class="chip up" style="font-size: 10px; background: rgba(79,224,164,0.2); color: #4fe0a4;">{ msg.Quote.Status }</span>
+												</div>
+												<div style="font-weight: 700; font-size: 13px; margin-bottom: 4px;">{ msg.Quote.ProductTitle }</div>
+												<div style="font-size: 12px; color: #d0e8dd; margin-bottom: 8px;">
+													SKU: <b>{ msg.Quote.SKU }</b> · Quantity: <b>{ fmt.Sprintf("%d units", msg.Quote.Quantity) }</b> (R { fmt.Sprintf("%.2f", msg.Quote.UnitPriceZar) } / unit)
+												</div>
+												<div style="display: flex; justify-content: space-between; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 6px;">
+													<span>Subtotal: R { fmt.Sprintf("%.2f", msg.Quote.SubtotalZar) }</span>
+													<span>SARS 15% VAT: R { fmt.Sprintf("%.2f", msg.Quote.VATZar) }</span>
+												</div>
+												<div style="display: flex; justify-content: space-between; font-size: 13.5px; font-weight: 700; color: #4fe0a4; margin-top: 4px;">
+													<span>Grand Total:</span>
+													<span>R { fmt.Sprintf("%.2f", msg.Quote.TotalZar) } ZAR</span>
+												</div>
+											</div>
+										}
+									</div>
+									<div style="font-size: 10.5px; color: var(--muted); margin-top: 3px; display: flex; gap: 6px;">
+										<span>You ({ msg.SenderName })</span> · <span>{ msg.Timestamp.Format("15:04") }</span> · <span style="color: var(--primary-2);">✓ Delivered</span>
+									</div>
+								</div>
+							} else {
+								<!-- Inbound Buyer Message -->
+								<div style="display: flex; flex-direction: column; align-items: flex-start; max-width: 78%;">
+									<div style="background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--ink); padding: 10px 14px; border-radius: 12px; border-bottom-left-radius: 2px; font-size: 13.5px; line-height: 1.45;">
+										{ msg.Text }
+									</div>
+									<div style="font-size: 10.5px; color: var(--muted); margin-top: 3px; display: flex; gap: 6px;">
+										<b>{ msg.SenderName }</b> · <span>{ msg.Timestamp.Format("15:04") }</span> · <span class="chip flat" style="font-size: 9.5px; padding: 0 4px;">{ activeThread.Channel }</span>
+									</div>
+								</div>
+							}
+						}
+					</div>
+
+					<!-- Quick Replies Chips -->
+					<div style="padding: 6px 14px; background: var(--surface-2); border-top: 1px solid var(--line); display: flex; gap: 8px; overflow-x: auto;">
+						<button 
+							type="button" 
+							class="chip flat" 
+							style="cursor: pointer; border: 1px solid var(--line); white-space: nowrap; font-size: 11px;"
+							onclick="document.getElementById('chat-input-text').value = 'Yes, we have stock on hand at Midrand Hub ready for same-day dispatch via The Courier Guy.'; document.getElementById('chat-input-text').focus();"
+						>
+							📦 Stock Available (Midrand Hub)
+						</button>
+						<button 
+							type="button" 
+							class="chip flat" 
+							style="cursor: pointer; border: 1px solid var(--line); white-space: nowrap; font-size: 11px;"
+							onclick="document.getElementById('chat-input-text').value = 'I have approved an extra 10% wholesale volume discount for this order.'; document.getElementById('chat-input-text').focus();"
+						>
+							🏷️ 10% Trade Discount
+						</button>
+						<button 
+							type="button" 
+							class="chip flat" 
+							style="cursor: pointer; border: 1px solid var(--line); white-space: nowrap; font-size: 11px;"
+							onclick="document.getElementById('chat-input-text').value = 'Our bank details: Standard Bank Acc: 001892810 Branch: 051001. Please use Proforma number as reference.'; document.getElementById('chat-input-text').focus();"
+						>
+							🏦 Standard Bank EFT Details
+						</button>
+					</div>
+
+					<!-- Message Input Bar -->
+					<form 
+						hx-post="/chat/send" 
+						hx-target="#tab-content" 
+						style="padding: 12px 16px; border-top: 1px solid var(--line); display: flex; gap: 10px; background: var(--surface); align-items: center;"
+					>
+						<input type="hidden" name="thread_id" value={ activeThread.ID } />
+						<input 
+							type="text" 
+							id="chat-input-text" 
+							name="message" 
+							placeholder="Type your message to the buyer… (Enter to send)" 
+							style="flex: 1; padding: 10px 14px; font-size: 13.5px; border: 1px solid var(--line-strong); border-radius: 9px; background: var(--surface-2); color: var(--ink);"
+							required 
+							autocomplete="off"
+						/>
+						<button type="submit" class="btn solid">
+							<span>Send</span> <span>➤</span>
+						</button>
+					</form>
+				}
+			</div>
+		</div>
+
+		<!-- Send Structured Quote Modal -->
+		<dialog id="quote-modal" class="modal-dialog">
+			<div class="modal-card">
+				<div class="modal-head">
+					<div>
+						<div class="breadcrumb" style="margin-bottom: 2px;">
+							<span>Direct Messages</span> <span>&gt;</span> <b>Commerce Quote Builder</b>
+						</div>
+						<h4 style="font-size: 16px;">Generate &amp; Inject Structured Quote</h4>
+					</div>
+					<button type="button" class="close-btn" onclick="document.getElementById('quote-modal').close();">&times;</button>
+				</div>
+				<form hx-post="/chat/quote" hx-target="#tab-content" onsubmit="document.getElementById('quote-modal').close();">
+					if activeThread := data.GetActiveThread(); activeThread != nil {
+						<input type="hidden" name="thread_id" value={ activeThread.ID } />
+					}
+					<div class="modal-body">
+						<div class="form-group">
+							<label>Select Product SKU</label>
+							<select name="sku" class="select-full" id="quote-sku-select" onchange="updateQuotePricing();">
+								for _, item := range data.Catalog {
+									<option value={ item.SKU } data-title={ item.Title } data-price={ fmt.Sprintf("%.2f", item.WholesaleZar) }>
+										{ item.SKU } — { item.Title } (Trade: R { fmt.Sprintf("%.2f", item.WholesaleZar) })
+									</option>
+								}
+							</select>
+						</div>
+
+						<div class="two-col">
+							<div class="form-group">
+								<label>Quantity (Units)</label>
+								<input type="number" id="quote-qty" name="quantity" class="input" value="100" min="1" oninput="updateQuotePricing();" required />
+							</div>
+							<div class="form-group">
+								<label>Trade Discount Tier</label>
+								<select id="quote-discount" name="discount_tier" class="select-full" onchange="updateQuotePricing();">
+									<option value="0">Standard Wholesale (0%)</option>
+									<option value="10">Bulk Commercial (-10%)</option>
+									<option value="18">Regional Wholesale (-18%)</option>
+									<option value="25">Direct Container (-25%)</option>
+								</select>
+							</div>
+						</div>
+
+						<!-- Live Pricing Calculation Card -->
+						<div style="background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 12px; margin-top: 10px;">
+							<div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 6px;">Quote Summary Calculation</div>
+							<div style="display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px;">
+								<span style="color: var(--muted);">Unit Base Price:</span>
+								<b id="calc-unit-price">R 22.88 ZAR</b>
+							</div>
+							<div style="display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px;">
+								<span style="color: var(--muted);">Subtotal (Excl. VAT):</span>
+								<b id="calc-subtotal">R 2,288.00 ZAR</b>
+							</div>
+							<div style="display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px;">
+								<span style="color: var(--muted);">SARS 15% VAT:</span>
+								<b id="calc-vat" style="color: var(--primary-2);">R 343.20 ZAR</b>
+							</div>
+							<div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 800; border-top: 1px solid var(--line); padding-top: 6px; margin-top: 4px;">
+								<span>Total Quoted Amount:</span>
+								<span id="calc-total" style="color: var(--primary);">R 2,631.20 ZAR</span>
+							</div>
+						</div>
+					</div>
+					<div class="modal-foot">
+						<button type="button" class="btn ghost" onclick="document.getElementById('quote-modal').close();">Cancel</button>
+						<button type="submit" class="btn solid">Send Quote to Buyer DM</button>
+					</div>
+				</form>
+			</div>
+		</dialog>
+	</div>
+
+	<style>
+		.thread-item:hover {
+			background: var(--surface-2);
+		}
+		.thread-item.active-thread {
+			background: var(--surface-2);
+			border-left: 3px solid var(--primary);
+		}
+	</style>
+
+	<script>
+		// Real-time Chat WebSocket Connection
+		(function() {
+			var activeThreadId = document.querySelector('.thread-item.active-thread')?.getAttribute('hx-get')?.split('/').pop() || 'conv_mitrend';
+			if (!activeThreadId) return;
+
+			try {
+				var wsUrl = "ws://" + window.location.hostname + ":8080/ws/chat?roomId=" + encodeURIComponent(activeThreadId) + "&userId=merchant_mitrend&role=merchant";
+				var socket = new WebSocket(wsUrl);
+
+				socket.onopen = function() {
+					var ind = document.getElementById("ws-indicator");
+					if (ind) {
+						ind.textContent = "● WebSocket: Connected (ws://localhost:8080)";
+						ind.className = "chip up";
+					}
+				};
+
+				socket.onmessage = function(event) {
+					try {
+						var data = JSON.parse(event.data);
+						if (data.event === "message_received" && data.message) {
+							// Append incoming message dynamically to the stream
+							var stream = document.getElementById("chat-messages-stream");
+							if (stream) {
+								var bubble = document.createElement("div");
+								bubble.style.cssText = "display: flex; flex-direction: column; align-items: flex-start; max-width: 78%;";
+								bubble.innerHTML = '<div style="background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--ink); padding: 10px 14px; border-radius: 12px; border-bottom-left-radius: 2px; font-size: 13.5px; line-height: 1.45;">' + 
+									escapeHtml(data.message.content) + 
+									'</div><div style="font-size: 10.5px; color: var(--muted); margin-top: 3px;">' + 
+									escapeHtml(data.message.senderId) + ' · Just now · Live WebSocket</div>';
+								stream.appendChild(bubble);
+								stream.scrollTop = stream.scrollHeight;
+							}
+						}
+					} catch(e) {}
+				};
+
+				socket.onerror = function() {
+					var ind = document.getElementById("ws-indicator");
+					if (ind) {
+						ind.textContent = "● WebSocket: REST Fallback";
+						ind.className = "chip warn";
+					}
+				};
+			} catch(e) {}
+
+			function escapeHtml(text) {
+				var div = document.createElement('div');
+				div.textContent = text;
+				return div.innerHTML;
+			}
+		})();
+
+		// Live Quote Pricing Calculator
+		function updateQuotePricing() {
+			var select = document.getElementById("quote-sku-select");
+			var opt = select ? select.options[select.selectedIndex] : null;
+			var basePrice = opt ? parseFloat(opt.getAttribute("data-price") || "0") : 0;
+			var qty = parseInt(document.getElementById("quote-qty")?.value || "1", 10);
+			var discount = parseFloat(document.getElementById("quote-discount")?.value || "0");
+
+			var effectivePrice = basePrice * (1 - (discount / 100));
+			var subtotal = effectivePrice * qty;
+			var vat = subtotal * 0.15;
+			var total = subtotal + vat;
+
+			var elUnit = document.getElementById("calc-unit-price");
+			if (elUnit) elUnit.textContent = "R " + effectivePrice.toFixed(2) + " ZAR" + (discount > 0 ? " (-" + discount + "%)" : "");
+
+			var elSub = document.getElementById("calc-subtotal");
+			if (elSub) elSub.textContent = "R " + subtotal.toFixed(2) + " ZAR";
+
+			var elVat = document.getElementById("calc-vat");
+			if (elVat) elVat.textContent = "R " + vat.toFixed(2) + " ZAR";
+
+			var elTot = document.getElementById("calc-total");
+			if (elTot) elTot.textContent = "R " + total.toFixed(2) + " ZAR";
+		}
+
+		// Filter Chat Threads
+		function filterChatThreads(q) {
+			var query = q.toLowerCase();
+			document.querySelectorAll('.thread-item').forEach(function(item) {
+				var text = item.textContent.toLowerCase();
+				item.style.display = text.includes(query) ? 'flex' : 'none';
+			});
+		}
+
+		// Scroll to bottom of message stream
+		var stream = document.getElementById("chat-messages-stream");
+		if (stream) {
+			stream.scrollTop = stream.scrollHeight;
+		}
+	</script>
+}

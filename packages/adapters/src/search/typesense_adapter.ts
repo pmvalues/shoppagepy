@@ -1,6 +1,8 @@
 import { SearchQueryInput, ProductVariant, Offer } from '@shoppage/contracts';
 import { InMemorySearchEngine, SearchHit, SearchResponse } from './search_adapter';
 
+export type HybridSearchParams = Partial<SearchQueryInput> & { query: string };
+
 export interface TypesenseConfig {
   url?: string;
   apiKey?: string;
@@ -35,8 +37,8 @@ export class TypesenseSearchAdapter {
   private healthTtlMs = 15000; // 15s cache
 
   constructor(config?: TypesenseConfig) {
-    const rawUrl = config?.url || process.env.TYPESENSE_URL || 'http://localhost:8108';
-    this.url = rawUrl.replace(/\/+$/, '');
+    const rawUrl = config?.url || process.env.TYPESENSE_URL || null;
+    this.url = rawUrl ? rawUrl.replace(/\/+$/, '') : '';
     this.apiKey = config?.apiKey || process.env.TYPESENSE_API_KEY || 'shoppage_typesense_secret_key';
     this.timeoutMs = config?.timeoutMs || 2000;
   }
@@ -49,6 +51,7 @@ export class TypesenseSearchAdapter {
    * Fast health probe with cached TTL
    */
   public async isHealthy(forceCheck = false): Promise<boolean> {
+    if (!this.url) return false;
     const now = Date.now();
     if (!forceCheck && now - this.lastHealthCheck.checkedAt < this.healthTtlMs) {
       return this.lastHealthCheck.healthy;
@@ -169,7 +172,7 @@ export class TypesenseSearchAdapter {
   /**
    * Typo-tolerant, weighted search across Typesense
    */
-  public async search(params: SearchQueryInput): Promise<SearchResponse> {
+  public async search(params: HybridSearchParams): Promise<SearchResponse> {
     const startTime = performance.now();
     const query = (params.query || '*').trim();
 
@@ -284,24 +287,68 @@ export class HybridSearchEngine {
   }
 
   /**
-   * Asynchronous smart search: Tries Typesense first, falls back to In-Memory/FTS5
+   * Asynchronous smart search: Tries Typesense first, falls back to In-Memory / SQLite MasterProductStore
    */
-  public async search(params: SearchQueryInput): Promise<SearchResponse> {
+  public async search(params: HybridSearchParams): Promise<SearchResponse> {
     const isTypesenseReady = await this.typesense.isHealthy();
     if (isTypesenseReady) {
       try {
-        return await this.typesense.search(params);
+        const res = await this.typesense.search(params);
+        if (res.hits && res.hits.length > 0) {
+          return res;
+        }
       } catch {
         // If Typesense query errors, transparently fall back
       }
     }
-    return this.inMemory.search(params);
+    return this.searchSync(params);
   }
 
   /**
    * Synchronous fallback search
    */
-  public searchSync(params: SearchQueryInput): SearchResponse {
-    return this.inMemory.search(params);
+  public searchSync(params: HybridSearchParams): SearchResponse {
+    const fullParams: SearchQueryInput = {
+      country: 'ZA',
+      availability: 'all_confirmed',
+      limit: 20,
+      offset: 0,
+      ...params,
+    };
+    const memResult = this.inMemory.search(fullParams);
+    if (memResult.hits && memResult.hits.length > 0) {
+      return memResult;
+    }
+
+    // Secondary fallback: Query in-process MasterProductStore (1,000,000+ products)
+    try {
+      const { MasterProductStore } = require('@shoppage/kernel');
+      const storeRes = MasterProductStore.searchProducts({
+        query: params.query,
+        category: params.category,
+        brand: params.brand,
+        limit: params.limit || 24,
+        offset: params.offset || 0,
+      });
+
+      if (storeRes && storeRes.items && storeRes.items.length > 0) {
+        const hits: SearchHit[] = storeRes.items.map((variant: ProductVariant) => ({
+          variant,
+          offers: [],
+          currency: 'ZAR',
+          matchedScore: 1.0,
+          availableMerchantsCount: 0,
+        }));
+        return {
+          hits,
+          totalHits: storeRes.total || hits.length,
+          processingTimeMs: 1.0,
+        };
+      }
+    } catch {
+      // Ignore and return memResult
+    }
+
+    return memResult;
   }
 }

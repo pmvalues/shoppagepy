@@ -39,6 +39,10 @@ apps/web/.next/
 node_modules/
 dist/
 build/
+bin/
+*.exe
+archive/
+Pemofy Nestjs/
 .turbo/
 *.tsbuildinfo
 

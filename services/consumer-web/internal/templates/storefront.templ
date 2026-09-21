@@ -1,0 +1,38 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/shoppage/consumer-web/internal/models"
+)
+
+templ StorefrontComponent(data StorefrontViewData) {
+	@Layout(data.Title, data.Description, data.CurrentTab, []models.TradeTrend{}, []models.RetailerDeal{}, []models.CommunityGuild{}) {
+		<main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+			<div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 mb-8 shadow-xs">
+				<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+					<div class="flex items-center gap-4">
+						<div class="w-16 h-16 rounded-2xl bg-emerald-600 text-white font-black text-2xl flex items-center justify-center shadow-lg shadow-emerald-700/30">
+							S
+						</div>
+						<div>
+							<div class="flex items-center gap-2">
+								<h1 class="text-2xl font-black text-slate-900 tracking-tight">{ data.Store.Name }</h1>
+								if data.Store.Verified {
+									<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">✓ CIPC Verified</span>
+								}
+							</div>
+							<p class="text-xs text-slate-500 mt-1">{ data.Store.Address } · CIPC: { data.Store.CIPCNumber }</p>
+						</div>
+					</div>
+					<a 
+						href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi,%%20I'm%%20contacting%%20you%%20via%%20Shoppage", data.Store.WhatsApp)) } 
+						target="_blank"
+						class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition shadow-sm inline-flex items-center justify-center gap-2"
+					>
+						<span>💬 Direct WhatsApp Trade Desk</span>
+					</a>
+				</div>
+			</div>
+		</main>
+	}
+}

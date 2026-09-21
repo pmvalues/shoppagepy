@@ -1,0 +1,59 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/shoppage/consumer-web/internal/models"
+)
+
+templ MallsComponent(data MallsViewData) {
+	@Layout(data.Title, data.Description, data.CurrentTab, []models.TradeTrend{}, []models.RetailerDeal{}, []models.CommunityGuild{}) {
+		<main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+			<div class="mb-8">
+				<div class="flex items-center gap-2 mb-1">
+					<span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Nationwide Retail Infrastructure</span>
+					<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">{ fmt.Sprintf("%d", len(data.Malls)) } / { fmt.Sprintf("%d", data.TotalCount) } Seeded</span>
+				</div>
+				<h1 class="text-3xl font-display font-black text-slate-900 tracking-tight mb-2">{ fmt.Sprintf("%d", data.TotalCount) } South African Malls &amp; Retail Hubs</h1>
+				<p class="text-sm text-slate-600">Every shopping centre, wholesale district, and regional mall indexed across all 9 provinces.</p>
+			</div>
+
+			<div class="flex flex-wrap gap-2 mb-8">
+				<a href="/malls?province=all" class={ "px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "" || data.Province == "all"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "" && data.Province != "all") }>All Provinces ({ fmt.Sprintf("%d", data.TotalCount) })</a>
+				<a href="/malls?province=Gauteng" class={ "px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "Gauteng"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "Gauteng") }>Gauteng</a>
+				<a href="/malls?province=Western%20Cape" class={ "px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "Western Cape"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "Western Cape") }>Western Cape</a>
+				<a href="/malls?province=KwaZulu-Natal" class={ "px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "KwaZulu-Natal"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "KwaZulu-Natal") }>KwaZulu-Natal</a>
+				<a href="/malls?province=Eastern%20Cape" class={ "px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "Eastern Cape"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "Eastern Cape") }>Eastern Cape</a>
+			</div>
+
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				for _, mall := range data.Malls {
+					<div class="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-md hover:border-emerald-500 transition flex flex-col">
+						<div class="flex items-start justify-between gap-2 mb-2">
+							<span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
+								{ mall.MarketType }
+							</span>
+							<span class="text-xs text-slate-400 font-medium">{ mall.Province }</span>
+						</div>
+						<h3 class="font-extrabold text-slate-900 text-base mb-1">
+							<a href={ templ.SafeURL(fmt.Sprintf("/malls/%s", mall.ID)) } class="hover:text-emerald-600 transition">{ mall.Name }</a>
+						</h3>
+						<p class="text-xs text-slate-500 mb-4 line-clamp-1">{ mall.StreetAddress }</p>
+
+						<div class="p-3 bg-slate-50 rounded-xl text-xs space-y-1 mb-4 mt-auto">
+							<div class="text-slate-600"><span class="font-bold text-slate-900">{ fmt.Sprintf("%d", mall.StoreCount) }</span> Verified Retail Outlets</div>
+						</div>
+
+						<div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+							<a href={ templ.SafeURL(fmt.Sprintf("https://maps.google.com/?q=%f,%f", mall.Latitude, mall.Longitude)) } target="_blank" class="text-slate-500 hover:text-emerald-600 font-medium flex items-center gap-1">
+								<span>📍</span> <span>Map</span>
+							</a>
+							<a href={ templ.SafeURL(fmt.Sprintf("/malls/%s", mall.ID)) } class="font-bold text-emerald-600 hover:text-emerald-700">
+								Explore Tenants &rarr;
+							</a>
+						</div>
+					</div>
+				}
+			</div>
+		</main>
+	}
+}

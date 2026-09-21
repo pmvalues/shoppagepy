@@ -1,0 +1,303 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/shoppage/merchant-os/internal/models"
+)
+
+templ CatalogTab(data models.DashboardViewData) {
+	<div style="margin-bottom: 20px;">
+		<!-- Catalog Summary Cards -->
+		<div class="grid-kpi" style="margin-bottom: 16px;">
+			<div class="card sum" style="padding: 14px 16px;">
+				<div style="font-size: 11.5px; color: var(--muted); font-weight: 600;">Published Products</div>
+				<div style="font-family: var(--display); font-size: 1.5rem; font-weight: 800; letter-spacing: -.04em; margin-top: 4px;">
+					{ fmt.Sprintf("%d", len(data.Catalog)) }
+				</div>
+				<div style="font-size: 11.5px; color: var(--muted); margin-top: 2px;"><b>+2</b> this month</div>
+			</div>
+			<div class="card sum" style="padding: 14px 16px;">
+				<div style="font-size: 11.5px; color: var(--muted); font-weight: 600;">Drafts / In Review</div>
+				<div style="font-family: var(--display); font-size: 1.5rem; font-weight: 800; letter-spacing: -.04em; margin-top: 4px;">0</div>
+				<div style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">CIPC verified</div>
+			</div>
+			<div class="card sum" style="padding: 14px 16px;">
+				<div style="font-size: 11.5px; color: var(--muted); font-weight: 600;">Low Stock Items</div>
+				<div style="font-family: var(--display); font-size: 1.5rem; font-weight: 800; letter-spacing: -.04em; margin-top: 4px; color: var(--rose);">1</div>
+				<div style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">1 SKU out of stock</div>
+			</div>
+			<div class="card sum" style="padding: 14px 16px;">
+				<div style="font-size: 11.5px; color: var(--muted); font-weight: 600;">Total Catalog Value</div>
+				<div style="font-family: var(--display); font-size: 1.5rem; font-weight: 800; letter-spacing: -.04em; margin-top: 4px; color: var(--primary);">R 84,260.00</div>
+				<div style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">At wholesale rate</div>
+			</div>
+		</div>
+
+		<!-- Filter & View Switcher Toolbar -->
+		<div class="card panel" style="padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+			<div style="display: flex; align-items: center; gap: 10px; flex: 1; max-width: 400px;">
+				<div class="search" style="flex: 1;">
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4a7 7 0 105 12l4 4"></path></svg>
+					<input 
+						type="text" 
+						placeholder="Filter by product name, SKU or brand..." 
+						style="border: 0; outline: 0; background: transparent; width: 100%; font-size: 13px;"
+						onkeyup="const val=this.value.toLowerCase(); document.querySelectorAll('.catalog-row, .grid-card').forEach(r => { r.style.display = r.textContent.toLowerCase().includes(val) ? '' : 'none'; });"
+					/>
+				</div>
+			</div>
+
+			<div style="display: flex; align-items: center; gap: 8px;">
+				<!-- View Switcher -->
+				<div class="view-switch" style="display:flex; background:var(--surface-2); border:1px solid var(--line); border-radius:9px; padding:2px;">
+					<button 
+						type="button" 
+						id="table-view-btn" 
+						class="btn ghost small" 
+						style="background:var(--surface); border:0; padding:4px 8px; font-weight:700;"
+						onclick="document.getElementById('catalog-table-view').style.display='block'; document.getElementById('catalog-grid-view').style.display='none';"
+					>
+						Table
+					</button>
+					<button 
+						type="button" 
+						id="grid-view-btn" 
+						class="btn ghost small" 
+						style="border:0; padding:4px 8px;"
+						onclick="document.getElementById('catalog-table-view').style.display='none'; document.getElementById('catalog-grid-view').style.display='grid';"
+					>
+						Grid
+					</button>
+				</div>
+
+				<a href="/catalog/export.csv" class="btn ghost small">
+					<span>📄</span> Export CSV
+				</a>
+				<button class="btn solid small" onclick="document.getElementById('new-sku-dialog')?.showModal();">
+					<span>+</span> Add Product SKU
+				</button>
+			</div>
+		</div>
+
+		<!-- Catalog Table Card -->
+		<div id="catalog-table-view" class="card panel" style="padding: 0; overflow: hidden;">
+			<table class="table">
+				<thead>
+					<tr>
+						<th style="padding-left: 20px;">Product &amp; SKU</th>
+						<th>Category</th>
+						<th>Wholesale (ZAR)</th>
+						<th>Retail Landed</th>
+						<th>Stock Level</th>
+						<th>Live Status</th>
+						<th style="text-align: right; padding-right: 20px;">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, sku := range data.Catalog {
+						<tr class="catalog-row">
+							<td style="padding-left: 20px;">
+								<a 
+									href="javascript:void(0)" 
+									hx-get={ fmt.Sprintf("/catalog/%s", sku.ID) } 
+									hx-target="#modal-container" 
+									style="font-weight: 700; color: var(--ink); text-decoration: none;"
+								>
+									{ sku.Title }
+								</a>
+								<div style="display: flex; align-items: center; gap: 8px; margin-top: 2px;">
+									<span style="font-family: var(--mono); font-size: 11px; color: var(--muted); background: var(--surface-2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line);">{ sku.SKU }</span>
+									<span style="font-size: 11px; color: var(--muted);">{ sku.Brand }</span>
+								</div>
+							</td>
+							<td style="font-size: 12.5px; color: var(--ink-2);">{ sku.Category }</td>
+							<td>
+								<form 
+									hx-post={ fmt.Sprintf("/catalog/%s/price", sku.ID) }
+									hx-trigger="change"
+									style="display: flex; align-items: center; gap: 4px;"
+								>
+									<span style="font-family: var(--display); font-weight: 700; font-size: 12px; color: var(--muted);">R</span>
+									<input 
+										type="number" 
+										name="price" 
+										step="0.01" 
+										value={ fmt.Sprintf("%.2f", sku.WholesaleZar) }
+										style="width: 75px; font-family: var(--display); font-weight: 700; border: 1px solid var(--line); border-radius: 6px; padding: 3px 6px; font-size: 13px;"
+									/>
+								</form>
+							</td>
+							<td style="font-family: var(--display); font-weight: 700;">
+								R { fmt.Sprintf("%.2f", sku.RetailZar) }
+							</td>
+							<td>
+								if sku.StockQuantity > 0 {
+									<div style="font-weight: 700; font-size: 13px;">{ fmt.Sprintf("%d", sku.StockQuantity) } units</div>
+									<div style="font-size: 10.5px; color: var(--muted);">In Warehouse</div>
+								} else {
+									<div style="font-weight: 700; font-size: 13px; color: var(--rose);">0 units</div>
+									<div style="font-size: 10.5px; color: var(--rose);">Out of Stock</div>
+								}
+							</td>
+							<td>
+								@StockButtonComponent(sku)
+							</td>
+							<td style="text-align: right; padding-right: 20px;">
+								<div style="display:flex; justify-content:flex-end; gap:6px;">
+									<button 
+										type="button"
+										hx-get={ fmt.Sprintf("/catalog/%s", sku.ID) }
+										hx-target="#modal-container"
+										class="btn ghost small"
+										style="padding:3px 8px; font-size:11.5px;"
+									>
+										View
+									</button>
+									<button 
+										type="button"
+										hx-get={ fmt.Sprintf("/catalog/%s/edit", sku.ID) }
+										hx-target="#modal-container"
+										class="btn ghost small"
+										style="padding:3px 8px; font-size:11.5px; color:var(--primary-2);"
+									>
+										Edit
+									</button>
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+
+		<!-- Catalog Grid View (Hidden by Default) -->
+		<div id="catalog-grid-view" style="display:none; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:14px;">
+			for _, sku := range data.Catalog {
+				<div class="card grid-card panel" style="display:flex; flex-direction:column; justify-content:space-between;">
+					<div>
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+							<span style="font-family:var(--mono); font-size:11px; color:var(--muted);">{ sku.SKU }</span>
+							if sku.InStock {
+								<span class="chip up">In Stock</span>
+							} else {
+								<span class="chip down">Out of Stock</span>
+							}
+						</div>
+						<div style="height:120px; border-radius:10px; background:linear-gradient(135deg, #dcefe4, #a7cfba); display:grid; place-items:center; font-size:40px; margin-bottom:10px;">
+							📦
+						</div>
+						<h4 style="font-size:14.5px; font-weight:700; margin-bottom:4px;">{ sku.Title }</h4>
+						<div style="font-size:12px; color:var(--muted); margin-bottom:10px;">{ sku.Category } · { sku.Brand }</div>
+					</div>
+					<div>
+						<div style="display:flex; justify-content:space-between; align-items:baseline; border-top:1px solid var(--line); padding-top:8px; margin-bottom:8px;">
+							<div>
+								<span style="font-size:11px; color:var(--muted); display:block;">Wholesale</span>
+								<b style="font-family:var(--display); font-size:16px; color:var(--primary-2);">{ fmt.Sprintf("R%.2f", sku.WholesaleZar) }</b>
+							</div>
+							<div style="text-align:right;">
+								<span style="font-size:11px; color:var(--muted); display:block;">Quantity</span>
+								<b style="font-size:13px;">{ fmt.Sprintf("%d units", sku.StockQuantity) }</b>
+							</div>
+						</div>
+						<div style="display:flex; gap:6px;">
+							<button 
+								hx-get={ fmt.Sprintf("/catalog/%s", sku.ID) }
+								hx-target="#modal-container"
+								class="btn ghost small"
+								style="flex:1;"
+							>
+								Inspect
+							</button>
+							<button 
+								hx-get={ fmt.Sprintf("/catalog/%s/edit", sku.ID) }
+								hx-target="#modal-container"
+								class="btn solid small"
+								style="flex:1;"
+							>
+								Edit
+							</button>
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+	</div>
+
+	<!-- Add SKU Dialog -->
+	<dialog id="new-sku-dialog" class="modal-dialog">
+		<div class="modal-card">
+			<div class="modal-head">
+				<h4>Add New Product SKU to Catalog</h4>
+				<button type="button" class="close-btn" onclick="document.getElementById('new-sku-dialog').close();">&times;</button>
+			</div>
+			<form hx-post="/catalog/new" hx-target="#tab-content" onsubmit="document.getElementById('new-sku-dialog').close();">
+				<div class="modal-body">
+					<div class="form-group">
+						<label>Product Title</label>
+						<input type="text" name="title" class="input" placeholder="e.g. 500ml Clear PET Beverage Bottle" required />
+					</div>
+					<div class="two-col">
+						<div class="form-group">
+							<label>SKU Code</label>
+							<input type="text" name="sku" class="input" placeholder="e.g. MIT-9910" required />
+						</div>
+						<div class="form-group">
+							<label>Category</label>
+							<select name="category" class="select-full">
+								<option value="Packaging & Catering">Packaging &amp; Catering</option>
+								<option value="Hospitality Supplies">Hospitality Supplies</option>
+								<option value="Eco Cleaning">Eco Cleaning</option>
+							</select>
+						</div>
+					</div>
+					<div class="two-col">
+						<div class="form-group">
+							<label>Wholesale Price (ZAR)</label>
+							<input type="number" step="0.01" name="wholesaleZar" class="input" value="12.50" required />
+						</div>
+						<div class="form-group">
+							<label>Retail Price (ZAR)</label>
+							<input type="number" step="0.01" name="retailZar" class="input" value="18.00" required />
+						</div>
+					</div>
+					<div class="two-col">
+						<div class="form-group">
+							<label>Initial Stock on Hand</label>
+							<input type="number" name="stockQuantity" class="input" value="100" required />
+						</div>
+						<div class="form-group">
+							<label>Reorder Buffer</label>
+							<input type="number" name="lowStockAlert" class="input" value="20" required />
+						</div>
+					</div>
+				</div>
+				<div class="modal-foot">
+					<button type="button" class="btn ghost" onclick="document.getElementById('new-sku-dialog').close();">Cancel</button>
+					<button type="submit" class="btn solid">Create Product SKU</button>
+				</div>
+			</form>
+		</div>
+	</dialog>
+}
+
+templ StockButtonComponent(sku models.CatalogSKU) {
+	<button 
+		id={ fmt.Sprintf("stock-btn-%s", sku.ID) }
+		hx-post={ string(templ.SafeURL(fmt.Sprintf("/catalog/%s/toggle-stock", sku.ID))) }
+		hx-target={ fmt.Sprintf("#stock-btn-%s", sku.ID) }
+		hx-swap="outerHTML"
+		style={ func() string {
+			if sku.InStock {
+				return "padding: 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; border: 1px solid #a7cfba; background: var(--primary-soft); color: var(--primary-2); cursor: pointer;"
+			}
+			return "padding: 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; border: 1px solid #e6bdb7; background: var(--rose-soft); color: var(--rose); cursor: pointer;"
+		}() }
+	>
+		if sku.InStock {
+			✓ In Stock
+		} else {
+			✕ Out of Stock
+		}
+	</button>
+}

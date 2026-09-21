@@ -1,0 +1,81 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/shoppage/consumer-web/internal/models"
+)
+
+templ ProductDetailComponent(data ProductViewData) {
+	@Layout(data.Title, data.Description, data.CurrentTab, []models.TradeTrend{}, []models.RetailerDeal{}, []models.CommunityGuild{}) {
+		<main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+			<div class="text-xs font-medium text-slate-500 mb-6 flex items-center gap-2">
+				<a href="/" class="hover:text-emerald-600">Home</a> <span>/</span>
+				<a href={ templ.SafeURL(fmt.Sprintf("/search?category=%s", data.Product.Category)) } class="hover:text-emerald-600">{ data.Product.Category }</a> <span>/</span>
+				<span class="text-slate-900 font-bold truncate">{ data.Product.Title }</span>
+			</div>
+
+			<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+				<div class="lg:col-span-7 space-y-6">
+					<div class="bg-white rounded-3xl border border-slate-200 p-6 flex items-center justify-center overflow-hidden">
+						<img src={ data.Product.ImageURL } alt={ data.Product.Title } class="max-h-96 w-full object-contain"/>
+					</div>
+					<div class="bg-white rounded-3xl border border-slate-200 p-6">
+						<h2 class="text-lg font-black text-slate-900 mb-3">Product Overview</h2>
+						<p class="text-sm text-slate-600 leading-relaxed">{ data.Product.Description }</p>
+						<h3 class="text-sm font-black text-slate-900 mt-6 mb-3 uppercase tracking-wider">Specifications</h3>
+						<div class="grid grid-cols-2 gap-3 text-xs">
+							for key, val := range data.Product.Specs {
+								<div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+									<span class="text-slate-400 block">{ key }</span>
+									<span class="font-bold text-slate-800">{ val }</span>
+								</div>
+							}
+						</div>
+					</div>
+				</div>
+
+				<div class="lg:col-span-5 space-y-6">
+					<div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm sticky top-28">
+						<div class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">{ data.Product.Brand } · { data.Product.Model }</div>
+						<h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug mb-3">
+							{ data.Product.Title }
+						</h1>
+						<div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200/80 mb-6">
+							<div class="text-xs text-emerald-800 font-medium">Lowest Landed Price in South Africa</div>
+							<div class="text-3xl font-black text-emerald-950 mt-1">R { fmt.Sprintf("%.2f", data.Product.LowestOfferPrice) }</div>
+						</div>
+
+						<h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-3">
+							Verified Merchant Offers ({ fmt.Sprintf("%d", len(data.Product.Offers)) })
+						</h3>
+						<div class="space-y-3">
+							for _, offer := range data.Product.Offers {
+								<div class="p-3.5 rounded-xl border border-slate-200 hover:border-emerald-500 transition flex items-center justify-between gap-3">
+									<div>
+										<div class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+											{ offer.MerchantName }
+											if offer.Verified {
+												<span class="text-emerald-500 text-xs">✓</span>
+											}
+										</div>
+										<div class="text-xs text-slate-500">{ offer.City }</div>
+									</div>
+									<div class="text-right shrink-0">
+										<div class="text-base font-black text-slate-900">R { fmt.Sprintf("%.2f", offer.PriceZar) }</div>
+										<a 
+											href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi,%%20I'm%%20inquiring%%20about%%20%s%%20listed%%20on%%20Shoppage", offer.WhatsApp, data.Product.Title)) } 
+											target="_blank"
+											class="mt-1 inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition"
+										>
+											<span>💬 WhatsApp</span>
+										</a>
+									</div>
+								</div>
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	}
+}
