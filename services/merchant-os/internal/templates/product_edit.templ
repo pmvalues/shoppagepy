@@ -441,8 +441,8 @@ templ ProductEditView(sku models.CatalogSKU, isNew bool) {
 	</section>
 }
 
-templ ProductEditPage(store models.StoreProfile, sku models.CatalogSKU, isNew bool) {
-	@Layout(store, "catalog") {
+templ ProductEditPage(store models.StoreProfile, sku models.CatalogSKU, isNew bool, nav models.NavContext) {
+	@Layout(store, "catalog", nav) {
 		@ProductEditView(sku, isNew)
 	}
 }

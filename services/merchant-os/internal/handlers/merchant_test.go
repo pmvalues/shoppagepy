@@ -1,9 +1,12 @@
 package handlers_test
 
 import (
+	"bytes"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -53,6 +56,7 @@ func setupTestRouter() http.Handler {
 	r.Post("/flow/{id}/toggle", h.ToggleFlowRule)
 	r.Post("/flow/new", h.CreateFlowRule)
 	r.Post("/media/new", h.CreateMediaAsset)
+	r.Get("/media/files/{id}", h.ServeMediaFile)
 	r.Post("/editor/save", h.SaveEditorSettings)
 	r.Get("/audit-logs/export.csv", h.ExportAuditLogsCSV)
 	r.Get("/feeds/google-merchant-center.xml", h.ServeGMCFeed)
@@ -115,7 +119,7 @@ func TestServeAllERPModules(t *testing.T) {
 		{"scan", "Barcode Scanner Station & Cycle Count Audits"},
 		{"pos", "Trade Counter POS Terminal & Walk-In Sales"},
 		{"flow", "Flow Automations & Event-Driven Rules"},
-		{"media", "Media Assets & Compliance Documents"},
+		{"media", "Media & Documents"},
 		{"audit-logs", "Compliance & Operational Audit Trail"},
 		{"editor", "Storefront Theme Studio & Visual Customizer"},
 	}
@@ -524,6 +528,96 @@ func TestCreateMediaAsset(t *testing.T) {
 	body := rec.Body.String()
 	if !strings.Contains(body, "SABS 1422 Audit Report 2026.pdf") {
 		t.Errorf("expected new media asset in list")
+	}
+}
+
+func TestCreateMediaAsset_FileUploadAndServe(t *testing.T) {
+	router := setupTestRouter()
+
+	bodyBuf := &bytes.Buffer{}
+	writer := multipart.NewWriter(bodyBuf)
+
+	fileField, err := writer.CreateFormFile("file", "certificate_sabs.pdf")
+	if err != nil {
+		t.Fatalf("failed to create form file: %v", err)
+	}
+	sampleContent := []byte("%PDF-1.4 sample sabs compliance certificate content")
+	if _, err := fileField.Write(sampleContent); err != nil {
+		t.Fatalf("failed to write form file content: %v", err)
+	}
+
+	_ = writer.WriteField("name", "SABS ISO 9001 Certificate")
+	_ = writer.WriteField("category", "SABS Certificate")
+	writer.Close()
+
+	req := httptest.NewRequest("POST", "/media/new", bodyBuf)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK on file upload, got %d: %s", rec.Code, rec.Body.String())
+	}
+	respHTML := rec.Body.String()
+	if !strings.Contains(respHTML, "SABS ISO 9001 Certificate") {
+		t.Errorf("expected uploaded asset name in rendered media tab")
+	}
+
+	// Extract the generated asset ID from the rendered link: /media/files/(med_[0-9]+)
+	re := regexp.MustCompile(`/media/files/(med_[0-9]+)`)
+	matches := re.FindStringSubmatch(respHTML)
+	if len(matches) < 2 {
+		t.Fatalf("expected /media/files/ URL in rendered response, got: %s", respHTML)
+	}
+	assetID := matches[1]
+
+	// Fetch the uploaded media file
+	getReq := httptest.NewRequest("GET", "/media/files/"+assetID, nil)
+	getRec := httptest.NewRecorder()
+	router.ServeHTTP(getRec, getReq)
+
+	if getRec.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK on serving media file, got %d", getRec.Code)
+	}
+	if ct := getRec.Header().Get("Content-Type"); !strings.Contains(ct, "application/pdf") {
+		t.Errorf("expected Content-Type application/pdf, got %s", ct)
+	}
+	if !bytes.Equal(getRec.Body.Bytes(), sampleContent) {
+		t.Errorf("served file content does not match uploaded content")
+	}
+}
+
+func TestCreateMediaAsset_UnsupportedType(t *testing.T) {
+	router := setupTestRouter()
+
+	bodyBuf := &bytes.Buffer{}
+	writer := multipart.NewWriter(bodyBuf)
+
+	fileField, err := writer.CreateFormFile("file", "script.exe")
+	if err != nil {
+		t.Fatalf("failed to create form file: %v", err)
+	}
+	_, _ = fileField.Write([]byte("binary data"))
+	writer.Close()
+
+	req := httptest.NewRequest("POST", "/media/new", bodyBuf)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusUnsupportedMediaType {
+		t.Fatalf("expected 415 StatusUnsupportedMediaType, got %d", rec.Code)
+	}
+}
+
+func TestServeMediaFile_NotFound(t *testing.T) {
+	router := setupTestRouter()
+	req := httptest.NewRequest("GET", "/media/files/med_nonexistent999", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("expected 404 NotFound, got %d", rec.Code)
 	}
 }
 

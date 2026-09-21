@@ -1,3 +1,10 @@
+> **⚠ STATUS (2026-09-21): HISTORICAL — measured against the archived TypeScript/Next.js application.**
+> The baseline in this document (221 tests / 36 suites) is not the live Go runtime (39 test functions
+> across 5 packages). Its Phase 2 recommendation — backup and restore — **remains unstarted**, and
+> the Go runtime has no persistence to back up yet.
+> Current state and sequencing: `docs/PLATFORM_READINESS_ANALYSIS_2026-09-21.md`,
+> `docs/INVESTOR_READINESS_ROADMAP.md`.
+
 # Shoppage — Launch Readiness Plan
 
 **Document:** `docs/LAUNCH_READINESS_PLAN.md`

@@ -10,6 +10,8 @@
     "dev": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
     "start": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
     "build": "node scripts/go-run.mjs build -o bin/shoppage.exe ./services/consumer-web/cmd/server/main.go",
+    "build:templ": "node scripts/templ-run.mjs",
+    "check:templ": "node scripts/templ-run.mjs --check",
     "build:css": "npx @tailwindcss/cli -i ./services/consumer-web/static/css/input.css -o ./services/consumer-web/internal/assets/css/tailwind.min.css --minify",
     "build:linux": "powershell -ExecutionPolicy Bypass -File deploy/build-linux.ps1",
     "test": "npm run go:test",

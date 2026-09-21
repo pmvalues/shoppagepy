@@ -1,4 +1,9 @@
-﻿# Security Policy & Responsible Disclosure
+> **⚠ STATUS (2026-09-21): HISTORICAL — this document describes the archived TypeScript/Next.js application, not the live runtime.**
+> The running platform is 100% Go (`services/*`); nothing cited below exists in it today.
+> Verified current state, gaps and remediation: `docs/PLATFORM_READINESS_ANALYSIS_2026-09-21.md`.
+> **Do not use this document as a description of the platform's security posture.**
+
+# Security Policy & Responsible Disclosure
 
 Shoppage (Pty) Ltd operates a zero-tolerance policy towards unmitigated security
 vulnerabilities across our commerce intelligence platform, merchant operating systems,

@@ -1,3 +1,7 @@
+> **⚠ STATUS (2026-09-21): HISTORICAL — superseded twice (Django → TypeScript/Next.js → pure Go).**
+> Retained for product-thinking history only. Nothing in this document describes the live runtime.
+> Current state: `docs/PLATFORM_READINESS_ANALYSIS_2026-09-21.md`.
+
 # Shoppage.co.za — Platform Modernization Analysis & Roadmap
 
 **Date:** 2026-08-26

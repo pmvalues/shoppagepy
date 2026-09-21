@@ -199,8 +199,8 @@ templ ProductDetailView(sku models.CatalogSKU) {
 	</section>
 }
 
-templ ProductDetailPage(store models.StoreProfile, sku models.CatalogSKU) {
-	@Layout(store, "catalog") {
+templ ProductDetailPage(store models.StoreProfile, sku models.CatalogSKU, nav models.NavContext) {
+	@Layout(store, "catalog", nav) {
 		@ProductDetailView(sku)
 	}
 }

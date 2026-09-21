@@ -2,10 +2,13 @@ package templates
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
-templ Layout(store models.StoreProfile, activeTab string) {
+templ Layout(store models.StoreProfile, activeTab string, nav models.NavContext) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -16,12 +19,15 @@ templ Layout(store models.StoreProfile, activeTab string) {
 			<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
 			<link rel="alternate icon" href="/favicon.ico"/>
 			<link rel="apple-touch-icon" href="/favicon.svg"/>
-			<!-- Google Fonts: Bricolage Grotesque & Instrument Sans & JetBrains Mono -->
+			<!-- Google Fonts: Bricolage Grotesque & Instrument Sans & JetBrains Mono
+			     Loaded non-blocking (preload + media swap) so first paint never waits on the font CDN. -->
 			<link rel="preconnect" href="https://fonts.googleapis.com"/>
 			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-			<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
-			<!-- HTMX 2.0.2 -->
-			<script src="https://unpkg.com/htmx.org@2.0.2"></script>
+			<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap"/>
+			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" media="print" onload="this.media='all'"/>
+			<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap"/></noscript>
+			<!-- HTMX 2 served from the embedded local asset (no CDN, works offline) -->
+			<script src="/static/js/htmx.min.js" defer></script>
 			<script>
 				try {
 					var savedTheme = localStorage.getItem('pemofy_admin_theme') || 'artisan';
@@ -901,7 +907,97 @@ templ Layout(store models.StoreProfile, activeTab string) {
 					.row-2 { grid-template-columns: 1fr; }
 					.three-col { grid-template-columns: 1fr; }
 				}
-			</style>
+			
+			/* ============ Modern polish layer (2026-09-21) ============ */
+			:root { color-scheme: light; }
+			*, *::before, *::after { box-sizing: border-box; }
+			:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
+			button, a, input, select, textarea { transition: border-color .18s cubic-bezier(.16,1,.3,1), box-shadow .18s cubic-bezier(.16,1,.3,1), background .18s cubic-bezier(.16,1,.3,1), transform .12s ease; }
+			.btn:active { transform: translateY(1px) scale(.99); }
+			.card { transition: box-shadow .2s ease, transform .2s ease; }
+			.card:hover { box-shadow: 0 10px 30px rgba(13,28,21,.10), 0 2px 6px rgba(13,28,21,.06); }
+			.topbar { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); background: color-mix(in srgb, var(--surface) 82%, transparent); }
+			.nav-item { position: relative; transition: background .18s ease, color .18s ease, transform .12s ease; }
+			.nav-item:hover { transform: translateX(2px); }
+			.nav-item.active::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: #4fe0a4; }
+			.nav-icon { display: inline-block; vertical-align: -2px; flex: 0 0 auto; }
+			.badge { min-width: 20px; text-align: center; font-variant-numeric: tabular-nums; }
+			#tab-content > * { animation: fadeSlideIn .24s cubic-bezier(.16,1,.3,1); }
+			@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+			table tbody tr { transition: background .15s ease; }
+			table tbody tr:hover { background: rgba(13,28,21,.03); }
+			::-webkit-scrollbar { width: 10px; height: 10px; }
+			::-webkit-scrollbar-thumb { background: rgba(13,28,21,.18); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+			::-webkit-scrollbar-track { background: transparent; }
+			.side::-webkit-scrollbar-thumb { background: rgba(255,255,255,.16); background-clip: content-box; }
+			.greet h1 { letter-spacing: -0.02em; }
+			@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+		
+			/* ============ Modern polish layer (2026-09-21) ============ */
+			:root { color-scheme: light; }
+			*, *::before, *::after { box-sizing: border-box; }
+			:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
+			button, a, input, select, textarea { transition: border-color .18s cubic-bezier(.16,1,.3,1), box-shadow .18s cubic-bezier(.16,1,.3,1), background .18s cubic-bezier(.16,1,.3,1), transform .12s ease; }
+			.btn:active { transform: translateY(1px) scale(.99); }
+			.card { transition: box-shadow .2s ease, transform .2s ease; }
+			.card:hover { box-shadow: 0 10px 30px rgba(13,28,21,.10), 0 2px 6px rgba(13,28,21,.06); }
+			.topbar { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); background: color-mix(in srgb, var(--surface) 82%, transparent); }
+			.nav-item { position: relative; transition: background .18s ease, color .18s ease, transform .12s ease; }
+			.nav-item:hover { transform: translateX(2px); }
+			.nav-item.active::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: #4fe0a4; }
+			.nav-icon { display: inline-block; vertical-align: -2px; flex: 0 0 auto; }
+			.badge { min-width: 20px; text-align: center; font-variant-numeric: tabular-nums; }
+			#tab-content > * { animation: fadeSlideIn .24s cubic-bezier(.16,1,.3,1); }
+			@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+			table tbody tr { transition: background .15s ease; }
+			table tbody tr:hover { background: rgba(13,28,21,.03); }
+			::-webkit-scrollbar { width: 10px; height: 10px; }
+			::-webkit-scrollbar-thumb { background: rgba(13,28,21,.18); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+			::-webkit-scrollbar-track { background: transparent; }
+			.side::-webkit-scrollbar-thumb { background: rgba(255,255,255,.16); background-clip: content-box; }
+			.greet h1 { letter-spacing: -0.02em; }
+			@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+		
+			/* ============ Modern polish layer (2026-09-21) ============ */
+			:root { color-scheme: light; }
+			*, *::before, *::after { box-sizing: border-box; }
+			:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
+			button, a, input, select, textarea { transition: border-color .18s cubic-bezier(.16,1,.3,1), box-shadow .18s cubic-bezier(.16,1,.3,1), background .18s cubic-bezier(.16,1,.3,1), transform .12s ease; }
+			.btn:active { transform: translateY(1px) scale(.99); }
+			.card { transition: box-shadow .2s ease, transform .2s ease; }
+			.card:hover { box-shadow: 0 10px 30px rgba(13,28,21,.10), 0 2px 6px rgba(13,28,21,.06); }
+			.topbar { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); background: color-mix(in srgb, var(--surface) 82%, transparent); }
+			.nav-item { position: relative; transition: background .18s ease, color .18s ease, transform .12s ease; }
+			.nav-item:hover { transform: translateX(2px); }
+			.nav-item.active::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: #4fe0a4; }
+			.nav-icon { display: inline-block; vertical-align: -2px; flex: 0 0 auto; }
+			.badge { min-width: 20px; text-align: center; font-variant-numeric: tabular-nums; }
+			#tab-content > * { animation: fadeSlideIn .24s cubic-bezier(.16,1,.3,1); }
+			@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+			table tbody tr { transition: background .15s ease; }
+			table tbody tr:hover { background: rgba(13,28,21,.03); }
+			::-webkit-scrollbar { width: 10px; height: 10px; }
+			::-webkit-scrollbar-thumb { background: rgba(13,28,21,.18); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+			::-webkit-scrollbar-track { background: transparent; }
+			.side::-webkit-scrollbar-thumb { background: rgba(255,255,255,.16); background-clip: content-box; }
+			.greet h1 { letter-spacing: -0.02em; }
+			@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+		
+			/* ============ Modern polish layer (2026-09-21) ============ */
+			:root { color-scheme: light; }
+			*, *::before, *::after { box-sizing: border-box; }
+			:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
+			button, a, input, select, textarea { transition: border-color .18s cubic-bezier(.16,1,.3,1), box-shadow .18s cubic-bezier(.16,1,.3,1), background .18s cubic-bezier(.16,1,.3,1), transform .12s ease; }
+			.btn:active { transform: translateY(1px) scale(.99); }
+			.card { transition: box-shadow .2s ease, transform .2s ease; }
+			.card:hover { box-shadow: 0 10px 30px rgba(13,28,21,.10), 0 2px 6px rgba(13,28,21,.06); }
+			.topbar { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); background: color-mix(in srgb, var(--surface) 82%, transparent); }
+			.nav-item { position: relative; transition: background .18s ease, color .18s ease, transform .12s ease; }
+			.nav-item:hover { transform: translateX(2px); }
+			.nav-item.active::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: #4fe0a4; }
+			.nav-icon { display: inline-block; vertical-align: -2px; flex: 0 0 auto; }
+			.badge { min-width: 20px; text-align: center; font-variant-numeric: tabular-nums; }
+		</style>
 		</head>
 		<body>
 			<div class="app" id="app-root">
@@ -911,7 +1007,7 @@ templ Layout(store models.StoreProfile, activeTab string) {
 					}
 				</script>
 				<!-- SIDEBAR -->
-				@LeftSidebar(store, activeTab)
+				@LeftSidebar(store, activeTab, nav)
 
 				<!-- MAIN CONTENT -->
 				<main class="main">
@@ -926,8 +1022,12 @@ templ Layout(store models.StoreProfile, activeTab string) {
 						</button>
 
 						<div class="greet">
-							<h1>Good morning, { store.Name }</h1>
-							<p>Enterprise Merchant OS · pod-za-01, Johannesburg · 12 orders need your attention</p>
+							<h1>{ Greeting(time.Now()) }, { store.Name }</h1>
+							if nav.OpenOrders > 0 {
+								<p>{ fmt.Sprintf("%d orders need your attention", nav.OpenOrders) } · { store.SovereignPod }</p>
+							} else {
+								<p>All caught up · { store.SovereignPod }</p>
+							}
 						</div>
 
 						<div class="top-tools">
@@ -941,9 +1041,9 @@ templ Layout(store models.StoreProfile, activeTab string) {
 							<!-- ERP Entity & Fiscal Context -->
 							<div class="fiscal-badge" style="display:inline-flex; align-items:center; gap:5px; padding:4px 8px; border-radius:7px; background:var(--surface-2); border:1px solid var(--line-strong); font-family:var(--mono); font-size:11px; color:var(--ink);">
 								<span style="color:var(--muted);">ENT:</span>
-								<span style="font-weight:700; color:var(--primary);">MITREND</span>
+								<span style="font-weight:700; color:var(--primary);">{ EntityCode(store.LegalName) }</span>
 								<span style="color:var(--muted);">·</span>
-								<span>FY26</span>
+								<span>{ FiscalYear(time.Now()) }</span>
 								<span style="color:var(--muted);">·</span>
 								<span style="font-weight:700; color:var(--primary);">ZAR</span>
 							</div>
@@ -958,7 +1058,7 @@ templ Layout(store models.StoreProfile, activeTab string) {
 								<option value="light">Studio Light</option>
 							</select>
 
-							<a href={ templ.SafeURL(fmt.Sprintf("http://localhost:3000/m/%s", store.ID)) } target="_blank" class="btn ghost small">
+							<a href={ templ.SafeURL(fmt.Sprintf("%s/m/%s", strings.TrimRight(nav.PublicBaseURL, "/"), store.ID)) } target="_blank" class="btn ghost small">
 								<span>↗</span> Public Store
 							</a>
 
@@ -968,7 +1068,7 @@ templ Layout(store models.StoreProfile, activeTab string) {
 								hx-push-url="true" 
 								class="btn dark small"
 							>
-								<span>✨</span> Copilot (Ctrl+J)
+								@Icon("copilot") Copilot (Ctrl+J)
 							</button>
 						</div>
 					</header>
@@ -1102,7 +1202,7 @@ templ Layout(store models.StoreProfile, activeTab string) {
 	</html>
 }
 
-templ LeftSidebar(store models.StoreProfile, activeTab string) {
+templ LeftSidebar(store models.StoreProfile, activeTab string, nav models.NavContext) {
 	<aside class="side">
 		<!-- Brand Header -->
 		<div class="brand">
@@ -1137,103 +1237,109 @@ templ LeftSidebar(store models.StoreProfile, activeTab string) {
 		<!-- Nav: 1. OPERATE -->
 		<div class="nav-label">Operate</div>
 		<button hx-get="/tab/overview" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "" || activeTab == "overview") }>
-			<span class="icon-span">📊</span>
+			<span class="icon-span">@Icon("overview")</span>
 			<span>Overview</span>
 		</button>
 		<button hx-get="/tab/orders" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "orders") }>
-			<span class="icon-span">📑</span>
+			<span class="icon-span">@Icon("orders")</span>
 			<span>Orders</span>
-			<span class="badge warn">12</span>
+			if nav.OpenOrders > 0 {
+				<span class="badge warn">{ fmt.Sprint(nav.OpenOrders) }</span>
+			}
 		</button>
 		<button hx-get="/tab/catalog" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "catalog") }>
-			<span class="icon-span">📦</span>
+			<span class="icon-span">@Icon("catalog")</span>
 			<span>Products</span>
 		</button>
 		<button hx-get="/tab/inventory" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "inventory") }>
-			<span class="icon-span">🏢</span>
+			<span class="icon-span">@Icon("inventory")</span>
 			<span>Inventory</span>
-			<span class="badge warn">3</span>
+			if nav.LowStock > 0 {
+				<span class="badge warn">{ fmt.Sprint(nav.LowStock) }</span>
+			}
 		</button>
 		<button hx-get="/tab/customers" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "customers") }>
-			<span class="icon-span">👥</span>
+			<span class="icon-span">@Icon("customers")</span>
 			<span>Customers</span>
 		</button>
 		<button hx-get="/tab/pick-pack" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "pick-pack") }>
-			<span class="icon-span">🏷️</span>
+			<span class="icon-span">@Icon("pick-pack")</span>
 			<span>Pick &amp; Pack</span>
 			<span class="badge" style="background:#e0f2fe; color:#0369a1;">WMS</span>
 		</button>
 		<button hx-get="/tab/manifests" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "manifests") }>
-			<span class="icon-span">🚚</span>
+			<span class="icon-span">@Icon("manifests")</span>
 			<span>Carrier Manifests</span>
 		</button>
 		<button hx-get="/tab/transfers" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "transfers") }>
-			<span class="icon-span">🔄</span>
+			<span class="icon-span">@Icon("transfers")</span>
 			<span>Stock Transfers</span>
 		</button>
 		<button hx-get="/tab/scan" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "scan") }>
-			<span class="icon-span">📷</span>
+			<span class="icon-span">@Icon("scan")</span>
 			<span>Barcode &amp; Audits</span>
 		</button>
 
 		<!-- Nav: 2. GROW -->
 		<div class="nav-label">Grow</div>
 		<button hx-get="/tab/analytics" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "analytics") }>
-			<span class="icon-span">📈</span>
+			<span class="icon-span">@Icon("analytics")</span>
 			<span>Analytics</span>
 		</button>
 		<button hx-get="/tab/discounts" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "discounts") }>
-			<span class="icon-span">🏷️</span>
+			<span class="icon-span">@Icon("discounts")</span>
 			<span>Promotions</span>
 		</button>
 		<button hx-get="/tab/rfqs" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "rfqs") }>
-			<span class="icon-span">📑</span>
+			<span class="icon-span">@Icon("rfqs")</span>
 			<span>B2B Wholesale</span>
-			<span class="badge warn">Quotes</span>
+			if nav.OpenQuotes > 0 {
+				<span class="badge warn">{ fmt.Sprint(nav.OpenQuotes) }</span>
+			}
 		</button>
 		<button hx-get="/tab/pos" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "pos") }>
-			<span class="icon-span">💳</span>
+			<span class="icon-span">@Icon("pos")</span>
 			<span>POS Trade Counter</span>
 		</button>
 		<button hx-get="/tab/channels" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "channels") }>
-			<span class="icon-span">🌐</span>
+			<span class="icon-span">@Icon("channels")</span>
 			<span>Channels &amp; WhatsApp</span>
 		</button>
 		<button hx-get="/tab/feeds" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "feeds") }>
-			<span class="icon-span">🛒</span>
+			<span class="icon-span">@Icon("feeds")</span>
 			<span>Google &amp; Meta Feeds</span>
 		</button>
 		<button hx-get="/tab/editor" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "editor") }>
-			<span class="icon-span">🎨</span>
+			<span class="icon-span">@Icon("editor")</span>
 			<span>SEO &amp; Content</span>
 		</button>
 		<button hx-get="/tab/media" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "media") }>
-			<span class="icon-span">📁</span>
+			<span class="icon-span">@Icon("media")</span>
 			<span>Media &amp; Documents</span>
 		</button>
 
 		<!-- Nav: 3. CONFIGURE -->
 		<div class="nav-label">Configure</div>
 		<button hx-get="/tab/flow" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "flow") }>
-			<span class="icon-span">⚡</span>
+			<span class="icon-span">@Icon("flow")</span>
 			<span>Flow Automations</span>
 		</button>
 		<button hx-get="/tab/copilot" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "copilot") }>
-			<span class="icon-span">✨</span>
+			<span class="icon-span">@Icon("copilot")</span>
 			<span>AI Studio</span>
 			<span class="badge" style="background:#4fe0a4; color:#0a2f24;">AI</span>
 		</button>
 		<button hx-get="/tab/chat" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "chat") }>
-			<span class="icon-span">💬</span>
+			<span class="icon-span">@Icon("chat")</span>
 			<span>Direct Messages</span>
 			<span class="badge" style="background:#4fe0a4; color:#0a2f24;">Live</span>
 		</button>
 		<button hx-get="/tab/audit-logs" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "audit-logs") }>
-			<span class="icon-span">🔒</span>
+			<span class="icon-span">@Icon("audit-logs")</span>
 			<span>Audit Trail</span>
 		</button>
 		<button hx-get="/tab/settings" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "settings") }>
-			<span class="icon-span">⚙️</span>
+			<span class="icon-span">@Icon("settings")</span>
 			<span>Settings</span>
 		</button>
 

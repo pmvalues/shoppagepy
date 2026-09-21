@@ -2,16 +2,91 @@
 @source "../../internal/templates";
 @source "../../../merchant-os/internal/templates";
 
-@theme {
+/* =============================================================================
+   SHOPPAGE DESIGN TOKENS — single source of truth for consumer web + Merchant OS
+   Docs: docs/DESIGN_SYSTEM.md
+   Rule: any colour, radius, shadow or motion value used in a template must come
+   from this block. No ad-hoc hex values in templates.
+   ============================================================================= */
+@theme static {
+  /* --- Typography ---------------------------------------------------------- */
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-display: 'Outfit', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+
+  /* --- Brand ramp (emerald) ------------------------------------------------ */
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+  --color-brand-900: #064e3b;
   --color-brand: #059669;
   --color-brand-fill: #10b981;
   --color-brand-strong: #047857;
+
+  /* --- Accent + status ----------------------------------------------------- */
   --color-gold: #d97706;
+  --color-accent: #d97706;
+  --color-accent-soft: #fef3c7;
+  --color-success: #059669;
+  --color-success-soft: #d1fae5;
+  --color-warning: #b45309;
+  --color-warning-soft: #fef3c7;
+  --color-danger: #e11d48;
+  --color-danger-soft: #ffe4e6;
+  --color-info: #0369a1;
+  --color-info-soft: #e0f2fe;
   --color-red: #e11d48;
+
+  /* --- Neutrals (shared by both applications) ------------------------------ */
+  --color-ink: #0f172a;
+  --color-ink-2: #334155;
+  --color-ink-muted: #64748b;
+  --color-surface: #ffffff;
+  --color-surface-2: #f8fafc;
+  --color-surface-3: #f1f5f9;
+  --color-line: #e2e8f0;
+  --color-line-strong: #cbd5e1;
+
+  /* --- Merchant OS theme (maps the current "artisan" palette onto the system) */
+  --color-merchant-sidebar: #0a2f24;
+  --color-merchant-sidebar-2: #0d3a2c;
+  --color-merchant-primary: #0e7c56;
+  --color-merchant-primary-strong: #0a5c40;
+  --color-merchant-primary-soft: #dcefe4;
+  --color-merchant-amber: #c47c14;
+  --color-merchant-rose: #b5483a;
+
+  /* --- Radii -------------------------------------------------------------- */
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-pill: 999px;
+
+  /* --- Elevation ---------------------------------------------------------- */
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.10);
+  --shadow-raised: 0 4px 12px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.06);
+  --shadow-pop: 0 10px 30px rgba(15, 23, 42, 0.12);
+  --shadow-modal: 0 24px 60px rgba(15, 23, 42, 0.22);
+
+  /* --- Motion ------------------------------------------------------------- */
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-emphasised: cubic-bezier(0.2, 0, 0, 1);
+
+  /* --- Control sizing (density) ------------------------------------------- */
+  --control-sm: 2rem;
+  --control-md: 2.5rem;
+  --control-lg: 3rem;
 }
+
 
 /* Animations */
 @keyframes slideInRight {

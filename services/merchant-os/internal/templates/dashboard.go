@@ -28,8 +28,8 @@ func RenderProductDetailView(w io.Writer, sku models.CatalogSKU) error {
 }
 
 // RenderProductDetailPage renders the full product detail page
-func RenderProductDetailPage(w io.Writer, store models.StoreProfile, sku models.CatalogSKU) error {
-	return ProductDetailPage(store, sku).Render(context.Background(), w)
+func RenderProductDetailPage(w io.Writer, store models.StoreProfile, sku models.CatalogSKU, nav models.NavContext) error {
+	return ProductDetailPage(store, sku, nav).Render(context.Background(), w)
 }
 
 // RenderProductEditView renders the Pemofy-style 5-tab product editor view partial
@@ -38,8 +38,8 @@ func RenderProductEditView(w io.Writer, sku models.CatalogSKU, isNew bool) error
 }
 
 // RenderProductEditPage renders the full product editor page
-func RenderProductEditPage(w io.Writer, store models.StoreProfile, sku models.CatalogSKU, isNew bool) error {
-	return ProductEditPage(store, sku, isNew).Render(context.Background(), w)
+func RenderProductEditPage(w io.Writer, store models.StoreProfile, sku models.CatalogSKU, isNew bool, nav models.NavContext) error {
+	return ProductEditPage(store, sku, isNew, nav).Render(context.Background(), w)
 }
 
 // RenderProductDetail renders the product detail view using compiled templ (legacy alias)

@@ -14,6 +14,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/shoppage/merchant-os/internal/assets"
+	"github.com/shoppage/merchant-os/internal/config"
+	"github.com/shoppage/merchant-os/internal/fixtures"
 	"github.com/shoppage/merchant-os/internal/handlers"
 )
 
@@ -29,8 +32,9 @@ func main() {
 		}
 	}
 
-	state := handlers.NewDefaultState()
-	h := handlers.NewHandler(state)
+	cfg := config.Load()
+	state := handlers.NewStateWithProfile(fixtures.DemoStoreProfile(cfg))
+	h := handlers.NewHandlerWithConfig(state, cfg)
 
 	r := chi.NewRouter()
 
@@ -55,6 +59,11 @@ func main() {
 	})
 	r.Get("/favicon.ico", h.ServeFavicon)
 	r.Get("/favicon.svg", h.ServeFavicon)
+	r.Get("/media/files/{id}", h.ServeMediaFile)
+
+	// Embedded assets (HTMX) served locally: the merchant workspace must not depend
+	// on a public CDN, so it keeps working on slow, filtered or offline store networks.
+	r.Handle("/static/*", http.StripPrefix("/static", assets.Handler()))
 
 	// Dashboard & Tab Navigation (All 12 Modules)
 	r.Get("/", h.ServeDashboard)

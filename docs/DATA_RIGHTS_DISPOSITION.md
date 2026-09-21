@@ -1,3 +1,11 @@
+> **⚠ STATUS (2026-09-21): PARTIALLY SUPERSEDED — the policy stands, the implementation does not exist in the live runtime.**
+> The decision to treat third-party retail catalogues as **BLOCKED** remains valid and is endorsed by
+> the current analysis. However, the enforcement this document cites
+> (`packages/kernel/src/rights/register.ts`, `DiscoveredOffersStore.searchDiscoveredProducts`) lives
+> in the **archived TypeScript app**; the live Go store never opens `sa_discovered_offers.sqlite`, so
+> no enforcement is actually running. Porting the register to the Go runtime is item **L-09** in
+> `docs/INVESTOR_READINESS_ROADMAP.md`.
+
 # Data Rights Disposition — Third-Party Retail Catalogues
 
 **Document:** `docs/DATA_RIGHTS_DISPOSITION.md`

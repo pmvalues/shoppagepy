@@ -5,7 +5,7 @@ import (
 )
 
 templ DashboardPage(data models.DashboardViewData) {
-	@Layout(data.Store, data.ActiveTab) {
+	@Layout(data.Store, data.ActiveTab, data.Nav) {
 		@TabPartialComponent(data.ActiveTab, data)
 	}
 }

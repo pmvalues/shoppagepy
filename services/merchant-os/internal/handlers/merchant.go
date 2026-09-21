@@ -3,13 +3,18 @@ package handlers
 import (
 	"encoding/csv"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/shoppage/merchant-os/internal/config"
+	"github.com/shoppage/merchant-os/internal/fixtures"
 	"github.com/shoppage/merchant-os/internal/models"
 	"github.com/shoppage/merchant-os/internal/templates"
 )
@@ -40,36 +45,19 @@ type MerchantStoreState struct {
 	ActiveThreadID  string
 }
 
-// NewDefaultState initializes demo data for Mitrend Products (Midrand)
+// NewDefaultState initializes the demonstration workspace using the bundled fixture
+// profile (internal/fixtures/store.json). Demo operational data stays in code until
+// the persistence milestone (blueprint E-4) replaces it with a database.
 func NewDefaultState() *MerchantStoreState {
+	return NewStateWithProfile(fixtures.DemoStoreProfile(config.Load()))
+}
+
+// NewStateWithProfile builds workspace state for a specific store profile.
+func NewStateWithProfile(profile models.StoreProfile) *MerchantStoreState {
 	now := time.Now().UTC()
 
 	return &MerchantStoreState{
-		Store: models.StoreProfile{
-			ID:                 "loc_mitrend_midrand",
-			Name:               "Mitrend Products (Pty) Ltd",
-			LegalName:          "Mitrend Products (Pty) Ltd",
-			Category:           "Hospitality, Packaging & Catering",
-			Address:            "Warehouse ERF710, Midrand Commercial Park",
-			City:               "Midrand, Johannesburg",
-			Province:           "Gauteng",
-			Phone:              "+27105007670",
-			WhatsApp:           "27105007670",
-			Email:              "sales@mitrend.co.za",
-			Website:            "https://mitrend.co.za",
-			CIPCRegistration:   "2018/489102/07",
-			VATNumber:          "4910284912",
-			BankName:           "Standard Bank South Africa",
-			BankAccount:        "001892810",
-			BankBranchCode:     "051001",
-			CurrentPlan:        "Launch Free (R0/mo)",
-			SovereignPod:       "pod-za-01, Johannesburg",
-			VerificationStatus: "fully_verified",
-			GrossRevenueZar:    48250.00,
-			QuotesSentCount:    14,
-			MedianResponseMins: 5,
-			UpdatedAt:          now,
-		},
+		Store:  profile,
 		Catalog: []models.CatalogSKU{
 			{
 				ID:            "mit_3361",
@@ -952,11 +940,45 @@ func NewDefaultState() *MerchantStoreState {
 // Handler coordinates merchant requests
 type Handler struct {
 	state *MerchantStoreState
+	cfg   config.Config
 }
 
-// NewHandler creates a new Handler instance
+// NewHandler creates a new Handler instance using environment configuration.
 func NewHandler(state *MerchantStoreState) *Handler {
-	return &Handler{state: state}
+	return &Handler{state: state, cfg: config.Load()}
+}
+
+// NewHandlerWithConfig creates a Handler with an explicit configuration.
+func NewHandlerWithConfig(state *MerchantStoreState, cfg config.Config) *Handler {
+	return &Handler{state: state, cfg: cfg}
+}
+
+// computeNavContext derives every badge/count shown in the workspace shell from
+// live state. Callers must hold at least the read lock; this function never locks.
+func computeNavContext(cfg config.Config, state *MerchantStoreState) models.NavContext {
+	nav := models.NavContext{PublicBaseURL: cfg.PublicBaseURL}
+	for _, o := range state.Orders {
+		switch strings.ToLower(o.Status) {
+		case "dispatched", "delivered", "collected", "cancelled", "refunded":
+			// closed orders do not need attention
+		default:
+			nav.OpenOrders++
+		}
+	}
+	for _, item := range state.Catalog {
+		if item.LowStockAlert > 0 && item.StockQuantity <= item.LowStockAlert {
+			nav.LowStock++
+		}
+	}
+	for _, thread := range state.ChatThreads {
+		nav.UnreadThreads += thread.UnreadCount
+	}
+	for _, lead := range state.Leads {
+		if lead.Status == "new" || lead.Status == "quoted" {
+			nav.OpenQuotes++
+		}
+	}
+	return nav
 }
 
 // getViewData prepares a complete copy of view data under read lock
@@ -987,6 +1009,7 @@ func (h *Handler) getViewData(activeTab string) models.DashboardViewData {
 		ItemLedger:      h.state.ItemLedger,
 		ChatThreads:     h.state.ChatThreads,
 		ActiveThreadID:  h.state.ActiveThreadID,
+		Nav:             computeNavContext(h.cfg, h.state),
 	}
 }
 
@@ -1057,6 +1080,7 @@ func (h *Handler) ServeProductDetail(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
+	nav := computeNavContext(h.cfg, h.state)
 	h.state.mu.RUnlock()
 
 	if !found {
@@ -1069,7 +1093,7 @@ func (h *Handler) ServeProductDetail(w http.ResponseWriter, r *http.Request) {
 		_ = templates.RenderProductDetailView(w, target)
 		return
 	}
-	_ = templates.RenderProductDetailPage(w, h.state.Store, target)
+	_ = templates.RenderProductDetailPage(w, h.state.Store, target, nav)
 }
 
 // ServeProductEdit renders the 5-tab product editor view (Pemofy layout)
@@ -1086,6 +1110,7 @@ func (h *Handler) ServeProductEdit(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
+	nav := computeNavContext(h.cfg, h.state)
 	h.state.mu.RUnlock()
 
 	if !found {
@@ -1098,7 +1123,7 @@ func (h *Handler) ServeProductEdit(w http.ResponseWriter, r *http.Request) {
 		_ = templates.RenderProductEditView(w, target, false)
 		return
 	}
-	_ = templates.RenderProductEditPage(w, h.state.Store, target, false)
+	_ = templates.RenderProductEditPage(w, h.state.Store, target, false, nav)
 }
 
 // ServeProductNew renders the product editor view for creating a new product (Pemofy layout)
@@ -1132,12 +1157,16 @@ func (h *Handler) ServeProductNew(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
+	h.state.mu.RLock()
+	nav := computeNavContext(h.cfg, h.state)
+	h.state.mu.RUnlock()
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if r.Header.Get("HX-Request") == "true" {
 		_ = templates.RenderProductEditView(w, newSKU, true)
 		return
 	}
-	_ = templates.RenderProductEditPage(w, h.state.Store, newSKU, true)
+	_ = templates.RenderProductEditPage(w, h.state.Store, newSKU, true, nav)
 }
 
 // SaveProductEdit updates product fields and returns refreshed catalog tab
@@ -1785,8 +1814,9 @@ func (h *Handler) ServeGMCFeed(w http.ResponseWriter, r *http.Request) {
 		if desc == "" {
 			desc = fmt.Sprintf("Wholesale commercial supply: %s by %s. SABS compliant direct factory supply.", item.Title, item.Brand)
 		}
-		imgURL := fmt.Sprintf("http://localhost:3000/static/catalog/%s.jpg", item.ID)
-		linkURL := fmt.Sprintf("http://localhost:3000/p/%s", item.ID)
+		baseURL := strings.TrimRight(h.cfg.PublicBaseURL, "/")
+		imgURL := fmt.Sprintf("%s/static/catalog/%s.jpg", baseURL, item.ID)
+		linkURL := fmt.Sprintf("%s/p/%s", baseURL, item.ID)
 
 		category := "Business & Industrial > Hospitality Supplies"
 		if strings.Contains(strings.ToLower(item.Category), "hardware") || strings.Contains(strings.ToLower(item.Title), "ring") {
@@ -2275,49 +2305,148 @@ func (h *Handler) CreateFlowRule(w http.ResponseWriter, r *http.Request) {
 	_ = templates.RenderTabPartial(w, "flow", data)
 }
 
-// CreateMediaAsset registers a newly uploaded media document
+// CreateMediaAsset handles a real file upload (multipart form) or the registration
+// of an externally hosted asset by URL. Uploaded files are written to disk under
+// cfg.DataDir/media/<storeID>/ and served back via ServeMediaFile. The previous
+// implementation recorded a URL without ever receiving a file, which made every
+// metric on this screen fabricated; sizes and counts are now computed from records.
 func (h *Handler) CreateMediaAsset(w http.ResponseWriter, r *http.Request) {
-	_ = r.ParseForm()
-	name := r.FormValue("name")
-	category := r.FormValue("category")
-	sizeKb, _ := strconv.Atoi(r.FormValue("sizeKb"))
-	mimeType := r.FormValue("mimeType")
-	urlStr := r.FormValue("url")
-
-	if name == "" {
-		name = "Document.pdf"
+	r.Body = http.MaxBytesReader(w, r.Body, 20<<20) // 20 MB cap
+	if err := r.ParseMultipartForm(20 << 20); err != nil {
+		_ = r.ParseForm() // url-encoded fallback: registering an externally hosted asset
 	}
-	if sizeKb <= 0 {
-		sizeKb = 250
+
+	name := strings.TrimSpace(r.FormValue("name"))
+	category := strings.TrimSpace(r.FormValue("category"))
+	if category == "" {
+		category = "Product Photography"
+	}
+	now := time.Now().UTC()
+
+	var asset models.MediaAsset
+	file, header, fileErr := r.FormFile("file")
+	if fileErr == nil && file != nil && header.Filename != "" {
+		defer file.Close()
+		data, err := io.ReadAll(io.LimitReader(file, 20<<20))
+		if err != nil || len(data) == 0 {
+			http.Error(w, "Could not read the uploaded file", http.StatusBadRequest)
+			return
+		}
+		ext, mime, ok := allowedMediaFile(header.Filename)
+		if !ok {
+			http.Error(w, "Unsupported file type. Allowed: PDF, JPG, PNG, WEBP", http.StatusUnsupportedMediaType)
+			return
+		}
+		if name == "" {
+			name = header.Filename
+		}
+		assetID := fmt.Sprintf("med_%d", now.UnixNano()%100000000)
+		relDir := filepath.Join("media", h.state.Store.ID)
+		if err := os.MkdirAll(filepath.Join(h.cfg.DataDir, relDir), 0o755); err != nil {
+			http.Error(w, "Storage is not available on this node", http.StatusInternalServerError)
+			return
+		}
+		relPath := filepath.Join(relDir, assetID+ext)
+		if err := os.WriteFile(filepath.Join(h.cfg.DataDir, relPath), data, 0o644); err != nil {
+			http.Error(w, "Could not store the file", http.StatusInternalServerError)
+			return
+		}
+		asset = models.MediaAsset{
+			ID:         assetID,
+			Name:       name,
+			Category:   category,
+			SizeKb:     (len(data) + 1023) / 1024,
+			MimeType:   mime,
+			URL:        "/media/files/" + assetID,
+			LocalPath:  relPath,
+			UploadedAt: now,
+		}
+	} else {
+		url := strings.TrimSpace(r.FormValue("url"))
+		if url == "" {
+			http.Error(w, "Provide a file to upload, or a URL for an externally hosted asset", http.StatusBadRequest)
+			return
+		}
+		if name == "" {
+			name = filepath.Base(url)
+		}
+		sizeKb, _ := strconv.Atoi(r.FormValue("sizeKb"))
+		asset = models.MediaAsset{
+			ID:         fmt.Sprintf("med_%d", now.UnixNano()%100000000),
+			Name:       name,
+			Category:   category,
+			SizeKb:     sizeKb,
+			MimeType:   r.FormValue("mimeType"),
+			URL:        url,
+			UploadedAt: now,
+		}
 	}
 
 	h.state.mu.Lock()
-	newAsset := models.MediaAsset{
-		ID:         fmt.Sprintf("med_%d", time.Now().UnixNano()%10000),
-		Name:       name,
-		Category:   category,
-		SizeKb:     sizeKb,
-		MimeType:   mimeType,
-		URL:        urlStr,
-		UploadedAt: time.Now().UTC(),
-	}
-	h.state.MediaAssets = append([]models.MediaAsset{newAsset}, h.state.MediaAssets...)
-
-	log := models.AuditLogEntry{
-		ID:        fmt.Sprintf("log_%d", time.Now().UnixNano()%10000),
-		Actor:     "Compliance Officer",
-		Action:    "Media Asset Uploaded",
+	h.state.MediaAssets = append([]models.MediaAsset{asset}, h.state.MediaAssets...)
+	h.state.AuditLogs = append([]models.AuditLogEntry{{
+		ID:        fmt.Sprintf("log_%d", now.UnixNano()%100000),
+		Actor:     h.state.Store.Name,
+		Action:    "Media Asset Registered",
 		Entity:    "MediaAsset",
-		EntityID:  newAsset.ID,
-		Details:   fmt.Sprintf("Uploaded '%s' (%s, %d KB)", name, category, sizeKb),
-		Timestamp: time.Now().UTC(),
-	}
-	h.state.AuditLogs = append([]models.AuditLogEntry{log}, h.state.AuditLogs...)
+		EntityID:  asset.ID,
+		Details:   fmt.Sprintf("Registered '%s' (%s, %d KB)", asset.Name, asset.Category, asset.SizeKb),
+		Timestamp: now,
+	}}, h.state.AuditLogs...)
 	h.state.mu.Unlock()
 
 	data := h.getViewData("media")
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	_ = templates.RenderTabPartial(w, "media", data)
+}
+
+// ServeMediaFile streams a previously uploaded asset from local disk. Only assets
+// registered in state are served, and only by ID, so no path can be requested
+// directly.
+func (h *Handler) ServeMediaFile(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	h.state.mu.RLock()
+	var asset *models.MediaAsset
+	for i := range h.state.MediaAssets {
+		if h.state.MediaAssets[i].ID == id {
+			a := h.state.MediaAssets[i]
+			asset = &a
+			break
+		}
+	}
+	h.state.mu.RUnlock()
+
+	if asset == nil || asset.LocalPath == "" {
+		http.NotFound(w, r)
+		return
+	}
+	abs := filepath.Join(h.cfg.DataDir, filepath.FromSlash(asset.LocalPath))
+	if fi, err := os.Stat(abs); err != nil || fi.IsDir() {
+		http.NotFound(w, r)
+		return
+	}
+	if asset.MimeType != "" {
+		w.Header().Set("Content-Type", asset.MimeType)
+	}
+	w.Header().Set("Cache-Control", "private, max-age=3600")
+	http.ServeFile(w, r, abs)
+}
+
+// allowedMediaFile validates an uploaded file name against the supported formats
+// and returns the normalised extension and MIME type.
+func allowedMediaFile(filename string) (ext, mime string, ok bool) {
+	switch strings.ToLower(filepath.Ext(filename)) {
+	case ".pdf":
+		return ".pdf", "application/pdf", true
+	case ".jpg", ".jpeg":
+		return ".jpg", "image/jpeg", true
+	case ".png":
+		return ".png", "image/png", true
+	case ".webp":
+		return ".webp", "image/webp", true
+	}
+	return "", "", false
 }
 
 // SaveEditorSettings saves theme and announcement ribbon settings

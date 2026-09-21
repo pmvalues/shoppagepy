@@ -1,21 +1,58 @@
 # Shoppage — National Commerce Intelligence Grid & Merchant OS
 
 > **100% Pure Go Distributed Commerce Infrastructure for Physical Retail & B2B Wholesale**  
-> *Pre-loaded with 74,000+ verified South African stores, 3,315 geofenced shopping malls, and 1,000,000+ GS1 canonical products.*
+> *Verified runtime: 5 Go services, 3,315-reference mall directory, 181 seeded catalogue products, AI assistant, PWA — see **Verified status** below.*
 
 [![Go 1.25+](https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat&logo=go)](https://go.dev/)
 [![Chi Router](https://img.shields.io/badge/Router-Chi_v5-007D9C?style=flat)](https://github.com/go-chi/chi)
 [![Templ + HTMX](https://img.shields.io/badge/Frontend-Templ_%2B_HTMX-336699?style=flat)](https://templ.guide/)
 [![SQLite Engine](https://img.shields.io/badge/Storage-Embedded_SQLite-003B57?style=flat&logo=sqlite)](https://modernc.org/sqlite)
 [![Gemini AI](https://img.shields.io/badge/AI-Google_Gemini_3.6-4285F4?style=flat&logo=google)](https://ai.google.dev/)
-[![Tests Passing](https://img.shields.io/badge/Tests-All_Suites_Passing-brightgreen?style=flat)]()
-[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/Tests-39_functions_%2F_5_packages_passing-brightgreen?style=flat)]()
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)]()
+
+---
+
+## ✅ Verified status (2026-09-21)
+
+This section is the authoritative statement of what the runtime does. It is kept true to the
+machine: `GET /health` on a running instance returns the counts below.
+
+```json
+{"data":{"deals":30,"malls":3315,"merchants":16,"products":181},"engine":"pure-go","status":"healthy"}
+```
+
+| Item | Verified state |
+|---|---|
+| Services | 5 pure-Go services (`consumer-web`, `merchant-os`, `search-core`, `chat-gateway`, `sweeper-engine`), ~28,100 lines, 73 files |
+| Tests | 39 test functions across 5 packages; `npm test` green |
+| Build | `npm run build` → `bin/shoppage.exe` (~19 MB static binary) |
+| Live data served | 16 seed merchants, 181 seed catalogue products, 3,315 mall records, 183 feed posts, 30 deals |
+| Merchant OS | Full 12-tab UI running against **one hardcoded demo tenant** with in-memory state |
+| Persistence | **Not implemented** — orders, catalogue edits, posts and chat live in memory and are lost on restart |
+| Authentication | **Not implemented in the Go runtime** — merchant routes must not be exposed publicly |
+| Billing | **Not implemented** — plans are display state only |
+| Datasets | Reference datasets exist (1M Open Food Facts product masters, 93k discovered offers, 25k-node Zimbabwe market graph). The 3.1M-merchant and generated mall layers are **synthetic placeholder data** and are not licensed records |
+
+**Before any public deployment, read `docs/PLATFORM_READINESS_ANALYSIS_2026-09-21.md` (gap register)
+and `docs/INVESTOR_READINESS_ROADMAP.md` (sequenced remediation).** Both documents were produced by
+running the system, not by reading intentions.
+
+### Product & design
+
+| Document | Purpose |
+|---|---|
+| `docs/PRODUCT_TRANSFORMATION_BLUEPRINT.md` | Positioning, pillars, packaging/pricing, 12-week release plan, deferred data/AI gates |
+| `docs/DESIGN_SYSTEM.md` | Tokens, typography, components, page templates, performance budget, migration plan |
+| `docs/MERCHANT_CENTRE_SPEC.md` | 7-workspace IA, activation wizard, module specs, roles, parity matrix, build order |
+| `docs/DATA_SOURCES.md` | Dataset register: published / reference / quarantined / blocked |
+
 
 ---
 
 ## 🏛️ System Architecture
 
-Shoppage operates as a **100% pure Go unified platform**, completely eliminating Node.js runtime overhead, Turbopack build latency, and heavy client-side JavaScript bundles. It delivers **microsecond response times (<1ms)** across nationwide merchant indexes and catalog graphs.
+Shoppage operates as a **100% pure Go unified platform**, eliminating Node.js runtime overhead, Turbopack build latency, and heavy client-side JavaScript bundles. Measured on this host (2026-09-21): `/search` renders in 110–362 ms end-to-end over HTTP, including full page render.
 
 ```mermaid
 flowchart TD
@@ -35,10 +72,10 @@ flowchart TD
         B5["In-Memory Trigram Fuzzy Search Daemon"]
     end
 
-    subgraph Datasets["3. Preloaded Commercial Datasets"]
-        C1["3.1M Nationwide Registered Merchants"]
-        C2["3,315 Geofenced Malls & Commercial Hubs"]
-        C3["1.0M GS1 Canonical Products & Live Deals"]
+    subgraph Datasets["3. Reference & Placeholder Datasets"]
+        C1["1.0M Open Food Facts product masters (real, ODbL)"]
+        C2["3,315 mall records (generated placeholder layer)"]
+        C3["93,021 discovered retail offers (real, no price captured)"]
     end
 
     Client_Layer --> Core_Engine
@@ -69,8 +106,8 @@ Run tests across all Go workspace services:
 
 ```bash
 npm test
-# or directly via Go:
-go test ./services/...
+# equivalent, run per module (a bare `go test ./services/...` fails under go.work):
+#   go test ./services/consumer-web/...   (and likewise for each module)
 ```
 
 ### 3. Production Static Binary Build
@@ -89,17 +126,26 @@ npm run build
 | :--- | :--- | :--- |
 | **Consumer Search & SERP** | [/](http://localhost:3000) & [/search](http://localhost:3000/search) | Universal omnibox search, 5-column product grid, and BuyBox price comparisons. |
 | **Merchant OS (Desk)** | [/desk](http://localhost:3000/desk) | 12-tab store operating system (Barcode laser intake, POS, WMS, GMC XML syndication). |
-| **Malls & Trading Hubs** | [/malls](http://localhost:3000/malls) | Geofenced directory of 3,315 shopping centres and commercial hubs across all 9 provinces. |
+| **Malls & Trading Hubs** | [/malls](http://localhost:3000/malls) | Directory of 3,315 mall records across 9 provinces. **Note:** this layer is generated placeholder data pending licensed ingestion. |
 | **9:16 Trade Shorts** | [/shorts](http://localhost:3000/shorts) | Vertical video demo stream for verified South African merchant products. |
 | **Buyer Wholesale RFQ** | [/requests](http://localhost:3000/requests) | Demand-first buyer RFQ portal broadcasting tenders to local suppliers. |
 | **Gemini AI Assistant** | [/api/assistant](http://localhost:3000/api/assistant) | Server-side Gemini 3.6 agent with automated solar load-shedding battery sizing tools. |
-| **System Health API** | [/health](http://localhost:3000/health) | Live telemetry across 3.3K malls, 1M catalog products, and verified merchants. |
+| **System Health API** | [/health](http://localhost:3000/health) | Live counts of loaded malls, products, merchants and deals, plus engine and version. |
 
 ---
 
 ## 🌐 Production Hosting Guide
 
 Because Shoppage is 100% pure Go with embedded SQLite, hosting is dramatically simpler and cheaper than standard JavaScript/Node stacks. There are no Node runtime dependencies, no external database servers required, and RAM consumption is under 150 MB.
+
+> **⚠ Before deploying — two verified blockers (2026-09-21).**
+> 1. `Dockerfile` copies `shoppage-commerce-intelligence-foundation/`, which contains ~8.6 GB of
+>    `*.sqlite` files that are **gitignored**. A clean checkout therefore builds either a huge image
+>    or an image missing the datasets, and the runtime silently falls back to 181 seed products.
+>    `.dockerignore` excludes `*.sqlite3` and `*.zip` but **not** `*.sqlite`.
+> 2. Merchant routes (`/desk`, `/merchant/*`, `/orders`, `/settings`, `/audit-logs`) have **no
+>    authentication** in the Go runtime. Do not expose port 3000 publicly until Phase 1 of
+>    `docs/INVESTOR_READINESS_ROADMAP.md` is complete.
 
 ### Option 1: Docker Compose + Caddy (Recommended for Linux VPS)
 

@@ -250,6 +250,7 @@ type MediaAsset struct {
 	SizeKb     int       `json:"sizeKb"`
 	MimeType   string    `json:"mimeType"`
 	URL        string    `json:"url"`
+	LocalPath  string    `json:"localPath"` // set when the file is stored on this node; empty for external links
 	UploadedAt time.Time `json:"uploadedAt"`
 }
 
@@ -391,6 +392,16 @@ type ReturnRequest struct {
 }
 
 // DashboardViewData encapsulates the full page state for Go HTML rendering across all modules
+// NavContext carries live navigation state into the workspace shell. Every number
+// the sidebar or topbar shows is computed from state here — nothing may be hardcoded.
+type NavContext struct {
+	PublicBaseURL string `json:"publicBaseUrl"`
+	OpenOrders    int    `json:"openOrders"`
+	LowStock      int    `json:"lowStock"`
+	UnreadThreads int    `json:"unreadThreads"`
+	OpenQuotes    int    `json:"openQuotes"`
+}
+
 type DashboardViewData struct {
 	Store           StoreProfile
 	ActiveTab       string
@@ -414,6 +425,7 @@ type DashboardViewData struct {
 	ItemLedger      []ItemLedgerEntry
 	ChatThreads     []ChatThread
 	ActiveThreadID  string
+	Nav             NavContext
 	ActiveSKU       *CatalogSKU    // Optional: for Product Detail & Edit modal
 	ActiveInvoice   *ProformaOrder // Optional: for Proforma Invoice modal
 }

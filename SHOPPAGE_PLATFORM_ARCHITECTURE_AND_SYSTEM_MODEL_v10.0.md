@@ -1,3 +1,10 @@
+> **⚠ STATUS (2026-09-21): HISTORICAL for all runtime claims. The platform is now 100% Go.**
+> The §0.1 "Runtime Truth Matrix" below marks Next.js 16.3 / React 19 / Edge Middleware as 🟢 ACTIVE
+> and Go as 🔵 TARGET. That inversion is no longer true: the live runtime is five Go services
+> (`services/*`) with Templ + HTMX and no Next.js anywhere. The TypeScript application described here
+> is archived locally under `archive/apps_web/` (gitignored, not in the repository).
+> Verified current state: `docs/PLATFORM_READINESS_ANALYSIS_2026-09-21.md`.
+
 # SHOPPAGE v10.0 — PLATFORM ARCHITECTURE & SYSTEM SPECIFICATION MODEL
 
 **Document:** `SHOPPAGE_PLATFORM_ARCHITECTURE_AND_SYSTEM_MODEL_v10.0.md`  
