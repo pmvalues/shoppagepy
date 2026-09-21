@@ -14,7 +14,7 @@
     "badge": "🔥 CIRCULAR SPECIAL",
     "availability": "In Stock · Click & Collect or Bulk Delivery",
     "locationHint": "22 Mega-Warehouse Superstores Nationwide",
-    "imageUrl": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -32,7 +32,7 @@
     "badge": "⚡ BIG DROP",
     "availability": "In Stock · Free Store Delivery",
     "locationHint": "Available Online & in All Makro Superstores",
-    "imageUrl": "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -50,7 +50,7 @@
     "badge": "BULK SAVER",
     "availability": "In Stock · Bulk Pallet Available",
     "locationHint": "Nationwide Wholesale Trade Counters",
-    "imageUrl": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -68,7 +68,7 @@
     "badge": "🔥 SPECIAL",
     "availability": "In Stock · Heavy Delivery Available",
     "locationHint": "Makro Warehouse Distribution",
-    "imageUrl": "https://images.unsplash.com/photo-1584992236310-6edddc08acff?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1584992236310-6edddc08acff?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -86,7 +86,7 @@
     "badge": "🔥 GUZZLE CIRCULAR",
     "availability": "In Stock · Click & Collect or Delivery",
     "locationHint": "110+ Game Stores in Malls Across South Africa",
-    "imageUrl": "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -104,7 +104,7 @@
     "badge": "⚡ PRICE DROP",
     "availability": "In Stock (Same-Day Collection)",
     "locationHint": "Game Malls Nationwide",
-    "imageUrl": "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -122,7 +122,7 @@
     "badge": "🔥 SPECIAL",
     "availability": "In Stock · Nationwide Delivery",
     "locationHint": "Game Stores Nationwide",
-    "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -140,7 +140,7 @@
     "badge": "🔥 CONTRACTOR SPECIAL",
     "availability": "In Stock · 2-Hour Click & Collect",
     "locationHint": "100+ Builders Warehouse & Express Stores Nationwide",
-    "imageUrl": "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -158,7 +158,7 @@
     "badge": "⚡ POWER BACKUP",
     "availability": "In Stock · Free Delivery on Solar Kits",
     "locationHint": "Builders Superstores Nationwide",
-    "imageUrl": "https://images.unsplash.com/photo-1508873696983-2df57046475a?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1508873696983-2df57046475a?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -176,7 +176,7 @@
     "badge": "BULK SAVER",
     "availability": "In Stock · Yard Collection or Flatbed Delivery",
     "locationHint": "Builders Warehouse Distribution Yards",
-    "imageUrl": "https://images.unsplash.com/photo-1584467735815-f778f274e296?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1584467735815-f778f274e296?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -194,7 +194,7 @@
     "badge": "🔥 XTRA SAVINGS",
     "availability": "In Stock · 60-Minute Delivery via Sixty60",
     "locationHint": "300+ Checkers Stores Nationwide",
-    "imageUrl": "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -212,7 +212,7 @@
     "badge": "🔥 WEEKLY SPECIAL",
     "availability": "In Stock · Sixty60 On Demand",
     "locationHint": "Nationwide Checkers Footprint",
-    "imageUrl": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -230,7 +230,7 @@
     "badge": "XTRA SAVINGS",
     "availability": "In Stock · Fast Dispatch",
     "locationHint": "Checkers Supermarkets Nationwide",
-    "imageUrl": "https://images.unsplash.com/photo-1584556812952-905ffd0c611a?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1584556812952-905ffd0c611a?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -248,7 +248,7 @@
     "badge": "🔥 SMART SHOPPER",
     "availability": "In Stock · Same-Day Delivery via asap!",
     "locationHint": "500+ Pick n Pay Supermarkets Nationwide",
-    "imageUrl": "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -266,7 +266,7 @@
     "badge": "SMART SHOPPER",
     "availability": "In Stock · asap! Delivery",
     "locationHint": "Pick n Pay Hypermarkets & Supermarkets",
-    "imageUrl": "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -284,7 +284,7 @@
     "badge": "QUALITY REWARD",
     "availability": "In Stock · Woolies Dash 60-Min Delivery",
     "locationHint": "400+ Woolworths Food Stores Across South Africa",
-    "imageUrl": "https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -302,7 +302,7 @@
     "badge": "DAILY FRESH",
     "availability": "In Stock · Woolies Dash Delivery",
     "locationHint": "Woolworths Supermarkets Nationwide",
-    "imageUrl": "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -320,7 +320,7 @@
     "badge": "🔥 DAILY DEAL",
     "availability": "In Stock · Free Nationwide Courier Delivery",
     "locationHint": "Takealot Logistics Distribution Centres",
-    "imageUrl": "https://images.unsplash.com/photo-1613665813446-82a78c468a1d?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1613665813446-82a78c468a1d?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -338,7 +338,7 @@
     "badge": "⚡ PRICE DROP",
     "availability": "In Stock · Next-Day Dispatch",
     "locationHint": "National Distribution Centres",
-    "imageUrl": "https://images.unsplash.com/photo-1558441719-8cf44b4754a6?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1558441719-8cf44b4754a6?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -356,7 +356,7 @@
     "badge": "🔥 FLASH SALE",
     "availability": "In Stock · Same-Day Delivery in JHB & CPT",
     "locationHint": "Takealot Direct Hub",
-    "imageUrl": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -374,7 +374,7 @@
     "badge": "🔥 TECH DROP",
     "availability": "In Stock · Store Collection or Courier",
     "locationHint": "70+ Tech Stores Nationwide",
-    "imageUrl": "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -392,7 +392,7 @@
     "badge": "⚡ LOAD SHEDDING",
     "availability": "In Stock · Immediate Collection",
     "locationHint": "Incredible Hubs Across SA",
-    "imageUrl": "https://images.unsplash.com/photo-1592833159155-c62df1b65634?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1592833159155-c62df1b65634?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -410,7 +410,7 @@
     "badge": "🔥 CLUB CARD",
     "availability": "In Stock · 850+ Pharmacies Nationwide",
     "locationHint": "All Major Regional Malls & High Streets",
-    "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -428,7 +428,7 @@
     "badge": "3 FOR 2 DEAL",
     "availability": "In Stock · Same-Day Click & Collect",
     "locationHint": "Clicks Stores Nationwide",
-    "imageUrl": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -446,7 +446,7 @@
     "badge": "🔥 ESSENTIAL SAVING",
     "availability": "In Stock · Dis-Chem DeliverD 60-Min",
     "locationHint": "250+ Retail Pharmacies Nationwide",
-    "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -464,7 +464,7 @@
     "badge": "⚡ BENEFIT REWARD",
     "availability": "In Stock · Online or In-Store",
     "locationHint": "Dis-Chem Health & Wellness Stores",
-    "imageUrl": "https://images.unsplash.com/photo-1579722821273-0f6c7d44362f?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1579722821273-0f6c7d44362f?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -482,7 +482,7 @@
     "badge": "🔥 GRID CERTIFIED",
     "availability": "In Stock · 2-Hour Collection",
     "locationHint": "Greenstone, Fourways, Boksburg, Little Falls Superstores",
-    "imageUrl": "https://images.unsplash.com/photo-1508873696983-2df57046475a?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1508873696983-2df57046475a?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -500,7 +500,7 @@
     "badge": "🔥 DIY PROMO",
     "availability": "In Stock · Superstore Pickup",
     "locationHint": "Leroy Merlin Gauteng Warehouses",
-    "imageUrl": "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -518,7 +518,7 @@
     "badge": "⚡ SOLAR PRICE MATCH",
     "availability": "In Stock · Same-Day Dispatch",
     "locationHint": "Johannesburg Warehouse & Courier Nationwide",
-    "imageUrl": "https://images.unsplash.com/photo-1508873696983-2df57046475a?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1508873696983-2df57046475a?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   },
   {
@@ -536,7 +536,7 @@
     "badge": "🔥 TIER 1 BLUE POWER",
     "availability": "In Stock · 5-Year European Warranty",
     "locationHint": "National Solar Dispatch Centre",
-    "imageUrl": "https://images.unsplash.com/photo-1508873696983-2df57046475a?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1508873696983-2df57046475a?w=400&auto=format&fit=crop&q=65",
     "validUntil": "Limited Stock"
   }
 ]

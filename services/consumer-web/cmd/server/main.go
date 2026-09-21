@@ -16,6 +16,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/shoppage/consumer-web/internal/assets"
 	"github.com/shoppage/consumer-web/internal/handlers"
 	"github.com/shoppage/consumer-web/internal/store"
 )
@@ -99,6 +100,17 @@ func main() {
 	// PWA Manifest and Service Worker
 	r.Get("/manifest.json", h.HandleManifest)
 	r.Get("/sw.js", h.HandleServiceWorker)
+
+	// Static Assets (Pre-compiled Tailwind CSS & HTMX served directly from memory with 1-year immutable cache)
+	r.Route("/static", func(sr chi.Router) {
+		sr.Use(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+				w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+				next.ServeHTTP(w, req)
+			})
+		})
+		sr.Handle("/*", http.StripPrefix("/static", assets.Handler()))
+	})
 
 	// System Health
 	r.Get("/health", h.HandleHealth)

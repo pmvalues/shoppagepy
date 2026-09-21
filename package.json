@@ -10,6 +10,7 @@
     "dev": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
     "start": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
     "build": "node scripts/go-run.mjs build -o bin/shoppage.exe ./services/consumer-web/cmd/server/main.go",
+    "build:css": "npx @tailwindcss/cli -i ./services/consumer-web/static/css/input.css -o ./services/consumer-web/internal/assets/css/tailwind.min.css --minify",
     "build:linux": "powershell -ExecutionPolicy Bypass -File deploy/build-linux.ps1",
     "test": "npm run go:test",
     "test:speed": "node scripts/go-run.mjs run scripts/speedtest.go",
@@ -25,6 +26,7 @@
     "scout:daemon": "python scripts/orchestrator/shoppage_scouting_daemon.py --daemon"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
     "typescript": "^5.5.4",
     "vitest": "^2.0.5"
   }

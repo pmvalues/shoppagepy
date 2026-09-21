@@ -21,10 +21,10 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 			<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"/>
 			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'"/>
 			<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"/></noscript>
-			<!-- Tailwind CSS CDN (Synchronous to guarantee instant styling without FOUC) -->
-			<script src="https://cdn.tailwindcss.com"></script>
-			<!-- HTMX 2.0.2 -->
-			<script src="https://unpkg.com/htmx.org@2.0.2"></script>
+			<!-- Local Pre-Compiled Tailwind CSS (Zero external network chains, zero FOUC, instant paint) -->
+			<link rel="stylesheet" href="/static/css/tailwind.min.css"/>
+			<!-- Local Self-Hosted HTMX 2.0.2 (Instant execution from memory cache) -->
+			<script src="/static/js/htmx.min.js"></script>
 			<style>
 				:root {
 					--font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
