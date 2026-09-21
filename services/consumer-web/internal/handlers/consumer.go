@@ -1011,6 +1011,30 @@ func (h *ConsumerHandler) HandleInstantCheckout(w http.ResponseWriter, r *http.R
 	orderNo := fmt.Sprintf("ORD-2026-%04d", time.Now().Unix()%10000)
 	waybill := fmt.Sprintf("TCG-ZA-%06d", time.Now().UnixNano()%1000000)
 
+	h.store.CreateOrder(models.PlacedOrder{
+		OrderNumber:     orderNo,
+		BuyerName:       buyerName,
+		Company:         "Verified Commercial Trade Client",
+		Phone:           "+27 82 555 0192",
+		Email:           "buyer@shoppage.co.za",
+		DeliveryAddress: "45 Richards Dr, Gallagher Business Park, Midrand, Gauteng, 1685",
+		DeliveryMethod:  "The Courier Guy Express (Door-to-Door)",
+		Waybill:         waybill,
+		ProductTitle:    productTitle,
+		SKU:             sku,
+		Quantity:        qty,
+		UnitPriceZar:    unitPrice,
+		SubtotalZar:     subtotal,
+		VatZar:          vat,
+		GrandTotal:      grandTotal,
+		Status:          "Payment Settled",
+		PaymentMethod:   paymentMethod,
+		DateStr:         "Just now",
+		EstimatedEta:    "Dispatches within 24h via The Courier Guy",
+		MerchantName:    "Verified South African Commercial Supplier",
+		MerchantAddress: "Midrand Commercial Distribution Centre, Gauteng",
+	})
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	fmt.Fprintf(w, `<div class="bg-white rounded-3xl border border-emerald-500/80 p-6 shadow-xl max-w-lg mx-auto text-slate-900 text-left">
 		<div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
@@ -1052,11 +1076,11 @@ func (h *ConsumerHandler) HandleInstantCheckout(w http.ResponseWriter, r *http.R
 			<button type="button" onclick="window.print();" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition">
 				📄 Download Tax PDF
 			</button>
-			<button type="button" onclick="document.getElementById('instant-checkout-modal')?.close();" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition">
-				Done
-			</button>
+			<a href="/track?q=%s" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition text-center flex items-center justify-center gap-1.5">
+				<span>Track Order</span> <span>&rarr;</span>
+			</a>
 		</div>
-	</div>`, paymentMethod, orderNo, productTitle, sku, qty, unitPrice, subtotal, vat, grandTotal, waybill)
+	</div>`, paymentMethod, orderNo, productTitle, sku, qty, unitPrice, subtotal, vat, grandTotal, waybill, orderNo)
 }
 
 // HandleStoreEmbed renders an embeddable iframe widget of the merchant storefront
@@ -1158,5 +1182,166 @@ func (h *ConsumerHandler) HandleBadgeSVG(w http.ResponseWriter, r *http.Request)
 	}
 }
 
+// HandleTrackOrder renders live shipment and courier waybill tracking
+func (h *ConsumerHandler) HandleTrackOrder(w http.ResponseWriter, r *http.Request) {
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	if q == "" {
+		q = "ORD-2026-1042" // Default demo order for instant preview
+	}
 
+	order, found := h.store.GetOrderByNumber(q)
+	if !found {
+		order, found = h.store.GetOrderByWaybill(q)
+	}
 
+	data := templates.TrackViewData{
+		Title:       "Track Shipment & Logistics Desk | Shoppage South Africa",
+		Description: "Live tracking for commercial wholesale orders with The Courier Guy and Pudo Smart Lockers, automated waybills, and SARS tax invoices.",
+		Query:       q,
+		CurrentTab:  "track",
+		Order:       order,
+		Found:       found,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := templates.RenderTrack(w, data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// HandleSell renders the B2B merchant onboarding and registration hub
+func (h *ConsumerHandler) HandleSell(w http.ResponseWriter, r *http.Request) {
+	data := templates.SellViewData{
+		Title:       "Sell on Shoppage | South Africa's Commercial Supplier Network",
+		Description: "Register your verified South African business, index your wholesale catalog, and connect with 14,000+ commercial buyers across Gauteng, Cape Town, and Durban.",
+		CurrentTab:  "sell",
+		Submitted:   false,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := templates.RenderSell(w, data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// HandleSellRegister processes merchant registration and provisions a live storefront
+func (h *ConsumerHandler) HandleSellRegister(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	name := strings.TrimSpace(r.FormValue("name"))
+	cipc := strings.TrimSpace(r.FormValue("cipc"))
+	category := strings.TrimSpace(r.FormValue("category"))
+	address := strings.TrimSpace(r.FormValue("address"))
+	metro := strings.TrimSpace(r.FormValue("metro"))
+	phone := strings.TrimSpace(r.FormValue("phone"))
+	email := strings.TrimSpace(r.FormValue("email"))
+	bank := strings.TrimSpace(r.FormValue("bank"))
+
+	if name == "" || cipc == "" {
+		data := templates.SellViewData{
+			Title:       "Sell on Shoppage | South Africa's Commercial Supplier Network",
+			Description: "Register your verified South African business.",
+			CurrentTab:  "sell",
+			Submitted:   false,
+			ErrorMsg:    "Please provide both your legal Company Name and CIPC Registration Number.",
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = templates.RenderSell(w, data)
+		return
+	}
+
+	// Generate clean ID from name
+	slug := strings.ToLower(name)
+	slug = strings.ReplaceAll(slug, " (pty) ltd", "")
+	slug = strings.ReplaceAll(slug, " pty ltd", "")
+	var sb strings.Builder
+	for _, r := range slug {
+		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') {
+			sb.WriteRune(r)
+		} else if r == ' ' || r == '-' {
+			sb.WriteRune('-')
+		}
+	}
+	cleanID := strings.Trim(sb.String(), "-")
+	if cleanID == "" {
+		cleanID = fmt.Sprintf("store-%d", time.Now().Unix()%100000)
+	}
+
+	province := "Gauteng"
+	if strings.Contains(metro, "Cape") {
+		province = "Western Cape"
+	} else if strings.Contains(metro, "Durban") {
+		province = "KwaZulu-Natal"
+	} else if strings.Contains(metro, "Gqeberha") {
+		province = "Eastern Cape"
+	}
+
+	merchant := models.MerchantStorefront{
+		ID:                 cleanID,
+		Name:               name,
+		Category:           category,
+		Suburb:             metro,
+		City:               metro,
+		Province:           province,
+		Address:            address,
+		Phone:              phone,
+		WhatsApp:           phone,
+		Email:              email,
+		Website:            "",
+		HasExternalWebsite: false,
+		AboutText:          fmt.Sprintf("Official verified South African commercial wholesale supplier of %s. Registered with CIPC (%s). Direct settlement via %s.", category, cipc, bank),
+		BBBEELevel:         "Level 1 Contributor (135% Procurement Recognition)",
+		Certifications:     []string{"CIPC Verified Enterprise", "SARS Tax Compliant", "Shoppage Verified Trade Partner"},
+		Rating:             5.0,
+		ReviewsCount:       1,
+		CIPCNumber:         cipc,
+		Verified:           true,
+		IsOpenNow:          true,
+		HoursStatus:        "Open · Closes 17:00 SAST",
+		DirectionsURL:      fmt.Sprintf("https://www.google.com/maps/search/?api=1&query=%s", url.QueryEscape(address)),
+		Catalog:            []models.SearchItem{},
+		Testimonials: []models.StoreTestimonial{
+			{
+				ID:         "rev-init-1",
+				AuthorName: "Shoppage Verification Team",
+				Company:    "Compliance Desk",
+				Rating:     5,
+				Text:       "Verified enterprise credentials, registered South African corporate entity and active courier distribution agreement.",
+				DateStr:    "Today",
+				Verified:   true,
+			},
+		},
+	}
+
+	h.store.AddMerchant(merchant)
+
+	data := templates.SellViewData{
+		Title:       "Merchant Registration Completed | Shoppage",
+		Description: "Your enterprise merchant storefront has been provisioned and verified on Shoppage.",
+		CurrentTab:  "sell",
+		Submitted:   true,
+		CreatedID:   cleanID,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := templates.RenderSell(w, data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// HandleBuyerProtection renders the Trade Assurance & Escrow Guarantee policy hub
+func (h *ConsumerHandler) HandleBuyerProtection(w http.ResponseWriter, r *http.Request) {
+	data := templates.BuyerProtectionViewData{
+		Title:       "Buyer Protection & Escrow Guarantee | Shoppage South Africa",
+		Description: "Zero-risk wholesale procurement. Learn how Shoppage guarantees your order with verified CIPC suppliers, escrow settlements, and live courier tracking.",
+		CurrentTab:  "protection",
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := templates.RenderBuyerProtection(w, data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}

@@ -86,35 +86,37 @@ templ HomeViewComponent(data HomeViewData) {
 				if data.CurrentTab == "" || data.CurrentTab == "foryou" {
 					<div class="p-4 sm:p-6 space-y-8">
 						<!-- 1. HIGH-IMPACT COMMERCE HERO -->
-						<div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 p-6 sm:p-8 text-white shadow-xl border border-slate-800">
+						<div class="relative overflow-hidden rounded-3xl bg-slate-950 p-6 sm:p-8 text-white shadow-xl border border-slate-800" style="background-color: #090d16; background-image: linear-gradient(135deg, #090d16 0%, #0f172a 55%, #064e3b 100%);">
+							<!-- Subtle Ambient Glow -->
+							<div style="position: absolute; right: -40px; top: -40px; width: 280px; height: 280px; background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(0, 0, 0, 0) 70%); border-radius: 50%; pointer-events: none;"></div>
 							<div class="relative z-10 space-y-4 max-w-2xl">
-								<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+								<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider" style="background: rgba(16, 185, 129, 0.12); color: #34d399; border-color: rgba(52, 211, 153, 0.35);">
 									<span>🇿🇦 South Africa Commercial Grid</span>
 									<span>•</span>
 									<span>Sub-3ms Search Engine</span>
 								</div>
-								<h1 class="text-2xl sm:text-4xl font-extrabold font-display tracking-tight text-white leading-tight">
+								<h1 class="text-2xl sm:text-4xl font-extrabold font-display tracking-tight text-white leading-tight" style="color: #ffffff !important;">
 									Wholesale Inventory, Price Drops &amp; Verified Trade Desks
 								</h1>
-								<p class="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-xl">
+								<p class="text-xs sm:text-sm leading-relaxed max-w-xl" style="color: #cbd5e1 !important;">
 									Direct manufacturer catalog pricing, nationwide logistics via The Courier Guy &amp; Pudo, and instant WhatsApp proforma invoices.
 								</p>
 
 								<!-- Quick Filter Category Pills -->
 								<div class="pt-2 flex flex-wrap gap-2 text-xs font-semibold">
-									<a href="/?tab=products&category=solar" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-600 border border-white/10 transition backdrop-blur-md">
-										Solar &amp; Power
+									<a href="/?tab=products&category=solar" class="px-3.5 py-1.5 rounded-xl transition backdrop-blur-md" style="background: rgba(30, 41, 59, 0.85); color: #f8fafc; border: 1px solid rgba(71, 85, 105, 0.6);">
+										⚡ Solar &amp; Power
 									</a>
-									<a href="/?tab=products&category=packaging" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-600 border border-white/10 transition backdrop-blur-md">
-										Packaging &amp; Boxes
+									<a href="/?tab=products&category=packaging" class="px-3.5 py-1.5 rounded-xl transition backdrop-blur-md" style="background: rgba(30, 41, 59, 0.85); color: #f8fafc; border: 1px solid rgba(71, 85, 105, 0.6);">
+										📦 Packaging &amp; Boxes
 									</a>
-									<a href="/?tab=products&category=hardware" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-600 border border-white/10 transition backdrop-blur-md">
-										Building &amp; Tools
+									<a href="/?tab=products&category=hardware" class="px-3.5 py-1.5 rounded-xl transition backdrop-blur-md" style="background: rgba(30, 41, 59, 0.85); color: #f8fafc; border: 1px solid rgba(71, 85, 105, 0.6);">
+										🧱 Building &amp; Tools
 									</a>
-									<a href="/?tab=products&category=groceries" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-600 border border-white/10 transition backdrop-blur-md">
-										Wholesale FMCG
+									<a href="/?tab=products&category=groceries" class="px-3.5 py-1.5 rounded-xl transition backdrop-blur-md" style="background: rgba(30, 41, 59, 0.85); color: #f8fafc; border: 1px solid rgba(71, 85, 105, 0.6);">
+										🛒 Wholesale FMCG
 									</a>
-									<a href="/?tab=deals" class="px-3 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold transition shadow-sm">
+									<a href="/?tab=deals" class="px-3.5 py-1.5 rounded-xl font-bold transition shadow-sm" style="background: #e11d48; color: #ffffff;">
 										🔥 Top Specials ({ fmt.Sprintf("%d", len(data.Deals)) })
 									</a>
 								</div>

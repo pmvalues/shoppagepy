@@ -156,6 +156,9 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 				@CommerceRail(trends, topDrops, guilds)
 			</div>
 
+			<!-- CORPORATE ENTERPRISE FOOTER -->
+			@CorporateFooter()
+
 			<!-- MODAL CONTAINER (Location Switcher, Video Preview) -->
 			<div id="modal-container"></div>
 
@@ -163,28 +166,32 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 			<div id="buybox-drawer"></div>
 
 			<!-- MOBILE BOTTOM PWA NAVIGATION BAR -->
-			<nav class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-6 flex items-center justify-between text-[11px] font-semibold text-slate-600 shadow-lg">
-				<a href="/?tab=foryou" class={ "flex flex-col items-center gap-1", templ.KV("text-emerald-600 font-bold", currentTab == "" || currentTab == "foryou"), templ.KV("text-slate-600", currentTab != "" && currentTab != "foryou") }>
+			<nav class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-4 flex items-center justify-between text-[10.5px] font-semibold text-slate-600 shadow-lg">
+				<a href="/?tab=foryou" class={ "flex flex-col items-center gap-0.5", templ.KV("text-emerald-600 font-bold", currentTab == "" || currentTab == "foryou"), templ.KV("text-slate-600", currentTab != "" && currentTab != "foryou") }>
 					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
 					<span>Home</span>
 				</a>
-				<a href="/?tab=deals" class={ "flex flex-col items-center gap-1", templ.KV("text-emerald-600 font-bold", currentTab == "deals"), templ.KV("text-rose-600 font-bold", currentTab != "deals") }>
+				<a href="/?tab=deals" class={ "flex flex-col items-center gap-0.5", templ.KV("text-emerald-600 font-bold", currentTab == "deals"), templ.KV("text-rose-600 font-bold", currentTab != "deals") }>
 					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
 					<span>Deals</span>
 				</a>
-				<a href="/?tab=products" class={ "flex flex-col items-center gap-1", templ.KV("text-emerald-600 font-bold", currentTab == "products"), templ.KV("text-slate-600", currentTab != "products") }>
+				<a href="/?tab=products" class={ "flex flex-col items-center gap-0.5", templ.KV("text-emerald-600 font-bold", currentTab == "products"), templ.KV("text-slate-600", currentTab != "products") }>
 					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
 					<span>Products</span>
 				</a>
-				<a href="/?tab=tradewire" class={ "flex flex-col items-center gap-1", templ.KV("text-emerald-600 font-bold", currentTab == "tradewire"), templ.KV("text-slate-600", currentTab != "tradewire") }>
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-					<span>Trade Wire</span>
+				<a href="/track" class={ "flex flex-col items-center gap-0.5", templ.KV("text-emerald-600 font-bold", currentTab == "track"), templ.KV("text-slate-600", currentTab != "track") }>
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+					<span>Track</span>
 				</a>
-				<a href="/chat" class={ "flex flex-col items-center gap-1", templ.KV("text-emerald-600 font-bold", currentTab == "chat"), templ.KV("text-slate-600", currentTab != "chat") }>
+				<a href="/sell" class={ "flex flex-col items-center gap-0.5", templ.KV("text-emerald-600 font-bold", currentTab == "sell"), templ.KV("text-slate-600", currentTab != "sell") }>
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M3 3h18v18H3zM8 12h8M12 8v8"></path></svg>
+					<span>Sell</span>
+				</a>
+				<a href="/chat" class={ "flex flex-col items-center gap-0.5", templ.KV("text-emerald-600 font-bold", currentTab == "chat"), templ.KV("text-slate-600", currentTab != "chat") }>
 					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
 					<span>Chat</span>
 				</a>
-				<a href="/desk" target="_blank" class="flex flex-col items-center gap-1 text-slate-600">
+				<a href="/desk" target="_blank" class="flex flex-col items-center gap-0.5 text-slate-600">
 					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>
 					<span>Desk</span>
 				</a>
@@ -460,6 +467,18 @@ templ LeftRail(currentTab string) {
 				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
 				<span class="sidebar-label">1M+ Products</span>
 			</a>
+			<a href="/track" title="Track Order & Waybill" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "track"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "track") }>
+				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+				<span class="sidebar-label">Track Order</span>
+			</a>
+			<a href="/sell" title="Sell Wholesale on Shoppage" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "sell"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "sell") }>
+				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M3 3h18v18H3zM8 12h8M12 8v8"></path></svg>
+				<span class="sidebar-label text-emerald-700 font-bold">Sell on Shoppage</span>
+			</a>
+			<a href="/buyer-protection" title="Shoppage Trade Assurance & Escrow" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "protection"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "protection") }>
+				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+				<span class="sidebar-label">Buyer Protection</span>
+			</a>
 			<a href="/?tab=tradewire" title="Live Trade Wire" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "tradewire"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "tradewire") }>
 				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
 				<span class="sidebar-label">Trade Wire</span>
@@ -624,4 +643,120 @@ templ CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, g
 			</div>
 		</div>
 	</aside>
+}
+
+templ CorporateFooter() {
+	<footer class="w-full bg-slate-900 text-slate-300 border-t border-slate-800 mt-12 py-12 px-4 sm:px-6 lg:px-8 select-none" style="background-color: #090d16; border-top: 1px solid #1e293b;">
+		<div class="max-w-7xl mx-auto space-y-10">
+			<!-- Top Row: Trust Assurance Bar -->
+			<div class="p-6 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(51, 65, 85, 0.5);">
+				<div class="flex items-center gap-4">
+					<div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-2xl shrink-0">
+						🛡️
+					</div>
+					<div>
+						<h4 class="text-sm font-black text-white flex items-center gap-2">
+							<span>Shoppage Trade Assurance &amp; Buyer Protection</span>
+							<span class="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">100% Escrow Protected</span>
+						</h4>
+						<p class="text-xs text-slate-400 mt-0.5 max-w-xl">
+							Funds are held in secure South African bank trust until goods are inspected and scanned by The Courier Guy or collected at Pudo Smart Lockers.
+						</p>
+					</div>
+				</div>
+				<div class="flex items-center gap-3 shrink-0">
+					<a href="/buyer-protection" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition border border-slate-700">
+						Read Trust Policy
+					</a>
+					<a href="/track" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm">
+						Track My Order &rarr;
+					</a>
+				</div>
+			</div>
+
+			<!-- 4 Columns of Corporate Navigation -->
+			<div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-xs">
+				<!-- Col 1: Commercial Marketplace -->
+				<div>
+					<h5 class="text-xs font-black text-white uppercase tracking-wider mb-3.5">Commercial Marketplace</h5>
+					<ul class="space-y-2.5 text-slate-400 font-medium">
+						<li><a href="/?tab=products" class="hover:text-emerald-400 transition">1,000,000+ Master Catalog</a></li>
+						<li><a href="/?tab=deals" class="hover:text-rose-400 transition">🔥 National Retailer Specials</a></li>
+						<li><a href="/?tab=tradewire" class="hover:text-emerald-400 transition">Live Trade Wire &amp; RFQs</a></li>
+						<li><a href="/?tab=products&category=solar" class="hover:text-emerald-400 transition">Solar Inverters &amp; Lithium Batteries</a></li>
+						<li><a href="/?tab=products&category=packaging" class="hover:text-emerald-400 transition">Corrugated Cartons &amp; Packaging</a></li>
+						<li><a href="/search" class="hover:text-emerald-400 transition">Instant Omnisearch Core</a></li>
+					</ul>
+				</div>
+
+				<!-- Col 2: For Suppliers & Wholesalers -->
+				<div>
+					<h5 class="text-xs font-black text-white uppercase tracking-wider mb-3.5">For Suppliers &amp; Wholesalers</h5>
+					<ul class="space-y-2.5 text-slate-400 font-medium">
+						<li><a href="/sell" class="text-emerald-400 font-bold hover:underline">Sell on Shoppage (Join as Supplier)</a></li>
+						<li><a href="/desk" target="_blank" class="hover:text-emerald-400 transition">Merchant OS Console</a></li>
+						<li><a href="/sell#verification" class="hover:text-emerald-400 transition">CIPC Supplier Verification</a></li>
+						<li><a href="/desk" target="_blank" class="hover:text-emerald-400 transition">B2B Proforma Invoices &amp; EFT</a></li>
+						<li><a href="/m/loc_mitrend_midrand" class="hover:text-emerald-400 transition">Example Live Storefront</a></li>
+						<li><a href="/sell#pricing" class="hover:text-emerald-400 transition">Pricing &amp; 3.5% Settlement Fee</a></li>
+					</ul>
+				</div>
+
+				<!-- Col 3: Trust & Legal Compliance -->
+				<div>
+					<h5 class="text-xs font-black text-white uppercase tracking-wider mb-3.5">Trust &amp; Legal Compliance</h5>
+					<ul class="space-y-2.5 text-slate-400 font-medium">
+						<li><a href="/buyer-protection" class="hover:text-emerald-400 transition">Shoppage Trade Assurance</a></li>
+						<li><a href="/track" class="hover:text-emerald-400 transition">Waybill Tracking (The Courier Guy)</a></li>
+						<li><a href="/buyer-protection#cpa" class="hover:text-emerald-400 transition">14-Day CPA Returns Policy</a></li>
+						<li><a href="/buyer-protection#sars" class="hover:text-emerald-400 transition">SARS 15% VAT Tax Invoices</a></li>
+						<li><a href="/buyer-protection#popia" class="hover:text-emerald-400 transition">POPIA Data Privacy Shield</a></li>
+						<li><a href="/buyer-protection#escrow" class="hover:text-emerald-400 transition">South African Bank Escrow</a></li>
+					</ul>
+				</div>
+
+				<!-- Col 4: Logistics & Partners -->
+				<div>
+					<h5 class="text-xs font-black text-white uppercase tracking-wider mb-3.5">Logistics &amp; Clearing Partners</h5>
+					<div class="space-y-3 text-slate-400 font-medium">
+						<div class="flex items-center gap-2">
+							<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+							<span>The Courier Guy (Express Freight)</span>
+						</div>
+						<div class="flex items-center gap-2">
+							<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+							<span>Pudo Smart Locker Network (24/7)</span>
+						</div>
+						<div class="flex items-center gap-2">
+							<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+							<span>Ozow Instant EFT &amp; Capitec Pay</span>
+						</div>
+						<div class="flex items-center gap-2">
+							<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+							<span>Visa, Mastercard &amp; South African Banks</span>
+						</div>
+						<div class="pt-2 border-t border-slate-800 text-[11px] text-slate-500">
+							Direct integration with Gallagher Convention Business Park &amp; Crown Mines trade depots.
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Bottom Corporate Copyright & Credentials -->
+			<div class="pt-8 border-t border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
+				<div class="flex items-center gap-3">
+					<div class="flex items-center gap-1.5 font-bold text-slate-300">
+						<span class="text-emerald-400 text-sm">⚡</span>
+						<span>SHOPPAGE SOUTH AFRICA</span>
+					</div>
+					<span>•</span>
+					<span>Shoppage Technologies South Africa (Pty) Ltd · Reg: 2024/098412/07 · VAT: 4920194821</span>
+				</div>
+				<div class="flex items-center gap-4">
+					<span>Headquarters: The Pivot, Montecasino Blvd, Fourways, Johannesburg, 2055</span>
+					<span>🇿🇦 Proudly South African</span>
+				</div>
+			</div>
+		</div>
+	</footer>
 }

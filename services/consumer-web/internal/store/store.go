@@ -21,6 +21,7 @@ type Store struct {
 	mu          sync.RWMutex
 	products    map[string]models.ProductDetail
 	merchants   map[string]models.MerchantStorefront
+	orders      map[string]models.PlacedOrder
 	malls       []models.Mall
 	deals       []models.RetailerDeal
 	posts       []models.PostItem
@@ -35,6 +36,7 @@ func NewStore() *Store {
 	s := &Store{
 		products:  make(map[string]models.ProductDetail),
 		merchants: make(map[string]models.MerchantStorefront),
+		orders:    make(map[string]models.PlacedOrder),
 		malls:     make([]models.Mall, 0),
 		deals:     make([]models.RetailerDeal, 0),
 		posts:     make([]models.PostItem, 0),
@@ -44,6 +46,7 @@ func NewStore() *Store {
 	}
 	s.loadDatasets()
 	s.initSqliteConnections()
+	s.seedInitialOrders()
 	return s
 }
 
@@ -1504,4 +1507,91 @@ func (s *Store) fallbackMerchants() []models.MerchantStorefront {
 			Website:      "https://mitrendwholesalers.co.za",
 		},
 	}
+}
+
+func (s *Store) seedInitialOrders() {
+	s.orders["ORD-2026-1042"] = models.PlacedOrder{
+		OrderNumber:     "ORD-2026-1042",
+		BuyerName:       "Sipho Dlamini",
+		Company:         "Dlamini Electrical Contractors (Pty) Ltd",
+		Phone:           "+27 82 555 1294",
+		Email:           "sipho@dlaminielectrical.co.za",
+		DeliveryAddress: "Unit 12, Gallagher Convention Business Park, Midrand, Gauteng, 1685",
+		DeliveryMethod:  "The Courier Guy Express (Door-to-Door)",
+		Waybill:         "TCG-ZA-849201",
+		ProductTitle:    "Sunsynk 5kW Hybrid Inverter (SunSynk-5K-SG01LP1)",
+		SKU:             "SUN-5K-SG01",
+		Quantity:        2,
+		UnitPriceZar:    16499.00,
+		SubtotalZar:     32998.00,
+		VatZar:          4949.70,
+		GrandTotal:      37947.70,
+		Status:          "In Transit",
+		PaymentMethod:   "Ozow Instant EFT (Settled & Escrow Protected)",
+		DateStr:         "Today, 09:15 SAST",
+		EstimatedEta:    "Tomorrow by 14:00 (Out from Midrand Hub)",
+		MerchantName:    "SunPower Crown Mines Wholesale",
+		MerchantAddress: "Unit 14, Crown Commercial Park, Crown Mines, JHB",
+	}
+
+	s.orders["ORD-2026-0988"] = models.PlacedOrder{
+		OrderNumber:     "ORD-2026-0988",
+		BuyerName:       "Thandiwe Khumalo",
+		Company:         "Khumalo Hospitality Group",
+		Phone:           "+27 71 444 8821",
+		Email:           "procurement@khumalohospitality.co.za",
+		DeliveryAddress: "Pudo Smart Locker - Engen Mall of Africa, Midrand",
+		DeliveryMethod:  "Pudo Smart Locker (24/7 Pin Pickup)",
+		Waybill:         "PUDO-ZA-392180",
+		ProductTitle:    "Commercial Heavy-Duty Anti-Theft Wooden Hangers (Carton of 100)",
+		SKU:             "MIT-HNG-WOD-100",
+		Quantity:        3,
+		UnitPriceZar:    1250.00,
+		SubtotalZar:     3750.00,
+		VatZar:          562.50,
+		GrandTotal:      4312.50,
+		Status:          "Delivered",
+		PaymentMethod:   "Capitec Pay (Settled)",
+		DateStr:         "Yesterday, 14:30 SAST",
+		EstimatedEta:    "Ready for Collection (Locker PIN: 8492)",
+		MerchantName:    "MiTrend Industrial Wholesalers",
+		MerchantAddress: "Unit 4B, Gallagher Convention Business Park, Midrand",
+	}
+}
+
+// CreateOrder saves a placed order for real-time tracking
+func (s *Store) CreateOrder(order models.PlacedOrder) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.orders[order.OrderNumber] = order
+}
+
+// GetOrderByNumber looks up an order by order number (e.g. "ORD-2026-1042")
+func (s *Store) GetOrderByNumber(orderNo string) (models.PlacedOrder, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	clean := strings.ToUpper(strings.TrimSpace(orderNo))
+	o, ok := s.orders[clean]
+	return o, ok
+}
+
+// GetOrderByWaybill looks up an order by waybill (e.g. "TCG-ZA-849201")
+func (s *Store) GetOrderByWaybill(waybill string) (models.PlacedOrder, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	clean := strings.ToUpper(strings.TrimSpace(waybill))
+	for _, o := range s.orders {
+		if strings.EqualFold(o.Waybill, clean) {
+			return o, true
+		}
+	}
+	return models.PlacedOrder{}, false
+}
+
+// AddMerchant registers a new verified supplier storefront
+func (s *Store) AddMerchant(m models.MerchantStorefront) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.enrichStorefront(&m)
+	s.merchants[m.ID] = m
 }

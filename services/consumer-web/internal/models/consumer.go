@@ -334,3 +334,28 @@ type CommunityGuild struct {
 	Query       string `json:"query"`
 }
 
+// PlacedOrder represents a persistent commercial order with fulfillment and waybill tracking.
+type PlacedOrder struct {
+	OrderNumber     string  `json:"orderNumber"`
+	BuyerName       string  `json:"buyerName"`
+	Company         string  `json:"company,omitempty"`
+	Phone           string  `json:"phone"`
+	Email           string  `json:"email,omitempty"`
+	DeliveryAddress string  `json:"deliveryAddress"`
+	DeliveryMethod  string  `json:"deliveryMethod"`
+	Waybill         string  `json:"waybill"`
+	ProductTitle    string  `json:"productTitle"`
+	SKU             string  `json:"sku"`
+	Quantity        int     `json:"quantity"`
+	UnitPriceZar    float64 `json:"unitPriceZar"`
+	SubtotalZar     float64 `json:"subtotalZar"`
+	VatZar          float64 `json:"vatZar"`
+	GrandTotal      float64 `json:"grandTotal"`
+	Status          string  `json:"status"` // "Payment Settled", "Picked & Packed", "Collected by Carrier", "In Transit", "Delivered"
+	PaymentMethod   string  `json:"paymentMethod"`
+	DateStr         string  `json:"dateStr"`
+	EstimatedEta    string  `json:"estimatedEta"`
+	MerchantName    string  `json:"merchantName"`
+	MerchantAddress string  `json:"merchantAddress"`
+}
+

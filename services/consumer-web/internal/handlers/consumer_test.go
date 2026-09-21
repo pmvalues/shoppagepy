@@ -451,6 +451,137 @@ func TestConsumerHandlers(t *testing.T) {
 			t.Errorf("expected Quote button in embedded widget body")
 		}
 	})
+
+	t.Run("HandleTrackOrder returns live courier tracking information", func(t *testing.T) {
+		// Test existing seeded order
+		req := httptest.NewRequest("GET", "/track?q=ORD-2026-1042", nil)
+		rec := httptest.NewRecorder()
+		h.HandleTrackOrder(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rec.Code)
+		}
+		body := rec.Body.String()
+		if !strings.Contains(body, "ORD-2026-1042") {
+			t.Errorf("expected body to contain order number ORD-2026-1042")
+		}
+		if !strings.Contains(body, "TCG-ZA-849201") {
+			t.Errorf("expected body to contain Courier Guy waybill TCG-ZA-849201")
+		}
+		if !strings.Contains(body, "In Transit") {
+			t.Errorf("expected body to contain order status In Transit")
+		}
+
+		// Test tracking by waybill
+		reqWaybill := httptest.NewRequest("GET", "/track?q=PUDO-ZA-392180", nil)
+		recWaybill := httptest.NewRecorder()
+		h.HandleTrackOrder(recWaybill, reqWaybill)
+
+		if recWaybill.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", recWaybill.Code)
+		}
+		bodyWaybill := recWaybill.Body.String()
+		if !strings.Contains(bodyWaybill, "ORD-2026-0988") {
+			t.Errorf("expected body to find order ORD-2026-0988 by waybill")
+		}
+		if !strings.Contains(bodyWaybill, "Delivered") {
+			t.Errorf("expected body to contain Delivered status")
+		}
+
+		// Test non-existent order
+		reqMissing := httptest.NewRequest("GET", "/track?q=ORD-UNKNOWN-9999", nil)
+		recMissing := httptest.NewRecorder()
+		h.HandleTrackOrder(recMissing, reqMissing)
+
+		if recMissing.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", recMissing.Code)
+		}
+		bodyMissing := recMissing.Body.String()
+		if !strings.Contains(bodyMissing, "No order found for") {
+			t.Errorf("expected 'No order found for' message, got: %s", bodyMissing)
+		}
+	})
+
+	t.Run("HandleSell renders supplier onboarding page with CIPC verification requirements", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/sell", nil)
+		rec := httptest.NewRecorder()
+		h.HandleSell(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rec.Code)
+		}
+		body := rec.Body.String()
+		if !strings.Contains(body, "Sell on Shoppage") {
+			t.Errorf("expected body to contain 'Sell on Shoppage'")
+		}
+		if !strings.Contains(body, "CIPC Registration #") {
+			t.Errorf("expected body to contain 'CIPC Registration #' input field")
+		}
+	})
+
+	t.Run("HandleSellRegister validates and provisions verified merchant storefront", func(t *testing.T) {
+		// Test validation failure when fields are missing
+		reqFail := httptest.NewRequest("POST", "/sell/register", strings.NewReader("name=&cipc="))
+		reqFail.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		recFail := httptest.NewRecorder()
+		h.HandleSellRegister(recFail, reqFail)
+
+		if recFail.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", recFail.Code)
+		}
+		if !strings.Contains(recFail.Body.String(), "Please provide both your legal Company Name and CIPC Registration Number") {
+			t.Errorf("expected validation error message")
+		}
+
+		// Test successful registration
+		form := "name=Apex+Solar+Holdings+(Pty)+Ltd&cipc=2024/998877/07&category=Solar&address=10+Main+Rd&metro=Johannesburg&phone=0821234567&email=info@apex.co.za&bank=Standard+Bank"
+		reqSuccess := httptest.NewRequest("POST", "/sell/register", strings.NewReader(form))
+		reqSuccess.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		recSuccess := httptest.NewRecorder()
+		h.HandleSellRegister(recSuccess, reqSuccess)
+
+		if recSuccess.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", recSuccess.Code)
+		}
+		bodySuccess := recSuccess.Body.String()
+		if !strings.Contains(bodySuccess, "Merchant Registration Approved") {
+			t.Errorf("expected success confirmation in body")
+		}
+
+		// Verify merchant is accessible in store
+		m, ok := st.GetMerchantByID("apex-solar-holdings")
+		if !ok {
+			t.Errorf("expected newly registered merchant 'apex-solar-holdings' to exist in store")
+		} else {
+			if m.CIPCNumber != "2024/998877/07" {
+				t.Errorf("expected CIPC number to match, got %s", m.CIPCNumber)
+			}
+			if !m.Verified {
+				t.Errorf("expected merchant to be verified")
+			}
+		}
+	})
+
+	t.Run("HandleBuyerProtection renders Trade Assurance escrow policy", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/buyer-protection", nil)
+		rec := httptest.NewRecorder()
+		h.HandleBuyerProtection(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rec.Code)
+		}
+		body := rec.Body.String()
+		if !strings.Contains(body, "Buyer Protection") {
+			t.Errorf("expected body to contain 'Buyer Protection'")
+		}
+		if !strings.Contains(body, "Trade Assurance") {
+			t.Errorf("expected body to contain 'Trade Assurance'")
+		}
+		if !strings.Contains(body, "Escrow") {
+			t.Errorf("expected body to contain 'Escrow'")
+		}
+	})
 }
+
 
 

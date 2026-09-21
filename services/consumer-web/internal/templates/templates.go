@@ -127,6 +127,32 @@ type ChatViewData struct {
 	Guilds             []models.CommunityGuild
 }
 
+type TrackViewData struct {
+	Title       string
+	Description string
+	Query       string
+	CurrentTab  string
+	Order       models.PlacedOrder
+	Found       bool
+}
+
+type SellViewData struct {
+	Title       string
+	Description string
+	Query       string
+	CurrentTab  string
+	Submitted   bool
+	CreatedID   string
+	ErrorMsg    string
+}
+
+type BuyerProtectionViewData struct {
+	Title       string
+	Description string
+	Query       string
+	CurrentTab  string
+}
+
 // -----------------------------------------------------------------------------
 // HELPERS
 // -----------------------------------------------------------------------------
@@ -237,6 +263,21 @@ func starRatingString(rating int) string {
 // RenderEmbedStore renders the embeddable catalog widget for external websites
 func RenderEmbedStore(w io.Writer, data EmbedStoreViewData) error {
 	return EmbedStoreComponent(data).Render(context.Background(), w)
+}
+
+// RenderTrack renders the real-time order & waybill tracking page
+func RenderTrack(w io.Writer, data TrackViewData) error {
+	return TrackPageComponent(data).Render(context.Background(), w)
+}
+
+// RenderSell renders the B2B merchant registration and onboarding portal
+func RenderSell(w io.Writer, data SellViewData) error {
+	return SellPageComponent(data).Render(context.Background(), w)
+}
+
+// RenderBuyerProtection renders the Shoppage Trade Assurance & Escrow policy page
+func RenderBuyerProtection(w io.Writer, data BuyerProtectionViewData) error {
+	return BuyerProtectionPageComponent(data).Render(context.Background(), w)
 }
 
 func schemaOrgStoreJSON(store models.MerchantStorefront, desc string) string {

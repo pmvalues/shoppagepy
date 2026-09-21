@@ -110,6 +110,16 @@ func main() {
 	// Instant Checkout Simulator (Amazon Parity)
 	r.Post("/checkout/instant", h.HandleInstantCheckout)
 
+	// Real-Time Logistics & Courier Waybill Tracking
+	r.Get("/track", h.HandleTrackOrder)
+
+	// B2B Supplier Onboarding & Self-Service Provisioning
+	r.Get("/sell", h.HandleSell)
+	r.Post("/sell/register", h.HandleSellRegister)
+
+	// Buyer Protection & Escrow Guarantee Hub
+	r.Get("/buyer-protection", h.HandleBuyerProtection)
+
 	// Gemini AI Assistant endpoint
 	r.Post("/api/assistant", h.HandleAssistant)
 	r.Get("/api/assistant", h.HandleAssistant)
