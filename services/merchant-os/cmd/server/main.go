@@ -81,6 +81,10 @@ func main() {
 	r.Post("/orders/{id}/advance-status", h.AdvanceOrderStatus)
 	r.Post("/orders/new", h.CreateOrder)
 
+	// Amazon-Style RMA Returns Management
+	r.Post("/rma/update", h.UpdateRMAStatus)
+	r.Post("/rma/new", h.CreateRMARequest)
+
 	// RFQ Commercial Leads
 	r.Post("/rfqs/{id}/convert", h.ConvertRFQ)
 

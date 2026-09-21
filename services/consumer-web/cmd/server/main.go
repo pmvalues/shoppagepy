@@ -96,6 +96,17 @@ func main() {
 	// Live Consumer Chat Desk (Direct Messages with Wholesalers)
 	r.Get("/chat", h.HandleChat)
 
+	// SEO & Search Engine Parity
+	r.Get("/sitemap.xml", h.HandleSitemapXML)
+	r.Get("/robots.txt", h.HandleRobotsTXT)
+	r.Get("/api/search/suggest", h.HandleSearchSuggest)
+
+	// Interactive Buyer Reviews (GMB Parity)
+	r.Post("/store/review", h.HandleStoreReviewSubmit)
+
+	// Instant Checkout Simulator (Amazon Parity)
+	r.Post("/checkout/instant", h.HandleInstantCheckout)
+
 	// Gemini AI Assistant endpoint
 	r.Post("/api/assistant", h.HandleAssistant)
 	r.Get("/api/assistant", h.HandleAssistant)
@@ -166,6 +177,7 @@ func main() {
 	r.Mount("/copilot", merchantProxy)
 	r.Mount("/audit-logs", merchantProxy)
 	r.Mount("/flow", merchantProxy)
+	r.Mount("/rma", merchantProxy)
 
 	// 2. Chat Gateway & WebSockets (:8080)
 	r.Mount("/ws", makeReverseProxy(chatURL, ""))

@@ -97,6 +97,7 @@ type StorefrontViewData struct {
 	HeroHeadline     string
 	AnnouncementText string
 	AccentColor      string
+	Testimonials     []models.StoreTestimonial
 }
 
 type ChatMerchantContact struct {
@@ -211,6 +212,16 @@ func RenderOfferModal(w io.Writer, data OfferModalViewData) error {
 // RenderOfferSuccessCard renders the confirmation card after submitting an offer
 func RenderOfferSuccessCard(w io.Writer, result models.OfferSubmissionResult) error {
 	return OfferSuccessCardComponent(result).Render(context.Background(), w)
+}
+
+func starRatingString(rating int) string {
+	if rating <= 0 {
+		rating = 5
+	}
+	if rating > 5 {
+		rating = 5
+	}
+	return strings.Repeat("★", rating) + strings.Repeat("☆", 5-rating)
 }
 
 

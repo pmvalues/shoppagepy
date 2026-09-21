@@ -143,6 +143,15 @@ func TestConsumerHandlers(t *testing.T) {
 		if !strings.Contains(body, "CIPC Verified") {
 			t.Fatalf("expected CIPC verified badge")
 		}
+		if !strings.Contains(body, "schema.org") || !strings.Contains(body, "WholesaleStore") {
+			t.Fatalf("expected Schema.org WholesaleStore structured data")
+		}
+		if !strings.Contains(body, "Get Directions") && !strings.Contains(body, "google.com/maps") {
+			t.Fatalf("expected Google Maps directions link")
+		}
+		if !strings.Contains(body, "Open Now") && !strings.Contains(body, "Closed Now") {
+			t.Fatalf("expected live operating hours status chip")
+		}
 	})
 
 	t.Run("HandleBuyBoxDrawer returns slide-out drawer partial", func(t *testing.T) {
@@ -214,6 +223,123 @@ func TestConsumerHandlers(t *testing.T) {
 		}
 		if !strings.Contains(rec.Body.String(), "healthy") {
 			t.Fatalf("expected healthy status")
+		}
+	})
+
+	t.Run("HandleSitemapXML generates valid XML sitemap with product and storefront URLs", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/sitemap.xml", nil)
+		rec := httptest.NewRecorder()
+
+		h.HandleSitemapXML(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rec.Code)
+		}
+		if !strings.Contains(rec.Header().Get("Content-Type"), "xml") {
+			t.Errorf("expected XML content-type, got %s", rec.Header().Get("Content-Type"))
+		}
+		body := rec.Body.String()
+		if !strings.Contains(body, `<?xml version="1.0" encoding="UTF-8"?>`) {
+			t.Errorf("expected XML declaration")
+		}
+		if !strings.Contains(body, `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`) {
+			t.Errorf("expected sitemaps schema urlset")
+		}
+		if !strings.Contains(body, `<loc>http://localhost:3000/</loc>`) {
+			t.Errorf("expected root url in sitemap")
+		}
+		if !strings.Contains(body, `<loc>http://localhost:3000/search</loc>`) {
+			t.Errorf("expected search url in sitemap")
+		}
+		if !strings.Contains(body, `<loc>http://localhost:3000/m/`) {
+			t.Errorf("expected merchant storefront urls in sitemap")
+		}
+	})
+
+	t.Run("HandleRobotsTXT points to XML sitemap", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/robots.txt", nil)
+		rec := httptest.NewRecorder()
+
+		h.HandleRobotsTXT(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rec.Code)
+		}
+		body := rec.Body.String()
+		if !strings.Contains(body, "User-agent: *") {
+			t.Errorf("expected User-agent: * in robots.txt")
+		}
+		if !strings.Contains(body, "Sitemap: http://localhost:3000/sitemap.xml") {
+			t.Errorf("expected Sitemap reference in robots.txt")
+		}
+	})
+
+	t.Run("HandleSearchSuggest returns JSON autocomplete suggestions", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/api/search/suggest?q=inverter", nil)
+		rec := httptest.NewRecorder()
+
+		h.HandleSearchSuggest(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rec.Code)
+		}
+		if !strings.Contains(rec.Header().Get("Content-Type"), "application/json") {
+			t.Errorf("expected application/json content-type")
+		}
+		body := rec.Body.String()
+		if !strings.Contains(strings.ToLower(body), "inverter") && !strings.Contains(strings.ToLower(body), "sunsynk") {
+			t.Errorf("expected suggestion query matches in json output, got: %s", body)
+		}
+	})
+
+	t.Run("HandleStoreReviewSubmit saves testimonial and returns live card", func(t *testing.T) {
+		form := "store_id=loc_mitrend_midrand&author_name=Thebe+Hospitality&company=Thebe+Group&rating=5&review_text=Consistent+wholesale+supply+and+fast+courier+dispatch."
+		req := httptest.NewRequest("POST", "/store/review", strings.NewReader(form))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		req.Header.Set("HX-Request", "true")
+		rec := httptest.NewRecorder()
+
+		h.HandleStoreReviewSubmit(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rec.Code)
+		}
+		body := rec.Body.String()
+		if !strings.Contains(body, "Just Posted") {
+			t.Errorf("expected Just Posted tag in rendered card")
+		}
+		if !strings.Contains(body, "Thebe Hospitality") {
+			t.Errorf("expected author name in review card")
+		}
+		if !strings.Contains(body, "Consistent wholesale supply") {
+			t.Errorf("expected review text in rendered card")
+		}
+	})
+
+	t.Run("HandleInstantCheckout settles payment with 15% VAT and courier waybill", func(t *testing.T) {
+		form := "product_title=Sunsynk+5kW+Hybrid+Inverter&sku=SUN-5K&quantity=2&unit_price=14500.00&buyer_name=Sipho+Dlamini&payment_method=Ozow+Instant+EFT"
+		req := httptest.NewRequest("POST", "/checkout/instant", strings.NewReader(form))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		req.Header.Set("HX-Request", "true")
+		rec := httptest.NewRecorder()
+
+		h.HandleInstantCheckout(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rec.Code)
+		}
+		body := rec.Body.String()
+		if !strings.Contains(body, "Payment Settled &amp; Order Confirmed") && !strings.Contains(body, "Payment Settled & Order Confirmed") {
+			t.Errorf("expected order confirmed title")
+		}
+		if !strings.Contains(body, "Ozow Instant EFT") {
+			t.Errorf("expected payment method in card")
+		}
+		if !strings.Contains(body, "SARS 15% VAT") {
+			t.Errorf("expected SARS 15%% VAT line")
+		}
+		if !strings.Contains(body, "The Courier Guy Waybill Issued") {
+			t.Errorf("expected courier waybill section")
 		}
 	})
 }

@@ -103,6 +103,8 @@ type MerchantOffer struct {
 	Trust           *MerchantTrust  `json:"trust,omitempty"`
 	VolumeTiers     []VolumeTier    `json:"volumeTiers,omitempty"`
 	DeliveryOptions []DeliveryOption `json:"deliveryOptions,omitempty"`
+	IsBuyBoxWinner  bool            `json:"isBuyBoxWinner,omitempty"`
+	BuyBoxScore     float64         `json:"buyBoxScore,omitempty"`
 }
 
 // ProductDetail represents the canonical product view and BuyBox comparison.
@@ -168,22 +170,37 @@ type RetailerDeal struct {
 	MallName       string  `json:"mallName,omitempty"`
 }
 
+// StoreTestimonial represents a verified buyer review on a merchant storefront
+type StoreTestimonial struct {
+	ID         string `json:"id"`
+	AuthorName string `json:"authorName"`
+	Company    string `json:"company"`
+	Rating     int    `json:"rating"` // 1-5
+	Text       string `json:"text"`
+	DateStr    string `json:"dateStr"`
+	Verified   bool   `json:"verified"`
+}
+
 // MerchantStorefront represents a public merchant profile page.
 type MerchantStorefront struct {
-	ID           string       `json:"id"`
-	Name         string       `json:"name"`
-	Category     string       `json:"category"`
-	Suburb       string       `json:"suburb"`
-	City         string       `json:"city"`
-	Province     string       `json:"province"`
-	Address      string       `json:"address"`
-	Phone        string       `json:"phone"`
-	WhatsApp     string       `json:"whatsapp"`
-	Rating       float64      `json:"rating"`
-	ReviewsCount int          `json:"reviewsCount"`
-	CIPCNumber   string       `json:"cipcNumber"`
-	Verified     bool         `json:"verified"`
-	Catalog      []SearchItem `json:"catalog"`
+	ID            string             `json:"id"`
+	Name          string             `json:"name"`
+	Category      string             `json:"category"`
+	Suburb        string             `json:"suburb"`
+	City          string             `json:"city"`
+	Province      string             `json:"province"`
+	Address       string             `json:"address"`
+	Phone         string             `json:"phone"`
+	WhatsApp      string             `json:"whatsapp"`
+	Rating        float64            `json:"rating"`
+	ReviewsCount  int                `json:"reviewsCount"`
+	CIPCNumber    string             `json:"cipcNumber"`
+	Verified      bool               `json:"verified"`
+	Catalog       []SearchItem       `json:"catalog"`
+	HoursStatus   string             `json:"hoursStatus,omitempty"`
+	IsOpenNow     bool               `json:"isOpenNow"`
+	DirectionsURL string             `json:"directionsUrl,omitempty"`
+	Testimonials  []StoreTestimonial `json:"testimonials,omitempty"`
 }
 
 // CartItem represents an item in an RFQ or proforma cart.

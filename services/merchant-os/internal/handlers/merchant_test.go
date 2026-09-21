@@ -62,6 +62,8 @@ func setupTestRouter() http.Handler {
 	r.Post("/chat/quote", h.SendStructuredQuote)
 	r.Post("/chat/action", h.HandleChatAction)
 	r.Post("/feeds/validate", h.ValidateFeeds)
+	r.Post("/rma/update", h.UpdateRMAStatus)
+	r.Post("/rma/new", h.CreateRMARequest)
 	return r
 }
 
@@ -354,6 +356,18 @@ func TestServeGMCFeed(t *testing.T) {
 	}
 	if !strings.Contains(body, "<g:price>") {
 		t.Errorf("expected price tags in GMC feed")
+	}
+	if !strings.Contains(body, "<g:link>") || !strings.Contains(body, "<g:image_link>") {
+		t.Errorf("expected link and image_link tags in GMC feed")
+	}
+	if !strings.Contains(body, "<g:gtin>") {
+		t.Errorf("expected GTIN/EAN-13 tags in GMC feed")
+	}
+	if !strings.Contains(body, "<g:shipping>") || !strings.Contains(body, "<g:country>ZA</g:country>") {
+		t.Errorf("expected South African regional shipping tags in GMC feed")
+	}
+	if !strings.Contains(body, "<g:condition>new</g:condition>") {
+		t.Errorf("expected condition tag in GMC feed")
 	}
 }
 
@@ -932,5 +946,80 @@ func TestSlackTeamsChatWorkstation(t *testing.T) {
 	bodyPOP := recPOP.Body.String()
 	if !strings.Contains(bodyPOP, "Paid &amp; Dispatched") && !strings.Contains(bodyPOP, "Paid & Dispatched") {
 		t.Errorf("expected deal status to be updated to Paid & Dispatched")
+	}
+}
+
+func TestRMAWorkflow(t *testing.T) {
+	router := setupTestRouter()
+
+	// 1. Create new RMA request via POST /rma/new
+	form := url.Values{}
+	form.Set("orderNumber", "ORD-2026-9911")
+	form.Set("customerName", "Sandton Convention Centre")
+	form.Set("itemTitle", "Solid Beechwood Coat Hangers")
+	form.Set("sku", "MIT-3361")
+	form.Set("quantity", "10")
+	form.Set("reason", "Damaged during freight transport")
+	form.Set("refundAmount", "450.00")
+
+	reqNew := httptest.NewRequest("POST", "/rma/new", strings.NewReader(form.Encode()))
+	reqNew.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	reqNew.Header.Set("HX-Request", "true")
+	recNew := httptest.NewRecorder()
+	router.ServeHTTP(recNew, reqNew)
+
+	if recNew.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK on create RMA, got %d", recNew.Code)
+	}
+	bodyNew := recNew.Body.String()
+	if !strings.Contains(bodyNew, "Sandton Convention Centre") {
+		t.Errorf("expected new RMA row to contain customer name")
+	}
+	if !strings.Contains(bodyNew, "RMA-2026-") {
+		t.Errorf("expected RMA number prefix in generated row")
+	}
+	if !strings.Contains(bodyNew, "Authorized") {
+		t.Errorf("expected initial status to be Authorized")
+	}
+	if !strings.Contains(bodyNew, "450.00") {
+		t.Errorf("expected refund amount in table")
+	}
+
+	// 2. Advance RMA status to "Goods Received"
+	formUpdate1 := url.Values{}
+	formUpdate1.Set("rmaId", "RMA-2026-0814")
+	formUpdate1.Set("newStatus", "Goods Received")
+
+	reqUp1 := httptest.NewRequest("POST", "/rma/update", strings.NewReader(formUpdate1.Encode()))
+	reqUp1.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	reqUp1.Header.Set("HX-Request", "true")
+	recUp1 := httptest.NewRecorder()
+	router.ServeHTTP(recUp1, reqUp1)
+
+	if recUp1.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK on advance RMA to Goods Received, got %d", recUp1.Code)
+	}
+	bodyUp1 := recUp1.Body.String()
+	if !strings.Contains(bodyUp1, "Goods Received") {
+		t.Errorf("expected RMA table to reflect Goods Received status")
+	}
+
+	// 3. Finalize RMA with "Refund Issued"
+	formUpdate2 := url.Values{}
+	formUpdate2.Set("rmaId", "RMA-2026-0814")
+	formUpdate2.Set("newStatus", "Refund Issued")
+
+	reqUp2 := httptest.NewRequest("POST", "/rma/update", strings.NewReader(formUpdate2.Encode()))
+	reqUp2.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	reqUp2.Header.Set("HX-Request", "true")
+	recUp2 := httptest.NewRecorder()
+	router.ServeHTTP(recUp2, reqUp2)
+
+	if recUp2.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK on advance RMA to Refund Issued, got %d", recUp2.Code)
+	}
+	bodyUp2 := recUp2.Body.String()
+	if !strings.Contains(bodyUp2, "Refund Issued") {
+		t.Errorf("expected RMA table to reflect Refund Issued status")
 	}
 }

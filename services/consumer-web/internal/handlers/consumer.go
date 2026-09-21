@@ -452,6 +452,7 @@ func (h *ConsumerHandler) HandleStorefront(w http.ResponseWriter, r *http.Reques
 		HeroHeadline:     heroHeadline,
 		AnnouncementText: announcementText,
 		AccentColor:      "#0e7c56",
+		Testimonials:     merchant.Testimonials,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -841,6 +842,207 @@ func (h *ConsumerHandler) HandleSubmitOffer(w http.ResponseWriter, r *http.Reque
 	if err := templates.RenderOfferSuccessCard(w, result); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+// HandleSitemapXML generates an automated XML sitemap for Google Search bots
+func (h *ConsumerHandler) HandleSitemapXML(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/xml; charset=utf-8")
+	now := time.Now().Format("2006-01-02")
+
+	fmt.Fprintf(w, `<?xml version="1.0" encoding="UTF-8"?>`+"\n")
+	fmt.Fprintf(w, `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`+"\n")
+
+	// Core platform landing pages
+	coreRoutes := []struct {
+		path string
+		prio string
+	}{
+		{"/", "1.0"},
+		{"/search", "0.9"},
+		{"/malls", "0.8"},
+		{"/requests", "0.8"},
+		{"/shorts", "0.7"},
+		{"/chat", "0.7"},
+	}
+
+	for _, rt := range coreRoutes {
+		fmt.Fprintf(w, `  <url>`+"\n")
+		fmt.Fprintf(w, `    <loc>http://localhost:3000%s</loc>`+"\n", rt.path)
+		fmt.Fprintf(w, `    <lastmod>%s</lastmod>`+"\n", now)
+		fmt.Fprintf(w, `    <changefreq>daily</changefreq>`+"\n")
+		fmt.Fprintf(w, `    <priority>%s</priority>`+"\n", rt.prio)
+		fmt.Fprintf(w, `  </url>`+"\n")
+	}
+
+	// Products
+	products := h.store.SearchProducts("", "", "", false)
+	for _, p := range products {
+		fmt.Fprintf(w, `  <url>`+"\n")
+		fmt.Fprintf(w, `    <loc>http://localhost:3000/p/%s</loc>`+"\n", p.ID)
+		fmt.Fprintf(w, `    <lastmod>%s</lastmod>`+"\n", now)
+		fmt.Fprintf(w, `    <changefreq>daily</changefreq>`+"\n")
+		fmt.Fprintf(w, `    <priority>0.9</priority>`+"\n")
+		fmt.Fprintf(w, `  </url>`+"\n")
+	}
+
+	// Stores
+	merchants := h.store.GetAllMerchants()
+	for _, m := range merchants {
+		fmt.Fprintf(w, `  <url>`+"\n")
+		fmt.Fprintf(w, `    <loc>http://localhost:3000/m/%s</loc>`+"\n", m.ID)
+		fmt.Fprintf(w, `    <lastmod>%s</lastmod>`+"\n", now)
+		fmt.Fprintf(w, `    <changefreq>weekly</changefreq>`+"\n")
+		fmt.Fprintf(w, `    <priority>0.8</priority>`+"\n")
+		fmt.Fprintf(w, `  </url>`+"\n")
+	}
+
+	fmt.Fprintf(w, `</urlset>`+"\n")
+}
+
+// HandleRobotsTXT generates dynamic robots.txt pointing to the XML sitemap
+func (h *ConsumerHandler) HandleRobotsTXT(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	fmt.Fprintf(w, "User-agent: *\n")
+	fmt.Fprintf(w, "Allow: /\n\n")
+	fmt.Fprintf(w, "Sitemap: http://localhost:3000/sitemap.xml\n")
+}
+
+// HandleSearchSuggest returns instant autocomplete suggestions for search input
+func (h *ConsumerHandler) HandleSearchSuggest(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query().Get("q")
+	suggestions := h.store.GetSearchSuggestions(q)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	_ = json.NewEncoder(w).Encode(suggestions)
+}
+
+// HandleStoreReviewSubmit processes interactive buyer review submissions (GMB Parity)
+func (h *ConsumerHandler) HandleStoreReviewSubmit(w http.ResponseWriter, r *http.Request) {
+	_ = r.ParseForm()
+	storeID := r.FormValue("store_id")
+	author := r.FormValue("author_name")
+	company := r.FormValue("company")
+	rating, _ := strconv.Atoi(r.FormValue("rating"))
+	if rating <= 0 || rating > 5 {
+		rating = 5
+	}
+	text := strings.TrimSpace(r.FormValue("review_text"))
+
+	if author == "" {
+		author = "Verified Trade Buyer"
+	}
+	if company == "" {
+		company = "South African Commercial Client"
+	}
+	if text == "" {
+		text = "Excellent supplier with dependable stock availability and prompt communication."
+	}
+
+	review := models.StoreTestimonial{
+		ID:         fmt.Sprintf("t_%d", time.Now().UnixNano()%100000),
+		AuthorName: author,
+		Company:    company,
+		Rating:     rating,
+		Text:       text,
+		DateStr:    "Just now",
+		Verified:   true,
+	}
+
+	h.store.AddStoreTestimonial(storeID, review)
+
+	// If HTMX request, return the rendered testimonial card snippet
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	fmt.Fprintf(w, `<div class="bg-white rounded-2xl border-2 border-emerald-500/60 p-5 shadow-xs relative overflow-hidden transition animate-fadeIn">
+		<div class="absolute top-0 right-0 bg-emerald-600 text-white text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-bl-lg">
+			✓ Just Posted
+		</div>
+		<div class="flex items-center gap-1 text-amber-500 text-sm mb-3">
+			%s
+		</div>
+		<p class="text-xs text-slate-700 leading-relaxed italic mb-4">"%s"</p>
+		<div class="border-t border-slate-100 pt-3 flex items-center justify-between">
+			<div>
+				<div class="font-bold text-xs text-slate-900">%s</div>
+				<div class="text-[10px] text-slate-500">%s · Verified Buyer</div>
+			</div>
+			<span class="text-[10px] text-slate-400 font-mono">Just now</span>
+		</div>
+	</div>`, strings.Repeat("★", rating), text, author, company)
+}
+
+// HandleInstantCheckout simulates automated instant settlement (Amazon / Ozow Parity)
+func (h *ConsumerHandler) HandleInstantCheckout(w http.ResponseWriter, r *http.Request) {
+	_ = r.ParseForm()
+	productTitle := r.FormValue("product_title")
+	sku := r.FormValue("sku")
+	qty, _ := strconv.Atoi(r.FormValue("quantity"))
+	if qty <= 0 {
+		qty = 1
+	}
+	unitPrice, _ := strconv.ParseFloat(r.FormValue("unit_price"), 64)
+	if unitPrice <= 0 {
+		unitPrice = 4500.00
+	}
+	buyerName := r.FormValue("buyer_name")
+	if buyerName == "" {
+		buyerName = "Sipho Dlamini"
+	}
+	paymentMethod := r.FormValue("payment_method")
+	if paymentMethod == "" {
+		paymentMethod = "Ozow Instant EFT"
+	}
+
+	subtotal := unitPrice * float64(qty)
+	vat := subtotal * 0.15
+	grandTotal := subtotal + vat
+	orderNo := fmt.Sprintf("ORD-2026-%04d", time.Now().Unix()%10000)
+	waybill := fmt.Sprintf("TCG-ZA-%06d", time.Now().UnixNano()%1000000)
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	fmt.Fprintf(w, `<div class="bg-white rounded-3xl border border-emerald-500/80 p-6 shadow-xl max-w-lg mx-auto text-slate-900 text-left">
+		<div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+			<div class="flex items-center gap-2">
+				<div class="w-9 h-9 rounded-xl bg-emerald-600 text-white font-bold flex items-center justify-center text-base">✓</div>
+				<div>
+					<h3 class="text-sm font-black text-slate-900">Payment Settled &amp; Order Confirmed</h3>
+					<div class="text-[11px] text-slate-500">Method: <b class="text-emerald-700">%s</b></div>
+				</div>
+			</div>
+			<span class="font-mono text-xs font-bold text-slate-800 bg-slate-100 px-2.5 py-1 rounded-lg">%s</span>
+		</div>
+		<div class="space-y-2 text-xs mb-5">
+			<div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+				<div class="font-bold text-slate-900">%s</div>
+				<div class="text-slate-500 text-[11px] mt-0.5">SKU: %s · Quantity: %d Unit(s) @ R %.2f</div>
+			</div>
+			<div class="flex justify-between text-slate-600 pt-1">
+				<span>Subtotal (Excl. VAT):</span>
+				<span class="font-bold">R %.2f ZAR</span>
+			</div>
+			<div class="flex justify-between text-slate-600">
+				<span>SARS 15%% VAT:</span>
+				<span class="font-bold text-emerald-700">R %.2f ZAR</span>
+			</div>
+			<div class="flex justify-between text-sm font-black text-slate-900 border-t border-slate-200 pt-2">
+				<span>Total Paid:</span>
+				<span class="text-emerald-700">R %.2f ZAR</span>
+			</div>
+		</div>
+		<div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-950 mb-5">
+			<div class="font-bold flex items-center gap-1.5">
+				<span>🚚</span> <span>The Courier Guy Waybill Issued:</span>
+			</div>
+			<div class="font-mono font-bold text-emerald-800 mt-1">%s</div>
+			<div class="text-[10.5px] text-emerald-700 mt-0.5">Dispatching from Midrand Central Hub, Bay 4 (24h Express).</div>
+		</div>
+		<div class="flex gap-2.5">
+			<button type="button" onclick="window.print();" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition">
+				📄 Download Tax PDF
+			</button>
+			<button type="button" onclick="document.getElementById('instant-checkout-modal')?.close();" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition">
+				Done
+			</button>
+		</div>
+	</div>`, paymentMethod, orderNo, productTitle, sku, qty, unitPrice, subtotal, vat, grandTotal, waybill)
 }
 
 

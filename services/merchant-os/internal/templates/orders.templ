@@ -186,6 +186,105 @@ templ OrdersTab(data models.DashboardViewData) {
 				</tbody>
 			</table>
 		</div>
+
+		<!-- Amazon-Style Returns & RMA Workbench -->
+		<div style="margin-top: 28px;">
+			<div class="panel-head" style="margin-bottom: 12px;">
+				<div>
+					<h3 style="font-size: 1.2rem; display:flex; align-items:center; gap:8px;">
+						<span>📦</span>
+						<span>Customer Returns &amp; RMA Workbench</span>
+					</h3>
+					<div class="sub">Amazon-style reverse logistics, The Courier Guy return waybills &amp; SARS VAT credit notes</div>
+				</div>
+				<div style="margin-left: auto;">
+					<button class="btn ghost small" onclick="document.getElementById('new-rma-dialog')?.showModal();">
+						<span>+</span> Authorize New Return
+					</button>
+				</div>
+			</div>
+
+			<div class="card panel" style="padding:0; overflow:hidden; border:1px solid var(--line);">
+				<table class="data-table" style="width:100%; border-collapse:collapse; font-size:12.5px;">
+					<thead>
+						<tr style="background:var(--surface-2); text-align:left; border-bottom:1px solid var(--line);">
+							<th style="padding:10px 14px;">RMA # / Date</th>
+							<th style="padding:10px 14px;">Order / Customer</th>
+							<th style="padding:10px 14px;">Item &amp; Qty</th>
+							<th style="padding:10px 14px;">Return Reason</th>
+							<th style="padding:10px 14px;">Reverse Courier Waybill</th>
+							<th style="padding:10px 14px;">Refund Amount</th>
+							<th style="padding:10px 14px;">RMA Status &amp; Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						if len(data.ReturnRequests) == 0 {
+							<tr>
+								<td colspan="7" style="padding:24px; text-align:center; color:var(--muted);">
+									No active customer returns or RMA requests on file.
+								</td>
+							</tr>
+						}
+						for _, rma := range data.ReturnRequests {
+							<tr style="border-bottom:1px solid var(--line);">
+								<td style="padding:10px 14px; font-family:var(--mono);">
+									<span style="font-weight:700; color:var(--ink);">{ rma.RMANumber }</span>
+									<div style="font-size:10.5px; color:var(--muted);">{ rma.CreatedAt.Format("02 Jan 2006") }</div>
+								</td>
+								<td style="padding:10px 14px;">
+									<div style="font-weight:600; color:var(--ink);">{ rma.CustomerName }</div>
+									<div style="font-size:11px; font-family:var(--mono); color:var(--muted);">{ rma.OrderNumber }</div>
+								</td>
+								<td style="padding:10px 14px;">
+									<div style="font-weight:500; color:var(--ink); max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title={ rma.ItemTitle }>{ rma.ItemTitle }</div>
+									<div style="font-size:11px; color:var(--muted); font-family:var(--mono);">{ fmt.Sprintf("%d units", rma.Quantity) } · { rma.SKU }</div>
+								</td>
+								<td style="padding:10px 14px;">
+									<span class="chip" style="font-size:11px;">{ rma.Reason }</span>
+								</td>
+								<td style="padding:10px 14px; font-family:var(--mono); font-size:11.5px;">
+									if rma.WaybillNo != "" {
+										<span style="color:var(--primary); font-weight:700;">🚚 { rma.WaybillNo }</span>
+									} else {
+										<span style="color:var(--muted);">-</span>
+									}
+								</td>
+								<td style="padding:10px 14px; font-family:var(--mono); font-weight:700;">
+									R { fmt.Sprintf("%.2f", rma.RefundAmount) }
+								</td>
+								<td style="padding:10px 14px;">
+									<div style="display:flex; align-items:center; gap:8px;">
+										if rma.Status == "Authorized" {
+											<span class="chip" style="background:#fef3c7; color:#b45309; font-weight:700; font-size:11px;">Authorized</span>
+											<form hx-post="/rma/update" hx-target="#tab-content" style="display:inline;">
+												<input type="hidden" name="rmaId" value={ rma.ID } />
+												<input type="hidden" name="status" value="Goods Received" />
+												<button type="submit" class="btn ghost small" style="padding:3px 7px; font-size:11px;" title="Confirm receipt at Midrand warehouse">
+													Mark Received
+												</button>
+											</form>
+										} else if rma.Status == "Goods Received" {
+											<span class="chip" style="background:#e0e7ff; color:#3730a3; font-weight:700; font-size:11px;">Goods Received</span>
+											<form hx-post="/rma/update" hx-target="#tab-content" style="display:inline;">
+												<input type="hidden" name="rmaId" value={ rma.ID } />
+												<input type="hidden" name="status" value="Refund Issued" />
+												<button type="submit" class="btn solid small" style="padding:3px 7px; font-size:11px;" title="Issue bank refund and VAT credit note">
+													Issue Refund
+												</button>
+											</form>
+										} else if rma.Status == "Refund Issued" {
+											<span class="chip up" style="font-weight:700; font-size:11px;">✓ Refund Issued</span>
+										} else {
+											<span class="chip" style="font-size:11px;">{ rma.Status }</span>
+										}
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
 	</div>
 
 	<!-- New Proforma Dialog -->
@@ -233,6 +332,63 @@ templ OrdersTab(data models.DashboardViewData) {
 				<div class="modal-foot">
 					<button type="button" class="btn ghost" onclick="document.getElementById('new-order-dialog').close();">Cancel</button>
 					<button type="submit" class="btn solid">Issue Proforma (EFT)</button>
+				</div>
+			</form>
+		</div>
+	</dialog>
+
+	<!-- New RMA Dialog -->
+	<dialog id="new-rma-dialog" class="modal-dialog">
+		<div class="modal-card">
+			<div class="modal-head">
+				<h4>Authorize Customer Return (RMA)</h4>
+				<button type="button" class="close-btn" onclick="document.getElementById('new-rma-dialog').close();">&times;</button>
+			</div>
+			<form hx-post="/rma/new" hx-target="#tab-content" onsubmit="document.getElementById('new-rma-dialog').close();">
+				<div class="modal-body">
+					<div class="two-col">
+						<div class="form-group">
+							<label>Associated Order #</label>
+							<input type="text" name="orderNumber" class="input" placeholder="e.g. #ORD-9824" required />
+						</div>
+						<div class="form-group">
+							<label>Customer / Company</label>
+							<input type="text" name="customer" class="input" placeholder="e.g. Protea Hotel Sandton" required />
+						</div>
+					</div>
+					<div class="two-col">
+						<div class="form-group">
+							<label>Select Returned Product</label>
+							<select name="sku" class="select-full">
+								for _, item := range data.Catalog {
+									<option value={ item.SKU }>{ item.Title } ({ item.SKU })</option>
+								}
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Return Reason</label>
+							<select name="reason" class="select-full">
+								<option value="Transit Packaging Damage">Transit Packaging Damage</option>
+								<option value="Defective Unit">Defective Unit</option>
+								<option value="Wrong SKU Delivered">Wrong SKU Delivered</option>
+								<option value="Ordered Incompatible Model">Ordered Incompatible Model</option>
+							</select>
+						</div>
+					</div>
+					<div class="two-col">
+						<div class="form-group">
+							<label>Quantity to Return</label>
+							<input type="number" name="quantity" class="input" value="10" min="1" required />
+						</div>
+						<div class="form-group">
+							<label>Estimated Refund Amount (ZAR)</label>
+							<input type="number" name="refundAmount" class="input" value="228.80" step="0.01" required />
+						</div>
+					</div>
+				</div>
+				<div class="modal-foot">
+					<button type="button" class="btn ghost" onclick="document.getElementById('new-rma-dialog').close();">Cancel</button>
+					<button type="submit" class="btn solid">Generate RMA &amp; Courier Waybill</button>
 				</div>
 			</form>
 		</div>

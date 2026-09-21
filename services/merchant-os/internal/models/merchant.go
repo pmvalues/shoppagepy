@@ -374,6 +374,22 @@ type ChatThread struct {
 	Messages      []ChatMessage `json:"messages"`
 }
 
+// ReturnRequest represents an Amazon-style RMA (Return Merchandise Authorization)
+type ReturnRequest struct {
+	ID           string    `json:"id"`
+	RMANumber    string    `json:"rmaNumber"`    // e.g. "RMA-2026-0814"
+	OrderNumber  string    `json:"orderNumber"`  // e.g. "INV-2026-0421"
+	CustomerName string    `json:"customerName"` // e.g. "Protea Hotel Balalaika"
+	ItemTitle    string    `json:"itemTitle"`
+	SKU          string    `json:"sku"`
+	Quantity     int       `json:"quantity"`
+	Reason       string    `json:"reason"`       // "Transit Packaging Damage", "Defective Pin", "Wrong SKU"
+	Status       string    `json:"status"`       // "Requested", "Authorized", "Goods Received", "Refund Issued", "Rejected"
+	WaybillNo    string    `json:"waybillNo"`    // "TCG-RET-883492"
+	RefundAmount float64   `json:"refundAmount"`
+	CreatedAt    time.Time `json:"createdAt"`
+}
+
 // DashboardViewData encapsulates the full page state for Go HTML rendering across all modules
 type DashboardViewData struct {
 	Store           StoreProfile
@@ -381,6 +397,7 @@ type DashboardViewData struct {
 	Catalog         []CatalogSKU
 	Leads           []RFQLead
 	Orders          []ProformaOrder
+	ReturnRequests  []ReturnRequest
 	Warehouses      []WarehouseHub
 	Customers       []CustomerAccount
 	WholesaleTiers  []WholesaleTier
