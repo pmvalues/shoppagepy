@@ -16,177 +16,176 @@ func stockPercent(qty int) int {
 	return pct
 }
 
-templ ProductDetailModal(sku models.CatalogSKU) {
-	<div class="modal-card" style="max-width:1120px; width:95%;">
-		<div class="modal-body" style="padding: 24px;">
-			<!-- Breadcrumb -->
-			<div class="breadcrumb">
-				<a href="javascript:void(0)" onclick="document.getElementById('modal-container').innerHTML = '';">Products</a>
-				<svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-				<span>{ sku.Category }</span>
-				<svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-				<span style="color:var(--ink); font-weight:600;">{ sku.Title }</span>
-			</div>
+templ ProductDetailView(sku models.CatalogSKU) {
+	<section class="view active" data-view="detail" id="detail">
+		<!-- Breadcrumb -->
+		<div class="breadcrumb">
+			<a href="javascript:void(0)" hx-get="/tab/catalog" hx-target="#tab-content" hx-push-url="/tab/catalog">Products</a>
+			<svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+			<span>{ sku.Category }</span>
+			<svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+			<span style="color:var(--ink); font-weight:600;">{ sku.Title }</span>
+		</div>
 
-			<!-- Detail Header -->
-			<div class="detail-head">
-				<div class="head-copy">
-					<h1>
-						{ sku.Title }
-						if sku.InStock {
-							<span class="chip green">Published</span>
-						} else {
-							<span class="chip red">Out of Stock</span>
-						}
-					</h1>
-					<p>{ sku.SKU } · Commercial Catalog SKU · { sku.Brand }</p>
+		<!-- Detail Header -->
+		<div class="detail-head">
+			<div class="head-copy">
+				<h1>
+					{ sku.Title }
+					if sku.InStock {
+						<span class="chip green">Published</span>
+					} else {
+						<span class="chip red">Out of Stock</span>
+					}
+				</h1>
+				<p>{ sku.SKU } · Commercial Catalog SKU · { sku.Brand }</p>
+			</div>
+			<div class="detail-actions">
+				<button type="button" class="btn ghost" hx-get="/tab/catalog" hx-target="#tab-content" hx-push-url="/tab/catalog">← Back to products</button>
+				<button 
+					type="button"
+					hx-get={ fmt.Sprintf("/catalog/%s/edit", sku.ID) } 
+					hx-target="#tab-content" 
+					hx-push-url="true"
+					class="btn solid"
+				>
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"></path><path d="M13.5 6.5l4 4"></path></svg>
+					Edit product
+				</button>
+			</div>
+		</div>
+
+		<!-- Upper Grid: Gallery & Info -->
+		<div class="detail-grid">
+			<!-- Gallery Showcase -->
+			<article class="card gallery-card">
+				<div class="gallery-main" id="product-detail-hero">
+					<div style="width:110px; height:110px; border-radius:18px; background:rgba(255,255,255,.55); display:grid; place-items:center; font-size:46px; box-shadow:inset 0 -4px 6px rgba(13,28,21,.1);">
+						📦
+					</div>
+					<span class="g-stamp">{ sku.Brand } · Commercial Standard</span>
 				</div>
-				<div class="detail-actions">
-					<button type="button" class="btn ghost" onclick="document.getElementById('modal-container').innerHTML = '';">← Back to products</button>
+				<div class="gallery-thumbs">
+					<div class="thumb active" onclick="switchDetailThumb(this, '📦')">📦</div>
+					<div class="thumb" onclick="switchDetailThumb(this, '🏷️')">🏷️</div>
+					<div class="thumb" onclick="switchDetailThumb(this, '📋')">📋</div>
+					<div class="thumb" onclick="switchDetailThumb(this, '🏭')">🏭</div>
+					<div class="thumb" style="color:var(--primary); font-size:18px; font-weight:700;">+</div>
+				</div>
+			</article>
+
+			<!-- Product Info Card -->
+			<article class="card info-card">
+				<span class="micro" style="text-transform:uppercase; letter-spacing:.08em; font-weight:700;">{ sku.Category }</span>
+				<div class="price-line">
+					<span class="large-price">{ fmt.Sprintf("R%.2f", sku.WholesaleZar) }</span>
+					<span class="compare">{ fmt.Sprintf("R%.2f", sku.RetailZar) }</span>
+					if sku.RetailZar > sku.WholesaleZar {
+						<span class="chip amber">{ fmt.Sprintf("%.0f%% margin", (sku.RetailZar - sku.WholesaleZar) / sku.RetailZar * 100) }</span>
+					}
+				</div>
+
+				<p class="description">{ sku.Spec.LongDesc }</p>
+
+				<div class="info-grid">
+					<div class="info-cell">
+						<label>Available Stock</label>
+						<b>{ fmt.Sprintf("%d units", sku.StockQuantity) }</b>
+						<div class="progress">
+							<span style={ fmt.Sprintf("width:%d%%;", stockPercent(sku.StockQuantity)) }></span>
+						</div>
+					</div>
+					<div class="info-cell">
+						<label>Reorder Buffer</label>
+						<b>{ fmt.Sprintf("%d units", sku.LowStockAlert) }</b>
+						<div class="micro" style="margin-top:4px; color:var(--primary);">Auto-reorder active</div>
+					</div>
+					<div class="info-cell">
+						<label>Dimensions / Specs</label>
+						<b style="font-size:13.5px;">{ sku.Spec.Dimensions }</b>
+						<div class="micro" style="margin-top:4px;">{ fmt.Sprintf("%.2f kg", sku.Spec.WeightKg) }</div>
+					</div>
+					<div class="info-cell">
+						<label>Compliance</label>
+						<b>SABS Food Safe</b>
+						<div class="micro" style="margin-top:4px; color:var(--primary-2);">CIPC Verified SKU</div>
+					</div>
+				</div>
+
+				<div class="info-note">
+					<svg viewBox="0 0 24 24" fill="none"><path d="M12 3l8 4v6c0 4-3.5 6.5-8 8-4.5-1.5-8-4-8-8V7l8-4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+					<span>Published to <b style="color:var(--ink-2)">Direct Storefront, WhatsApp Catalog, and Shoppage B2B Network</b>. Inventory is synchronized across channels.</span>
+				</div>
+			</article>
+		</div>
+
+		<!-- Lower Grid: Specs, SEO & Activity -->
+		<div class="detail-lower">
+			<!-- Panel 1: Product Specifications -->
+			<article class="card panel">
+				<div class="panel-title">
+					<h3>Product information</h3>
 					<button 
 						type="button"
 						hx-get={ fmt.Sprintf("/catalog/%s/edit", sku.ID) } 
-						hx-target="#modal-container" 
-						class="btn solid"
+						hx-target="#tab-content" 
+						hx-push-url="true"
+						class="btn ghost small"
 					>
-						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"></path><path d="M13.5 6.5l4 4"></path></svg>
-						Edit product
+						Edit
 					</button>
-					<button type="button" class="close-btn" onclick="document.getElementById('modal-container').innerHTML = '';" title="Close">&times;</button>
 				</div>
-			</div>
+				<div class="kv-list">
+					<div class="kv-row"><span>Product type</span><b>Commercial SKU</b></div>
+					<div class="kv-row"><span>SKU Code</span><b style="font-family:var(--mono);">{ sku.SKU }</b></div>
+					<div class="kv-row"><span>Category</span><b>{ sku.Category }</b></div>
+					<div class="kv-row"><span>Vendor / Brand</span><b>{ sku.Brand }</b></div>
+					<div class="kv-row"><span>Material</span><b>{ sku.Spec.Material }</b></div>
+					<div class="kv-row"><span>Barcode</span><b style="font-family:var(--mono);">{ sku.Spec.Barcode }</b></div>
+					<div class="kv-row"><span>Weight</span><b>{ fmt.Sprintf("%.2f kg", sku.Spec.WeightKg) }</b></div>
+					<div class="kv-row"><span>HS Code</span><b>{ sku.Spec.HSCode }</b></div>
+				</div>
+			</article>
 
-			<!-- Upper Grid: Gallery & Info -->
-			<div class="detail-grid">
-				<!-- Gallery Showcase -->
-				<article class="card gallery-card">
-					<div class="gallery-main" id="product-detail-hero">
-						<div style="width:110px; height:110px; border-radius:18px; background:rgba(255,255,255,.55); display:grid; place-items:center; font-size:46px; box-shadow:inset 0 -4px 6px rgba(13,28,21,.1);">
-							📦
+			<!-- Panel 2: Search & Discovery -->
+			<article class="card panel">
+				<div class="panel-title">
+					<h3>Search &amp; discovery</h3>
+					<span class="chip green">{ fmt.Sprintf("SEO %d / 100", sku.Spec.SEOScore) }</span>
+				</div>
+				<div class="seo-score">
+					<div class="score-ring" style={ fmt.Sprintf("background: conic-gradient(var(--primary) 0deg %ddeg, var(--primary-soft) %ddeg 360deg);", sku.Spec.SEOScore * 360 / 100, sku.Spec.SEOScore * 360 / 100) }>
+						<b>{ fmt.Sprintf("%d", sku.Spec.SEOScore) }</b>
+					</div>
+					<div>
+						<b>Ready to rank</b>
+						<p>Google Merchant &amp; JSON-LD ready</p>
+					</div>
+				</div>
+				<div class="tag-list" style="margin-top:16px;">
+					for _, tag := range sku.Spec.SEOTags {
+						<span>{ tag }</span>
+					}
+				</div>
+				<div class="micro" style="margin-top:12px;">Title, description, Product JSON-LD and OpenGraph image are live.</div>
+			</article>
+
+			<!-- Panel 3: Recent Activity -->
+			<article class="card panel">
+				<div class="panel-title">
+					<h3>Recent activity</h3>
+					<span class="chip gray">Audit Log</span>
+				</div>
+				<div class="activity">
+					for _, act := range sku.Spec.Activities {
+						<div class="activity-row">
+							<span class="bullet"></span>
+							<span>{ act.Description }</span>
+							<span class="time">{ act.TimeAgo }</span>
 						</div>
-						<span class="g-stamp">{ sku.Brand } · Commercial Standard</span>
-					</div>
-					<div class="gallery-thumbs">
-						<div class="thumb active" onclick="switchDetailThumb(this, '📦')">📦</div>
-						<div class="thumb" onclick="switchDetailThumb(this, '🏷️')">🏷️</div>
-						<div class="thumb" onclick="switchDetailThumb(this, '📋')">📋</div>
-						<div class="thumb" onclick="switchDetailThumb(this, '🏭')">🏭</div>
-						<div class="thumb" style="color:var(--primary); font-size:18px; font-weight:700;">+</div>
-					</div>
-				</article>
-
-				<!-- Product Info Card -->
-				<article class="card info-card">
-					<span class="micro" style="text-transform:uppercase; letter-spacing:.08em; font-weight:700;">{ sku.Category }</span>
-					<div class="price-line">
-						<span class="large-price">{ fmt.Sprintf("R%.2f", sku.WholesaleZar) }</span>
-						<span class="compare">{ fmt.Sprintf("R%.2f", sku.RetailZar) }</span>
-						if sku.RetailZar > sku.WholesaleZar {
-							<span class="chip amber">{ fmt.Sprintf("%.0f%% margin", (sku.RetailZar - sku.WholesaleZar) / sku.RetailZar * 100) }</span>
-						}
-					</div>
-
-					<p class="description">{ sku.Spec.LongDesc }</p>
-
-					<div class="info-grid">
-						<div class="info-cell">
-							<label>Available Stock</label>
-							<b>{ fmt.Sprintf("%d units", sku.StockQuantity) }</b>
-							<div class="progress">
-								<span style={ fmt.Sprintf("width:%d%%;", stockPercent(sku.StockQuantity)) }></span>
-							</div>
-						</div>
-						<div class="info-cell">
-							<label>Reorder Buffer</label>
-							<b>{ fmt.Sprintf("%d units", sku.LowStockAlert) }</b>
-							<div class="micro" style="margin-top:4px; color:var(--primary);">Auto-reorder active</div>
-						</div>
-						<div class="info-cell">
-							<label>Dimensions / Specs</label>
-							<b style="font-size:13.5px;">{ sku.Spec.Dimensions }</b>
-							<div class="micro" style="margin-top:4px;">{ fmt.Sprintf("%.2f kg", sku.Spec.WeightKg) }</div>
-						</div>
-						<div class="info-cell">
-							<label>Compliance</label>
-							<b>SABS Food Safe</b>
-							<div class="micro" style="margin-top:4px; color:var(--primary-2);">CIPC Verified SKU</div>
-						</div>
-					</div>
-
-					<div class="info-note">
-						<svg viewBox="0 0 24 24" fill="none"><path d="M12 3l8 4v6c0 4-3.5 6.5-8 8-4.5-1.5-8-4-8-8V7l8-4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-						<span>Published to <b style="color:var(--ink-2)">Direct Storefront, WhatsApp Catalog, and Shoppage B2B Network</b>. Inventory is synchronized.</span>
-					</div>
-				</article>
-			</div>
-
-			<!-- Lower Grid: Specs, SEO & Activity -->
-			<div class="detail-lower">
-				<!-- Panel 1: Product Specifications -->
-				<article class="card panel">
-					<div class="panel-title">
-						<h3>Product information</h3>
-						<button 
-							type="button"
-							hx-get={ fmt.Sprintf("/catalog/%s/edit", sku.ID) } 
-							hx-target="#modal-container" 
-							class="btn ghost small"
-						>
-							Edit
-						</button>
-					</div>
-					<div class="kv-list">
-						<div class="kv-row"><span>Product type</span><b>Commercial SKU</b></div>
-						<div class="kv-row"><span>SKU Code</span><b style="font-family:var(--mono);">{ sku.SKU }</b></div>
-						<div class="kv-row"><span>Category</span><b>{ sku.Category }</b></div>
-						<div class="kv-row"><span>Vendor / Brand</span><b>{ sku.Brand }</b></div>
-						<div class="kv-row"><span>Material</span><b>{ sku.Spec.Material }</b></div>
-						<div class="kv-row"><span>Barcode</span><b style="font-family:var(--mono);">{ sku.Spec.Barcode }</b></div>
-						<div class="kv-row"><span>Weight</span><b>{ fmt.Sprintf("%.2f kg", sku.Spec.WeightKg) }</b></div>
-						<div class="kv-row"><span>HS Code</span><b>{ sku.Spec.HSCode }</b></div>
-					</div>
-				</article>
-
-				<!-- Panel 2: Search & Discovery -->
-				<article class="card panel">
-					<div class="panel-title">
-						<h3>Search &amp; discovery</h3>
-						<span class="chip green">{ fmt.Sprintf("SEO %d / 100", sku.Spec.SEOScore) }</span>
-					</div>
-					<div class="seo-score">
-						<div class="score-ring" style={ fmt.Sprintf("background: conic-gradient(var(--primary) 0deg %ddeg, var(--primary-soft) %ddeg 360deg);", sku.Spec.SEOScore * 360 / 100, sku.Spec.SEOScore * 360 / 100) }>
-							<b>{ fmt.Sprintf("%d", sku.Spec.SEOScore) }</b>
-						</div>
-						<div>
-							<b>Ready to rank</b>
-							<p>Google Merchant &amp; JSON-LD ready</p>
-						</div>
-					</div>
-					<div class="tag-list" style="margin-top:16px;">
-						for _, tag := range sku.Spec.SEOTags {
-							<span>{ tag }</span>
-						}
-					</div>
-					<div class="micro" style="margin-top:12px;">Title, description, Product JSON-LD and OpenGraph image are live.</div>
-				</article>
-
-				<!-- Panel 3: Recent Activity -->
-				<article class="card panel">
-					<div class="panel-title">
-						<h3>Recent activity</h3>
-						<span class="chip gray">Audit Log</span>
-					</div>
-					<div class="activity">
-						for _, act := range sku.Spec.Activities {
-							<div class="activity-row">
-								<span class="bullet"></span>
-								<span>{ act.Description }</span>
-								<span class="time">{ act.TimeAgo }</span>
-							</div>
-						}
-					</div>
-				</article>
-			</div>
+					}
+				</div>
+			</article>
 		</div>
 
 		<script>
@@ -197,5 +196,15 @@ templ ProductDetailModal(sku models.CatalogSKU) {
 				if (hero) hero.querySelector('div').textContent = icon;
 			}
 		</script>
-	</div>
+	</section>
+}
+
+templ ProductDetailPage(store models.StoreProfile, sku models.CatalogSKU) {
+	@Layout(store, "catalog") {
+		@ProductDetailView(sku)
+	}
+}
+
+templ ProductDetailModal(sku models.CatalogSKU) {
+	@ProductDetailView(sku)
 }

@@ -907,6 +907,29 @@ func (h *Handler) ServeDashboard(w http.ResponseWriter, r *http.Request) {
 	_ = templates.RenderDashboard(w, data)
 }
 
+// ServeFavicon serves the classic Shoppage logo favicon for browser address bar and tabs
+func (h *Handler) ServeFavicon(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "image/svg+xml")
+	w.Header().Set("Cache-Control", "public, max-age=86400")
+	svg := `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="sp-brand-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="sp-bolt-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD34D"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#sp-brand-grad)"/>
+  <path d="M8.5 12C8.5 10.8954 9.39543 10 10.5 10H21.5C22.6046 10 23.5 10.8954 23.5 12L24.5 24C24.5 25.1046 23.6046 26 22.5 26H9.5C8.39543 26 7.5 25.1046 7.5 24L8.5 12Z" fill="#FFFFFF"/>
+  <path d="M12 10V7.5C12 5.567 13.567 4 15.5 4H16.5C18.433 4 20 5.567 20 7.5V10" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M17 12L12 18H16L15 24L20 17H16.2L17 12Z" fill="url(#sp-bolt-grad)"/>
+</svg>`
+	w.Write([]byte(svg))
+}
+
 // ServeTab renders tab partials for HTMX swaps, or full dashboard layout on direct browser refresh
 func (h *Handler) ServeTab(w http.ResponseWriter, r *http.Request) {
 	tab := chi.URLParam(r, "tab")
@@ -926,7 +949,7 @@ func (h *Handler) ServeTab(w http.ResponseWriter, r *http.Request) {
 	_ = templates.RenderTabPartial(w, tab, data)
 }
 
-// ServeProductDetail renders the product detail modal
+// ServeProductDetail renders the product detail view (Pemofy layout)
 func (h *Handler) ServeProductDetail(w http.ResponseWriter, r *http.Request) {
 	skuID := chi.URLParam(r, "id")
 
@@ -948,10 +971,14 @@ func (h *Handler) ServeProductDetail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderProductDetail(w, target)
+	if r.Header.Get("HX-Request") == "true" {
+		_ = templates.RenderProductDetailView(w, target)
+		return
+	}
+	_ = templates.RenderProductDetailPage(w, h.state.Store, target)
 }
 
-// ServeProductEdit renders the 5-tab product editor modal
+// ServeProductEdit renders the 5-tab product editor view (Pemofy layout)
 func (h *Handler) ServeProductEdit(w http.ResponseWriter, r *http.Request) {
 	skuID := chi.URLParam(r, "id")
 
@@ -973,7 +1000,50 @@ func (h *Handler) ServeProductEdit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderProductEdit(w, target)
+	if r.Header.Get("HX-Request") == "true" {
+		_ = templates.RenderProductEditView(w, target, false)
+		return
+	}
+	_ = templates.RenderProductEditPage(w, h.state.Store, target, false)
+}
+
+// ServeProductNew renders the product editor view for creating a new product (Pemofy layout)
+func (h *Handler) ServeProductNew(w http.ResponseWriter, r *http.Request) {
+	newSKU := models.CatalogSKU{
+		ID:            fmt.Sprintf("sku_%d", time.Now().UnixNano()%10000),
+		StoreID:       h.state.Store.ID,
+		SKU:           fmt.Sprintf("MIT-%d", time.Now().Unix()%10000),
+		Title:         "",
+		Brand:         "Mitrend",
+		Category:      "Hospitality & Packaging",
+		WholesaleZar:  0.00,
+		RetailZar:     0.00,
+		InStock:       true,
+		StockQuantity: 100,
+		LowStockAlert: 15,
+		FeedStatus:    "Active",
+		Spec: models.ProductDetailSpec{
+			WeightKg:       0.35,
+			Dimensions:     "Standard Commercial Unit",
+			HSCode:         "3923.50",
+			Barcode:        "60098824001",
+			SABSApproved:   true,
+			Material:       "Commercial Grade Polymer",
+			LongDesc:       "",
+			SEOScore:       88,
+			SEOTags:        []string{"Packaging", "Hospitality", "Commercial", "Wholesale"},
+			DirectStore:    true,
+			WhatsAppSync:   true,
+			ShoppagePublic: true,
+		},
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if r.Header.Get("HX-Request") == "true" {
+		_ = templates.RenderProductEditView(w, newSKU, true)
+		return
+	}
+	_ = templates.RenderProductEditPage(w, h.state.Store, newSKU, true)
 }
 
 // SaveProductEdit updates product fields and returns refreshed catalog tab
@@ -1019,8 +1089,10 @@ func (h *Handler) SaveProductEdit(w http.ResponseWriter, r *http.Request) {
 			if retailZar > 0 {
 				h.state.Catalog[i].RetailZar = retailZar
 			}
-			h.state.Catalog[i].StockQuantity = stockQty
-			h.state.Catalog[i].InStock = stockQty > 0
+			if stockQty >= 0 {
+				h.state.Catalog[i].StockQuantity = stockQty
+				h.state.Catalog[i].InStock = stockQty > 0
+			}
 			if lowStockAlert > 0 {
 				h.state.Catalog[i].LowStockAlert = lowStockAlert
 			}
@@ -1044,14 +1116,15 @@ func (h *Handler) SaveProductEdit(w http.ResponseWriter, r *http.Request) {
 			}
 			if tagsRaw != "" {
 				parts := strings.Split(tagsRaw, ",")
-				var clean []string
+				var cleanTags []string
 				for _, p := range parts {
-					if trimmed := strings.TrimSpace(p); trimmed != "" {
-						clean = append(clean, trimmed)
+					t := strings.TrimSpace(p)
+					if t != "" {
+						cleanTags = append(cleanTags, t)
 					}
 				}
-				if len(clean) > 0 {
-					h.state.Catalog[i].Spec.SEOTags = clean
+				if len(cleanTags) > 0 {
+					h.state.Catalog[i].Spec.SEOTags = cleanTags
 				}
 			}
 			break
@@ -1070,17 +1143,59 @@ func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	title := r.FormValue("title")
 	skuCode := r.FormValue("sku")
 	category := r.FormValue("category")
+	brand := r.FormValue("brand")
+	if brand == "" {
+		brand = "Mitrend"
+	}
+	desc := r.FormValue("description")
+	if desc == "" {
+		desc = title
+	}
+	hsCode := r.FormValue("hsCode")
+	if hsCode == "" {
+		hsCode = "3923.50"
+	}
+	barcode := r.FormValue("barcode")
+	if barcode == "" {
+		barcode = fmt.Sprintf("600988%05d", time.Now().Unix()%100000)
+	}
+	material := r.FormValue("material")
+	if material == "" {
+		material = "Commercial Grade Material"
+	}
+	dimensions := r.FormValue("dimensions")
+	if dimensions == "" {
+		dimensions = "Standard Commercial Unit"
+	}
+	tagsRaw := r.FormValue("tags")
+	var tags []string
+	if tagsRaw != "" {
+		parts := strings.Split(tagsRaw, ",")
+		for _, p := range parts {
+			t := strings.TrimSpace(p)
+			if t != "" {
+				tags = append(tags, t)
+			}
+		}
+	} else {
+		tags = []string{category, "South Africa wholesale"}
+	}
+
 	wholesaleZar, _ := strconv.ParseFloat(r.FormValue("wholesaleZar"), 64)
 	retailZar, _ := strconv.ParseFloat(r.FormValue("retailZar"), 64)
 	stockQty, _ := strconv.Atoi(r.FormValue("stockQuantity"))
 	lowStockAlert, _ := strconv.Atoi(r.FormValue("lowStockAlert"))
+	weightKg, _ := strconv.ParseFloat(r.FormValue("weightKg"), 64)
+	if weightKg == 0 {
+		weightKg = 0.45
+	}
 
 	newSKU := models.CatalogSKU{
-		ID:            fmt.Sprintf("mit_%d", time.Now().UnixNano()%10000),
+		ID:            fmt.Sprintf("mit_%d", time.Now().UnixNano()%100000),
 		StoreID:       "loc_mitrend_midrand",
 		SKU:           skuCode,
 		Title:         title,
-		Brand:         "Mitrend",
+		Brand:         brand,
 		Category:      category,
 		WholesaleZar:  wholesaleZar,
 		RetailZar:     retailZar,
@@ -1089,18 +1204,21 @@ func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		LowStockAlert: lowStockAlert,
 		FeedStatus:    "Active",
 		Spec: models.ProductDetailSpec{
-			WeightKg:       0.25,
-			Dimensions:     "Standard Commercial Unit",
-			HSCode:         "3923.50",
-			Barcode:        "60098824099",
+			WeightKg:       weightKg,
+			Dimensions:     dimensions,
+			HSCode:         hsCode,
+			Barcode:        barcode,
 			SABSApproved:   true,
-			Material:       "Commercial Grade Polymer",
-			LongDesc:       title,
+			Material:       material,
+			LongDesc:       desc,
 			SEOScore:       90,
-			SEOTags:        []string{category, "South Africa wholesale"},
+			SEOTags:        tags,
 			DirectStore:    true,
 			WhatsAppSync:   true,
 			ShoppagePublic: true,
+			Activities: []models.ProductActivity{
+				{Description: "Product SKU created & published to catalog", TimeAgo: "Just now"},
+			},
 		},
 	}
 

@@ -53,6 +53,8 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintf(w, `{"status":"healthy","service":"shoppage-merchant-os","port":%s}`+"\n", port)
 	})
+	r.Get("/favicon.ico", h.ServeFavicon)
+	r.Get("/favicon.svg", h.ServeFavicon)
 
 	// Dashboard & Tab Navigation (All 12 Modules)
 	r.Get("/", h.ServeDashboard)
@@ -61,6 +63,7 @@ func main() {
 
 	// Catalog & Product Operations
 	r.Get("/catalog/export.csv", h.ExportCatalogCSV)
+	r.Get("/catalog/new", h.ServeProductNew)
 	r.Get("/catalog/{id}", h.ServeProductDetail)
 	r.Get("/catalog/{id}/edit", h.ServeProductEdit)
 	r.Post("/catalog/{id}/edit", h.SaveProductEdit)

@@ -99,9 +99,14 @@ func main() {
 	r.Post("/api/assistant", h.HandleAssistant)
 	r.Get("/api/assistant", h.HandleAssistant)
 
-	// PWA Manifest and Service Worker
+	// PWA Manifest, Favicon and Service Worker
 	r.Get("/manifest.json", h.HandleManifest)
 	r.Get("/sw.js", h.HandleServiceWorker)
+	r.Get("/favicon.ico", h.HandleFavicon)
+	r.Get("/favicon.svg", h.HandleFavicon)
+	r.Get("/favicon.png", h.HandleFavicon)
+	r.Get("/apple-touch-icon.png", h.HandleFavicon)
+	r.Get("/apple-touch-icon-precomposed.png", h.HandleFavicon)
 
 	// Static Assets (Pre-compiled Tailwind CSS & HTMX served directly from memory with 1-year immutable cache)
 	r.Route("/static", func(sr chi.Router) {

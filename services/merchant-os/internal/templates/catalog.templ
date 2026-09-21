@@ -70,8 +70,8 @@ templ CatalogTab(data models.DashboardViewData) {
 				<a href="/catalog/export.csv" class="btn ghost small">
 					<span>📄</span> Export CSV
 				</a>
-				<button class="btn solid small" onclick="document.getElementById('new-sku-dialog')?.showModal();">
-					<span>+</span> Add Product SKU
+				<button class="btn solid small" hx-get="/catalog/new" hx-target="#tab-content" hx-push-url="true">
+					<span>+</span> Add product
 				</button>
 			</div>
 		</div>
@@ -97,7 +97,8 @@ templ CatalogTab(data models.DashboardViewData) {
 								<a 
 									href="javascript:void(0)" 
 									hx-get={ fmt.Sprintf("/catalog/%s", sku.ID) } 
-									hx-target="#modal-container" 
+									hx-target="#tab-content" 
+									hx-push-url="true"
 									style="font-weight: 700; color: var(--ink); text-decoration: none;"
 								>
 									{ sku.Title }
@@ -144,7 +145,8 @@ templ CatalogTab(data models.DashboardViewData) {
 									<button 
 										type="button"
 										hx-get={ fmt.Sprintf("/catalog/%s", sku.ID) }
-										hx-target="#modal-container"
+										hx-target="#tab-content"
+										hx-push-url="true"
 										class="btn ghost small"
 										style="padding:3px 8px; font-size:11.5px;"
 									>
@@ -153,7 +155,8 @@ templ CatalogTab(data models.DashboardViewData) {
 									<button 
 										type="button"
 										hx-get={ fmt.Sprintf("/catalog/%s/edit", sku.ID) }
-										hx-target="#modal-container"
+										hx-target="#tab-content"
+										hx-push-url="true"
 										class="btn ghost small"
 										style="padding:3px 8px; font-size:11.5px; color:var(--primary-2);"
 									>
@@ -200,7 +203,8 @@ templ CatalogTab(data models.DashboardViewData) {
 						<div style="display:flex; gap:6px;">
 							<button 
 								hx-get={ fmt.Sprintf("/catalog/%s", sku.ID) }
-								hx-target="#modal-container"
+								hx-target="#tab-content"
+								hx-push-url="true"
 								class="btn ghost small"
 								style="flex:1;"
 							>
@@ -208,7 +212,8 @@ templ CatalogTab(data models.DashboardViewData) {
 							</button>
 							<button 
 								hx-get={ fmt.Sprintf("/catalog/%s/edit", sku.ID) }
-								hx-target="#modal-container"
+								hx-target="#tab-content"
+								hx-push-url="true"
 								class="btn solid small"
 								style="flex:1;"
 							>
@@ -220,62 +225,6 @@ templ CatalogTab(data models.DashboardViewData) {
 			}
 		</div>
 	</div>
-
-	<!-- Add SKU Dialog -->
-	<dialog id="new-sku-dialog" class="modal-dialog">
-		<div class="modal-card">
-			<div class="modal-head">
-				<h4>Add New Product SKU to Catalog</h4>
-				<button type="button" class="close-btn" onclick="document.getElementById('new-sku-dialog').close();">&times;</button>
-			</div>
-			<form hx-post="/catalog/new" hx-target="#tab-content" onsubmit="document.getElementById('new-sku-dialog').close();">
-				<div class="modal-body">
-					<div class="form-group">
-						<label>Product Title</label>
-						<input type="text" name="title" class="input" placeholder="e.g. 500ml Clear PET Beverage Bottle" required />
-					</div>
-					<div class="two-col">
-						<div class="form-group">
-							<label>SKU Code</label>
-							<input type="text" name="sku" class="input" placeholder="e.g. MIT-9910" required />
-						</div>
-						<div class="form-group">
-							<label>Category</label>
-							<select name="category" class="select-full">
-								<option value="Packaging & Catering">Packaging &amp; Catering</option>
-								<option value="Hospitality Supplies">Hospitality Supplies</option>
-								<option value="Eco Cleaning">Eco Cleaning</option>
-							</select>
-						</div>
-					</div>
-					<div class="two-col">
-						<div class="form-group">
-							<label>Wholesale Price (ZAR)</label>
-							<input type="number" step="0.01" name="wholesaleZar" class="input" value="12.50" required />
-						</div>
-						<div class="form-group">
-							<label>Retail Price (ZAR)</label>
-							<input type="number" step="0.01" name="retailZar" class="input" value="18.00" required />
-						</div>
-					</div>
-					<div class="two-col">
-						<div class="form-group">
-							<label>Initial Stock on Hand</label>
-							<input type="number" name="stockQuantity" class="input" value="100" required />
-						</div>
-						<div class="form-group">
-							<label>Reorder Buffer</label>
-							<input type="number" name="lowStockAlert" class="input" value="20" required />
-						</div>
-					</div>
-				</div>
-				<div class="modal-foot">
-					<button type="button" class="btn ghost" onclick="document.getElementById('new-sku-dialog').close();">Cancel</button>
-					<button type="submit" class="btn solid">Create Product SKU</button>
-				</div>
-			</form>
-		</div>
-	</dialog>
 }
 
 templ StockButtonComponent(sku models.CatalogSKU) {

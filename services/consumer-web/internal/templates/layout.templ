@@ -15,6 +15,10 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 			<meta name="description" content={ description }/>
 			<link rel="manifest" href="/manifest.json"/>
 			<meta name="theme-color" content="#059669"/>
+			<!-- Browser Address Bar & Tab Favicon (Shoppage Brand) -->
+			<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+			<link rel="alternate icon" type="image/png" href="/favicon.svg"/>
+			<link rel="apple-touch-icon" href="/favicon.svg"/>
 			<!-- Fonts: Plus Jakarta Sans & Outfit (Optimized Async Preload) -->
 			<link rel="preconnect" href="https://fonts.googleapis.com"/>
 			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -110,7 +114,12 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 			<div class="bg-white border-b border-slate-200/80 py-1.5 text-xs text-slate-600 sticky top-0 z-40">
 				<div class="max-w-[1440px] mx-auto px-4 sm:px-6 flex items-center justify-between">
 					<div class="flex items-center gap-2">
-						<span class="text-emerald-600">📍</span>
+						<span class="text-emerald-600 flex items-center shrink-0">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+								<circle cx="12" cy="10" r="3"></circle>
+							</svg>
+						</span>
 						<span class="font-bold text-slate-900">President Park AH, Midrand</span>
 						<span class="text-slate-300">·</span>
 						<button 

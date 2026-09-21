@@ -47,7 +47,7 @@ func OfferModalComponent(data OfferModalViewData) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Product.ImageURL)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 46, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 46, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -60,7 +60,7 @@ func OfferModalComponent(data OfferModalViewData) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Product.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 46, Col: 63}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 46, Col: 63}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
@@ -73,7 +73,7 @@ func OfferModalComponent(data OfferModalViewData) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.Product.Brand)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 48, Col: 94}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 48, Col: 94}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -86,7 +86,7 @@ func OfferModalComponent(data OfferModalViewData) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.Product.Model)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 48, Col: 120}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 48, Col: 120}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -99,7 +99,7 @@ func OfferModalComponent(data OfferModalViewData) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.Product.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 49, Col: 86}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 49, Col: 86}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -112,7 +112,7 @@ func OfferModalComponent(data OfferModalViewData) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", data.TargetPrice))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 52, Col: 87}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 52, Col: 87}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -125,7 +125,7 @@ func OfferModalComponent(data OfferModalViewData) templ.Component {
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Product.CanonicalID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 62, Col: 75}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 62, Col: 75}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 		if templ_7745c5c3_Err != nil {
@@ -138,7 +138,7 @@ func OfferModalComponent(data OfferModalViewData) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Product.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 63, Col: 72}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 63, Col: 72}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 		if templ_7745c5c3_Err != nil {
@@ -151,7 +151,7 @@ func OfferModalComponent(data OfferModalViewData) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Merchant.MerchantID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 64, Col: 76}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 64, Col: 76}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 		if templ_7745c5c3_Err != nil {
@@ -164,7 +164,7 @@ func OfferModalComponent(data OfferModalViewData) templ.Component {
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Merchant.MerchantName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 65, Col: 80}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 65, Col: 80}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 		if templ_7745c5c3_Err != nil {
@@ -177,7 +177,7 @@ func OfferModalComponent(data OfferModalViewData) templ.Component {
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Merchant.WhatsApp)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 66, Col: 77}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 66, Col: 77}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 		if templ_7745c5c3_Err != nil {
@@ -190,7 +190,7 @@ func OfferModalComponent(data OfferModalViewData) templ.Component {
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.2f", data.TargetPrice))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 67, Col: 90}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 67, Col: 90}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 		if templ_7745c5c3_Err != nil {
@@ -203,7 +203,7 @@ func OfferModalComponent(data OfferModalViewData) templ.Component {
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.0f", data.TargetPrice*0.90))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 80, Col: 60}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 80, Col: 60}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 		if templ_7745c5c3_Err != nil {
@@ -233,7 +233,7 @@ func OfferModalComponent(data OfferModalViewData) templ.Component {
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f", data.TargetPrice*0.95))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 95, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 95, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
@@ -263,7 +263,7 @@ func OfferModalComponent(data OfferModalViewData) templ.Component {
 		var templ_7745c5c3_Var18 string
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f", data.TargetPrice*0.90))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 102, Col: 62}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 102, Col: 62}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {
@@ -293,7 +293,7 @@ func OfferModalComponent(data OfferModalViewData) templ.Component {
 		var templ_7745c5c3_Var20 string
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f", data.TargetPrice*0.85))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 109, Col: 62}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 109, Col: 62}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
@@ -335,7 +335,7 @@ func OfferSuccessCardComponent(result models.OfferSubmissionResult) templ.Compon
 		var templ_7745c5c3_Var22 string
 		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(result.Message)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 209, Col: 20}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 209, Col: 20}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {
@@ -348,7 +348,7 @@ func OfferSuccessCardComponent(result models.OfferSubmissionResult) templ.Compon
 		var templ_7745c5c3_Var23 string
 		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", result.OfferPrice))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 216, Col: 90}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 216, Col: 90}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
@@ -361,7 +361,7 @@ func OfferSuccessCardComponent(result models.OfferSubmissionResult) templ.Compon
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d units", result.Quantity))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 220, Col: 89}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 220, Col: 89}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
@@ -379,7 +379,7 @@ func OfferSuccessCardComponent(result models.OfferSubmissionResult) templ.Compon
 			var templ_7745c5c3_Var25 string
 			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", result.TotalSavings))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 225, Col: 93}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 225, Col: 93}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 			if templ_7745c5c3_Err != nil {
@@ -397,7 +397,7 @@ func OfferSuccessCardComponent(result models.OfferSubmissionResult) templ.Compon
 		var templ_7745c5c3_Var26 templ.SafeURL
 		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(result.WhatsAppURL))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/offer.templ`, Line: 232, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/offer.templ`, Line: 232, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 		if templ_7745c5c3_Err != nil {

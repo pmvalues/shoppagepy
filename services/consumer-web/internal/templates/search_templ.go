@@ -41,7 +41,7 @@ func SearchResultsGridComponent(data SearchViewData) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Products)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/search.templ`, Line: 12, Col: 88}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/search.templ`, Line: 12, Col: 88}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -59,7 +59,7 @@ func SearchResultsGridComponent(data SearchViewData) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(" for \"%s\"", data.Query))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/search.templ`, Line: 14, Col: 51}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/search.templ`, Line: 14, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -77,7 +77,7 @@ func SearchResultsGridComponent(data SearchViewData) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", data.LatencyMs))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/search.templ`, Line: 18, Col: 57}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/search.templ`, Line: 18, Col: 57}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -105,7 +105,7 @@ func SearchResultsGridComponent(data SearchViewData) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(prod.ImageURL)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/search.templ`, Line: 35, Col: 31}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/search.templ`, Line: 35, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 				if templ_7745c5c3_Err != nil {
@@ -118,7 +118,7 @@ func SearchResultsGridComponent(data SearchViewData) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(prod.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/search.templ`, Line: 35, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/search.templ`, Line: 35, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 				if templ_7745c5c3_Err != nil {
@@ -141,7 +141,7 @@ func SearchResultsGridComponent(data SearchViewData) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(prod.Brand)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/search.templ`, Line: 50, Col: 102}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/search.templ`, Line: 50, Col: 102}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -154,7 +154,7 @@ func SearchResultsGridComponent(data SearchViewData) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(prod.Category)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/search.templ`, Line: 50, Col: 123}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/search.templ`, Line: 50, Col: 123}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -167,7 +167,7 @@ func SearchResultsGridComponent(data SearchViewData) templ.Component {
 				var templ_7745c5c3_Var9 templ.SafeURL
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/p/%s", prod.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/search.templ`, Line: 52, Col: 61}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/search.templ`, Line: 52, Col: 61}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -180,7 +180,7 @@ func SearchResultsGridComponent(data SearchViewData) templ.Component {
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(prod.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/search.templ`, Line: 52, Col: 118}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/search.templ`, Line: 52, Col: 118}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -193,7 +193,7 @@ func SearchResultsGridComponent(data SearchViewData) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(prod.City)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/search.templ`, Line: 58, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/search.templ`, Line: 58, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -206,7 +206,7 @@ func SearchResultsGridComponent(data SearchViewData) templ.Component {
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", prod.PriceZar))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/search.templ`, Line: 66, Col: 95}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/search.templ`, Line: 66, Col: 95}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -219,7 +219,7 @@ func SearchResultsGridComponent(data SearchViewData) templ.Component {
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(templ.SafeURL(fmt.Sprintf("/offer/modal/%s?price=%.2f", prod.ID, prod.PriceZar))))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/search.templ`, Line: 71, Col: 106}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/search.templ`, Line: 71, Col: 106}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 				if templ_7745c5c3_Err != nil {
@@ -232,7 +232,7 @@ func SearchResultsGridComponent(data SearchViewData) templ.Component {
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(templ.SafeURL(fmt.Sprintf("/buybox/%s", prod.ID))))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/search.templ`, Line: 80, Col: 75}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/search.templ`, Line: 80, Col: 75}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 				if templ_7745c5c3_Err != nil {
@@ -289,20 +289,20 @@ func SearchPageComponent(data SearchViewData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<main class=\"flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6\"><!-- Top Search Bar --><div class=\"mb-6 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs\"><form action=\"/search\" method=\"GET\" class=\"relative flex items-center w-full group\"><!-- Magnifying Glass Icon --><div class=\"absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-600 transition-colors z-10\"><svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" viewBox=\"0 0 24 24\"><circle cx=\"11\" cy=\"11\" r=\"7\"></circle> <path stroke-linecap=\"round\" d=\"M21 21l-4.35-4.35\"></path></svg></div><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<main class=\"flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6\"><!-- Top Search Bar --><div class=\"mb-6 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs\"><form action=\"/search\" method=\"GET\" class=\"relative flex items-center w-full group\"><!-- Magnifying Glass Icon (Explicit inline positioning to guarantee rendering) --><div style=\"position: absolute; left: 14px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; pointer-events: none; z-index: 10; color: #059669;\"><svg width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" viewBox=\"0 0 24 24\"><circle cx=\"11\" cy=\"11\" r=\"7\"></circle> <path stroke-linecap=\"round\" d=\"M21 21l-4.35-4.35\"></path></svg></div><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/consumer-web/internal/templates/search.templ`, Line: 112, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/search.templ`, Line: 112, Col: 24}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" placeholder=\"Search 1,000,000+ products, inverters, boxes, cement, specials...\" class=\"w-full bg-slate-100 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-500 rounded-full py-2.5 pl-11 pr-24 text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 outline-none transition shadow-xs\" autocomplete=\"off\"><!-- Right Search Button --><div class=\"absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 z-10\"><button type=\"submit\" class=\"px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5 cursor-pointer\" title=\"Search Shoppage\"><svg class=\"w-3.5 h-3.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" viewBox=\"0 0 24 24\"><circle cx=\"11\" cy=\"11\" r=\"7\"></circle> <path stroke-linecap=\"round\" d=\"M21 21l-4.35-4.35\"></path></svg> <span>Search</span></button></div></form></div><div class=\"flex flex-col md:flex-row gap-6\"><!-- Left Filter Facets Sidebar --><aside class=\"w-full md:w-64 shrink-0 space-y-6\"><div class=\"bg-white rounded-2xl border border-slate-200 p-5 sticky top-28\"><h3 class=\"text-xs font-black text-slate-900 uppercase tracking-wider mb-3\">Search Mode</h3><div class=\"space-y-2 text-xs font-medium\"><label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"tab\" value=\"all\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" placeholder=\"Search 1,000,000+ products, inverters, boxes, cement, specials...\" style=\"padding-left: 44px; padding-right: 96px;\" class=\"w-full bg-slate-100 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-500 rounded-full py-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 outline-none transition shadow-xs\" autocomplete=\"off\"><!-- Right Search Button --><div style=\"position: absolute; right: 6px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 6px; z-index: 10;\"><button type=\"submit\" class=\"px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5 cursor-pointer\" title=\"Search Shoppage\"><svg width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" viewBox=\"0 0 24 24\"><circle cx=\"11\" cy=\"11\" r=\"7\"></circle> <path stroke-linecap=\"round\" d=\"M21 21l-4.35-4.35\"></path></svg> <span>Search</span></button></div></form></div><div class=\"flex flex-col md:flex-row gap-6\"><!-- Left Filter Facets Sidebar --><aside class=\"w-full md:w-64 shrink-0 space-y-6\"><div class=\"bg-white rounded-2xl border border-slate-200 p-5 sticky top-28\"><h3 class=\"text-xs font-black text-slate-900 uppercase tracking-wider mb-3\">Search Mode</h3><div class=\"space-y-2 text-xs font-medium\"><label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"tab\" value=\"all\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

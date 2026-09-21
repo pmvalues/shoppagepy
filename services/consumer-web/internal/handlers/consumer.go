@@ -417,13 +417,36 @@ func (h *ConsumerHandler) HandleManifest(w http.ResponseWriter, r *http.Request)
 		"theme_color":      "#059669",
 		"icons": []map[string]string{
 			{
-				"src":   "http://localhost:3001/favicon.svg",
+				"src":   "/favicon.svg",
 				"sizes": "any",
 				"type":  "image/svg+xml",
 			},
 		},
 	}
 	json.NewEncoder(w).Encode(manifest)
+}
+
+// HandleFavicon serves the classic Shoppage emerald bag & lightning bolt favicon
+func (h *ConsumerHandler) HandleFavicon(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "image/svg+xml")
+	w.Header().Set("Cache-Control", "public, max-age=86400")
+	svg := `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="sp-brand-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="sp-bolt-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD34D"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#sp-brand-grad)"/>
+  <path d="M8.5 12C8.5 10.8954 9.39543 10 10.5 10H21.5C22.6046 10 23.5 10.8954 23.5 12L24.5 24C24.5 25.1046 23.6046 26 22.5 26H9.5C8.39543 26 7.5 25.1046 7.5 24L8.5 12Z" fill="#FFFFFF"/>
+  <path d="M12 10V7.5C12 5.567 13.567 4 15.5 4H16.5C18.433 4 20 5.567 20 7.5V10" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M17 12L12 18H16L15 24L20 17H16.2L17 12Z" fill="url(#sp-bolt-grad)"/>
+</svg>`
+	w.Write([]byte(svg))
 }
 
 // HandleServiceWorker serves the PWA service worker script

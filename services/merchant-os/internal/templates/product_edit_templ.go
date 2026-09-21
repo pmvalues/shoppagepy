@@ -24,7 +24,7 @@ func joinTags(tags []string) string {
 	return res
 }
 
-func ProductEditModal(sku models.CatalogSKU) templ.Component {
+func ProductEditView(sku models.CatalogSKU, isNew bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -45,486 +45,686 @@ func ProductEditModal(sku models.CatalogSKU) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"modal-card\" style=\"max-width:1160px; width:95%;\"><form hx-post=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"view active\" data-view=\"edit\" id=\"edit\"><form")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/catalog/%s/edit", sku.ID))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 22, Col: 52}
+		if isNew {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " hx-post=\"/catalog/new\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " hx-post=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var2 string
+			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/catalog/%s/edit", sku.ID))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 25, Col: 53}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-target=\"#tab-content\" onsubmit=\"document.getElementById('modal-container').innerHTML = '';\"><div class=\"modal-body\" style=\"padding: 24px;\"><!-- Editor Bar --><div class=\"editor-bar\"><div class=\"head-copy\"><div class=\"breadcrumb\" style=\"margin: 0 0 6px;\"><a href=\"javascript:void(0)\" onclick=\"document.getElementById('modal-container').innerHTML = '';\">Products</a> <svg viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M9 5l7 7-7 7\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\"></path></svg> <a href=\"javascript:void(0)\" hx-get=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/catalog/%s", sku.ID))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 33, Col: 79}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" hx-target=\"#modal-container\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Title)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 33, Col: 122}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " hx-target=\"#tab-content\" hx-push-url=\"/tab/catalog\"><!-- Editor Bar --><div class=\"editor-bar\"><div class=\"head-copy\"><div class=\"breadcrumb\" style=\"margin: 0 0 6px;\"><a href=\"javascript:void(0)\" hx-get=\"/tab/catalog\" hx-target=\"#tab-content\" hx-push-url=\"/tab/catalog\">Products</a> <svg viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M9 5l7 7-7 7\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\"></path></svg> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</a> <svg viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M9 5l7 7-7 7\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\"></path></svg> <span style=\"color:var(--ink); font-weight:600;\">Edit</span></div><h1>Edit: ")
+		if isNew {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span style=\"color:var(--ink); font-weight:600;\">Add product</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<a href=\"javascript:void(0)\" hx-get=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/catalog/%s", sku.ID))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 39, Col: 79}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" hx-target=\"#tab-content\" hx-push-url=\"true\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Title)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 39, Col: 137}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</a> <svg viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M9 5l7 7-7 7\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\"></path></svg> <span style=\"color:var(--ink); font-weight:600;\">Edit</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var5 string
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Title)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 37, Col: 27}
+		if isNew {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<h1>Add product</h1><p class=\"micro\" style=\"margin: 4px 0 0;\">Create a new commercial SKU · Auto-syncs to Pemofy WMS &amp; Shoppage</p>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<h1>Edit: ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Title)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 48, Col: 27}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</h1><p class=\"micro\" style=\"margin: 4px 0 0;\">Commercial Catalog SKU · ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(sku.SKU)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 49, Col: 83}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " · Sovereign Pod pod-za-01</p>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div class=\"view-actions\"><button type=\"button\" class=\"btn ghost\" hx-get=\"/tab/catalog\" hx-target=\"#tab-content\" hx-push-url=\"/tab/catalog\">Discard changes</button> <button type=\"submit\" class=\"btn solid\" id=\"saveBtn\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</h1><p class=\"micro\" style=\"margin: 4px 0 0;\">Commercial Catalog SKU · ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		if isNew {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "Save &amp; publish")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "Save changes")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		var templ_7745c5c3_Var6 string
-		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(sku.SKU)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 38, Col: 83}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " · Sovereign Pod pod-za-01</p></div><div class=\"view-actions\"><button type=\"button\" class=\"btn ghost\" onclick=\"document.getElementById('modal-container').innerHTML = '';\">Discard changes</button> <button type=\"submit\" class=\"btn solid\" id=\"saveBtn\">Save changes</button> <button type=\"button\" class=\"close-btn\" onclick=\"document.getElementById('modal-container').innerHTML = '';\" title=\"Close\">&times;</button></div></div><!-- 5 Editor Tabs --><div class=\"editor-tabs\"><button type=\"button\" class=\"active\" onclick=\"switchEditTab('general', this)\">General</button> <button type=\"button\" onclick=\"switchEditTab('inventory', this)\">Inventory</button> <button type=\"button\" onclick=\"switchEditTab('variants', this)\">Variants</button> <button type=\"button\" onclick=\"switchEditTab('seo', this)\">SEO &amp; discovery</button> <button type=\"button\" onclick=\"switchEditTab('channels', this)\">Channels</button></div><!-- 2-Column Editor Grid --><div class=\"editor-grid\"><!-- LEFT: Main Tabbed Content --><div><article class=\"card form-card\"><!-- 1. GENERAL TAB --><div id=\"tab-pane-general\"><div class=\"form-group\"><div class=\"form-label\"><label for=\"productTitle\">Product title</label> <span id=\"title-char-count\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</button></div></div><!-- 5 Editor Tabs --><div class=\"editor-tabs\"><button type=\"button\" class=\"active\" onclick=\"switchEditTab('general', this)\">General</button> <button type=\"button\" onclick=\"switchEditTab('inventory', this)\">Inventory</button> <button type=\"button\" onclick=\"switchEditTab('variants', this)\">Variants</button> <button type=\"button\" onclick=\"switchEditTab('seo', this)\">SEO &amp; discovery</button> <button type=\"button\" onclick=\"switchEditTab('channels', this)\">Channels</button></div><!-- 2-Column Editor Grid --><div class=\"editor-grid\"><!-- LEFT: Main Tabbed Content --><div><article class=\"card form-card\"><!-- 1. GENERAL TAB --><div id=\"tab-pane-general\"><div class=\"form-group\"><div class=\"form-label\"><label for=\"productTitle\">Product title</label> <span id=\"title-char-count\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d / 80", len(sku.Title)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 66, Col: 78}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 83, Col: 77}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</span></div><input class=\"input\" id=\"productTitle\" name=\"title\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span></div><input class=\"input\" id=\"productTitle\" name=\"title\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 72, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 89, Col: 26}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" oninput=\"document.getElementById('title-char-count').textContent = this.value.length + ' / 80';\" required></div><div class=\"form-group\"><div class=\"form-label\"><label for=\"description\">Description &amp; Specifications</label> <span>Rich text</span></div><div class=\"rich\"><div class=\"rich-tools\"><button type=\"button\" onclick=\"formatDesc('bold')\"><b>B</b></button> <button type=\"button\" onclick=\"formatDesc('italic')\"><i>I</i></button> <button type=\"button\" onclick=\"formatDesc('h2')\">H2</button> <button type=\"button\" onclick=\"formatDesc('list')\">• List</button> <button type=\"button\" onclick=\"formatDesc('link')\">Link</button></div><textarea class=\"textarea\" id=\"description\" name=\"description\" rows=\"4\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" placeholder=\"e.g. Speckled Mug · Sand or Takeaway Burger Boxes (Pack of 250)\" oninput=\"document.getElementById('title-char-count').textContent = this.value.length + ' / 80';\" required></div><div class=\"form-group\"><div class=\"form-label\"><label for=\"description\">Description &amp; Specifications</label> <span>Rich text</span></div><div class=\"rich\"><div class=\"rich-tools\"><button type=\"button\" onclick=\"formatDesc('bold')\"><b>B</b></button> <button type=\"button\" onclick=\"formatDesc('italic')\"><i>I</i></button> <button type=\"button\" onclick=\"formatDesc('h2')\">H2</button> <button type=\"button\" onclick=\"formatDesc('list')\">• List</button> <button type=\"button\" onclick=\"formatDesc('link')\">Link</button></div><textarea class=\"textarea\" id=\"description\" name=\"description\" rows=\"4\" placeholder=\"Describe materials, compliance, pack count, and commercial applications...\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Spec.LongDesc)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 91, Col: 101}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 109, Col: 189}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</textarea></div><div class=\"help\">Use plain commercial specifications. Pemofy AI can also draft descriptions from product photos.</div></div><div class=\"form-group\"><div class=\"form-label\"><label>Product media</label> <span>1 of 8 images</span></div><div class=\"media-drop\" onclick=\"document.getElementById('product-media-file').click();\"><svg viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M12 16V4m0 0L8 8m4-4l4 4M5 12v6h14v-6\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg> <b>Drop images here or choose files</b> <span>WebP, JPG or PNG · up to 10 MB each</span> <input type=\"file\" id=\"product-media-file\" style=\"display:none;\" accept=\"image/*\" onchange=\"alert('Image selected: ' + this.files[0]?.name);\"></div><div class=\"media-current\"><div style=\"width:48px; height:48px; border-radius:9px; background:linear-gradient(135deg, #dcefe4, #a7cfba); display:grid; place-items:center; font-size:22px; flex:none;\">📦</div><div class=\"micro\" style=\"padding:2px 0;\"><b>sku-")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</textarea></div><div class=\"help\">Use plain commercial specifications. Pemofy AI can also draft descriptions from product photos.</div></div><div class=\"form-group\"><div class=\"form-label\"><label>Product media</label> <span>1 of 8 images</span></div><div class=\"media-drop\" onclick=\"document.getElementById('product-media-file').click();\"><svg viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M12 16V4m0 0L8 8m4-4l4 4M5 12v6h14v-6\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg> <b>Drop images here or choose files</b> <span>WebP, JPG or PNG · up to 10 MB each</span> <input type=\"file\" id=\"product-media-file\" style=\"display:none;\" accept=\"image/*\" onchange=\"alert('Image selected: ' + this.files[0]?.name);\"></div><div class=\"media-current\"><div style=\"width:48px; height:48px; border-radius:9px; background:linear-gradient(135deg, #dcefe4, #a7cfba); display:grid; place-items:center; font-size:22px; flex:none;\">📦</div><div class=\"micro\" style=\"padding:2px 0;\"><b>sku-")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(sku.SKU)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 112, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 130, Col: 26}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, ".webp</b><br><span style=\"color:var(--primary);\">Optimised CDN asset · 124 KB</span></div></div></div><div class=\"form-group\"><div class=\"form-label\"><label>Pricing</label> <span>Currency: ZAR</span></div><div class=\"two-col\"><div><label class=\"help\" for=\"wholesaleZar\">Wholesale / Trade Price (excl. VAT)</label> <input class=\"input\" id=\"wholesaleZar\" name=\"wholesaleZar\" type=\"number\" step=\"0.01\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, ".webp</b><br><span style=\"color:var(--primary);\">Optimised CDN asset · 124 KB</span></div></div></div><div class=\"form-group\"><div class=\"form-label\"><label>Pricing</label> <span>Currency: ZAR</span></div><div class=\"two-col\"><div><label class=\"help\" for=\"wholesaleZar\">Wholesale / Trade Price (excl. VAT)</label> <input class=\"input\" id=\"wholesaleZar\" name=\"wholesaleZar\" type=\"number\" step=\"0.01\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.2f", sku.WholesaleZar))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 126, Col: 141}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 144, Col: 140}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" required></div><div><label class=\"help\" for=\"retailZar\">Compare-at Retail Price (incl. VAT)</label> <input class=\"input\" id=\"retailZar\" name=\"retailZar\" type=\"number\" step=\"0.01\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" required></div><div><label class=\"help\" for=\"retailZar\">Compare-at Retail Price (incl. VAT)</label> <input class=\"input\" id=\"retailZar\" name=\"retailZar\" type=\"number\" step=\"0.01\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.2f", sku.RetailZar))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 130, Col: 132}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 148, Col: 131}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" required></div></div></div><div class=\"form-group\"><div class=\"form-label\"><label>Organisation</label> <span>Discovery &amp; Filters</span></div><div class=\"two-col\"><div><label class=\"help\" for=\"category\">Category</label> <select class=\"select-full\" id=\"category\" name=\"category\"><option value=\"Hospitality Supplies\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" required></div></div></div><div class=\"form-group\"><div class=\"form-label\"><label>Organisation</label> <span>Discovery &amp; Filters</span></div><div class=\"two-col\"><div><label class=\"help\" for=\"category\">Category</label> <select class=\"select-full\" id=\"category\" name=\"category\"><option value=\"Hospitality &amp; Packaging\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if sku.Category == "Hospitality Supplies" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " selected")
+		if sku.Category == "Hospitality & Packaging" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, " selected")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, ">Hospitality Supplies</option> <option value=\"Packaging & Catering\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, ">Hospitality &amp; Packaging</option> <option value=\"Commercial Cleaning &amp; Janitorial\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if sku.Category == "Packaging & Catering" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " selected")
+		if sku.Category == "Commercial Cleaning & Janitorial" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, " selected")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, ">Packaging &amp; Catering</option> <option value=\"Eco Cleaning\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, ">Commercial Cleaning &amp; Janitorial</option> <option value=\"Food &amp; Beverage Consumables\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if sku.Category == "Eco Cleaning" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, " selected")
+		if sku.Category == "Food & Beverage Consumables" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, " selected")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, ">Eco Cleaning</option> <option value=\"Homeware & Ceramics\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, ">Food &amp; Beverage Consumables</option> <option value=\"Industrial Safety &amp; PPE\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if sku.Category == "Homeware & Ceramics" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " selected")
+		if sku.Category == "Industrial Safety & PPE" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, " selected")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, ">Homeware &amp; Ceramics</option></select></div><div><label class=\"help\" for=\"brand\">Vendor / Brand</label> <input class=\"input\" id=\"brand\" name=\"brand\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, ">Industrial Safety &amp; PPE</option> <option value=\"Ceramics &amp; Homeware\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if sku.Category == "Ceramics & Homeware" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, ">Ceramics &amp; Homeware</option></select></div><div><label class=\"help\" for=\"brand\">Brand / Vendor</label> <input class=\"input\" id=\"brand\" name=\"brand\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Brand)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 152, Col: 73}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 171, Col: 72}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" required></div></div><div style=\"margin-top:10px;\"><label class=\"help\" for=\"material\">Material Composition</label> <input class=\"input\" id=\"material\" name=\"material\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" placeholder=\"e.g. Mitrend\"></div></div><label class=\"help\" style=\"display:block; margin-top:10px;\" for=\"tags\">Tags &amp; Search Keywords</label> <input class=\"input\" id=\"tags\" name=\"tags\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var14 string
-		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Spec.Material)
+		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(joinTags(sku.Spec.SEOTags))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 157, Col: 86}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 175, Col: 85}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"></div></div></div><!-- 2. INVENTORY TAB --><div id=\"tab-pane-inventory\" style=\"display:none;\"><div class=\"form-group\"><div class=\"form-label\"><label>Inventory Tracking</label> <span>WMS Hub: Midrand Sovereign Hub</span></div><div class=\"two-col\"><div><label class=\"help\">SKU Code</label> <input class=\"input\" name=\"sku\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" placeholder=\"e.g. boxes, eco-friendly, midrand, takeaway\"></div></div><!-- 2. INVENTORY TAB --><div id=\"tab-pane-inventory\" style=\"display:none;\"><div class=\"form-group\"><div class=\"two-col\"><div><label class=\"help\" for=\"sku\">SKU Code</label> <input class=\"input\" id=\"sku\" name=\"sku\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var15 string
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.SKU)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 172, Col: 58}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 185, Col: 66}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" required></div><div><label class=\"help\">Barcode (EAN-13)</label> <input class=\"input\" name=\"barcode\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" required></div><div><label class=\"help\" for=\"barcode\">Barcode (EAN-13 / GTIN)</label> <input class=\"input\" id=\"barcode\" name=\"barcode\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Spec.Barcode)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 176, Col: 71}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 189, Col: 83}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\"></div></div><div class=\"two-col\" style=\"margin-top:10px;\"><div><label class=\"help\">Stock on Hand (Units)</label> <input class=\"input\" name=\"stockQuantity\" type=\"number\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\"></div></div></div><div class=\"form-group\"><div class=\"two-col\"><div><label class=\"help\" for=\"stockQuantity\">Stock Quantity on Hand</label> <input class=\"input\" id=\"stockQuantity\" name=\"stockQuantity\" type=\"number\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", sku.StockQuantity))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 182, Col: 111}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 197, Col: 129}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" required></div><div><label class=\"help\">Low-Stock Alert Threshold</label> <input class=\"input\" name=\"lowStockAlert\" type=\"number\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" required></div><div><label class=\"help\" for=\"lowStockAlert\">Low Stock Alert Threshold</label> <input class=\"input\" id=\"lowStockAlert\" name=\"lowStockAlert\" type=\"number\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var18 string
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", sku.LowStockAlert))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 186, Col: 111}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 201, Col: 129}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" required></div></div><div class=\"switch-row\" style=\"margin-top:14px;\"><div><b>Automatic Restock Workflow</b> <span>Issue restock purchase order proposal when stock hits alert threshold</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on')\"></button></div></div></div><!-- 3. VARIANTS TAB --><div id=\"tab-pane-variants\" style=\"display:none;\"><div class=\"form-group\"><div class=\"form-label\"><label>Wholesale Pack Variants</label> <span>Tiered B2B quantities</span></div><div style=\"background:var(--surface-2); border-radius:8px; padding:12px; border:1px solid var(--line);\"><div class=\"variant-row\" style=\"font-weight:700; font-size:11.5px; color:var(--muted); margin-bottom:8px;\"><span>Variant / Pack Size</span> <span>SKU Suffix</span> <span>Price Adj.</span> <span></span></div><div class=\"variant-row\"><input class=\"input\" value=\"Single Carton Unit (Standard)\" readonly> <input class=\"input\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\" required></div></div></div><div class=\"form-group\"><div class=\"two-col\"><div><label class=\"help\" for=\"hsCode\">Customs HS Code</label> <input class=\"input\" id=\"hsCode\" name=\"hsCode\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var19 string
-		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.SKU)
+		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Spec.HSCode)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 215, Col: 47}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 209, Col: 80}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" readonly> <input class=\"input\" value=\"Base Price\" readonly> <button type=\"button\" class=\"remove\" title=\"Base SKU\">✓</button></div><div class=\"variant-row\"><input class=\"input\" value=\"Bulk Outer Box (1,000s)\"> <input class=\"input\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\"></div><div><label class=\"help\" for=\"material\">Primary Material</label> <input class=\"input\" id=\"material\" name=\"material\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var20 string
-		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.SKU + "-BULK")
+		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Spec.Material)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 221, Col: 57}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 213, Col: 86}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\"> <input class=\"input\" value=\"-15% Tier\"> <button type=\"button\" class=\"remove\" onclick=\"this.parentElement.remove()\">&times;</button></div><div class=\"variant-row\"><input class=\"input\" value=\"Pallet Layer (10,000s)\"> <input class=\"input\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\"></div></div></div><div class=\"form-group\"><label class=\"help\" for=\"dimensions\">Unit Dimensions &amp; Packaging Spec</label> <input class=\"input\" id=\"dimensions\" name=\"dimensions\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var21 string
-		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.SKU + "-PLT")
+		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Spec.Dimensions)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 227, Col: 56}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 219, Col: 90}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\"> <input class=\"input\" value=\"-25% Tier\"> <button type=\"button\" class=\"remove\" onclick=\"this.parentElement.remove()\">&times;</button></div><button type=\"button\" class=\"add-link\" onclick=\"addVariantRow(this)\">+ Add pack variant</button></div></div></div><!-- 4. SEO & DISCOVERY TAB --><div id=\"tab-pane-seo\" style=\"display:none;\"><div class=\"form-group\"><div class=\"form-label\"><label>Search Engine Optimization</label> <span>SEO Score: ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\"></div></div><!-- 3. VARIANTS TAB --><div id=\"tab-pane-variants\" style=\"display:none;\"><div style=\"margin-bottom:14px;\"><h4 style=\"font-size:14px; margin-bottom:4px;\">Product Options &amp; Variants</h4><p class=\"micro\">Define sizing, pack sizes, colors or commercial volume tiers.</p></div><div class=\"variant-row\"><input class=\"input\" value=\"Standard Pack (25 units)\"> <input class=\"input\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var22 string
-		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d / 100", sku.Spec.SEOScore))
+		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("R %.2f", sku.WholesaleZar))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 241, Col: 71}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 231, Col: 76}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</span></div><div><label class=\"help\">SEO Page Title</label> <input class=\"input\" name=\"seoTitle\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\"> <input class=\"input\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var23 string
-		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Title + " | " + sku.Brand + " South Africa")
+		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d in stock", sku.StockQuantity))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 245, Col: 102}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 232, Col: 82}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\"></div><div style=\"margin-top:10px;\"><label class=\"help\">Meta Description</label> <textarea class=\"textarea\" name=\"metaDesc\" rows=\"2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\"> <button type=\"button\" class=\"remove\" onclick=\"this.parentElement.remove()\">&times;</button></div><div class=\"variant-row\"><input class=\"input\" value=\"Bulk Master Case (250 units)\"> <input class=\"input\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var24 string
-		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Spec.LongDesc)
+		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("R %.2f", sku.WholesaleZar*8.5))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 249, Col: 81}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 237, Col: 82}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</textarea></div><div style=\"margin-top:10px;\"><label class=\"help\">Tags (Comma-separated)</label> <input class=\"input\" name=\"tags\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\"> <input class=\"input\" value=\"Available\"> <button type=\"button\" class=\"remove\" onclick=\"this.parentElement.remove()\">&times;</button></div><button type=\"button\" class=\"add-link\" onclick=\"addVariantRow(this)\">+ Add another variant</button></div><!-- 4. SEO TAB --><div id=\"tab-pane-seo\" style=\"display:none;\"><div class=\"form-group\"><div class=\"form-label\"><label for=\"metaTitle\">SEO Page Title</label> <span>Recommended 60 chars</span></div><input class=\"input\" id=\"metaTitle\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var25 string
-		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(joinTags(sku.Spec.SEOTags))
+		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Title + " | Shoppage Wholesale")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 253, Col: 77}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 251, Col: 87}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\"></div><div class=\"micro\" style=\"margin-top:8px; color:var(--primary-2);\">✓ Generates valid Schema.org Product JSON-LD and OpenGraph tags for WhatsApp &amp; Google Merchant Center.</div></div></div><!-- 5. CHANNELS TAB --><div id=\"tab-pane-channels\" style=\"display:none;\"><div class=\"form-group\"><div class=\"form-label\"><label>Omnichannel Channel Routing</label> <span>Unified stock ledger</span></div><div class=\"switch-row\"><div><b>Direct Web Storefront</b> <span>Visible on your online storefront</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on'); document.getElementById('chk-direct').checked = this.classList.contains('on');\"></button> <input type=\"checkbox\" id=\"chk-direct\" name=\"directStore\" checked=\"checked\" style=\"display:none;\"></div><div class=\"switch-row\"><div><b>WhatsApp Commerce Desk</b> <span>Available in quick quote search &amp; buyer chats</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on'); document.getElementById('chk-wa').checked = this.classList.contains('on');\"></button> <input type=\"checkbox\" id=\"chk-wa\" name=\"whatsappSync\" checked=\"checked\" style=\"display:none;\"></div><div class=\"switch-row\"><div><b>Shoppage B2B Discovery Grid</b> <span>National South African commercial buyer index</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on'); document.getElementById('chk-shop').checked = this.classList.contains('on');\"></button> <input type=\"checkbox\" id=\"chk-shop\" name=\"shoppagePublic\" checked=\"checked\" style=\"display:none;\"></div><div class=\"switch-row\"><div><b>Google Merchant Center XML Feed</b> <span>Automated daily XML export</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on')\"></button></div></div></div></article></div><!-- RIGHT: Side Form & Publishing Controls --><aside class=\"side-form\"><!-- Publish Card --><article class=\"publish-card\"><h3>Ready to publish?</h3><p>Your product is visible on all active channels. Check inventory before you save.</p><button type=\"submit\" class=\"btn light\" id=\"publishBtn\">Save &amp; publish</button> <button type=\"button\" class=\"btn line\" id=\"draftBtn\" onclick=\"document.getElementById('modal-container').innerHTML = '';\">Cancel / Discard</button></article><!-- Inventory Snapshot --><article class=\"card\"><h3>Inventory Snapshot</h3><div class=\"two-col\" style=\"margin-top:10px;\"><div><label class=\"help\">SKU</label> <input class=\"input\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\"></div><div class=\"form-group\"><div class=\"form-label\"><label for=\"metaDescription\">Meta Description</label> <span>Recommended 155 chars</span></div><textarea class=\"textarea\" id=\"metaDescription\" rows=\"3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var26 string
-		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.SKU)
+		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Spec.LongDesc)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 320, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 258, Col: 84}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" readonly style=\"background:var(--surface-2);\"></div><div><label class=\"help\">Barcode</label> <input class=\"input\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</textarea></div><div class=\"form-group\"><label>OpenGraph &amp; Social Search Preview</label><div style=\"background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:12px; margin-top:6px;\"><div style=\"font-weight:700; color:var(--primary-2); font-size:14px;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var27 string
-		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Spec.Barcode)
+		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 324, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 263, Col: 90}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" readonly style=\"background:var(--surface-2);\"></div></div><div class=\"two-col\" style=\"margin-top:10px;\"><div><label class=\"help\">Stock on Hand</label> <b style=\"display:block; font-size:15px; margin-top:4px;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, " — B2B Wholesale</div><div style=\"font-size:11.5px; color:#1a7f37; font-family:var(--mono); margin:2px 0;\">https://shoppage.co.za/p/")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var28 string
-		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d units", sku.StockQuantity))
+		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(sku.SKU)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 330, Col: 111}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 264, Col: 128}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</b></div><div><label class=\"help\">Reorder Buffer</label> <b style=\"display:block; font-size:15px; margin-top:4px;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div><div style=\"font-size:12px; color:var(--muted); line-height:1.4;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var29 string
-		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d units", sku.LowStockAlert))
+		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Spec.LongDesc)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 334, Col: 111}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 265, Col: 94}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</b></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</div></div><div class=\"micro\" style=\"margin-top:8px; color:var(--primary-2);\">✓ Generates valid Schema.org Product JSON-LD and OpenGraph tags for WhatsApp &amp; Google Merchant Center.</div></div></div><!-- 5. CHANNELS TAB --><div id=\"tab-pane-channels\" style=\"display:none;\"><div class=\"form-group\"><div class=\"form-label\"><label>Omnichannel Channel Routing</label> <span>Unified stock ledger</span></div><div class=\"switch-row\"><div><b>Direct Web Storefront</b> <span>Visible on your online storefront</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on'); document.getElementById('chk-direct').checked = this.classList.contains('on');\"></button> <input type=\"checkbox\" id=\"chk-direct\" name=\"directStore\" checked=\"checked\" style=\"display:none;\"></div><div class=\"switch-row\"><div><b>WhatsApp Commerce Desk</b> <span>Available in quick quote search &amp; buyer chats</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on'); document.getElementById('chk-wa').checked = this.classList.contains('on');\"></button> <input type=\"checkbox\" id=\"chk-wa\" name=\"whatsappSync\" checked=\"checked\" style=\"display:none;\"></div><div class=\"switch-row\"><div><b>Shoppage B2B Discovery Grid</b> <span>National South African commercial buyer index</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on'); document.getElementById('chk-shop').checked = this.classList.contains('on');\"></button> <input type=\"checkbox\" id=\"chk-shop\" name=\"shoppagePublic\" checked=\"checked\" style=\"display:none;\"></div><div class=\"switch-row\"><div><b>Google Merchant Center XML Feed</b> <span>Automated daily XML export</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on')\"></button></div></div></div></article></div><!-- RIGHT: Side Form & Publishing Controls --><aside class=\"side-form\"><!-- Publish Card --><article class=\"publish-card\"><h3>Ready to publish?</h3><p>Your product is visible on all active channels. Check inventory before you save.</p><button type=\"submit\" class=\"btn light\" id=\"publishBtn\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if sku.StockQuantity <= sku.LowStockAlert {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"alert\" style=\"margin-top:12px;\"><svg viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M12 3l9 17H3L12 3zM12 9v4m0 3v.5\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg> <span>Stock is at or below reorder threshold (")
+		if isNew {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "Save &amp; publish")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var30 string
-			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", sku.StockQuantity))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 340, Col: 93}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, " &le; ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var31 string
-			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", sku.LowStockAlert))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 340, Col: 139}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, ").</span></div>")
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "Save changes")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</article><!-- Shipping & Logistics --><article class=\"card\"><h3>Shipping &amp; Logistics</h3><div class=\"switch-row\"><div><b>Physical product</b> <span>Requires delivery or collection</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on')\"></button></div><div class=\"two-col\" style=\"margin-top:10px;\"><div><label class=\"help\">Weight (kg)</label> <input class=\"input\" name=\"weightKg\" type=\"number\" step=\"0.001\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</button> <button type=\"button\" class=\"btn line\" id=\"draftBtn\" hx-get=\"/tab/catalog\" hx-target=\"#tab-content\" hx-push-url=\"/tab/catalog\">Discard / Cancel</button></article><!-- Inventory Snapshot --><article class=\"card\"><h3>Inventory Snapshot</h3><div class=\"two-col\" style=\"margin-top:10px;\"><div><label class=\"help\">SKU</label> <input class=\"input\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var30 string
+		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.SKU)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 336, Col: 44}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" readonly style=\"background:var(--surface-2);\"></div><div><label class=\"help\">Barcode</label> <input class=\"input\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var31 string
+		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Spec.Barcode)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 340, Col: 53}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "\" readonly style=\"background:var(--surface-2);\"></div></div><div class=\"two-col\" style=\"margin-top:10px;\"><div><label class=\"help\">Stock on Hand</label> <b style=\"display:block; font-size:15px; margin-top:4px;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var32 string
-		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.3f", sku.Spec.WeightKg))
+		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d units", sku.StockQuantity))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 358, Col: 119}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 346, Col: 110}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\"></div><div><label class=\"help\">HS Code</label> <input class=\"input\" name=\"hsCode\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</b></div><div><label class=\"help\">Reorder Buffer</label> <b style=\"display:block; font-size:15px; margin-top:4px;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var33 string
-		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Spec.HSCode)
+		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d units", sku.LowStockAlert))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 362, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 350, Col: 110}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\"></div></div><div style=\"margin-top:8px;\"><label class=\"help\">Dimensions (LxWxH or Diameter)</label> <input class=\"input\" name=\"dimensions\" value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var34 string
-		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Spec.Dimensions)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 367, Col: 74}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</b></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\"></div></article><!-- Store Visibility --><article class=\"card\"><h3>Store visibility</h3><div class=\"switch-row\"><div><b>Online storefront</b> <span>Visible on your store</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on')\"></button></div><div class=\"switch-row\"><div><b>WhatsApp catalog</b> <span>Available in order chats</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on')\"></button></div><div class=\"switch-row\"><div><b>Shoppage discovery</b> <span>Public B2B marketplace index</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on')\"></button></div></article></aside></div></div></form><script>\n\t\t\tfunction switchEditTab(tabName, btn) {\n\t\t\t\tdocument.querySelectorAll('.editor-tabs button').forEach(function(b) { b.classList.remove('active'); });\n\t\t\t\tif (btn) btn.classList.add('active');\n\t\t\t\t\n\t\t\t\tvar tabs = ['general', 'inventory', 'variants', 'seo', 'channels'];\n\t\t\t\ttabs.forEach(function(t) {\n\t\t\t\t\tvar el = document.getElementById('tab-pane-' + t);\n\t\t\t\t\tif (el) el.style.display = (t === tabName) ? 'block' : 'none';\n\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction formatDesc(cmd) {\n\t\t\t\tvar txt = document.getElementById('description');\n\t\t\t\tif (!txt) return;\n\t\t\t\tif (cmd === 'bold') txt.value += ' **bold**';\n\t\t\t\telse if (cmd === 'italic') txt.value += ' *italic*';\n\t\t\t\telse if (cmd === 'h2') txt.value += '\\n\\n## Section Title\\n';\n\t\t\t\telse if (cmd === 'list') txt.value += '\\n- Item 1\\n- Item 2\\n';\n\t\t\t\telse if (cmd === 'link') txt.value += ' [link text](https://)';\n\t\t\t}\n\n\t\t\tfunction addVariantRow(btn) {\n\t\t\t\tvar div = document.createElement('div');\n\t\t\t\tdiv.className = 'variant-row';\n\t\t\t\tdiv.innerHTML = '<input class=\"input\" placeholder=\"e.g. Master Carton 5,000s\"><input class=\"input\" placeholder=\"SKU-EXT\"><input class=\"input\" placeholder=\"-20% Tier\"><button type=\"button\" class=\"remove\" onclick=\"this.parentElement.remove()\">&times;</button>';\n\t\t\t\tbtn.parentElement.insertBefore(div, btn);\n\t\t\t}\n\t\t</script></div>")
+		if sku.StockQuantity <= sku.LowStockAlert {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<div class=\"alert\" style=\"margin-top:12px;\"><svg viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M12 3l9 17H3L12 3zM12 9v4m0 3v.5\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg> <span>Stock is at or below reorder threshold (")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var34 string
+			templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", sku.StockQuantity))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 356, Col: 92}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, " &le; ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var35 string
+			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", sku.LowStockAlert))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 356, Col: 138}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, ").</span></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</article><!-- Shipping & Logistics --><article class=\"card\"><h3>Shipping &amp; Logistics</h3><div class=\"switch-row\"><div><b>Physical product</b> <span>Requires delivery or collection</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on')\"></button></div><div class=\"two-col\" style=\"margin-top:10px;\"><div><label class=\"help\">Weight (kg)</label> <input class=\"input\" name=\"weightKg\" type=\"number\" step=\"0.001\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var36 string
+		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.3f", sku.Spec.WeightKg))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 374, Col: 118}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "\"></div><div><label class=\"help\">HS Customs Code</label> <input class=\"input\" name=\"hsCode\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var37 string
+		templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.ResolveAttributeValue(sku.Spec.HSCode)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product_edit.templ`, Line: 378, Col: 66}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var37)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "\"></div></div></article><!-- Store Visibility --><article class=\"card\"><h3>Store Visibility</h3><div class=\"switch-row\"><div><b>Online Storefront</b> <span>Show on direct catalog</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on')\"></button></div><div class=\"switch-row\"><div><b>WhatsApp Commerce</b> <span>Auto-suggest in quotes</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on')\"></button></div><div class=\"switch-row\"><div><b>Shoppage discovery</b> <span>Public B2B marketplace index</span></div><button type=\"button\" class=\"toggle on\" onclick=\"this.classList.toggle('on')\"></button></div></article></aside></div></form><script>\n\t\t\tfunction switchEditTab(tabName, btn) {\n\t\t\t\tdocument.querySelectorAll('.editor-tabs button').forEach(function(b) { b.classList.remove('active'); });\n\t\t\t\tif (btn) btn.classList.add('active');\n\t\t\t\t\n\t\t\t\tvar tabs = ['general', 'inventory', 'variants', 'seo', 'channels'];\n\t\t\t\ttabs.forEach(function(t) {\n\t\t\t\t\tvar el = document.getElementById('tab-pane-' + t);\n\t\t\t\t\tif (el) el.style.display = (t === tabName) ? 'block' : 'none';\n\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction formatDesc(cmd) {\n\t\t\t\tvar txt = document.getElementById('description');\n\t\t\t\tif (!txt) return;\n\t\t\t\tif (cmd === 'bold') txt.value += ' **bold**';\n\t\t\t\telse if (cmd === 'italic') txt.value += ' *italic*';\n\t\t\t\telse if (cmd === 'h2') txt.value += '\\n\\n## Section Title\\n';\n\t\t\t\telse if (cmd === 'list') txt.value += '\\n- Item 1\\n- Item 2\\n';\n\t\t\t\telse if (cmd === 'link') txt.value += ' [link text](https://)';\n\t\t\t}\n\n\t\t\tfunction addVariantRow(btn) {\n\t\t\t\tvar div = document.createElement('div');\n\t\t\t\tdiv.className = 'variant-row';\n\t\t\t\tdiv.innerHTML = '<input class=\"input\" placeholder=\"e.g. Master Carton 5,000s\"><input class=\"input\" placeholder=\"SKU-EXT\"><input class=\"input\" placeholder=\"-20% Tier\"><button type=\"button\" class=\"remove\" onclick=\"this.parentElement.remove()\">&times;</button>';\n\t\t\t\tbtn.parentElement.insertBefore(div, btn);\n\t\t\t}\n\t\t</script></section>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func ProductEditPage(store models.StoreProfile, sku models.CatalogSKU, isNew bool) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var38 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var38 == nil {
+			templ_7745c5c3_Var38 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Var39 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = ProductEditView(sku, isNew).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = Layout(store, "catalog").Render(templ.WithChildren(ctx, templ_7745c5c3_Var39), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func ProductEditModal(sku models.CatalogSKU) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var40 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var40 == nil {
+			templ_7745c5c3_Var40 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = ProductEditView(sku, false).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

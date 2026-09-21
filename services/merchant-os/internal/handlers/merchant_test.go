@@ -19,6 +19,7 @@ func setupTestRouter() http.Handler {
 	r.Get("/", h.ServeDashboard)
 	r.Get("/tab/{tab}", h.ServeTab)
 	r.Get("/catalog/export.csv", h.ExportCatalogCSV)
+	r.Get("/catalog/new", h.ServeProductNew)
 	r.Get("/catalog/{id}", h.ServeProductDetail)
 	r.Get("/catalog/{id}/edit", h.ServeProductEdit)
 	r.Post("/catalog/{id}/edit", h.SaveProductEdit)
@@ -759,5 +760,79 @@ func TestSidebarCollapseAndActiveHighlight(t *testing.T) {
 	}
 	if !strings.Contains(body, ".thread-item.active-thread") {
 		t.Errorf("expected layout to contain .thread-item.active-thread CSS style")
+	}
+}
+
+func TestPemofyProductViews(t *testing.T) {
+	router := setupTestRouter()
+
+	// 1. Test Product Detail HTMX view
+	reqDetailHX := httptest.NewRequest("GET", "/catalog/mit_3361", nil)
+	reqDetailHX.Header.Set("HX-Request", "true")
+	recDetailHX := httptest.NewRecorder()
+	router.ServeHTTP(recDetailHX, reqDetailHX)
+
+	if recDetailHX.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK for detail HTMX view, got %d", recDetailHX.Code)
+	}
+	bodyDetailHX := recDetailHX.Body.String()
+	if strings.Contains(bodyDetailHX, "modal-card") {
+		t.Errorf("expected detail view to NOT be wrapped in modal-card popup")
+	}
+	if !strings.Contains(bodyDetailHX, "data-view=\"detail\"") {
+		t.Errorf("expected detail view to have data-view=\"detail\"")
+	}
+	if !strings.Contains(bodyDetailHX, "← Back to products") {
+		t.Errorf("expected detail view to have ← Back to products")
+	}
+
+	// 2. Test Product Edit HTMX view
+	reqEditHX := httptest.NewRequest("GET", "/catalog/mit_3361/edit", nil)
+	reqEditHX.Header.Set("HX-Request", "true")
+	recEditHX := httptest.NewRecorder()
+	router.ServeHTTP(recEditHX, reqEditHX)
+
+	if recEditHX.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK for edit HTMX view, got %d", recEditHX.Code)
+	}
+	bodyEditHX := recEditHX.Body.String()
+	if strings.Contains(bodyEditHX, "modal-card") {
+		t.Errorf("expected edit view to NOT be wrapped in modal-card popup")
+	}
+	if !strings.Contains(bodyEditHX, "data-view=\"edit\"") {
+		t.Errorf("expected edit view to have data-view=\"edit\"")
+	}
+	if !strings.Contains(bodyEditHX, "editor-tabs") {
+		t.Errorf("expected edit view to have editor-tabs")
+	}
+
+	// 3. Test Add Product New HTMX view
+	reqNewHX := httptest.NewRequest("GET", "/catalog/new", nil)
+	reqNewHX.Header.Set("HX-Request", "true")
+	recNewHX := httptest.NewRecorder()
+	router.ServeHTTP(recNewHX, reqNewHX)
+
+	if recNewHX.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK for new product HTMX view, got %d", recNewHX.Code)
+	}
+	bodyNewHX := recNewHX.Body.String()
+	if strings.Contains(bodyNewHX, "modal-card") {
+		t.Errorf("expected new product view to NOT be wrapped in modal-card popup")
+	}
+	if !strings.Contains(bodyNewHX, "Add product") {
+		t.Errorf("expected new product view to have Add product header")
+	}
+
+	// 4. Test Product Detail direct browser page load
+	reqDetailFull := httptest.NewRequest("GET", "/catalog/mit_3361", nil)
+	recDetailFull := httptest.NewRecorder()
+	router.ServeHTTP(recDetailFull, reqDetailFull)
+
+	if recDetailFull.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK for full page load, got %d", recDetailFull.Code)
+	}
+	bodyDetailFull := recDetailFull.Body.String()
+	if !strings.Contains(bodyDetailFull, "Shoppage Merchant OS") {
+		t.Errorf("expected full page layout on direct browser request")
 	}
 }
