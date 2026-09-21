@@ -236,7 +236,7 @@ templ HomeViewComponent(data HomeViewData) {
 							for _, prod := range data.Products {
 								<div class="bg-white rounded-2xl border border-slate-200 p-4 hover:shadow-md hover:border-emerald-500 transition flex flex-col group">
 									<div class="relative w-full h-44 rounded-xl overflow-hidden bg-slate-100 mb-3">
-										<img src={ prod.ImageURL } alt={ prod.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-300"/>
+										<img src={ prod.ImageURL } alt={ prod.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy" decoding="async" width="320" height="176"/>
 										if prod.Verified {
 											<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-900/80 text-emerald-400 text-[10px] font-bold backdrop-blur-xs">
 												✓ Verified Trade
@@ -306,7 +306,7 @@ templ HomeViewComponent(data HomeViewData) {
 										</div>
 									}
 									<div class="relative w-full h-44 rounded-xl overflow-hidden bg-slate-100 mb-3">
-										<img src={ deal.ImageURL } alt={ deal.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-300"/>
+										<img src={ deal.ImageURL } alt={ deal.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy" decoding="async" width="320" height="176"/>
 									</div>
 									<div class="text-[11px] text-emerald-700 font-bold uppercase tracking-wider mb-1">{ deal.MerchantName }</div>
 									<h3 class="font-bold text-slate-900 text-sm leading-snug line-clamp-2 mb-2">
@@ -354,7 +354,7 @@ templ HomeViewComponent(data HomeViewData) {
 							for _, short := range data.Shorts {
 								<div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition flex flex-col group">
 									<div class="relative w-full h-80 bg-slate-900 overflow-hidden">
-										<img src={ short.Image } alt={ short.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-90"/>
+										<img src={ short.Image } alt={ short.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-90" loading="lazy" decoding="async" width="280" height="320"/>
 										<div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
 										<button 
 											type="button"

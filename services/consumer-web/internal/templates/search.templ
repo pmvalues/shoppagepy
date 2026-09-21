@@ -32,7 +32,7 @@ templ SearchResultsGridComponent(data SearchViewData) {
 				for _, prod := range data.Products {
 					<div class="bg-white rounded-2xl border border-slate-200/80 p-4 hover:shadow-md transition flex flex-col group">
 						<div class="relative w-full h-44 rounded-xl overflow-hidden bg-slate-100 mb-3">
-							<img src={ prod.ImageURL } alt={ prod.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-300"/>
+							<img src={ prod.ImageURL } alt={ prod.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy" decoding="async" width="320" height="176"/>
 							if prod.Verified {
 								<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-900/80 text-emerald-400 text-[10px] font-bold backdrop-blur-xs flex items-center gap-1">
 									✓ Verified

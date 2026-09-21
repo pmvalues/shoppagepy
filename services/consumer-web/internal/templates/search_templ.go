@@ -124,7 +124,7 @@ func SearchResultsGridComponent(data SearchViewData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"w-full h-full object-cover group-hover:scale-105 transition duration-300\"> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"w-full h-full object-cover group-hover:scale-105 transition duration-300\" loading=\"lazy\" decoding=\"async\" width=\"320\" height=\"176\"> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

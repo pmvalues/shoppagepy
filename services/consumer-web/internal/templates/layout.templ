@@ -15,14 +15,16 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 			<meta name="description" content={ description }/>
 			<link rel="manifest" href="/manifest.json"/>
 			<meta name="theme-color" content="#059669"/>
-			<!-- Fonts: Plus Jakarta Sans & Outfit -->
+			<!-- Fonts: Plus Jakarta Sans & Outfit (Optimized Async Preload) -->
 			<link rel="preconnect" href="https://fonts.googleapis.com"/>
 			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-			<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
-			<!-- Tailwind CSS CDN -->
-			<script src="https://cdn.tailwindcss.com"></script>
-			<!-- HTMX 2.0.2 -->
-			<script src="https://unpkg.com/htmx.org@2.0.2"></script>
+			<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"/>
+			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'"/>
+			<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"/></noscript>
+			<!-- Tailwind CSS CDN (Deferred to prevent render blocking) -->
+			<script src="https://cdn.tailwindcss.com" defer></script>
+			<!-- HTMX 2.0.2 (Deferred) -->
+			<script src="https://unpkg.com/htmx.org@2.0.2" defer></script>
 			<style>
 				:root {
 					--font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -492,7 +494,7 @@ templ CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, g
 							hx-target="#buybox-drawer"
 							class="p-2.5 rounded-xl border border-slate-200/80 hover:border-emerald-500 hover:shadow-xs transition bg-white flex items-center gap-3 cursor-pointer group"
 						>
-							<img src={ drop.ImageURL } alt={ drop.Title } class="w-12 h-12 rounded-lg object-cover bg-slate-50 shrink-0"/>
+							<img src={ drop.ImageURL } alt={ drop.Title } class="w-12 h-12 rounded-lg object-cover bg-slate-50 shrink-0" loading="lazy" decoding="async" width="48" height="48"/>
 							<div class="flex-1 min-w-0">
 								<div class="flex items-center gap-1.5">
 									<span class="text-[10px] font-bold text-emerald-700 uppercase truncate">{ drop.MerchantName }</span>

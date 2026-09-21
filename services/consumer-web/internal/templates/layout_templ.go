@@ -60,7 +60,7 @@ func Layout(title, description, currentTab string, trends []models.TradeTrend, t
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><link rel=\"manifest\" href=\"/manifest.json\"><meta name=\"theme-color\" content=\"#059669\"><!-- Fonts: Plus Jakarta Sans & Outfit --><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap\" rel=\"stylesheet\"><!-- Tailwind CSS CDN --><script src=\"https://cdn.tailwindcss.com\"></script><!-- HTMX 2.0.2 --><script src=\"https://unpkg.com/htmx.org@2.0.2\"></script><style>\n\t\t\t\t:root {\n\t\t\t\t\t--font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;\n\t\t\t\t\t--font-display: 'Outfit', system-ui, sans-serif;\n\t\t\t\t\t--font-mono: 'JetBrains Mono', monospace;\n\t\t\t\t\t--brand: #059669;\n\t\t\t\t\t--brand-fill: #10b981;\n\t\t\t\t\t--brand-strong: #047857;\n\t\t\t\t\t--gold: #d97706;\n\t\t\t\t\t--red: #e11d48;\n\t\t\t\t}\n\t\t\t\tbody {\n\t\t\t\t\tfont-family: var(--font-sans);\n\t\t\t\t}\n\t\t\t\th1, h2, h3, .font-display {\n\t\t\t\t\tfont-family: var(--font-display);\n\t\t\t\t}\n\t\t\t\t.font-mono {\n\t\t\t\t\tfont-family: var(--font-mono);\n\t\t\t\t}\n\t\t\t\t.htmx-indicator { display: none; }\n\t\t\t\t.htmx-request .htmx-indicator { display: inline-block; }\n\t\t\t\t\n\t\t\t\t@keyframes slideInRight {\n\t\t\t\t\tfrom { transform: translateX(100%); }\n\t\t\t\t\tto { transform: translateX(0); }\n\t\t\t\t}\n\t\t\t\t.animate-slide-in-right {\n\t\t\t\t\tanimation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;\n\t\t\t\t}\n\n\t\t\t\t/* Scrollbar cleanup */\n\t\t\t\t.scrollbar-none::-webkit-scrollbar { display: none; }\n\t\t\t\t.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }\n\t\t\t</style></head><body class=\"min-h-full flex flex-col antialiased bg-slate-100 text-slate-800 pb-16 lg:pb-0\"><!-- Location Sub-Bar (Shoppage GoogleHeader Style) --><div class=\"bg-white border-b border-slate-200/80 py-1.5 text-xs text-slate-600 sticky top-0 z-40\"><div class=\"max-w-[1440px] mx-auto px-4 sm:px-6 flex items-center justify-between\"><div class=\"flex items-center gap-2\"><span class=\"text-emerald-600\">📍</span> <span class=\"font-bold text-slate-900\">President Park AH, Midrand</span> <span class=\"text-slate-300\">·</span> <button type=\"button\" hx-get=\"/location-modal\" hx-target=\"#modal-container\" class=\"text-emerald-700 hover:text-emerald-800 font-bold underline decoration-emerald-300 cursor-pointer\">Change Area (3,315 Malls)</button></div><div class=\"hidden sm:flex items-center gap-4 text-[11px] text-slate-500 font-medium\"><span>🇿🇦 South Africa Commercial Grid</span> <span>·</span> <span class=\"text-emerald-700 font-bold\">● Live Sub-3ms Pure Go Engine</span> <span>·</span> <span>CIPC Verified</span></div></div></div><!-- Main 3-Column Shell --><div class=\"flex-1 max-w-[1440px] w-full mx-auto flex\"><!-- LEFT NAVIGATION RAIL -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><link rel=\"manifest\" href=\"/manifest.json\"><meta name=\"theme-color\" content=\"#059669\"><!-- Fonts: Plus Jakarta Sans & Outfit (Optimized Async Preload) --><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link rel=\"preload\" as=\"style\" href=\"https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap\"><link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap\" media=\"print\" onload=\"this.media='all'\"><noscript><link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap\"></noscript><!-- Tailwind CSS CDN (Deferred to prevent render blocking) --><script src=\"https://cdn.tailwindcss.com\" defer></script><!-- HTMX 2.0.2 (Deferred) --><script src=\"https://unpkg.com/htmx.org@2.0.2\" defer></script><style>\n\t\t\t\t:root {\n\t\t\t\t\t--font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;\n\t\t\t\t\t--font-display: 'Outfit', system-ui, sans-serif;\n\t\t\t\t\t--font-mono: 'JetBrains Mono', monospace;\n\t\t\t\t\t--brand: #059669;\n\t\t\t\t\t--brand-fill: #10b981;\n\t\t\t\t\t--brand-strong: #047857;\n\t\t\t\t\t--gold: #d97706;\n\t\t\t\t\t--red: #e11d48;\n\t\t\t\t}\n\t\t\t\tbody {\n\t\t\t\t\tfont-family: var(--font-sans);\n\t\t\t\t}\n\t\t\t\th1, h2, h3, .font-display {\n\t\t\t\t\tfont-family: var(--font-display);\n\t\t\t\t}\n\t\t\t\t.font-mono {\n\t\t\t\t\tfont-family: var(--font-mono);\n\t\t\t\t}\n\t\t\t\t.htmx-indicator { display: none; }\n\t\t\t\t.htmx-request .htmx-indicator { display: inline-block; }\n\t\t\t\t\n\t\t\t\t@keyframes slideInRight {\n\t\t\t\t\tfrom { transform: translateX(100%); }\n\t\t\t\t\tto { transform: translateX(0); }\n\t\t\t\t}\n\t\t\t\t.animate-slide-in-right {\n\t\t\t\t\tanimation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;\n\t\t\t\t}\n\n\t\t\t\t/* Scrollbar cleanup */\n\t\t\t\t.scrollbar-none::-webkit-scrollbar { display: none; }\n\t\t\t\t.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }\n\t\t\t</style></head><body class=\"min-h-full flex flex-col antialiased bg-slate-100 text-slate-800 pb-16 lg:pb-0\"><!-- Location Sub-Bar (Shoppage GoogleHeader Style) --><div class=\"bg-white border-b border-slate-200/80 py-1.5 text-xs text-slate-600 sticky top-0 z-40\"><div class=\"max-w-[1440px] mx-auto px-4 sm:px-6 flex items-center justify-between\"><div class=\"flex items-center gap-2\"><span class=\"text-emerald-600\">📍</span> <span class=\"font-bold text-slate-900\">President Park AH, Midrand</span> <span class=\"text-slate-300\">·</span> <button type=\"button\" hx-get=\"/location-modal\" hx-target=\"#modal-container\" class=\"text-emerald-700 hover:text-emerald-800 font-bold underline decoration-emerald-300 cursor-pointer\">Change Area (3,315 Malls)</button></div><div class=\"hidden sm:flex items-center gap-4 text-[11px] text-slate-500 font-medium\"><span>🇿🇦 South Africa Commercial Grid</span> <span>·</span> <span class=\"text-emerald-700 font-bold\">● Live Sub-3ms Pure Go Engine</span> <span>·</span> <span>CIPC Verified</span></div></div></div><!-- Main 3-Column Shell --><div class=\"flex-1 max-w-[1440px] w-full mx-auto flex\"><!-- LEFT NAVIGATION RAIL -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -396,7 +396,7 @@ func CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, gu
 			var templ_7745c5c3_Var28 templ.SafeURL
 			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/search?q=%s", trend.Tag)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 468, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 470, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 			if templ_7745c5c3_Err != nil {
@@ -409,7 +409,7 @@ func CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, gu
 			var templ_7745c5c3_Var29 string
 			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(trend.Tag)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 470, Col: 97}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 472, Col: 97}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 			if templ_7745c5c3_Err != nil {
@@ -422,7 +422,7 @@ func CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, gu
 			var templ_7745c5c3_Var30 string
 			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(trend.Count)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 471, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 473, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 			if templ_7745c5c3_Err != nil {
@@ -435,7 +435,7 @@ func CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, gu
 			var templ_7745c5c3_Var31 string
 			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(trend.Category)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 473, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 475, Col: 74}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 			if templ_7745c5c3_Err != nil {
@@ -463,7 +463,7 @@ func CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, gu
 				var templ_7745c5c3_Var32 string
 				templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(templ.SafeURL(fmt.Sprintf("/buybox/%s", drop.ID))))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 491, Col: 73}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 493, Col: 73}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
 				if templ_7745c5c3_Err != nil {
@@ -476,7 +476,7 @@ func CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, gu
 				var templ_7745c5c3_Var33 string
 				templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(drop.ImageURL)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 495, Col: 31}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 497, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 				if templ_7745c5c3_Err != nil {
@@ -489,20 +489,20 @@ func CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, gu
 				var templ_7745c5c3_Var34 string
 				templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(drop.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 495, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 497, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" class=\"w-12 h-12 rounded-lg object-cover bg-slate-50 shrink-0\"><div class=\"flex-1 min-w-0\"><div class=\"flex items-center gap-1.5\"><span class=\"text-[10px] font-bold text-emerald-700 uppercase truncate\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" class=\"w-12 h-12 rounded-lg object-cover bg-slate-50 shrink-0\" loading=\"lazy\" decoding=\"async\" width=\"48\" height=\"48\"><div class=\"flex-1 min-w-0\"><div class=\"flex items-center gap-1.5\"><span class=\"text-[10px] font-bold text-emerald-700 uppercase truncate\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var35 string
 				templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(drop.MerchantName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 498, Col: 100}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 500, Col: 100}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 				if templ_7745c5c3_Err != nil {
@@ -520,7 +520,7 @@ func CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, gu
 					var templ_7745c5c3_Var36 string
 					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", drop.DiscountPct))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 500, Col: 130}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 502, Col: 130}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 					if templ_7745c5c3_Err != nil {
@@ -538,7 +538,7 @@ func CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, gu
 				var templ_7745c5c3_Var37 string
 				templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(drop.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 503, Col: 115}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 505, Col: 115}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 				if templ_7745c5c3_Err != nil {
@@ -551,7 +551,7 @@ func CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, gu
 				var templ_7745c5c3_Var38 string
 				templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", drop.PriceZar))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 504, Col: 100}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 506, Col: 100}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 				if templ_7745c5c3_Err != nil {
@@ -579,7 +579,7 @@ func CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, gu
 			var templ_7745c5c3_Var39 string
 			templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(guild.Initials)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 522, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 524, Col: 24}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 			if templ_7745c5c3_Err != nil {
@@ -592,7 +592,7 @@ func CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, gu
 			var templ_7745c5c3_Var40 string
 			templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(guild.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 525, Col: 75}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 527, Col: 75}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 			if templ_7745c5c3_Err != nil {
@@ -605,7 +605,7 @@ func CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, gu
 			var templ_7745c5c3_Var41 string
 			templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(guild.Members)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 526, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 528, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 			if templ_7745c5c3_Err != nil {
@@ -618,7 +618,7 @@ func CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, gu
 			var templ_7745c5c3_Var42 string
 			templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(guild.DailyPosts)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 526, Col: 96}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 528, Col: 96}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 			if templ_7745c5c3_Err != nil {

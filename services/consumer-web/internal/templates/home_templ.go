@@ -674,7 +674,7 @@ func HomeViewComponent(data HomeViewData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "\" class=\"w-full h-full object-cover group-hover:scale-105 transition duration-300\"> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "\" class=\"w-full h-full object-cover group-hover:scale-105 transition duration-300\" loading=\"lazy\" decoding=\"async\" width=\"320\" height=\"176\"> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1004,7 +1004,7 @@ func HomeViewComponent(data HomeViewData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "\" class=\"w-full h-full object-cover group-hover:scale-105 transition duration-300\"></div><div class=\"text-[11px] text-emerald-700 font-bold uppercase tracking-wider mb-1\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "\" class=\"w-full h-full object-cover group-hover:scale-105 transition duration-300\" loading=\"lazy\" decoding=\"async\" width=\"320\" height=\"176\"></div><div class=\"text-[11px] text-emerald-700 font-bold uppercase tracking-wider mb-1\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1151,7 +1151,7 @@ func HomeViewComponent(data HomeViewData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "\" class=\"w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-90\"><div class=\"absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent\"></div><button type=\"button\" onclick=\"alert('Playing trade demo');\" class=\"absolute inset-0 m-auto w-12 h-12 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center text-white text-xl hover:scale-110 transition cursor-pointer\">▶</button><div class=\"absolute top-3 right-3 px-2 py-0.5 rounded-md bg-black/60 text-white text-[10px] font-bold\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "\" class=\"w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-90\" loading=\"lazy\" decoding=\"async\" width=\"280\" height=\"320\"><div class=\"absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent\"></div><button type=\"button\" onclick=\"alert('Playing trade demo');\" class=\"absolute inset-0 m-auto w-12 h-12 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center text-white text-xl hover:scale-110 transition cursor-pointer\">▶</button><div class=\"absolute top-3 right-3 px-2 py-0.5 rounded-md bg-black/60 text-white text-[10px] font-bold\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
