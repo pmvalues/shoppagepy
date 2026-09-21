@@ -41,13 +41,13 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Catalog)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 15, Col: 43}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 15, Col: 43}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div style=\"font-size: 11.5px; color: var(--muted); margin-top: 2px;\"><b>+2</b> this month</div></div><div class=\"card sum\" style=\"padding: 14px 16px;\"><div style=\"font-size: 11.5px; color: var(--muted); font-weight: 600;\">Drafts / In Review</div><div style=\"font-family: var(--display); font-size: 1.5rem; font-weight: 800; letter-spacing: -.04em; margin-top: 4px;\">0</div><div style=\"font-size: 11.5px; color: var(--muted); margin-top: 2px;\">CIPC verified</div></div><div class=\"card sum\" style=\"padding: 14px 16px;\"><div style=\"font-size: 11.5px; color: var(--muted); font-weight: 600;\">Low Stock Items</div><div style=\"font-family: var(--display); font-size: 1.5rem; font-weight: 800; letter-spacing: -.04em; margin-top: 4px; color: var(--rose);\">1</div><div style=\"font-size: 11.5px; color: var(--muted); margin-top: 2px;\">1 SKU out of stock</div></div><div class=\"card sum\" style=\"padding: 14px 16px;\"><div style=\"font-size: 11.5px; color: var(--muted); font-weight: 600;\">Total Catalog Value</div><div style=\"font-family: var(--display); font-size: 1.5rem; font-weight: 800; letter-spacing: -.04em; margin-top: 4px; color: var(--primary);\">R 84,260.00</div><div style=\"font-size: 11.5px; color: var(--muted); margin-top: 2px;\">At wholesale rate</div></div></div><!-- Filter & View Switcher Toolbar --><div class=\"card panel\" style=\"padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;\"><div style=\"display: flex; align-items: center; gap: 10px; flex: 1; max-width: 400px;\"><div class=\"search\" style=\"flex: 1;\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M11 4a7 7 0 105 12l4 4\"></path></svg> <input type=\"text\" placeholder=\"Filter by product name, SKU or brand...\" style=\"border: 0; outline: 0; background: transparent; width: 100%; font-size: 13px;\" onkeyup=\"const val=this.value.toLowerCase(); document.querySelectorAll('.catalog-row, .grid-card').forEach(r => { r.style.display = r.textContent.toLowerCase().includes(val) ? '' : 'none'; });\"></div></div><div style=\"display: flex; align-items: center; gap: 8px;\"><!-- View Switcher --><div class=\"view-switch\" style=\"display:flex; background:var(--surface-2); border:1px solid var(--line); border-radius:9px; padding:2px;\"><button type=\"button\" id=\"table-view-btn\" class=\"btn ghost small\" style=\"background:var(--surface); border:0; padding:4px 8px; font-weight:700;\" onclick=\"document.getElementById('catalog-table-view').style.display='block'; document.getElementById('catalog-grid-view').style.display='none';\">Table</button> <button type=\"button\" id=\"grid-view-btn\" class=\"btn ghost small\" style=\"border:0; padding:4px 8px;\" onclick=\"document.getElementById('catalog-table-view').style.display='none'; document.getElementById('catalog-grid-view').style.display='grid';\">Grid</button></div><a href=\"/catalog/export.csv\" class=\"btn ghost small\"><span>📄</span> Export CSV</a> <button class=\"btn solid small\" onclick=\"document.getElementById('new-sku-dialog')?.showModal();\"><span>+</span> Add Product SKU</button></div></div><!-- Catalog Table Card --><div id=\"catalog-table-view\" class=\"card panel\" style=\"padding: 0; overflow: hidden;\"><table class=\"table\"><thead><tr><th style=\"padding-left: 20px;\">Product &amp; SKU</th><th>Category</th><th>Wholesale (ZAR)</th><th>Retail Landed</th><th>Stock Level</th><th>Live Status</th><th style=\"text-align: right; padding-right: 20px;\">Actions</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div style=\"font-size: 11.5px; color: var(--muted); margin-top: 2px;\"><b>+2</b> this month</div></div><div class=\"card sum\" style=\"padding: 14px 16px;\"><div style=\"font-size: 11.5px; color: var(--muted); font-weight: 600;\">Drafts / In Review</div><div style=\"font-family: var(--display); font-size: 1.5rem; font-weight: 800; letter-spacing: -.04em; margin-top: 4px;\">0</div><div style=\"font-size: 11.5px; color: var(--muted); margin-top: 2px;\">CIPC verified</div></div><div class=\"card sum\" style=\"padding: 14px 16px;\"><div style=\"font-size: 11.5px; color: var(--muted); font-weight: 600;\">Low Stock Items</div><div style=\"font-family: var(--display); font-size: 1.5rem; font-weight: 800; letter-spacing: -.04em; margin-top: 4px; color: var(--rose);\">1</div><div style=\"font-size: 11.5px; color: var(--muted); margin-top: 2px;\">1 SKU out of stock</div></div><div class=\"card sum\" style=\"padding: 14px 16px;\"><div style=\"font-size: 11.5px; color: var(--muted); font-weight: 600;\">Total Catalog Value</div><div style=\"font-family: var(--display); font-size: 1.5rem; font-weight: 800; letter-spacing: -.04em; margin-top: 4px; color: var(--primary);\">R 84,260.00</div><div style=\"font-size: 11.5px; color: var(--muted); margin-top: 2px;\">At wholesale rate</div></div></div><!-- Filter & View Switcher Toolbar --><div class=\"card panel\" style=\"padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;\"><div style=\"display: flex; align-items: center; gap: 10px; flex: 1; max-width: 400px;\"><div class=\"search\" style=\"flex: 1;\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M11 4a7 7 0 105 12l4 4\"></path></svg> <input type=\"text\" placeholder=\"Filter by product name, SKU or brand...\" style=\"border: 0; outline: 0; background: transparent; width: 100%; font-size: 13px;\" onkeyup=\"const val=this.value.toLowerCase(); document.querySelectorAll('.catalog-row, .grid-card').forEach(r => { r.style.display = r.textContent.toLowerCase().includes(val) ? '' : 'none'; });\"></div></div><div style=\"display: flex; align-items: center; gap: 8px;\"><!-- View Switcher --><div class=\"view-switch\" style=\"display:flex; background:var(--surface-2); border:1px solid var(--line); border-radius:9px; padding:2px;\"><button type=\"button\" id=\"table-view-btn\" class=\"active\" onclick=\"document.getElementById('catalog-table-view').style.display='block'; document.getElementById('catalog-grid-view').style.display='none'; document.getElementById('table-view-btn').classList.add('active'); document.getElementById('grid-view-btn').classList.remove('active');\">Table</button> <button type=\"button\" id=\"grid-view-btn\" onclick=\"document.getElementById('catalog-table-view').style.display='none'; document.getElementById('catalog-grid-view').style.display='grid'; document.getElementById('grid-view-btn').classList.add('active'); document.getElementById('table-view-btn').classList.remove('active');\">Grid</button></div><a href=\"/catalog/export.csv\" class=\"btn ghost small\"><span>📄</span> Export CSV</a> <button class=\"btn solid small\" onclick=\"document.getElementById('new-sku-dialog')?.showModal();\"><span>+</span> Add Product SKU</button></div></div><!-- Catalog Table Card --><div id=\"catalog-table-view\" class=\"card panel\" style=\"padding: 0; overflow: hidden;\"><table class=\"table\"><thead><tr><th style=\"padding-left: 20px;\">Product &amp; SKU</th><th>Category</th><th>Wholesale (ZAR)</th><th>Retail Landed</th><th>Stock Level</th><th>Live Status</th><th style=\"text-align: right; padding-right: 20px;\">Actions</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -59,7 +59,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/catalog/%s", sku.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 102, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 99, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -72,7 +72,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 106, Col: 20}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 103, Col: 20}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -85,7 +85,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(sku.SKU)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 109, Col: 195}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 106, Col: 195}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -98,7 +98,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Brand)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 110, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 107, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -111,7 +111,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Category)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 113, Col: 73}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 110, Col: 73}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -124,7 +124,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/catalog/%s/price", sku.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 116, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 113, Col: 59}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {
@@ -137,7 +137,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.2f", sku.WholesaleZar))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 125, Col: 55}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 122, Col: 55}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 			if templ_7745c5c3_Err != nil {
@@ -150,7 +150,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", sku.RetailZar))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 131, Col: 46}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 128, Col: 46}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -168,7 +168,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", sku.StockQuantity))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 135, Col: 95}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 132, Col: 95}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -199,7 +199,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/catalog/%s", sku.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 149, Col: 53}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 146, Col: 53}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 			if templ_7745c5c3_Err != nil {
@@ -212,7 +212,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/catalog/%s/edit", sku.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 158, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 155, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 			if templ_7745c5c3_Err != nil {
@@ -235,7 +235,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(sku.SKU)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 179, Col: 91}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 176, Col: 91}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -263,7 +263,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 189, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 186, Col: 83}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -276,7 +276,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Category)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 190, Col: 89}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 187, Col: 89}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -289,7 +289,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(sku.Brand)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 190, Col: 106}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 187, Col: 106}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -302,7 +302,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("R%.2f", sku.WholesaleZar))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 196, Col: 127}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 193, Col: 127}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -315,7 +315,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d units", sku.StockQuantity))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 200, Col: 79}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 197, Col: 79}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -328,7 +328,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/catalog/%s", sku.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 205, Col: 51}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 202, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 			if templ_7745c5c3_Err != nil {
@@ -341,7 +341,7 @@ func CatalogTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/catalog/%s/edit", sku.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 213, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 210, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 			if templ_7745c5c3_Err != nil {
@@ -388,7 +388,7 @@ func StockButtonComponent(sku models.CatalogSKU) templ.Component {
 		var templ_7745c5c3_Var23 string
 		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("stock-btn-%s", sku.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 286, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 283, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 		if templ_7745c5c3_Err != nil {
@@ -401,7 +401,7 @@ func StockButtonComponent(sku models.CatalogSKU) templ.Component {
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(templ.SafeURL(fmt.Sprintf("/catalog/%s/toggle-stock", sku.ID))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 287, Col: 82}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 284, Col: 82}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 		if templ_7745c5c3_Err != nil {
@@ -414,7 +414,7 @@ func StockButtonComponent(sku models.CatalogSKU) templ.Component {
 		var templ_7745c5c3_Var25 string
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("#stock-btn-%s", sku.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 288, Col: 50}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 285, Col: 50}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 		if templ_7745c5c3_Err != nil {
@@ -432,7 +432,7 @@ func StockButtonComponent(sku models.CatalogSKU) templ.Component {
 			return "padding: 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; border: 1px solid #e6bdb7; background: var(--rose-soft); color: var(--rose); cursor: pointer;"
 		}())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/catalog.templ`, Line: 295, Col: 5}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/catalog.templ`, Line: 292, Col: 5}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 		if templ_7745c5c3_Err != nil {

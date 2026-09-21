@@ -41,13 +41,13 @@ func Layout(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(store.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 15, Col: 22}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 15, Col: 22}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " — Shoppage Merchant OS</title><!-- Google Fonts: Bricolage Grotesque & Instrument Sans & JetBrains Mono --><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap\" rel=\"stylesheet\"><!-- HTMX 2.0.2 --><script src=\"https://unpkg.com/htmx.org@2.0.2\"></script><style>\n\t\t\t\t:root {\n\t\t\t\t\t--bg: #edf1ec;\n\t\t\t\t\t--surface: #ffffff;\n\t\t\t\t\t--surface-2: #f5f7f4;\n\t\t\t\t\t--sidebar: #0a2f24;\n\t\t\t\t\t--sidebar-2: #0d3a2c;\n\t\t\t\t\t--ink: #0d1c15;\n\t\t\t\t\t--ink-2: #37473e;\n\t\t\t\t\t--muted: #6b7a71;\n\t\t\t\t\t--primary: #0e7c56;\n\t\t\t\t\t--primary-2: #0a5c40;\n\t\t\t\t\t--primary-soft: #dcefe4;\n\t\t\t\t\t--amber: #c47c14;\n\t\t\t\t\t--amber-soft: #faecd3;\n\t\t\t\t\t--rose: #b5483a;\n\t\t\t\t\t--rose-soft: #f7e2de;\n\t\t\t\t\t--line: rgba(13,28,21,.10);\n\t\t\t\t\t--line-strong: rgba(13,28,21,.20);\n\t\t\t\t\t--display: \"Bricolage Grotesque\", -apple-system, BlinkMacSystemFont, sans-serif;\n\t\t\t\t\t--body: \"Instrument Sans\", -apple-system, BlinkMacSystemFont, sans-serif;\n\t\t\t\t\t--mono: \"JetBrains Mono\", ui-monospace, monospace;\n\t\t\t\t\t--r-sm: 8px; --r: 12px; --r-lg: 18px;\n\t\t\t\t\t--sh-sm: 0 1px 2px rgba(13,28,21,.05);\n\t\t\t\t\t--sh: 0 1px 2px rgba(13,28,21,.05), 0 12px 28px -18px rgba(13,28,21,.30);\n\t\t\t\t\t--shadow-side: 8px 0 30px -22px rgba(13,28,21,.55);\n\t\t\t\t\t--nav-w: 260px;\n\t\t\t\t}\n\t\t\t\t* { box-sizing: border-box; }\n\t\t\t\thtml, body { margin: 0; padding: 0; min-height: 100%; }\n\t\t\t\tbody {\n\t\t\t\t\tbackground: var(--bg);\n\t\t\t\t\tcolor: var(--ink);\n\t\t\t\t\tfont-family: var(--body);\n\t\t\t\t\tfont-size: 14px;\n\t\t\t\t\tline-height: 1.5;\n\t\t\t\t\t-webkit-font-smoothing: antialiased;\n\t\t\t\t}\n\t\t\t\th1, h2, h3, h4 {\n\t\t\t\t\tfont-family: var(--display);\n\t\t\t\t\tmargin: 0;\n\t\t\t\t\tletter-spacing: -.025em;\n\t\t\t\t\tline-height: 1.15;\n\t\t\t\t\tfont-weight: 700;\n\t\t\t\t}\n\t\t\t\ta { color: inherit; text-decoration: none; }\n\t\t\t\tbutton, input, select, textarea { font: inherit; }\n\t\t\t\tbutton { cursor: pointer; }\n\t\t\t\t.app {\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tgrid-template-columns: var(--nav-w) 1fr;\n\t\t\t\t\tmin-height: 100vh;\n\t\t\t\t\ttransition: grid-template-columns .2s;\n\t\t\t\t}\n\t\t\t\t.app.collapsed {\n\t\t\t\t\tgrid-template-columns: 68px 1fr;\n\t\t\t\t}\n\n\t\t\t\t/* SIDEBAR */\n\t\t\t\t.side {\n\t\t\t\t\tbackground: var(--sidebar);\n\t\t\t\t\tcolor: #dbe8e0;\n\t\t\t\t\tpadding: 16px 10px;\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tflex-direction: column;\n\t\t\t\t\tgap: 3px;\n\t\t\t\t\tbox-shadow: var(--shadow-side);\n\t\t\t\t\tposition: sticky;\n\t\t\t\t\ttop: 0;\n\t\t\t\t\theight: 100vh;\n\t\t\t\t\toverflow-y: auto;\n\t\t\t\t}\n\t\t\t\t.brand {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 10px;\n\t\t\t\t\tpadding: 4px 8px 12px;\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t\tfont-family: var(--display);\n\t\t\t\t\tfont-weight: 800;\n\t\t\t\t\tfont-size: 18px;\n\t\t\t\t\tletter-spacing: -.04em;\n\t\t\t\t}\n\t\t\t\t.brand .mark {\n\t\t\t\t\twidth: 32px;\n\t\t\t\t\theight: 32px;\n\t\t\t\t\tborder-radius: 9px;\n\t\t\t\t\tbackground: var(--primary);\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tplace-items: center;\n\t\t\t\t\tflex: none;\n\t\t\t\t}\n\t\t\t\t.store-switch {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 10px;\n\t\t\t\t\tbackground: var(--sidebar-2);\n\t\t\t\t\tborder: 1px solid rgba(255,255,255,.10);\n\t\t\t\t\tborder-radius: var(--r);\n\t\t\t\t\tpadding: 8px 10px;\n\t\t\t\t\tmargin-bottom: 8px;\n\t\t\t\t}\n\t\t\t\t.store-switch .av {\n\t\t\t\t\twidth: 30px;\n\t\t\t\t\theight: 30px;\n\t\t\t\t\tborder-radius: 8px;\n\t\t\t\t\tbackground: linear-gradient(135deg, #0e7c56, #3fb886);\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tplace-items: center;\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t\tfont-family: var(--display);\n\t\t\t\t\tfont-weight: 700;\n\t\t\t\t\tfont-size: 13px;\n\t\t\t\t\tflex: none;\n\t\t\t\t}\n\t\t\t\t.store-switch .meta { min-width: 0; }\n\t\t\t\t.store-switch .meta b {\n\t\t\t\t\tdisplay: block;\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t\tfont-size: 12px;\n\t\t\t\t\tfont-weight: 600;\n\t\t\t\t\twhite-space: nowrap;\n\t\t\t\t\toverflow: hidden;\n\t\t\t\t\ttext-overflow: ellipsis;\n\t\t\t\t}\n\t\t\t\t.store-switch .meta span {\n\t\t\t\t\tfont-size: 10.5px;\n\t\t\t\t\tcolor: #8fb3a3;\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 4px;\n\t\t\t\t}\n\t\t\t\t.live-dot {\n\t\t\t\t\twidth: 6px;\n\t\t\t\t\theight: 6px;\n\t\t\t\t\tborder-radius: 50%;\n\t\t\t\t\tbackground: #4fe0a4;\n\t\t\t\t\tbox-shadow: 0 0 0 3px rgba(79,224,164,.25);\n\t\t\t\t}\n\t\t\t\t.nav-label {\n\t\t\t\t\tfont-size: 9.5px;\n\t\t\t\t\ttext-transform: uppercase;\n\t\t\t\t\tletter-spacing: .14em;\n\t\t\t\t\tcolor: #6f9384;\n\t\t\t\t\tpadding: 10px 8px 3px;\n\t\t\t\t\tfont-weight: 700;\n\t\t\t\t}\n\t\t\t\t.nav-item {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 10px;\n\t\t\t\t\tpadding: 6px 10px;\n\t\t\t\t\tborder-radius: 8px;\n\t\t\t\t\tfont-size: 12.5px;\n\t\t\t\t\tcolor: #c4d7cd;\n\t\t\t\t\tfont-weight: 500;\n\t\t\t\t\tborder: 0;\n\t\t\t\t\tbackground: transparent;\n\t\t\t\t\twidth: 100%;\n\t\t\t\t\ttext-align: left;\n\t\t\t\t\ttransition: all .15s;\n\t\t\t\t\tcursor: pointer;\n\t\t\t\t\twhite-space: nowrap;\n\t\t\t\t}\n\t\t\t\t.nav-item:hover {\n\t\t\t\t\tbackground: rgba(255,255,255,.07);\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t}\n\t\t\t\t.nav-item.active {\n\t\t\t\t\tbackground: var(--primary);\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t\tfont-weight: 600;\n\t\t\t\t}\n\t\t\t\t.nav-item .badge {\n\t\t\t\t\tmargin-left: auto;\n\t\t\t\t\tbackground: rgba(255,255,255,.14);\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t\tfont-size: 10px;\n\t\t\t\t\tfont-weight: 600;\n\t\t\t\t\tpadding: 1px 6px;\n\t\t\t\t\tborder-radius: 999px;\n\t\t\t\t}\n\t\t\t\t.nav-item .badge.warn {\n\t\t\t\t\tbackground: var(--amber);\n\t\t\t\t\tcolor: #3a2600;\n\t\t\t\t}\n\t\t\t\t.app.collapsed .nav-item span, \n\t\t\t\t.app.collapsed .nav-label, \n\t\t\t\t.app.collapsed .store-switch .meta, \n\t\t\t\t.app.collapsed .brand span:not(.mark), \n\t\t\t\t.app.collapsed .side-foot {\n\t\t\t\t\tdisplay: none;\n\t\t\t\t}\n\t\t\t\t.app.collapsed .nav-item {\n\t\t\t\t\tjustify-content: center;\n\t\t\t\t\tpadding: 10px 0;\n\t\t\t\t}\n\t\t\t\t.side-foot {\n\t\t\t\t\tmargin-top: auto;\n\t\t\t\t\tpadding-top: 14px;\n\t\t\t\t}\n\t\t\t\t.side-note {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tgap: 8px;\n\t\t\t\t\talign-items: flex-start;\n\t\t\t\t\tfont-size: 10.5px;\n\t\t\t\t\tcolor: #8fb3a3;\n\t\t\t\t\tbackground: var(--sidebar-2);\n\t\t\t\t\tborder-radius: 9px;\n\t\t\t\t\tpadding: 9px;\n\t\t\t\t\tline-height: 1.4;\n\t\t\t\t}\n\n\t\t\t\t/* MAIN CONTENT */\n\t\t\t\t.main {\n\t\t\t\t\tpadding: 18px clamp(14px, 2.5vw, 28px) 36px;\n\t\t\t\t\tmax-width: 1440px;\n\t\t\t\t\twidth: 100%;\n\t\t\t\t}\n\t\t\t\t.topbar {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 12px;\n\t\t\t\t\tflex-wrap: wrap;\n\t\t\t\t\tmargin-bottom: 18px;\n\t\t\t\t}\n\t\t\t\t.greet h1 { font-size: clamp(1.25rem, 1.8vw, 1.55rem); }\n\t\t\t\t.greet p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }\n\t\t\t\t.top-tools { margin-left: auto; display: flex; align-items: center; gap: 8px; }\n\t\t\t\t\n\t\t\t\t.omni-btn {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 8px;\n\t\t\t\t\tbackground: var(--surface);\n\t\t\t\t\tborder: 1px solid var(--line);\n\t\t\t\t\tborder-radius: 999px;\n\t\t\t\t\tpadding: 6px 14px;\n\t\t\t\t\tcolor: var(--muted);\n\t\t\t\t\tfont-size: 12.5px;\n\t\t\t\t\tbox-shadow: var(--sh-sm);\n\t\t\t\t\tcursor: pointer;\n\t\t\t\t}\n\t\t\t\t.omni-btn:hover {\n\t\t\t\t\tborder-color: var(--line-strong);\n\t\t\t\t\tcolor: var(--ink);\n\t\t\t\t}\n\t\t\t\t.btn {\n\t\t\t\t\tdisplay: inline-flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tjustify-content: center;\n\t\t\t\t\tgap: 6px;\n\t\t\t\t\tfont-weight: 600;\n\t\t\t\t\tfont-size: 12.5px;\n\t\t\t\t\tpadding: 7px 13px;\n\t\t\t\t\tborder-radius: 8px;\n\t\t\t\t\tborder: 1px solid transparent;\n\t\t\t\t\tcursor: pointer;\n\t\t\t\t\twhite-space: nowrap;\n\t\t\t\t\ttransition: all .15s;\n\t\t\t\t}\n\t\t\t\t.btn.solid {\n\t\t\t\t\tbackground: var(--primary);\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t\tbox-shadow: var(--sh-sm);\n\t\t\t\t}\n\t\t\t\t.btn.solid:hover { background: var(--primary-2); }\n\t\t\t\t.btn.ghost {\n\t\t\t\t\tbackground: var(--surface);\n\t\t\t\t\tborder-color: var(--line);\n\t\t\t\t\tcolor: var(--ink);\n\t\t\t\t}\n\t\t\t\t.btn.ghost:hover { border-color: var(--line-strong); }\n\t\t\t\t.btn.dark {\n\t\t\t\t\tbackground: var(--sidebar);\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t}\n\t\t\t\t.btn.dark:hover { background: var(--sidebar-2); }\n\t\t\t\t.btn.small {\n\t\t\t\t\tpadding: 4px 8px;\n\t\t\t\t\tfont-size: 11px;\n\t\t\t\t\tborder-radius: 6px;\n\t\t\t\t}\n\n\t\t\t\t/* CARDS & PANELS */\n\t\t\t\t.card {\n\t\t\t\t\tbackground: var(--surface);\n\t\t\t\t\tborder: 1px solid var(--line);\n\t\t\t\t\tborder-radius: var(--r-lg);\n\t\t\t\t\tbox-shadow: var(--sh);\n\t\t\t\t}\n\t\t\t\t.panel { padding: 18px; }\n\t\t\t\t.panel-head {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tjustify-content: space-between;\n\t\t\t\t\tgap: 10px;\n\t\t\t\t\tmargin-bottom: 14px;\n\t\t\t\t}\n\t\t\t\t.panel-head h3 { font-size: 16px; }\n\t\t\t\t.panel-head .sub { font-size: 12px; color: var(--muted); margin-top: 1px; }\n\n\t\t\t\t.grid-kpi {\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tgrid-template-columns: repeat(4, 1fr);\n\t\t\t\t\tgap: 12px;\n\t\t\t\t}\n\t\t\t\t.kpi { padding: 14px 16px; }\n\t\t\t\t.kpi .k-label {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tjustify-content: space-between;\n\t\t\t\t\tfont-size: 11.5px;\n\t\t\t\t\tcolor: var(--muted);\n\t\t\t\t\tfont-weight: 600;\n\t\t\t\t}\n\t\t\t\t.kpi .k-val {\n\t\t\t\t\tfont-family: var(--display);\n\t\t\t\t\tfont-weight: 800;\n\t\t\t\t\tfont-size: clamp(1.4rem, 2vw, 1.8rem);\n\t\t\t\t\tletter-spacing: -.04em;\n\t\t\t\t\tmargin: 6px 0 2px;\n\t\t\t\t}\n\t\t\t\t.kpi .k-val .sub { font-size: .85rem; font-weight: 600; color: var(--muted); }\n\t\t\t\t.kpi .k-foot {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 6px;\n\t\t\t\t\tfont-size: 11.5px;\n\t\t\t\t\tmargin-top: 4px;\n\t\t\t\t}\n\t\t\t\t.k-foot .then { color: var(--muted); }\n\n\t\t\t\t.chip {\n\t\t\t\t\tdisplay: inline-flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 3px;\n\t\t\t\t\tfont-size: 11px;\n\t\t\t\t\tfont-weight: 700;\n\t\t\t\t\tpadding: 2px 7px;\n\t\t\t\t\tborder-radius: 999px;\n\t\t\t\t}\n\t\t\t\t.chip.up { background: var(--primary-soft); color: var(--primary-2); }\n\t\t\t\t.chip.down { background: var(--rose-soft); color: var(--rose); }\n\t\t\t\t.chip.warn { background: var(--amber-soft); color: #7a4e05; }\n\t\t\t\t.chip.flat { background: var(--surface-2); color: var(--muted); }\n\n\t\t\t\t.meter-card {\n\t\t\t\t\tpadding: 18px;\n\t\t\t\t\tbackground: linear-gradient(140deg, var(--sidebar), #12513c);\n\t\t\t\t\tborder: 1px solid rgba(255,255,255,.08);\n\t\t\t\t\tcolor: #dbe8e0;\n\t\t\t\t}\n\t\t\t\t.meter-card h3 { color: #fff; font-size: 15.5px; }\n\t\t\t\t.meter-card .sub { color: #9fc2b3; font-size: 12px; margin-top: 2px; }\n\t\t\t\t.meter-top {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: flex-end;\n\t\t\t\t\tgap: 12px;\n\t\t\t\t\tflex-wrap: wrap;\n\t\t\t\t\tmargin: 14px 0 4px;\n\t\t\t\t}\n\t\t\t\t.meter-big {\n\t\t\t\t\tfont-family: var(--display);\n\t\t\t\t\tfont-weight: 800;\n\t\t\t\t\tfont-size: clamp(1.5rem, 2.2vw, 2rem);\n\t\t\t\t\tletter-spacing: -.04em;\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t\tline-height: 1;\n\t\t\t\t}\n\t\t\t\t.meter-big .t { font-size: 1rem; color: #9fc2b3; font-weight: 600; }\n\t\t\t\t.meter-flag { margin-left: auto; text-align: right; }\n\t\t\t\t.meter-flag b { display: block; color: #4fe0a4; font-family: var(--display); font-weight: 700; font-size: 14px; }\n\t\t\t\t.meter-flag span { font-size: 11.5px; color: #9fc2b3; }\n\t\t\t\t.bar {\n\t\t\t\t\theight: 12px;\n\t\t\t\t\tborder-radius: 999px;\n\t\t\t\t\tbackground: rgba(255,255,255,.12);\n\t\t\t\t\toverflow: hidden;\n\t\t\t\t\tmargin-top: 12px;\n\t\t\t\t\tposition: relative;\n\t\t\t\t}\n\t\t\t\t.bar .fill {\n\t\t\t\t\theight: 100%;\n\t\t\t\t\tbackground: linear-gradient(90deg, #3fb886, #5fe0a4);\n\t\t\t\t\tborder-radius: 999px;\n\t\t\t\t}\n\t\t\t\t.meter-scale {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tjustify-content: space-between;\n\t\t\t\t\tfont-size: 11px;\n\t\t\t\t\tcolor: #9fc2b3;\n\t\t\t\t\tmargin-top: 6px;\n\t\t\t\t}\n\t\t\t\t.meter-scale b { color: #e4f0ea; font-weight: 600; }\n\n\t\t\t\t.row-2 {\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tgrid-template-columns: 1.5fr 1fr;\n\t\t\t\t\tgap: 14px;\n\t\t\t\t\tmargin-bottom: 14px;\n\t\t\t\t}\n\t\t\t\t.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }\n\t\t\t\t.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }\n\n\t\t\t\t.table-wrap { overflow-x: auto; width: 100%; }\n\t\t\t\t.table {\n\t\t\t\t\twidth: 100%;\n\t\t\t\t\tborder-collapse: collapse;\n\t\t\t\t\tfont-size: 13px;\n\t\t\t\t}\n\t\t\t\t.table th {\n\t\t\t\t\ttext-align: left;\n\t\t\t\t\tpadding: 10px 14px;\n\t\t\t\t\tfont-size: 11px;\n\t\t\t\t\ttext-transform: uppercase;\n\t\t\t\t\tletter-spacing: .06em;\n\t\t\t\t\tcolor: var(--muted);\n\t\t\t\t\tborder-bottom: 1px solid var(--line);\n\t\t\t\t\tbackground: var(--surface-2);\n\t\t\t\t\tfont-weight: 700;\n\t\t\t\t}\n\t\t\t\t.table td {\n\t\t\t\t\tpadding: 10px 14px;\n\t\t\t\t\tborder-bottom: 1px solid var(--line);\n\t\t\t\t\tvertical-align: middle;\n\t\t\t\t}\n\t\t\t\t.table tr:last-child td { border-bottom: 0; }\n\t\t\t\t.table tr:hover td { background: var(--surface-2); }\n\n\t\t\t\t/* FORM ELEMENTS */\n\t\t\t\t.form-group { margin-bottom: 12px; }\n\t\t\t\t.form-group label {\n\t\t\t\t\tdisplay: block;\n\t\t\t\t\tfont-size: 12px;\n\t\t\t\t\tfont-weight: 700;\n\t\t\t\t\tmargin-bottom: 4px;\n\t\t\t\t\tcolor: var(--ink);\n\t\t\t\t}\n\t\t\t\t.input, .textarea, .select-full {\n\t\t\t\t\twidth: 100%;\n\t\t\t\t\tborder: 1px solid var(--line-strong);\n\t\t\t\t\tbackground: var(--surface);\n\t\t\t\t\tborder-radius: 8px;\n\t\t\t\t\tpadding: 8px 11px;\n\t\t\t\t\tcolor: var(--ink);\n\t\t\t\t\tfont-size: 13px;\n\t\t\t\t}\n\t\t\t\t.input:focus, .textarea:focus, .select-full:focus {\n\t\t\t\t\tborder-color: var(--primary);\n\t\t\t\t\toutline: 0;\n\t\t\t\t\tbox-shadow: 0 0 0 3px rgba(14,124,86,.12);\n\t\t\t\t}\n\n\t\t\t\t/* MODAL CONTAINER & DIALOG */\n\t\t\t\t#modal-container:not(:empty) {\n\t\t\t\t\tposition: fixed;\n\t\t\t\t\tinset: 0;\n\t\t\t\t\tbackground: rgba(10,47,36,.65);\n\t\t\t\t\tbackdrop-filter: blur(4px);\n\t\t\t\t\tz-index: 1000;\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tplace-items: center;\n\t\t\t\t\tpadding: 20px;\n\t\t\t\t\toverflow-y: auto;\n\t\t\t\t}\n\t\t\t\t.modal-card {\n\t\t\t\t\tbackground: var(--surface);\n\t\t\t\t\tborder-radius: var(--r-lg);\n\t\t\t\t\tbox-shadow: 0 20px 50px -15px rgba(0,0,0,.35);\n\t\t\t\t\twidth: 100%;\n\t\t\t\t\tmax-height: 90vh;\n\t\t\t\t\toverflow-y: auto;\n\t\t\t\t\tborder: 1px solid var(--line);\n\t\t\t\t}\n\t\t\t\t.modal-head {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tjustify-content: space-between;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tpadding: 16px 20px;\n\t\t\t\t\tborder-bottom: 1px solid var(--line);\n\t\t\t\t}\n\t\t\t\t.modal-head h3, .modal-head h4 { font-size: 16px; margin: 0; }\n\t\t\t\t.modal-body { padding: 18px 20px; }\n\t\t\t\t.modal-foot {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tjustify-content: flex-end;\n\t\t\t\t\tgap: 8px;\n\t\t\t\t\tpadding: 14px 20px;\n\t\t\t\t\tborder-top: 1px solid var(--line);\n\t\t\t\t\tbackground: var(--surface-2);\n\t\t\t\t\tborder-radius: 0 0 var(--r-lg) var(--r-lg);\n\t\t\t\t}\n\t\t\t\t.close-btn {\n\t\t\t\t\tbackground: transparent;\n\t\t\t\t\tborder: 0;\n\t\t\t\t\tfont-size: 22px;\n\t\t\t\t\tcolor: var(--muted);\n\t\t\t\t\tcursor: pointer;\n\t\t\t\t\tline-height: 1;\n\t\t\t\t}\n\t\t\t\t.close-btn:hover { color: var(--rose); }\n\n\t\t\t\tdialog.modal-dialog {\n\t\t\t\t\tborder: 0;\n\t\t\t\t\tborder-radius: var(--r-lg);\n\t\t\t\t\tpadding: 0;\n\t\t\t\t\tbackground: transparent;\n\t\t\t\t\tbox-shadow: 0 24px 60px -15px rgba(0,0,0,.4);\n\t\t\t\t\tmax-width: 600px;\n\t\t\t\t\twidth: 90%;\n\t\t\t\t}\n\t\t\t\tdialog::backdrop {\n\t\t\t\t\tbackground: rgba(10,47,36,.65);\n\t\t\t\t\tbackdrop-filter: blur(4px);\n\t\t\t\t}\n\n\t\t\t\t@media(max-width: 1120px) {\n\t\t\t\t\t.grid-kpi { grid-template-columns: repeat(2, 1fr); }\n\t\t\t\t\t.app { grid-template-columns: 1fr; }\n\t\t\t\t\t.side { position: static; height: auto; }\n\t\t\t\t\t.row-2 { grid-template-columns: 1fr; }\n\t\t\t\t\t.three-col { grid-template-columns: 1fr; }\n\t\t\t\t}\n\t\t\t</style></head><body><div class=\"app\" id=\"app-root\"><!-- SIDEBAR -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " — Shoppage Merchant OS</title><!-- Google Fonts: Bricolage Grotesque & Instrument Sans & JetBrains Mono --><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap\" rel=\"stylesheet\"><!-- HTMX 2.0.2 --><script src=\"https://unpkg.com/htmx.org@2.0.2\"></script><style>\n\t\t\t\t:root {\n\t\t\t\t\t--bg: #edf1ec;\n\t\t\t\t\t--surface: #ffffff;\n\t\t\t\t\t--surface-2: #f5f7f4;\n\t\t\t\t\t--sidebar: #0a2f24;\n\t\t\t\t\t--sidebar-2: #0d3a2c;\n\t\t\t\t\t--ink: #0d1c15;\n\t\t\t\t\t--ink-2: #37473e;\n\t\t\t\t\t--muted: #6b7a71;\n\t\t\t\t\t--primary: #0e7c56;\n\t\t\t\t\t--primary-2: #0a5c40;\n\t\t\t\t\t--primary-soft: #dcefe4;\n\t\t\t\t\t--amber: #c47c14;\n\t\t\t\t\t--amber-soft: #faecd3;\n\t\t\t\t\t--rose: #b5483a;\n\t\t\t\t\t--rose-soft: #f7e2de;\n\t\t\t\t\t--line: rgba(13,28,21,.10);\n\t\t\t\t\t--line-strong: rgba(13,28,21,.20);\n\t\t\t\t\t--display: \"Bricolage Grotesque\", -apple-system, BlinkMacSystemFont, sans-serif;\n\t\t\t\t\t--body: \"Instrument Sans\", -apple-system, BlinkMacSystemFont, sans-serif;\n\t\t\t\t\t--mono: \"JetBrains Mono\", ui-monospace, monospace;\n\t\t\t\t\t--r-sm: 8px; --r: 12px; --r-lg: 18px;\n\t\t\t\t\t--sh-sm: 0 1px 2px rgba(13,28,21,.05);\n\t\t\t\t\t--sh: 0 1px 2px rgba(13,28,21,.05), 0 12px 28px -18px rgba(13,28,21,.30);\n\t\t\t\t\t--shadow-side: 8px 0 30px -22px rgba(13,28,21,.55);\n\t\t\t\t\t--nav-w: 260px;\n\t\t\t\t}\n\t\t\t\t* { box-sizing: border-box; }\n\t\t\t\thtml, body { margin: 0; padding: 0; min-height: 100%; }\n\t\t\t\tbody {\n\t\t\t\t\tbackground: var(--bg);\n\t\t\t\t\tcolor: var(--ink);\n\t\t\t\t\tfont-family: var(--body);\n\t\t\t\t\tfont-size: 14px;\n\t\t\t\t\tline-height: 1.5;\n\t\t\t\t\t-webkit-font-smoothing: antialiased;\n\t\t\t\t}\n\t\t\t\th1, h2, h3, h4 {\n\t\t\t\t\tfont-family: var(--display);\n\t\t\t\t\tmargin: 0;\n\t\t\t\t\tletter-spacing: -.025em;\n\t\t\t\t\tline-height: 1.15;\n\t\t\t\t\tfont-weight: 700;\n\t\t\t\t}\n\t\t\t\ta { color: inherit; text-decoration: none; }\n\t\t\t\tbutton, input, select, textarea { font: inherit; }\n\t\t\t\tbutton { cursor: pointer; }\n\t\t\t\t.app {\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tgrid-template-columns: var(--nav-w) 1fr;\n\t\t\t\t\tmin-height: 100vh;\n\t\t\t\t\ttransition: grid-template-columns .2s;\n\t\t\t\t}\n\t\t\t\t.app.collapsed {\n\t\t\t\t\tgrid-template-columns: 68px 1fr;\n\t\t\t\t}\n\n\t\t\t\t/* SIDEBAR */\n\t\t\t\t.side {\n\t\t\t\t\tbackground: var(--sidebar);\n\t\t\t\t\tcolor: #dbe8e0;\n\t\t\t\t\tpadding: 16px 10px;\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tflex-direction: column;\n\t\t\t\t\tgap: 3px;\n\t\t\t\t\tbox-shadow: var(--shadow-side);\n\t\t\t\t\tposition: sticky;\n\t\t\t\t\ttop: 0;\n\t\t\t\t\theight: 100vh;\n\t\t\t\t\toverflow-y: auto;\n\t\t\t\t}\n\t\t\t\t.brand {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 10px;\n\t\t\t\t\tpadding: 4px 8px 12px;\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t\tfont-family: var(--display);\n\t\t\t\t\tfont-weight: 800;\n\t\t\t\t\tfont-size: 18px;\n\t\t\t\t\tletter-spacing: -.04em;\n\t\t\t\t}\n\t\t\t\t.brand .mark {\n\t\t\t\t\twidth: 32px;\n\t\t\t\t\theight: 32px;\n\t\t\t\t\tborder-radius: 9px;\n\t\t\t\t\tbackground: var(--primary);\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tplace-items: center;\n\t\t\t\t\tflex: none;\n\t\t\t\t}\n\t\t\t\t.store-switch {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 10px;\n\t\t\t\t\tbackground: var(--sidebar-2);\n\t\t\t\t\tborder: 1px solid rgba(255,255,255,.10);\n\t\t\t\t\tborder-radius: var(--r);\n\t\t\t\t\tpadding: 8px 10px;\n\t\t\t\t\tmargin-bottom: 8px;\n\t\t\t\t}\n\t\t\t\t.store-switch .av {\n\t\t\t\t\twidth: 30px;\n\t\t\t\t\theight: 30px;\n\t\t\t\t\tborder-radius: 8px;\n\t\t\t\t\tbackground: linear-gradient(135deg, #0e7c56, #3fb886);\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tplace-items: center;\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t\tfont-family: var(--display);\n\t\t\t\t\tfont-weight: 700;\n\t\t\t\t\tfont-size: 13px;\n\t\t\t\t\tflex: none;\n\t\t\t\t}\n\t\t\t\t.store-switch .meta { min-width: 0; }\n\t\t\t\t.store-switch .meta b {\n\t\t\t\t\tdisplay: block;\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t\tfont-size: 12px;\n\t\t\t\t\tfont-weight: 600;\n\t\t\t\t\twhite-space: nowrap;\n\t\t\t\t\toverflow: hidden;\n\t\t\t\t\ttext-overflow: ellipsis;\n\t\t\t\t}\n\t\t\t\t.store-switch .meta span {\n\t\t\t\t\tfont-size: 10.5px;\n\t\t\t\t\tcolor: #8fb3a3;\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 4px;\n\t\t\t\t}\n\t\t\t\t.live-dot {\n\t\t\t\t\twidth: 6px;\n\t\t\t\t\theight: 6px;\n\t\t\t\t\tborder-radius: 50%;\n\t\t\t\t\tbackground: #4fe0a4;\n\t\t\t\t\tbox-shadow: 0 0 0 3px rgba(79,224,164,.25);\n\t\t\t\t}\n\t\t\t\t.nav-label {\n\t\t\t\t\tfont-size: 9.5px;\n\t\t\t\t\ttext-transform: uppercase;\n\t\t\t\t\tletter-spacing: .14em;\n\t\t\t\t\tcolor: #6f9384;\n\t\t\t\t\tpadding: 10px 8px 3px;\n\t\t\t\t\tfont-weight: 700;\n\t\t\t\t}\n\t\t\t\t.nav-item {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 10px;\n\t\t\t\t\tpadding: 6px 10px;\n\t\t\t\t\tborder-radius: 8px;\n\t\t\t\t\tfont-size: 12.5px;\n\t\t\t\t\tcolor: #c4d7cd;\n\t\t\t\t\tfont-weight: 500;\n\t\t\t\t\tborder: 0;\n\t\t\t\t\tbackground: transparent;\n\t\t\t\t\twidth: 100%;\n\t\t\t\t\ttext-align: left;\n\t\t\t\t\ttransition: all .15s;\n\t\t\t\t\tcursor: pointer;\n\t\t\t\t\twhite-space: nowrap;\n\t\t\t\t}\n\t\t\t\t.nav-item:hover {\n\t\t\t\t\tbackground: rgba(255,255,255,.07);\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t}\n\t\t\t\t.nav-item.active {\n\t\t\t\t\tbackground: var(--primary);\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t\tfont-weight: 600;\n\t\t\t\t}\n\t\t\t\t.nav-item .badge {\n\t\t\t\t\tmargin-left: auto;\n\t\t\t\t\tbackground: rgba(255,255,255,.14);\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t\tfont-size: 10px;\n\t\t\t\t\tfont-weight: 600;\n\t\t\t\t\tpadding: 1px 6px;\n\t\t\t\t\tborder-radius: 999px;\n\t\t\t\t}\n\t\t\t\t.nav-item .badge.warn {\n\t\t\t\t\tbackground: var(--amber);\n\t\t\t\t\tcolor: #3a2600;\n\t\t\t\t}\n\t\t\t\t.side-collapse-btn {\n\t\t\t\t\tmargin-left: auto;\n\t\t\t\t\tbackground: transparent;\n\t\t\t\t\tborder: 0;\n\t\t\t\t\tcolor: #8fb3a3;\n\t\t\t\t\tcursor: pointer;\n\t\t\t\t\tdisplay: inline-flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tjustify-content: center;\n\t\t\t\t\twidth: 26px;\n\t\t\t\t\theight: 26px;\n\t\t\t\t\tborder-radius: 6px;\n\t\t\t\t\ttransition: all .15s;\n\t\t\t\t\tpadding: 0;\n\t\t\t\t\tflex: none;\n\t\t\t\t}\n\t\t\t\t.side-collapse-btn:hover {\n\t\t\t\t\tbackground: rgba(255,255,255,.12);\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t}\n\t\t\t\t.side-collapse-btn svg {\n\t\t\t\t\ttransition: transform .2s ease;\n\t\t\t\t}\n\t\t\t\t.app.collapsed .side-collapse-btn {\n\t\t\t\t\tmargin-left: 0;\n\t\t\t\t}\n\t\t\t\t.app.collapsed .side-collapse-btn svg {\n\t\t\t\t\ttransform: rotate(180deg);\n\t\t\t\t}\n\t\t\t\t.app.collapsed {\n\t\t\t\t\tgrid-template-columns: 68px 1fr;\n\t\t\t\t}\n\t\t\t\t.app.collapsed .nav-item span:not(.icon-span), \n\t\t\t\t.app.collapsed .nav-label, \n\t\t\t\t.app.collapsed .store-switch .meta, \n\t\t\t\t.app.collapsed .brand-text, \n\t\t\t\t.app.collapsed .side-foot {\n\t\t\t\t\tdisplay: none !important;\n\t\t\t\t}\n\t\t\t\t.app.collapsed .brand {\n\t\t\t\t\tflex-direction: column;\n\t\t\t\t\tgap: 6px;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tpadding: 4px 0 12px;\n\t\t\t\t}\n\t\t\t\t.app.collapsed .nav-item {\n\t\t\t\t\tjustify-content: center;\n\t\t\t\t\tpadding: 10px 0;\n\t\t\t\t}\n\t\t\t\t.app.collapsed .store-switch {\n\t\t\t\t\tjustify-content: center;\n\t\t\t\t\tpadding: 6px;\n\t\t\t\t}\n\t\t\t\t.side-foot {\n\t\t\t\t\tmargin-top: auto;\n\t\t\t\t\tpadding-top: 14px;\n\t\t\t\t}\n\t\t\t\t.side-note {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tgap: 8px;\n\t\t\t\t\talign-items: flex-start;\n\t\t\t\t\tfont-size: 10.5px;\n\t\t\t\t\tcolor: #8fb3a3;\n\t\t\t\t\tbackground: var(--sidebar-2);\n\t\t\t\t\tborder-radius: 9px;\n\t\t\t\t\tpadding: 9px;\n\t\t\t\t\tline-height: 1.4;\n\t\t\t\t}\n\n\t\t\t\t/* THREAD & ROW SELECTION HIGHLIGHTS */\n\t\t\t\t.thread-item {\n\t\t\t\t\ttransition: background .15s, border-left .15s;\n\t\t\t\t}\n\t\t\t\t.thread-item:hover {\n\t\t\t\t\tbackground: var(--surface-2);\n\t\t\t\t}\n\t\t\t\t.thread-item.active-thread, .thread-item.selected {\n\t\t\t\t\tbackground: var(--primary-soft) !important;\n\t\t\t\t\tborder-left: 4px solid var(--primary) !important;\n\t\t\t\t}\n\t\t\t\t.view-switch button {\n\t\t\t\t\tborder: 0;\n\t\t\t\t\tbackground: transparent;\n\t\t\t\t\tcolor: var(--muted);\n\t\t\t\t\theight: 29px;\n\t\t\t\t\tpadding: 0 10px;\n\t\t\t\t\tborder-radius: 7px;\n\t\t\t\t\tdisplay: inline-flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 5px;\n\t\t\t\t\tfont-weight: 500;\n\t\t\t\t\tfont-size: 12.5px;\n\t\t\t\t\tcursor: pointer;\n\t\t\t\t\ttransition: all .15s;\n\t\t\t\t}\n\t\t\t\t.view-switch button.active {\n\t\t\t\t\tbackground: var(--surface) !important;\n\t\t\t\t\tcolor: var(--primary-2) !important;\n\t\t\t\t\tfont-weight: 700 !important;\n\t\t\t\t\tbox-shadow: 0 1px 2px rgba(13,28,21,.08);\n\t\t\t\t}\n\t\t\t\t.filter-btn-group .btn.active {\n\t\t\t\t\tbackground: var(--primary) !important;\n\t\t\t\t\tcolor: #fff !important;\n\t\t\t\t\tborder-color: var(--primary) !important;\n\t\t\t\t\tfont-weight: 700;\n\t\t\t\t}\n\n\t\t\t\t/* PEMOFY PRODUCT DETAIL & EDIT STYLES */\n\t\t\t\t.breadcrumb { display: flex; gap: 7px; align-items: center; color: var(--muted); font-size: 12.5px; margin-bottom: 12px; }\n\t\t\t\t.breadcrumb a { color: var(--primary-2); font-weight: 600; text-decoration: none; }\n\t\t\t\t.breadcrumb a:hover { text-decoration: underline; }\n\t\t\t\t.breadcrumb svg { width: 14px; height: 14px; }\n\t\t\t\t.detail-head { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }\n\t\t\t\t.detail-head .head-copy { min-width: 0; }\n\t\t\t\t.detail-head h1, .detail-head h2 { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-size: clamp(1.25rem, 1.8vw, 1.55rem); }\n\t\t\t\t.detail-head p { color: var(--muted); margin: 4px 0 0; font-size: 12.5px; }\n\t\t\t\t.detail-actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }\n\t\t\t\t.detail-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 14px; margin-bottom: 14px; }\n\t\t\t\t.gallery-card { padding: 14px; }\n\t\t\t\t.gallery-main { height: 310px; border-radius: 13px; position: relative; display: grid; place-items: center; overflow: hidden; background: linear-gradient(135deg, #dcefe4, #8fbea5); }\n\t\t\t\t.gallery-main .g-stamp { position: absolute; bottom: 14px; left: 16px; color: rgba(13,28,21,.45); font-family: var(--display); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }\n\t\t\t\t.gallery-thumbs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-top: 8px; }\n\t\t\t\t.thumb { height: 56px; border-radius: 8px; border: 2px solid transparent; position: relative; overflow: hidden; cursor: pointer; display: grid; place-items: center; font-size: 18px; background: var(--surface-2); transition: border-color .15s; }\n\t\t\t\t.thumb.active { border-color: var(--primary); }\n\t\t\t\t.info-card { padding: 18px; }\n\t\t\t\t.price-line { display: flex; align-items: baseline; gap: 10px; margin-top: 5px; flex-wrap: wrap; }\n\t\t\t\t.price-line .large-price { font-family: var(--display); font-size: 2.1rem; font-weight: 800; letter-spacing: -.05em; color: var(--primary-2); }\n\t\t\t\t.price-line .compare { text-decoration: line-through; color: var(--muted); font-size: 13px; }\n\t\t\t\t.description { color: var(--ink-2); font-size: 13.5px; line-height: 1.6; margin: 14px 0 16px; }\n\t\t\t\t.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }\n\t\t\t\t.info-cell { border: 1px solid var(--line); background: var(--surface-2); border-radius: 9px; padding: 10px; }\n\t\t\t\t.info-cell label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 700; }\n\t\t\t\t.info-cell b { display: block; margin-top: 3px; font-family: var(--display); font-size: 15px; }\n\t\t\t\t.progress { height: 7px; border-radius: 99px; background: rgba(13,28,21,.08); overflow: hidden; margin-top: 7px; }\n\t\t\t\t.progress span { height: 100%; display: block; background: var(--primary); border-radius: 99px; }\n\t\t\t\t.info-note { display: flex; gap: 8px; align-items: flex-start; border-top: 1px solid var(--line); padding-top: 12px; color: var(--muted); font-size: 12px; }\n\t\t\t\t.info-note svg { width: 16px; height: 16px; color: var(--primary); flex: none; margin-top: 2px; }\n\t\t\t\t.detail-lower { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }\n\t\t\t\t.panel-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }\n\t\t\t\t.panel-title h3 { font-size: 14.5px; margin: 0; }\n\t\t\t\t.kv-list { display: grid; gap: 8px; }\n\t\t\t\t.kv-row { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 7px; font-size: 12px; }\n\t\t\t\t.kv-row:last-child { border-bottom: 0; }\n\t\t\t\t.kv-row span { color: var(--muted); }\n\t\t\t\t.kv-row b { font-weight: 600; text-align: right; }\n\t\t\t\t.tag-list { display: flex; gap: 6px; flex-wrap: wrap; }\n\t\t\t\t.tag-list span { font-size: 11px; padding: 4px 8px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; color: var(--ink-2); }\n\t\t\t\t.seo-score { display: flex; align-items: center; gap: 12px; }\n\t\t\t\t.score-ring { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; position: relative; flex: none; }\n\t\t\t\t.score-ring::after { content: \"\"; position: absolute; inset: 6px; background: var(--surface); border-radius: 50%; }\n\t\t\t\t.score-ring b { position: relative; z-index: 1; font-family: var(--display); font-size: 14px; }\n\t\t\t\t.activity { display: grid; gap: 9px; }\n\t\t\t\t.activity-row { display: flex; gap: 8px; font-size: 11.5px; }\n\t\t\t\t.activity-row .time { margin-left: auto; color: var(--muted); white-space: nowrap; }\n\t\t\t\t.activity-row .bullet { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); margin-top: 5px; flex: none; }\n\t\t\t\t.activity-row .bullet.amber { background: var(--amber); }\n\n\t\t\t\t/* EDITOR STYLES */\n\t\t\t\t.editor-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }\n\t\t\t\t.editor-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 14px; overflow-x: auto; }\n\t\t\t\t.editor-tabs button { border: 0; background: transparent; padding: 9px 14px; color: var(--muted); font-weight: 600; font-size: 13px; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }\n\t\t\t\t.editor-tabs button.active { color: var(--primary-2); border-color: var(--primary); }\n\t\t\t\t.editor-grid { display: grid; grid-template-columns: 1.22fr .78fr; gap: 14px; }\n\t\t\t\t.form-card { padding: 18px; }\n\t\t\t\t.form-label { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin-bottom: 6px; }\n\t\t\t\t.form-label label { font-size: 12.5px; font-weight: 700; color: var(--ink); }\n\t\t\t\t.form-label span { font-size: 11px; color: var(--muted); }\n\t\t\t\t.rich { border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }\n\t\t\t\t.rich-tools { display: flex; gap: 2px; padding: 5px 6px; background: var(--surface-2); border-bottom: 1px solid var(--line); }\n\t\t\t\t.rich-tools button { border: 0; background: transparent; border-radius: 4px; padding: 3px 7px; color: var(--ink-2); font-weight: 700; font-size: 11.5px; cursor: pointer; }\n\t\t\t\t.rich-tools button:hover { background: var(--surface); }\n\t\t\t\t.rich .textarea { border: 0; border-radius: 0; display: block; width: 100%; }\n\t\t\t\t.help { font-size: 11px; color: var(--muted); margin-top: 4px; }\n\t\t\t\t.switch-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); }\n\t\t\t\t.switch-row:last-child { border-bottom: 0; }\n\t\t\t\t.switch-row b { display: block; font-size: 12.5px; }\n\t\t\t\t.switch-row span { display: block; color: var(--muted); font-size: 11px; margin-top: 1px; }\n\t\t\t\t.toggle { width: 38px; height: 21px; border-radius: 99px; background: var(--line-strong); padding: 2px; border: 0; flex: none; cursor: pointer; position: relative; transition: background .2s; }\n\t\t\t\t.toggle::after { content: \"\"; display: block; width: 17px; height: 17px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.15); transition: transform .2s; }\n\t\t\t\t.toggle.on { background: var(--primary); }\n\t\t\t\t.toggle.on::after { transform: translateX(17px); }\n\t\t\t\t.media-drop { border: 1.5px dashed var(--line-strong); border-radius: 10px; min-height: 115px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 5px; background: var(--surface-2); color: var(--muted); text-align: center; padding: 12px; cursor: pointer; }\n\t\t\t\t.media-drop svg { width: 22px; height: 22px; color: var(--primary); }\n\t\t\t\t.media-drop b { font-size: 12.5px; color: var(--ink-2); }\n\t\t\t\t.media-drop span { font-size: 11px; }\n\t\t\t\t.media-current { display: flex; gap: 8px; margin-top: 9px; align-items: center; }\n\t\t\t\t.publish-card { background: var(--sidebar); color: #dbe8e0; border-radius: var(--r-lg); padding: 16px; }\n\t\t\t\t.publish-card h3 { color: #fff; font-size: 14.5px; margin: 0 0 4px; }\n\t\t\t\t.publish-card p { color: #9fc2b3; font-size: 11.5px; margin: 0 0 12px; }\n\t\t\t\t.publish-card .btn { width: 100%; margin-bottom: 8px; }\n\t\t\t\t.publish-card .btn:last-child { margin-bottom: 0; }\n\t\t\t\t.publish-card .btn.light { background: #fff; color: var(--primary-2); font-weight: 700; border: 0; }\n\t\t\t\t.publish-card .btn.light:hover { background: #eef5f1; }\n\t\t\t\t.publish-card .btn.line { border-color: rgba(255,255,255,.25); color: #fff; background: transparent; }\n\t\t\t\t.publish-card .btn.line:hover { background: rgba(255,255,255,.08); }\n\t\t\t\t.side-form { display: grid; gap: 14px; }\n\t\t\t\t.side-form .card { padding: 16px; }\n\t\t\t\t.side-form h3 { font-size: 14px; margin: 0 0 10px; }\n\t\t\t\t.alert { display: flex; gap: 8px; padding: 9px 11px; border-radius: 8px; background: var(--amber-soft); color: #7a4e05; font-size: 11.5px; align-items: flex-start; }\n\t\t\t\t.alert svg { width: 15px; height: 15px; flex: none; margin-top: 1px; }\n\n\t\t\t\t/* MAIN CONTENT */\n\t\t\t\t.main {\n\t\t\t\t\tpadding: 18px clamp(14px, 2.5vw, 28px) 36px;\n\t\t\t\t\tmax-width: 1440px;\n\t\t\t\t\twidth: 100%;\n\t\t\t\t}\n\t\t\t\t.topbar {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 12px;\n\t\t\t\t\tflex-wrap: wrap;\n\t\t\t\t\tmargin-bottom: 18px;\n\t\t\t\t}\n\t\t\t\t.greet h1 { font-size: clamp(1.25rem, 1.8vw, 1.55rem); }\n\t\t\t\t.greet p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }\n\t\t\t\t.top-tools { margin-left: auto; display: flex; align-items: center; gap: 8px; }\n\t\t\t\t\n\t\t\t\t.omni-btn {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 8px;\n\t\t\t\t\tbackground: var(--surface);\n\t\t\t\t\tborder: 1px solid var(--line);\n\t\t\t\t\tborder-radius: 999px;\n\t\t\t\t\tpadding: 6px 14px;\n\t\t\t\t\tcolor: var(--muted);\n\t\t\t\t\tfont-size: 12.5px;\n\t\t\t\t\tbox-shadow: var(--sh-sm);\n\t\t\t\t\tcursor: pointer;\n\t\t\t\t}\n\t\t\t\t.omni-btn:hover {\n\t\t\t\t\tborder-color: var(--line-strong);\n\t\t\t\t\tcolor: var(--ink);\n\t\t\t\t}\n\t\t\t\t.btn {\n\t\t\t\t\tdisplay: inline-flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tjustify-content: center;\n\t\t\t\t\tgap: 6px;\n\t\t\t\t\tfont-weight: 600;\n\t\t\t\t\tfont-size: 12.5px;\n\t\t\t\t\tpadding: 7px 13px;\n\t\t\t\t\tborder-radius: 8px;\n\t\t\t\t\tborder: 1px solid transparent;\n\t\t\t\t\tcursor: pointer;\n\t\t\t\t\twhite-space: nowrap;\n\t\t\t\t\ttransition: all .15s;\n\t\t\t\t}\n\t\t\t\t.btn.solid {\n\t\t\t\t\tbackground: var(--primary);\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t\tbox-shadow: var(--sh-sm);\n\t\t\t\t}\n\t\t\t\t.btn.solid:hover { background: var(--primary-2); }\n\t\t\t\t.btn.ghost {\n\t\t\t\t\tbackground: var(--surface);\n\t\t\t\t\tborder-color: var(--line);\n\t\t\t\t\tcolor: var(--ink);\n\t\t\t\t}\n\t\t\t\t.btn.ghost:hover { border-color: var(--line-strong); }\n\t\t\t\t.btn.dark {\n\t\t\t\t\tbackground: var(--sidebar);\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t}\n\t\t\t\t.btn.dark:hover { background: var(--sidebar-2); }\n\t\t\t\t.btn.small {\n\t\t\t\t\tpadding: 4px 8px;\n\t\t\t\t\tfont-size: 11px;\n\t\t\t\t\tborder-radius: 6px;\n\t\t\t\t}\n\n\t\t\t\t/* CARDS & PANELS */\n\t\t\t\t.card {\n\t\t\t\t\tbackground: var(--surface);\n\t\t\t\t\tborder: 1px solid var(--line);\n\t\t\t\t\tborder-radius: var(--r-lg);\n\t\t\t\t\tbox-shadow: var(--sh);\n\t\t\t\t}\n\t\t\t\t.panel { padding: 18px; }\n\t\t\t\t.panel-head {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tjustify-content: space-between;\n\t\t\t\t\tgap: 10px;\n\t\t\t\t\tmargin-bottom: 14px;\n\t\t\t\t}\n\t\t\t\t.panel-head h3 { font-size: 16px; }\n\t\t\t\t.panel-head .sub { font-size: 12px; color: var(--muted); margin-top: 1px; }\n\n\t\t\t\t.grid-kpi {\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tgrid-template-columns: repeat(4, 1fr);\n\t\t\t\t\tgap: 12px;\n\t\t\t\t}\n\t\t\t\t.kpi { padding: 14px 16px; }\n\t\t\t\t.kpi .k-label {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tjustify-content: space-between;\n\t\t\t\t\tfont-size: 11.5px;\n\t\t\t\t\tcolor: var(--muted);\n\t\t\t\t\tfont-weight: 600;\n\t\t\t\t}\n\t\t\t\t.kpi .k-val {\n\t\t\t\t\tfont-family: var(--display);\n\t\t\t\t\tfont-weight: 800;\n\t\t\t\t\tfont-size: clamp(1.4rem, 2vw, 1.8rem);\n\t\t\t\t\tletter-spacing: -.04em;\n\t\t\t\t\tmargin: 6px 0 2px;\n\t\t\t\t}\n\t\t\t\t.kpi .k-val .sub { font-size: .85rem; font-weight: 600; color: var(--muted); }\n\t\t\t\t.kpi .k-foot {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 6px;\n\t\t\t\t\tfont-size: 11.5px;\n\t\t\t\t\tmargin-top: 4px;\n\t\t\t\t}\n\t\t\t\t.k-foot .then { color: var(--muted); }\n\n\t\t\t\t.chip {\n\t\t\t\t\tdisplay: inline-flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 3px;\n\t\t\t\t\tfont-size: 11px;\n\t\t\t\t\tfont-weight: 700;\n\t\t\t\t\tpadding: 2px 7px;\n\t\t\t\t\tborder-radius: 999px;\n\t\t\t\t}\n\t\t\t\t.chip.up { background: var(--primary-soft); color: var(--primary-2); }\n\t\t\t\t.chip.down { background: var(--rose-soft); color: var(--rose); }\n\t\t\t\t.chip.warn { background: var(--amber-soft); color: #7a4e05; }\n\t\t\t\t.chip.flat { background: var(--surface-2); color: var(--muted); }\n\n\t\t\t\t.meter-card {\n\t\t\t\t\tpadding: 18px;\n\t\t\t\t\tbackground: linear-gradient(140deg, var(--sidebar), #12513c);\n\t\t\t\t\tborder: 1px solid rgba(255,255,255,.08);\n\t\t\t\t\tcolor: #dbe8e0;\n\t\t\t\t}\n\t\t\t\t.meter-card h3 { color: #fff; font-size: 15.5px; }\n\t\t\t\t.meter-card .sub { color: #9fc2b3; font-size: 12px; margin-top: 2px; }\n\t\t\t\t.meter-top {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: flex-end;\n\t\t\t\t\tgap: 12px;\n\t\t\t\t\tflex-wrap: wrap;\n\t\t\t\t\tmargin: 14px 0 4px;\n\t\t\t\t}\n\t\t\t\t.meter-big {\n\t\t\t\t\tfont-family: var(--display);\n\t\t\t\t\tfont-weight: 800;\n\t\t\t\t\tfont-size: clamp(1.5rem, 2.2vw, 2rem);\n\t\t\t\t\tletter-spacing: -.04em;\n\t\t\t\t\tcolor: #fff;\n\t\t\t\t\tline-height: 1;\n\t\t\t\t}\n\t\t\t\t.meter-big .t { font-size: 1rem; color: #9fc2b3; font-weight: 600; }\n\t\t\t\t.meter-flag { margin-left: auto; text-align: right; }\n\t\t\t\t.meter-flag b { display: block; color: #4fe0a4; font-family: var(--display); font-weight: 700; font-size: 14px; }\n\t\t\t\t.meter-flag span { font-size: 11.5px; color: #9fc2b3; }\n\t\t\t\t.bar {\n\t\t\t\t\theight: 12px;\n\t\t\t\t\tborder-radius: 999px;\n\t\t\t\t\tbackground: rgba(255,255,255,.12);\n\t\t\t\t\toverflow: hidden;\n\t\t\t\t\tmargin-top: 12px;\n\t\t\t\t\tposition: relative;\n\t\t\t\t}\n\t\t\t\t.bar .fill {\n\t\t\t\t\theight: 100%;\n\t\t\t\t\tbackground: linear-gradient(90deg, #3fb886, #5fe0a4);\n\t\t\t\t\tborder-radius: 999px;\n\t\t\t\t}\n\t\t\t\t.meter-scale {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tjustify-content: space-between;\n\t\t\t\t\tfont-size: 11px;\n\t\t\t\t\tcolor: #9fc2b3;\n\t\t\t\t\tmargin-top: 6px;\n\t\t\t\t}\n\t\t\t\t.meter-scale b { color: #e4f0ea; font-weight: 600; }\n\n\t\t\t\t.row-2 {\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tgrid-template-columns: 1.5fr 1fr;\n\t\t\t\t\tgap: 14px;\n\t\t\t\t\tmargin-bottom: 14px;\n\t\t\t\t}\n\t\t\t\t.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }\n\t\t\t\t.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }\n\n\t\t\t\t.table-wrap { overflow-x: auto; width: 100%; }\n\t\t\t\t.table {\n\t\t\t\t\twidth: 100%;\n\t\t\t\t\tborder-collapse: collapse;\n\t\t\t\t\tfont-size: 13px;\n\t\t\t\t}\n\t\t\t\t.table th {\n\t\t\t\t\ttext-align: left;\n\t\t\t\t\tpadding: 10px 14px;\n\t\t\t\t\tfont-size: 11px;\n\t\t\t\t\ttext-transform: uppercase;\n\t\t\t\t\tletter-spacing: .06em;\n\t\t\t\t\tcolor: var(--muted);\n\t\t\t\t\tborder-bottom: 1px solid var(--line);\n\t\t\t\t\tbackground: var(--surface-2);\n\t\t\t\t\tfont-weight: 700;\n\t\t\t\t}\n\t\t\t\t.table td {\n\t\t\t\t\tpadding: 10px 14px;\n\t\t\t\t\tborder-bottom: 1px solid var(--line);\n\t\t\t\t\tvertical-align: middle;\n\t\t\t\t}\n\t\t\t\t.table tr:last-child td { border-bottom: 0; }\n\t\t\t\t.table tr:hover td { background: var(--surface-2); }\n\n\t\t\t\t/* FORM ELEMENTS */\n\t\t\t\t.form-group { margin-bottom: 12px; }\n\t\t\t\t.form-group label {\n\t\t\t\t\tdisplay: block;\n\t\t\t\t\tfont-size: 12px;\n\t\t\t\t\tfont-weight: 700;\n\t\t\t\t\tmargin-bottom: 4px;\n\t\t\t\t\tcolor: var(--ink);\n\t\t\t\t}\n\t\t\t\t.input, .textarea, .select-full {\n\t\t\t\t\twidth: 100%;\n\t\t\t\t\tborder: 1px solid var(--line-strong);\n\t\t\t\t\tbackground: var(--surface);\n\t\t\t\t\tborder-radius: 8px;\n\t\t\t\t\tpadding: 8px 11px;\n\t\t\t\t\tcolor: var(--ink);\n\t\t\t\t\tfont-size: 13px;\n\t\t\t\t}\n\t\t\t\t.input:focus, .textarea:focus, .select-full:focus {\n\t\t\t\t\tborder-color: var(--primary);\n\t\t\t\t\toutline: 0;\n\t\t\t\t\tbox-shadow: 0 0 0 3px rgba(14,124,86,.12);\n\t\t\t\t}\n\n\t\t\t\t/* MODAL CONTAINER & DIALOG */\n\t\t\t\t#modal-container:not(:empty) {\n\t\t\t\t\tposition: fixed;\n\t\t\t\t\tinset: 0;\n\t\t\t\t\tbackground: rgba(10,47,36,.65);\n\t\t\t\t\tbackdrop-filter: blur(4px);\n\t\t\t\t\tz-index: 1000;\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tplace-items: center;\n\t\t\t\t\tpadding: 20px;\n\t\t\t\t\toverflow-y: auto;\n\t\t\t\t}\n\t\t\t\t.modal-card {\n\t\t\t\t\tbackground: var(--surface);\n\t\t\t\t\tborder-radius: var(--r-lg);\n\t\t\t\t\tbox-shadow: 0 20px 50px -15px rgba(0,0,0,.35);\n\t\t\t\t\twidth: 100%;\n\t\t\t\t\tmax-height: 90vh;\n\t\t\t\t\toverflow-y: auto;\n\t\t\t\t\tborder: 1px solid var(--line);\n\t\t\t\t}\n\t\t\t\t.modal-head {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tjustify-content: space-between;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tpadding: 16px 20px;\n\t\t\t\t\tborder-bottom: 1px solid var(--line);\n\t\t\t\t}\n\t\t\t\t.modal-head h3, .modal-head h4 { font-size: 16px; margin: 0; }\n\t\t\t\t.modal-body { padding: 18px 20px; }\n\t\t\t\t.modal-foot {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tjustify-content: flex-end;\n\t\t\t\t\tgap: 8px;\n\t\t\t\t\tpadding: 14px 20px;\n\t\t\t\t\tborder-top: 1px solid var(--line);\n\t\t\t\t\tbackground: var(--surface-2);\n\t\t\t\t\tborder-radius: 0 0 var(--r-lg) var(--r-lg);\n\t\t\t\t}\n\t\t\t\t.close-btn {\n\t\t\t\t\tbackground: transparent;\n\t\t\t\t\tborder: 0;\n\t\t\t\t\tfont-size: 22px;\n\t\t\t\t\tcolor: var(--muted);\n\t\t\t\t\tcursor: pointer;\n\t\t\t\t\tline-height: 1;\n\t\t\t\t}\n\t\t\t\t.close-btn:hover { color: var(--rose); }\n\n\t\t\t\tdialog.modal-dialog {\n\t\t\t\t\tborder: 0;\n\t\t\t\t\tborder-radius: var(--r-lg);\n\t\t\t\t\tpadding: 0;\n\t\t\t\t\tbackground: transparent;\n\t\t\t\t\tbox-shadow: 0 24px 60px -15px rgba(0,0,0,.4);\n\t\t\t\t\tmax-width: 600px;\n\t\t\t\t\twidth: 90%;\n\t\t\t\t}\n\t\t\t\tdialog::backdrop {\n\t\t\t\t\tbackground: rgba(10,47,36,.65);\n\t\t\t\t\tbackdrop-filter: blur(4px);\n\t\t\t\t}\n\n\t\t\t\t@media(max-width: 1120px) {\n\t\t\t\t\t.grid-kpi { grid-template-columns: repeat(2, 1fr); }\n\t\t\t\t\t.app { grid-template-columns: 1fr; }\n\t\t\t\t\t.side { position: static; height: auto; }\n\t\t\t\t\t.row-2 { grid-template-columns: 1fr; }\n\t\t\t\t\t.three-col { grid-template-columns: 1fr; }\n\t\t\t\t}\n\t\t\t</style></head><body><div class=\"app\" id=\"app-root\"><script>\n\t\t\t\t\tif (localStorage.getItem('merchant_sidebar_collapsed') === '1') {\n\t\t\t\t\t\tdocument.getElementById('app-root')?.classList.add('collapsed');\n\t\t\t\t\t}\n\t\t\t\t</script><!-- SIDEBAR -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -55,14 +55,14 @@ func Layout(store models.StoreProfile, activeTab string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<!-- MAIN CONTENT --><main class=\"main\"><header class=\"topbar\"><button type=\"button\" class=\"btn ghost small\" title=\"Toggle Sidebar (Ctrl+B)\" onclick=\"document.getElementById('app-root').classList.toggle('collapsed');\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 12h18M3 6h18M3 18h18\"></path></svg></button><div class=\"greet\"><h1>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<!-- MAIN CONTENT --><main class=\"main\"><header class=\"topbar\"><button type=\"button\" class=\"btn ghost small\" title=\"Toggle Sidebar (Ctrl+B)\" onclick=\"toggleMerchantSidebar()\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 12h18M3 6h18M3 18h18\"></path></svg></button><div class=\"greet\"><h1>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(store.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 566, Col: 23}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 746, Col: 23}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -75,7 +75,7 @@ func Layout(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var4 templ.SafeURL
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("http://localhost:3001/m/%s", store.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 585, Col: 83}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 765, Col: 83}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -97,7 +97,7 @@ func Layout(store models.StoreProfile, activeTab string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><script>\n\t\t\t\t// Global Keyboard Shortcuts\n\t\t\t\twindow.addEventListener('keydown', function(e) {\n\t\t\t\t\tif ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {\n\t\t\t\t\t\te.preventDefault();\n\t\t\t\t\t\tvar omni = document.getElementById('omnibar-dialog');\n\t\t\t\t\t\tif (omni) {\n\t\t\t\t\t\t\tif (omni.open) omni.close();\n\t\t\t\t\t\t\telse { omni.showModal(); document.getElementById('omnibar-search')?.focus(); }\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tif ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {\n\t\t\t\t\t\te.preventDefault();\n\t\t\t\t\t\tdocument.getElementById('app-root')?.classList.toggle('collapsed');\n\t\t\t\t\t}\n\t\t\t\t\tif ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'j') {\n\t\t\t\t\t\te.preventDefault();\n\t\t\t\t\t\tvar btn = document.querySelector('[hx-get=\"/tab/copilot\"]');\n\t\t\t\t\t\tif (btn) btn.click();\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t</script></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><script>\n\t\t\t\t// Toggle Sidebar with localStorage persistence\n\t\t\t\tfunction toggleMerchantSidebar() {\n\t\t\t\t\tvar root = document.getElementById('app-root');\n\t\t\t\t\tif (!root) return;\n\t\t\t\t\tvar isCollapsed = root.classList.toggle('collapsed');\n\t\t\t\t\ttry {\n\t\t\t\t\t\tlocalStorage.setItem('merchant_sidebar_collapsed', isCollapsed ? '1' : '0');\n\t\t\t\t\t} catch(e) {}\n\t\t\t\t}\n\n\t\t\t\t// Active Tab & Navigation Highlighting\n\t\t\t\tfunction syncActiveTabHighlight() {\n\t\t\t\t\tvar path = window.location.pathname;\n\t\t\t\t\tvar navItems = document.querySelectorAll('.nav-item');\n\t\t\t\t\tvar matched = false;\n\t\t\t\t\tnavItems.forEach(function(item) {\n\t\t\t\t\t\tvar href = item.getAttribute('hx-get') || item.getAttribute('href');\n\t\t\t\t\t\tif (href && (path === href || (path.startsWith(href) && href !== '/tab/overview' && href !== '/'))) {\n\t\t\t\t\t\t\titem.classList.add('active');\n\t\t\t\t\t\t\tmatched = true;\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\titem.classList.remove('active');\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t\tif (!matched && (path === '/' || path === '' || path === '/tab/overview')) {\n\t\t\t\t\t\tvar overviewBtn = document.querySelector('.nav-item[hx-get=\"/tab/overview\"]');\n\t\t\t\t\t\tif (overviewBtn) overviewBtn.classList.add('active');\n\t\t\t\t\t}\n\t\t\t\t}\n\n\t\t\t\t// Immediate click handlers for active selection\n\t\t\t\tdocument.addEventListener('click', function(e) {\n\t\t\t\t\t// Sidebar nav item click\n\t\t\t\t\tvar navBtn = e.target.closest('.nav-item');\n\t\t\t\t\tif (navBtn) {\n\t\t\t\t\t\tdocument.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });\n\t\t\t\t\t\tnavBtn.classList.add('active');\n\t\t\t\t\t}\n\t\t\t\t\t\n\t\t\t\t\t// Chat thread item click\n\t\t\t\t\tvar threadItem = e.target.closest('.thread-item');\n\t\t\t\t\tif (threadItem) {\n\t\t\t\t\t\tdocument.querySelectorAll('.thread-item').forEach(function(el) { el.classList.remove('active-thread', 'selected'); });\n\t\t\t\t\t\tthreadItem.classList.add('active-thread', 'selected');\n\t\t\t\t\t}\n\n\t\t\t\t\t// Table row selection click (when clicking outside buttons/links)\n\t\t\t\t\tvar tr = e.target.closest('.table tbody tr');\n\t\t\t\t\tif (tr && !e.target.closest('button, a, input, select')) {\n\t\t\t\t\t\tdocument.querySelectorAll('.table tbody tr').forEach(function(el) { el.classList.remove('selected'); });\n\t\t\t\t\t\ttr.classList.add('selected');\n\t\t\t\t\t}\n\t\t\t\t});\n\n\t\t\t\twindow.addEventListener('popstate', syncActiveTabHighlight);\n\t\t\t\tdocument.body.addEventListener('htmx:afterOnLoad', function() {\n\t\t\t\t\tsyncActiveTabHighlight();\n\t\t\t\t});\n\n\t\t\t\t// Global Keyboard Shortcuts\n\t\t\t\twindow.addEventListener('keydown', function(e) {\n\t\t\t\t\tif ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {\n\t\t\t\t\t\te.preventDefault();\n\t\t\t\t\t\tvar omni = document.getElementById('omnibar-dialog');\n\t\t\t\t\t\tif (omni) {\n\t\t\t\t\t\t\tif (omni.open) omni.close();\n\t\t\t\t\t\t\telse { omni.showModal(); document.getElementById('omnibar-search')?.focus(); }\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tif ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {\n\t\t\t\t\t\te.preventDefault();\n\t\t\t\t\t\ttoggleMerchantSidebar();\n\t\t\t\t\t}\n\t\t\t\t\tif ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'j') {\n\t\t\t\t\t\te.preventDefault();\n\t\t\t\t\t\tvar btn = document.querySelector('[hx-get=\"/tab/copilot\"]');\n\t\t\t\t\t\tif (btn) btn.click();\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t</script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -126,14 +126,14 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<aside class=\"side\"><!-- Brand Header --><div class=\"brand\"><span class=\"mark\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M12 2l2.6 6.3L21 11l-6.4 2.7L12 20l-2.6-6.3L3 11l6.4-2.7L12 2z\" fill=\"#fff\"></path></svg></span> <span>PEMOFY OS</span></div><!-- Store Switcher Pill --><div class=\"store-switch\"><span class=\"av\">M</span><div class=\"meta\"><b>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<aside class=\"side\"><!-- Brand Header --><div class=\"brand\"><span class=\"mark\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M12 2l2.6 6.3L21 11l-6.4 2.7L12 20l-2.6-6.3L3 11l6.4-2.7L12 2z\" fill=\"#fff\"></path></svg></span> <span class=\"brand-text\">PEMOFY OS</span> <button type=\"button\" id=\"sidebar-toggle-btn\" class=\"side-collapse-btn\" title=\"Collapse / Expand sidebar (Ctrl+B)\" onclick=\"toggleMerchantSidebar()\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"15 18 9 12 15 6\"></polyline></svg></button></div><!-- Store Switcher Pill --><div class=\"store-switch\"><span class=\"av\">M</span><div class=\"meta\"><b>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(store.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 655, Col: 19}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 905, Col: 19}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -146,7 +146,7 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(store.CIPCRegistration)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 656, Col: 73}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 906, Col: 73}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -168,13 +168,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var8).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\"><span>📊</span> <span>Overview &amp; Velocity</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\"><span class=\"icon-span\">📊</span> <span>Overview &amp; Velocity</span></button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -190,13 +190,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var10).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\"><span>📈</span> <span>Analytics &amp; Funnel</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\"><span class=\"icon-span\">📈</span> <span>Analytics &amp; Funnel</span></button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -212,13 +212,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var12).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\"><span>🔒</span> <span>Audit Trail</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\"><span class=\"icon-span\">🔒</span> <span>Audit Trail</span></button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -234,13 +234,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var15 string
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var14).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\"><span>✨</span> <span>AI Studio</span> <span class=\"badge\" style=\"background:#4fe0a4; color:#0a2f24;\">AI</span></button><!-- Nav: 2. SALES & ORDERS --><div class=\"nav-label\">Sales &amp; Orders</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\"><span class=\"icon-span\">✨</span> <span>AI Studio</span> <span class=\"badge\" style=\"background:#4fe0a4; color:#0a2f24;\">AI</span></button><!-- Nav: 2. SALES & ORDERS --><div class=\"nav-label\">Sales &amp; Orders</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -256,13 +256,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var16).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\"><span>💬</span> <span>Direct Messages &amp; Chat</span> <span class=\"badge\" style=\"background:#4fe0a4; color:#0a2f24;\">Live</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\"><span class=\"icon-span\">💬</span> <span>Direct Messages &amp; Chat</span> <span class=\"badge\" style=\"background:#4fe0a4; color:#0a2f24;\">Live</span></button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -278,13 +278,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var19 string
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var18).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"><span>📑</span> <span>Sales Orders &amp; Proformas</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"><span class=\"icon-span\">📑</span> <span>Sales Orders &amp; Proformas</span></button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -300,13 +300,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var21 string
 		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var20).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\"><span>🏷️</span> <span>Pick &amp; Pack Station</span> <span class=\"badge warn\">WMS</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\"><span class=\"icon-span\">🏷️</span> <span>Pick &amp; Pack Station</span> <span class=\"badge warn\">WMS</span></button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -322,13 +322,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var23 string
 		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var22).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\"><span>🚚</span> <span>Carrier Manifests</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\"><span class=\"icon-span\">🚚</span> <span>Carrier Manifests</span></button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -344,13 +344,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var25 string
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var24).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\"><span>📑</span> <span>Live RFQ Desk</span> <span class=\"badge warn\">Quotes</span></button><!-- Nav: 3. INVENTORY & WMS --><div class=\"nav-label\">Inventory &amp; Logistics</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\"><span class=\"icon-span\">📑</span> <span>Live RFQ Desk</span> <span class=\"badge warn\">Quotes</span></button><!-- Nav: 3. INVENTORY & WMS --><div class=\"nav-label\">Inventory &amp; Logistics</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -366,13 +366,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var27 string
 		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var26).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\"><span>📦</span> <span>Catalog &amp; Stock Matrix</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\"><span class=\"icon-span\">📦</span> <span>Catalog &amp; Stock Matrix</span></button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -388,13 +388,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var29 string
 		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var28).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\"><span>🏢</span> <span>Stock Balances &amp; Hubs</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\"><span class=\"icon-span\">🏢</span> <span>Stock Balances &amp; Hubs</span></button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -410,13 +410,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var31 string
 		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var30).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\"><span>🔄</span> <span>Inter-Hub Transfers</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\"><span class=\"icon-span\">🔄</span> <span>Inter-Hub Transfers</span></button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -432,13 +432,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var33 string
 		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var32).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\"><span>📷</span> <span>Barcode &amp; Audits</span></button><!-- Nav: 4. CUSTOMERS & TRADE --><div class=\"nav-label\">Customers &amp; Trade</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\"><span class=\"icon-span\">📷</span> <span>Barcode &amp; Audits</span></button><!-- Nav: 4. CUSTOMERS & TRADE --><div class=\"nav-label\">Customers &amp; Trade</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -454,13 +454,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var35 string
 		templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var34).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\"><span>👥</span> <span>B2B CRM Accounts</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\"><span class=\"icon-span\">👥</span> <span>B2B CRM Accounts</span></button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -476,13 +476,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var37 string
 		templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var36).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var37)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\"><span>🏷️</span> <span>Wholesale Tiers &amp; Promos</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\"><span class=\"icon-span\">🏷️</span> <span>Wholesale Tiers &amp; Promos</span></button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -498,13 +498,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var39 string
 		templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var38).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var39)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\"><span>💳</span> <span>POS Trade Counter</span></button><!-- Nav: 5. GROWTH & CHANNELS --><div class=\"nav-label\">Growth &amp; Channels</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\"><span class=\"icon-span\">💳</span> <span>POS Trade Counter</span></button><!-- Nav: 5. GROWTH & CHANNELS --><div class=\"nav-label\">Growth &amp; Channels</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -520,13 +520,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var41 string
 		templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var40).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var41)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\"><span>🌐</span> <span>WhatsApp &amp; Channels</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\"><span class=\"icon-span\">🌐</span> <span>WhatsApp &amp; Channels</span></button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -542,13 +542,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var43 string
 		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var42).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var43)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\"><span>⚡</span> <span>Flow Automations</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\"><span class=\"icon-span\">⚡</span> <span>Flow Automations</span></button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -564,13 +564,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var45 string
 		templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var44).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var45)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "\"><span>🛒</span> <span>Google Shopping Feeds</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "\"><span class=\"icon-span\">🛒</span> <span>Google Shopping Feeds</span></button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -586,13 +586,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var47 string
 		templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var46).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var47)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\"><span>🎨</span> <span>Theme Studio</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\"><span class=\"icon-span\">🎨</span> <span>Theme Studio</span></button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -608,13 +608,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var49 string
 		templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var48).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var49)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\"><span>📁</span> <span>Media &amp; Documents</span></button><!-- Nav: 6. SETTINGS --><div class=\"nav-label\">Configuration</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\"><span class=\"icon-span\">📁</span> <span>Media &amp; Documents</span></button><!-- Nav: 6. SETTINGS --><div class=\"nav-label\">Configuration</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -630,13 +630,13 @@ func LeftSidebar(store models.StoreProfile, activeTab string) templ.Component {
 		var templ_7745c5c3_Var51 string
 		templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var50).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `services/merchant-os/internal/templates/layout.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var51)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\"><span>⚙️</span> <span>Settings &amp; Sovereign Pod</span></button><!-- Pod Security Note --><div class=\"side-foot\"><div class=\"side-note\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#4fe0a4\" stroke-width=\"2\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"></path></svg> <span>Your store runs in its own database on <b style=\"color:#fff\">pod-za-01</b>, Johannesburg.</span></div></div></aside>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\"><span class=\"icon-span\">⚙️</span> <span>Settings &amp; Sovereign Pod</span></button><!-- Pod Security Note --><div class=\"side-foot\"><div class=\"side-note\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#4fe0a4\" stroke-width=\"2\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"></path></svg> <span>Your store runs in its own database on <b style=\"color:#fff\">pod-za-01</b>, Johannesburg.</span></div></div></aside>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

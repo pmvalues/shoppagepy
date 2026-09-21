@@ -53,18 +53,15 @@ templ CatalogTab(data models.DashboardViewData) {
 					<button 
 						type="button" 
 						id="table-view-btn" 
-						class="btn ghost small" 
-						style="background:var(--surface); border:0; padding:4px 8px; font-weight:700;"
-						onclick="document.getElementById('catalog-table-view').style.display='block'; document.getElementById('catalog-grid-view').style.display='none';"
+						class="active" 
+						onclick="document.getElementById('catalog-table-view').style.display='block'; document.getElementById('catalog-grid-view').style.display='none'; document.getElementById('table-view-btn').classList.add('active'); document.getElementById('grid-view-btn').classList.remove('active');"
 					>
 						Table
 					</button>
 					<button 
 						type="button" 
 						id="grid-view-btn" 
-						class="btn ghost small" 
-						style="border:0; padding:4px 8px;"
-						onclick="document.getElementById('catalog-table-view').style.display='none'; document.getElementById('catalog-grid-view').style.display='grid';"
+						onclick="document.getElementById('catalog-table-view').style.display='none'; document.getElementById('catalog-grid-view').style.display='grid'; document.getElementById('grid-view-btn').classList.add('active'); document.getElementById('table-view-btn').classList.remove('active');"
 					>
 						Grid
 					</button>

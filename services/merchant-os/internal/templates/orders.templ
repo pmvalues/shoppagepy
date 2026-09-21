@@ -20,13 +20,26 @@ templ OrdersTab(data models.DashboardViewData) {
 		</div>
 
 		<!-- Status Filter Strip -->
-		<div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
-			<button class="btn ghost small" style="background:var(--surface); font-weight:700;">All Proformas ({ fmt.Sprintf("%d", len(data.Orders)) })</button>
-			<button class="btn ghost small">Issued</button>
-			<button class="btn ghost small">Confirmed</button>
-			<button class="btn ghost small">Paid (EFT)</button>
-			<button class="btn ghost small">Dispatched</button>
+		<div class="filter-btn-group" style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+			<button type="button" class="btn ghost small active" onclick="filterOrders('', this);">All Proformas ({ fmt.Sprintf("%d", len(data.Orders)) })</button>
+			<button type="button" class="btn ghost small" onclick="filterOrders('issued', this);">Issued</button>
+			<button type="button" class="btn ghost small" onclick="filterOrders('confirmed', this);">Confirmed</button>
+			<button type="button" class="btn ghost small" onclick="filterOrders('paid', this);">Paid (EFT)</button>
+			<button type="button" class="btn ghost small" onclick="filterOrders('dispatched', this);">Dispatched</button>
 		</div>
+		<script>
+			function filterOrders(status, btn) {
+				btn.parentElement.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+				btn.classList.add('active');
+				document.querySelectorAll('.order-row').forEach(row => {
+					if (!status || row.dataset.status === status) {
+						row.style.display = '';
+					} else {
+						row.style.display = 'none';
+					}
+				});
+			}
+		</script>
 
 		<!-- Orders Table Card -->
 		<div class="card panel" style="padding: 0; overflow: hidden;">
@@ -43,7 +56,7 @@ templ OrdersTab(data models.DashboardViewData) {
 				</thead>
 				<tbody>
 					for _, order := range data.Orders {
-						<tr>
+						<tr class="order-row" data-status={ order.Status }>
 							<td style="padding-left: 20px;">
 								<a 
 									href="javascript:void(0)" 

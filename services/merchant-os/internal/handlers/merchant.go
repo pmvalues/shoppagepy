@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -986,11 +987,16 @@ func (h *Handler) SaveProductEdit(w http.ResponseWriter, r *http.Request) {
 	category := r.FormValue("category")
 	desc := r.FormValue("description")
 	hsCode := r.FormValue("hsCode")
+	barcode := r.FormValue("barcode")
+	material := r.FormValue("material")
+	dimensions := r.FormValue("dimensions")
+	tagsRaw := r.FormValue("tags")
 
 	wholesaleZar, _ := strconv.ParseFloat(r.FormValue("wholesaleZar"), 64)
 	retailZar, _ := strconv.ParseFloat(r.FormValue("retailZar"), 64)
 	stockQty, _ := strconv.Atoi(r.FormValue("stockQuantity"))
 	lowStockAlert, _ := strconv.Atoi(r.FormValue("lowStockAlert"))
+	weightKg, _ := strconv.ParseFloat(r.FormValue("weightKg"), 64)
 
 	h.state.mu.Lock()
 	for i := range h.state.Catalog {
@@ -1018,8 +1024,36 @@ func (h *Handler) SaveProductEdit(w http.ResponseWriter, r *http.Request) {
 			if lowStockAlert > 0 {
 				h.state.Catalog[i].LowStockAlert = lowStockAlert
 			}
-			h.state.Catalog[i].Spec.LongDesc = desc
-			h.state.Catalog[i].Spec.HSCode = hsCode
+			if desc != "" {
+				h.state.Catalog[i].Spec.LongDesc = desc
+			}
+			if hsCode != "" {
+				h.state.Catalog[i].Spec.HSCode = hsCode
+			}
+			if barcode != "" {
+				h.state.Catalog[i].Spec.Barcode = barcode
+			}
+			if material != "" {
+				h.state.Catalog[i].Spec.Material = material
+			}
+			if dimensions != "" {
+				h.state.Catalog[i].Spec.Dimensions = dimensions
+			}
+			if weightKg > 0 {
+				h.state.Catalog[i].Spec.WeightKg = weightKg
+			}
+			if tagsRaw != "" {
+				parts := strings.Split(tagsRaw, ",")
+				var clean []string
+				for _, p := range parts {
+					if trimmed := strings.TrimSpace(p); trimmed != "" {
+						clean = append(clean, trimmed)
+					}
+				}
+				if len(clean) > 0 {
+					h.state.Catalog[i].Spec.SEOTags = clean
+				}
+			}
 			break
 		}
 	}

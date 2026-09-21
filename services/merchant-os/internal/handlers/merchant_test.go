@@ -177,7 +177,7 @@ func TestServeTabRefreshVsHTMX(t *testing.T) {
 func TestProductDetailAndEditModals(t *testing.T) {
 	router := setupTestRouter()
 
-	// Detail Modal
+	// Detail Modal (Pemofy design)
 	req := httptest.NewRequest("GET", "/catalog/mit_3361", nil)
 	rec := httptest.NewRecorder()
 	router.ServeHTTP(rec, req)
@@ -189,8 +189,17 @@ func TestProductDetailAndEditModals(t *testing.T) {
 	if !strings.Contains(body, "Commercial Anti-Theft Wooden Male Hanger 44cm") {
 		t.Errorf("expected detail modal to contain product title")
 	}
+	if !strings.Contains(body, "gallery-card") || !strings.Contains(body, "info-card") {
+		t.Errorf("expected detail modal to contain Pemofy gallery-card and info-card")
+	}
+	if !strings.Contains(body, "score-ring") {
+		t.Errorf("expected detail modal to contain Pemofy SEO score-ring")
+	}
+	if !strings.Contains(body, "Product information") || !strings.Contains(body, "Recent activity") {
+		t.Errorf("expected detail modal to contain Pemofy specifications and activity panels")
+	}
 
-	// Edit Modal
+	// Edit Modal (Pemofy 5-tab design)
 	reqEdit := httptest.NewRequest("GET", "/catalog/mit_3361/edit", nil)
 	recEdit := httptest.NewRecorder()
 	router.ServeHTTP(recEdit, reqEdit)
@@ -201,6 +210,41 @@ func TestProductDetailAndEditModals(t *testing.T) {
 	editBody := recEdit.Body.String()
 	if !strings.Contains(editBody, "Edit: Commercial Anti-Theft Wooden Male Hanger 44cm") {
 		t.Errorf("expected edit modal to contain edit title")
+	}
+	if !strings.Contains(editBody, "editor-tabs") {
+		t.Errorf("expected edit modal to contain Pemofy editor-tabs")
+	}
+	if !strings.Contains(editBody, "tab-pane-general") || !strings.Contains(editBody, "tab-pane-inventory") || !strings.Contains(editBody, "tab-pane-variants") {
+		t.Errorf("expected edit modal to contain tab panes for general, inventory, and variants")
+	}
+	if !strings.Contains(editBody, "publish-card") || !strings.Contains(editBody, "side-form") {
+		t.Errorf("expected edit modal to contain Pemofy side-form and publish-card")
+	}
+
+	// Save Edit Verification
+	editForm := url.Values{}
+	editForm.Set("title", "Commercial Anti-Theft Wooden Male Hanger 44cm (Updated)")
+	editForm.Set("brand", "Mitrend Premium")
+	editForm.Set("category", "Hospitality Supplies")
+	editForm.Set("wholesaleZar", "45.00")
+	editForm.Set("retailZar", "65.00")
+	editForm.Set("stockQuantity", "950")
+	editForm.Set("lowStockAlert", "80")
+	editForm.Set("description", "Updated heavy gauge beech wood anti-theft coat hanger.")
+	editForm.Set("material", "Solid Beechwood")
+	editForm.Set("hsCode", "4421.10")
+
+	reqPost := httptest.NewRequest("POST", "/catalog/mit_3361/edit", strings.NewReader(editForm.Encode()))
+	reqPost.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	recPost := httptest.NewRecorder()
+	router.ServeHTTP(recPost, reqPost)
+
+	if recPost.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK for save product edit, got %d", recPost.Code)
+	}
+	postBody := recPost.Body.String()
+	if !strings.Contains(postBody, "Commercial Anti-Theft Wooden Male Hanger 44cm (Updated)") {
+		t.Errorf("expected saved catalog to contain updated title")
 	}
 }
 
@@ -689,5 +733,31 @@ func TestDirectMessagesAndChat(t *testing.T) {
 	}
 }
 
+func TestSidebarCollapseAndActiveHighlight(t *testing.T) {
+	router := setupTestRouter()
 
+	req := httptest.NewRequest("GET", "/tab/overview", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
 
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK on full dashboard layout, got %d", rec.Code)
+	}
+
+	body := rec.Body.String()
+	if !strings.Contains(body, "id=\"sidebar-toggle-btn\"") {
+		t.Errorf("expected layout to contain #sidebar-toggle-btn in LeftSidebar brand header")
+	}
+	if !strings.Contains(body, "merchant_sidebar_collapsed") {
+		t.Errorf("expected layout to contain merchant_sidebar_collapsed localStorage persistence")
+	}
+	if !strings.Contains(body, "toggleMerchantSidebar") {
+		t.Errorf("expected layout to contain toggleMerchantSidebar function")
+	}
+	if !strings.Contains(body, "syncActiveTabHighlight") {
+		t.Errorf("expected layout to contain syncActiveTabHighlight function")
+	}
+	if !strings.Contains(body, ".thread-item.active-thread") {
+		t.Errorf("expected layout to contain .thread-item.active-thread CSS style")
+	}
+}

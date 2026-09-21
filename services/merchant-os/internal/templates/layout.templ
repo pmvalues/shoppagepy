@@ -205,16 +205,58 @@ templ Layout(store models.StoreProfile, activeTab string) {
 					background: var(--amber);
 					color: #3a2600;
 				}
-				.app.collapsed .nav-item span, 
+				.side-collapse-btn {
+					margin-left: auto;
+					background: transparent;
+					border: 0;
+					color: #8fb3a3;
+					cursor: pointer;
+					display: inline-flex;
+					align-items: center;
+					justify-content: center;
+					width: 26px;
+					height: 26px;
+					border-radius: 6px;
+					transition: all .15s;
+					padding: 0;
+					flex: none;
+				}
+				.side-collapse-btn:hover {
+					background: rgba(255,255,255,.12);
+					color: #fff;
+				}
+				.side-collapse-btn svg {
+					transition: transform .2s ease;
+				}
+				.app.collapsed .side-collapse-btn {
+					margin-left: 0;
+				}
+				.app.collapsed .side-collapse-btn svg {
+					transform: rotate(180deg);
+				}
+				.app.collapsed {
+					grid-template-columns: 68px 1fr;
+				}
+				.app.collapsed .nav-item span:not(.icon-span), 
 				.app.collapsed .nav-label, 
 				.app.collapsed .store-switch .meta, 
-				.app.collapsed .brand span:not(.mark), 
+				.app.collapsed .brand-text, 
 				.app.collapsed .side-foot {
-					display: none;
+					display: none !important;
+				}
+				.app.collapsed .brand {
+					flex-direction: column;
+					gap: 6px;
+					align-items: center;
+					padding: 4px 0 12px;
 				}
 				.app.collapsed .nav-item {
 					justify-content: center;
 					padding: 10px 0;
+				}
+				.app.collapsed .store-switch {
+					justify-content: center;
+					padding: 6px;
 				}
 				.side-foot {
 					margin-top: auto;
@@ -231,6 +273,139 @@ templ Layout(store models.StoreProfile, activeTab string) {
 					padding: 9px;
 					line-height: 1.4;
 				}
+
+				/* THREAD & ROW SELECTION HIGHLIGHTS */
+				.thread-item {
+					transition: background .15s, border-left .15s;
+				}
+				.thread-item:hover {
+					background: var(--surface-2);
+				}
+				.thread-item.active-thread, .thread-item.selected {
+					background: var(--primary-soft) !important;
+					border-left: 4px solid var(--primary) !important;
+				}
+				.view-switch button {
+					border: 0;
+					background: transparent;
+					color: var(--muted);
+					height: 29px;
+					padding: 0 10px;
+					border-radius: 7px;
+					display: inline-flex;
+					align-items: center;
+					gap: 5px;
+					font-weight: 500;
+					font-size: 12.5px;
+					cursor: pointer;
+					transition: all .15s;
+				}
+				.view-switch button.active {
+					background: var(--surface) !important;
+					color: var(--primary-2) !important;
+					font-weight: 700 !important;
+					box-shadow: 0 1px 2px rgba(13,28,21,.08);
+				}
+				.filter-btn-group .btn.active {
+					background: var(--primary) !important;
+					color: #fff !important;
+					border-color: var(--primary) !important;
+					font-weight: 700;
+				}
+
+				/* PEMOFY PRODUCT DETAIL & EDIT STYLES */
+				.breadcrumb { display: flex; gap: 7px; align-items: center; color: var(--muted); font-size: 12.5px; margin-bottom: 12px; }
+				.breadcrumb a { color: var(--primary-2); font-weight: 600; text-decoration: none; }
+				.breadcrumb a:hover { text-decoration: underline; }
+				.breadcrumb svg { width: 14px; height: 14px; }
+				.detail-head { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+				.detail-head .head-copy { min-width: 0; }
+				.detail-head h1, .detail-head h2 { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-size: clamp(1.25rem, 1.8vw, 1.55rem); }
+				.detail-head p { color: var(--muted); margin: 4px 0 0; font-size: 12.5px; }
+				.detail-actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+				.detail-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 14px; margin-bottom: 14px; }
+				.gallery-card { padding: 14px; }
+				.gallery-main { height: 310px; border-radius: 13px; position: relative; display: grid; place-items: center; overflow: hidden; background: linear-gradient(135deg, #dcefe4, #8fbea5); }
+				.gallery-main .g-stamp { position: absolute; bottom: 14px; left: 16px; color: rgba(13,28,21,.45); font-family: var(--display); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+				.gallery-thumbs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-top: 8px; }
+				.thumb { height: 56px; border-radius: 8px; border: 2px solid transparent; position: relative; overflow: hidden; cursor: pointer; display: grid; place-items: center; font-size: 18px; background: var(--surface-2); transition: border-color .15s; }
+				.thumb.active { border-color: var(--primary); }
+				.info-card { padding: 18px; }
+				.price-line { display: flex; align-items: baseline; gap: 10px; margin-top: 5px; flex-wrap: wrap; }
+				.price-line .large-price { font-family: var(--display); font-size: 2.1rem; font-weight: 800; letter-spacing: -.05em; color: var(--primary-2); }
+				.price-line .compare { text-decoration: line-through; color: var(--muted); font-size: 13px; }
+				.description { color: var(--ink-2); font-size: 13.5px; line-height: 1.6; margin: 14px 0 16px; }
+				.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+				.info-cell { border: 1px solid var(--line); background: var(--surface-2); border-radius: 9px; padding: 10px; }
+				.info-cell label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 700; }
+				.info-cell b { display: block; margin-top: 3px; font-family: var(--display); font-size: 15px; }
+				.progress { height: 7px; border-radius: 99px; background: rgba(13,28,21,.08); overflow: hidden; margin-top: 7px; }
+				.progress span { height: 100%; display: block; background: var(--primary); border-radius: 99px; }
+				.info-note { display: flex; gap: 8px; align-items: flex-start; border-top: 1px solid var(--line); padding-top: 12px; color: var(--muted); font-size: 12px; }
+				.info-note svg { width: 16px; height: 16px; color: var(--primary); flex: none; margin-top: 2px; }
+				.detail-lower { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+				.panel-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+				.panel-title h3 { font-size: 14.5px; margin: 0; }
+				.kv-list { display: grid; gap: 8px; }
+				.kv-row { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 7px; font-size: 12px; }
+				.kv-row:last-child { border-bottom: 0; }
+				.kv-row span { color: var(--muted); }
+				.kv-row b { font-weight: 600; text-align: right; }
+				.tag-list { display: flex; gap: 6px; flex-wrap: wrap; }
+				.tag-list span { font-size: 11px; padding: 4px 8px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; color: var(--ink-2); }
+				.seo-score { display: flex; align-items: center; gap: 12px; }
+				.score-ring { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; position: relative; flex: none; }
+				.score-ring::after { content: ""; position: absolute; inset: 6px; background: var(--surface); border-radius: 50%; }
+				.score-ring b { position: relative; z-index: 1; font-family: var(--display); font-size: 14px; }
+				.activity { display: grid; gap: 9px; }
+				.activity-row { display: flex; gap: 8px; font-size: 11.5px; }
+				.activity-row .time { margin-left: auto; color: var(--muted); white-space: nowrap; }
+				.activity-row .bullet { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); margin-top: 5px; flex: none; }
+				.activity-row .bullet.amber { background: var(--amber); }
+
+				/* EDITOR STYLES */
+				.editor-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+				.editor-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 14px; overflow-x: auto; }
+				.editor-tabs button { border: 0; background: transparent; padding: 9px 14px; color: var(--muted); font-weight: 600; font-size: 13px; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
+				.editor-tabs button.active { color: var(--primary-2); border-color: var(--primary); }
+				.editor-grid { display: grid; grid-template-columns: 1.22fr .78fr; gap: 14px; }
+				.form-card { padding: 18px; }
+				.form-label { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin-bottom: 6px; }
+				.form-label label { font-size: 12.5px; font-weight: 700; color: var(--ink); }
+				.form-label span { font-size: 11px; color: var(--muted); }
+				.rich { border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+				.rich-tools { display: flex; gap: 2px; padding: 5px 6px; background: var(--surface-2); border-bottom: 1px solid var(--line); }
+				.rich-tools button { border: 0; background: transparent; border-radius: 4px; padding: 3px 7px; color: var(--ink-2); font-weight: 700; font-size: 11.5px; cursor: pointer; }
+				.rich-tools button:hover { background: var(--surface); }
+				.rich .textarea { border: 0; border-radius: 0; display: block; width: 100%; }
+				.help { font-size: 11px; color: var(--muted); margin-top: 4px; }
+				.switch-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); }
+				.switch-row:last-child { border-bottom: 0; }
+				.switch-row b { display: block; font-size: 12.5px; }
+				.switch-row span { display: block; color: var(--muted); font-size: 11px; margin-top: 1px; }
+				.toggle { width: 38px; height: 21px; border-radius: 99px; background: var(--line-strong); padding: 2px; border: 0; flex: none; cursor: pointer; position: relative; transition: background .2s; }
+				.toggle::after { content: ""; display: block; width: 17px; height: 17px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.15); transition: transform .2s; }
+				.toggle.on { background: var(--primary); }
+				.toggle.on::after { transform: translateX(17px); }
+				.media-drop { border: 1.5px dashed var(--line-strong); border-radius: 10px; min-height: 115px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 5px; background: var(--surface-2); color: var(--muted); text-align: center; padding: 12px; cursor: pointer; }
+				.media-drop svg { width: 22px; height: 22px; color: var(--primary); }
+				.media-drop b { font-size: 12.5px; color: var(--ink-2); }
+				.media-drop span { font-size: 11px; }
+				.media-current { display: flex; gap: 8px; margin-top: 9px; align-items: center; }
+				.publish-card { background: var(--sidebar); color: #dbe8e0; border-radius: var(--r-lg); padding: 16px; }
+				.publish-card h3 { color: #fff; font-size: 14.5px; margin: 0 0 4px; }
+				.publish-card p { color: #9fc2b3; font-size: 11.5px; margin: 0 0 12px; }
+				.publish-card .btn { width: 100%; margin-bottom: 8px; }
+				.publish-card .btn:last-child { margin-bottom: 0; }
+				.publish-card .btn.light { background: #fff; color: var(--primary-2); font-weight: 700; border: 0; }
+				.publish-card .btn.light:hover { background: #eef5f1; }
+				.publish-card .btn.line { border-color: rgba(255,255,255,.25); color: #fff; background: transparent; }
+				.publish-card .btn.line:hover { background: rgba(255,255,255,.08); }
+				.side-form { display: grid; gap: 14px; }
+				.side-form .card { padding: 16px; }
+				.side-form h3 { font-size: 14px; margin: 0 0 10px; }
+				.alert { display: flex; gap: 8px; padding: 9px 11px; border-radius: 8px; background: var(--amber-soft); color: #7a4e05; font-size: 11.5px; align-items: flex-start; }
+				.alert svg { width: 15px; height: 15px; flex: none; margin-top: 1px; }
 
 				/* MAIN CONTENT */
 				.main {
@@ -547,6 +722,11 @@ templ Layout(store models.StoreProfile, activeTab string) {
 		</head>
 		<body>
 			<div class="app" id="app-root">
+				<script>
+					if (localStorage.getItem('merchant_sidebar_collapsed') === '1') {
+						document.getElementById('app-root')?.classList.add('collapsed');
+					}
+				</script>
 				<!-- SIDEBAR -->
 				@LeftSidebar(store, activeTab)
 
@@ -557,7 +737,7 @@ templ Layout(store models.StoreProfile, activeTab string) {
 							type="button" 
 							class="btn ghost small" 
 							title="Toggle Sidebar (Ctrl+B)" 
-							onclick="document.getElementById('app-root').classList.toggle('collapsed');"
+							onclick="toggleMerchantSidebar()"
 						>
 							<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"></path></svg>
 						</button>
@@ -611,6 +791,65 @@ templ Layout(store models.StoreProfile, activeTab string) {
 			</div>
 
 			<script>
+				// Toggle Sidebar with localStorage persistence
+				function toggleMerchantSidebar() {
+					var root = document.getElementById('app-root');
+					if (!root) return;
+					var isCollapsed = root.classList.toggle('collapsed');
+					try {
+						localStorage.setItem('merchant_sidebar_collapsed', isCollapsed ? '1' : '0');
+					} catch(e) {}
+				}
+
+				// Active Tab & Navigation Highlighting
+				function syncActiveTabHighlight() {
+					var path = window.location.pathname;
+					var navItems = document.querySelectorAll('.nav-item');
+					var matched = false;
+					navItems.forEach(function(item) {
+						var href = item.getAttribute('hx-get') || item.getAttribute('href');
+						if (href && (path === href || (path.startsWith(href) && href !== '/tab/overview' && href !== '/'))) {
+							item.classList.add('active');
+							matched = true;
+						} else {
+							item.classList.remove('active');
+						}
+					});
+					if (!matched && (path === '/' || path === '' || path === '/tab/overview')) {
+						var overviewBtn = document.querySelector('.nav-item[hx-get="/tab/overview"]');
+						if (overviewBtn) overviewBtn.classList.add('active');
+					}
+				}
+
+				// Immediate click handlers for active selection
+				document.addEventListener('click', function(e) {
+					// Sidebar nav item click
+					var navBtn = e.target.closest('.nav-item');
+					if (navBtn) {
+						document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
+						navBtn.classList.add('active');
+					}
+					
+					// Chat thread item click
+					var threadItem = e.target.closest('.thread-item');
+					if (threadItem) {
+						document.querySelectorAll('.thread-item').forEach(function(el) { el.classList.remove('active-thread', 'selected'); });
+						threadItem.classList.add('active-thread', 'selected');
+					}
+
+					// Table row selection click (when clicking outside buttons/links)
+					var tr = e.target.closest('.table tbody tr');
+					if (tr && !e.target.closest('button, a, input, select')) {
+						document.querySelectorAll('.table tbody tr').forEach(function(el) { el.classList.remove('selected'); });
+						tr.classList.add('selected');
+					}
+				});
+
+				window.addEventListener('popstate', syncActiveTabHighlight);
+				document.body.addEventListener('htmx:afterOnLoad', function() {
+					syncActiveTabHighlight();
+				});
+
 				// Global Keyboard Shortcuts
 				window.addEventListener('keydown', function(e) {
 					if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
@@ -623,7 +862,7 @@ templ Layout(store models.StoreProfile, activeTab string) {
 					}
 					if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
 						e.preventDefault();
-						document.getElementById('app-root')?.classList.toggle('collapsed');
+						toggleMerchantSidebar();
 					}
 					if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'j') {
 						e.preventDefault();
@@ -645,7 +884,18 @@ templ LeftSidebar(store models.StoreProfile, activeTab string) {
 					<path d="M12 2l2.6 6.3L21 11l-6.4 2.7L12 20l-2.6-6.3L3 11l6.4-2.7L12 2z" fill="#fff"></path>
 				</svg>
 			</span>
-			<span>PEMOFY OS</span>
+			<span class="brand-text">PEMOFY OS</span>
+			<button 
+				type="button" 
+				id="sidebar-toggle-btn" 
+				class="side-collapse-btn" 
+				title="Collapse / Expand sidebar (Ctrl+B)" 
+				onclick="toggleMerchantSidebar()"
+			>
+				<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="15 18 9 12 15 6"></polyline>
+				</svg>
+			</button>
 		</div>
 
 		<!-- Store Switcher Pill -->
@@ -660,19 +910,19 @@ templ LeftSidebar(store models.StoreProfile, activeTab string) {
 		<!-- Nav: 1. ROLE CENTER -->
 		<div class="nav-label">Role Center</div>
 		<button hx-get="/tab/overview" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "" || activeTab == "overview") }>
-			<span>📊</span>
+			<span class="icon-span">📊</span>
 			<span>Overview &amp; Velocity</span>
 		</button>
 		<button hx-get="/tab/analytics" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "analytics") }>
-			<span>📈</span>
+			<span class="icon-span">📈</span>
 			<span>Analytics &amp; Funnel</span>
 		</button>
 		<button hx-get="/tab/audit-logs" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "audit-logs") }>
-			<span>🔒</span>
+			<span class="icon-span">🔒</span>
 			<span>Audit Trail</span>
 		</button>
 		<button hx-get="/tab/copilot" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "copilot") }>
-			<span>✨</span>
+			<span class="icon-span">✨</span>
 			<span>AI Studio</span>
 			<span class="badge" style="background:#4fe0a4; color:#0a2f24;">AI</span>
 		</button>
@@ -680,25 +930,25 @@ templ LeftSidebar(store models.StoreProfile, activeTab string) {
 		<!-- Nav: 2. SALES & ORDERS -->
 		<div class="nav-label">Sales &amp; Orders</div>
 		<button hx-get="/tab/chat" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "chat") }>
-			<span>💬</span>
+			<span class="icon-span">💬</span>
 			<span>Direct Messages &amp; Chat</span>
 			<span class="badge" style="background:#4fe0a4; color:#0a2f24;">Live</span>
 		</button>
 		<button hx-get="/tab/orders" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "orders") }>
-			<span>📑</span>
+			<span class="icon-span">📑</span>
 			<span>Sales Orders &amp; Proformas</span>
 		</button>
 		<button hx-get="/tab/pick-pack" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "pick-pack") }>
-			<span>🏷️</span>
+			<span class="icon-span">🏷️</span>
 			<span>Pick &amp; Pack Station</span>
 			<span class="badge warn">WMS</span>
 		</button>
 		<button hx-get="/tab/manifests" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "manifests") }>
-			<span>🚚</span>
+			<span class="icon-span">🚚</span>
 			<span>Carrier Manifests</span>
 		</button>
 		<button hx-get="/tab/rfqs" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "rfqs") }>
-			<span>📑</span>
+			<span class="icon-span">📑</span>
 			<span>Live RFQ Desk</span>
 			<span class="badge warn">Quotes</span>
 		</button>
@@ -706,64 +956,64 @@ templ LeftSidebar(store models.StoreProfile, activeTab string) {
 		<!-- Nav: 3. INVENTORY & WMS -->
 		<div class="nav-label">Inventory &amp; Logistics</div>
 		<button hx-get="/tab/catalog" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "catalog") }>
-			<span>📦</span>
+			<span class="icon-span">📦</span>
 			<span>Catalog &amp; Stock Matrix</span>
 		</button>
 		<button hx-get="/tab/inventory" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "inventory") }>
-			<span>🏢</span>
+			<span class="icon-span">🏢</span>
 			<span>Stock Balances &amp; Hubs</span>
 		</button>
 		<button hx-get="/tab/transfers" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "transfers") }>
-			<span>🔄</span>
+			<span class="icon-span">🔄</span>
 			<span>Inter-Hub Transfers</span>
 		</button>
 		<button hx-get="/tab/scan" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "scan") }>
-			<span>📷</span>
+			<span class="icon-span">📷</span>
 			<span>Barcode &amp; Audits</span>
 		</button>
 
 		<!-- Nav: 4. CUSTOMERS & TRADE -->
 		<div class="nav-label">Customers &amp; Trade</div>
 		<button hx-get="/tab/customers" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "customers") }>
-			<span>👥</span>
+			<span class="icon-span">👥</span>
 			<span>B2B CRM Accounts</span>
 		</button>
 		<button hx-get="/tab/discounts" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "discounts") }>
-			<span>🏷️</span>
+			<span class="icon-span">🏷️</span>
 			<span>Wholesale Tiers &amp; Promos</span>
 		</button>
 		<button hx-get="/tab/pos" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "pos") }>
-			<span>💳</span>
+			<span class="icon-span">💳</span>
 			<span>POS Trade Counter</span>
 		</button>
 
 		<!-- Nav: 5. GROWTH & CHANNELS -->
 		<div class="nav-label">Growth &amp; Channels</div>
 		<button hx-get="/tab/channels" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "channels") }>
-			<span>🌐</span>
+			<span class="icon-span">🌐</span>
 			<span>WhatsApp &amp; Channels</span>
 		</button>
 		<button hx-get="/tab/flow" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "flow") }>
-			<span>⚡</span>
+			<span class="icon-span">⚡</span>
 			<span>Flow Automations</span>
 		</button>
 		<button hx-get="/tab/feeds" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "feeds") }>
-			<span>🛒</span>
+			<span class="icon-span">🛒</span>
 			<span>Google Shopping Feeds</span>
 		</button>
 		<button hx-get="/tab/editor" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "editor") }>
-			<span>🎨</span>
+			<span class="icon-span">🎨</span>
 			<span>Theme Studio</span>
 		</button>
 		<button hx-get="/tab/media" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "media") }>
-			<span>📁</span>
+			<span class="icon-span">📁</span>
 			<span>Media &amp; Documents</span>
 		</button>
 
 		<!-- Nav: 6. SETTINGS -->
 		<div class="nav-label">Configuration</div>
 		<button hx-get="/tab/settings" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "settings") }>
-			<span>⚙️</span>
+			<span class="icon-span">⚙️</span>
 			<span>Settings &amp; Sovereign Pod</span>
 		</button>
 
