@@ -25,7 +25,6 @@ WORKDIR /app
 RUN apk add --no-cache ca-certificates tzdata
 COPY --from=builder /bin/shoppage-consumer /app/shoppage
 COPY services/consumer-web/data/ /app/data/
-COPY shoppage-commerce-intelligence-foundation/ /app/shoppage-commerce-intelligence-foundation/
 ENV PORT=3000
 EXPOSE 3000
 CMD ["/app/shoppage"]
@@ -77,7 +76,8 @@ COPY --from=builder /bin/shoppage-search /app/shoppage-search
 
 COPY data/ /app/data/
 COPY services/consumer-web/data/ /app/data/
-COPY shoppage-commerce-intelligence-foundation/ /app/shoppage-commerce-intelligence-foundation/
+# Bulk *.sqlite datasets are gitignored and excluded via .dockerignore —
+# mount shoppage-commerce-intelligence-foundation/ as a volume in compose.
 
 RUN chmod +x /app/shoppage-* && \
     printf '#!/bin/sh\nset -e\nCHAT_PORT=8080 /app/shoppage-chat &\nSEARCH_PORT=8082 /app/shoppage-search &\nMERCHANT_PORT=8083 /app/shoppage-merchant &\nsleep 1\nexec /app/shoppage-consumer\n' > /app/entrypoint.sh && \

@@ -1,35 +1,32 @@
 {
-  "name": "shoppage-platform",
-  "version": "10.0.0",
-  "private": true,
-  "description": "Shoppage — 100% Pure Go National Commerce Intelligence Grid & Merchant OS",
-  "workspaces": [
-    "packages/*"
-  ],
-  "scripts": {
-    "dev": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
-    "start": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
-    "build": "node scripts/go-run.mjs build -o bin/shoppage.exe ./services/consumer-web/cmd/server/main.go",
-    "build:templ": "node scripts/templ-run.mjs",
-    "check:templ": "node scripts/templ-run.mjs --check",
-    "build:css": "npx @tailwindcss/cli -i ./services/consumer-web/static/css/input.css -o ./services/consumer-web/internal/assets/css/tailwind.min.css --minify",
-    "build:linux": "powershell -ExecutionPolicy Bypass -File deploy/build-linux.ps1",
-    "test": "npm run go:test",
-    "test:speed": "node scripts/go-run.mjs run scripts/speedtest.go",
-    "go:unified": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
-    "go:chat": "node scripts/go-run.mjs run ./services/chat-gateway/cmd/server/main.go",
-    "go:sweep": "node scripts/go-run.mjs run ./services/sweeper-engine/cmd/sweep/main.go",
-    "go:search": "node scripts/go-run.mjs run ./services/search-core/cmd/searchd/main.go",
-    "go:merchant": "node scripts/go-run.mjs run ./services/merchant-os/cmd/server/main.go",
-    "go:consumer": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
-    "go:test": "node scripts/go-run.mjs test ./services/chat-gateway/... ./services/sweeper-engine/... ./services/search-core/... ./services/merchant-os/... ./services/consumer-web/...",
-    "scrape:guzzle": "python scripts/scrapers/shoppage_scrape_guzzle_specials.py",
-    "scout:once": "python scripts/orchestrator/shoppage_scouting_daemon.py --run-once",
-    "scout:daemon": "python scripts/orchestrator/shoppage_scouting_daemon.py --daemon"
-  },
-  "devDependencies": {
-    "@tailwindcss/cli": "^4.3.3",
-    "typescript": "^5.5.4",
-    "vitest": "^2.0.5"
-  }
+    "name": "shoppage-platform",
+    "version": "10.0.0",
+    "private": true,
+    "description": "Shoppage â€” 100% Pure Go National Commerce Intelligence Grid & Merchant OS",
+    "workspaces": [],
+    "scripts": {
+        "dev": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
+        "start": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
+        "build": "node scripts/go-run.mjs build -o bin/shoppage.exe ./services/consumer-web/cmd/server/main.go",
+        "build:templ": "node scripts/templ-run.mjs",
+        "check:templ": "node scripts/templ-run.mjs --check",
+        "build:css": "npx @tailwindcss/cli -i ./services/consumer-web/static/css/input.css -o ./services/consumer-web/internal/assets/css/tailwind.min.css --minify",
+        "build:linux": "powershell -ExecutionPolicy Bypass -File deploy/build-linux.ps1",
+        "test": "npm run go:test",
+        "test:speed": "node scripts/go-run.mjs run scripts/speedtest.go",
+        "go:unified": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
+        "go:chat": "node scripts/go-run.mjs run ./services/chat-gateway/cmd/server/main.go",
+        "go:sweep": "node scripts/go-run.mjs run ./services/sweeper-engine/cmd/sweep/main.go",
+        "go:search": "node scripts/go-run.mjs run ./services/search-core/cmd/searchd/main.go",
+        "go:merchant": "node scripts/go-run.mjs run ./services/merchant-os/cmd/server/main.go",
+        "go:consumer": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
+        "go:test": "node scripts/go-run.mjs test ./services/chat-gateway/... ./services/sweeper-engine/... ./services/search-core/... ./services/merchant-os/... ./services/consumer-web/...",
+        "scrape:guzzle": "python scripts/scrapers/shoppage_scrape_guzzle_specials.py",
+        "scout:once": "python scripts/orchestrator/shoppage_scouting_daemon.py --run-once",
+        "scout:daemon": "python scripts/orchestrator/shoppage_scouting_daemon.py --daemon"
+    },
+    "devDependencies": {
+        "@tailwindcss/cli": "^4.3.3",
+        "typescript": "^5.5.4"
+    }
 }

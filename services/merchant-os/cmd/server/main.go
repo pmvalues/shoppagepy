@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -15,10 +16,29 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/shoppage/merchant-os/internal/assets"
+	"github.com/shoppage/merchant-os/internal/auth"
 	"github.com/shoppage/merchant-os/internal/config"
 	"github.com/shoppage/merchant-os/internal/fixtures"
 	"github.com/shoppage/merchant-os/internal/handlers"
 )
+
+// allowedOrigins reads ALLOWED_ORIGINS (comma-separated) and fails closed to
+// localhost-only in development; never returns "*".
+func allowedOrigins() []string {
+	if v := os.Getenv("ALLOWED_ORIGINS"); v != "" {
+		var out []string
+		for _, s := range strings.Split(v, ",") {
+			s = strings.TrimSpace(s)
+			if s != "" && s != "*" {
+				out = append(out, s)
+			}
+		}
+		if len(out) > 0 {
+			return out
+		}
+	}
+	return []string{"http://localhost:3000", "http://localhost:3001"}
+}
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
@@ -45,14 +65,14 @@ func main() {
 	r.Use(middleware.Timeout(30 * time.Second))
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:3001", "https://shoppage.co.za", "*"},
+		AllowedOrigins:   allowedOrigins(),
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Content-Type"},
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
 
-	// Core & Health
+	// Core & Health (public)
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintf(w, `{"status":"healthy","service":"shoppage-merchant-os","port":%s}`+"\n", port)
@@ -65,96 +85,106 @@ func main() {
 	// on a public CDN, so it keeps working on slow, filtered or offline store networks.
 	r.Handle("/static/*", http.StripPrefix("/static", assets.Handler()))
 
-	// Dashboard & Tab Navigation (All 12 Modules)
-	r.Get("/", h.ServeDashboard)
-	r.Get("/desk", h.ServeDashboard)
-	r.Get("/tab/{tab}", h.ServeTab)
+	// Authentication: login page + session endpoints are public; everything else
+	// under the merchant workspace requires a valid SHOPPAGE_AUTH_SECRET session.
+	authSecret := os.Getenv("SHOPPAGE_AUTH_SECRET")
+	r.Get("/login", h.ServeLogin)
+	r.Post("/auth/login", h.Login)
+	r.Post("/auth/logout", h.Logout)
+
+	protected := chi.NewRouter()
+	protected.Use(auth.RequireSession(authSecret))
+	protected.Get("/", h.ServeDashboard)
+	protected.Get("/desk", h.ServeDashboard)
+	protected.Get("/tab/{tab}", h.ServeTab)
 
 	// Catalog & Product Operations
-	r.Get("/catalog/export.csv", h.ExportCatalogCSV)
-	r.Get("/catalog/new", h.ServeProductNew)
-	r.Get("/catalog/{id}", h.ServeProductDetail)
-	r.Get("/catalog/{id}/edit", h.ServeProductEdit)
-	r.Post("/catalog/{id}/edit", h.SaveProductEdit)
-	r.Post("/catalog/new", h.CreateProduct)
-	r.Post("/catalog/{id}/toggle-stock", h.ToggleStock)
-	r.Post("/catalog/{id}/price", h.UpdatePrice)
+	protected.Get("/catalog/export.csv", h.ExportCatalogCSV)
+	protected.Get("/catalog/new", h.ServeProductNew)
+	protected.Get("/catalog/{id}", h.ServeProductDetail)
+	protected.Get("/catalog/{id}/edit", h.ServeProductEdit)
+	protected.Post("/catalog/{id}/edit", h.SaveProductEdit)
+	protected.Post("/catalog/new", h.CreateProduct)
+	protected.Post("/catalog/{id}/toggle-stock", h.ToggleStock)
+	protected.Post("/catalog/{id}/price", h.UpdatePrice)
 
 	// Inventory Operations
-	r.Post("/inventory/{id}/adjust", h.AdjustInventory)
-	r.Post("/inventory/intake", h.AdjustInventoryIntake)
-	r.Get("/inventory/export.csv", h.ExportInventoryCSV)
+	protected.Post("/inventory/{id}/adjust", h.AdjustInventory)
+	protected.Post("/inventory/intake", h.AdjustInventoryIntake)
+	protected.Get("/inventory/export.csv", h.ExportInventoryCSV)
 
 	// Orders & B2B Proformas
-	r.Get("/orders/{id}/invoice", h.ServeInvoiceModal)
-	r.Post("/orders/{id}/advance-status", h.AdvanceOrderStatus)
-	r.Post("/orders/new", h.CreateOrder)
+	protected.Get("/orders/{id}/invoice", h.ServeInvoiceModal)
+	protected.Post("/orders/{id}/advance-status", h.AdvanceOrderStatus)
+	protected.Post("/orders/new", h.CreateOrder)
 
 	// Amazon-Style RMA Returns Management
-	r.Post("/rma/update", h.UpdateRMAStatus)
-	r.Post("/rma/new", h.CreateRMARequest)
+	protected.Post("/rma/update", h.UpdateRMAStatus)
+	protected.Post("/rma/new", h.CreateRMARequest)
 
 	// RFQ Commercial Leads
-	r.Post("/rfqs/{id}/convert", h.ConvertRFQ)
+	protected.Post("/rfqs/{id}/convert", h.ConvertRFQ)
 
 	// Customers & CRM
-	r.Post("/customers/new", h.CreateCustomer)
-	r.Get("/customers/export.csv", h.ExportCustomersCSV)
+	protected.Post("/customers/new", h.CreateCustomer)
+	protected.Get("/customers/export.csv", h.ExportCustomersCSV)
 
 	// Discounts & Coupons
-	r.Post("/discounts/{id}/toggle", h.ToggleCoupon)
-	r.Post("/discounts/new", h.CreateCoupon)
-	r.Post("/discounts/tier/new", h.CreateWholesaleTier)
+	protected.Post("/discounts/{id}/toggle", h.ToggleCoupon)
+	protected.Post("/discounts/new", h.CreateCoupon)
+	protected.Post("/discounts/tier/new", h.CreateWholesaleTier)
 
 	// Channels & WhatsApp Automation
-	r.Post("/channels/sync", h.SyncChannels)
-	r.Post("/channels/settings", h.SaveChannelSettings)
+	protected.Post("/channels/sync", h.SyncChannels)
+	protected.Post("/channels/settings", h.SaveChannelSettings)
 
 	// Direct Messages & Buyer Commerce Chat Desk
-	r.Get("/chat/thread/{id}", h.SelectChatThread)
-	r.Post("/chat/send", h.SendChatMessage)
-	r.Post("/chat/quote", h.SendStructuredQuote)
-	r.Post("/chat/action", h.HandleChatAction)
+	protected.Get("/chat/thread/{id}", h.SelectChatThread)
+	protected.Post("/chat/send", h.SendChatMessage)
+	protected.Post("/chat/quote", h.SendStructuredQuote)
+	protected.Post("/chat/action", h.HandleChatAction)
 
 	// Pemofy AI Copilot Studio
-	r.Post("/copilot/ask", h.AskCopilot)
-	r.Post("/copilot/action", h.ExecuteCopilotAction)
+	protected.Post("/copilot/ask", h.AskCopilot)
+	protected.Post("/copilot/action", h.ExecuteCopilotAction)
 
 	// Store Settings & Banking
-	r.Post("/settings/save", h.SaveSettings)
-	r.Post("/settings/banking", h.SaveBanking)
-	r.Post("/settings/plan", h.UpdatePlan)
+	protected.Post("/settings/save", h.SaveSettings)
+	protected.Post("/settings/banking", h.SaveBanking)
+	protected.Post("/settings/plan", h.UpdatePlan)
 
 	// Inter-Hub Transfers & Logistics
-	r.Post("/transfers/new", h.CreateTransfer)
-	r.Post("/transfers/{id}/receive", h.ReceiveTransfer)
+	protected.Post("/transfers/new", h.CreateTransfer)
+	protected.Post("/transfers/{id}/receive", h.ReceiveTransfer)
 
 	// Carrier Manifests
-	r.Post("/manifests/new", h.GenerateManifest)
+	protected.Post("/manifests/new", h.GenerateManifest)
 
 	// Point of Sale Register
-	r.Post("/pos/checkout", h.POSCheckout)
+	protected.Post("/pos/checkout", h.POSCheckout)
 
 	// Barcode Scanner & Cycle Audits
-	r.Post("/scan/reconcile", h.ReconcileScan)
+	protected.Post("/scan/reconcile", h.ReconcileScan)
 
 	// Flow Automations
-	r.Post("/flow/{id}/toggle", h.ToggleFlowRule)
-	r.Post("/flow/new", h.CreateFlowRule)
+	protected.Post("/flow/{id}/toggle", h.ToggleFlowRule)
+	protected.Post("/flow/new", h.CreateFlowRule)
 
 	// Media & Compliance Assets
-	r.Post("/media/new", h.CreateMediaAsset)
+	protected.Post("/media/new", h.CreateMediaAsset)
 
 	// Storefront Theme Studio
-	r.Post("/editor/save", h.SaveEditorSettings)
+	protected.Post("/editor/save", h.SaveEditorSettings)
 
 	// Audit Logs CSV Export
-	r.Get("/audit-logs/export.csv", h.ExportAuditLogsCSV)
+	protected.Get("/audit-logs/export.csv", h.ExportAuditLogsCSV)
 
-	// Syndication Feeds
-	r.Get("/feeds/google-merchant-center.xml", h.ServeGMCFeed)
-	r.Get("/feeds/meta-catalog.csv", h.ServeMetaCatalogCSV)
-	r.Post("/feeds/validate", h.ValidateFeeds)
+	// Syndication Feeds (GMC/Meta links must be publicly fetchable by crawlers)
+	protected.Get("/feeds/google-merchant-center.xml", h.ServeGMCFeed)
+	protected.Get("/feeds/meta-catalog.csv", h.ServeMetaCatalogCSV)
+	protected.Post("/feeds/validate", h.ValidateFeeds)
+
+	r.Mount("/", protected)
 
 	serverAddr := fmt.Sprintf(":%s", port)
 	srv := &http.Server{

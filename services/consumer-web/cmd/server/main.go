@@ -47,6 +47,24 @@ func makeReverseProxy(targetURL string, stripPrefix string) http.Handler {
 	})
 }
 
+// allowedOrigins reads ALLOWED_ORIGINS (comma-separated) and fails closed to
+// localhost-only in development; never returns "*".
+func allowedOrigins() []string {
+	if v := os.Getenv("ALLOWED_ORIGINS"); v != "" {
+		var out []string
+		for _, s := range strings.Split(v, ",") {
+			s = strings.TrimSpace(s)
+			if s != "" && s != "*" {
+				out = append(out, s)
+			}
+		}
+		if len(out) > 0 {
+			return out
+		}
+	}
+	return []string{"http://localhost:3000", "http://localhost:3001"}
+}
+
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -66,7 +84,7 @@ func main() {
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"*"},
+		AllowedOrigins:   allowedOrigins(),
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "HX-Request", "HX-Target", "HX-Current-URL"},
 		ExposedHeaders:   []string{"Link"},

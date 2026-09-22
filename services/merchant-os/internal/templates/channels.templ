@@ -128,7 +128,7 @@ templ ChannelsTab(data models.DashboardViewData) {
 				</p>
 			</div>
 			<div style="display:flex; gap:8px;">
-				<a href={ templ.SafeURL(fmt.Sprintf("http://localhost:3000/m/%s", data.Store.ID)) } target="_blank" class="btn outline small">
+				<a href={ templ.SafeURL(fmt.Sprintf("%s/m/%s", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID)) } target="_blank" class="btn outline small">
 					<span>👁️</span> Open Live Storefront
 				</a>
 			</div>
@@ -158,7 +158,7 @@ templ ChannelsTab(data models.DashboardViewData) {
 					Your Shoppage URL is your complete digital presence. Google Search &amp; Google My Business indexed with Schema.org JSON-LD LocalBusiness data, SARS VAT &amp; CIPC verification.
 				</p>
 				<div style="font-size:11.5px; font-weight:600; color:var(--ink-2); line-height:1.6;">
-					• Canonical URL: <code style="font-size:11px; background:var(--surface); padding:2px 4px; border-radius:4px;">{ fmt.Sprintf("http://localhost:3000/m/%s", data.Store.ID) }</code><br/>
+					• Canonical URL: <code style="font-size:11px; background:var(--surface); padding:2px 4px; border-radius:4px;">{ fmt.Sprintf("%s/m/%s", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID) }</code><br/>
 					• Mobile-first proforma generator<br/>
 					• Real-time stock status &amp; trading hours
 				</div>
@@ -177,13 +177,13 @@ templ ChannelsTab(data models.DashboardViewData) {
 				<div>
 					<div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;">Badge 1: Brand Discovery</div>
 					<div style="background:#ffffff; padding:10px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);">
-						<img src="http://localhost:3000/badges/find-us-on-shoppage.svg" alt="Find us on Shoppage" style="height:38px; width:auto;" />
+						<img src={ templ.SafeURL(strings.TrimRight(data.Nav.PublicBaseURL, "/") + "/badges/find-us-on-shoppage.svg") } alt="Find us on Shoppage" style="height:38px; width:auto;" />
 					</div>
 				</div>
 				<button 
 					type="button" 
 					class="btn solid small" 
-					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"http://localhost:3000/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"http://localhost:3000/badges/find-us-on-shoppage.svg\" alt=\"Find us on Shoppage\" width=\"200\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", data.Store.ID)} }
+					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"%s/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"%s/badges/find-us-on-shoppage.svg\" alt=\"Find us on Shoppage\" width=\"200\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID, strings.TrimRight(data.Nav.PublicBaseURL, "/"))} }
 				>
 					Copy HTML Snippet
 				</button>
@@ -194,13 +194,13 @@ templ ChannelsTab(data models.DashboardViewData) {
 				<div>
 					<div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;">Badge 2: Trade Desk CTA</div>
 					<div style="background:#0f172a; padding:10px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);">
-						<img src="http://localhost:3000/badges/order-on-shoppage.svg" alt="Order Wholesale on Shoppage" style="height:38px; width:auto;" />
+						<img src={ templ.SafeURL(strings.TrimRight(data.Nav.PublicBaseURL, "/") + "/badges/order-on-shoppage.svg") } alt="Order Wholesale on Shoppage" style="height:38px; width:auto;" />
 					</div>
 				</div>
 				<button 
 					type="button" 
 					class="btn solid small" 
-					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"http://localhost:3000/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"http://localhost:3000/badges/order-on-shoppage.svg\" alt=\"Order Wholesale on Shoppage\" width=\"220\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", data.Store.ID)} }
+					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"%s/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"%s/badges/order-on-shoppage.svg\" alt=\"Order Wholesale on Shoppage\" width=\"220\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID, strings.TrimRight(data.Nav.PublicBaseURL, "/"))} }
 				>
 					Copy HTML Snippet
 				</button>
@@ -211,13 +211,13 @@ templ ChannelsTab(data models.DashboardViewData) {
 				<div>
 					<div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;">Badge 3: Trust &amp; Compliance</div>
 					<div style="background:#ffffff; padding:10px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);">
-						<img src="http://localhost:3000/badges/verified-merchant.svg" alt="Verified Merchant on Shoppage" style="height:38px; width:auto;" />
+						<img src={ templ.SafeURL(strings.TrimRight(data.Nav.PublicBaseURL, "/") + "/badges/verified-merchant.svg") } alt="Verified Merchant on Shoppage" style="height:38px; width:auto;" />
 					</div>
 				</div>
 				<button 
 					type="button" 
 					class="btn solid small" 
-					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"http://localhost:3000/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"http://localhost:3000/badges/verified-merchant.svg\" alt=\"Verified Merchant on Shoppage\" width=\"230\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", data.Store.ID)} }
+					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"%s/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"%s/badges/verified-merchant.svg\" alt=\"Verified Merchant on Shoppage\" width=\"230\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID, strings.TrimRight(data.Nav.PublicBaseURL, "/"))} }
 				>
 					Copy HTML Snippet
 				</button>
@@ -228,13 +228,13 @@ templ ChannelsTab(data models.DashboardViewData) {
 				<div>
 					<div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;">Badge 4: Social Icon (For Icon Bars)</div>
 					<div style="background:#ffffff; padding:10px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);">
-						<img src="http://localhost:3000/badges/shoppage-icon.svg" alt="Shoppage Icon" style="height:38px; width:38px;" />
+						<img src={ templ.SafeURL(strings.TrimRight(data.Nav.PublicBaseURL, "/") + "/badges/shoppage-icon.svg") } alt="Shoppage Icon" style="height:38px; width:38px;" />
 					</div>
 				</div>
 				<button 
 					type="button" 
 					class="btn solid small" 
-					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"http://localhost:3000/m/%s\" title=\"Shoppage Verified Catalog\" target=\"_blank\" rel=\"noopener\"><img src=\"http://localhost:3000/badges/shoppage-icon.svg\" alt=\"Shoppage\" width=\"36\" height=\"36\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", data.Store.ID)} }
+					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"%s/m/%s\" title=\"Shoppage Verified Catalog\" target=\"_blank\" rel=\"noopener\"><img src=\"%s/badges/shoppage-icon.svg\" alt=\"Shoppage\" width=\"36\" height=\"36\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID, strings.TrimRight(data.Nav.PublicBaseURL, "/"))} }
 				>
 					Copy HTML Snippet
 				</button>
@@ -256,14 +256,14 @@ templ ChannelsTab(data models.DashboardViewData) {
 					<div style="color:var(--muted); font-size:11px;">{ data.Store.Address } · CIPC: { data.Store.CIPCRegistration }</div>
 					<div style="color:var(--muted); font-size:11px;">Tel: { data.Store.Phone } · WhatsApp: +{ data.Store.WhatsApp }</div>
 					<div style="margin-top:8px;">
-						<img src="http://localhost:3000/badges/order-on-shoppage.svg" alt="Shoppage Trade Desk" style="height:26px; width:auto;" />
+						<img src={ templ.SafeURL(strings.TrimRight(data.Nav.PublicBaseURL, "/") + "/badges/order-on-shoppage.svg") } alt="Shoppage Trade Desk" style="height:26px; width:auto;" />
 					</div>
 				</div>
 				<button 
 					type="button" 
 					class="btn solid small" 
 					style="width:100%;"
-					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<table style=\"font-family:sans-serif;font-size:13px;color:#1e293b;\"><tr><td><strong>%s</strong></td></tr><tr><td style=\"font-size:11px;color:#64748b;\">%s | CIPC: %s</td></tr><tr><td style=\"font-size:11px;color:#64748b;\">Tel: %s | WhatsApp: +%s</td></tr><tr><td style=\"padding-top:6px;\"><a href=\"http://localhost:3000/m/%s\" target=\"_blank\"><img src=\"http://localhost:3000/badges/order-on-shoppage.svg\" height=\"28\" alt=\"Order on Shoppage\" border=\"0\"/></a></td></tr></table>'); this.textContent = '✓ Copied HTML Signature!'; var b=this; setTimeout(function(){ b.textContent='Copy Email Signature HTML'; }, 2000);", escapeJsString(data.Store.Name), escapeJsString(data.Store.Address), data.Store.CIPCRegistration, data.Store.Phone, data.Store.WhatsApp, data.Store.ID)} }
+					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<table style=\"font-family:sans-serif;font-size:13px;color:#1e293b;\"><tr><td><strong>%s</strong></td></tr><tr><td style=\"font-size:11px;color:#64748b;\">%s | CIPC: %s</td></tr><tr><td style=\"font-size:11px;color:#64748b;\">Tel: %s | WhatsApp: +%s</td></tr><tr><td style=\"padding-top:6px;\"><a href=\"%s/m/%s\" target=\"_blank\"><img src=\"%s/badges/order-on-shoppage.svg\" height=\"28\" alt=\"Order on Shoppage\" border=\"0\"/></a></td></tr></table>'); this.textContent = '✓ Copied HTML Signature!'; var b=this; setTimeout(function(){ b.textContent='Copy Email Signature HTML'; }, 2000);", escapeJsString(data.Store.Name), escapeJsString(data.Store.Address), data.Store.CIPCRegistration, data.Store.Phone, data.Store.WhatsApp, strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID, strings.TrimRight(data.Nav.PublicBaseURL, "/"))} }
 				>
 					Copy Email Signature HTML
 				</button>
@@ -281,12 +281,12 @@ templ ChannelsTab(data models.DashboardViewData) {
 					readonly 
 					rows="3" 
 					style="width:100%; font-size:11px; font-family:var(--mono); background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:8px; box-sizing:border-box; margin-bottom:12px;"
-				>{ fmt.Sprintf("<iframe src=\"http://localhost:3000/embed/m/%s\" width=\"100%%\" height=\"650\" frameborder=\"0\" style=\"border-radius:16px; border:1px solid #e2e8f0;\"></iframe>", data.Store.ID) }</textarea>
+				>{ fmt.Sprintf("<iframe src=\"%s/embed/m/%s\" width=\"100%%\" height=\"650\" frameborder=\"0\" style=\"border-radius:16px; border:1px solid #e2e8f0;\"></iframe>", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID) }</textarea>
 				<button 
 					type="button" 
 					class="btn solid small" 
 					style="width:100%;"
-					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<iframe src=\"http://localhost:3000/embed/m/%s\" width=\"100%%\" height=\"650\" frameborder=\"0\" style=\"border-radius:16px; border:1px solid #e2e8f0;\"></iframe>'); this.textContent = '✓ Copied iFrame Snippet!'; var b=this; setTimeout(function(){ b.textContent='Copy iFrame Embed Code'; }, 2000);", data.Store.ID)} }
+					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<iframe src=\"%s/embed/m/%s\" width=\"100%%\" height=\"650\" frameborder=\"0\" style=\"border-radius:16px; border:1px solid #e2e8f0;\"></iframe>'); this.textContent = '✓ Copied iFrame Snippet!'; var b=this; setTimeout(function(){ b.textContent='Copy iFrame Embed Code'; }, 2000);", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID)} }
 				>
 					Copy iFrame Embed Code
 				</button>

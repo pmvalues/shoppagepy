@@ -2,6 +2,7 @@ package templates
 
 import (
 	"fmt"
+	"strings"
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
@@ -12,7 +13,7 @@ templ EditorTab(data models.DashboardViewData) {
 			<div class="sub">Storefront branding palettes, announcement ribbons &amp; public discovery appearance</div>
 		</div>
 		<div class="right">
-			<a href={ templ.SafeURL(fmt.Sprintf("http://localhost:3000/m/%s", data.Store.ID)) } target="_blank" class="btn solid small">
+			<a href={ templ.SafeURL(fmt.Sprintf("%s/m/%s", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID)) } target="_blank" class="btn solid small">
 				<span>↗</span> Open Live Storefront
 			</a>
 		</div>
@@ -154,7 +155,7 @@ templ EditorTab(data models.DashboardViewData) {
 			</div>
 
 			<div style="margin-top:16px; text-align:center;">
-				<a href={ templ.SafeURL(fmt.Sprintf("http://localhost:3000/m/%s", data.Store.ID)) } target="_blank" class="btn ghost small" style="justify-content:center;">
+				<a href={ templ.SafeURL(fmt.Sprintf("%s/m/%s", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID)) } target="_blank" class="btn ghost small" style="justify-content:center;">
 					<span>↗</span> Open Live Public Storefront
 				</a>
 			</div>

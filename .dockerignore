@@ -32,9 +32,13 @@ __pycache__
 *.xlsx
 *.csv
 db.sqlite3
+*.sqlite
 *.sqlite3
 *.sqlite-wal
 *.sqlite-shm
+# Gitignored bulk datasets must never enter the image build context (README blocker #1).
+# Mount via docker-compose volumes instead.
+shoppage-commerce-intelligence-foundation/
 tmp
 temp
 docs

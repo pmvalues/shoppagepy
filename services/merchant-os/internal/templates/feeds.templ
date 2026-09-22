@@ -2,6 +2,7 @@ package templates
 
 import (
 	"fmt"
+	"strings"
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
@@ -97,7 +98,7 @@ templ FeedsTab(data models.DashboardViewData) {
 										}
 									</td>
 									<td style="padding: 10px 12px;">
-										<a href={ templ.SafeURL(fmt.Sprintf("http://localhost:3000/p/%s", item.ID)) } target="_blank" style="color: var(--primary); text-decoration: underline; font-family: var(--mono); font-size: 11px;">
+										<a href={ templ.SafeURL(fmt.Sprintf("%s/p/%s", strings.TrimRight(data.Nav.PublicBaseURL, "/"), item.ID)) } target="_blank" style="color: var(--primary); text-decoration: underline; font-family: var(--mono); font-size: 11px;">
 											/p/{ item.ID } ↗
 										</a>
 									</td>
@@ -126,8 +127,8 @@ templ FeedsTab(data models.DashboardViewData) {
 				<div>&lt;item&gt;</div>
 				<div style="padding-left: 16px;">&lt;g:id&gt;mit_3361&lt;/g:id&gt;</div>
 				<div style="padding-left: 16px;">&lt;g:title&gt;Commercial Anti-Theft Wooden Male Hanger 44cm&lt;/g:title&gt;</div>
-				<div style="padding-left: 16px;">&lt;g:link&gt;http://localhost:3000/p/mit_3361&lt;/g:link&gt;</div>
-				<div style="padding-left: 16px;">&lt;g:image_link&gt;http://localhost:3000/static/catalog/mit_3361.jpg&lt;/g:image_link&gt;</div>
+				<div style="padding-left: 16px;">&lt;g:link&gt;{ fmt.Sprintf("%s/p/mit_3361", strings.TrimRight(data.Nav.PublicBaseURL, "/")) }&lt;/g:link&gt;</div>
+				<div style="padding-left: 16px;">&lt;g:image_link&gt;{ fmt.Sprintf("%s/static/catalog/mit_3361.jpg", strings.TrimRight(data.Nav.PublicBaseURL, "/")) }&lt;/g:image_link&gt;</div>
 				<div style="padding-left: 16px;">&lt;g:price&gt;22.88 ZAR&lt;/g:price&gt;</div>
 				<div style="padding-left: 16px;">&lt;g:availability&gt;in stock&lt;/g:availability&gt;</div>
 				<div style="padding-left: 16px;">&lt;g:condition&gt;new&lt;/g:condition&gt;</div>

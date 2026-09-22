@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -19,6 +20,24 @@ import (
 	"github.com/shoppage/search-core/internal/index"
 	"github.com/shoppage/search-core/internal/models"
 )
+
+// allowedOrigins reads ALLOWED_ORIGINS (comma-separated) and fails closed to
+// localhost-only in development; never returns "*".
+func allowedOrigins() []string {
+	if v := os.Getenv("ALLOWED_ORIGINS"); v != "" {
+		var out []string
+		for _, s := range strings.Split(v, ",") {
+			s = strings.TrimSpace(s)
+			if s != "" && s != "*" {
+				out = append(out, s)
+			}
+		}
+		if len(out) > 0 {
+			return out
+		}
+	}
+	return []string{"http://localhost:3000", "http://localhost:3001"}
+}
 
 func seedCatalog(e *index.Engine) {
 	seeds := []models.SearchItem{
@@ -147,7 +166,7 @@ func main() {
 	r.Use(middleware.Timeout(30 * time.Second))
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:3001", "https://shoppage.co.za", "*"},
+		AllowedOrigins:   allowedOrigins(),
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Content-Type"},
 		AllowCredentials: true,

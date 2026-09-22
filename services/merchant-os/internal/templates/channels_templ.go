@@ -130,9 +130,9 @@ func ChannelsTab(data models.DashboardViewData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 templ.SafeURL
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("http://localhost:3000/m/%s", data.Store.ID)))
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("%s/m/%s", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 131, Col: 85}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 131, Col: 114}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -143,53 +143,62 @@ func ChannelsTab(data models.DashboardViewData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var8 string
-		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("http://localhost:3000/m/%s", data.Store.ID))
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s/m/%s", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 161, Col: 175}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 161, Col: 204}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</code><br>• Mobile-first proforma generator<br>• Real-time stock status &amp; trading hours</div></div></div><!-- Vector Badges Generator --><h5 style=\"font-size:13px; font-weight:700; margin:0 0 10px;\">1. High-DPI Official Vector Badges (For Website Header, Footer &amp; Social Icon Bar)</h5><p style=\"font-size:12px; color:var(--muted); margin-bottom:12px;\">Place alongside YouTube, Facebook, LinkedIn, Instagram, and WhatsApp on your site. Zero raster pixelation on Retina/4K screens.</p><div style=\"display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-bottom:20px;\"><!-- Badge 1: Find us on Shoppage --><div style=\"padding:12px; background:var(--surface-2); border-radius:10px; border:1px solid var(--line); display:flex; flex-direction:column; justify-content:space-between; gap:10px;\"><div><div style=\"font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;\">Badge 1: Brand Discovery</div><div style=\"background:#ffffff; padding:10px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);\"><img src=\"http://localhost:3000/badges/find-us-on-shoppage.svg\" alt=\"Find us on Shoppage\" style=\"height:38px; width:auto;\"></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</code><br>• Mobile-first proforma generator<br>• Real-time stock status &amp; trading hours</div></div></div><!-- Vector Badges Generator --><h5 style=\"font-size:13px; font-weight:700; margin:0 0 10px;\">1. High-DPI Official Vector Badges (For Website Header, Footer &amp; Social Icon Bar)</h5><p style=\"font-size:12px; color:var(--muted); margin-bottom:12px;\">Place alongside YouTube, Facebook, LinkedIn, Instagram, and WhatsApp on your site. Zero raster pixelation on Retina/4K screens.</p><div style=\"display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-bottom:20px;\"><!-- Badge 1: Find us on Shoppage --><div style=\"padding:12px; background:var(--surface-2); border-radius:10px; border:1px solid var(--line); display:flex; flex-direction:column; justify-content:space-between; gap:10px;\"><div><div style=\"font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;\">Badge 1: Brand Discovery</div><div style=\"background:#ffffff; padding:10px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);\"><img src=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"http://localhost:3000/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"http://localhost:3000/badges/find-us-on-shoppage.svg\" alt=\"Find us on Shoppage\" width=\"200\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", data.Store.ID)})
+		var templ_7745c5c3_Var9 string
+		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.SafeURL(strings.TrimRight(data.Nav.PublicBaseURL, "/") + "/badges/find-us-on-shoppage.svg"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 180, Col: 114}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<button type=\"button\" class=\"btn solid small\" onclick=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" alt=\"Find us on Shoppage\" style=\"height:38px; width:auto;\"></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var9 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"http://localhost:3000/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"http://localhost:3000/badges/find-us-on-shoppage.svg\" alt=\"Find us on Shoppage\" width=\"200\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", data.Store.ID)}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9.Call)
+		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"%s/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"%s/badges/find-us-on-shoppage.svg\" alt=\"Find us on Shoppage\" width=\"200\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID, strings.TrimRight(data.Nav.PublicBaseURL, "/"))})
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\">Copy HTML Snippet</button></div><!-- Badge 2: Order Wholesale on Shoppage --><div style=\"padding:12px; background:var(--surface-2); border-radius:10px; border:1px solid var(--line); display:flex; flex-direction:column; justify-content:space-between; gap:10px;\"><div><div style=\"font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;\">Badge 2: Trade Desk CTA</div><div style=\"background:#0f172a; padding:10px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);\"><img src=\"http://localhost:3000/badges/order-on-shoppage.svg\" alt=\"Order Wholesale on Shoppage\" style=\"height:38px; width:auto;\"></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<button type=\"button\" class=\"btn solid small\" onclick=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"http://localhost:3000/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"http://localhost:3000/badges/order-on-shoppage.svg\" alt=\"Order Wholesale on Shoppage\" width=\"220\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", data.Store.ID)})
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<button type=\"button\" class=\"btn solid small\" onclick=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var10 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"http://localhost:3000/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"http://localhost:3000/badges/order-on-shoppage.svg\" alt=\"Order Wholesale on Shoppage\" width=\"220\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", data.Store.ID)}
+		var templ_7745c5c3_Var10 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"%s/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"%s/badges/find-us-on-shoppage.svg\" alt=\"Find us on Shoppage\" width=\"200\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID, strings.TrimRight(data.Nav.PublicBaseURL, "/"))}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10.Call)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\">Copy HTML Snippet</button></div><!-- Badge 3: CIPC Verified Merchant --><div style=\"padding:12px; background:var(--surface-2); border-radius:10px; border:1px solid var(--line); display:flex; flex-direction:column; justify-content:space-between; gap:10px;\"><div><div style=\"font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;\">Badge 3: Trust &amp; Compliance</div><div style=\"background:#ffffff; padding:10px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);\"><img src=\"http://localhost:3000/badges/verified-merchant.svg\" alt=\"Verified Merchant on Shoppage\" style=\"height:38px; width:auto;\"></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\">Copy HTML Snippet</button></div><!-- Badge 2: Order Wholesale on Shoppage --><div style=\"padding:12px; background:var(--surface-2); border-radius:10px; border:1px solid var(--line); display:flex; flex-direction:column; justify-content:space-between; gap:10px;\"><div><div style=\"font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;\">Badge 2: Trade Desk CTA</div><div style=\"background:#0f172a; padding:10px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);\"><img src=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"http://localhost:3000/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"http://localhost:3000/badges/verified-merchant.svg\" alt=\"Verified Merchant on Shoppage\" width=\"230\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", data.Store.ID)})
+		var templ_7745c5c3_Var11 string
+		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.SafeURL(strings.TrimRight(data.Nav.PublicBaseURL, "/") + "/badges/order-on-shoppage.svg"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 197, Col: 112}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" alt=\"Order Wholesale on Shoppage\" style=\"height:38px; width:auto;\"></div></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"%s/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"%s/badges/order-on-shoppage.svg\" alt=\"Order Wholesale on Shoppage\" width=\"220\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID, strings.TrimRight(data.Nav.PublicBaseURL, "/"))})
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -197,141 +206,197 @@ func ChannelsTab(data models.DashboardViewData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var11 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"http://localhost:3000/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"http://localhost:3000/badges/verified-merchant.svg\" alt=\"Verified Merchant on Shoppage\" width=\"230\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", data.Store.ID)}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11.Call)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\">Copy HTML Snippet</button></div><!-- Badge 4: Standalone Social Icon (48x48) --><div style=\"padding:12px; background:var(--surface-2); border-radius:10px; border:1px solid var(--line); display:flex; flex-direction:column; justify-content:space-between; gap:10px;\"><div><div style=\"font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;\">Badge 4: Social Icon (For Icon Bars)</div><div style=\"background:#ffffff; padding:10px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);\"><img src=\"http://localhost:3000/badges/shoppage-icon.svg\" alt=\"Shoppage Icon\" style=\"height:38px; width:38px;\"></div></div>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"http://localhost:3000/m/%s\" title=\"Shoppage Verified Catalog\" target=\"_blank\" rel=\"noopener\"><img src=\"http://localhost:3000/badges/shoppage-icon.svg\" alt=\"Shoppage\" width=\"36\" height=\"36\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", data.Store.ID)})
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<button type=\"button\" class=\"btn solid small\" onclick=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var12 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"http://localhost:3000/m/%s\" title=\"Shoppage Verified Catalog\" target=\"_blank\" rel=\"noopener\"><img src=\"http://localhost:3000/badges/shoppage-icon.svg\" alt=\"Shoppage\" width=\"36\" height=\"36\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", data.Store.ID)}
+		var templ_7745c5c3_Var12 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"%s/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"%s/badges/order-on-shoppage.svg\" alt=\"Order Wholesale on Shoppage\" width=\"220\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID, strings.TrimRight(data.Nav.PublicBaseURL, "/"))}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12.Call)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\">Copy HTML Snippet</button></div></div><!-- Email Signature Builder & Embed Widget in 2 Columns --><div style=\"display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:16px;\"><!-- Email Signature --><div style=\"padding:14px; background:var(--surface-2); border-radius:12px; border:1px solid var(--line);\"><div style=\"font-weight:700; font-size:13px; margin-bottom:6px; display:flex; align-items:center; gap:6px;\"><span>✉️</span> 2. Corporate Email Signature Snippet</div><p style=\"font-size:12px; color:var(--muted); margin-bottom:12px;\">Copy and paste this rich HTML block into Outlook, Gmail, or Apple Mail to turn every outbound email into a wholesale storefront lead.</p><div style=\"background:#ffffff; border:2px dashed var(--primary); padding:12px; border-radius:8px; font-size:12px; color:var(--ink); margin-bottom:12px;\"><div style=\"font-weight:800;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\">Copy HTML Snippet</button></div><!-- Badge 3: CIPC Verified Merchant --><div style=\"padding:12px; background:var(--surface-2); border-radius:10px; border:1px solid var(--line); display:flex; flex-direction:column; justify-content:space-between; gap:10px;\"><div><div style=\"font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;\">Badge 3: Trust &amp; Compliance</div><div style=\"background:#ffffff; padding:10px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);\"><img src=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var13 string
-		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.Name)
+		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.SafeURL(strings.TrimRight(data.Nav.PublicBaseURL, "/") + "/badges/verified-merchant.svg"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 255, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 214, Col: 112}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><div style=\"color:var(--muted); font-size:11px;\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var14 string
-		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.Address)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 256, Col: 74}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" alt=\"Verified Merchant on Shoppage\" style=\"height:38px; width:auto;\"></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, " · CIPC: ")
+		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"%s/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"%s/badges/verified-merchant.svg\" alt=\"Verified Merchant on Shoppage\" width=\"230\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID, strings.TrimRight(data.Nav.PublicBaseURL, "/"))})
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<button type=\"button\" class=\"btn solid small\" onclick=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var14 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"%s/m/%s\" target=\"_blank\" rel=\"noopener\"><img src=\"%s/badges/verified-merchant.svg\" alt=\"Verified Merchant on Shoppage\" width=\"230\" height=\"50\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID, strings.TrimRight(data.Nav.PublicBaseURL, "/"))}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14.Call)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\">Copy HTML Snippet</button></div><!-- Badge 4: Standalone Social Icon (48x48) --><div style=\"padding:12px; background:var(--surface-2); border-radius:10px; border:1px solid var(--line); display:flex; flex-direction:column; justify-content:space-between; gap:10px;\"><div><div style=\"font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;\">Badge 4: Social Icon (For Icon Bars)</div><div style=\"background:#ffffff; padding:10px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);\"><img src=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var15 string
-		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.CIPCRegistration)
+		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.SafeURL(strings.TrimRight(data.Nav.PublicBaseURL, "/") + "/badges/shoppage-icon.svg"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 256, Col: 115}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 231, Col: 108}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><div style=\"color:var(--muted); font-size:11px;\">Tel: ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var16 string
-		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.Phone)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 257, Col: 77}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" alt=\"Shoppage Icon\" style=\"height:38px; width:38px;\"></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, " · WhatsApp: +")
+		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"%s/m/%s\" title=\"Shoppage Verified Catalog\" target=\"_blank\" rel=\"noopener\"><img src=\"%s/badges/shoppage-icon.svg\" alt=\"Shoppage\" width=\"36\" height=\"36\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID, strings.TrimRight(data.Nav.PublicBaseURL, "/"))})
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<button type=\"button\" class=\"btn solid small\" onclick=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var16 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<a href=\"%s/m/%s\" title=\"Shoppage Verified Catalog\" target=\"_blank\" rel=\"noopener\"><img src=\"%s/badges/shoppage-icon.svg\" alt=\"Shoppage\" width=\"36\" height=\"36\" /></a>'); this.textContent = '✓ Copied HTML!'; var b=this; setTimeout(function(){ b.textContent='Copy HTML Snippet'; }, 2000);", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID, strings.TrimRight(data.Nav.PublicBaseURL, "/"))}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16.Call)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\">Copy HTML Snippet</button></div></div><!-- Email Signature Builder & Embed Widget in 2 Columns --><div style=\"display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:16px;\"><!-- Email Signature --><div style=\"padding:14px; background:var(--surface-2); border-radius:12px; border:1px solid var(--line);\"><div style=\"font-weight:700; font-size:13px; margin-bottom:6px; display:flex; align-items:center; gap:6px;\"><span>✉️</span> 2. Corporate Email Signature Snippet</div><p style=\"font-size:12px; color:var(--muted); margin-bottom:12px;\">Copy and paste this rich HTML block into Outlook, Gmail, or Apple Mail to turn every outbound email into a wholesale storefront lead.</p><div style=\"background:#ffffff; border:2px dashed var(--primary); padding:12px; border-radius:8px; font-size:12px; color:var(--ink); margin-bottom:12px;\"><div style=\"font-weight:800;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var17 string
-		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.WhatsApp)
+		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 257, Col: 115}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 255, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><div style=\"margin-top:8px;\"><img src=\"http://localhost:3000/badges/order-on-shoppage.svg\" alt=\"Shoppage Trade Desk\" style=\"height:26px; width:auto;\"></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><div style=\"color:var(--muted); font-size:11px;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<table style=\"font-family:sans-serif;font-size:13px;color:#1e293b;\"><tr><td><strong>%s</strong></td></tr><tr><td style=\"font-size:11px;color:#64748b;\">%s | CIPC: %s</td></tr><tr><td style=\"font-size:11px;color:#64748b;\">Tel: %s | WhatsApp: +%s</td></tr><tr><td style=\"padding-top:6px;\"><a href=\"http://localhost:3000/m/%s\" target=\"_blank\"><img src=\"http://localhost:3000/badges/order-on-shoppage.svg\" height=\"28\" alt=\"Order on Shoppage\" border=\"0\"/></a></td></tr></table>'); this.textContent = '✓ Copied HTML Signature!'; var b=this; setTimeout(function(){ b.textContent='Copy Email Signature HTML'; }, 2000);", escapeJsString(data.Store.Name), escapeJsString(data.Store.Address), data.Store.CIPCRegistration, data.Store.Phone, data.Store.WhatsApp, data.Store.ID)})
+		var templ_7745c5c3_Var18 string
+		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.Address)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 256, Col: 74}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<button type=\"button\" class=\"btn solid small\" style=\"width:100%;\" onclick=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var18 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<table style=\"font-family:sans-serif;font-size:13px;color:#1e293b;\"><tr><td><strong>%s</strong></td></tr><tr><td style=\"font-size:11px;color:#64748b;\">%s | CIPC: %s</td></tr><tr><td style=\"font-size:11px;color:#64748b;\">Tel: %s | WhatsApp: +%s</td></tr><tr><td style=\"padding-top:6px;\"><a href=\"http://localhost:3000/m/%s\" target=\"_blank\"><img src=\"http://localhost:3000/badges/order-on-shoppage.svg\" height=\"28\" alt=\"Order on Shoppage\" border=\"0\"/></a></td></tr></table>'); this.textContent = '✓ Copied HTML Signature!'; var b=this; setTimeout(function(){ b.textContent='Copy Email Signature HTML'; }, 2000);", escapeJsString(data.Store.Name), escapeJsString(data.Store.Address), data.Store.CIPCRegistration, data.Store.Phone, data.Store.WhatsApp, data.Store.ID)}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18.Call)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\">Copy Email Signature HTML</button></div><!-- Embeddable Catalog Widget (iFrame) --><div style=\"padding:14px; background:var(--surface-2); border-radius:12px; border:1px solid var(--line);\"><div style=\"font-weight:700; font-size:13px; margin-bottom:6px; display:flex; align-items:center; gap:6px;\"><span>📦</span> 3. Embed Live Catalog on Your Website (iFrame)</div><p style=\"font-size:12px; color:var(--muted); margin-bottom:12px;\">Embed your real-time South African wholesale pricing &amp; inventory directly into any WordPress, Shopify, Wix, or HTML page.</p><textarea readonly rows=\"3\" style=\"width:100%; font-size:11px; font-family:var(--mono); background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:8px; box-sizing:border-box; margin-bottom:12px;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, " · CIPC: ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var19 string
-		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("<iframe src=\"http://localhost:3000/embed/m/%s\" width=\"100%%\" height=\"650\" frameborder=\"0\" style=\"border-radius:16px; border:1px solid #e2e8f0;\"></iframe>", data.Store.ID))
+		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.CIPCRegistration)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 284, Col: 200}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 256, Col: 115}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</textarea> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div><div style=\"color:var(--muted); font-size:11px;\">Tel: ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<iframe src=\"http://localhost:3000/embed/m/%s\" width=\"100%%\" height=\"650\" frameborder=\"0\" style=\"border-radius:16px; border:1px solid #e2e8f0;\"></iframe>'); this.textContent = '✓ Copied iFrame Snippet!'; var b=this; setTimeout(function(){ b.textContent='Copy iFrame Embed Code'; }, 2000);", data.Store.ID)})
+		var templ_7745c5c3_Var20 string
+		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.Phone)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 257, Col: 77}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<button type=\"button\" class=\"btn solid small\" style=\"width:100%;\" onclick=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, " · WhatsApp: +")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var20 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<iframe src=\"http://localhost:3000/embed/m/%s\" width=\"100%%\" height=\"650\" frameborder=\"0\" style=\"border-radius:16px; border:1px solid #e2e8f0;\"></iframe>'); this.textContent = '✓ Copied iFrame Snippet!'; var b=this; setTimeout(function(){ b.textContent='Copy iFrame Embed Code'; }, 2000);", data.Store.ID)}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20.Call)
+		var templ_7745c5c3_Var21 string
+		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.WhatsApp)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 257, Col: 115}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\">Copy iFrame Embed Code</button></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div><div style=\"margin-top:8px;\"><img src=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var22 string
+		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.SafeURL(strings.TrimRight(data.Nav.PublicBaseURL, "/") + "/badges/order-on-shoppage.svg"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 259, Col: 112}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" alt=\"Shoppage Trade Desk\" style=\"height:26px; width:auto;\"></div></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<table style=\"font-family:sans-serif;font-size:13px;color:#1e293b;\"><tr><td><strong>%s</strong></td></tr><tr><td style=\"font-size:11px;color:#64748b;\">%s | CIPC: %s</td></tr><tr><td style=\"font-size:11px;color:#64748b;\">Tel: %s | WhatsApp: +%s</td></tr><tr><td style=\"padding-top:6px;\"><a href=\"%s/m/%s\" target=\"_blank\"><img src=\"%s/badges/order-on-shoppage.svg\" height=\"28\" alt=\"Order on Shoppage\" border=\"0\"/></a></td></tr></table>'); this.textContent = '✓ Copied HTML Signature!'; var b=this; setTimeout(function(){ b.textContent='Copy Email Signature HTML'; }, 2000);", escapeJsString(data.Store.Name), escapeJsString(data.Store.Address), data.Store.CIPCRegistration, data.Store.Phone, data.Store.WhatsApp, strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID, strings.TrimRight(data.Nav.PublicBaseURL, "/"))})
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<button type=\"button\" class=\"btn solid small\" style=\"width:100%;\" onclick=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var23 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<table style=\"font-family:sans-serif;font-size:13px;color:#1e293b;\"><tr><td><strong>%s</strong></td></tr><tr><td style=\"font-size:11px;color:#64748b;\">%s | CIPC: %s</td></tr><tr><td style=\"font-size:11px;color:#64748b;\">Tel: %s | WhatsApp: +%s</td></tr><tr><td style=\"padding-top:6px;\"><a href=\"%s/m/%s\" target=\"_blank\"><img src=\"%s/badges/order-on-shoppage.svg\" height=\"28\" alt=\"Order on Shoppage\" border=\"0\"/></a></td></tr></table>'); this.textContent = '✓ Copied HTML Signature!'; var b=this; setTimeout(function(){ b.textContent='Copy Email Signature HTML'; }, 2000);", escapeJsString(data.Store.Name), escapeJsString(data.Store.Address), data.Store.CIPCRegistration, data.Store.Phone, data.Store.WhatsApp, strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID, strings.TrimRight(data.Nav.PublicBaseURL, "/"))}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23.Call)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\">Copy Email Signature HTML</button></div><!-- Embeddable Catalog Widget (iFrame) --><div style=\"padding:14px; background:var(--surface-2); border-radius:12px; border:1px solid var(--line);\"><div style=\"font-weight:700; font-size:13px; margin-bottom:6px; display:flex; align-items:center; gap:6px;\"><span>📦</span> 3. Embed Live Catalog on Your Website (iFrame)</div><p style=\"font-size:12px; color:var(--muted); margin-bottom:12px;\">Embed your real-time South African wholesale pricing &amp; inventory directly into any WordPress, Shopify, Wix, or HTML page.</p><textarea readonly rows=\"3\" style=\"width:100%; font-size:11px; font-family:var(--mono); background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:8px; box-sizing:border-box; margin-bottom:12px;\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var24 string
+		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("<iframe src=\"%s/embed/m/%s\" width=\"100%%\" height=\"650\" frameborder=\"0\" style=\"border-radius:16px; border:1px solid #e2e8f0;\"></iframe>", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/channels.templ`, Line: 284, Col: 229}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</textarea> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<iframe src=\"%s/embed/m/%s\" width=\"100%%\" height=\"650\" frameborder=\"0\" style=\"border-radius:16px; border:1px solid #e2e8f0;\"></iframe>'); this.textContent = '✓ Copied iFrame Snippet!'; var b=this; setTimeout(function(){ b.textContent='Copy iFrame Embed Code'; }, 2000);", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID)})
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<button type=\"button\" class=\"btn solid small\" style=\"width:100%;\" onclick=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var25 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("navigator.clipboard.writeText('<iframe src=\"%s/embed/m/%s\" width=\"100%%\" height=\"650\" frameborder=\"0\" style=\"border-radius:16px; border:1px solid #e2e8f0;\"></iframe>'); this.textContent = '✓ Copied iFrame Snippet!'; var b=this; setTimeout(function(){ b.textContent='Copy iFrame Embed Code'; }, 2000);", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID)}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25.Call)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\">Copy iFrame Embed Code</button></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

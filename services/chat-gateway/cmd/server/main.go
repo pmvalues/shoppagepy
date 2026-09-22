@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -17,6 +18,24 @@ import (
 	"github.com/shoppage/chat-gateway/internal/handlers"
 	"github.com/shoppage/chat-gateway/internal/hub"
 )
+
+// allowedOrigins reads ALLOWED_ORIGINS (comma-separated) and fails closed to
+// localhost-only in development; never returns "*".
+func allowedOrigins() []string {
+	if v := os.Getenv("ALLOWED_ORIGINS"); v != "" {
+		var out []string
+		for _, s := range strings.Split(v, ",") {
+			s = strings.TrimSpace(s)
+			if s != "" && s != "*" {
+				out = append(out, s)
+			}
+		}
+		if len(out) > 0 {
+			return out
+		}
+	}
+	return []string{"http://localhost:3000", "http://localhost:3001"}
+}
 
 func main() {
 	// Initialize structured logger
@@ -52,7 +71,7 @@ func main() {
 
 	// CORS configuration for web clients
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:3001", "https://shoppage.co.za", "*"},
+		AllowedOrigins:   allowedOrigins(),
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},

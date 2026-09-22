@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/shoppage/merchant-os/internal/auth"
 	"github.com/shoppage/merchant-os/internal/config"
 	"github.com/shoppage/merchant-os/internal/fixtures"
 	"github.com/shoppage/merchant-os/internal/models"
@@ -1022,6 +1023,102 @@ func (h *Handler) ServeDashboard(w http.ResponseWriter, r *http.Request) {
 	data := h.getViewData(tab)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	_ = templates.RenderDashboard(w, data)
+}
+
+// ServeLogin renders the standalone Merchant OS login page (public route).
+func (h *Handler) ServeLogin(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_, _ = io.WriteString(w, loginPageHTML)
+}
+
+// Login validates platform admin credentials and issues a signed session cookie.
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "invalid form", http.StatusBadRequest)
+		return
+	}
+	email := strings.TrimSpace(r.FormValue("email"))
+	password := r.FormValue("password")
+	if !auth.VerifyPassword(email, password) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = io.WriteString(w, loginPageHTMLWith("Invalid email or password."))
+		return
+	}
+	secret := os.Getenv("SHOPPAGE_AUTH_SECRET")
+	if len(secret) < 32 {
+		http.Error(w, `{"error":"auth not configured (set SHOPPAGE_AUTH_SECRET, 32+ chars)"}`, http.StatusInternalServerError)
+		return
+	}
+	token, err := auth.EncodeSession(strings.ToLower(email), []byte(secret))
+	if err != nil {
+		http.Error(w, "session error", http.StatusInternalServerError)
+		return
+	}
+	auth.SetSessionCookie(w, token, r.TLS != nil && r.URL.Scheme == "https")
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// Logout clears the session cookie and returns the client to /login.
+func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
+	auth.ClearSessionCookie(w)
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
+}
+
+// loginPageHTML is the minimal standalone login shell (no nav, no session needed).
+const loginPageHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Merchant OS — Sign in</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: #0f172a; color:#e2e8f0; }
+.card { width:min(380px, 92vw); background:#1e293b; border:1px solid #334155;
+  border-radius:14px; padding:2rem; }
+h1 { margin:0 0 .25rem; font-size:1.25rem; font-weight:600; color:#f8fafc; }
+p.sub { margin:0 0 1.5rem; color:#94a3b8; font-size:.875rem; }
+label { display:block; font-size:.8rem; font-weight:500; color:#94a3b8; margin-bottom:.35rem; }
+input { width:100%; padding:.6rem .75rem; margin-bottom:1rem; border-radius:8px;
+  border:1px solid #334155; background:#0f172a; color:#f1f5f9; font-size:.95rem; }
+input:focus { outline:2px solid #3b82f6; outline-offset:1px; border-color:#3b82f6; }
+button { width:100%; padding:.65rem; border:none; border-radius:8px; cursor:pointer;
+  background:#3b82f6; color:#fff; font-size:.95rem; font-weight:600; }
+button:hover { background:#2563eb; }
+.err { background:#7f1d1d; border:1px solid #b91c1c; color:#fecaca;
+  padding:.55rem .75rem; border-radius:8px; font-size:.85rem; margin-bottom:1rem; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Merchant OS</h1>
+  <p class="sub">Sign in to manage your storefront.</p>
+  <form method="POST" action="/auth/login">
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" required autocomplete="username"/>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" required autocomplete="current-password"/>
+    <button type="submit">Sign in</button>
+  </form>
+</div>
+</body>
+</html>`
+
+// loginPageHTMLWith embeds an optional error banner into the login shell.
+func loginPageHTMLWith(msg string) string {
+	const marker = `<p class="sub">Sign in to manage your storefront.</p>`
+	errBox := `<div class="err">` + htmlEscape(msg) + `</div>`
+	return strings.Replace(loginPageHTML, marker, errBox+marker, 1)
+}
+
+// htmlEscape guards against reflected markup in the login error banner.
+func htmlEscape(s string) string {
+	r := strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", `"`, "&quot;", "'", "&#39;")
+	return r.Replace(s)
 }
 
 // ServeFavicon serves the classic Shoppage logo favicon for browser address bar and tabs

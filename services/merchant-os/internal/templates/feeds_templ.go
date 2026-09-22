@@ -11,6 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 	"github.com/shoppage/merchant-os/internal/models"
+	"strings"
 )
 
 func FeedsTab(data models.DashboardViewData) templ.Component {
@@ -41,7 +42,7 @@ func FeedsTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Catalog)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 56, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 57, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -54,7 +55,7 @@ func FeedsTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Catalog)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 70, Col: 80}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 71, Col: 80}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -72,7 +73,7 @@ func FeedsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(item.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 89, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 90, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -85,7 +86,7 @@ func FeedsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(item.SKU)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 90, Col: 99}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 91, Col: 99}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -98,7 +99,7 @@ func FeedsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(item.Brand)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 90, Col: 117}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 91, Col: 117}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -116,7 +117,7 @@ func FeedsTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(item.Spec.Barcode)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 94, Col: 78}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 95, Col: 78}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -134,7 +135,7 @@ func FeedsTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("60098824%04d", (i+1)*13%10000))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 96, Col: 104}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 97, Col: 104}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -150,9 +151,9 @@ func FeedsTab(data models.DashboardViewData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 templ.SafeURL
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("http://localhost:3000/p/%s", item.ID)))
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("%s/p/%s", strings.TrimRight(data.Nav.PublicBaseURL, "/"), item.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 100, Col: 85}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 101, Col: 114}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -165,7 +166,7 @@ func FeedsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(item.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 101, Col: 23}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 102, Col: 23}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -178,7 +179,7 @@ func FeedsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.WholesaleZar))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 108, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 109, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -189,7 +190,33 @@ func FeedsTab(data models.DashboardViewData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</tbody></table></div></div><!-- Live XML Code Preview Snippet --><div style=\"background: var(--sidebar); color: #dbe8e0; border-radius: 12px; padding: 16px; font-family: var(--mono); font-size: 11.5px; overflow-x: auto; margin-bottom:16px;\"><div style=\"color: #6f9384; margin-bottom: 6px;\">&lt;!-- Verified GMC XML Feed Item Output Sample --&gt;</div><div>&lt;item&gt;</div><div style=\"padding-left: 16px;\">&lt;g:id&gt;mit_3361&lt;/g:id&gt;</div><div style=\"padding-left: 16px;\">&lt;g:title&gt;Commercial Anti-Theft Wooden Male Hanger 44cm&lt;/g:title&gt;</div><div style=\"padding-left: 16px;\">&lt;g:link&gt;http://localhost:3000/p/mit_3361&lt;/g:link&gt;</div><div style=\"padding-left: 16px;\">&lt;g:image_link&gt;http://localhost:3000/static/catalog/mit_3361.jpg&lt;/g:image_link&gt;</div><div style=\"padding-left: 16px;\">&lt;g:price&gt;22.88 ZAR&lt;/g:price&gt;</div><div style=\"padding-left: 16px;\">&lt;g:availability&gt;in stock&lt;/g:availability&gt;</div><div style=\"padding-left: 16px;\">&lt;g:condition&gt;new&lt;/g:condition&gt;</div><div style=\"padding-left: 16px;\">&lt;g:gtin&gt;60098824001&lt;/g:gtin&gt;</div><div style=\"padding-left: 16px;\">&lt;g:google_product_category&gt;Business &amp; Industrial &gt; Hospitality Supplies&lt;/g:google_product_category&gt;</div><div style=\"padding-left: 16px;\">&lt;g:shipping&gt;</div><div style=\"padding-left: 32px;\">&lt;g:country&gt;ZA&lt;/g:country&gt;&lt;g:service&gt;The Courier Guy Express&lt;/g:service&gt;&lt;g:price&gt;85.00 ZAR&lt;/g:price&gt;</div><div style=\"padding-left: 16px;\">&lt;/g:shipping&gt;</div><div>&lt;/item&gt;</div></div><!-- Specification Checklist --><div style=\"display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; font-size:12px;\"><div style=\"display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;\"><span style=\"color:var(--primary-2); font-weight:700;\">✓</span> <span>EAN-13 / GTIN Barcode Matched</span></div><div style=\"display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;\"><span style=\"color:var(--primary-2); font-weight:700;\">✓</span> <span>SARS 15% VAT In Pricing</span></div><div style=\"display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;\"><span style=\"color:var(--primary-2); font-weight:700;\">✓</span> <span>Canonical Product URL Live</span></div><div style=\"display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;\"><span style=\"color:var(--primary-2); font-weight:700;\">✓</span> <span>SA Courier Shipping Defined</span></div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</tbody></table></div></div><!-- Live XML Code Preview Snippet --><div style=\"background: var(--sidebar); color: #dbe8e0; border-radius: 12px; padding: 16px; font-family: var(--mono); font-size: 11.5px; overflow-x: auto; margin-bottom:16px;\"><div style=\"color: #6f9384; margin-bottom: 6px;\">&lt;!-- Verified GMC XML Feed Item Output Sample --&gt;</div><div>&lt;item&gt;</div><div style=\"padding-left: 16px;\">&lt;g:id&gt;mit_3361&lt;/g:id&gt;</div><div style=\"padding-left: 16px;\">&lt;g:title&gt;Commercial Anti-Theft Wooden Male Hanger 44cm&lt;/g:title&gt;</div><div style=\"padding-left: 16px;\">&lt;g:link&gt;")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var12 string
+		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s/p/mit_3361", strings.TrimRight(data.Nav.PublicBaseURL, "/")))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 130, Col: 129}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "&lt;/g:link&gt;</div><div style=\"padding-left: 16px;\">&lt;g:image_link&gt;")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var13 string
+		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s/static/catalog/mit_3361.jpg", strings.TrimRight(data.Nav.PublicBaseURL, "/")))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 131, Col: 152}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "&lt;/g:image_link&gt;</div><div style=\"padding-left: 16px;\">&lt;g:price&gt;22.88 ZAR&lt;/g:price&gt;</div><div style=\"padding-left: 16px;\">&lt;g:availability&gt;in stock&lt;/g:availability&gt;</div><div style=\"padding-left: 16px;\">&lt;g:condition&gt;new&lt;/g:condition&gt;</div><div style=\"padding-left: 16px;\">&lt;g:gtin&gt;60098824001&lt;/g:gtin&gt;</div><div style=\"padding-left: 16px;\">&lt;g:google_product_category&gt;Business &amp; Industrial &gt; Hospitality Supplies&lt;/g:google_product_category&gt;</div><div style=\"padding-left: 16px;\">&lt;g:shipping&gt;</div><div style=\"padding-left: 32px;\">&lt;g:country&gt;ZA&lt;/g:country&gt;&lt;g:service&gt;The Courier Guy Express&lt;/g:service&gt;&lt;g:price&gt;85.00 ZAR&lt;/g:price&gt;</div><div style=\"padding-left: 16px;\">&lt;/g:shipping&gt;</div><div>&lt;/item&gt;</div></div><!-- Specification Checklist --><div style=\"display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; font-size:12px;\"><div style=\"display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;\"><span style=\"color:var(--primary-2); font-weight:700;\">✓</span> <span>EAN-13 / GTIN Barcode Matched</span></div><div style=\"display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;\"><span style=\"color:var(--primary-2); font-weight:700;\">✓</span> <span>SARS 15% VAT In Pricing</span></div><div style=\"display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;\"><span style=\"color:var(--primary-2); font-weight:700;\">✓</span> <span>Canonical Product URL Live</span></div><div style=\"display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;\"><span style=\"color:var(--primary-2); font-weight:700;\">✓</span> <span>SA Courier Shipping Defined</span></div></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
