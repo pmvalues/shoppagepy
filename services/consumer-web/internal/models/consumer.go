@@ -204,6 +204,7 @@ type MerchantStorefront struct {
 	Website            string             `json:"website,omitempty"`
 	HasExternalWebsite bool               `json:"hasExternalWebsite"`
 	AboutText          string             `json:"aboutText,omitempty"`
+	Announcement       string             `json:"announcement,omitempty"` // merchant-supplied storefront banner; empty means no banner
 	BBBEELevel         string             `json:"bbbeeLevel,omitempty"`
 	Certifications     []string           `json:"certifications,omitempty"`
 	SocialLinks        []SocialLink       `json:"socialLinks,omitempty"`

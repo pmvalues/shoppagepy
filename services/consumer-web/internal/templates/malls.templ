@@ -10,11 +10,32 @@ templ MallsComponent(data MallsViewData) {
 		<main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 			<div class="mb-8">
 				<div class="flex items-center gap-2 mb-1">
-					<span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Nationwide Retail Infrastructure</span>
-					<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">{ fmt.Sprintf("%d", len(data.Malls)) } / { fmt.Sprintf("%d", data.TotalCount) } Seeded</span>
+					<span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Markets across South Africa</span>
+					<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">{ fmt.Sprintf("%d", len(data.Malls)) } indexed</span>
 				</div>
-				<h1 class="text-3xl font-display font-black text-slate-900 tracking-tight mb-2">{ fmt.Sprintf("%d", data.TotalCount) } South African Malls &amp; Retail Hubs</h1>
-				<p class="text-sm text-slate-600">Every shopping centre, wholesale district, and regional mall indexed across all 9 provinces.</p>
+				<h1 class="text-3xl font-display font-black text-slate-900 tracking-tight mb-2">{ fmt.Sprintf("%d", data.TotalCount) } Markets &amp; Trade Hubs</h1>
+				<p class="text-sm text-slate-600">Physical markets, malls, and wholesale districts — nested by province and metro. Join a virtual market (community group) to trade online, or visit a physical market in person.</p>
+			</div>
+
+			<!-- Market mode overview: virtual vs physical, with markets-in-markets -->
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+				<div class="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5">
+					<div class="flex items-center gap-2 mb-1">
+						<span class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm font-black">💬</span>
+						<span class="text-[10px] font-black uppercase tracking-wider text-emerald-700">Virtual Markets</span>
+					</div>
+					<h2 class="font-extrabold text-slate-900 text-base mb-1">Facebook-group style communities</h2>
+					<p class="text-xs text-slate-600 leading-relaxed">Buy and sell inside topic groups — solar, packaging, hardware. Nested groups live inside larger regional markets.</p>
+					<a href="/#guilds" class="inline-flex mt-3 text-xs font-bold text-emerald-700 hover:text-emerald-800">Browse virtual markets &rarr;</a>
+				</div>
+				<div class="rounded-2xl border border-slate-200 bg-white p-5">
+					<div class="flex items-center gap-2 mb-1">
+						<span class="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center text-sm font-black">🏬</span>
+						<span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Physical Markets</span>
+					</div>
+					<h2 class="font-extrabold text-slate-900 text-base mb-1">Malls, plazas &amp; wholesale nodes</h2>
+					<p class="text-xs text-slate-600 leading-relaxed">Indexed centres you can visit — with markets nested inside (stalls, wings, and specialist floors).</p>
+				</div>
 			</div>
 
 			<div class="flex flex-wrap gap-2 mb-8">
@@ -23,11 +44,12 @@ templ MallsComponent(data MallsViewData) {
 				<a href="/malls?province=Western%20Cape" class={ "px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "Western Cape"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "Western Cape") }>Western Cape</a>
 				<a href="/malls?province=KwaZulu-Natal" class={ "px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "KwaZulu-Natal"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "KwaZulu-Natal") }>KwaZulu-Natal</a>
 				<a href="/malls?province=Eastern%20Cape" class={ "px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "Eastern Cape"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "Eastern Cape") }>Eastern Cape</a>
+				<button type="button" id="near-me-btn" class="px-4 py-1.5 rounded-full text-xs font-bold transition bg-slate-900 text-white hover:bg-slate-800 cursor-pointer">📍 Near me</button>
 			</div>
 
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="markets-grid">
 				for _, mall := range data.Malls {
-					<div class="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-md hover:border-emerald-500 transition flex flex-col">
+					<div class="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-md hover:border-emerald-500 transition flex flex-col market-card" data-lat={ fmt.Sprintf("%f", mall.Latitude) } data-lng={ fmt.Sprintf("%f", mall.Longitude) } data-province={ mall.Province }>
 						<div class="flex items-start justify-between gap-2 mb-2">
 							<span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
 								{ mall.MarketType }
@@ -37,10 +59,15 @@ templ MallsComponent(data MallsViewData) {
 						<h3 class="font-extrabold text-slate-900 text-base mb-1">
 							<a href={ templ.SafeURL(fmt.Sprintf("/malls/%s", mall.ID)) } class="hover:text-emerald-600 transition">{ mall.Name }</a>
 						</h3>
-						<p class="text-xs text-slate-500 mb-4 line-clamp-1">{ mall.StreetAddress }</p>
+						<p class="text-xs text-slate-500 mb-2 line-clamp-1">{ mall.StreetAddress }</p>
+						<span class="text-[11px] text-emerald-700 font-semibold mb-3 market-distance" hidden></span>
 
 						<div class="p-3 bg-slate-50 rounded-xl text-xs space-y-1 mb-4 mt-auto">
-							<div class="text-slate-600"><span class="font-bold text-slate-900">{ fmt.Sprintf("%d", mall.StoreCount) }</span> Verified Retail Outlets</div>
+							if mall.StoreCount > 0 {
+								<div class="text-slate-600"><span class="font-bold text-slate-900">{ fmt.Sprintf("%d", mall.StoreCount) }</span> outlets · markets within this market</div>
+							} else {
+								<div class="text-slate-500 italic">{ mall.MarketType } · { mall.Metro }</div>
+							}
 						</div>
 
 						<div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
@@ -48,12 +75,84 @@ templ MallsComponent(data MallsViewData) {
 								<span>📍</span> <span>Map</span>
 							</a>
 							<a href={ templ.SafeURL(fmt.Sprintf("/malls/%s", mall.ID)) } class="font-bold text-emerald-600 hover:text-emerald-700">
-								Explore Tenants &rarr;
+								Explore markets &rarr;
 							</a>
 						</div>
 					</div>
 				}
 			</div>
 		</main>
+		<script>
+			(function () {
+				var R = 6371;
+				function hav(a, b, c, d) {
+					var t = Math.PI / 180;
+					var dLat = (c - a) * t, dLng = (d - b) * t;
+					var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+						Math.cos(a * t) * Math.cos(c * t) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+					return 2 * R * Math.asin(Math.sqrt(x));
+				}
+				function apply(lat, lng, label) {
+					var cards = document.querySelectorAll('.market-card');
+					var scored = [];
+					cards.forEach(function (el) {
+						var mLat = parseFloat(el.getAttribute('data-lat'));
+						var mLng = parseFloat(el.getAttribute('data-lng'));
+						if (!isFinite(mLat) || !isFinite(mLng) || (mLat === 0 && mLng === 0)) {
+							var d0 = el.querySelector('.market-distance');
+							if (d0) { d0.hidden = true; }
+							scored.push({ el: el, d: 1e9 });
+							return;
+						}
+						var km = hav(lat, lng, mLat, mLng);
+						var dEl = el.querySelector('.market-distance');
+						if (dEl) {
+							dEl.hidden = false;
+							dEl.textContent = (km < 10 ? km.toFixed(1) : Math.round(km)) + ' km from you';
+						}
+						scored.push({ el: el, d: km });
+					});
+					scored.sort(function (a, b) { return a.d - b.d; });
+					var grid = document.getElementById('markets-grid');
+					if (grid) {
+						scored.forEach(function (s) { grid.appendChild(s.el); });
+					}
+					try {
+						localStorage.setItem('shoppage_location', JSON.stringify({ lat: lat, lng: lng, label: label }));
+					} catch (e) {}
+					var bar = document.getElementById('location-label');
+					if (bar && label) { bar.textContent = label; }
+				}
+				window.shoppageApplyNearMe = apply;
+				var btn = document.getElementById('near-me-btn');
+				if (btn) {
+					btn.addEventListener('click', function () {
+						if (!navigator.geolocation) {
+							alert('Geolocation is not available in this browser.');
+							return;
+						}
+						btn.textContent = 'Locating…';
+						navigator.geolocation.getCurrentPosition(
+							function (pos) {
+								apply(pos.coords.latitude, pos.coords.longitude, 'Current location');
+								btn.textContent = '📍 Near me · updated';
+							},
+							function () {
+								btn.textContent = '📍 Near me';
+								alert('Could not read your location. Allow location access or pick a province.');
+							},
+							{ enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+						);
+					});
+				}
+				try {
+					var saved = JSON.parse(localStorage.getItem('shoppage_location') || 'null');
+					if (saved && typeof saved.lat === 'number') {
+						apply(saved.lat, saved.lng, saved.label || 'Near me');
+						if (btn) { btn.textContent = '📍 Near me · active'; }
+					}
+				} catch (e) {}
+			})();
+		</script>
 	}
 }

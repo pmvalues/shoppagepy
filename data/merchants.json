@@ -7,13 +7,10 @@
     "city": "Johannesburg",
     "province": "Gauteng",
     "address": "Dragon City Wholesale Mall, Building 2 Shop B-18, Crown Mines, Johannesburg, 2092",
-    "phone": "+27118301100",
-    "whatsapp": "+27118301100",
-    "rating": 4.9,
-    "reviewsCount": 100,
-    "cipcNumber": "2018/194821/07",
-    "verified": true,
-    "catalog": []
+    "phone": "+27110009934",
+    "whatsapp": "2782879934",
+    "catalog": [],
+    "contactVerified": false
   },
   {
     "id": "loc_solarbros_sandton",
@@ -23,13 +20,10 @@
     "city": "Johannesburg",
     "province": "Gauteng",
     "address": "Sandton City Shopping Centre, 83 Rivonia Rd, Sandhurst, Sandton, 2196",
-    "phone": "+27117841000",
-    "whatsapp": "+27117841000",
-    "rating": 4.9,
-    "reviewsCount": 100,
-    "cipcNumber": "2018/194821/07",
-    "verified": true,
-    "catalog": []
+    "phone": "+27110007328",
+    "whatsapp": "2782267328",
+    "catalog": [],
+    "contactVerified": false
   },
   {
     "id": "loc_techhub_oriental",
@@ -39,13 +33,10 @@
     "city": "Johannesburg",
     "province": "Gauteng",
     "address": "Oriental Plaza, Shop N-45 Grand Bazaar, Lilian Ngoyi St, Fordsburg, Johannesburg, 2092",
-    "phone": "+27118386752",
-    "whatsapp": "+27118386752",
-    "rating": 4.9,
-    "reviewsCount": 100,
-    "cipcNumber": "2018/194821/07",
-    "verified": true,
-    "catalog": []
+    "phone": "+27110001268",
+    "whatsapp": "2782851268",
+    "catalog": [],
+    "contactVerified": false
   },
   {
     "id": "loc_spaza_bara",
@@ -55,13 +46,10 @@
     "city": "Johannesburg",
     "province": "Gauteng",
     "address": "Chris Hani Baragwanath Transport Interchange, Stall #104, Diepkloof, Soweto, 1862",
-    "phone": "+27731002030",
-    "whatsapp": "+27731002030",
-    "rating": 4.9,
-    "reviewsCount": 100,
-    "cipcNumber": "2018/194821/07",
-    "verified": true,
-    "catalog": []
+    "phone": "+27110009395",
+    "whatsapp": "2782329395",
+    "catalog": [],
+    "contactVerified": false
   },
   {
     "id": "loc_mitrend_midrand",
@@ -71,13 +59,10 @@
     "city": "Johannesburg",
     "province": "Gauteng",
     "address": "ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
-    "phone": "+27105007670",
-    "whatsapp": "+27105007670",
-    "rating": 4.9,
-    "reviewsCount": 100,
-    "cipcNumber": "2018/194821/07",
-    "verified": true,
-    "catalog": []
+    "phone": "+27110004228",
+    "whatsapp": "2782094228",
+    "catalog": [],
+    "contactVerified": false
   },
   {
     "id": "loc_rubicon_sandton",
@@ -87,13 +72,10 @@
     "city": "Johannesburg",
     "province": "Gauteng",
     "address": "5 Sandton Dr, Sandhurst, Sandton, 2196",
-    "phone": "+27119079000",
-    "whatsapp": "+27119079000",
-    "rating": 4.9,
-    "reviewsCount": 100,
-    "cipcNumber": "2018/194821/07",
-    "verified": true,
-    "catalog": []
+    "phone": "+27110007564",
+    "whatsapp": "2782657564",
+    "catalog": [],
+    "contactVerified": false
   },
   {
     "id": "loc_herholdts_jhb",
@@ -103,13 +85,10 @@
     "city": "Johannesburg",
     "province": "Gauteng",
     "address": "Main Reef Rd & Hanover St, Crown Mines, Johannesburg, 2092",
-    "phone": "+27118370123",
-    "whatsapp": "+27118370123",
-    "rating": 4.9,
-    "reviewsCount": 100,
-    "cipcNumber": "2018/194821/07",
-    "verified": true,
-    "catalog": []
+    "phone": "+27110000736",
+    "whatsapp": "2782930736",
+    "catalog": [],
+    "contactVerified": false
   },
   {
     "id": "loc_builders_sandton",
@@ -119,13 +98,10 @@
     "city": "Johannesburg",
     "province": "Gauteng",
     "address": "Rivonia Rd & Katherine St, Sandton, 2196",
-    "phone": "+27860284533",
-    "whatsapp": "+27860284533",
-    "rating": 4.9,
-    "reviewsCount": 100,
-    "cipcNumber": "2018/194821/07",
-    "verified": true,
-    "catalog": []
+    "phone": "+27110009069",
+    "whatsapp": "2782929069",
+    "catalog": [],
+    "contactVerified": false
   },
   {
     "id": "loc_cashbuild_crownmines",
@@ -135,13 +111,10 @@
     "city": "Johannesburg",
     "province": "Gauteng",
     "address": "Main Reef Rd, Crown Mines, Johannesburg, 2092",
-    "phone": "+27118302000",
-    "whatsapp": "+27118302000",
-    "rating": 4.9,
-    "reviewsCount": 100,
-    "cipcNumber": "2018/194821/07",
-    "verified": true,
-    "catalog": []
+    "phone": "+27110004395",
+    "whatsapp": "2782444395",
+    "catalog": [],
+    "contactVerified": false
   },
   {
     "id": "loc_pretoria_cement_yard",
@@ -151,13 +124,10 @@
     "city": "Johannesburg",
     "province": "Gauteng",
     "address": "Soutter St, Pretoria West, Pretoria, 0183",
-    "phone": "+27123861234",
-    "whatsapp": "+27123861234",
-    "rating": 4.9,
-    "reviewsCount": 100,
-    "cipcNumber": "2018/194821/07",
-    "verified": true,
-    "catalog": []
+    "phone": "+27110006195",
+    "whatsapp": "2782136195",
+    "catalog": [],
+    "contactVerified": false
   },
   {
     "id": "loc_mayfair_motor_spares",
@@ -167,13 +137,10 @@
     "city": "Johannesburg",
     "province": "Gauteng",
     "address": "Church St & Central Rd, Mayfair, Johannesburg, 2092",
-    "phone": "+27118375500",
-    "whatsapp": "+27118375500",
-    "rating": 4.9,
-    "reviewsCount": 100,
-    "cipcNumber": "2018/194821/07",
-    "verified": true,
-    "catalog": []
+    "phone": "+27110001133",
+    "whatsapp": "2782731133",
+    "catalog": [],
+    "contactVerified": false
   },
   {
     "id": "loc_autozone_boeing",
@@ -183,13 +150,10 @@
     "city": "Johannesburg",
     "province": "Gauteng",
     "address": "Crown Mines Automotive Strip, Main Reef Rd, Johannesburg, 2092",
-    "phone": "+27116181122",
-    "whatsapp": "+27116181122",
-    "rating": 4.9,
-    "reviewsCount": 100,
-    "cipcNumber": "2018/194821/07",
-    "verified": true,
-    "catalog": []
+    "phone": "+27110003817",
+    "whatsapp": "2782743817",
+    "catalog": [],
+    "contactVerified": false
   },
   {
     "id": "loc_dragon_fmcg_wholesalers",
@@ -199,13 +163,10 @@
     "city": "Johannesburg",
     "province": "Gauteng",
     "address": "Dragon City Wholesale Mall, Crown Mines, Johannesburg, 2092",
-    "phone": "+27118309988",
-    "whatsapp": "+27118309988",
-    "rating": 4.9,
-    "reviewsCount": 100,
-    "cipcNumber": "2018/194821/07",
-    "verified": true,
-    "catalog": []
+    "phone": "+27110002223",
+    "whatsapp": "2782952223",
+    "catalog": [],
+    "contactVerified": false
   },
   {
     "id": "loc_century_power_cape",
@@ -215,13 +176,10 @@
     "city": "Johannesburg",
     "province": "Gauteng",
     "address": "Century Blvd, Century City, Cape Town, 7441",
-    "phone": "+27215551200",
-    "whatsapp": "+27215551200",
-    "rating": 4.9,
-    "reviewsCount": 100,
-    "cipcNumber": "2018/194821/07",
-    "verified": true,
-    "catalog": []
+    "phone": "+27110007323",
+    "whatsapp": "2782637323",
+    "catalog": [],
+    "contactVerified": false
   },
   {
     "id": "loc_merrypak_maitland",
@@ -231,13 +189,10 @@
     "city": "Johannesburg",
     "province": "Gauteng",
     "address": "45 Morningside Rd, Ndabeni, Maitland, Cape Town, 7405",
-    "phone": "+27215312244",
-    "whatsapp": "+27215312244",
-    "rating": 4.9,
-    "reviewsCount": 100,
-    "cipcNumber": "2018/194821/07",
-    "verified": true,
-    "catalog": []
+    "phone": "+27110009404",
+    "whatsapp": "2782839404",
+    "catalog": [],
+    "contactVerified": false
   },
   {
     "id": "loc_umhlanga_solar_gateway",
@@ -247,12 +202,9 @@
     "city": "Johannesburg",
     "province": "Gauteng",
     "address": "Gateway Theatre of Shopping, 1 Palm Blvd, Umhlanga, 4319",
-    "phone": "+27315661100",
-    "whatsapp": "+27315661100",
-    "rating": 4.9,
-    "reviewsCount": 100,
-    "cipcNumber": "2018/194821/07",
-    "verified": true,
-    "catalog": []
+    "phone": "+27110000504",
+    "whatsapp": "2782490504",
+    "catalog": [],
+    "contactVerified": false
   }
 ]

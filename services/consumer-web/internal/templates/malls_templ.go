@@ -46,7 +46,7 @@ func MallsComponent(data MallsViewData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8\"><div class=\"mb-8\"><div class=\"flex items-center gap-2 mb-1\"><span class=\"text-xs font-bold text-emerald-600 uppercase tracking-wider\">Nationwide Retail Infrastructure</span> <span class=\"px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8\"><div class=\"mb-8\"><div class=\"flex items-center gap-2 mb-1\"><span class=\"text-xs font-bold text-emerald-600 uppercase tracking-wider\">Markets across South Africa</span> <span class=\"px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -59,270 +59,337 @@ func MallsComponent(data MallsViewData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " / ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " indexed</span></div><h1 class=\"text-3xl font-display font-black text-slate-900 tracking-tight mb-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 14, Col: 175}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 16, Col: 120}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " Seeded</span></div><h1 class=\"text-3xl font-display font-black text-slate-900 tracking-tight mb-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " Markets &amp; Trade Hubs</h1><p class=\"text-sm text-slate-600\">Physical markets, malls, and wholesale districts — nested by province and metro. Join a virtual market (community group) to trade online, or visit a physical market in person.</p></div><!-- Market mode overview: virtual vs physical, with markets-in-markets --><div class=\"grid grid-cols-1 md:grid-cols-2 gap-4 mb-8\"><div class=\"rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5\"><div class=\"flex items-center gap-2 mb-1\"><span class=\"w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm font-black\">💬</span> <span class=\"text-[10px] font-black uppercase tracking-wider text-emerald-700\">Virtual Markets</span></div><h2 class=\"font-extrabold text-slate-900 text-base mb-1\">Facebook-group style communities</h2><p class=\"text-xs text-slate-600 leading-relaxed\">Buy and sell inside topic groups — solar, packaging, hardware. Nested groups live inside larger regional markets.</p><a href=\"/#guilds\" class=\"inline-flex mt-3 text-xs font-bold text-emerald-700 hover:text-emerald-800\">Browse virtual markets &rarr;</a></div><div class=\"rounded-2xl border border-slate-200 bg-white p-5\"><div class=\"flex items-center gap-2 mb-1\"><span class=\"w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center text-sm font-black\">🏬</span> <span class=\"text-[10px] font-black uppercase tracking-wider text-slate-500\">Physical Markets</span></div><h2 class=\"font-extrabold text-slate-900 text-base mb-1\">Malls, plazas &amp; wholesale nodes</h2><p class=\"text-xs text-slate-600 leading-relaxed\">Indexed centres you can visit — with markets nested inside (stalls, wings, and specialist floors).</p></div></div><div class=\"flex flex-wrap gap-2 mb-8\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalCount))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 16, Col: 120}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+			var templ_7745c5c3_Var5 = []any{"px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "" || data.Province == "all"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "" && data.Province != "all")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " South African Malls &amp; Retail Hubs</h1><p class=\"text-sm text-slate-600\">Every shopping centre, wholesale district, and regional mall indexed across all 9 provinces.</p></div><div class=\"flex flex-wrap gap-2 mb-8\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<a href=\"/malls?province=all\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var6 = []any{"px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "" || data.Province == "all"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "" && data.Province != "all")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var6...)
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var5).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<a href=\"/malls?province=all\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\">All Provinces (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var6).String())
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalCount))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 42, Col: 363}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, ")</a> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var8 = []any{"px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "Gauteng"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "Gauteng")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<a href=\"/malls?province=Gauteng\" class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var9 string
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var8).String())
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 1, Col: 0}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\">All Provinces (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\">Gauteng</a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalCount))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 21, Col: 363}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+			var templ_7745c5c3_Var10 = []any{"px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "Western Cape"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "Western Cape")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var10...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, ")</a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<a href=\"/malls?province=Western%20Cape\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var9 = []any{"px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "Gauteng"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "Gauteng")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var9...)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<a href=\"/malls?province=Gauteng\" class=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var9).String())
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var10).String())
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 1, Col: 0}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\">Gauteng</a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\">Western Cape</a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var11 = []any{"px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "Western Cape"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "Western Cape")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var11...)
+			var templ_7745c5c3_Var12 = []any{"px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "KwaZulu-Natal"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "KwaZulu-Natal")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var12...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<a href=\"/malls?province=Western%20Cape\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<a href=\"/malls?province=KwaZulu-Natal\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var12 string
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var11).String())
+			var templ_7745c5c3_Var13 string
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var12).String())
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 1, Col: 0}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\">Western Cape</a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\">KwaZulu-Natal</a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var13 = []any{"px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "KwaZulu-Natal"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "KwaZulu-Natal")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var13...)
+			var templ_7745c5c3_Var14 = []any{"px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "Eastern Cape"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "Eastern Cape")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var14...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<a href=\"/malls?province=KwaZulu-Natal\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<a href=\"/malls?province=Eastern%20Cape\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var14 string
-			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var13).String())
+			var templ_7745c5c3_Var15 string
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var14).String())
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 1, Col: 0}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\">KwaZulu-Natal</a> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var15 = []any{"px-4 py-1.5 rounded-full text-xs font-bold transition", templ.KV("bg-emerald-600 text-white", data.Province == "Eastern Cape"), templ.KV("bg-white border border-slate-200 text-slate-700 hover:bg-slate-50", data.Province != "Eastern Cape")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var15...)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<a href=\"/malls?province=Eastern%20Cape\" class=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var16 string
-			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var15).String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 1, Col: 0}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\">Eastern Cape</a></div><div class=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\">Eastern Cape</a> <button type=\"button\" id=\"near-me-btn\" class=\"px-4 py-1.5 rounded-full text-xs font-bold transition bg-slate-900 text-white hover:bg-slate-800 cursor-pointer\">📍 Near me</button></div><div class=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6\" id=\"markets-grid\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, mall := range data.Malls {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-md hover:border-emerald-500 transition flex flex-col\"><div class=\"flex items-start justify-between gap-2 mb-2\"><span class=\"px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-md hover:border-emerald-500 transition flex flex-col market-card\" data-lat=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var16 string
+				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%f", mall.Latitude))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 52, Col: 188}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" data-lng=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var17 string
-				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(mall.MarketType)
+				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%f", mall.Longitude))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 33, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 52, Col: 235}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</span> <span class=\"text-xs text-slate-400 font-medium\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" data-province=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var18 string
-				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(mall.Province)
+				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(mall.Province)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 35, Col: 71}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 52, Col: 267}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span></div><h3 class=\"font-extrabold text-slate-900 text-base mb-1\"><a href=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\"><div class=\"flex items-start justify-between gap-2 mb-2\"><span class=\"px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var19 templ.SafeURL
-				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/malls/%s", mall.ID)))
+				var templ_7745c5c3_Var19 string
+				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(mall.MarketType)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 38, Col: 65}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 55, Col: 25}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" class=\"hover:text-emerald-600 transition\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span> <span class=\"text-xs text-slate-400 font-medium\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var20 string
-				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(mall.Name)
+				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(mall.Province)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 38, Col: 121}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 57, Col: 71}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</a></h3><p class=\"text-xs text-slate-500 mb-4 line-clamp-1\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span></div><h3 class=\"font-extrabold text-slate-900 text-base mb-1\"><a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var21 string
-				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(mall.StreetAddress)
+				var templ_7745c5c3_Var21 templ.SafeURL
+				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/malls/%s", mall.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 40, Col: 78}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 60, Col: 65}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</p><div class=\"p-3 bg-slate-50 rounded-xl text-xs space-y-1 mb-4 mt-auto\"><div class=\"text-slate-600\"><span class=\"font-bold text-slate-900\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"hover:text-emerald-600 transition\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var22 string
-				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", mall.StoreCount))
+				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(mall.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 43, Col: 110}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 60, Col: 121}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</span> Verified Retail Outlets</div></div><div class=\"flex items-center justify-between pt-2 border-t border-slate-100 text-xs\"><a href=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</a></h3><p class=\"text-xs text-slate-500 mb-2 line-clamp-1\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var23 templ.SafeURL
-				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("https://maps.google.com/?q=%f,%f", mall.Latitude, mall.Longitude)))
+				var templ_7745c5c3_Var23 string
+				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(mall.StreetAddress)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 47, Col: 110}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 62, Col: 78}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" target=\"_blank\" class=\"text-slate-500 hover:text-emerald-600 font-medium flex items-center gap-1\"><span>📍</span> <span>Map</span></a> <a href=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</p><span class=\"text-[11px] text-emerald-700 font-semibold mb-3 market-distance\" hidden></span><div class=\"p-3 bg-slate-50 rounded-xl text-xs space-y-1 mb-4 mt-auto\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var24 templ.SafeURL
-				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/malls/%s", mall.ID)))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 50, Col: 65}
+				if mall.StoreCount > 0 {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"text-slate-600\"><span class=\"font-bold text-slate-900\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var24 string
+					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", mall.StoreCount))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 67, Col: 111}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</span> outlets · markets within this market</div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"text-slate-500 italic\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var25 string
+					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(mall.MarketType)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 69, Col: 60}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, " · ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var26 string
+					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(mall.Metro)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 69, Col: 78}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><div class=\"flex items-center justify-between pt-2 border-t border-slate-100 text-xs\"><a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" class=\"font-bold text-emerald-600 hover:text-emerald-700\">Explore Tenants &rarr;</a></div></div>")
+				var templ_7745c5c3_Var27 templ.SafeURL
+				templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("https://maps.google.com/?q=%f,%f", mall.Latitude, mall.Longitude)))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 74, Col: 110}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" target=\"_blank\" class=\"text-slate-500 hover:text-emerald-600 font-medium flex items-center gap-1\"><span>📍</span> <span>Map</span></a> <a href=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var28 templ.SafeURL
+				templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/malls/%s", mall.ID)))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/malls.templ`, Line: 77, Col: 65}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" class=\"font-bold text-emerald-600 hover:text-emerald-700\">Explore markets &rarr;</a></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div></main>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div></main><script>\n\t\t\t(function () {\n\t\t\t\tvar R = 6371;\n\t\t\t\tfunction hav(a, b, c, d) {\n\t\t\t\t\tvar t = Math.PI / 180;\n\t\t\t\t\tvar dLat = (c - a) * t, dLng = (d - b) * t;\n\t\t\t\t\tvar x = Math.sin(dLat / 2) * Math.sin(dLat / 2) +\n\t\t\t\t\t\tMath.cos(a * t) * Math.cos(c * t) * Math.sin(dLng / 2) * Math.sin(dLng / 2);\n\t\t\t\t\treturn 2 * R * Math.asin(Math.sqrt(x));\n\t\t\t\t}\n\t\t\t\tfunction apply(lat, lng, label) {\n\t\t\t\t\tvar cards = document.querySelectorAll('.market-card');\n\t\t\t\t\tvar scored = [];\n\t\t\t\t\tcards.forEach(function (el) {\n\t\t\t\t\t\tvar mLat = parseFloat(el.getAttribute('data-lat'));\n\t\t\t\t\t\tvar mLng = parseFloat(el.getAttribute('data-lng'));\n\t\t\t\t\t\tif (!isFinite(mLat) || !isFinite(mLng) || (mLat === 0 && mLng === 0)) {\n\t\t\t\t\t\t\tvar d0 = el.querySelector('.market-distance');\n\t\t\t\t\t\t\tif (d0) { d0.hidden = true; }\n\t\t\t\t\t\t\tscored.push({ el: el, d: 1e9 });\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tvar km = hav(lat, lng, mLat, mLng);\n\t\t\t\t\t\tvar dEl = el.querySelector('.market-distance');\n\t\t\t\t\t\tif (dEl) {\n\t\t\t\t\t\t\tdEl.hidden = false;\n\t\t\t\t\t\t\tdEl.textContent = (km < 10 ? km.toFixed(1) : Math.round(km)) + ' km from you';\n\t\t\t\t\t\t}\n\t\t\t\t\t\tscored.push({ el: el, d: km });\n\t\t\t\t\t});\n\t\t\t\t\tscored.sort(function (a, b) { return a.d - b.d; });\n\t\t\t\t\tvar grid = document.getElementById('markets-grid');\n\t\t\t\t\tif (grid) {\n\t\t\t\t\t\tscored.forEach(function (s) { grid.appendChild(s.el); });\n\t\t\t\t\t}\n\t\t\t\t\ttry {\n\t\t\t\t\t\tlocalStorage.setItem('shoppage_location', JSON.stringify({ lat: lat, lng: lng, label: label }));\n\t\t\t\t\t} catch (e) {}\n\t\t\t\t\tvar bar = document.getElementById('location-label');\n\t\t\t\t\tif (bar && label) { bar.textContent = label; }\n\t\t\t\t}\n\t\t\t\twindow.shoppageApplyNearMe = apply;\n\t\t\t\tvar btn = document.getElementById('near-me-btn');\n\t\t\t\tif (btn) {\n\t\t\t\t\tbtn.addEventListener('click', function () {\n\t\t\t\t\t\tif (!navigator.geolocation) {\n\t\t\t\t\t\t\talert('Geolocation is not available in this browser.');\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tbtn.textContent = 'Locating…';\n\t\t\t\t\t\tnavigator.geolocation.getCurrentPosition(\n\t\t\t\t\t\t\tfunction (pos) {\n\t\t\t\t\t\t\t\tapply(pos.coords.latitude, pos.coords.longitude, 'Current location');\n\t\t\t\t\t\t\t\tbtn.textContent = '📍 Near me · updated';\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\tfunction () {\n\t\t\t\t\t\t\t\tbtn.textContent = '📍 Near me';\n\t\t\t\t\t\t\t\talert('Could not read your location. Allow location access or pick a province.');\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t{ enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }\n\t\t\t\t\t\t);\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t\ttry {\n\t\t\t\t\tvar saved = JSON.parse(localStorage.getItem('shoppage_location') || 'null');\n\t\t\t\t\tif (saved && typeof saved.lat === 'number') {\n\t\t\t\t\t\tapply(saved.lat, saved.lng, saved.label || 'Near me');\n\t\t\t\t\t\tif (btn) { btn.textContent = '📍 Near me · active'; }\n\t\t\t\t\t}\n\t\t\t\t} catch (e) {}\n\t\t\t})();\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

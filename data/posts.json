@@ -5,8 +5,6 @@
     "handle": "@sunpowersolutionsc",
     "av": "g1",
     "ini": "SU",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "PRICE SWEEP",
       "type": "sweep"
@@ -22,17 +20,12 @@
       "price": "R 19 850",
       "old": "R 21 500",
       "off": "-8%",
-      "note": "Verified trade counter · Dragon City Wholesale Mall, Building 2 Shop B-18, Crown Mines, Johannesburg, 2092",
+      "note": "trade counter · Dragon City Wholesale Mall, Building 2 Shop B-18, Crown Mines, Johannesburg, 2092",
       "href": "/p/var_deye_5kw_hybrid"
     },
     "image": "https://images.unsplash.com/photo-1508873696983-2df57046475a?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 4,
-      "reposts": 8,
-      "likes": 66,
-      "views": "2.1K"
-    },
-    "whatsapp": "+27118301100"
+    "whatsapp": "2782319882",
+    "verifiedByShoppage": false
   },
   {
     "id": "poll_solar_inverters_2026",
@@ -40,8 +33,6 @@
     "handle": "@gauteng_solar_guild",
     "av": "g2",
     "ini": "GS",
-    "verified": true,
-    "time": "24m",
     "badge": {
       "label": "COMMUNITY POLL",
       "type": "sweep"
@@ -68,12 +59,7 @@
       ],
       "voted": null
     },
-    "stats": {
-      "replies": 48,
-      "reposts": 26,
-      "likes": 215,
-      "views": "8.4K"
-    }
+    "verifiedByShoppage": false
   },
   {
     "id": "var_sunsynk_8kw_hybrid",
@@ -81,8 +67,6 @@
     "handle": "@sunpowersolutionsc",
     "av": "g2",
     "ini": "SU",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -96,17 +80,12 @@
     "product": {
       "name": "Sunsynk 8kW 48V Single Phase Hybrid Inverter",
       "price": "R 1 500",
-      "note": "Verified trade counter · Dragon City Wholesale Mall, Building 2 Shop B-18, Crown Mines, Johannesburg, 2092",
+      "note": "trade counter · Dragon City Wholesale Mall, Building 2 Shop B-18, Crown Mines, Johannesburg, 2092",
       "href": "/p/var_sunsynk_8kw_hybrid"
     },
     "image": "https://images.unsplash.com/photo-1548611716-ad381335b2e0?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 11,
-      "reposts": 19,
-      "likes": 103,
-      "views": "3.6K"
-    },
-    "whatsapp": "+27118301100"
+    "whatsapp": "2782755516",
+    "verifiedByShoppage": false
   },
   {
     "id": "deal_buco_cement_clearance",
@@ -114,8 +93,6 @@
     "handle": "@buco_midrand",
     "av": "g1",
     "ini": "BC",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "🔥 RETAILER CLEARANCE",
       "type": "drop"
@@ -135,13 +112,8 @@
       "href": "/p/prod_cement_ppc"
     },
     "image": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&auto=format&fit=crop&q=65",
-    "stats": {
-      "replies": 19,
-      "reposts": 41,
-      "likes": 180,
-      "views": "6.2K"
-    },
-    "whatsapp": "27118392000"
+    "whatsapp": "2782485557",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_dyness_5kwh_battery",
@@ -149,8 +121,6 @@
     "handle": "@sunpowersolutionsc",
     "av": "g3",
     "ini": "SU",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -164,17 +134,12 @@
     "product": {
       "name": "Dyness BX51100 5.12kWh 48V Lithium-ion Battery",
       "price": "R 1 500",
-      "note": "Verified trade counter · Dragon City Wholesale Mall, Building 2 Shop B-18, Crown Mines, Johannesburg, 2092",
+      "note": "trade counter · Dragon City Wholesale Mall, Building 2 Shop B-18, Crown Mines, Johannesburg, 2092",
       "href": "/p/var_dyness_5kwh_battery"
     },
     "image": "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 18,
-      "reposts": 30,
-      "likes": 140,
-      "views": "5.0K"
-    },
-    "whatsapp": "+27118301100"
+    "whatsapp": "2782758534",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_samsung_a16_128gb",
@@ -182,8 +147,6 @@
     "handle": "@techhubcellularele",
     "av": "g4",
     "ini": "TE",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -197,17 +160,12 @@
     "product": {
       "name": "Samsung Galaxy A16 128GB LTE Dual SIM (Black)",
       "price": "R 2 799",
-      "note": "Verified trade counter · Oriental Plaza, Shop N-45 Grand Bazaar, Lilian Ngoyi St, Fordsburg, Johannesburg, 2092",
+      "note": "trade counter · Oriental Plaza, Shop N-45 Grand Bazaar, Lilian Ngoyi St, Fordsburg, Johannesburg, 2092",
       "href": "/p/var_samsung_a16_128gb"
     },
     "image": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 3,
-      "reposts": 41,
-      "likes": 177,
-      "views": "6.4K"
-    },
-    "whatsapp": "+27118386752"
+    "whatsapp": "2782816955",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_tesla_cybertruck_ref",
@@ -215,8 +173,6 @@
     "handle": "@sunpowersolutionsc",
     "av": "g5",
     "ini": "SU",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -230,17 +186,12 @@
     "product": {
       "name": "Tesla Cybertruck Foundation Series Tri-Motor AWD",
       "price": "R 1 500",
-      "note": "Verified trade counter · Dragon City Wholesale Mall, Building 2 Shop B-18, Crown Mines, Johannesburg, 2092",
+      "note": "trade counter · Dragon City Wholesale Mall, Building 2 Shop B-18, Crown Mines, Johannesburg, 2092",
       "href": "/p/var_tesla_cybertruck_ref"
     },
     "image": "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 10,
-      "reposts": 52,
-      "likes": 214,
-      "views": "7.8K"
-    },
-    "whatsapp": "+27118301100"
+    "whatsapp": "2782509587",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_ja_solar_550w",
@@ -248,8 +199,6 @@
     "handle": "@sunpowersolutionsc",
     "av": "g6",
     "ini": "SU",
-    "verified": true,
-    "time": "2h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -263,17 +212,12 @@
     "product": {
       "name": "JA Solar 550W Mono MBB Percium Solar Panel (JAM72S30-550/MR)",
       "price": "R 1 850",
-      "note": "Verified trade counter · Dragon City Wholesale Mall, Building 2 Shop B-18, Crown Mines, Johannesburg, 2092",
+      "note": "trade counter · Dragon City Wholesale Mall, Building 2 Shop B-18, Crown Mines, Johannesburg, 2092",
       "href": "/p/var_ja_solar_550w"
     },
     "image": "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 17,
-      "reposts": 8,
-      "likes": 251,
-      "views": "9.3K"
-    },
-    "whatsapp": "+27118301100"
+    "whatsapp": "2782288982",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_freedom_won_10kwh",
@@ -281,8 +225,6 @@
     "handle": "@solarbrossandtonci",
     "av": "g7",
     "ini": "SO",
-    "verified": true,
-    "time": "3h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -296,17 +238,12 @@
     "product": {
       "name": "Freedom Won LiTE Home 10/8 10kWh 52V LiFePO4 Lithium Battery",
       "price": "R 46 900",
-      "note": "Verified trade counter · Sandton City Shopping Centre, 83 Rivonia Rd, Sandhurst, Sandton, 2196",
+      "note": "trade counter · Sandton City Shopping Centre, 83 Rivonia Rd, Sandhurst, Sandton, 2196",
       "href": "/p/var_freedom_won_10kwh"
     },
     "image": "https://images.unsplash.com/photo-1558441719-aa34bbe5f347?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 2,
-      "reposts": 19,
-      "likes": 288,
-      "views": "10.7K"
-    },
-    "whatsapp": "+27117841000"
+    "whatsapp": "2782164139",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_ppc_surebuild_50kg",
@@ -314,8 +251,6 @@
     "handle": "@builderswarehouses",
     "av": "g8",
     "ini": "BU",
-    "verified": true,
-    "time": "5h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -329,17 +264,12 @@
     "product": {
       "name": "PPC Surebuild 42.5N General Purpose Cement 50kg",
       "price": "R 115",
-      "note": "Verified trade counter · Rivonia Rd & Katherine St, Sandton, 2196",
+      "note": "trade counter · Rivonia Rd & Katherine St, Sandton, 2196",
       "href": "/p/var_ppc_surebuild_50kg"
     },
     "image": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 9,
-      "reposts": 30,
-      "likes": 325,
-      "views": "12.1K"
-    },
-    "whatsapp": "+27860284533"
+    "whatsapp": "2782174321",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_samsung_s24_ultra_256gb",
@@ -347,8 +277,6 @@
     "handle": "@techhubcellularele",
     "av": "g1",
     "ini": "TE",
-    "verified": true,
-    "time": "8h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -362,17 +290,12 @@
     "product": {
       "name": "Samsung Galaxy S24 Ultra 256GB 5G (Titanium Black)",
       "price": "R 23 999",
-      "note": "Verified trade counter · Oriental Plaza, Shop N-45 Grand Bazaar, Lilian Ngoyi St, Fordsburg, Johannesburg, 2092",
+      "note": "trade counter · Oriental Plaza, Shop N-45 Grand Bazaar, Lilian Ngoyi St, Fordsburg, Johannesburg, 2092",
       "href": "/p/var_samsung_s24_ultra_256gb"
     },
     "image": "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 16,
-      "reposts": 41,
-      "likes": 362,
-      "views": "13.5K"
-    },
-    "whatsapp": "+27118386752"
+    "whatsapp": "2782939191",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_apple_iphone_15_128gb",
@@ -380,8 +303,6 @@
     "handle": "@techhubcellularele",
     "av": "g2",
     "ini": "TE",
-    "verified": true,
-    "time": "1d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -395,17 +316,12 @@
     "product": {
       "name": "Apple iPhone 15 128GB (Black)",
       "price": "R 17 499",
-      "note": "Verified trade counter · Oriental Plaza, Shop N-45 Grand Bazaar, Lilian Ngoyi St, Fordsburg, Johannesburg, 2092",
+      "note": "trade counter · Oriental Plaza, Shop N-45 Grand Bazaar, Lilian Ngoyi St, Fordsburg, Johannesburg, 2092",
       "href": "/p/var_apple_iphone_15_128gb"
     },
     "image": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 1,
-      "reposts": 52,
-      "likes": 399,
-      "views": "14.9K"
-    },
-    "whatsapp": "+27118386752"
+    "whatsapp": "2782254202",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_deye_8kw_hybrid",
@@ -413,8 +329,6 @@
     "handle": "@rubiconelectricals",
     "av": "g3",
     "ini": "RU",
-    "verified": true,
-    "time": "2d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -428,17 +342,12 @@
     "product": {
       "name": "Deye 8kW Single Phase Hybrid Inverter (SUN-8K-SG01LP1-EU)",
       "price": "R 26 999",
-      "note": "Verified trade counter · 5 Sandton Dr, Sandhurst, Sandton, 2196",
+      "note": "trade counter · 5 Sandton Dr, Sandhurst, Sandton, 2196",
       "href": "/p/var_deye_8kw_hybrid"
     },
     "image": "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 8,
-      "reposts": 8,
-      "likes": 56,
-      "views": "0.3K"
-    },
-    "whatsapp": "+27119079000"
+    "whatsapp": "2782104907",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_sunsynk_5kw_hybrid",
@@ -446,8 +355,6 @@
     "handle": "@herholdtsrenewable",
     "av": "g4",
     "ini": "HE",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -461,17 +368,12 @@
     "product": {
       "name": "Sunsynk 5.5kW Single Phase Smart Hybrid Inverter",
       "price": "R 18 450",
-      "note": "Verified trade counter · Main Reef Rd & Hanover St, Crown Mines, Johannesburg, 2092",
+      "note": "trade counter · Main Reef Rd & Hanover St, Crown Mines, Johannesburg, 2092",
       "href": "/p/var_sunsynk_5kw_hybrid"
     },
     "image": "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 15,
-      "reposts": 19,
-      "likes": 93,
-      "views": "1.8K"
-    },
-    "whatsapp": "+27118370123"
+    "whatsapp": "2782755804",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_freedomwon_home_5_4",
@@ -479,8 +381,6 @@
     "handle": "@solarbrossandtonci",
     "av": "g5",
     "ini": "SO",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -494,17 +394,12 @@
     "product": {
       "name": "Freedom Won LiTE Home 5/4 LiFePO4 5.2kWh Lithium Battery",
       "price": "R 23 800",
-      "note": "Verified trade counter · Sandton City Shopping Centre, 83 Rivonia Rd, Sandhurst, Sandton, 2196",
+      "note": "trade counter · Sandton City Shopping Centre, 83 Rivonia Rd, Sandhurst, Sandton, 2196",
       "href": "/p/var_freedomwon_home_5_4"
     },
     "image": "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 22,
-      "reposts": 30,
-      "likes": 130,
-      "views": "3.2K"
-    },
-    "whatsapp": "+27117841000"
+    "whatsapp": "2782639936",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_hubble_am2_5kwh",
@@ -512,8 +407,6 @@
     "handle": "@centurypowersoluti",
     "av": "g6",
     "ini": "CE",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -527,17 +420,12 @@
     "product": {
       "name": "Hubble AM-2 5.12kWh 51.2V Lithium-ion Battery",
       "price": "R 19 950",
-      "note": "Verified trade counter · Century Blvd, Century City, Cape Town, 7441",
+      "note": "trade counter · Century Blvd, Century City, Cape Town, 7441",
       "href": "/p/var_hubble_am2_5kwh"
     },
     "image": "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 7,
-      "reposts": 41,
-      "likes": 167,
-      "views": "4.6K"
-    },
-    "whatsapp": "+27215551200"
+    "whatsapp": "2782916347",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_canadian_solar_650w",
@@ -545,8 +433,6 @@
     "handle": "@sunpowersolutionsc",
     "av": "g7",
     "ini": "SU",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -560,17 +446,12 @@
     "product": {
       "name": "Canadian Solar 650W HiKu7 Mono PERC Solar Panel",
       "price": "R 1 895",
-      "note": "Verified trade counter · Dragon City Wholesale Mall, Building 2 Shop B-18, Crown Mines, Johannesburg, 2092",
+      "note": "trade counter · Dragon City Wholesale Mall, Building 2 Shop B-18, Crown Mines, Johannesburg, 2092",
       "href": "/p/var_canadian_solar_650w"
     },
     "image": "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 14,
-      "reposts": 52,
-      "likes": 204,
-      "views": "6.0K"
-    },
-    "whatsapp": "+27118301100"
+    "whatsapp": "2782991933",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_afrisam_cement_50kg",
@@ -578,8 +459,6 @@
     "handle": "@cashbuildcrownmine",
     "av": "g8",
     "ini": "CA",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -593,17 +472,12 @@
     "product": {
       "name": "AfriSam All Purpose Cement 50kg Bag (CEM II 32.5R)",
       "price": "R 96",
-      "note": "Verified trade counter · Main Reef Rd, Crown Mines, Johannesburg, 2092",
+      "note": "trade counter · Main Reef Rd, Crown Mines, Johannesburg, 2092",
       "href": "/p/var_afrisam_cement_50kg"
     },
     "image": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 21,
-      "reposts": 8,
-      "likes": 241,
-      "views": "7.5K"
-    },
-    "whatsapp": "+27118302000"
+    "whatsapp": "2782448184",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_corobrik_red_terracotta",
@@ -611,8 +485,6 @@
     "handle": "@pretoriawesthardwa",
     "av": "g1",
     "ini": "PR",
-    "verified": true,
-    "time": "2h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -626,17 +498,12 @@
     "product": {
       "name": "Corobrik Red Terracotta Travertine Face Brick (Pallet of 500)",
       "price": "R 2 850",
-      "note": "Verified trade counter · Soutter St, Pretoria West, Pretoria, 0183",
+      "note": "trade counter · Soutter St, Pretoria West, Pretoria, 0183",
       "href": "/p/var_corobrik_red_terracotta"
     },
     "image": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 6,
-      "reposts": 19,
-      "likes": 278,
-      "views": "8.9K"
-    },
-    "whatsapp": "+27123861234"
+    "whatsapp": "2782216538",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_bosch_gws_grinder",
@@ -644,8 +511,6 @@
     "handle": "@builderswarehouses",
     "av": "g2",
     "ini": "BU",
-    "verified": true,
-    "time": "3h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -659,17 +524,12 @@
     "product": {
       "name": "Bosch Professional GWS 750-115 Angle Grinder 115mm 750W",
       "price": "R 899",
-      "note": "Verified trade counter · Rivonia Rd & Katherine St, Sandton, 2196",
+      "note": "trade counter · Rivonia Rd & Katherine St, Sandton, 2196",
       "href": "/p/var_bosch_gws_grinder"
     },
     "image": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 13,
-      "reposts": 30,
-      "likes": 315,
-      "views": "10.3K"
-    },
-    "whatsapp": "+27860284533"
+    "whatsapp": "2782951803",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_redmi_13_128gb",
@@ -677,8 +537,6 @@
     "handle": "@techhubcellularele",
     "av": "g3",
     "ini": "TE",
-    "verified": true,
-    "time": "5h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -692,17 +550,12 @@
     "product": {
       "name": "Xiaomi Redmi 13 128GB Midnight Black (ICASA Approved)",
       "price": "R 2 499",
-      "note": "Verified trade counter · Oriental Plaza, Shop N-45 Grand Bazaar, Lilian Ngoyi St, Fordsburg, Johannesburg, 2092",
+      "note": "trade counter · Oriental Plaza, Shop N-45 Grand Bazaar, Lilian Ngoyi St, Fordsburg, Johannesburg, 2092",
       "href": "/p/var_redmi_13_128gb"
     },
     "image": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 20,
-      "reposts": 41,
-      "likes": 352,
-      "views": "11.7K"
-    },
-    "whatsapp": "+27118386752"
+    "whatsapp": "2782583345",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_apple_iphone_13_128gb",
@@ -710,8 +563,6 @@
     "handle": "@techhubcellularele",
     "av": "g4",
     "ini": "TE",
-    "verified": true,
-    "time": "8h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -725,17 +576,12 @@
     "product": {
       "name": "Apple iPhone 13 128GB Midnight (Official ICASA ZA Stock)",
       "price": "R 11 999",
-      "note": "Verified trade counter · Oriental Plaza, Shop N-45 Grand Bazaar, Lilian Ngoyi St, Fordsburg, Johannesburg, 2092",
+      "note": "trade counter · Oriental Plaza, Shop N-45 Grand Bazaar, Lilian Ngoyi St, Fordsburg, Johannesburg, 2092",
       "href": "/p/var_apple_iphone_13_128gb"
     },
     "image": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 5,
-      "reposts": 52,
-      "likes": 389,
-      "views": "13.1K"
-    },
-    "whatsapp": "+27118386752"
+    "whatsapp": "2782940789",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_polo_vivo_brakes",
@@ -743,8 +589,6 @@
     "handle": "@mayfairmotorspares",
     "av": "g5",
     "ini": "MA",
-    "verified": true,
-    "time": "1d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -758,17 +602,12 @@
     "product": {
       "name": "VW Polo Vivo 1.4 / 1.6 Front Brake Discs & Ferodo Ceramic Pads Kit",
       "price": "R 1 150",
-      "note": "Verified trade counter · Church St & Central Rd, Mayfair, Johannesburg, 2092",
+      "note": "trade counter · Church St & Central Rd, Mayfair, Johannesburg, 2092",
       "href": "/p/var_polo_vivo_brakes"
     },
     "image": "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 12,
-      "reposts": 8,
-      "likes": 46,
-      "views": "14.6K"
-    },
-    "whatsapp": "+27118375500"
+    "whatsapp": "2782143057",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_willard_652_battery",
@@ -776,8 +615,6 @@
     "handle": "@autozonecommercial",
     "av": "g6",
     "ini": "AU",
-    "verified": true,
-    "time": "2d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -791,17 +628,12 @@
     "product": {
       "name": "Willard 652 12V 60Ah Maintenance-Free Car Starter Battery",
       "price": "R 1 450",
-      "note": "Verified trade counter · Crown Mines Automotive Strip, Main Reef Rd, Johannesburg, 2092",
+      "note": "trade counter · Crown Mines Automotive Strip, Main Reef Rd, Johannesburg, 2092",
       "href": "/p/var_willard_652_battery"
     },
     "image": "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 19,
-      "reposts": 19,
-      "likes": 83,
-      "views": "16.0K"
-    },
-    "whatsapp": "+27116181122"
+    "whatsapp": "2782419744",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_golden_cloud_flour_10kg",
@@ -809,8 +641,6 @@
     "handle": "@dragoncityfmcgbulk",
     "av": "g7",
     "ini": "DR",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -824,17 +654,12 @@
     "product": {
       "name": "Golden Cloud Cake Wheat Flour 10kg (Bale of 5 Bags)",
       "price": "R 485",
-      "note": "Verified trade counter · Dragon City Wholesale Mall, Crown Mines, Johannesburg, 2092",
+      "note": "trade counter · Dragon City Wholesale Mall, Crown Mines, Johannesburg, 2092",
       "href": "/p/var_golden_cloud_flour_10kg"
     },
     "image": "https://images.unsplash.com/photo-1508873696983-2df57046475a?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 4,
-      "reposts": 30,
-      "likes": 120,
-      "views": "1.4K"
-    },
-    "whatsapp": "+27118309988"
+    "whatsapp": "2782662349",
+    "verifiedByShoppage": false
   },
   {
     "id": "var_white_star_super_maize_10kg",
@@ -842,8 +667,6 @@
     "handle": "@dragoncityfmcgbulk",
     "av": "g8",
     "ini": "DR",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -857,17 +680,12 @@
     "product": {
       "name": "White Star Super Maize Meal 10kg (Bale of 5 Bags)",
       "price": "R 395",
-      "note": "Verified trade counter · Dragon City Wholesale Mall, Crown Mines, Johannesburg, 2092",
+      "note": "trade counter · Dragon City Wholesale Mall, Crown Mines, Johannesburg, 2092",
       "href": "/p/var_white_star_super_maize_10kg"
     },
     "image": "https://images.unsplash.com/photo-1508873696983-2df57046475a?auto=format&fit=crop&w=400&q=65",
-    "stats": {
-      "replies": 11,
-      "reposts": 41,
-      "likes": 157,
-      "views": "2.8K"
-    },
-    "whatsapp": "+27118309988"
+    "whatsapp": "2782457827",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8610",
@@ -875,8 +693,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -890,17 +706,12 @@
     "product": {
       "name": "Measuring Teaspoon 1ml",
       "price": "R 0,5",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8610"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/06/Stirring-spoon4-222x300_PhotoGrid-removebg-preview-2.png",
-    "stats": {
-      "replies": 18,
-      "reposts": 52,
-      "likes": 194,
-      "views": "4.2K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782757030",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8609",
@@ -908,8 +719,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -923,17 +732,12 @@
     "product": {
       "name": "101mm Silicone Clip-On-Lid (LLDPE Material)",
       "price": "R 1,5",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8609"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/12/99mm-Snap-On-Cap-500x500-2.jpg",
-    "stats": {
-      "replies": 3,
-      "reposts": 8,
-      "likes": 231,
-      "views": "5.7K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782592464",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8608",
@@ -941,8 +745,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -956,17 +758,12 @@
     "product": {
       "name": "86mm Silicone Clip-On-Lid (LLDPE Material)",
       "price": "R 1,58",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8608"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/12/99mm-Snap-On-Cap-500x500-2.jpg",
-    "stats": {
-      "replies": 10,
-      "reposts": 19,
-      "likes": 268,
-      "views": "7.1K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782406216",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8607",
@@ -974,8 +771,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "2h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -989,17 +784,12 @@
     "product": {
       "name": "76mm Silicone Clip-On-Lid (LLDPE Material)",
       "price": "R 1,09",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8607"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/12/99mm-Snap-On-Cap-500x500-2.jpg",
-    "stats": {
-      "replies": 17,
-      "reposts": 30,
-      "likes": 305,
-      "views": "8.5K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782681517",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8606",
@@ -1007,8 +797,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "3h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1022,17 +810,12 @@
     "product": {
       "name": "76mm Silicone Clip-On-Lid",
       "price": "R 1,09",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8606"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/12/99mm-Snap-On-Cap-500x500-2.jpg",
-    "stats": {
-      "replies": 2,
-      "reposts": 41,
-      "likes": 342,
-      "views": "9.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782500247",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8605",
@@ -1040,8 +823,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "5h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1055,17 +836,12 @@
     "product": {
       "name": "54mm Silicone Clip-On-Lid",
       "price": "R 0,9",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8605"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/12/99mm-Snap-On-Cap-500x500-2.jpg",
-    "stats": {
-      "replies": 9,
-      "reposts": 52,
-      "likes": 379,
-      "views": "11.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782595384",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8603",
@@ -1073,8 +849,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "8h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1088,17 +862,12 @@
     "product": {
       "name": "Measuring Spoon 2ml",
       "price": "R 0,57",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8603"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/12/Stiring-spoon2-207x300_PhotoGrid-removebg-preview.png",
-    "stats": {
-      "replies": 16,
-      "reposts": 8,
-      "likes": 36,
-      "views": "12.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782452419",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8257",
@@ -1106,8 +875,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "1d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1121,17 +888,12 @@
     "product": {
       "name": "Knife Sharpening Stone",
       "price": "R 31,53",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8257"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/knife-sharpening-stone.jpg",
-    "stats": {
-      "replies": 1,
-      "reposts": 19,
-      "likes": 73,
-      "views": "14.2K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782002775",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8255",
@@ -1139,8 +901,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "2d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1154,17 +914,12 @@
     "product": {
       "name": "Meat Cleaver Red - 200mm",
       "price": "R 488,95",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8255"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/fanel-meat-cleaver-red.jpg",
-    "stats": {
-      "replies": 8,
-      "reposts": 30,
-      "likes": 110,
-      "views": "15.6K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782302033",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8253",
@@ -1172,8 +927,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1187,17 +940,12 @@
     "product": {
       "name": "Oyster Knife Straight Blade",
       "price": "R 36,97",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8253"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/oyster-knife-straight-blade.png",
-    "stats": {
-      "replies": 15,
-      "reposts": 41,
-      "likes": 147,
-      "views": "1.0K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782013398",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8143",
@@ -1205,8 +953,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1220,17 +966,12 @@
     "product": {
       "name": "Poultry Shears 250mm",
       "price": "R 124,67",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8143"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/poultry-shears.png",
-    "stats": {
-      "replies": 22,
-      "reposts": 52,
-      "likes": 184,
-      "views": "2.4K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782569283",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8141",
@@ -1238,8 +979,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1253,17 +992,12 @@
     "product": {
       "name": "Grater Fine Stainless Steel -Handheld 390mm",
       "price": "R 66,83",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8141"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/fine-grater.png",
-    "stats": {
-      "replies": 7,
-      "reposts": 8,
-      "likes": 221,
-      "views": "3.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782990025",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8139",
@@ -1271,8 +1005,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1286,17 +1018,12 @@
     "product": {
       "name": "Grater Stainless Steel- Handheld",
       "price": "R 33,8",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8139"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/hand-grater.jpg",
-    "stats": {
-      "replies": 14,
-      "reposts": 19,
-      "likes": 258,
-      "views": "5.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782263218",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8137",
@@ -1304,8 +1031,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1319,17 +1044,12 @@
     "product": {
       "name": "Grater Heavy Duty Stainless Steel Tapered- 6 Sided",
       "price": "R 78,98",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8137"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/grater-6-sided.jpg",
-    "stats": {
-      "replies": 21,
-      "reposts": 30,
-      "likes": 295,
-      "views": "6.7K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782794426",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8135",
@@ -1337,8 +1057,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "2h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1352,17 +1070,12 @@
     "product": {
       "name": "Grater Stainless Steel",
       "price": "R 71,69",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8135"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/grater-4-sided.png",
-    "stats": {
-      "replies": 6,
-      "reposts": 41,
-      "likes": 332,
-      "views": "8.1K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782332047",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8133",
@@ -1370,8 +1083,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "3h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1385,17 +1096,12 @@
     "product": {
       "name": "French Fry Scoop Stainless Steel",
       "price": "R 132,06",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8133"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/chip-bagging-scoop.png",
-    "stats": {
-      "replies": 13,
-      "reposts": 52,
-      "likes": 369,
-      "views": "9.5K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782412756",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8130",
@@ -1403,8 +1109,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "5h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1418,17 +1122,12 @@
     "product": {
       "name": "TAN PLACEMAT 30X41CM",
       "price": "R 39,25",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8130"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/tan-placemat.png",
-    "stats": {
-      "replies": 20,
-      "reposts": 8,
-      "likes": 26,
-      "views": "10.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782862554",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8127",
@@ -1436,8 +1135,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "8h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1451,17 +1148,12 @@
     "product": {
       "name": "FINE WEAVE WALNUT BROWN PLACEMAT 30X41CM",
       "price": "R 30,88",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8127"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/walnut-placemat.png",
-    "stats": {
-      "replies": 5,
-      "reposts": 19,
-      "likes": 63,
-      "views": "12.4K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782157580",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8124",
@@ -1469,8 +1161,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "1d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1484,17 +1174,12 @@
     "product": {
       "name": "Fine Weave Spark Silver Placemat 30X41 cm",
       "price": "R 30,88",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8124"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/spark-silver-placemat.jpg",
-    "stats": {
-      "replies": 12,
-      "reposts": 30,
-      "likes": 100,
-      "views": "13.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782720840",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8121",
@@ -1502,8 +1187,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "2d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1517,17 +1200,12 @@
     "product": {
       "name": "FINE WEAVE SANDSTONE PLACEMAT 30X41CM",
       "price": "R 30,88",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8121"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/fine-weave-sandstone-placemat.png",
-    "stats": {
-      "replies": 19,
-      "reposts": 41,
-      "likes": 137,
-      "views": "15.2K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782258328",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8118",
@@ -1535,8 +1213,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1550,17 +1226,12 @@
     "product": {
       "name": "FINE WEAVE SAHARA BROWN PLACEMAT 30X41CM",
       "price": "R 30,88",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8118"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/sahara-brown-placemat.png",
-    "stats": {
-      "replies": 4,
-      "reposts": 52,
-      "likes": 174,
-      "views": "0.6K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782443908",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8115",
@@ -1568,8 +1239,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1583,17 +1252,12 @@
     "product": {
       "name": "FINE WEAVE OCEAN MIST PLACEMAT 30X41CM",
       "price": "R 29,93",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8115"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/mist-placemat.png",
-    "stats": {
-      "replies": 11,
-      "reposts": 8,
-      "likes": 211,
-      "views": "2.0K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782310588",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8112",
@@ -1601,8 +1265,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1616,17 +1278,12 @@
     "product": {
       "name": "Fine Weave Ocean Blue Placemat 30X41 cm",
       "price": "R 29,93",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8112"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/ocean-blue-placemat.jpg",
-    "stats": {
-      "replies": 18,
-      "reposts": 19,
-      "likes": 248,
-      "views": "3.5K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782729824",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8109",
@@ -1634,8 +1291,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1649,17 +1304,12 @@
     "product": {
       "name": "Fine Weave Leaf Green Placemat 30X41 cm",
       "price": "R 29,93",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8109"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/leaf-green-placemat.jpg",
-    "stats": {
-      "replies": 3,
-      "reposts": 30,
-      "likes": 285,
-      "views": "4.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782842697",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8106",
@@ -1667,8 +1317,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1682,17 +1330,12 @@
     "product": {
       "name": "Fine Weave Grey Placemat 30X41 cm",
       "price": "R 29,93",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8106"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/grey-placemat.jpg",
-    "stats": {
-      "replies": 10,
-      "reposts": 41,
-      "likes": 322,
-      "views": "6.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782061303",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8103",
@@ -1700,8 +1343,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "2h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1715,17 +1356,12 @@
     "product": {
       "name": "Fine Weave Charcoal Placemat 30X41 cm",
       "price": "R 29,93",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8103"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/charcoal-placemat.jpg",
-    "stats": {
-      "replies": 17,
-      "reposts": 52,
-      "likes": 359,
-      "views": "7.7K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782935986",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8100",
@@ -1733,8 +1369,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "3h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1748,17 +1382,12 @@
     "product": {
       "name": "CHOCOLATE PLACEMAT 30X41CM",
       "price": "R 39,24",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8100"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/chocolate-placemats.png",
-    "stats": {
-      "replies": 2,
-      "reposts": 8,
-      "likes": 396,
-      "views": "9.2K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782557203",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8097",
@@ -1766,8 +1395,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "5h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1781,17 +1408,12 @@
     "product": {
       "name": "Broad Weave Brich Beige Placemat 30X41 cm",
       "price": "R 29,93",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8097"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/brich-biege-placemat.jpg",
-    "stats": {
-      "replies": 9,
-      "reposts": 19,
-      "likes": 53,
-      "views": "10.6K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782192603",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8094",
@@ -1799,8 +1421,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "8h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1814,17 +1434,12 @@
     "product": {
       "name": "Broad Weave Beige Placemat 30X41 cm",
       "price": "R 29,93",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8094"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/broad-weave-biege-placemat.jpg",
-    "stats": {
-      "replies": 16,
-      "reposts": 30,
-      "likes": 90,
-      "views": "12.0K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782300469",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8091",
@@ -1832,8 +1447,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "1d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1847,17 +1460,12 @@
     "product": {
       "name": "Griddle Scrapper 10cm",
       "price": "R 54,68",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8091"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/SCRAPPER-FANEL.jpg",
-    "stats": {
-      "replies": 1,
-      "reposts": 41,
-      "likes": 127,
-      "views": "13.4K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782658358",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8089",
@@ -1865,8 +1473,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "2d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1880,17 +1486,12 @@
     "product": {
       "name": "Hamburger Turner Bevelled Edge 12cm",
       "price": "R 76,48",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8089"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/BURGER-TURNER-BEVELLED.jpg",
-    "stats": {
-      "replies": 8,
-      "reposts": 52,
-      "likes": 164,
-      "views": "14.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782500930",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8087",
@@ -1898,8 +1499,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1913,17 +1512,12 @@
     "product": {
       "name": "Hamburger Turner Perforated PVC Handle - 20cm",
       "price": "R 94,77",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8087"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/SMA0200219.jpg",
-    "stats": {
-      "replies": 15,
-      "reposts": 8,
-      "likes": 201,
-      "views": "0.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782205008",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8085",
@@ -1931,8 +1525,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1946,17 +1538,12 @@
     "product": {
       "name": "Hamburger Turner Solid PVC Handle",
       "price": "R 89,91",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8085"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/SKSSTURNER200.webp",
-    "stats": {
-      "replies": 22,
-      "reposts": 19,
-      "likes": 238,
-      "views": "1.7K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782622307",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8083",
@@ -1964,8 +1551,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -1979,17 +1564,12 @@
     "product": {
       "name": "Egg Lifter Stainless Steel 35cm",
       "price": "R 34,86",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8083"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/EGG-LIFTER.jpg",
-    "stats": {
-      "replies": 7,
-      "reposts": 30,
-      "likes": 275,
-      "views": "3.1K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782065168",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8081",
@@ -1997,8 +1577,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2012,17 +1590,12 @@
     "product": {
       "name": "Slotted Turner 30cm",
       "price": "R 30,31",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8081"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/slotted-turner.jpg",
-    "stats": {
-      "replies": 14,
-      "reposts": 41,
-      "likes": 312,
-      "views": "4.5K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782190464",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8079",
@@ -2030,8 +1603,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2045,17 +1616,12 @@
     "product": {
       "name": "Fish Turner PVC Handle 7,5cm",
       "price": "R 63,39",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8079"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/Fish-turner.jpg",
-    "stats": {
-      "replies": 21,
-      "reposts": 52,
-      "likes": 349,
-      "views": "5.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782599242",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8077",
@@ -2063,8 +1629,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "2h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2078,17 +1642,12 @@
     "product": {
       "name": "Basting Spoon Perforated 33cm",
       "price": "R 30,38",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8077"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/BASTING-SPPON-PVC.jpg",
-    "stats": {
-      "replies": 6,
-      "reposts": 8,
-      "likes": 386,
-      "views": "7.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782963309",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8075",
@@ -2096,8 +1655,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "3h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2111,17 +1668,12 @@
     "product": {
       "name": "Basting Spoon Solid 33cm",
       "price": "R 29,16",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8075"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/BASTING-SPOON-PVC.jpg",
-    "stats": {
-      "replies": 13,
-      "reposts": 19,
-      "likes": 43,
-      "views": "8.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782792756",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8074",
@@ -2129,8 +1681,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "5h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2144,17 +1694,12 @@
     "product": {
       "name": "Basting Spoon Solid 33cm",
       "price": "R 31,59",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8074"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/BASTING-SPOON-SOLID.jpg",
-    "stats": {
-      "replies": 20,
-      "reposts": 30,
-      "likes": 80,
-      "views": "10.2K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782096484",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8073",
@@ -2162,8 +1707,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "8h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2177,17 +1720,12 @@
     "product": {
       "name": "Basting Spoon Solid 38cm",
       "price": "R 36,45",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8073"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/BASTING-SPOON-SOLID.jpg",
-    "stats": {
-      "replies": 5,
-      "reposts": 41,
-      "likes": 117,
-      "views": "11.6K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782180107",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8071",
@@ -2195,8 +1733,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "1d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2210,17 +1746,12 @@
     "product": {
       "name": "Basting Spoon Solid 45cm",
       "price": "R 47,54",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8071"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/BASTING-SPOON-SOLID.jpg",
-    "stats": {
-      "replies": 12,
-      "reposts": 52,
-      "likes": 154,
-      "views": "13.0K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782769143",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8070",
@@ -2228,8 +1759,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "2d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2243,17 +1772,12 @@
     "product": {
       "name": "Basting Spoon Perforated 33cm",
       "price": "R 34,02",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8070"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/BASTING-SPOON.jpg",
-    "stats": {
-      "replies": 19,
-      "reposts": 8,
-      "likes": 191,
-      "views": "14.4K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782157870",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8068",
@@ -2261,8 +1785,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2276,17 +1798,12 @@
     "product": {
       "name": "Basting Spoon Perforated 40cm",
       "price": "R 30,38",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8068"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/BASTING-SPOON.jpg",
-    "stats": {
-      "replies": 4,
-      "reposts": 19,
-      "likes": 228,
-      "views": "15.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782337911",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8067",
@@ -2294,8 +1811,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2309,17 +1824,12 @@
     "product": {
       "name": "Basting Spoon Perforated 46cm",
       "price": "R 48,6",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8067"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/BASTING-SPOON.jpg",
-    "stats": {
-      "replies": 11,
-      "reposts": 30,
-      "likes": 265,
-      "views": "1.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782427457",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8066",
@@ -2327,8 +1837,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2342,17 +1850,12 @@
     "product": {
       "name": "Stainless Steel Ladle - 12oz / 340ml",
       "price": "R 64,33",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8066"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/05/Ladle-60z.jpg",
-    "stats": {
-      "replies": 18,
-      "reposts": 41,
-      "likes": 302,
-      "views": "2.7K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782910976",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8065",
@@ -2360,8 +1863,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2375,17 +1876,12 @@
     "product": {
       "name": "Stainless Steel Ladle - 8oz / 225ml",
       "price": "R 49,75",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8065"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/05/Ladle-60z.jpg",
-    "stats": {
-      "replies": 3,
-      "reposts": 52,
-      "likes": 339,
-      "views": "4.1K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782054530",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8064",
@@ -2393,8 +1889,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2408,17 +1902,12 @@
     "product": {
       "name": "Stainless Steel Ladle - 2oz / 59ml",
       "price": "R 40,03",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8064"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/05/Ladle-60z.jpg",
-    "stats": {
-      "replies": 10,
-      "reposts": 8,
-      "likes": 376,
-      "views": "5.5K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782727878",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8063",
@@ -2426,8 +1915,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "2h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2441,17 +1928,12 @@
     "product": {
       "name": "Stainless Steel Ladle - 2oz / 59ml",
       "price": "R 25,52",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8063"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/05/Ladle-60z.jpg",
-    "stats": {
-      "replies": 17,
-      "reposts": 19,
-      "likes": 33,
-      "views": "7.0K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782965598",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_8062",
@@ -2459,8 +1941,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "3h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2474,17 +1954,12 @@
     "product": {
       "name": "Stainless Steel Ladle - 1oz / 30ml",
       "price": "R 21,02",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_8062"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/05/Ladle-60z.jpg",
-    "stats": {
-      "replies": 2,
-      "reposts": 30,
-      "likes": 70,
-      "views": "8.4K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782405238",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7062",
@@ -2492,8 +1967,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "5h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2507,17 +1980,12 @@
     "product": {
       "name": "Butchers Knife Red 250mm",
       "price": "R 291,6",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7062"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/fanel-butchers-yellow.jpg",
-    "stats": {
-      "replies": 9,
-      "reposts": 41,
-      "likes": 107,
-      "views": "9.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782217644",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7060",
@@ -2525,8 +1993,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "8h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2540,17 +2006,12 @@
     "product": {
       "name": "Butchers Knife 250mm White",
       "price": "R 295,83",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7060"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/fanel-butchers-knife-white.jpg",
-    "stats": {
-      "replies": 16,
-      "reposts": 52,
-      "likes": 144,
-      "views": "11.2K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782576419",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7058",
@@ -2558,8 +2019,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "1d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2573,17 +2032,12 @@
     "product": {
       "name": "Butchers Knife Black 250mm",
       "price": "R 281,88",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7058"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/fanel-butchers-knife-black.jpg",
-    "stats": {
-      "replies": 1,
-      "reposts": 8,
-      "likes": 181,
-      "views": "12.7K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782152832",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7056",
@@ -2591,8 +2045,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "2d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2606,17 +2058,12 @@
     "product": {
       "name": "Arcos Paring Knife Serrated 100mm- Multi colours",
       "price": "R 75",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7056"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/Arcos-paring-knife-serrated.jpg",
-    "stats": {
-      "replies": 8,
-      "reposts": 19,
-      "likes": 218,
-      "views": "14.1K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782667526",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7054",
@@ -2624,8 +2071,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2639,17 +2084,12 @@
     "product": {
       "name": "Paring Knife 100mm Serrated - Black",
       "price": "R 42,04",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7054"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/fanel-paring-knife-serrated.jpg",
-    "stats": {
-      "replies": 15,
-      "reposts": 30,
-      "likes": 255,
-      "views": "15.5K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782562895",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7052",
@@ -2657,8 +2097,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2672,17 +2110,12 @@
     "product": {
       "name": "Paring Knife 100mm - Black",
       "price": "R 42,04",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7052"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/FANEL-PARING-KNIFE-BLACK.jpg",
-    "stats": {
-      "replies": 22,
-      "reposts": 41,
-      "likes": 292,
-      "views": "0.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782504843",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7049",
@@ -2690,8 +2123,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2705,17 +2136,12 @@
     "product": {
       "name": "Arcos paring knife 100mm- Multi Colours",
       "price": "R 75",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7049"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/arcos-paring-knife-100mm-2.png",
-    "stats": {
-      "replies": 7,
-      "reposts": 52,
-      "likes": 329,
-      "views": "2.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782135875",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7046",
@@ -2723,8 +2149,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2738,17 +2162,12 @@
     "product": {
       "name": "Arcos Skinning Knife 190mm",
       "price": "R 400",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7046"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/Arcos-skinning-8.295325_1-1.jpg",
-    "stats": {
-      "replies": 14,
-      "reposts": 8,
-      "likes": 366,
-      "views": "3.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782020148",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7044",
@@ -2756,8 +2175,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2771,17 +2188,12 @@
     "product": {
       "name": "Arcos Skinning Knife 160mm",
       "price": "R 381,25",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7044"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/Arcos-skinning-8.295325_1.jpg",
-    "stats": {
-      "replies": 21,
-      "reposts": 19,
-      "likes": 403,
-      "views": "5.2K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782549460",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7042",
@@ -2789,8 +2201,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "2h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2804,17 +2214,12 @@
     "product": {
       "name": "Arcos Boning Knife Narrow 160mm",
       "price": "R 336,25",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7042"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/Arcos-Boning-Knife-15cm-Narrow.png",
-    "stats": {
-      "replies": 6,
-      "reposts": 30,
-      "likes": 60,
-      "views": "6.6K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782012022",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7040",
@@ -2822,8 +2227,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "3h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2837,17 +2240,12 @@
     "product": {
       "name": "Arcos Boning Knife Broad 160mm",
       "price": "R 336,25",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7040"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/Arcos-boning-knife-broad.jpg",
-    "stats": {
-      "replies": 13,
-      "reposts": 41,
-      "likes": 97,
-      "views": "8.0K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782966093",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7038",
@@ -2855,8 +2253,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "5h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2870,17 +2266,12 @@
     "product": {
       "name": "Boning Knife Narrow 150mm - Black",
       "price": "R 180,97",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7038"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/FANEL-boning-knife-NARROW.jpg",
-    "stats": {
-      "replies": 20,
-      "reposts": 52,
-      "likes": 134,
-      "views": "9.4K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782094980",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7036",
@@ -2888,8 +2279,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "8h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2903,17 +2292,12 @@
     "product": {
       "name": "Boning Knife Wide 150mm - Red",
       "price": "R 274,4",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7036"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/FANEL-BONING-BROAD.jpg",
-    "stats": {
-      "replies": 5,
-      "reposts": 8,
-      "likes": 171,
-      "views": "10.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782426278",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7033",
@@ -2921,8 +2305,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "1d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2936,17 +2318,12 @@
     "product": {
       "name": "Boning Knife Wide 150mm - Yellow",
       "price": "R 264,13",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7033"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/fanel-boning-yellow.jpg",
-    "stats": {
-      "replies": 12,
-      "reposts": 19,
-      "likes": 208,
-      "views": "12.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782334082",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7024",
@@ -2954,8 +2331,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "2d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -2969,17 +2344,12 @@
     "product": {
       "name": "Boning Knife Wide 150mm - Black",
       "price": "R 281,98",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7024"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/fanel-boning-broad-black.jpg",
-    "stats": {
-      "replies": 19,
-      "reposts": 30,
-      "likes": 245,
-      "views": "13.7K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782081522",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7022",
@@ -2987,8 +2357,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3002,17 +2370,12 @@
     "product": {
       "name": "Boning Knife Wide 150mm - White",
       "price": "R 227,16",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7022"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/fanel-boning-narrow-150mm.jpg",
-    "stats": {
-      "replies": 4,
-      "reposts": 41,
-      "likes": 282,
-      "views": "15.1K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782551402",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7021",
@@ -3020,8 +2383,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3035,17 +2396,12 @@
     "product": {
       "name": "Arcos Chef's Knife Wide 300mm",
       "price": "R 562,5",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7021"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/Arcos-Cooks-Knive.jpg",
-    "stats": {
-      "replies": 11,
-      "reposts": 52,
-      "likes": 319,
-      "views": "0.5K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782536646",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7020",
@@ -3053,8 +2409,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3068,17 +2422,12 @@
     "product": {
       "name": "Arcos Chef's Knife Wide 250mm",
       "price": "R 500",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7020"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/Arcos-Cooks-Knive.jpg",
-    "stats": {
-      "replies": 18,
-      "reposts": 8,
-      "likes": 356,
-      "views": "1.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782660346",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7019",
@@ -3086,8 +2435,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3101,17 +2448,12 @@
     "product": {
       "name": "Arcos Chef's Knife Wide 200mm",
       "price": "R 456,25",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7019"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/Arcos-Cooks-Knive.jpg",
-    "stats": {
-      "replies": 3,
-      "reposts": 19,
-      "likes": 393,
-      "views": "3.4K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782617537",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7017",
@@ -3119,8 +2461,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3134,17 +2474,12 @@
     "product": {
       "name": "Cooks Knife White 250mm",
       "price": "R 327,52",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7017"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/cooks-knife-white.jpg",
-    "stats": {
-      "replies": 10,
-      "reposts": 30,
-      "likes": 50,
-      "views": "4.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782342561",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7011",
@@ -3152,8 +2487,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "2h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3167,17 +2500,12 @@
     "product": {
       "name": "Cooks Knife Black 250mm",
       "price": "R 288",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7011"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/fanel-cooks-knife.jpg",
-    "stats": {
-      "replies": 17,
-      "reposts": 41,
-      "likes": 87,
-      "views": "6.2K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782478612",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7009",
@@ -3185,8 +2513,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "3h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3200,17 +2526,12 @@
     "product": {
       "name": "Cooks Knife Black 200mm",
       "price": "R 265,6",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7009"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/fanel-cooks-knife.jpg",
-    "stats": {
-      "replies": 2,
-      "reposts": 52,
-      "likes": 124,
-      "views": "7.6K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782401710",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7008",
@@ -3218,8 +2539,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "5h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3233,17 +2552,12 @@
     "product": {
       "name": "Arcos Butchers Knife 300mm - Black",
       "price": "R 582",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7008"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/ARCOS-BUTCHER-KNIFE-BLACK-30CM-1.png",
-    "stats": {
-      "replies": 9,
-      "reposts": 8,
-      "likes": 161,
-      "views": "9.1K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782550415",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7005",
@@ -3251,8 +2565,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "8h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3266,17 +2578,12 @@
     "product": {
       "name": "Arcos Butchers Knife 250mm - Black",
       "price": "R 506,25",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7005"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/ARCOS-BUTCHER-KNIFE-BLACK-30CM-1.png",
-    "stats": {
-      "replies": 16,
-      "reposts": 19,
-      "likes": 198,
-      "views": "10.5K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782572251",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7003",
@@ -3284,8 +2591,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "1d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3299,17 +2604,12 @@
     "product": {
       "name": "Arcos Butchers Knife 200mm - Black",
       "price": "R 421,88",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7003"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/ARCOS-BUTCHER-KNIFE-BLACK-30CM.png",
-    "stats": {
-      "replies": 1,
-      "reposts": 30,
-      "likes": 235,
-      "views": "11.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782768671",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_7001",
@@ -3317,8 +2617,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "2d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3332,17 +2630,12 @@
     "product": {
       "name": "Butchers Knife 300mm",
       "price": "R 426,83",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_7001"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/butchers-knife-300mm.jpg",
-    "stats": {
-      "replies": 8,
-      "reposts": 41,
-      "likes": 272,
-      "views": "13.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782284996",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_6574",
@@ -3350,8 +2643,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3365,17 +2656,12 @@
     "product": {
       "name": "Arcos Cooks Knife 250mm",
       "price": "R 480",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_6574"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/Arcos-Cooks-Knife-250mm-Blue-Arcos.jpg",
-    "stats": {
-      "replies": 15,
-      "reposts": 52,
-      "likes": 309,
-      "views": "14.7K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782990118",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_6572",
@@ -3383,8 +2669,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3398,17 +2682,12 @@
     "product": {
       "name": "Arcos Cooks Knife 200mm",
       "price": "R 460",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_6572"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/Arcos-Cooks-Knife.png",
-    "stats": {
-      "replies": 22,
-      "reposts": 8,
-      "likes": 346,
-      "views": "0.1K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782735540",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4763",
@@ -3416,8 +2695,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3431,17 +2708,12 @@
     "product": {
       "name": "Stainless Steel Mixing Paddle - 600mm",
       "price": "R 122,27",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4763"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/mixing-paddle.jpg",
-    "stats": {
-      "replies": 7,
-      "reposts": 19,
-      "likes": 383,
-      "views": "1.6K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782210783",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_6541",
@@ -3449,8 +2721,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3464,17 +2734,12 @@
     "product": {
       "name": "Cereal Dispenser Sunnex - Three Part",
       "price": "R 4 900",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_6541"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/Sunnex-3-x-4lt-dispenser-revolving.jpg",
-    "stats": {
-      "replies": 14,
-      "reposts": 30,
-      "likes": 40,
-      "views": "3.0K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782138324",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_6539",
@@ -3482,8 +2747,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3497,17 +2760,12 @@
     "product": {
       "name": "Cereal Dispenser Sunnex - Two Part",
       "price": "R 3 300",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_6539"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/Cereal-Dispenser-4lt-x-2.jpg",
-    "stats": {
-      "replies": 21,
-      "reposts": 41,
-      "likes": 77,
-      "views": "4.4K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782490070",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_6537",
@@ -3515,8 +2773,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "2h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3530,17 +2786,12 @@
     "product": {
       "name": "Juice Dispenser Bay Shape - Sunnex",
       "price": "R 4 950",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_6537"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/Sunnex-Juice-Dispenser-5lt-x-2.jpg",
-    "stats": {
-      "replies": 6,
-      "reposts": 52,
-      "likes": 114,
-      "views": "5.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782422009",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_6535",
@@ -3548,8 +2799,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "3h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3563,17 +2812,12 @@
     "product": {
       "name": "Juice Dispenser Sunnex 8Lt",
       "price": "R 3 400",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_6535"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/08/Sunnex-Juice-Dispenser-8Lt.jpg",
-    "stats": {
-      "replies": 13,
-      "reposts": 8,
-      "likes": 151,
-      "views": "7.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782071163",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4761",
@@ -3581,8 +2825,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "5h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3596,17 +2838,12 @@
     "product": {
       "name": "Stainless Steel Mixing Paddle - 1050mm",
       "price": "R 401,47",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4761"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/mixing-paddle.jpg",
-    "stats": {
-      "replies": 20,
-      "reposts": 19,
-      "likes": 188,
-      "views": "8.7K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782760150",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4757",
@@ -3614,8 +2851,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "8h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3629,17 +2864,12 @@
     "product": {
       "name": "Aluminium Ice Scoop - 210mm (Commercial Kitchen)",
       "price": "R 47,43",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4757"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/Ice-Scoop-aluminium-250mm.jpg",
-    "stats": {
-      "replies": 5,
-      "reposts": 30,
-      "likes": 225,
-      "views": "10.1K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782044682",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4756",
@@ -3647,8 +2877,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "1d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3662,17 +2890,12 @@
     "product": {
       "name": "Aluminium Ice Scoop - 250mm (Commercial Kitchen)",
       "price": "R 89,8",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4756"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/Ice-Scoop-aluminium-250mm.jpg",
-    "stats": {
-      "replies": 12,
-      "reposts": 41,
-      "likes": 262,
-      "views": "11.5K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782964421",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4754",
@@ -3680,8 +2903,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "2d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3695,17 +2916,12 @@
     "product": {
       "name": "Aluminium Ice Scoop - 350mm (Commercial Kitchen)",
       "price": "R 142,94",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4754"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/Ice-Scoop-aluminium-400mm.jpg",
-    "stats": {
-      "replies": 19,
-      "reposts": 52,
-      "likes": 299,
-      "views": "12.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782044546",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4750",
@@ -3713,8 +2929,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3728,17 +2942,12 @@
     "product": {
       "name": "Aluminium Ice Scoop - 270mm (Commercial Kitchen)",
       "price": "R 100,37",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4750"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/Ice-Scoop-aluminium-250mm.jpg",
-    "stats": {
-      "replies": 4,
-      "reposts": 8,
-      "likes": 336,
-      "views": "14.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782852921",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4749",
@@ -3746,8 +2955,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3761,17 +2968,12 @@
     "product": {
       "name": "Aluminium Ice Scoop - 220mm (Commercial Kitchen)",
       "price": "R 57,06",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4749"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/Ice-Scoop-aluminium-250mm.jpg",
-    "stats": {
-      "replies": 11,
-      "reposts": 19,
-      "likes": 373,
-      "views": "15.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782631888",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4747",
@@ -3779,8 +2981,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3794,17 +2994,12 @@
     "product": {
       "name": "Aluminium Ice Scoop - 400mm (Commercial Kitchen)",
       "price": "R 332,8",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4747"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/Ice-Scoop-aluminium-400mm.jpg",
-    "stats": {
-      "replies": 18,
-      "reposts": 30,
-      "likes": 30,
-      "views": "1.2K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782940557",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4745",
@@ -3812,8 +3007,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3827,17 +3020,12 @@
     "product": {
       "name": "Aluminium Ice Scoop - 165mm (Commercial Kitchen)",
       "price": "R 41,2",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4745"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/Ice-Scoop-aluminium-250mm.jpg",
-    "stats": {
-      "replies": 3,
-      "reposts": 41,
-      "likes": 67,
-      "views": "2.6K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782951359",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4704",
@@ -3845,8 +3033,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3860,17 +3046,12 @@
     "product": {
       "name": "Stainless Steel Round Bowl - 390mm",
       "price": "R 206,25",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4704"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/04/MBS0400-1.jpg",
-    "stats": {
-      "replies": 10,
-      "reposts": 52,
-      "likes": 104,
-      "views": "4.0K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782115603",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4703",
@@ -3878,8 +3059,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "2h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3893,17 +3072,12 @@
     "product": {
       "name": "Stainless Steel Round Bowl - 335mm",
       "price": "R 125",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4703"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/04/MBS0400-1.jpg",
-    "stats": {
-      "replies": 17,
-      "reposts": 8,
-      "likes": 141,
-      "views": "5.5K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782496108",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4702",
@@ -3911,8 +3085,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "3h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3926,17 +3098,12 @@
     "product": {
       "name": "Stainless Steel Round Bowl - 290mm",
       "price": "R 100",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4702"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/04/MBS0400-1.jpg",
-    "stats": {
-      "replies": 2,
-      "reposts": 19,
-      "likes": 178,
-      "views": "6.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782765851",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4701",
@@ -3944,8 +3111,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "5h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3959,17 +3124,12 @@
     "product": {
       "name": "Stainless Steel Round Bowl - 245mm",
       "price": "R 68,75",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4701"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/04/MBS0400-1.jpg",
-    "stats": {
-      "replies": 9,
-      "reposts": 30,
-      "likes": 215,
-      "views": "8.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782040306",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4700",
@@ -3977,8 +3137,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "8h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -3992,17 +3150,12 @@
     "product": {
       "name": "Stainless Steel Round Bowl - 195mm",
       "price": "R 54",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4700"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/04/MBS0400-1.jpg",
-    "stats": {
-      "replies": 16,
-      "reposts": 41,
-      "likes": 252,
-      "views": "9.7K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782889608",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4699",
@@ -4010,8 +3163,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "1d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4025,17 +3176,12 @@
     "product": {
       "name": "Stainless Steel Round Bowl - 155mm",
       "price": "R 42,41",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4699"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/04/MBS0400-1.jpg",
-    "stats": {
-      "replies": 1,
-      "reposts": 52,
-      "likes": 289,
-      "views": "11.1K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782901175",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4698",
@@ -4043,8 +3189,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "2d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4058,17 +3202,12 @@
     "product": {
       "name": "Stainless Steel Mixing Bowl - 480x170mm",
       "price": "R 690",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4698"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/09/Steel-King-Tapered-Bowl-26cm.jpg",
-    "stats": {
-      "replies": 8,
-      "reposts": 8,
-      "likes": 326,
-      "views": "12.6K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782299092",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4697",
@@ -4076,8 +3215,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4091,17 +3228,12 @@
     "product": {
       "name": "Stainless Steel Mixing Bowl - 450x150mm",
       "price": "R 585",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4697"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/09/Steel-King-Tapered-Bowl-26cm.jpg",
-    "stats": {
-      "replies": 15,
-      "reposts": 19,
-      "likes": 363,
-      "views": "14.0K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782012348",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4696",
@@ -4109,8 +3241,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4124,17 +3254,12 @@
     "product": {
       "name": "Stainless Steel Mixing Bowl - 390x105mm",
       "price": "R 438,45",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4696"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/09/Steel-King-Tapered-Bowl-26cm.jpg",
-    "stats": {
-      "replies": 22,
-      "reposts": 30,
-      "likes": 400,
-      "views": "15.4K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782206397",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4695",
@@ -4142,8 +3267,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4157,17 +3280,12 @@
     "product": {
       "name": "Stainless Steel Medical Bowl - 340x135mm",
       "price": "R 402,5",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4695"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/09/Steel-King-Tapered-Bowl-26cm.jpg",
-    "stats": {
-      "replies": 7,
-      "reposts": 41,
-      "likes": 57,
-      "views": "0.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782465716",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4694",
@@ -4175,8 +3293,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4190,17 +3306,12 @@
     "product": {
       "name": "Stainless Steel Tapered Mixing Bowl - 310x130mm",
       "price": "R 280,32",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4694"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/09/Steel-King-Tapered-Bowl-26cm.jpg",
-    "stats": {
-      "replies": 14,
-      "reposts": 52,
-      "likes": 94,
-      "views": "2.2K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782000230",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4693",
@@ -4208,8 +3319,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4223,17 +3332,12 @@
     "product": {
       "name": "Stainless Steel Tapered Mixing Bowl - 285x110mm",
       "price": "R 252",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4693"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/09/Steel-King-Tapered-Bowl-26cm.jpg",
-    "stats": {
-      "replies": 21,
-      "reposts": 8,
-      "likes": 131,
-      "views": "3.6K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782470346",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4692",
@@ -4241,8 +3345,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "2h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4256,17 +3358,12 @@
     "product": {
       "name": "Stainless Steel Tapered Mixing Bowl - 265x90mm",
       "price": "R 222",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4692"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/09/Steel-King-Tapered-Bowl-26cm.jpg",
-    "stats": {
-      "replies": 6,
-      "reposts": 19,
-      "likes": 168,
-      "views": "5.1K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782435890",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4463",
@@ -4274,8 +3371,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "3h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4289,17 +3384,12 @@
     "product": {
       "name": "HACCP Cutting Board Stand - Chrome (Commercial Kitchen)",
       "price": "R 554",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4463"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/05/CUTTING-BOARD-STAND-CHROME.jpg",
-    "stats": {
-      "replies": 13,
-      "reposts": 30,
-      "likes": 205,
-      "views": "6.5K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782583088",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4462",
@@ -4307,8 +3397,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "5h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4322,17 +3410,12 @@
     "product": {
       "name": "HACCP Colour-Coded Cutting Board - PE Purple (Commercial Kitchen)",
       "price": "R 215",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4462"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/05/Cutting-Board-Polyethylene.jpg",
-    "stats": {
-      "replies": 20,
-      "reposts": 41,
-      "likes": 242,
-      "views": "7.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782256570",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4460",
@@ -4340,8 +3423,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "8h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4355,17 +3436,12 @@
     "product": {
       "name": "HACCP Colour-Coded Cutting Board - PE White 500x380mm (Commercial Kitchen)",
       "price": "R 215",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4460"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/05/cutting-board-white.png",
-    "stats": {
-      "replies": 5,
-      "reposts": 52,
-      "likes": 279,
-      "views": "9.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782625759",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4458",
@@ -4373,8 +3449,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "1d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4388,17 +3462,12 @@
     "product": {
       "name": "HACCP Colour-Coded Cutting Board - PE Brown (Commercial Kitchen)",
       "price": "R 215",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4458"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/05/Cutting-Board-Polyethylene.jpg",
-    "stats": {
-      "replies": 12,
-      "reposts": 8,
-      "likes": 316,
-      "views": "10.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782447605",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4457",
@@ -4406,8 +3475,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "2d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4421,17 +3488,12 @@
     "product": {
       "name": "HACCP Colour-Coded Cutting Board - PE Green (Commercial Kitchen)",
       "price": "R 215",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4457"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/05/Cutting-Board-Polyethylene.jpg",
-    "stats": {
-      "replies": 19,
-      "reposts": 19,
-      "likes": 353,
-      "views": "12.2K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782212551",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4456",
@@ -4439,8 +3501,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4454,17 +3514,12 @@
     "product": {
       "name": "HACCP Colour-Coded Cutting Board - PE Yellow (Commercial Kitchen)",
       "price": "R 215",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4456"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/05/Cutting-Board-Polyethylene.jpg",
-    "stats": {
-      "replies": 4,
-      "reposts": 30,
-      "likes": 390,
-      "views": "13.6K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782049826",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4455",
@@ -4472,8 +3527,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4487,17 +3540,12 @@
     "product": {
       "name": "HACCP Colour-Coded Cutting Board - PE Blue (Commercial Kitchen)",
       "price": "R 215",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4455"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/05/Cutting-Board-Polyethylene.jpg",
-    "stats": {
-      "replies": 11,
-      "reposts": 41,
-      "likes": 47,
-      "views": "15.0K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782355075",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4454",
@@ -4505,8 +3553,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4520,17 +3566,12 @@
     "product": {
       "name": "HACCP Colour-Coded Cutting Board - PE Red (Commercial Kitchen)",
       "price": "R 215",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4454"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/05/Cutting-Board-Polyethylene.jpg",
-    "stats": {
-      "replies": 18,
-      "reposts": 52,
-      "likes": 84,
-      "views": "0.4K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782937025",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4453",
@@ -4538,8 +3579,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4553,17 +3592,12 @@
     "product": {
       "name": "HACCP Colour-Coded Cutting Board - PE White 600x450mm (Commercial Kitchen)",
       "price": "R 302",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4453"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/05/Cutting-Board-Polyethylene.jpg",
-    "stats": {
-      "replies": 3,
-      "reposts": 8,
-      "likes": 121,
-      "views": "1.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782459688",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4452",
@@ -4571,8 +3605,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4586,17 +3618,12 @@
     "product": {
       "name": "Stainless Steel Double Roaster - 150mm",
       "price": "R 1 062,6",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4452"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/Double-Roaster-square.jpg",
-    "stats": {
-      "replies": 10,
-      "reposts": 19,
-      "likes": 158,
-      "views": "3.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782764064",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4451",
@@ -4604,8 +3631,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "2h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4619,17 +3644,12 @@
     "product": {
       "name": "Stainless Steel Mini Double Roaster - 150mm",
       "price": "R 931,5",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4451"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/steelking-roaster-square.jpg",
-    "stats": {
-      "replies": 17,
-      "reposts": 30,
-      "likes": 195,
-      "views": "4.7K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782778496",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4448",
@@ -4637,8 +3657,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "3h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4652,17 +3670,12 @@
     "product": {
       "name": "Stainless Steel Ladle - 6oz / 177ml",
       "price": "R 42,53",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4448"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/05/Ladle-60z.jpg",
-    "stats": {
-      "replies": 2,
-      "reposts": 41,
-      "likes": 232,
-      "views": "6.1K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782950755",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4445",
@@ -4670,8 +3683,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "5h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4685,17 +3696,12 @@
     "product": {
       "name": "Deep Gastronorm Pan 1/2 x 150mm (Stainless Steel Bain-Marie Insert)",
       "price": "R 462,3",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4445"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/stainless-gastronorm-pan-2000-white-bottomaligned-e1776550815527-square.jpg",
-    "stats": {
-      "replies": 9,
-      "reposts": 52,
-      "likes": 269,
-      "views": "7.5K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782037767",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4444",
@@ -4703,8 +3709,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "8h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4718,17 +3722,12 @@
     "product": {
       "name": "Deep Gastronorm Pan 1/2 x 100mm (Stainless Steel Bain-Marie Insert)",
       "price": "R 441,6",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4444"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/stainless-gastronorm-pan-2000-white-bottomaligned-e1776550815527-square.jpg",
-    "stats": {
-      "replies": 16,
-      "reposts": 8,
-      "likes": 306,
-      "views": "8.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782248921",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4443",
@@ -4736,8 +3735,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "1d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4751,17 +3748,12 @@
     "product": {
       "name": "Gastronorm Pan 1/2 x 65mm (Stainless Steel Bain-Marie Insert)",
       "price": "R 310,5",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4443"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/stainless-gastronorm-pan-2000-white-bottomaligned-e1776550815527-square.jpg",
-    "stats": {
-      "replies": 1,
-      "reposts": 19,
-      "likes": 343,
-      "views": "10.4K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782354217",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4442",
@@ -4769,8 +3761,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "2d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4784,17 +3774,12 @@
     "product": {
       "name": "Gastronorm Pan 1/2 Lid - Stainless Steel",
       "price": "R 372,6",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4442"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/05/BAIN-MARIE-LID.jpg",
-    "stats": {
-      "replies": 8,
-      "reposts": 30,
-      "likes": 380,
-      "views": "11.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782507180",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4439",
@@ -4802,8 +3787,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4817,17 +3800,12 @@
     "product": {
       "name": "Deep Gastronorm Pan 1/1 x 150mm (Stainless Steel - Excludes Lid)",
       "price": "R 648,6",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4439"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/stainless-gastronorm-pan-2000-white-bottomaligned-e1776550815527-square.jpg",
-    "stats": {
-      "replies": 15,
-      "reposts": 41,
-      "likes": 37,
-      "views": "13.2K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782250276",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4437",
@@ -4835,8 +3813,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4850,17 +3826,12 @@
     "product": {
       "name": "Deep Gastronorm Pan 1/1 x 100mm (Stainless Steel Bain-Marie Insert)",
       "price": "R 558,9",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4437"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/stainless-gastronorm-pan-2000-white-bottomaligned-e1776550815527-square.jpg",
-    "stats": {
-      "replies": 22,
-      "reposts": 52,
-      "likes": 74,
-      "views": "14.6K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782593954",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4436",
@@ -4868,8 +3839,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4883,17 +3852,12 @@
     "product": {
       "name": "Gastronorm Pan 1/1 x 65mm (Stainless Steel Bain-Marie Insert)",
       "price": "R 476,1",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4436"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/stainless-gastronorm-pan-2000-white-bottomaligned-e1776550815527-square.jpg",
-    "stats": {
-      "replies": 7,
-      "reposts": 8,
-      "likes": 111,
-      "views": "0.1K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782875411",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4435",
@@ -4901,8 +3865,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4916,17 +3878,12 @@
     "product": {
       "name": "Gastronorm Pan 1/1 Lid - Stainless Steel",
       "price": "R 434,7",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4435"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/05/BAIN-MARIE-LID.jpg",
-    "stats": {
-      "replies": 14,
-      "reposts": 19,
-      "likes": 148,
-      "views": "1.5K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782327493",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_4434",
@@ -4934,8 +3891,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4949,17 +3904,12 @@
     "product": {
       "name": "Gastronorm Pan 1/1 x 20mm (Stainless Steel Bain-Marie Insert)",
       "price": "R 358,8",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_4434"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/stainless-gastronorm-pan-2000-white-bottomaligned-e1776550815527-square.jpg",
-    "stats": {
-      "replies": 21,
-      "reposts": 30,
-      "likes": 185,
-      "views": "2.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782695486",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3370",
@@ -4967,8 +3917,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "2h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -4982,17 +3930,12 @@
     "product": {
       "name": "Commercial Measuring Scoop - 16ml",
       "price": "R 1,45",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3370"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/12/WhatsApp_Image_2025-12-02_at_10.39.58-removebg-preview-Copy.png",
-    "stats": {
-      "replies": 6,
-      "reposts": 41,
-      "likes": 222,
-      "views": "4.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782969245",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3369",
@@ -5000,8 +3943,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "3h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5015,17 +3956,12 @@
     "product": {
       "name": "Flat Ice Cream Dosing Spoon - Food Grade Polypropylene",
       "price": "R 0,38",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3369"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/06/Spoons_Flat_ice_cream_Spoon-500x500-1.jpg",
-    "stats": {
-      "replies": 13,
-      "reposts": 52,
-      "likes": 259,
-      "views": "5.7K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782757132",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3361",
@@ -5033,8 +3969,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "5h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5048,17 +3982,12 @@
     "product": {
       "name": "Anti-Theft Plastic Hotel Hanger - White (Wholesale SA)",
       "price": "R 22,88",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3361"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/05/white_anti_theft_hanger_optimized.jpg",
-    "stats": {
-      "replies": 20,
-      "reposts": 8,
-      "likes": 296,
-      "views": "7.2K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782963144",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3308",
@@ -5066,8 +3995,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "8h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5081,17 +4008,12 @@
     "product": {
       "name": "Round Roll Top Chafer - 5 Litre (Stainless Steel)",
       "price": "R 2 275",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3308"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/Round-Chafer-5Lt-square.jpg",
-    "stats": {
-      "replies": 5,
-      "reposts": 19,
-      "likes": 333,
-      "views": "8.6K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782478735",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3303",
@@ -5099,8 +4021,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "1d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5114,17 +4034,12 @@
     "product": {
       "name": "Rectangular Chafing Dish - 8.5 Litre (Stainless Steel)",
       "price": "R 2 875",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3303"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/07/steelking-chafer-square.jpg",
-    "stats": {
-      "replies": 12,
-      "reposts": 30,
-      "likes": 370,
-      "views": "10.0K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782773120",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3256",
@@ -5132,8 +4047,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "2d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5147,17 +4060,12 @@
     "product": {
       "name": "64mm Ice Cream Cone Lid (Bulk Wholesale)",
       "price": "R 0,6",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3256"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/05/opt_2a95e0a6-b237-434f-8a27-a932e87b8937.png",
-    "stats": {
-      "replies": 19,
-      "reposts": 41,
-      "likes": 27,
-      "views": "11.4K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782148030",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3254",
@@ -5165,8 +4073,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5180,17 +4086,12 @@
     "product": {
       "name": "64mm Ice Cream Domed Flake Lid - Natural (Bulk Wholesale)",
       "price": "R 0,71",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3254"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/05/opt_6aeab357-6851-4fa4-9978-cabda9cb2069.png",
-    "stats": {
-      "replies": 4,
-      "reposts": 52,
-      "likes": 64,
-      "views": "12.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782591069",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3248",
@@ -5198,8 +4099,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5213,17 +4112,12 @@
     "product": {
       "name": "250ml Disposable Plastic Tumbler - Natural (Bulk Wholesale)",
       "price": "R 1,9",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3248"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/12/result_0-1.png",
-    "stats": {
-      "replies": 11,
-      "reposts": 8,
-      "likes": 101,
-      "views": "14.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782241708",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3239",
@@ -5231,8 +4125,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5246,17 +4138,12 @@
     "product": {
       "name": "480ml Round Plastic Tub - Airtight Lid Only (Bulk Wholesale)",
       "price": "R 2,8",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3239"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/12/wmremove-transformed-15.png",
-    "stats": {
-      "replies": 18,
-      "reposts": 19,
-      "likes": 138,
-      "views": "15.7K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782772673",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3238",
@@ -5264,8 +4151,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5279,17 +4164,12 @@
     "product": {
       "name": "480ml Round Plastic Tub - Various Colours (Bulk Wholesale)",
       "price": "R 4,52",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3238"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/12/wmremove-transformed-15.png",
-    "stats": {
-      "replies": 3,
-      "reposts": 30,
-      "likes": 175,
-      "views": "1.1K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782792100",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3225",
@@ -5297,8 +4177,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5312,17 +4190,12 @@
     "product": {
       "name": "189mm Silicone Plastic Clip-On Lid (Bulk Wholesale)",
       "price": "R 5,65",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3225"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/12/99mm-Snap-On-Cap-500x500-2.jpg",
-    "stats": {
-      "replies": 10,
-      "reposts": 41,
-      "likes": 212,
-      "views": "2.5K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782885880",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3222",
@@ -5330,8 +4203,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "2h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5345,17 +4216,12 @@
     "product": {
       "name": "153mm Silicone Plastic Clip-On Lid (Bulk Wholesale)",
       "price": "R 4,12",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3222"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/12/99mm-Snap-On-Cap-500x500-2.jpg",
-    "stats": {
-      "replies": 17,
-      "reposts": 52,
-      "likes": 249,
-      "views": "3.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782868183",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3221",
@@ -5363,8 +4229,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "3h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5378,17 +4242,12 @@
     "product": {
       "name": "127mm Silicone Plastic Clip-On Lid (Bulk Wholesale)",
       "price": "R 2,5",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3221"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/12/99mm-Snap-On-Cap-500x500-2.jpg",
-    "stats": {
-      "replies": 2,
-      "reposts": 8,
-      "likes": 286,
-      "views": "5.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782498870",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3217",
@@ -5396,8 +4255,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "5h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5411,17 +4268,12 @@
     "product": {
       "name": "68mm Silicone Plastic Clip-On Lid (Bulk Wholesale)",
       "price": "R 0,91",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3217"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/05/99mm-Snap-On-Cap-500x500-2.jpg",
-    "stats": {
-      "replies": 9,
-      "reposts": 19,
-      "likes": 323,
-      "views": "6.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782482919",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3191",
@@ -5429,8 +4281,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "8h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5444,17 +4294,12 @@
     "product": {
       "name": "Commercial Measuring Scoop - 14ml Standard",
       "price": "R 1,07",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3191"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/12/14ml-standard-scoop.jpg",
-    "stats": {
-      "replies": 16,
-      "reposts": 30,
-      "likes": 360,
-      "views": "8.2K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782150192",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3169",
@@ -5462,8 +4307,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "1d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5477,17 +4320,12 @@
     "product": {
       "name": "35ml Round Mini Plastic Container with Lid (Bulk Wholesale)",
       "price": "R 3,29",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3169"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/12/DeWatermark.ai_1734503897281.png",
-    "stats": {
-      "replies": 1,
-      "reposts": 41,
-      "likes": 397,
-      "views": "9.6K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782720251",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_3125",
@@ -5495,8 +4333,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "2d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5510,17 +4346,12 @@
     "product": {
       "name": "50ml Clear Plastic Dosage & Measuring Cup (Wholesale)",
       "price": "R 1,8",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_3125"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/11/50ml-medicine-cup.jpg",
-    "stats": {
-      "replies": 8,
-      "reposts": 52,
-      "likes": 54,
-      "views": "11.0K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782227624",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_2329",
@@ -5528,8 +4359,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5543,17 +4372,12 @@
     "product": {
       "name": "Stainless Steel French Whisk - 500mm",
       "price": "R 183,8",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_2329"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/06/Whisk-french-WHF0550-1-1.jpg",
-    "stats": {
-      "replies": 15,
-      "reposts": 8,
-      "likes": 91,
-      "views": "12.4K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782452688",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_2328",
@@ -5561,8 +4385,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5576,17 +4398,12 @@
     "product": {
       "name": "Stainless Steel French Whisk - 400mm",
       "price": "R 166",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_2328"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/06/Whisk-french-WHF0550-1.jpg",
-    "stats": {
-      "replies": 22,
-      "reposts": 19,
-      "likes": 128,
-      "views": "13.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782477488",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_2326",
@@ -5594,8 +4411,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5609,17 +4424,12 @@
     "product": {
       "name": "Stainless Steel French Whisk - 350mm",
       "price": "R 150,95",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_2326"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/06/Whisk-french-WHF0550-1.jpg",
-    "stats": {
-      "replies": 7,
-      "reposts": 30,
-      "likes": 165,
-      "views": "15.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782915763",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_2309",
@@ -5627,8 +4437,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5642,17 +4450,12 @@
     "product": {
       "name": "Stainless Steel Dome Cloche - 300mm",
       "price": "R 530",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_2309"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2025/06/Dome-Cloche-5.DM_.jpg",
-    "stats": {
-      "replies": 14,
-      "reposts": 41,
-      "likes": 202,
-      "views": "0.7K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782938751",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_2088",
@@ -5660,8 +4463,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5675,17 +4476,12 @@
     "product": {
       "name": "Anti-Theft Security Replacement Ring Only",
       "price": "R 6,85",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_2088"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/05/opt_anti-theft-hanger-ring-2000-white-bottomaligned.jpg",
-    "stats": {
-      "replies": 21,
-      "reposts": 52,
-      "likes": 239,
-      "views": "2.1K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782396034",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_2083",
@@ -5693,8 +4489,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "2h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5708,17 +4502,12 @@
     "product": {
       "name": "Anti-Theft Wooden Hotel Hanger - Male Natural 44cm",
       "price": "R 35",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_2083"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/08/natural-wood-security-hanger-2000-white-bottomaligned-1.webp",
-    "stats": {
-      "replies": 6,
-      "reposts": 8,
-      "likes": 276,
-      "views": "3.5K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782155727",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_2081",
@@ -5726,8 +4515,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "3h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5741,17 +4528,12 @@
     "product": {
       "name": "Anti-Theft Wooden Hotel Hanger - Male Mahogany 44cm",
       "price": "R 35",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_2081"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/08/natural-wood-security-hanger-2000-white-bottomaligned.webp",
-    "stats": {
-      "replies": 13,
-      "reposts": 19,
-      "likes": 313,
-      "views": "5.0K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782583136",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_2076",
@@ -5759,8 +4541,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "5h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5774,17 +4554,12 @@
     "product": {
       "name": "Anti-Theft Wooden Hotel Hanger - Female Natural",
       "price": "R 43,5",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_2076"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/08/natural-wood-clip-hanger-2000-white-bottomaligned.webp",
-    "stats": {
-      "replies": 20,
-      "reposts": 30,
-      "likes": 350,
-      "views": "6.4K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782582430",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_2074",
@@ -5792,8 +4567,6 @@
     "handle": "@mitrendproductspty",
     "av": "g6",
     "ini": "MI",
-    "verified": true,
-    "time": "8h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5807,17 +4580,12 @@
     "product": {
       "name": "Anti-Theft Wooden Hotel Hanger - Female Mahogany",
       "price": "R 44",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_2074"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/08/wood-security-hanger-2000-white-bottomaligned.webp",
-    "stats": {
-      "replies": 5,
-      "reposts": 41,
-      "likes": 387,
-      "views": "7.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782927375",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_1375",
@@ -5825,8 +4593,6 @@
     "handle": "@mitrendproductspty",
     "av": "g7",
     "ini": "MI",
-    "verified": true,
-    "time": "1d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5840,17 +4606,12 @@
     "product": {
       "name": "Wooden Coat Hanger - Natural 44cm (Hotel & Hospitality)",
       "price": "R 20",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_1375"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/06/natural-wood-hanger-02-2000-white-bottomaligned.webp",
-    "stats": {
-      "replies": 12,
-      "reposts": 52,
-      "likes": 44,
-      "views": "9.2K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782336661",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_1250",
@@ -5858,8 +4619,6 @@
     "handle": "@mitrendproductspty",
     "av": "g8",
     "ini": "MI",
-    "verified": true,
-    "time": "2d",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5873,17 +4632,12 @@
     "product": {
       "name": "99mm Silicone Plastic Clip-On Lid (Bulk Wholesale)",
       "price": "R 1,66",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_1250"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/05/99mm-Snap-On-Cap-500x500-2.jpg",
-    "stats": {
-      "replies": 19,
-      "reposts": 8,
-      "likes": 81,
-      "views": "10.7K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782712459",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_1243",
@@ -5891,8 +4645,6 @@
     "handle": "@mitrendproductspty",
     "av": "g1",
     "ini": "MI",
-    "verified": true,
-    "time": "4m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5906,17 +4658,12 @@
     "product": {
       "name": "73mm Silicone Plastic Clip-On Lid (Bulk Wholesale)",
       "price": "R 1",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_1243"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/05/99mm-Snap-On-Cap-500x500-2.jpg",
-    "stats": {
-      "replies": 4,
-      "reposts": 19,
-      "likes": 118,
-      "views": "12.1K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782331774",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_780",
@@ -5924,8 +4671,6 @@
     "handle": "@mitrendproductspty",
     "av": "g2",
     "ini": "MI",
-    "verified": true,
-    "time": "14m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5939,17 +4684,12 @@
     "product": {
       "name": "Clear Acrylic Tasting & Sampling Cups - 65ml (Wholesale South Africa)",
       "price": "R 2,35",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_780"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/05/opt_measuring-cup-bottom-aligned-2000-transparent-1.png",
-    "stats": {
-      "replies": 11,
-      "reposts": 30,
-      "likes": 155,
-      "views": "13.5K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782133987",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_364",
@@ -5957,8 +4697,6 @@
     "handle": "@mitrendproductspty",
     "av": "g3",
     "ini": "MI",
-    "verified": true,
-    "time": "28m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -5972,17 +4710,12 @@
     "product": {
       "name": "Clear Measuring Scoop - 50ml / 25g",
       "price": "R 2,15",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_364"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/04/50ml25g-Measuring-scoop-500x500-1.jpg",
-    "stats": {
-      "replies": 18,
-      "reposts": 41,
-      "likes": 192,
-      "views": "14.9K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782277121",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_362",
@@ -5990,8 +4723,6 @@
     "handle": "@mitrendproductspty",
     "av": "g4",
     "ini": "MI",
-    "verified": true,
-    "time": "45m",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -6005,17 +4736,12 @@
     "product": {
       "name": "Dosage Spoon - 2.5ml / 5ml",
       "price": "R 0,7",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_362"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2024/04/Spoons_5ml_Dosage_Spoon_Blue-500x500-1.jpg",
-    "stats": {
-      "replies": 3,
-      "reposts": 52,
-      "likes": 229,
-      "views": "0.3K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782486400",
+    "verifiedByShoppage": false
   },
   {
     "id": "mit_212",
@@ -6023,8 +4749,6 @@
     "handle": "@mitrendproductspty",
     "av": "g5",
     "ini": "MI",
-    "verified": true,
-    "time": "1h",
     "badge": {
       "label": "VERIFIED STOCK",
       "type": "restock"
@@ -6038,16 +4762,11 @@
     "product": {
       "name": "Anti-Theft Plastic Hotel Hanger - Black 44cm with Hook",
       "price": "R 18,99",
-      "note": "Verified trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
+      "note": "trade counter · ERF710 Old Road, Halfway Gardens, Midrand, 1686, Gauteng",
       "href": "/p/mit_212"
     },
     "image": "https://mitrend.co.za/wp-content/uploads/2026/05/black_anti_theft_hanger_optimized.jpg",
-    "stats": {
-      "replies": 10,
-      "reposts": 8,
-      "likes": 266,
-      "views": "1.8K"
-    },
-    "whatsapp": "+27105007670"
+    "whatsapp": "2782363411",
+    "verifiedByShoppage": false
   }
 ]

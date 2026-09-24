@@ -30,7 +30,7 @@ machine: `GET /health` on a running instance returns the counts below.
 | Live data served | 16 seed merchants, 181 seed catalogue products, 3,315 mall records, 183 feed posts, 30 deals |
 | Merchant OS | Full 12-tab UI running against **one hardcoded demo tenant** with in-memory state |
 | Persistence | **Not implemented** — orders, catalogue edits, posts and chat live in memory and are lost on restart |
-| Authentication | **Not implemented in the Go runtime** — merchant routes must not be exposed publicly |
+| Authentication | HMAC-signed, fail-closed session auth on merchant routes (`internal/auth/session.go`) — single global admin credential, no per-merchant roles yet |
 | Billing | **Not implemented** — plans are display state only |
 | Datasets | Reference datasets exist (1M Open Food Facts product masters, 93k discovered offers, 25k-node Zimbabwe market graph). The 3.1M-merchant and generated mall layers are **synthetic placeholder data** and are not licensed records |
 
@@ -143,9 +143,10 @@ Because Shoppage is 100% pure Go with embedded SQLite, hosting is dramatically s
 >    `*.sqlite` files that are **gitignored**. A clean checkout therefore builds either a huge image
 >    or an image missing the datasets, and the runtime silently falls back to 181 seed products.
 >    `.dockerignore` excludes `*.sqlite3` and `*.zip` but **not** `*.sqlite`.
-> 2. Merchant routes (`/desk`, `/merchant/*`, `/orders`, `/settings`, `/audit-logs`) have **no
->    authentication** in the Go runtime. Do not expose port 3000 publicly until Phase 1 of
->    `docs/INVESTOR_READINESS_ROADMAP.md` is complete.
+> 2. Merchant routes (`/desk`, `/merchant/*`, `/orders`, `/settings`, `/audit-logs`) are protected
+>    by HMAC-signed, fail-closed session auth (`internal/auth/session.go`), but it is a **single
+>    global admin credential** with no per-merchant users or roles. Treat the instance as
+>    single-tenant until Phase 1 of `docs/INVESTOR_READINESS_ROADMAP.md` is complete.
 
 ### Option 1: Docker Compose + Caddy (Recommended for Linux VPS)
 

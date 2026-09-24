@@ -1,0 +1,18 @@
+{
+  "mode": "sample",
+  "source": "Shoppage bundled demonstration catalogue",
+  "updated": "2026-09-22",
+  "notice": "Illustrative sample catalogue: supplier names, prices and posts are demonstration content, not live marketplace listings.",
+  "provenance": {
+    "malls.json": "Public South African shopping-centre directory (names, suburbs, metros, coordinates). Tenant lists and unit counts are indicative.",
+    "merchants.json": "Hand-authored sample suppliers. Verification status, CIPC registrations, ratings and review counts were removed because they were never observed.",
+    "products.json": "Hand-authored sample catalogue rows with representative prices and Unsplash photography. Brand and model names are used descriptively.",
+    "deals.json": "Hand-authored sample circulars. Branch counts, stock levels and locker rates were removed because they were invented.",
+    "posts.json": "Hand-authored sample trade-wire posts. Authorship is fictional; engagement counts and verification were removed.",
+    "shorts.json": "Sample 9:16 placeholders using a public Google demo video and Unsplash stills. View and like counts were removed.",
+    "trends.json": "Sample trend labels. Post counts were removed because they were invented.",
+    "guilds.json": "Sample community groups. Member and post counts were removed because they were invented."
+  },
+  "contactNumbers": "All phone and WhatsApp numbers in this catalogue are synthetic placeholders generated for the demo. They must not be replaced with real subscriber numbers without the business's consent.",
+  "imagery": "Product and cover imagery points at Unsplash CDN URLs for demonstration only and is not licensed for production use."
+}

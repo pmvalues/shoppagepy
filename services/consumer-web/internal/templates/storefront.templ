@@ -10,7 +10,7 @@ import (
 templ StorefrontComponent(data StorefrontViewData) {
 	@Layout(data.Title, data.Description, data.CurrentTab, []models.TradeTrend{}, []models.RetailerDeal{}, []models.CommunityGuild{}) {
 		<!-- Schema.org JSON-LD LocalBusiness / WholesaleStore Structured Data (GMB & Google Search Knowledge Graph Parity) -->
-		@templ.Raw("<script type=\"application/ld+json\">\n" + schemaOrgStoreJSON(data.Store, data.Description) + "\n</script>")
+		@templ.Raw("<script type=\"application/ld+json\">\n" + schemaOrgStoreJSON(data.Store, data.Description, data.BaseURL) + "\n</script>")
 
 		<main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8 font-sans">
 			<!-- 1. ANNOUNCEMENT RIBBON (Pemofy-style) -->
@@ -25,11 +25,11 @@ templ StorefrontComponent(data StorefrontViewData) {
 							<span class="text-emerald-300 font-bold uppercase tracking-wider text-[10px]">Trade Notice:</span>
 							<span class="truncate text-slate-200">{ data.AnnouncementText }</span>
 						</div>
-						<div class="hidden sm:flex items-center gap-3 shrink-0 text-[11px] text-emerald-400 font-bold">
-							<span>🇿🇦 Nationwide Logistics</span>
-							<span>•</span>
-							<span>Direct WhatsApp Active</span>
-						</div>
+						if data.Store.WhatsApp != "" {
+							<div class="hidden sm:flex items-center gap-3 shrink-0 text-[11px] text-emerald-400 font-bold">
+								<span>Direct WhatsApp trade desk</span>
+							</div>
+						}
 					</div>
 				</div>
 			}
@@ -50,11 +50,6 @@ templ StorefrontComponent(data StorefrontViewData) {
 							<div class="flex flex-wrap items-center gap-2.5">
 								<h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{ data.Store.Name }</h1>
 								<span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase tracking-wider">Live Atelier</span>
-								if data.Store.Verified {
-									<span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold inline-flex items-center gap-1">
-										<span>✓</span> CIPC Verified
-									</span>
-								}
 								if data.Store.HoursStatus != "" {
 									if data.Store.IsOpenNow {
 										<span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold inline-flex items-center gap-1.5 shadow-2xs">
@@ -92,8 +87,10 @@ templ StorefrontComponent(data StorefrontViewData) {
 								<span>📍 { data.Store.Address }</span>
 								<span class="text-slate-300">•</span>
 								<span class="font-mono text-slate-600">CIPC: { data.Store.CIPCNumber }</span>
-								<span class="text-slate-300">•</span>
-								<span class="text-amber-600 font-bold">★ { fmt.Sprintf("%.1f", data.Store.Rating) } ({ fmt.Sprintf("%d", data.Store.ReviewsCount) }+ B2B Reviews)</span>
+								if data.Store.Rating > 0 && data.Store.ReviewsCount > 0 {
+									<span class="text-slate-300">•</span>
+									<span class="text-amber-600 font-bold">★ { fmt.Sprintf("%.1f", data.Store.Rating) } ({ fmt.Sprintf("%d", data.Store.ReviewsCount) }+ B2B Reviews)</span>
+								}
 							</p>
 
 							<!-- Corporate Ecosystem & Social Row -->
@@ -238,7 +235,7 @@ templ StorefrontComponent(data StorefrontViewData) {
 					</div>
 					<div>
 						<h4 class="text-xs font-bold text-slate-900">Authenticity Guarantee</h4>
-						<p class="text-[11px] text-slate-500">100% verified legal entity · CIPC: { data.Store.CIPCNumber }</p>
+						<p class="text-[11px] text-slate-500">Registered business profile · CIPC: { data.Store.CIPCNumber }</p>
 					</div>
 				</div>
 				<div class="flex items-center gap-3.5">
@@ -694,7 +691,7 @@ templ StorefrontComponent(data StorefrontViewData) {
 									type="text" 
 									id="share-store-url" 
 									readonly 
-									value={ fmt.Sprintf("http://localhost:3000/m/%s", data.Store.ID) } 
+									value={ fmt.Sprintf("%s/m/%s", data.BaseURL, data.Store.ID) } 
 									class="flex-1 px-3 py-2 text-xs font-mono bg-slate-50 border border-slate-200 rounded-xl select-all" 
 								/>
 								<button 
@@ -776,7 +773,7 @@ templ StorefrontComponent(data StorefrontViewData) {
 								readonly 
 								rows="2" 
 								class="w-full px-3 py-2 text-[11px] font-mono bg-slate-50 border border-slate-200 rounded-xl select-all mb-2"
-							>{ fmt.Sprintf("<iframe src=\"http://localhost:3000/embed/m/%s\" width=\"100%%\" height=\"650\" frameborder=\"0\" style=\"border-radius:16px; border:1px solid #e2e8f0;\"></iframe>", data.Store.ID) }</textarea>
+							>{ fmt.Sprintf("<iframe src=\"%s/embed/m/%s\" width=\"100%%\" height=\"650\" frameborder=\"0\" style=\"border-radius:16px; border:1px solid #e2e8f0;\"></iframe>", data.BaseURL, data.Store.ID) }</textarea>
 							<button 
 								type="button" 
 								onclick={ templ.ComponentScript{Call: fmt.Sprintf("copyEmbedCode(this, '%s')", data.Store.ID)} } 
@@ -849,11 +846,6 @@ templ ProductCardComponent(item models.SearchItem, store models.MerchantStorefro
 				if item.IsLocalSAStock {
 					<span class="bg-[#008060] text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wider">
 						🇿🇦 Local Stock
-					</span>
-				}
-				if item.Verified {
-					<span class="bg-slate-900 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wider">
-						CIPC Verified
 					</span>
 				}
 			</div>

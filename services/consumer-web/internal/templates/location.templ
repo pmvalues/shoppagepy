@@ -11,8 +11,8 @@ templ LocationModalComponent(data LocationModalViewData) {
 		>
 			<div class="flex items-center justify-between pb-4 border-b border-slate-100">
 				<div>
-					<h3 class="text-lg font-display font-black text-slate-900">Change Commercial Area</h3>
-					<p class="text-xs text-slate-500">Select your South African province or trading hub</p>
+					<h3 class="text-lg font-display font-black text-slate-900">Your Trading Location</h3>
+					<p class="text-xs text-slate-500">Use device GPS or pick a province to surface markets near you</p>
 				</div>
 				<button 
 					type="button"
@@ -21,6 +21,19 @@ templ LocationModalComponent(data LocationModalViewData) {
 				>
 					✕
 				</button>
+			</div>
+
+			<!-- Browser geolocation primary action -->
+			<div class="pt-4">
+				<button
+					type="button"
+					id="use-my-location"
+					class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer flex items-center justify-center gap-2"
+				>
+					<span>📍</span>
+					<span>Use my current location</span>
+				</button>
+				<p id="geo-status" class="text-[11px] text-slate-500 mt-2 text-center" hidden></p>
 			</div>
 
 			<!-- Quick Province Selector -->
@@ -41,19 +54,53 @@ templ LocationModalComponent(data LocationModalViewData) {
 
 			<!-- Major Commercial Nodes -->
 			<div class="pt-3 border-t border-slate-100">
-				<div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Major Wholesale Nodes</div>
+				<div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Major Physical Markets</div>
 				<div class="space-y-1.5 text-xs">
 					<a href="/malls/mall_dragon_city" class="block p-2 rounded-lg hover:bg-slate-50 font-semibold text-slate-800">
-						🏢 Dragon City Wholesale Mall (Crown Mines, JHB)
+						🏢 Dragon City Wholesale Market (Crown Mines, JHB)
 					</a>
 					<a href="/malls/mall_oriental_plaza" class="block p-2 rounded-lg hover:bg-slate-50 font-semibold text-slate-800">
 						🏢 Oriental Plaza (Fordsburg, JHB)
 					</a>
 					<a href="/malls" class="block p-2 rounded-lg hover:bg-slate-50 font-semibold text-slate-800">
-						🏬 View all 3,315 Indexed Malls &rarr;
+						🏬 Browse all markets &rarr;
 					</a>
 				</div>
 			</div>
 		</div>
+		<script>
+			(function () {
+				var btn = document.getElementById('use-my-location');
+				var status = document.getElementById('geo-status');
+				if (!btn) return;
+				btn.addEventListener('click', function () {
+					if (!navigator.geolocation) {
+						if (status) { status.hidden = false; status.textContent = 'Geolocation unavailable — pick a province below.'; }
+						return;
+					}
+					if (status) { status.hidden = false; status.textContent = 'Locating…'; }
+					navigator.geolocation.getCurrentPosition(
+						function (pos) {
+							var lat = pos.coords.latitude, lng = pos.coords.longitude;
+							try {
+								localStorage.setItem('shoppage_location', JSON.stringify({ lat: lat, lng: lng, label: 'Current location' }));
+							} catch (e) {}
+							if (window.shoppageApplyNearMe) {
+								window.shoppageApplyNearMe(lat, lng, 'Current location');
+							}
+							if (status) { status.textContent = 'Location saved. Sorting markets by distance…'; }
+							setTimeout(function () {
+								document.getElementById('modal-container').innerHTML = '';
+								window.location.href = '/malls';
+							}, 600);
+						},
+						function () {
+							if (status) { status.textContent = 'Permission denied or unavailable — pick a province below.'; }
+						},
+						{ enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+					);
+				});
+			})();
+		</script>
 	</div>
 }

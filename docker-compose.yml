@@ -27,7 +27,7 @@ services:
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
     volumes:
-      - ./data:/app/data
+      - ./services/consumer-web/data:/app/data
       - ./shoppage-commerce-intelligence-foundation/data/study:/app/shoppage-commerce-intelligence-foundation/data/study
     depends_on:
       - merchant-os

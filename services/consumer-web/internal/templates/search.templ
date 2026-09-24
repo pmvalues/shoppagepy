@@ -14,9 +14,6 @@ templ SearchResultsGridComponent(data SearchViewData) {
 					<span>{ fmt.Sprintf(" for \"%s\"", data.Query) }</span>
 				}
 			</div>
-			<div class="text-xs font-mono text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-				Go Search Core: { fmt.Sprintf("%.2f", data.LatencyMs) } ms
-			</div>
 		</div>
 
 		<!-- MATCHING MERCHANTS & BUSINESSES -->
@@ -39,14 +36,15 @@ templ SearchResultsGridComponent(data SearchViewData) {
 											<h4 class="font-bold text-slate-900 text-sm truncate">
 												<a href={ templ.SafeURL(fmt.Sprintf("/m/%s", m.ID)) } class="hover:text-emerald-600 transition">{ m.Name }</a>
 											</h4>
-											if m.Verified {
-												<span class="px-1.5 py-0.2 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-bold">✓ CIPC Verified</span>
-											}
 										</div>
 										<p class="text-[11px] text-slate-500 truncate">{ m.Address }</p>
 										<div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
-											<span class="text-amber-500 font-bold">★ { fmt.Sprintf("%.1f", m.Rating) }</span>
-											<span>({ fmt.Sprintf("%d", m.ReviewsCount) })</span>
+											if m.Rating > 0 && m.ReviewsCount > 0 {
+												<span class="text-amber-500 font-bold">★ { fmt.Sprintf("%.1f", m.Rating) }</span>
+												<span>({ fmt.Sprintf("%d", m.ReviewsCount) })</span>
+											} else {
+												<span class="text-slate-400 font-semibold">New</span>
+											}
 											<span>•</span>
 											<span class="text-emerald-700 font-semibold truncate">{ m.Category }</span>
 										</div>
@@ -91,8 +89,10 @@ templ SearchResultsGridComponent(data SearchViewData) {
 										</h4>
 										<p class="text-[11px] text-slate-500 truncate">{ mall.StreetAddress }, { mall.Suburb }</p>
 										<div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
-											<span class="font-semibold text-slate-700">{ fmt.Sprintf("%d Stores", mall.StoreCount) }</span>
-											<span>•</span>
+											if mall.StoreCount > 0 {
+												<span class="font-semibold text-slate-700">{ fmt.Sprintf("%d Stores", mall.StoreCount) }</span>
+												<span>•</span>
+											}
 											<span>{ mall.Metro }, { mall.Province }</span>
 										</div>
 									</div>

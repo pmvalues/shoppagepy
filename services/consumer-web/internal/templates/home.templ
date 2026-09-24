@@ -24,7 +24,7 @@ templ HomeViewComponent(data HomeViewData) {
 							type="text" 
 							name="q" 
 							value={ data.Query }
-							placeholder="Search 1,000,000+ products, inverters, boxes, cement, specials..."
+							placeholder="Search products, brands, categories or suppliers..."
 							hx-get="/search" 
 							hx-trigger="keyup changed delay:200ms, search" 
 							hx-target="#main-stream-content"
@@ -67,7 +67,10 @@ templ HomeViewComponent(data HomeViewData) {
 					</a>
 					<a href="/?tab=products" class={ "py-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "products"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "products") }>
 						<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-						<span>Products (1M+)</span>
+						<span>Products</span>
+						if Stats().Products > 0 {
+							<span class="px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-black">{ FormatCount(Stats().Products) }</span>
+						}
 					</a>
 					<a href="/?tab=tradewire" class={ "py-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "tradewire"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "tradewire") }>
 						<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
@@ -90,11 +93,11 @@ templ HomeViewComponent(data HomeViewData) {
 							<!-- Subtle Ambient Glow -->
 							<div style="position: absolute; right: -40px; top: -40px; width: 280px; height: 280px; background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(0, 0, 0, 0) 70%); border-radius: 50%; pointer-events: none;"></div>
 							<div class="relative z-10 space-y-4 max-w-2xl">
-								<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider" style="background: rgba(16, 185, 129, 0.12); color: #34d399; border-color: rgba(52, 211, 153, 0.35);">
-									<span>🇿🇦 South Africa Commercial Grid</span>
-									<span>•</span>
-									<span>Sub-3ms Search Engine</span>
-								</div>
+							<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider" style="background: rgba(16, 185, 129, 0.12); color: #34d399; border-color: rgba(52, 211, 153, 0.35);">
+								<span>🇿🇦 Nationwide Trade Network</span>
+								<span>•</span>
+								<span>Live Price Discovery</span>
+							</div>
 								<h1 class="text-2xl sm:text-4xl font-extrabold font-display tracking-tight text-white leading-tight" style="color: #ffffff !important;">
 									Wholesale Inventory, Price Drops &amp; Verified Trade Desks
 								</h1>
@@ -189,7 +192,11 @@ templ HomeViewComponent(data HomeViewData) {
 									<div>
 										<div class="flex items-center gap-2">
 											<h2 class="text-lg font-extrabold text-slate-900 tracking-tight font-display">Trending Commercial Inventory</h2>
-											<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">1M+ Indexed</span>
+											if Stats().Products > 0 {
+											<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">{ FormatCount(Stats().Products) } indexed</span>
+										} else {
+											<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold">No index published</span>
+										}
 										</div>
 										<p class="text-xs text-slate-500">Live wholesale pricing available for instant quotation and delivery</p>
 									</div>
@@ -406,7 +413,7 @@ templ HomeViewComponent(data HomeViewData) {
 									<h2 class="text-xl font-display font-black text-slate-900 tracking-tight">Products &amp; Trade Catalog</h2>
 									<span class="px-2 py-0.5 rounded-full bg-slate-900 text-emerald-400 text-[10px] font-bold">🇿🇦 Local SA Stock</span>
 								</div>
-								<p class="text-xs text-slate-500">1,000,000+ products across verified South African commercial suppliers</p>
+								<p class="text-xs text-slate-500">Trade listings published by verified suppliers</p>
 							</div>
 						</div>
 
@@ -513,7 +520,7 @@ templ HomeViewComponent(data HomeViewData) {
 										Verified Retailer Specials &amp; Clearance Grid
 									</h2>
 									<p class="text-xs text-slate-300 mt-1 max-w-xl">
-										Live price drops scanned across Makro, Builders, BUCO, SPAR, Game &amp; Leroy Merlin. Guaranteed in-store stock &amp; Pudo locker pickup.
+										Specials published by our retail partners. Prices, availability and collection options are confirmed with the retailer at the point of sale.
 									</p>
 								</div>
 								<!-- Stat Badges -->
@@ -523,12 +530,17 @@ templ HomeViewComponent(data HomeViewData) {
 										<div class="text-[10px] text-slate-300 font-bold uppercase">Active Specials</div>
 									</div>
 									<div class="px-4 py-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 text-center">
-										<div class="text-lg font-black text-rose-400">Up to 45%</div>
-										<div class="text-[10px] text-slate-300 font-bold uppercase">Price Slashes</div>
+										if Stats().MaxDiscountPct > 0 {
+											<div class="text-lg font-black text-rose-400">Up to { fmt.Sprintf("%d", Stats().MaxDiscountPct) }%</div>
+											<div class="text-[10px] text-slate-300 font-bold uppercase">Price Slashes</div>
+										} else {
+											<div class="text-lg font-black text-slate-400">&mdash;</div>
+											<div class="text-[10px] text-slate-300 font-bold uppercase">No discounts listed</div>
+										}
 									</div>
 									<div class="px-4 py-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 text-center">
-										<div class="text-lg font-black text-white">6 Chains</div>
-										<div class="text-[10px] text-slate-300 font-bold uppercase">Nationwide</div>
+										<div class="text-lg font-black text-white">{ fmt.Sprintf("%d", len(Stats().Retailers)) }</div>
+										<div class="text-[10px] text-slate-300 font-bold uppercase">Retailers listed</div>
 									</div>
 								</div>
 							</div>

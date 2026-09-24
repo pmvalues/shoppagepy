@@ -43,21 +43,43 @@ templ OfferModalComponent(data OfferModalViewData) {
 
 			<!-- Product Context Card -->
 			<div class="p-4 bg-slate-50 border-b border-slate-200 flex items-center gap-3.5">
-				<img src={ data.Product.ImageURL } alt={ data.Product.Title } class="w-14 h-14 rounded-xl object-contain bg-white border border-slate-200 p-1 shrink-0"/>
+				<div class="w-14 h-14 rounded-xl bg-white border border-slate-200 p-1 shrink-0 overflow-hidden flex items-center justify-center">
+					if data.Product.ImageURL != "" {
+						<img src={ data.Product.ImageURL } alt={ data.Product.Title } class="w-full h-full object-contain" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>
+						<span class="hidden w-full h-full items-center justify-center text-xl">📦</span>
+					} else {
+						<span class="text-xl">📦</span>
+					}
+				</div>
 				<div class="min-w-0 flex-1">
 					<div class="text-[11px] font-bold text-slate-500 uppercase truncate">{ data.Product.Brand } · { data.Product.Model }</div>
 					<h4 class="text-xs font-bold text-slate-900 truncate mt-0.5">{ data.Product.Title }</h4>
-					<div class="flex items-center gap-2 mt-1 text-xs">
-						<span class="text-slate-500">Listed Price:</span>
-						<span class="font-black text-slate-900">R { fmt.Sprintf("%.2f", data.TargetPrice) }</span>
-						<span class="text-slate-300">|</span>
-						<span class="text-emerald-700 font-bold">🇿🇦 Local SA Stock</span>
+					<div class="flex items-center gap-2 mt-1 text-xs flex-wrap">
+						if data.TargetPrice > 0 {
+							<span class="text-slate-500">Listed Price:</span>
+							<span class="font-black text-slate-900">R { fmt.Sprintf("%.2f", data.TargetPrice) }</span>
+						} else {
+							<span class="font-black text-slate-700">Price on request</span>
+						}
+						if data.Product.IsLocalSAStock {
+							<span class="text-slate-300">|</span>
+							<span class="text-emerald-700 font-bold">🇿🇦 Local SA stock</span>
+						}
 					</div>
+					if data.Merchant.MerchantName != "" {
+						<div class="text-[11px] text-slate-500 mt-1 truncate">
+							Counterparty: <span class="font-bold text-slate-700">{ data.Merchant.MerchantName }</span>
+							if data.Merchant.City != "" {
+								· { data.Merchant.City }
+							}
+						</div>
+					}
 				</div>
 			</div>
 
 			<!-- Dynamic Form / Result Container -->
 			<div id="offer-form-card" class="p-5 sm:p-6 space-y-4">
+				if data.Merchant.WhatsApp != "" {
 				<form hx-post="/offer/submit" hx-target="#offer-form-card" class="space-y-4">
 					<input type="hidden" name="productId" value={ data.Product.CanonicalID }/>
 					<input type="hidden" name="productTitle" value={ data.Product.Title }/>
@@ -84,6 +106,7 @@ templ OfferModalComponent(data OfferModalViewData) {
 								class="w-full pl-8 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-base font-black text-slate-900 outline-none transition"
 							/>
 						</div>
+						if data.TargetPrice > 0 {
 						<!-- Quick Percentage Presets -->
 						<div class="flex items-center gap-2 mt-2 text-[11px] font-bold text-slate-600">
 							<span class="text-slate-400 font-normal">Presets:</span>
@@ -109,6 +132,7 @@ templ OfferModalComponent(data OfferModalViewData) {
 								-15% (R { fmt.Sprintf("%.0f", data.TargetPrice * 0.85) })
 							</button>
 						</div>
+						}
 					</div>
 
 					<!-- Quantity & Location -->
@@ -128,9 +152,9 @@ templ OfferModalComponent(data OfferModalViewData) {
 						<div>
 							<label class="block text-xs font-bold text-slate-700 mb-1">Preferred Pickup / Delivery</label>
 							<select name="fulfillment" class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:border-emerald-500 text-xs font-semibold text-slate-700 outline-none bg-white">
-								<option value="pickup">🏬 Free Mall/Store Collection</option>
-								<option value="pudo">📦 Pudo Smart Locker (R60)</option>
-								<option value="courier">🚚 Door Courier (R85)</option>
+								<option value="pickup">🏬 Store or mall collection</option>
+								<option value="pudo">📦 Pudo smart locker (rate quoted by supplier)</option>
+								<option value="courier">🚚 Door courier (rate quoted by supplier)</option>
 							</select>
 						</div>
 					</div>
@@ -165,7 +189,7 @@ templ OfferModalComponent(data OfferModalViewData) {
 						<input 
 							type="text" 
 							name="notes" 
-							placeholder="e.g. Cash / EFT on collection today at Cresta, or taking 3 units if approved" 
+							placeholder="e.g. EFT on collection, or taking 3 units if the price is approved" 
 							class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:border-emerald-500 text-xs text-slate-900 outline-none"
 						/>
 					</div>
@@ -188,11 +212,19 @@ templ OfferModalComponent(data OfferModalViewData) {
 						</button>
 					</div>
 				</form>
+				} else {
+					<div class="rounded-2xl border border-dashed border-slate-300 p-6 text-center">
+						<div class="text-2xl mb-2">🤝</div>
+						<div class="text-sm font-bold text-slate-800">No supplier contact on this listing</div>
+						<p class="text-xs text-slate-500 mt-1.5 max-w-sm mx-auto">Counter-offers are delivered on the supplier's own WhatsApp line, and this listing has none published. Post a buy request instead and let suppliers quote you.</p>
+						<a href="/requests" class="inline-flex mt-3.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition">Post a buy request</a>
+					</div>
+				}
 			</div>
 
 			<!-- Footer Guarantee -->
 			<div class="p-3 bg-slate-50 border-t border-slate-200 text-center text-[11px] text-slate-500">
-				🛡️ <strong>Shoppage SafeTrade Guarantee</strong> · Direct negotiation with CIPC verified merchant
+				Offers go straight to the supplier on WhatsApp · Shoppage does not hold funds or guarantee fulfilment
 			</div>
 		</div>
 	</div>
@@ -204,7 +236,11 @@ templ OfferSuccessCardComponent(result models.OfferSubmissionResult) {
 			✓
 		</div>
 		<div>
-			<h4 class="text-base font-black text-slate-900">Offer Successfully Submitted!</h4>
+			if result.WhatsAppURL != "" {
+				<h4 class="text-base font-black text-slate-900">Offer ready to send</h4>
+			} else {
+				<h4 class="text-base font-black text-slate-900">Offer recorded</h4>
+			}
 			<p class="text-xs text-slate-500 max-w-sm mx-auto mt-1">
 				{ result.Message }
 			</p>
@@ -228,6 +264,7 @@ templ OfferSuccessCardComponent(result models.OfferSubmissionResult) {
 		</div>
 
 		<div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+			if result.WhatsAppURL != "" {
 			<a 
 				href={ templ.SafeURL(result.WhatsAppURL) } 
 				target="_blank"
@@ -236,6 +273,7 @@ templ OfferSuccessCardComponent(result models.OfferSubmissionResult) {
 				<span>💬 Open WhatsApp Chat with Supplier</span>
 				<span>&rarr;</span>
 			</a>
+			}
 			<button 
 				type="button" 
 				onclick="document.getElementById('modal-container').innerHTML = '';"

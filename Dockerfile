@@ -74,7 +74,6 @@ COPY --from=builder /bin/shoppage-merchant /app/shoppage-merchant
 COPY --from=builder /bin/shoppage-chat /app/shoppage-chat
 COPY --from=builder /bin/shoppage-search /app/shoppage-search
 
-COPY data/ /app/data/
 COPY services/consumer-web/data/ /app/data/
 # Bulk *.sqlite datasets are gitignored and excluded via .dockerignore —
 # mount shoppage-commerce-intelligence-foundation/ as a volume in compose.

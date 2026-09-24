@@ -111,7 +111,7 @@ func ProductDetailComponent(data ProductViewData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" class=\"max-h-96 w-full object-contain\"><div class=\"absolute top-4 left-4 flex flex-col gap-1.5\"><span class=\"px-2.5 py-1 rounded-lg bg-slate-900 text-emerald-400 text-xs font-black flex items-center gap-1 shadow-sm\"><span>🇿🇦</span> <span>In Stock in South Africa</span></span> <span class=\"px-2.5 py-0.5 rounded-lg bg-emerald-700 text-white text-[10px] font-bold shadow-xs\">✓ Verified CIPC Wholesaler</span></div><span class=\"absolute top-4 right-4 px-2.5 py-1 rounded-full bg-emerald-500 text-white text-xs font-bold shadow-xs\">Dispatches in 24h</span></div><!-- Delivery Options Estimator --><div class=\"bg-white rounded-3xl border border-slate-200 p-6\"><h3 class=\"text-sm font-black text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2\"><span>📦</span> <span>Transparent Delivery &amp; Pickup Options</span></h3><div class=\"grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs\"><div class=\"p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between\"><div><div class=\"text-lg mb-1\">🏬</div><div class=\"font-bold text-slate-900\">Mall Collection</div><div class=\"text-[11px] text-slate-500 mt-0.5\">Collect at nearest trade counter</div></div><div class=\"mt-2 text-emerald-700 font-black text-sm\">FREE</div></div><div class=\"p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between\"><div><div class=\"text-lg mb-1\">📦</div><div class=\"font-bold text-slate-900\">Pudo Smart Locker</div><div class=\"text-[11px] text-slate-500 mt-0.5\">Engen &amp; mall lockers nationwide</div></div><div class=\"mt-2 text-slate-900 font-black text-sm\">R 60.00</div></div><div class=\"p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between\"><div><div class=\"text-lg mb-1\">🚚</div><div class=\"font-bold text-slate-900\">Door Courier</div><div class=\"text-[11px] text-slate-500 mt-0.5\">The Courier Guy (1–2 days)</div></div><div class=\"mt-2 text-slate-900 font-black text-sm\">R 85.00</div></div></div></div><!-- Product Overview & Specs --><div class=\"bg-white rounded-3xl border border-slate-200 p-6\"><h2 class=\"text-lg font-black text-slate-900 mb-3\">Product Overview</h2><p class=\"text-sm text-slate-600 leading-relaxed\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" class=\"max-h-96 w-full object-contain\"><div class=\"absolute top-4 left-4 flex flex-col gap-1.5\"><span class=\"px-2.5 py-1 rounded-lg bg-slate-900 text-emerald-400 text-xs font-black flex items-center gap-1 shadow-sm\"><span>🇿🇦</span> <span>In Stock in South Africa</span></span> <span class=\"px-2.5 py-0.5 rounded-lg bg-emerald-700 text-white text-[10px] font-bold shadow-xs\">Registered Wholesaler</span></div><span class=\"absolute top-4 right-4 px-2.5 py-1 rounded-full bg-emerald-500 text-white text-xs font-bold shadow-xs\">Dispatches in 24h</span></div><!-- Delivery Options Estimator --><div class=\"bg-white rounded-3xl border border-slate-200 p-6\"><h3 class=\"text-sm font-black text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2\"><span>📦</span> <span>Transparent Delivery &amp; Pickup Options</span></h3><div class=\"grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs\"><div class=\"p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between\"><div><div class=\"text-lg mb-1\">🏬</div><div class=\"font-bold text-slate-900\">Mall Collection</div><div class=\"text-[11px] text-slate-500 mt-0.5\">Collect at nearest trade counter</div></div><div class=\"mt-2 text-emerald-700 font-black text-sm\">FREE</div></div><div class=\"p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between\"><div><div class=\"text-lg mb-1\">📦</div><div class=\"font-bold text-slate-900\">Pudo Smart Locker</div><div class=\"text-[11px] text-slate-500 mt-0.5\">Engen &amp; mall lockers nationwide</div></div><div class=\"mt-2 text-slate-900 font-black text-sm\">R 60.00</div></div><div class=\"p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between\"><div><div class=\"text-lg mb-1\">🚚</div><div class=\"font-bold text-slate-900\">Door Courier</div><div class=\"text-[11px] text-slate-500 mt-0.5\">The Courier Guy (1–2 days)</div></div><div class=\"mt-2 text-slate-900 font-black text-sm\">R 85.00</div></div></div></div><!-- Product Overview & Specs --><div class=\"bg-white rounded-3xl border border-slate-200 p-6\"><h2 class=\"text-lg font-black text-slate-900 mb-3\">Product Overview</h2><p class=\"text-sm text-slate-600 leading-relaxed\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -340,162 +340,152 @@ func ProductDetailComponent(data ProductViewData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, " ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if offer.Verified {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span class=\"px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold\">✓ CIPC Verified</span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div><div class=\"text-xs text-slate-500 mt-0.5\"><span>📍 ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div><div class=\"text-xs text-slate-500 mt-0.5\"><span>📍 ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var22 string
 				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(offer.City)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 176, Col: 35}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 173, Col: 35}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</span> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if offer.Trust != nil {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span class=\"text-emerald-700 font-semibold ml-1\">· Replies ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span class=\"text-emerald-700 font-semibold ml-1\">· Replies ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(offer.Trust.ResponseTime)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 178, Col: 100}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 175, Col: 100}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</div></div><div class=\"text-right shrink-0\"><div class=\"text-base font-black text-slate-900\">R ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div></div><div class=\"text-right shrink-0\"><div class=\"text-base font-black text-slate-900\">R ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var24 string
 				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", offer.PriceZar))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 183, Col: 99}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 180, Col: 99}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div><div class=\"text-[10px] text-emerald-700 font-bold\">🟢 Floor Stock Ready</div></div></div><!-- Action Buttons: WhatsApp + Make an Offer --><div class=\"pt-2 border-t border-slate-100 flex items-center gap-2\"><a href=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div><div class=\"text-[10px] text-emerald-700 font-bold\">🟢 Floor Stock Ready</div></div></div><!-- Action Buttons: WhatsApp + Make an Offer --><div class=\"pt-2 border-t border-slate-100 flex items-center gap-2\"><a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var25 templ.SafeURL
 				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi,%%20I'm%%20inquiring%%20about%%20%s%%20listed%%20on%%20Shoppage%%20for%%20R%.2f", offer.WhatsApp, data.Product.Title, offer.PriceZar)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 191, Col: 204}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 188, Col: 204}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" target=\"_blank\" class=\"flex-1 inline-flex items-center justify-center gap-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-2xs cursor-pointer\"><span>💬 WhatsApp Quote</span></a><!-- Make an Offer --><button type=\"button\" hx-get=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" target=\"_blank\" class=\"flex-1 inline-flex items-center justify-center gap-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-2xs cursor-pointer\"><span>💬 WhatsApp Quote</span></a><!-- Make an Offer --><button type=\"button\" hx-get=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var26 string
 				templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(templ.SafeURL(fmt.Sprintf("/offer/modal/%s?price=%.2f&merchant=%s", data.Product.CanonicalID, offer.PriceZar, offer.MerchantID))))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 200, Col: 156}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 197, Col: 156}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" hx-target=\"#modal-container\" class=\"py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition cursor-pointer\">🤝 Make Offer</button></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" hx-target=\"#modal-container\" class=\"py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition cursor-pointer\">🤝 Make Offer</button></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div></div></div></div></main><!-- Instant Automated Checkout Modal (Amazon / Ozow Parity) --> <dialog id=\"instant-checkout-modal\" class=\"p-0 rounded-3xl backdrop:bg-slate-900/60 border border-slate-200 shadow-2xl max-w-lg w-full\"><div class=\"p-6 bg-white\"><div class=\"flex items-center justify-between border-b border-slate-100 pb-4 mb-4\"><div><h3 class=\"text-base font-black text-slate-900\">Instant Automated Settlement</h3><div class=\"text-xs text-slate-500\">Fast B2B payment via Ozow Instant EFT or Card</div></div><button type=\"button\" onclick=\"document.getElementById('instant-checkout-modal')?.close();\" class=\"text-slate-400 hover:text-slate-700 text-lg font-bold cursor-pointer\">&times;</button></div><div id=\"checkout-result-stage\"><form hx-post=\"/checkout/instant\" hx-target=\"#checkout-result-stage\"><input type=\"hidden\" name=\"product_title\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div></div></div></div></main><!-- Instant Automated Checkout Modal (Amazon / Ozow Parity) --> <dialog id=\"instant-checkout-modal\" class=\"p-0 rounded-3xl backdrop:bg-slate-900/60 border border-slate-200 shadow-2xl max-w-lg w-full\"><div class=\"p-6 bg-white\"><div class=\"flex items-center justify-between border-b border-slate-100 pb-4 mb-4\"><div><h3 class=\"text-base font-black text-slate-900\">Instant Automated Settlement</h3><div class=\"text-xs text-slate-500\">Fast B2B payment via Ozow Instant EFT or Card</div></div><button type=\"button\" onclick=\"document.getElementById('instant-checkout-modal')?.close();\" class=\"text-slate-400 hover:text-slate-700 text-lg font-bold cursor-pointer\">&times;</button></div><div id=\"checkout-result-stage\"><form hx-post=\"/checkout/instant\" hx-target=\"#checkout-result-stage\"><input type=\"hidden\" name=\"product_title\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var27 string
 			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Product.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 228, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 225, Col: 74}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\"> <input type=\"hidden\" name=\"sku\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\"> <input type=\"hidden\" name=\"sku\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var28 string
 			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Product.Model)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 229, Col: 64}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 226, Col: 64}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\"> <input type=\"hidden\" name=\"unit_price\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\"> <input type=\"hidden\" name=\"unit_price\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var29 string
 			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.2f", data.Product.LowestOfferPrice))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 230, Col: 103}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 227, Col: 103}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\"><div class=\"space-y-4 text-xs\"><div class=\"p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between\"><div><div class=\"font-bold text-slate-900\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\"><div class=\"space-y-4 text-xs\"><div class=\"p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between\"><div><div class=\"font-bold text-slate-900\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var30 string
 			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(data.Product.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 235, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 232, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div><div class=\"text-slate-500 text-[11px]\">R ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div><div class=\"text-slate-500 text-[11px]\">R ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var31 string
 			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", data.Product.LowestOfferPrice))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 236, Col: 103}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 233, Col: 103}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, " / unit</div></div><div class=\"flex items-center gap-2\"><label class=\"text-slate-500 font-semibold\">Qty:</label> <input type=\"number\" name=\"quantity\" value=\"1\" min=\"1\" class=\"w-14 px-2 py-1 border border-slate-300 rounded-lg text-center font-bold\"></div></div><div><label class=\"block font-bold text-slate-700 mb-1\">Select Payment Gateway</label> <select name=\"payment_method\" class=\"w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-medium\"><option value=\"Ozow Instant EFT\">Ozow Instant EFT (Standard Bank / Capitec / FNB / Absa / Nedbank)</option> <option value=\"Capitec Pay\">Capitec Pay (Instant Phone Push Authorisation)</option> <option value=\"Visa / Mastercard\">Credit / Debit Card (3D Secure 2.0)</option></select></div><div class=\"grid grid-cols-2 gap-3\"><div><label class=\"block font-bold text-slate-700 mb-1\">Buyer Full Name</label> <input type=\"text\" name=\"buyer_name\" value=\"Sipho Dlamini\" class=\"w-full px-3 py-2 rounded-xl border border-slate-200\" required></div><div><label class=\"block font-bold text-slate-700 mb-1\">Contact Phone</label> <input type=\"text\" name=\"buyer_phone\" value=\"082 901 2345\" class=\"w-full px-3 py-2 rounded-xl border border-slate-200\" required></div></div><div><label class=\"block font-bold text-slate-700 mb-1\">Delivery Address</label> <input type=\"text\" name=\"delivery_address\" value=\"Sandton Central, Johannesburg, 2196\" class=\"w-full px-3 py-2 rounded-xl border border-slate-200\" required></div><button type=\"submit\" class=\"w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-md transition cursor-pointer\">Pay &amp; Authorize Instant Settlement (ZAR)</button></div></form></div></div></dialog>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, " / unit</div></div><div class=\"flex items-center gap-2\"><label class=\"text-slate-500 font-semibold\">Qty:</label> <input type=\"number\" name=\"quantity\" value=\"1\" min=\"1\" class=\"w-14 px-2 py-1 border border-slate-300 rounded-lg text-center font-bold\"></div></div><div><label class=\"block font-bold text-slate-700 mb-1\">Select Payment Gateway</label> <select name=\"payment_method\" class=\"w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-medium\"><option value=\"Ozow Instant EFT\">Ozow Instant EFT (Standard Bank / Capitec / FNB / Absa / Nedbank)</option> <option value=\"Capitec Pay\">Capitec Pay (Instant Phone Push Authorisation)</option> <option value=\"Visa / Mastercard\">Credit / Debit Card (3D Secure 2.0)</option></select></div><div class=\"grid grid-cols-2 gap-3\"><div><label class=\"block font-bold text-slate-700 mb-1\">Buyer Full Name</label> <input type=\"text\" name=\"buyer_name\" value=\"Sipho Dlamini\" class=\"w-full px-3 py-2 rounded-xl border border-slate-200\" required></div><div><label class=\"block font-bold text-slate-700 mb-1\">Contact Phone</label> <input type=\"text\" name=\"buyer_phone\" value=\"082 901 2345\" class=\"w-full px-3 py-2 rounded-xl border border-slate-200\" required></div></div><div><label class=\"block font-bold text-slate-700 mb-1\">Delivery Address</label> <input type=\"text\" name=\"delivery_address\" value=\"Sandton Central, Johannesburg, 2196\" class=\"w-full px-3 py-2 rounded-xl border border-slate-200\" required></div><button type=\"submit\" class=\"w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-md transition cursor-pointer\">Pay &amp; Authorize Instant Settlement (ZAR)</button></div></form></div></div></dialog>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

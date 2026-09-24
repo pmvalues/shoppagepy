@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/shoppage/consumer-web/internal/models"
+	"github.com/shoppage/consumer-web/internal/site"
 	"github.com/shoppage/consumer-web/internal/store"
 )
 
@@ -36,6 +37,15 @@ type AssistantResponse struct {
 	Malls     []models.Mall       `json:"malls,omitempty"`
 	Action    string              `json:"action,omitempty"`
 	LatencyMs float64             `json:"latencyMs"`
+	// Mode reports which engine produced the reply: "gemini" for a live model
+	// call, "offline-rules" for the deterministic no-key fallback. The UI must
+	// label the answer with this mode and never brand offline rules as Gemini.
+	Mode string `json:"mode"`
+}
+
+// Available reports whether a live Gemini key is configured for this instance.
+func (a *AssistantService) Available() bool {
+	return site.GeminiConfigured()
 }
 
 func CalculateBackupRuntime(batteryKwh float64, loadWatts float64, dod float64) (float64, float64, string) {
@@ -57,17 +67,21 @@ func (a *AssistantService) Ask(ctx context.Context, message string) (*AssistantR
 	start := time.Now()
 	clean := strings.TrimSpace(message)
 	if clean == "" {
+		mode := "gemini"
+		greeting := "Hello! I am your Shoppage AI Commerce Assistant for South Africa. How can I help you find products, calculate solar backup runtime, or locate stores today?"
+		if !a.Available() {
+			mode = "offline-rules"
+			greeting = "Hello! This instance is running the Shoppage offline rules assistant (no AI key configured). I can still search live trade listings, find malls and run solar backup calculations. What are you sourcing?"
+		}
 		return &AssistantResponse{
-			Reply:     "Hello! I am your Shoppage AI Commerce Assistant for South Africa. How can I help you find products, calculate solar backup runtime, or locate stores today?",
+			Reply:     greeting,
 			LatencyMs: float64(time.Since(start).Microseconds()) / 1000.0,
+			Mode:      mode,
 		}, nil
 	}
 
-	apiKey := strings.TrimSpace(os.Getenv("GEMINI_API_KEY"))
-	model := strings.TrimSpace(os.Getenv("GEMINI_MODEL"))
-	if model == "" {
-		model = "gemini-2.5-flash"
-	}
+	apiKey := strings.TrimSpace(os.Getenv(site.EnvGeminiAPIKey))
+	model := site.GeminiModel()
 
 	// Offline / fallback if no API key configured
 	if apiKey == "" {
@@ -224,6 +238,7 @@ func (a *AssistantService) Ask(ctx context.Context, message string) (*AssistantR
 		Products:  products,
 		Malls:     malls,
 		LatencyMs: float64(time.Since(start).Microseconds()) / 1000.0,
+		Mode:      "gemini",
 	}, nil
 }
 
@@ -237,11 +252,12 @@ func (a *AssistantService) offlineFallback(query string, start time.Time) (*Assi
 			products = products[:4]
 		}
 		_, _, formatted := CalculateBackupRuntime(5.12, 450, 0.9)
-		reply := fmt.Sprintf("For Stage 6 load shedding resilience, a standard **5.12 kWh LiFePO4 battery** with a **450W household baseline load** provides **%s** of continuous power. Here are top verified solar equipment offers in Gauteng and Western Cape:", formatted)
+		reply := fmt.Sprintf("Offline rules engine (no live AI key on this instance). Worked example: a 5.12 kWh LiFePO4 pack at a 450 W baseline load gives about %s of continuous runtime. Matching catalogue items:", formatted)
 		return &AssistantResponse{
 			Reply:     reply,
 			Products:  products,
 			LatencyMs: float64(time.Since(start).Microseconds()) / 1000.0,
+			Mode:      "offline-rules",
 		}, nil
 	}
 
@@ -252,9 +268,10 @@ func (a *AssistantService) offlineFallback(query string, start time.Time) (*Assi
 			malls = malls[:4]
 		}
 		return &AssistantResponse{
-			Reply:     fmt.Sprintf("Here are commercial shopping hubs matching '%s':", query),
+			Reply:     fmt.Sprintf("Offline rules engine (no live AI key on this instance). Commercial shopping hubs matching '%s':", query),
 			Malls:     malls,
 			LatencyMs: float64(time.Since(start).Microseconds()) / 1000.0,
+			Mode:      "offline-rules",
 		}, nil
 	}
 
@@ -265,14 +282,15 @@ func (a *AssistantService) offlineFallback(query string, start time.Time) (*Assi
 	}
 	var reply string
 	if len(matched) > 0 {
-		reply = fmt.Sprintf("I located **%d verified products** for '%s' across local merchants:", len(matched), query)
+		reply = fmt.Sprintf("Offline rules engine (no live AI key on this instance). Catalogue matches for '%s':", query)
 	} else {
-		reply = fmt.Sprintf("I could not find exact stock matches for '%s'. Try searching for broader terms like 'inverter', 'hanger', or 'solar'.", query)
+		reply = fmt.Sprintf("Offline rules engine (no live AI key on this instance). No catalogue matches for '%s'. Try broader terms like 'inverter', 'hanger', or 'solar'.", query)
 	}
 
 	return &AssistantResponse{
 		Reply:     reply,
 		Products:  matched,
 		LatencyMs: float64(time.Since(start).Microseconds()) / 1000.0,
+		Mode:      "offline-rules",
 	}, nil
 }

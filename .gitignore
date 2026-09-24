@@ -19,6 +19,12 @@ __pycache__/
 *.sqlite3-journal
 db.sqlite3
 *.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.db-wal
+*.db-shm
+*.db-journal
 
 # Large Archives & Spreadsheets
 *.zip

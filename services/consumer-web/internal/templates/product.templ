@@ -47,7 +47,7 @@ templ ProductDetailComponent(data ProductViewData) {
 								<span>🇿🇦</span> <span>In Stock in South Africa</span>
 							</span>
 							<span class="px-2.5 py-0.5 rounded-lg bg-emerald-700 text-white text-[10px] font-bold shadow-xs">
-								✓ Verified CIPC Wholesaler
+								Registered Wholesaler
 							</span>
 						</div>
 						<span class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-emerald-500 text-white text-xs font-bold shadow-xs">
@@ -168,9 +168,6 @@ templ ProductDetailComponent(data ProductViewData) {
 										<div>
 											<div class="font-bold text-sm text-slate-900 flex items-center gap-1.5 flex-wrap">
 												{ offer.MerchantName }
-												if offer.Verified {
-													<span class="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold">✓ CIPC Verified</span>
-												}
 											</div>
 											<div class="text-xs text-slate-500 mt-0.5">
 												<span>📍 { offer.City }</span>
