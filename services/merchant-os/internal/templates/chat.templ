@@ -14,7 +14,7 @@ templ ChatTab(data models.DashboardViewData) {
 				<div class="sub">Slack/Teams-style B2B trade workstation: Block Kit action cards, internal team whispers, warehouse stock locks &amp; live negotiation</div>
 			</div>
 			<div style="margin-left: auto; display:flex; align-items:center; gap:8px;">
-				<span class="chip up" id="ws-indicator">● Gateway: ws://localhost:8080/ws/chat (Connected)</span>
+				<span class="chip warn" id="ws-indicator">● Gateway: Connecting…</span>
 				<button type="button" class="btn ghost small" onclick="document.getElementById('stock-lock-modal')?.showModal();">
 					<span>📦</span> Reserve Warehouse Stock
 				</button>
@@ -417,6 +417,7 @@ templ ChatTab(data models.DashboardViewData) {
 							hx-post="/chat/send" 
 							hx-target="#tab-content" 
 							id="chat-send-form"
+							onsubmit="var _f=document.getElementById('chat-input-text'); if(_f && _f.value.trim() && document.getElementById('is-internal-flag').value!=='true'){ document.dispatchEvent(new CustomEvent('shoppage:chat-sent',{detail:{message:_f.value.trim()}})); }"
 							style="padding: 12px 16px; display: flex; gap: 10px; background: var(--surface); align-items: center; transition: background .15s;"
 						>
 							<input type="hidden" name="thread_id" value={ activeThread.ID } />
@@ -653,49 +654,86 @@ templ ChatTab(data models.DashboardViewData) {
 
 		// Real-time Chat WebSocket Connection
 		(function() {
-			var activeThreadId = document.querySelector('.thread-item.active-thread')?.getAttribute('hx-get')?.split('/').pop() || 'conv_protea';
-			if (!activeThreadId) return;
+			var storeId = {{ fmt.Sprintf("%q", data.Store.ID) }};
+			if (!storeId) return;
+			var roomId = "conv_" + storeId;
+			var lastSent = "";
+			var socket = null;
 
-			try {
-				var wsUrl = "ws://" + window.location.hostname + ":8080/ws/chat?roomId=" + encodeURIComponent(activeThreadId) + "&userId=merchant_mitrend&role=merchant";
-				var socket = new WebSocket(wsUrl);
+			function connectGateway() {
+				try {
+					var proto = window.location.protocol === "https:" ? "wss://" : "ws://";
+					var host = window.location.hostname;
+					var port = window.location.port === "3000" ? ":8080" : (window.location.port ? ":" + window.location.port : "");
+					var wsUrl = proto + host + port + "/ws/chat?roomId=" + encodeURIComponent(roomId) + "&userId=merchant_" + encodeURIComponent(storeId) + "&role=merchant";
+					socket = new WebSocket(wsUrl);
 
-				socket.onopen = function() {
-					var ind = document.getElementById("ws-indicator");
-					if (ind) {
-						ind.textContent = "● Gateway: Connected (:8080)";
-						ind.className = "chip up";
-					}
-				};
-
-				socket.onmessage = function(event) {
-					try {
-						var data = JSON.parse(event.data);
-						if (data.event === "message_received" && data.message) {
-							// Append incoming message dynamically to the stream
-							var stream = document.getElementById("chat-messages-stream");
-							if (stream) {
-								var bubble = document.createElement("div");
-								bubble.style.cssText = "display: flex; flex-direction: column; align-items: flex-start; max-width: 78%;";
-								bubble.innerHTML = '<div style="background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--ink); padding: 10px 14px; border-radius: 12px; border-bottom-left-radius: 2px; font-size: 13.5px; line-height: 1.45;">' + 
-									escapeHtml(data.message.content) + 
-									'</div><div style="font-size: 10.5px; color: var(--muted); margin-top: 3px;">' + 
-									escapeHtml(data.message.senderId) + ' · Just now · Live WebSocket</div>';
-								stream.appendChild(bubble);
-								stream.scrollTop = stream.scrollHeight;
-							}
+					socket.onopen = function() {
+						var ind = document.getElementById("ws-indicator");
+						if (ind) {
+							ind.textContent = "● Gateway: Connected";
+							ind.className = "chip up";
 						}
-					} catch(e) {}
-				};
+					};
 
-				socket.onerror = function() {
-					var ind = document.getElementById("ws-indicator");
-					if (ind) {
-						ind.textContent = "● Gateway: REST Fallback";
-						ind.className = "chip warn";
-					}
-				};
-			} catch(e) {}
+					socket.onmessage = function(event) {
+						try {
+							// Gateway may coalesce frames with \n — parse each line
+							String(event.data).split('\n').forEach(function(line) {
+								line = line.trim();
+								if (!line) return;
+								var data = JSON.parse(line);
+								if (data.event === "message_received" && data.message) {
+									if (data.message.senderRole === "merchant") return;
+									var stream = document.getElementById("chat-messages-stream");
+									if (stream) {
+										var bubble = document.createElement("div");
+										bubble.style.cssText = "display: flex; flex-direction: column; align-items: flex-start; max-width: 78%;";
+										bubble.innerHTML = '<div style="background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--ink); padding: 10px 14px; border-radius: 12px; border-bottom-left-radius: 2px; font-size: 13.5px; line-height: 1.45;">' +
+											escapeHtml(data.message.content) +
+											'</div><div style="font-size: 10.5px; color: var(--muted); margin-top: 3px;">' +
+											escapeHtml(data.message.senderId) + ' · Just now · Live WebSocket</div>';
+										stream.appendChild(bubble);
+										stream.scrollTop = stream.scrollHeight;
+									}
+								}
+							});
+						} catch(e) {}
+					};
+
+					socket.onclose = function() {
+						var ind = document.getElementById("ws-indicator");
+						if (ind) {
+							ind.textContent = "● Gateway: Offline";
+							ind.className = "chip warn";
+						}
+						setTimeout(connectGateway, 3000);
+					};
+
+					socket.onerror = function() {
+						var ind = document.getElementById("ws-indicator");
+						if (ind) {
+							ind.textContent = "● Gateway: Reconnecting";
+							ind.className = "chip warn";
+						}
+					};
+				} catch(e) {}
+			}
+
+			connectGateway();
+
+			document.addEventListener("shoppage:chat-sent", function(e) {
+				var text = (e && e.detail && e.detail.message) || "";
+				if (!text || text === lastSent) return;
+				lastSent = text;
+				if (socket && socket.readyState === WebSocket.OPEN) {
+					socket.send(JSON.stringify({
+						action: "send_message",
+						conversationId: roomId,
+						content: text
+					}));
+				}
+			});
 
 			function escapeHtml(text) {
 				var div = document.createElement('div');

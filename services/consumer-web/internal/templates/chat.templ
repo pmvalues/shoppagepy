@@ -2,6 +2,9 @@ package templates
 
 import (
 	"fmt"
+	"net/url"
+
+	"github.com/shoppage/consumer-web/internal/site"
 )
 
 templ ChatComponent(data ChatViewData) {
@@ -16,18 +19,18 @@ templ ChatComponent(data ChatViewData) {
 						</h1>
 						<span id="ws-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
 							<span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-							<span id="ws-status-text">Connecting to Gateway (:8080)...</span>
+							<span id="ws-status-text">Checking chat gateway...</span>
 						</span>
 					</div>
 					<p class="text-xs text-slate-500 mt-1">
-						Commerce-native direct messaging with verified South African wholesalers, structured quotes &amp; instant EFT settlement.
+						Direct messaging with South African trade suppliers. Quotes and payment terms are agreed between buyer and supplier &mdash; this chat does not settle payment.
 					</p>
 				</div>
 				<div class="flex items-center gap-2">
 					<a href="/requests" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 transition flex items-center gap-1.5">
 						<span>📑</span> <span>View RFQ Desk</span>
 					</a>
-					<a href="http://localhost:8083/tab/chat" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+					<a href={ templ.SafeURL(site.MerchantDeskURL()) } target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5">
 						<span>⚡</span> <span>Merchant OS Desk</span>
 					</a>
 				</div>
@@ -39,8 +42,8 @@ templ ChatComponent(data ChatViewData) {
 				<div class="lg:col-span-4 border-r border-slate-200 flex flex-col bg-slate-50/50">
 					<div class="p-3.5 border-b border-slate-200 bg-white">
 						<div class="flex items-center justify-between mb-2">
-							<span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Verified Wholesalers</span>
-							<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold">{ fmt.Sprintf("%d Online", len(data.Merchants)) }</span>
+							<span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Trade Suppliers</span>
+							<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold">{ fmt.Sprintf("%d Suppliers", len(data.Merchants)) }</span>
 						</div>
 						<input 
 							type="text" 
@@ -52,9 +55,17 @@ templ ChatComponent(data ChatViewData) {
 
 					<div id="contacts-list" class="flex-1 overflow-y-auto divide-y divide-slate-100">
 						for _, m := range data.Merchants {
-							<div 
+							<div
 								class={ "contact-card p-3.5 flex items-start gap-3 cursor-pointer transition", templ.KV("bg-emerald-50/80 border-l-4 border-emerald-600", m.ID == data.SelectedMerchantID), templ.KV("hover:bg-slate-100", m.ID != data.SelectedMerchantID) }
-								onclick={ templ.ComponentScript{ Call: fmt.Sprintf("selectMerchant('%s')", m.ID) } }
+								data-id={ m.ID }
+								data-name={ m.Name }
+								data-avatar={ m.Avatar }
+								data-category={ m.Category }
+								data-city={ m.City }
+								data-cipc={ m.Cipc }
+								data-verified={ fmt.Sprintf("%t", m.Verified) }
+								data-whatsapp={ m.WhatsApp }
+								onclick="selectMerchant(this.dataset.id);"
 							>
 								<div class="relative shrink-0">
 									<div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-white font-bold flex items-center justify-center text-sm shadow-sm">
@@ -65,17 +76,28 @@ templ ChatComponent(data ChatViewData) {
 									}
 								</div>
 								<div class="min-w-0 flex-1">
-									<div class="flex items-center justify-between mb-0.5">
-										<h4 class="text-xs font-bold text-slate-900 truncate flex items-center gap-1">
+									<div class="flex items-start justify-between gap-2 min-w-0">
+										<h4 class="text-xs font-bold text-slate-900 truncate min-w-0 flex-1">
 											{ m.Name }
-											if m.Verified {
-												<span class="text-emerald-600 text-[10px]" title="CIPC Verified">✓</span>
-											}
 										</h4>
-										<span class="text-[10px] text-slate-400">{ m.Time }</span>
+										<span class="text-[10px] text-slate-400 shrink-0">
+												if m.Time != "" {
+													{ m.Time }
+												} else if m.Online {
+														online
+												} else {
+														offline
+												}
+											</span>
 									</div>
 									<div class="text-[11px] text-emerald-700 font-semibold mb-1">{ m.Category } · { m.City }</div>
-									<p class="text-[11px] text-slate-500 line-clamp-1">{ m.LastMessage }</p>
+									<p class="text-[11px] text-slate-500 line-clamp-1">
+											if m.LastMessage != "" {
+												{ m.LastMessage }
+											} else {
+												No messages yet
+											}
+										</p>
 								</div>
 							</div>
 						}
@@ -84,102 +106,70 @@ templ ChatComponent(data ChatViewData) {
 
 				<!-- RIGHT PANE: Conversation & Quotes (8 cols) -->
 				<div class="lg:col-span-8 flex flex-col h-full min-h-[640px]">
-					<!-- Active Conversation Header -->
-					<div class="p-4 border-b border-slate-200 bg-white flex items-center justify-between">
-						<div class="flex items-center gap-3">
-							<div class="w-10 h-10 rounded-xl bg-emerald-600 text-white font-bold flex items-center justify-center text-sm">
-								M
+					<!-- Active conversation header. Every value comes from the selected
+					     supplier record: an unverified supplier is shown as unverified and
+					     a supplier with no published number gets no WhatsApp button. -->
+					<div class="p-4 border-b border-slate-200 bg-white flex items-center justify-between gap-3">
+						<div class="flex items-center gap-3 min-w-0">
+							<div id="active-merchant-avatar" class="w-10 h-10 rounded-xl bg-emerald-600 text-white font-bold flex items-center justify-center text-sm shrink-0">
+								if data.Selected != nil {
+									{ data.Selected.Avatar }
+								} else {
+									·
+								}
 							</div>
-							<div>
-								<div class="flex items-center gap-2">
-									<h3 id="active-merchant-name" class="text-sm font-bold text-slate-900">Mitrend Products (Pty) Ltd</h3>
-									<span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">CIPC 2018/489102/07</span>
+							<div class="min-w-0">
+								<div class="flex items-center gap-2 flex-wrap">
+									<h3 id="active-merchant-name" class="text-sm font-bold text-slate-900 truncate">
+										if data.Selected != nil {
+											{ data.Selected.Name }
+										} else {
+											No supplier selected
+										}
+									</h3>
+									<span id="active-merchant-verify" class="flex items-center gap-2">
+										if data.Selected != nil && data.Selected.Verified && data.Selected.Cipc != "" {
+											<span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-bold">{ data.Selected.Cipc }</span>
+										} else if data.Selected != nil && data.Selected.Cipc != "" {
+											<span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-bold">CIPC { data.Selected.Cipc }</span>
+										}
+									</span>
 								</div>
-								<div class="text-xs text-slate-500 flex items-center gap-2">
-									<span>Midrand Central Hub, Bay 4</span>
-									<span>·</span>
-									<span class="text-emerald-600 font-semibold">⚡ Typ. reply in 5 min</span>
-								</div>
+								if data.Selected != nil {
+									<div id="active-merchant-meta" class="text-xs text-slate-500 flex items-center gap-2 flex-wrap mt-0.5">
+										if data.Selected.Category != "" {
+											<span>{ data.Selected.Category }</span>
+										}
+										if data.Selected.City != "" {
+											<span>·</span>
+											<span>{ data.Selected.City }</span>
+										}
+									</div>
+								} else {
+									<div id="active-merchant-meta" class="text-xs text-slate-500 mt-0.5"></div>
+								}
 							</div>
 						</div>
-						<div class="flex items-center gap-2">
-							<a href="https://wa.me/27720000000?text=Hi%20Mitrend,%20inquiring%20via%20Shoppage" target="_blank" class="px-3 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition flex items-center gap-1.5">
-								<span>💬</span> <span>WhatsApp Direct</span>
-							</a>
-						</div>
+						<span id="active-merchant-cta" class="shrink-0">
+							if data.Selected != nil && data.Selected.WhatsApp != "" {
+								<a href={ templ.SafeURL("https://wa.me/" + data.Selected.WhatsApp + "?text=" + url.QueryEscape("Inquiry from Shoppage: " + data.Selected.Name)) } target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition flex items-center gap-1.5">
+									<span>💬</span> <span>WhatsApp Direct</span>
+								</a>
+							}
+						</span>
 					</div>
 
-					<!-- Active Quotation Card (B2B Proforma) -->
-					<div class="p-3.5 bg-amber-50/70 border-b border-amber-200/80">
-						<div class="flex items-center justify-between mb-2">
-							<div class="flex items-center gap-2">
-								<span class="px-2 py-0.5 rounded bg-amber-200 text-amber-900 font-bold text-[10px] uppercase tracking-wider">Formal Wholesale Quote</span>
-								<span class="font-mono text-xs font-bold text-slate-800">#QUO-2026-0814</span>
-								<span class="text-xs text-slate-500">· Valid 7 days</span>
-							</div>
-							<div class="text-right">
-								<span class="text-[11px] text-slate-500">Total (Incl. 15% VAT):</span>
-								<span class="text-sm font-black text-slate-900 ml-1">R 4,735.70</span>
-							</div>
-						</div>
-						<div class="bg-white rounded-xl border border-amber-200 p-2.5 flex items-center justify-between text-xs mb-2">
-							<div>
-								<span class="font-mono font-bold text-emerald-700">MIT-3361</span>
-								<span class="font-semibold text-slate-900 ml-1.5">Commercial Anti-Theft Wooden Male Hanger 44cm</span>
-								<span class="text-slate-500 ml-2">&times; 200 units @ R20.59 (10% Tier)</span>
-							</div>
-							<div class="font-mono font-bold text-slate-900">R 4,118.00</div>
-						</div>
-						<div class="flex items-center justify-between pt-1">
-							<div class="text-[11px] text-slate-500 flex items-center gap-1 flex-wrap">
-								<span>🚚</span> <span>Delivery: The Courier Guy Express (Gauteng 24h)</span>
-								<span class="mx-1 text-slate-300">·</span>
-								<span class="inline-flex items-center gap-1 text-emerald-800 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-									<span>📦</span> <span>200 Units Reserved (Midrand Hub Bay 4 · LCK-MID-0814)</span>
-								</span>
-							</div>
-							<div class="flex items-center gap-2">
-								<button type="button" onclick="alert('Quotation accepted! Proforma tax invoice #INV-3361 generated. EFT details dispatched to buyer email.');" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition">
-									✓ Accept Quote &amp; Pay EFT
-								</button>
-							</div>
-						</div>
-					</div>
-
-					<!-- Message Thread Stream -->
+					<!-- Message stream. The only messages this pane can hold are ones the
+					     chat gateway actually delivered over the WebSocket below. -->
 					<div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/40">
-						<!-- Buyer Message -->
-						<div class="flex justify-end">
-							<div class="max-w-[75%] rounded-2xl rounded-tr-sm bg-emerald-600 text-white p-3 text-xs shadow-sm">
-								<p class="leading-relaxed">Good morning! We are currently refurbishing 40 executive guest suites at Protea Balalaika in Sandton.</p>
-								<div class="text-[10px] text-emerald-200 text-right mt-1">09:40</div>
-							</div>
-						</div>
-
-						<!-- Merchant Message -->
-						<div class="flex justify-start">
-							<div class="max-w-[75%] rounded-2xl rounded-tl-sm bg-white border border-slate-200 text-slate-900 p-3 text-xs shadow-sm">
-								<div class="text-[10px] font-bold text-emerald-600 mb-0.5">Mitrend Sales Desk</div>
-								<p class="leading-relaxed">Sawubona! Congratulations on the project. We have 450 units of the MIT-3361 commercial anti-theft hangers in stock at our Midrand central warehouse.</p>
-								<div class="text-[10px] text-slate-400 text-right mt-1">09:45</div>
-							</div>
-						</div>
-
-						<!-- Buyer Message -->
-						<div class="flex justify-end">
-							<div class="max-w-[75%] rounded-2xl rounded-tr-sm bg-emerald-600 text-white p-3 text-xs shadow-sm">
-								<p class="leading-relaxed">Can we get 200 wooden hangers delivered to Sandton before Thursday?</p>
-								<div class="text-[10px] text-emerald-200 text-right mt-1">10:15</div>
-							</div>
-						</div>
-
-						<!-- Merchant Message with Quote -->
-						<div class="flex justify-start">
-							<div class="max-w-[75%] rounded-2xl rounded-tl-sm bg-white border border-slate-200 text-slate-900 p-3 text-xs shadow-sm">
-								<div class="text-[10px] font-bold text-emerald-600 mb-0.5">Mitrend Sales Desk</div>
-								<p class="leading-relaxed">Yes absolutely! I have attached our formal wholesale quotation (#QUO-2026-0814) above with our 10% commercial volume tier applied. Stock is reserved for your dispatch.</p>
-								<div class="text-[10px] text-slate-400 text-right mt-1">10:24</div>
-							</div>
+						<div data-chat-empty class="h-full min-h-[240px] flex flex-col items-center justify-center text-center gap-2 px-6">
+							<div class="w-11 h-11 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-lg">📨</div>
+							<p class="text-xs font-bold text-slate-700">No messages in this conversation yet</p>
+							if site.ChatGatewayWS() != "" {
+								<p class="text-[11px] text-slate-500 max-w-xs">Messages you send are routed to the supplier's live chat desk and appear here when they reply.</p>
+							} else {
+								<p class="text-[11px] text-amber-800 max-w-xs">Live chat is unavailable right now — use the supplier's WhatsApp or storefront contact instead.</p>
+							}
 						</div>
 					</div>
 
@@ -206,43 +196,87 @@ templ ChatComponent(data ChatViewData) {
 			</div>
 
 			<!-- Live WebSocket Script -->
+			<div id="chat-gateway-config" class="hidden" data-ws={ site.ChatGatewayWS() } data-merchant={ data.SelectedMerchantID }></div>
 			<script>
 				let ws = null;
-				let currentMerchantId = 'loc_mitrend_midrand';
+				let currentMerchantId = '';
+				let buyerId = '';
+				function chatConfig() {
+					return document.getElementById('chat-gateway-config') || { dataset: {} };
+				}
+				function ensureBuyerId() {
+					if (buyerId) return buyerId;
+					buyerId = sessionStorage.getItem('shoppage-buyer-id');
+					if (!buyerId) {
+						buyerId = 'buyer_' + (crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Date.now().toString(36));
+						sessionStorage.setItem('shoppage-buyer-id', buyerId);
+					}
+					return buyerId;
+				}
+				function setBadge(kind, label) {
+					const badge = document.getElementById('ws-badge');
+					const text = document.getElementById('ws-status-text');
+					if (!badge || !text) return;
+					const dot = badge.querySelector('span');
+					if (kind === 'green') {
+						badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
+						if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+					} else {
+						badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200';
+						if (dot) dot.className = 'w-2 h-2 rounded-full bg-amber-500 animate-pulse';
+					}
+					text.textContent = label;
+				}
 
 				function initChatSocket() {
 					const badge = document.getElementById('ws-badge');
 					const text = document.getElementById('ws-status-text');
 					
 					try {
-						ws = new WebSocket('ws://localhost:8080/ws/chat?roomId=conv_' + currentMerchantId + '&userId=buyer_demo&role=buyer');
+						currentMerchantId = chatConfig().dataset.merchant || currentMerchantId;
+					const gateway = chatConfig().dataset.ws || '';
+					if (!gateway) {
+						setBadge('amber', 'Live chat unavailable — use WhatsApp');
+						return;
+					}
+					ws = new WebSocket(gateway + '/ws/chat?roomId=conv_' + encodeURIComponent(currentMerchantId) + '&userId=' + encodeURIComponent(ensureBuyerId()) + '&role=buyer');
 
 						ws.onopen = function() {
 							if (badge && text) {
 								badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
 								badge.querySelector('span').className = 'w-2 h-2 rounded-full bg-emerald-500';
-								text.textContent = 'Live WebSocket Gateway (:8080) Connected';
+								setBadge('green', 'Connected');
 							}
 						};
 
-						ws.onmessage = function(e) {
-							try {
-								const data = JSON.parse(e.data);
-								appendMessage(data.senderRole === 'buyer' ? 'buyer' : 'merchant', data.content || data.message || '', data.senderName || 'Merchant');
-							} catch (err) {
-								console.error('WS parse error:', err);
-							}
-						};
+					ws.onmessage = function(e) {
+						try {
+							// Gateway may coalesce frames with \n — parse each line
+							String(e.data).split('\n').forEach(function(line) {
+								line = line.trim();
+								if (!line) return;
+								const data = JSON.parse(line);
+								if (data.event === 'message_received' && data.message) {
+									const role = data.message.senderRole === 'buyer' ? 'buyer' : 'merchant';
+									appendMessage(role, data.message.content || '', data.message.senderRole === 'buyer' ? 'You' : (data.message.senderName || 'Merchant'));
+								} else if (data.event === 'error' && data.error === 'rate_limited') {
+									setBadge('amber', 'Slow down — message rate limited');
+								}
+							});
+						} catch (err) {
+							console.error('WS parse error:', err);
+						}
+					};
 
 						ws.onclose = function() {
 							if (badge && text) {
 								badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200';
 								badge.querySelector('span').className = 'w-2 h-2 rounded-full bg-amber-500 animate-pulse';
-								text.textContent = 'REST Fallback Mode';
+								setBadge('amber', 'Reconnecting — messages may be delayed');
 							}
 						};
 					} catch (e) {
-						console.log('WS offline, using auto-reply mode:', e);
+						setBadge('amber', 'Live chat unavailable — use WhatsApp');
 					}
 				}
 
@@ -252,35 +286,40 @@ templ ChatComponent(data ChatViewData) {
 					const msg = input.value.trim();
 					if (!msg) return;
 
-					appendMessage('buyer', msg);
 					input.value = '';
 
-					// Send via WebSocket if open
+					// Send via WebSocket if open; bubble is appended on message_received echo
 					if (ws && ws.readyState === WebSocket.OPEN) {
 						ws.send(JSON.stringify({
-							type: 'chat',
-							roomId: 'conv_' + currentMerchantId,
-							senderId: 'buyer_demo',
-							senderRole: 'buyer',
+							action: 'send_message',
+							conversationId: 'conv_' + currentMerchantId,
 							content: msg
 						}));
 					} else {
-						// Simulated instant merchant reply
-						setTimeout(() => {
-							appendMessage('merchant', "Thank you! Our sales team at " + currentMerchantId.replace('loc_', '').replace('_', ' ') + " has received your message and is preparing a proforma.", 'Mitrend Desk');
-						}, 900);
+						input.value = msg;
+						appendMessage('system', 'Not delivered — use the supplier\'s WhatsApp or storefront contact to reach them.');
+						setBadge('amber', 'Chat offline');
 					}
 				}
 
 				function appendMessage(role, text, senderName) {
 					const container = document.getElementById('chat-messages');
 					if (!container) return;
+					const empty = container.querySelector('[data-chat-empty]');
+					if (empty) empty.remove();
 
 					const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 					const wrapper = document.createElement('div');
 					wrapper.className = role === 'buyer' ? 'flex justify-end' : 'flex justify-start';
 
-					if (role === 'buyer') {
+					if (role === 'system') {
+						wrapper.className = 'flex justify-center';
+						wrapper.innerHTML = `
+							<div class="max-w-[85%] rounded-xl bg-amber-50 border border-amber-200 text-amber-900 px-3 py-2 text-[11px]">
+								${escapeHtml(text)}
+							</div>
+						`;
+					} else if (role === 'buyer') {
 						wrapper.innerHTML = `
 							<div class="max-w-[75%] rounded-2xl rounded-tr-sm bg-emerald-600 text-white p-3 text-xs shadow-sm">
 								<p class="leading-relaxed">${escapeHtml(text)}</p>
@@ -307,12 +346,56 @@ templ ChatComponent(data ChatViewData) {
 
 				function insertQuoteSnippet() {
 					const input = document.getElementById('chat-input');
-					input.value = "Please generate a formal quote for 100 units with delivery to our Sandton depot.";
+					input.value = "Please quote for supply and delivery. Quantity: ";
 					input.focus();
 				}
 
+				function setActiveMerchant(card) {
+					document.querySelectorAll('.contact-card').forEach(el => {
+						const on = card && el === card;
+						el.classList.toggle('bg-emerald-50/80', on);
+						el.classList.toggle('border-l-4', on);
+						el.classList.toggle('border-emerald-600', on);
+					});
+					const name = document.getElementById('active-merchant-name');
+					const avatar = document.getElementById('active-merchant-avatar');
+					const meta = document.getElementById('active-merchant-meta');
+					const verify = document.getElementById('active-merchant-verify');
+					const cta = document.getElementById('active-merchant-cta');
+					if (!card || !name || !verify || !cta) return;
+					const d = card.dataset;
+					name.textContent = d.name || 'Supplier';
+					if (avatar) avatar.textContent = d.avatar || '·';
+					if (meta) meta.textContent = [d.category, d.city].filter(Boolean).join(' · ');
+					verify.textContent = '';
+					if (d.cipc) {
+						const badge = document.createElement('span');
+						const ok = d.verified === 'true';
+						badge.className = ok
+							? 'px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold'
+							: 'px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-bold';
+						badge.textContent = 'CIPC ' + d.cipc;
+						verify.appendChild(badge);
+					}
+					cta.textContent = '';
+					// Only a digits-only number becomes a link, so no supplier record can
+					// inject a script through the contact button.
+					if (/^[0-9]+$/.test(d.whatsapp || '')) {
+						const a = document.createElement('a');
+						a.href = 'https://wa.me/' + d.whatsapp + '?text=' + encodeURIComponent('Inquiry from Shoppage: ' + (d.name || ''));
+						a.target = '_blank';
+						a.rel = 'noopener noreferrer';
+						a.className = 'px-3 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition flex items-center gap-1.5';
+						a.textContent = '💬 WhatsApp Direct';
+						cta.appendChild(a);
+					}
+				}
+
 				function selectMerchant(id) {
+					const card = document.querySelector('.contact-card[data-id="' + (window.CSS && CSS.escape ? CSS.escape(id) : id.replace(/[^a-zA-Z0-9_-]/g, '')) + '"]');
+					if (!card) return;
 					currentMerchantId = id;
+					setActiveMerchant(card);
 					if (ws) ws.close();
 					initChatSocket();
 				}

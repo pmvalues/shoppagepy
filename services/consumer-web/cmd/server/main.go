@@ -19,6 +19,7 @@ import (
 	"github.com/shoppage/consumer-web/internal/assets"
 	"github.com/shoppage/consumer-web/internal/handlers"
 	"github.com/shoppage/consumer-web/internal/store"
+	"github.com/shoppage/consumer-web/internal/templates"
 )
 
 func makeReverseProxy(targetURL string, stripPrefix string) http.Handler {
@@ -73,6 +74,26 @@ func main() {
 
 	st := store.NewStore()
 	h := handlers.NewConsumerHandler(st)
+
+	// Templates render live catalogue counters instead of hardcoded scale
+	// claims; the provider keeps the store out of the template layer.
+	templates.SetStatsProvider(func() templates.PlatformStats {
+		malls, products, deals, merchants := st.GetTotalCounts()
+		var retailers []templates.RetailerStat
+		for _, r := range st.GetRetailers() {
+			retailers = append(retailers, templates.RetailerStat{Key: r.Key, Label: r.Label, Deals: r.Deals})
+		}
+		return templates.PlatformStats{
+			Merchants:      merchants,
+			Products:       products,
+			Malls:          malls,
+			Deals:          deals,
+			Retailers:      retailers,
+			MaxDiscountPct: st.MaxDiscountPct(),
+			SampleData:     st.SampleDataInUse(),
+			DataNotice:     st.DataNotice(),
+		}
+	})
 
 	r := chi.NewRouter()
 
@@ -134,11 +155,6 @@ func main() {
 	// B2B Supplier Onboarding & Self-Service Provisioning
 	r.Get("/sell", h.HandleSell)
 	r.Post("/sell/register", h.HandleSellRegister)
-
-	// Enterprise Vetting & Supplier Compliance Desk
-	r.Get("/enterprise-vetting", h.HandleEnterpriseVetting)
-	r.Get("/vetting", h.HandleEnterpriseVetting)
-	r.Get("/buyer-protection", h.HandleBuyerProtection)
 
 	// Gemini AI Assistant endpoint
 	r.Post("/api/assistant", h.HandleAssistant)

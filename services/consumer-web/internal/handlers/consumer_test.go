@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/shoppage/consumer-web/internal/models"
 	"github.com/shoppage/consumer-web/internal/store"
 )
 
@@ -154,8 +155,8 @@ func TestConsumerHandlers(t *testing.T) {
 			t.Fatalf("expected 200, got %d", rec.Code)
 		}
 		body := rec.Body.String()
-		if !strings.Contains(body, "South African Malls") {
-			t.Fatalf("expected South African Malls header")
+		if !strings.Contains(body, "Markets") {
+			t.Fatalf("expected Markets header")
 		}
 		if !strings.Contains(body, "Mall of Africa") {
 			t.Fatalf("expected Mall of Africa to be listed")
@@ -193,8 +194,8 @@ func TestConsumerHandlers(t *testing.T) {
 		if !strings.Contains(body, "SunPower Crown Mines Wholesale") {
 			t.Fatalf("expected merchant title")
 		}
-		if !strings.Contains(body, "CIPC Verified") {
-			t.Fatalf("expected CIPC verified badge")
+		if strings.Contains(body, "CIPC Verified") {
+			t.Fatalf("CIPC Verified badge must not appear on storefront")
 		}
 		if !strings.Contains(body, "schema.org") || !strings.Contains(body, "WholesaleStore") {
 			t.Fatalf("expected Schema.org WholesaleStore structured data")
@@ -257,11 +258,14 @@ func TestConsumerHandlers(t *testing.T) {
 			t.Fatalf("expected 200, got %d", rec.Code)
 		}
 		body := rec.Body.String()
-		if !strings.Contains(body, "Change Commercial Area") {
+		if !strings.Contains(body, "Your Trading Location") {
 			t.Fatalf("expected location modal title")
 		}
 		if !strings.Contains(body, "Gauteng") {
 			t.Fatalf("expected Gauteng province button")
+		}
+		if !strings.Contains(body, "Use my current location") {
+			t.Fatalf("expected browser geolocation primary action")
 		}
 	})
 
@@ -281,6 +285,7 @@ func TestConsumerHandlers(t *testing.T) {
 
 	t.Run("HandleSitemapXML generates valid XML sitemap with product and storefront URLs", func(t *testing.T) {
 		req := httptest.NewRequest("GET", "/sitemap.xml", nil)
+		req.Host = "localhost:3000" // RequestBaseURL derives from the request host when SHOPPAGE_PUBLIC_URL is unset
 		rec := httptest.NewRecorder()
 
 		h.HandleSitemapXML(rec, req)
@@ -311,6 +316,7 @@ func TestConsumerHandlers(t *testing.T) {
 
 	t.Run("HandleRobotsTXT points to XML sitemap", func(t *testing.T) {
 		req := httptest.NewRequest("GET", "/robots.txt", nil)
+		req.Host = "localhost:3000" // RequestBaseURL derives from the request host when SHOPPAGE_PUBLIC_URL is unset
 		rec := httptest.NewRecorder()
 
 		h.HandleRobotsTXT(rec, req)
@@ -382,8 +388,8 @@ func TestConsumerHandlers(t *testing.T) {
 			t.Fatalf("expected 200, got %d", rec.Code)
 		}
 		body := rec.Body.String()
-		if !strings.Contains(body, "Payment Settled &amp; Order Confirmed") && !strings.Contains(body, "Payment Settled & Order Confirmed") {
-			t.Errorf("expected order confirmed title")
+		if !strings.Contains(body, "Demo order created") || !strings.Contains(body, "no payment processed") {
+			t.Errorf("expected demo checkout title that does not claim payment settled")
 		}
 		if !strings.Contains(body, "Ozow Instant EFT") {
 			t.Errorf("expected payment method in card")
@@ -391,8 +397,8 @@ func TestConsumerHandlers(t *testing.T) {
 		if !strings.Contains(body, "SARS 15% VAT") {
 			t.Errorf("expected SARS 15%% VAT line")
 		}
-		if !strings.Contains(body, "The Courier Guy Waybill Issued") {
-			t.Errorf("expected courier waybill section")
+		if !strings.Contains(body, "no payment or courier integration") {
+			t.Errorf("expected demo environment disclosure")
 		}
 	})
 
@@ -447,13 +453,57 @@ func TestConsumerHandlers(t *testing.T) {
 		if !strings.Contains(body, "MiTrend") {
 			t.Errorf("expected store name in embedded widget body")
 		}
-		if !strings.Contains(body, "Quote") {
-			t.Errorf("expected Quote button in embedded widget body")
+		// Catalog is empty for this fixture, so the widget must show the
+		// honest empty state rather than fabricated product cards.
+		if !strings.Contains(body, "No published trade listings yet") {
+			t.Errorf("expected empty-catalog state in embedded widget body")
+		}
+		if !strings.Contains(body, "Open Full Desk") {
+			t.Errorf("expected Open Full Desk CTA in embedded widget body")
 		}
 	})
 
 	t.Run("HandleTrackOrder returns live courier tracking information", func(t *testing.T) {
-		// Test existing seeded order
+		// Remediation removed seedInitialOrders — tracking is fed only by
+		// orders created through the checkout flow (or explicit test setup).
+		st.CreateOrder(models.PlacedOrder{
+			OrderNumber:     "ORD-2026-1042",
+			BuyerName:       "Test Buyer",
+			ProductTitle:    "Sunsynk 5kW Hybrid Inverter",
+			SKU:             "SUN-5K",
+			Quantity:        1,
+			UnitPriceZar:    14500,
+			SubtotalZar:     14500,
+			VatZar:          2175,
+			GrandTotal:      16675,
+			Status:          "In Transit",
+			Waybill:         "TCG-ZA-849201",
+			DeliveryMethod:  "The Courier Guy",
+			PaymentMethod:   "Ozow Instant EFT",
+			DateStr:         "22 Sep 10:00",
+			EstimatedEta:    "24 Sep",
+			MerchantName:    "SunPower Crown Mines Wholesale",
+		})
+		st.CreateOrder(models.PlacedOrder{
+			OrderNumber:     "ORD-2026-0988",
+			BuyerName:       "Test Buyer 2",
+			ProductTitle:    "PPC Cement 42.5N",
+			SKU:             "PPC-425",
+			Quantity:        10,
+			UnitPriceZar:    95,
+			SubtotalZar:     950,
+			VatZar:          142.5,
+			GrandTotal:      1092.5,
+			Status:          "Delivered",
+			Waybill:         "PUDO-ZA-392180",
+			DeliveryMethod:  "Pudo Smart Locker",
+			PaymentMethod:   "EFT",
+			DateStr:         "20 Sep 09:00",
+			EstimatedEta:    "Delivered",
+			MerchantName:    "Mitrend Products",
+		})
+
+		// Test existing order
 		req := httptest.NewRequest("GET", "/track?q=ORD-2026-1042", nil)
 		rec := httptest.NewRecorder()
 		h.HandleTrackOrder(rec, req)
@@ -556,8 +606,10 @@ func TestConsumerHandlers(t *testing.T) {
 			if m.CIPCNumber != "2024/998877/07" {
 				t.Errorf("expected CIPC number to match, got %s", m.CIPCNumber)
 			}
-			if !m.Verified {
-				t.Errorf("expected merchant to be verified")
+			// Registration must NOT auto-issue a verified stamp — vetting
+			// grants trust marks, not the signup form.
+			if m.Verified {
+				t.Errorf("expected newly registered merchant to be unverified pending vetting")
 			}
 		}
 	})

@@ -3,6 +3,7 @@ package templates
 import (
 	"fmt"
 	"github.com/shoppage/consumer-web/internal/models"
+	"github.com/shoppage/consumer-web/internal/site"
 )
 
 templ Layout(title, description, currentTab string, trends []models.TradeTrend, topDrops []models.RetailerDeal, guilds []models.CommunityGuild) {
@@ -26,7 +27,7 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'"/>
 			<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"/></noscript>
 			<!-- Local Pre-Compiled Tailwind CSS (Zero external network chains, zero FOUC, instant paint) -->
-			<link rel="stylesheet" href="/static/css/tailwind.min.css"/>
+			<link rel="stylesheet" href="/static/css/tailwind.min.css?v=20260924"/>
 			<!-- Local Self-Hosted HTMX 2.0.2 (Instant execution from memory cache) -->
 			<script src="/static/js/htmx.min.js"></script>
 			<style>
@@ -110,6 +111,15 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 			</style>
 		</head>
 		<body class="min-h-full flex flex-col antialiased bg-slate-100 text-slate-800 pb-16 lg:pb-0" hx-boost="true">
+			<!-- Provenance disclosure. The bundled catalogue is demonstration
+			     content, so it is labelled as such everywhere rather than being
+			     presented as live marketplace data. -->
+			if Stats().SampleData {
+				<div class="bg-slate-900 text-slate-300 text-[11px] px-4 py-1.5 flex items-center justify-center gap-2 border-b border-slate-800">
+					<span class="px-1.5 py-0.5 rounded bg-amber-400/15 text-amber-300 font-bold text-[9px] uppercase tracking-wider shrink-0">Demo data</span>
+					<span class="truncate">{ Stats().DataNotice }</span>
+				</div>
+			}
 			<!-- Location Sub-Bar (Shoppage GoogleHeader Style) -->
 			<div class="bg-white/90 backdrop-blur-md border-b border-slate-200/80 py-2 text-xs text-slate-600 sticky top-0 z-40 transition shadow-2xs">
 				<div class="max-w-[1440px] mx-auto px-4 sm:px-6 flex items-center justify-between">
@@ -120,7 +130,7 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 								<circle cx="12" cy="10" r="3"></circle>
 							</svg>
 						</span>
-						<span class="font-bold text-slate-900">President Park AH, Midrand</span>
+						<span id="location-label" class="font-bold text-slate-900">President Park AH, Midrand</span>
 						<span class="text-slate-300">·</span>
 						<button 
 							type="button"
@@ -128,18 +138,13 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 							hx-target="#modal-container"
 							class="text-emerald-700 hover:text-emerald-800 font-bold underline decoration-emerald-300 cursor-pointer text-xs"
 						>
-							Change Location
+							Use my location
 						</button>
+						<span class="text-slate-300">·</span>
+						<a href="/malls" class="text-slate-600 hover:text-emerald-700 font-semibold">Markets near you</a>
 					</div>
 					<div class="hidden sm:flex items-center gap-3 text-[11px] text-slate-500 font-medium">
-						<span class="inline-flex items-center gap-1.5 font-semibold text-slate-700">
-							<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-							<span>Commercial Grid</span>
-						</span>
-						<span class="text-slate-300">·</span>
-						<span class="text-emerald-700 font-mono font-bold">&lt; 3.0ms Pure Go Engine</span>
-						<span class="text-slate-300">·</span>
-						<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">CIPC Verified</span>
+						<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">Shoppage SA</span>
 					</div>
 				</div>
 			</div>
@@ -198,7 +203,7 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 			</nav>
 
 			<!-- FLOATING SHOPPAGE AI ASSISTANT CHAT WIDGET -->
-			<div id="ai-chat-root" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+			<div id="ai-chat-root" class="fixed right-4 bottom-20 lg:right-6 lg:bottom-6 z-50 flex flex-col items-end">
 				<!-- Chat Floating Launcher Button -->
 				<button 
 					type="button" 
@@ -224,9 +229,17 @@ templ Layout(title, description, currentTab string, trends []models.TradeTrend, 
 							<div>
 								<div class="flex items-center gap-2">
 									<h4 class="font-bold text-xs text-white">Shoppage AI Assistant</h4>
-									<span class="px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-400 text-[9px] font-mono font-bold border border-emerald-800">Gemini 3.6</span>
+									if site.GeminiConfigured() {
+										<span class="px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-400 text-[9px] font-mono font-bold border border-emerald-800">{ site.GeminiModel() }</span>
+									} else {
+										<span class="px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 text-[9px] font-mono font-bold border border-slate-700">offline rules</span>
+									}
 								</div>
-								<p class="text-[10px] text-slate-400">Search 1M+ catalog, calculate solar backup runtime</p>
+								if site.GeminiConfigured() {
+									<p class="text-[10px] text-slate-400">Live catalogue search, solar backup runtime maths, mall &amp; supplier lookup</p>
+								} else {
+									<p class="text-[10px] text-slate-400">Basic catalogue search — connect an AI key for full assistant</p>
+								}
 							</div>
 						</div>
 						<button type="button" onclick="toggleAiChat();" class="text-slate-400 hover:text-white text-lg p-1">&times;</button>
@@ -463,9 +476,15 @@ templ LeftRail(currentTab string) {
 				</div>
 				<span class="sidebar-deals-badge px-1.5 py-0.5 rounded-md bg-rose-500 text-white text-[10px] font-black tracking-wider shrink-0">HOT</span>
 			</a>
-			<a href="/?tab=products" title="1,000,000+ Catalog" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "products"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "products") }>
+			<a href="/?tab=products" title="Product Catalogue" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "products"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "products") }>
 				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-				<span class="sidebar-label">1M+ Products</span>
+				<span class="sidebar-label">
+					if Stats().Products > 0 {
+						{ FormatCount(Stats().Products) } Products
+					} else {
+						Products
+					}
+				</span>
 			</a>
 			<a href="/track" title="Track Order & Waybill" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "track"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "track") }>
 				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
@@ -474,10 +493,6 @@ templ LeftRail(currentTab string) {
 			<a href="/sell" title="Sell Wholesale on Shoppage" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "sell"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "sell") }>
 				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M3 3h18v18H3zM8 12h8M12 8v8"></path></svg>
 				<span class="sidebar-label text-emerald-700 font-bold">Sell on Shoppage</span>
-			</a>
-			<a href="/enterprise-vetting" title="Enterprise Vetting & Supplier Verification Desk" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "vetting"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "vetting") }>
-				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-				<span class="sidebar-label">Enterprise Vetting</span>
 			</a>
 			<a href="/?tab=tradewire" title="Live Trade Wire" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "tradewire"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "tradewire") }>
 				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
@@ -535,18 +550,23 @@ templ LeftRail(currentTab string) {
 
 templ CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, guilds []models.CommunityGuild) {
 	<aside class="hidden xl:flex flex-col w-80 shrink-0 p-4 sticky top-7 h-[calc(100vh-2rem)] border-l border-slate-200/80 bg-white overflow-y-auto scrollbar-none select-none">
-		<!-- Go Search Core Engine Status Pill -->
+		<!-- Catalogue summary: counts come from the live store, never hardcoded -->
 		<div class="p-3 bg-emerald-50/80 rounded-2xl border border-emerald-200/60 mb-5">
 			<div class="flex items-center justify-between text-xs font-bold text-emerald-900 mb-1">
 				<span class="flex items-center gap-1.5">
-					<span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-					<span>Shoppage Search Core</span>
+					<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+					<span>Live catalogue</span>
 				</span>
-				<span class="font-mono text-emerald-700">&lt; 3.0 ms</span>
 			</div>
-			<p class="text-[11px] text-emerald-800/80">
-				Pure Go 1.27 Engine · 3,109,299 nationwide merchants &amp; 1,005,190 master products indexed.
-			</p>
+			if Stats().Products > 0 || Stats().Merchants > 0 {
+				<p class="text-[11px] text-emerald-800/80">
+					{ FormatCount(Stats().Merchants) } merchants · { FormatCount(Stats().Products) } trade listings · { FormatCount(Stats().Malls) } markets &amp; trade hubs
+				</p>
+			} else {
+				<p class="text-[11px] text-emerald-800/80">
+					Catalogue loading — check back soon.
+				</p>
+			}
 		</div>
 
 		<!-- Quick Savings Shortcuts -->
@@ -614,10 +634,10 @@ templ CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, g
 			</div>
 		}
 
-		<!-- Featured Commercial Guilds -->
-		<div>
+		<!-- Featured Virtual Markets (group-style communities) -->
+		<div id="guilds">
 			<div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">
-				👥 Commercial Guilds
+				👥 Virtual Markets
 			</div>
 			<div class="space-y-2.5">
 				for _, guild := range guilds {
@@ -655,25 +675,33 @@ templ CorporateFooter() {
 				<span class="text-slate-300">•</span>
 				<span class="text-slate-500 text-[11px] sm:text-xs">Commercial Trade Grid</span>
 			</div>
-			<div class="hidden sm:flex items-center gap-3 text-slate-400 text-[11px]">
-				<span>Shoppage Technologies (Pty) Ltd</span>
-				<span>•</span>
-				<span>CIPC: 2024/098412/07</span>
-			</div>
+			<!-- Registered entity particulars come from configuration. A CIPC or VAT
+			     number is never rendered unless it has actually been issued to the
+			     operating entity. -->
+			if site.CompanyLegalName() != "" {
+				<div class="hidden sm:flex items-center gap-3 text-slate-400 text-[11px]">
+					<span>{ site.CompanyLegalName() }</span>
+					if site.CompanyCIPC() != "" {
+						<span>•</span>
+						<span>CIPC: { site.CompanyCIPC() }</span>
+					}
+				</div>
+			}
 		</div>
 
 		<!-- Google-Style Bottom Bar: Two Balanced Link Groups -->
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-600">
 			<div class="flex items-center gap-5 sm:gap-7 flex-wrap justify-center font-normal">
-				<a href="/enterprise-vetting" class="hover:text-slate-900 hover:underline transition">Enterprise Vetting</a>
 				<a href="/sell" class="hover:text-slate-900 hover:underline transition">Sell on Shoppage</a>
 				<a href="/track" class="hover:text-slate-900 hover:underline transition">Track Order</a>
 				<a href="/desk" target="_blank" class="hover:text-slate-900 hover:underline transition">Merchant OS</a>
 			</div>
 			<div class="flex items-center gap-5 sm:gap-7 flex-wrap justify-center text-slate-500 font-normal">
-				<a href="/enterprise-vetting#sars" class="hover:text-slate-900 hover:underline transition">SARS VAT: 4920194821</a>
-				<a href="/enterprise-vetting#privacy" class="hover:text-slate-900 hover:underline transition">Privacy</a>
-				<a href="/enterprise-vetting#terms" class="hover:text-slate-900 hover:underline transition">Terms</a>
+				if site.CompanyVATNumber() != "" {
+					<span>SARS VAT: { site.CompanyVATNumber() }</span>
+				}
+				<span>Privacy</span>
+				<span>Terms</span>
 			</div>
 		</div>
 	</footer>

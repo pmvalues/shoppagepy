@@ -3,8 +3,10 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"html"
 	"net/http"
 	"net/url"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -13,6 +15,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/shoppage/consumer-web/internal/ai"
 	"github.com/shoppage/consumer-web/internal/models"
+	"github.com/shoppage/consumer-web/internal/site"
 	"github.com/shoppage/consumer-web/internal/store"
 	"github.com/shoppage/consumer-web/internal/templates"
 )
@@ -68,9 +71,16 @@ func (h *ConsumerHandler) HandleHome(w http.ResponseWriter, r *http.Request) {
 
 	latencyMs := float64(time.Since(start).Microseconds()) / 1000.0
 
+	// Page copy is built from the live catalogue counts so the title never
+	// advertises an inventory size the instance cannot back up.
+	title := "South Africa Commercial Discovery Grid"
+	if totalProducts > 0 {
+		title = fmt.Sprintf("South Africa Commercial Discovery Grid · %s Trade Listings", templates.FormatCount(totalProducts))
+	}
+
 	data := templates.HomeViewData{
-		Title:           "South Africa Commercial Discovery Grid · 1,000,000+ Products",
-		Description:     "Compare wholesale prices, live retailer specials, and verified suppliers across South Africa.",
+		Title:           title,
+		Description:     "Compare wholesale prices, live retailer specials, and supplier offers across South Africa.",
 		Query:           q,
 		CurrentTab:      tab,
 		CurrentCategory: category,
@@ -108,6 +118,21 @@ func (h *ConsumerHandler) HandleBuyBoxDrawer(w http.ResponseWriter, r *http.Requ
 		deals := h.store.GetDeals("", "")
 		for _, d := range deals {
 			if d.ID == id {
+				// Only state what the deal record actually carries. Trust flags,
+				// ratings and contact numbers are resolved from the merchant
+				// record when one exists, and left empty otherwise.
+				whatsapp := ""
+				verified := false
+				city := d.LocationHint
+				province := ""
+				if m, found := h.store.GetMerchantByID(d.RetailerDomain); found {
+					whatsapp = m.WhatsApp
+					verified = m.Verified
+					if m.City != "" {
+						city = m.City
+						province = m.Province
+					}
+				}
 				product = models.ProductDetail{
 					CanonicalID:       d.ID,
 					Title:             d.Title,
@@ -122,14 +147,14 @@ func (h *ConsumerHandler) HandleBuyBoxDrawer(w http.ResponseWriter, r *http.Requ
 						{
 							MerchantID:   d.RetailerDomain,
 							MerchantName: d.MerchantName,
-							City:         d.LocationHint,
-							Province:     "Nationwide",
+							City:         city,
+							Province:     province,
 							PriceZar:     d.PriceZar,
-							InStock:      true,
+							InStock:      strings.EqualFold(strings.TrimSpace(d.Availability), "in stock"),
 							LeadTimeDays: 0,
-							Verified:     true,
-							WhatsApp:     "27118392000",
-							Rating:       4.9,
+							Verified:     verified,
+							WhatsApp:     whatsapp,
+							Rating:       0,
 						},
 					},
 				}
@@ -145,10 +170,12 @@ func (h *ConsumerHandler) HandleBuyBoxDrawer(w http.ResponseWriter, r *http.Requ
 	}
 
 	data := templates.BuyBoxViewData{
-		Product:      product,
-		Offers:       product.Offers,
-		LowestPrice:  product.LowestOfferPrice,
-		UserLocation: "President Park AH, Midrand",
+		Product:     product,
+		Offers:      product.Offers,
+		LowestPrice: product.LowestOfferPrice,
+		// Delivery destination is whatever the shopper passed in; the app never
+		// invents a "your location" it has not been given.
+		UserLocation: strings.TrimSpace(r.URL.Query().Get("to")),
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -355,8 +382,8 @@ func (h *ConsumerHandler) HandleMalls(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := templates.MallsViewData{
-		Title:       fmt.Sprintf("%d South African Malls & Commercial Hubs", totalMalls),
-		Description: "Explore shopping centres, wholesale districts, and retail nodes in South Africa.",
+		Title:       fmt.Sprintf("%d Markets & Trade Hubs across South Africa", totalMalls),
+		Description: "Virtual markets and physical markets — malls, wholesale districts, and community trade groups across South Africa.",
 		Query:       q,
 		CurrentTab:  "malls",
 		Province:    prov,
@@ -381,7 +408,7 @@ func (h *ConsumerHandler) HandleMallDetail(w http.ResponseWriter, r *http.Reques
 
 	totalMalls, _, _, _ := h.store.GetTotalCounts()
 	data := templates.MallsViewData{
-		Title:       mall.Name + " — Mall Directory",
+		Title:       mall.Name + " — Physical Market",
 		Description: mall.StreetAddress + " · " + mall.MarketType,
 		Query:       "",
 		CurrentTab:  "malls",
@@ -443,18 +470,28 @@ func (h *ConsumerHandler) HandleStorefront(w http.ResponseWriter, r *http.Reques
 
 	merchant.Catalog = filtered
 
-	heroHeadline := "Hospitality, Packaging & Catering Wholesale Supplies"
-	if strings.Contains(strings.ToLower(merchant.Category), "solar") || strings.Contains(strings.ToLower(merchant.ID), "sunpower") {
-		heroHeadline = "Tier-1 Hybrid Inverters, Lithium Batteries & Renewable Energy Wholesale"
-	} else if merchant.Category != "" {
+	// Headline is derived from the merchant's own category. No per-merchant
+	// special cases and no invented promotions: an announcement bar only
+	// renders when the merchant record actually carries one.
+	heroHeadline := merchant.Name
+	if merchant.Category != "" {
 		heroHeadline = fmt.Sprintf("%s · Commercial Supply & Wholesale Depot", merchant.Category)
 	}
 
-	announcementText := "⚡ Free commercial delivery on wholesale orders over R5,000 across Gauteng · Direct WhatsApp Trade Desk active"
+	descParts := []string{}
+	if merchant.Address != "" {
+		descParts = append(descParts, merchant.Address)
+	}
+	if merchant.CIPCNumber != "" {
+		descParts = append(descParts, "CIPC: "+merchant.CIPCNumber)
+	}
+	if merchant.WhatsApp != "" {
+		descParts = append(descParts, "Direct WhatsApp trade desk")
+	}
 
 	data := templates.StorefrontViewData{
-		Title:            merchant.Name + " — Official B2B Storefront & Trade Desk",
-		Description:      merchant.Address + " · CIPC: " + merchant.CIPCNumber + " · Direct WhatsApp Trade Desk",
+		Title:            merchant.Name + " — B2B Storefront & Trade Desk",
+		Description:      strings.Join(descParts, " · "),
 		Query:            q,
 		CurrentTab:       "stores",
 		Store:            merchant,
@@ -464,9 +501,9 @@ func (h *ConsumerHandler) HandleStorefront(w http.ResponseWriter, r *http.Reques
 		InStockOnly:      inStockOnly,
 		TotalCount:       totalCount,
 		HeroHeadline:     heroHeadline,
-		AnnouncementText: announcementText,
-		AccentColor:      "#0e7c56",
+		AnnouncementText: merchant.Announcement,
 		Testimonials:     merchant.Testimonials,
+		BaseURL:          site.RequestBaseURL(r),
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -531,12 +568,16 @@ func (h *ConsumerHandler) HandleFavicon(w http.ResponseWriter, r *http.Request) 
 func (h *ConsumerHandler) HandleServiceWorker(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/javascript")
 	sw := `
-const CACHE_NAME = 'shoppage-v1';
+const CACHE_NAME = 'shoppage-v2';
 self.addEventListener('install', (e) => {
   self.skipWaiting();
 });
 self.addEventListener('activate', (e) => {
-  e.waitUntil(clients.claim());
+  e.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+    ).then(() => clients.claim())
+  );
 });
 self.addEventListener('fetch', (e) => {
   // Pass-through network requests with sub-5ms caching for static assets
@@ -559,18 +600,26 @@ self.addEventListener('fetch', (e) => {
 func (h *ConsumerHandler) HandleHealth(w http.ResponseWriter, r *http.Request) {
 	totalMalls, totalProducts, totalDeals, totalMerchants := h.store.GetTotalCounts()
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]any{
+	version := site.Version()
+	if version == "" {
+		version = "unset" // no release stamp configured for this instance
+	}
+	payload := map[string]any{
 		"status":    "healthy",
 		"engine":    "pure-go",
-		"version":   "1.23",
+		"version":   version,
 		"timestamp": time.Now().Format(time.RFC3339),
+		"ai": map[string]any{
+			"geminiConfigured": h.aiSvc.Available(),
+		},
 		"data": map[string]int{
 			"malls":     totalMalls,
 			"products":  totalProducts,
 			"deals":     totalDeals,
 			"merchants": totalMerchants,
 		},
-	})
+	}
+	json.NewEncoder(w).Encode(payload)
 }
 
 // HandleAssistant processes Gemini AI assistant requests with tool execution
@@ -601,7 +650,11 @@ func (h *ConsumerHandler) HandleAssistant(w http.ResponseWriter, r *http.Request
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprintf(w, `<div class="p-4 rounded-xl bg-slate-900 text-white shadow-lg space-y-3 mb-4 border border-slate-700">`)
 		fmt.Fprintf(w, `<div class="flex items-center justify-between text-xs text-slate-400">`)
-		fmt.Fprintf(w, `<span class="flex items-center gap-1.5 text-emerald-400 font-bold tracking-wide uppercase"><span>⚡</span> Gemini AI Assistant</span>`)
+		if resp.Mode == "gemini" {
+			fmt.Fprintf(w, `<span class="flex items-center gap-1.5 text-emerald-400 font-bold tracking-wide uppercase"><span>⚡</span> Gemini AI Assistant</span>`)
+		} else {
+			fmt.Fprintf(w, `<span class="flex items-center gap-1.5 text-amber-400 font-bold tracking-wide uppercase"><span>⚙</span> Assistant · offline rules (no AI key)</span>`)
+		}
 		fmt.Fprintf(w, `<span>%.1fms</span>`, resp.LatencyMs)
 		fmt.Fprintf(w, `</div>`)
 		fmt.Fprintf(w, `<div class="text-sm text-slate-200 leading-relaxed">%s</div>`, resp.Reply)
@@ -638,59 +691,42 @@ func (h *ConsumerHandler) HandleRequests(w http.ResponseWriter, r *http.Request)
 // HandleChat renders the live commerce chat and negotiation desk
 func (h *ConsumerHandler) HandleChat(w http.ResponseWriter, r *http.Request) {
 	selectedMerchantID := r.URL.Query().Get("merchantId")
-	if selectedMerchantID == "" {
-		selectedMerchantID = "loc_mitrend_midrand"
+	// Contact list is derived from merchants actually loaded in the store.
+	// Presence, verification and CIPC data come from the merchant record; we do
+	// not invent online status or previous messages.
+	var merchants []templates.ChatMerchantContact
+	for _, m := range h.store.GetAllMerchants() {
+		if len(merchants) >= 6 {
+			break
+		}
+		avatar := ""
+		if r0 := []rune(m.Name); len(r0) > 0 {
+			avatar = strings.ToUpper(string(r0[0]))
+		}
+		city := strings.Join(nonEmpty(m.Suburb, m.City), ", ")
+		merchants = append(merchants, templates.ChatMerchantContact{
+			ID:       m.ID,
+			Name:     m.Name,
+			Category: m.Category,
+			City:     city,
+			Avatar:   avatar,
+			Cipc:     m.CIPCNumber,
+			WhatsApp: strings.Trim(m.WhatsApp, "+ "),
+			Verified: m.Verified,
+			Online:   false,
+		})
 	}
-
-	merchants := []templates.ChatMerchantContact{
-		{
-			ID:          "loc_mitrend_midrand",
-			Name:        "Mitrend Products (Pty) Ltd",
-			Category:    "Hospitality & Commercial Catering",
-			City:        "Midrand, Johannesburg",
-			Avatar:      "M",
-			Cipc:        "2018/489102/07",
-			Verified:    true,
-			Online:      true,
-			LastMessage: "Yes absolutely! I have generated formal quotation #QUO-2026-0814 for 200 units.",
-			Time:        "10:24",
-		},
-		{
-			ID:          "loc_buildmax_centurion",
-			Name:        "Buildmax Commercial Supplies",
-			Category:    "Hardware & Construction Materials",
-			City:        "Centurion, Pretoria",
-			Avatar:      "B",
-			Cipc:        "2019/331044/07",
-			Verified:    true,
-			Online:      true,
-			LastMessage: "All silicone lids and hardware fittings are tested to SABS SANS standards.",
-			Time:        "Yesterday",
-		},
-		{
-			ID:          "loc_highveld_solar",
-			Name:        "Highveld Solar & Energy Hub",
-			Category:    "Renewables & Backup Power",
-			City:        "Sandton, Johannesburg",
-			Avatar:      "H",
-			Cipc:        "2021/119042/07",
-			Verified:    true,
-			Online:      false,
-			LastMessage: "Deye 5kW hybrid inverters in stock with 5-year SABS warranty.",
-			Time:        "2 days ago",
-		},
-		{
-			ID:          "loc_cape_solar_bellville",
-			Name:        "Cape Solar & Commercial",
-			Category:    "Wholesale Inverters & Batteries",
-			City:        "Bellville, Cape Town",
-			Avatar:      "C",
-			Cipc:        "2020/554122/07",
-			Verified:    true,
-			Online:      true,
-			LastMessage: "Deye 8kW and Dyness 5.12kWh lithium packs available for immediate freight dispatch.",
-			Time:        "3 days ago",
-		},
+	if selectedMerchantID == "" && len(merchants) > 0 {
+		selectedMerchantID = merchants[0].ID
+	}
+	// The right-hand pane renders from this record only, so it can never show a
+	// supplier that was not loaded from the store.
+	var selected *templates.ChatMerchantContact
+	for i := range merchants {
+		if merchants[i].ID == selectedMerchantID {
+			selected = &merchants[i]
+			break
+		}
 	}
 
 	trends := h.store.GetTrends()
@@ -699,9 +735,10 @@ func (h *ConsumerHandler) HandleChat(w http.ResponseWriter, r *http.Request) {
 
 	data := templates.ChatViewData{
 		Title:              "Direct Messages & Wholesale Negotiation Desk · Shoppage South Africa",
-		Description:        "Commerce-native direct messaging with verified South African wholesalers, structured quotes and instant EFT rails.",
+		Description:        "Direct messaging with South African trade suppliers. Quotes and payment terms are agreed between buyer and supplier.",
 		CurrentTab:         "chat",
 		SelectedMerchantID: selectedMerchantID,
+		Selected:           selected,
 		Merchants:          merchants,
 		Trends:             trends,
 		TopDrops:           topDrops,
@@ -722,25 +759,25 @@ func (h *ConsumerHandler) HandleOfferModal(w http.ResponseWriter, r *http.Reques
 
 	product, ok := h.store.GetProductByID(id)
 	if !ok {
-		// Fallback product stub
-		product = models.ProductDetail{
-			CanonicalID:       id,
-			Title:             "Special Commercial Item",
-			Brand:             "Verified Wholesaler",
-			Model:             "Trade Item",
-			ImageURL:          "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=400&auto=format&fit=crop&q=65",
-			LowestOfferPrice:  1000.0,
-			EstimatedPriceZar: 1000.0,
-		}
+		// No stub product: an offer modal for an item that does not exist would
+		// show invented branding, imagery and price.
+		http.NotFound(w, r)
+		return
 	}
 
 	targetPrice := product.LowestOfferPrice
+	if targetPrice <= 0 {
+		targetPrice = product.EstimatedPriceZar
+	}
 	if priceParam != "" {
 		if p, err := strconv.ParseFloat(priceParam, 64); err == nil && p > 0 {
 			targetPrice = p
 		}
 	}
 
+	// The counterparty is always a real offer on the product record. When the
+	// product carries no live offer the modal renders an honest "request a
+	// quote" state instead of a fabricated supplier with an invented number.
 	var targetOffer models.MerchantOffer
 	if len(product.Offers) > 0 {
 		targetOffer = product.Offers[0]
@@ -751,16 +788,6 @@ func (h *ConsumerHandler) HandleOfferModal(w http.ResponseWriter, r *http.Reques
 					break
 				}
 			}
-		}
-	} else {
-		targetOffer = models.MerchantOffer{
-			MerchantID:   "loc_wholesaler",
-			MerchantName: "Verified SA Trade Supplier",
-			City:         "Johannesburg",
-			PriceZar:     targetPrice,
-			InStock:      true,
-			Verified:     true,
-			WhatsApp:     "27825551234",
 		}
 	}
 
@@ -786,12 +813,11 @@ func (h *ConsumerHandler) HandleSubmitOffer(w http.ResponseWriter, r *http.Reque
 	productId := r.FormValue("productId")
 	_ = productId
 	productTitle := r.FormValue("productTitle")
-	merchantName := r.FormValue("merchantName")
+	merchantName := strings.TrimSpace(r.FormValue("merchantName"))
 	merchantPhone := strings.TrimSpace(r.FormValue("merchantPhone"))
-	if merchantPhone == "" {
-		merchantPhone = "27825551234"
-	}
-	// Normalize phone for WhatsApp international link
+	// Normalize phone for WhatsApp international link. A missing number is never
+	// substituted with a placeholder — that would route a real buyer's offer to
+	// a stranger's handset.
 	cleanPhone := strings.Map(func(r rune) rune {
 		if r >= '0' && r <= '9' {
 			return r
@@ -814,11 +840,13 @@ func (h *ConsumerHandler) HandleSubmitOffer(w http.ResponseWriter, r *http.Reque
 	notes := strings.TrimSpace(r.FormValue("notes"))
 	fulfillment := r.FormValue("fulfillment")
 
-	fulfillmentLabel := "Mall Collection (FREE)"
+	// Fulfilment labels carry no invented rates: delivery cost is quoted by the
+	// merchant or resolved from the product's own delivery options.
+	fulfillmentLabel := "Store / mall collection"
 	if fulfillment == "pudo" {
-		fulfillmentLabel = "Pudo Smart Locker (R60)"
+		fulfillmentLabel = "Pudo smart locker (rate quoted by merchant)"
 	} else if fulfillment == "courier" {
-		fulfillmentLabel = "Door Courier (R85)"
+		fulfillmentLabel = "Door courier (rate quoted by merchant)"
 	}
 
 	totalSavings := 0.0
@@ -826,30 +854,40 @@ func (h *ConsumerHandler) HandleSubmitOffer(w http.ResponseWriter, r *http.Reque
 		totalSavings = (listedPrice - offerPrice) * float64(qty)
 	}
 
-	// Construct pre-filled WhatsApp text
-	waMessage := fmt.Sprintf(
-		"Sawubona %s! I'm submitting a counter-offer on Shoppage for:\n\n*Item:* %s\n*Offer Price:* R %.2f each (Listed: R %.2f)\n*Quantity:* %d unit(s)\n*Preferred Delivery:* %s\n*Buyer:* %s (%s)\n*Note:* %s\n\nPlease let me know if this is approved for collection/invoice.",
-		merchantName,
-		productTitle,
-		offerPrice,
-		listedPrice,
-		qty,
-		fulfillmentLabel,
-		buyerName,
-		buyerPhone,
-		notes,
-	)
-
-	waURL := fmt.Sprintf("https://wa.me/%s?text=%s", cleanPhone, url.QueryEscape(waMessage))
+	if merchantName == "" {
+		merchantName = "the supplier"
+	}
 
 	result := models.OfferSubmissionResult{
 		OfferID:      fmt.Sprintf("off_%d", time.Now().UnixMilli()),
 		Status:       "received",
-		WhatsAppURL:  waURL,
-		Message:      fmt.Sprintf("Your counter-offer of R %.2f each for %d unit(s) has been routed to %s. Click below to confirm directly on WhatsApp.", offerPrice, qty, merchantName),
 		OfferPrice:   offerPrice,
 		Quantity:     qty,
 		TotalSavings: totalSavings,
+	}
+
+	if cleanPhone == "" {
+		// No routable contact on the offer record: keep the buyer informed rather
+		// than pretending the offer reached the merchant.
+		result.Status = "unrouted"
+		result.Message = fmt.Sprintf(
+			"Your counter-offer of R %.2f each for %d unit(s) was recorded, but %s has no WhatsApp number on file for this listing. Use the merchant's storefront contact details or the trade request desk to reach them.",
+			offerPrice, qty, merchantName)
+	} else {
+		waMessage := fmt.Sprintf(
+			"Sawubona %s! I'm submitting a counter-offer on Shoppage for:\n\n*Item:* %s\n*Offer Price:* R %.2f each (Listed: R %.2f)\n*Quantity:* %d unit(s)\n*Preferred Delivery:* %s\n*Buyer:* %s (%s)\n*Note:* %s\n\nPlease let me know if this is approved for collection/invoice.",
+			merchantName,
+			productTitle,
+			offerPrice,
+			listedPrice,
+			qty,
+			fulfillmentLabel,
+			buyerName,
+			buyerPhone,
+			notes,
+		)
+		result.WhatsAppURL = fmt.Sprintf("https://wa.me/%s?text=%s", cleanPhone, url.QueryEscape(waMessage))
+		result.Message = fmt.Sprintf("Your counter-offer of R %.2f each for %d unit(s) is ready to send to %s. Click below to confirm directly on WhatsApp — Shoppage does not hold the conversation.", offerPrice, qty, merchantName)
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -860,6 +898,7 @@ func (h *ConsumerHandler) HandleSubmitOffer(w http.ResponseWriter, r *http.Reque
 
 // HandleSitemapXML generates an automated XML sitemap for Google Search bots
 func (h *ConsumerHandler) HandleSitemapXML(w http.ResponseWriter, r *http.Request) {
+	base := site.RequestBaseURL(r)
 	w.Header().Set("Content-Type", "application/xml; charset=utf-8")
 	now := time.Now().Format("2006-01-02")
 
@@ -877,11 +916,12 @@ func (h *ConsumerHandler) HandleSitemapXML(w http.ResponseWriter, r *http.Reques
 		{"/requests", "0.8"},
 		{"/shorts", "0.7"},
 		{"/chat", "0.7"},
+		{"/sell", "0.7"},
 	}
 
 	for _, rt := range coreRoutes {
 		fmt.Fprintf(w, `  <url>`+"\n")
-		fmt.Fprintf(w, `    <loc>http://localhost:3000%s</loc>`+"\n", rt.path)
+		fmt.Fprintf(w, `    <loc>%s%s</loc>`+"\n", base, rt.path)
 		fmt.Fprintf(w, `    <lastmod>%s</lastmod>`+"\n", now)
 		fmt.Fprintf(w, `    <changefreq>daily</changefreq>`+"\n")
 		fmt.Fprintf(w, `    <priority>%s</priority>`+"\n", rt.prio)
@@ -892,7 +932,7 @@ func (h *ConsumerHandler) HandleSitemapXML(w http.ResponseWriter, r *http.Reques
 	products := h.store.SearchProducts("", "", "", false)
 	for _, p := range products {
 		fmt.Fprintf(w, `  <url>`+"\n")
-		fmt.Fprintf(w, `    <loc>http://localhost:3000/p/%s</loc>`+"\n", p.ID)
+		fmt.Fprintf(w, `    <loc>%s/p/%s</loc>`+"\n", base, url.PathEscape(p.ID))
 		fmt.Fprintf(w, `    <lastmod>%s</lastmod>`+"\n", now)
 		fmt.Fprintf(w, `    <changefreq>daily</changefreq>`+"\n")
 		fmt.Fprintf(w, `    <priority>0.9</priority>`+"\n")
@@ -903,7 +943,7 @@ func (h *ConsumerHandler) HandleSitemapXML(w http.ResponseWriter, r *http.Reques
 	merchants := h.store.GetAllMerchants()
 	for _, m := range merchants {
 		fmt.Fprintf(w, `  <url>`+"\n")
-		fmt.Fprintf(w, `    <loc>http://localhost:3000/m/%s</loc>`+"\n", m.ID)
+		fmt.Fprintf(w, `    <loc>%s/m/%s</loc>`+"\n", base, url.PathEscape(m.ID))
 		fmt.Fprintf(w, `    <lastmod>%s</lastmod>`+"\n", now)
 		fmt.Fprintf(w, `    <changefreq>weekly</changefreq>`+"\n")
 		fmt.Fprintf(w, `    <priority>0.8</priority>`+"\n")
@@ -918,7 +958,7 @@ func (h *ConsumerHandler) HandleRobotsTXT(w http.ResponseWriter, r *http.Request
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	fmt.Fprintf(w, "User-agent: *\n")
 	fmt.Fprintf(w, "Allow: /\n\n")
-	fmt.Fprintf(w, "Sitemap: http://localhost:3000/sitemap.xml\n")
+	fmt.Fprintf(w, "Sitemap: %s/sitemap.xml\n", site.RequestBaseURL(r))
 }
 
 // HandleSearchSuggest returns instant autocomplete suggestions for search input
@@ -983,7 +1023,9 @@ func (h *ConsumerHandler) HandleStoreReviewSubmit(w http.ResponseWriter, r *http
 	</div>`, strings.Repeat("★", rating), text, author, company)
 }
 
-// HandleInstantCheckout simulates automated instant settlement (Amazon / Ozow Parity)
+// HandleInstantCheckout creates a demo order reservation. No payment rail is
+// integrated in this runtime, so the order is created and labelled explicitly
+// as unpaid demo state — it never claims settlement, waybills or dispatch.
 func (h *ConsumerHandler) HandleInstantCheckout(w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	productTitle := r.FormValue("product_title")
@@ -993,33 +1035,30 @@ func (h *ConsumerHandler) HandleInstantCheckout(w http.ResponseWriter, r *http.R
 		qty = 1
 	}
 	unitPrice, _ := strconv.ParseFloat(r.FormValue("unit_price"), 64)
-	if unitPrice <= 0 {
-		unitPrice = 4500.00
-	}
-	buyerName := r.FormValue("buyer_name")
+	buyerName := strings.TrimSpace(r.FormValue("buyer_name"))
 	if buyerName == "" {
-		buyerName = "Sipho Dlamini"
+		buyerName = "Guest buyer"
 	}
-	paymentMethod := r.FormValue("payment_method")
+	paymentMethod := strings.TrimSpace(r.FormValue("payment_method"))
 	if paymentMethod == "" {
-		paymentMethod = "Ozow Instant EFT"
+		paymentMethod = "To be arranged with merchant"
 	}
 
+	vatRate := site.VATRate()
 	subtotal := unitPrice * float64(qty)
-	vat := subtotal * 0.15
+	vat := subtotal * vatRate
 	grandTotal := subtotal + vat
-	orderNo := fmt.Sprintf("ORD-2026-%04d", time.Now().Unix()%10000)
-	waybill := fmt.Sprintf("TCG-ZA-%06d", time.Now().UnixNano()%1000000)
+	orderNo := fmt.Sprintf("ORD-DEMO-%04d", time.Now().Unix()%10000)
 
 	h.store.CreateOrder(models.PlacedOrder{
 		OrderNumber:     orderNo,
 		BuyerName:       buyerName,
-		Company:         "Verified Commercial Trade Client",
-		Phone:           "+27 82 555 0192",
-		Email:           "buyer@shoppage.co.za",
-		DeliveryAddress: "45 Richards Dr, Gallagher Business Park, Midrand, Gauteng, 1685",
-		DeliveryMethod:  "The Courier Guy Express (Door-to-Door)",
-		Waybill:         waybill,
+		Company:         r.FormValue("company"),
+		Phone:           r.FormValue("phone"),
+		Email:           r.FormValue("email"),
+		DeliveryAddress: r.FormValue("delivery_address"),
+		DeliveryMethod:  "To be arranged with merchant",
+		Waybill:         "",
 		ProductTitle:    productTitle,
 		SKU:             sku,
 		Quantity:        qty,
@@ -1027,22 +1066,25 @@ func (h *ConsumerHandler) HandleInstantCheckout(w http.ResponseWriter, r *http.R
 		SubtotalZar:     subtotal,
 		VatZar:          vat,
 		GrandTotal:      grandTotal,
-		Status:          "Payment Settled",
+		Status:          "Demo reservation — payment not processed",
 		PaymentMethod:   paymentMethod,
-		DateStr:         "Just now",
-		EstimatedEta:    "Dispatches within 24h via The Courier Guy",
-		MerchantName:    "Verified South African Commercial Supplier",
-		MerchantAddress: "Midrand Commercial Distribution Centre, Gauteng",
+		DateStr:         time.Now().Format("02 Jan 15:04"),
+		EstimatedEta:    "Merchant confirms dispatch after payment",
+		MerchantName:    r.FormValue("merchant_name"),
 	})
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprintf(w, `<div class="bg-white rounded-3xl border border-emerald-500/80 p-6 shadow-xl max-w-lg mx-auto text-slate-900 text-left">
+	// All buyer- and merchant-supplied strings are escaped before being written
+	// into the HTMX fragment: this endpoint echoes form input back to the page.
+	esc := html.EscapeString
+	vatLabel := site.VATPercentLabel()
+	fmt.Fprintf(w, `<div class="bg-white rounded-3xl border border-amber-400/80 p-6 shadow-xl max-w-lg mx-auto text-slate-900 text-left">
 		<div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
 			<div class="flex items-center gap-2">
-				<div class="w-9 h-9 rounded-xl bg-emerald-600 text-white font-bold flex items-center justify-center text-base">✓</div>
+				<div class="w-9 h-9 rounded-xl bg-amber-500 text-white font-bold flex items-center justify-center text-base">i</div>
 				<div>
-					<h3 class="text-sm font-black text-slate-900">Payment Settled &amp; Order Confirmed</h3>
-					<div class="text-[11px] text-slate-500">Method: <b class="text-emerald-700">%s</b></div>
+					<h3 class="text-sm font-black text-slate-900">Demo order created — no payment processed</h3>
+					<div class="text-[11px] text-slate-500">Payment method: <b class="text-slate-700">%s</b></div>
 				</div>
 			</div>
 			<span class="font-mono text-xs font-bold text-slate-800 bg-slate-100 px-2.5 py-1 rounded-lg">%s</span>
@@ -1057,30 +1099,29 @@ func (h *ConsumerHandler) HandleInstantCheckout(w http.ResponseWriter, r *http.R
 				<span class="font-bold">R %.2f ZAR</span>
 			</div>
 			<div class="flex justify-between text-slate-600">
-				<span>SARS 15%% VAT:</span>
+				<span>SARS %s VAT:</span>
 				<span class="font-bold text-emerald-700">R %.2f ZAR</span>
 			</div>
 			<div class="flex justify-between text-sm font-black text-slate-900 border-t border-slate-200 pt-2">
-				<span>Total Paid:</span>
+				<span>Total due (incl. VAT):</span>
 				<span class="text-emerald-700">R %.2f ZAR</span>
 			</div>
 		</div>
-		<div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-950 mb-5">
+		<div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-950 mb-5">
 			<div class="font-bold flex items-center gap-1.5">
-				<span>🚚</span> <span>The Courier Guy Waybill Issued:</span>
+				<span>⚠</span> <span>Demo environment</span>
 			</div>
-			<div class="font-mono font-bold text-emerald-800 mt-1">%s</div>
-			<div class="text-[10.5px] text-emerald-700 mt-0.5">Dispatching from Midrand Central Hub, Bay 4 (24h Express).</div>
+			<div class="text-[10.5px] text-amber-800 mt-1">This runtime has no payment or courier integration. The order is held in memory for tracking demos only and is lost on restart.</div>
 		</div>
 		<div class="flex gap-2.5">
 			<button type="button" onclick="window.print();" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition">
-				📄 Download Tax PDF
+				📄 Print summary
 			</button>
 			<a href="/track?q=%s" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition text-center flex items-center justify-center gap-1.5">
 				<span>Track Order</span> <span>&rarr;</span>
 			</a>
 		</div>
-	</div>`, paymentMethod, orderNo, productTitle, sku, qty, unitPrice, subtotal, vat, grandTotal, waybill, orderNo)
+	</div>`, esc(paymentMethod), orderNo, esc(productTitle), esc(sku), qty, unitPrice, subtotal, vatLabel, vat, grandTotal, url.QueryEscape(orderNo))
 }
 
 // HandleStoreEmbed renders an embeddable iframe widget of the merchant storefront
@@ -1095,12 +1136,19 @@ func (h *ConsumerHandler) HandleStoreEmbed(w http.ResponseWriter, r *http.Reques
 	data := templates.EmbedStoreViewData{
 		Store:   merchant,
 		Catalog: merchant.Catalog,
+		BaseURL: site.RequestBaseURL(r),
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	// Allow embedding in iframes
+	// The widget is designed to be embedded on merchant sites. The allowed
+	// parent origins are configurable so a deployment can restrict framing
+	// without a code change; unset means "any origin" (embed widget default).
 	w.Header().Del("X-Frame-Options")
-	w.Header().Set("Content-Security-Policy", "frame-ancestors *")
+	ancestors := strings.TrimSpace(os.Getenv("SHOPPAGE_EMBED_FRAME_ANCESTORS"))
+	if ancestors == "" {
+		ancestors = "*"
+	}
+	w.Header().Set("Content-Security-Policy", "frame-ancestors "+ancestors)
 	if err := templates.RenderEmbedStore(w, data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -1185,9 +1233,6 @@ func (h *ConsumerHandler) HandleBadgeSVG(w http.ResponseWriter, r *http.Request)
 // HandleTrackOrder renders live shipment and courier waybill tracking
 func (h *ConsumerHandler) HandleTrackOrder(w http.ResponseWriter, r *http.Request) {
 	q := strings.TrimSpace(r.URL.Query().Get("q"))
-	if q == "" {
-		q = "ORD-2026-1042" // Default demo order for instant preview
-	}
 
 	order, found := h.store.GetOrderByNumber(q)
 	if !found {
@@ -1196,7 +1241,7 @@ func (h *ConsumerHandler) HandleTrackOrder(w http.ResponseWriter, r *http.Reques
 
 	data := templates.TrackViewData{
 		Title:       "Track Shipment & Logistics Desk | Shoppage South Africa",
-		Description: "Live tracking for commercial wholesale orders with The Courier Guy and Pudo Smart Lockers, automated waybills, and SARS tax invoices.",
+		Description: "Order and waybill tracking for commercial wholesale orders placed through Shoppage.",
 		Query:       q,
 		CurrentTab:  "track",
 		Order:       order,
@@ -1209,11 +1254,33 @@ func (h *ConsumerHandler) HandleTrackOrder(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+// sellDescription builds the /sell meta description from live catalogue counts
+// so the page never advertises a buyer audience size the platform cannot prove.
+// nonEmpty returns the given values with blanks removed, so joined labels never
+// render dangling separators for data a merchant has not supplied.
+func nonEmpty(vals ...string) []string {
+	out := make([]string, 0, len(vals))
+	for _, v := range vals {
+		if v = strings.TrimSpace(v); v != "" {
+			out = append(out, v)
+		}
+	}
+	return out
+}
+
+func (h *ConsumerHandler) sellDescription() string {
+	_, products, _, merchants := h.store.GetTotalCounts()
+	return fmt.Sprintf(
+		"Register your South African business, index your wholesale catalogue and reach commercial buyers on Shoppage. %s supplier storefronts and %s trade listings currently indexed.",
+		templates.FormatCount(merchants), templates.FormatCount(products),
+	)
+}
+
 // HandleSell renders the B2B merchant onboarding and registration hub
 func (h *ConsumerHandler) HandleSell(w http.ResponseWriter, r *http.Request) {
 	data := templates.SellViewData{
 		Title:       "Sell on Shoppage | South Africa's Commercial Supplier Network",
-		Description: "Register your verified South African business, index your wholesale catalog, and connect with 14,000+ commercial buyers across Gauteng, Cape Town, and Durban.",
+		Description: h.sellDescription(),
 		CurrentTab:  "sell",
 		Submitted:   false,
 	}
@@ -1243,7 +1310,7 @@ func (h *ConsumerHandler) HandleSellRegister(w http.ResponseWriter, r *http.Requ
 	if name == "" || cipc == "" {
 		data := templates.SellViewData{
 			Title:       "Sell on Shoppage | South Africa's Commercial Supplier Network",
-			Description: "Register your verified South African business.",
+			Description: h.sellDescription(),
 			CurrentTab:  "sell",
 			Submitted:   false,
 			ErrorMsg:    "Please provide both your legal Company Name and CIPC Registration Number.",
@@ -1279,6 +1346,32 @@ func (h *ConsumerHandler) HandleSellRegister(w http.ResponseWriter, r *http.Requ
 		province = "Eastern Cape"
 	}
 
+	// Avoid clobbering an existing storefront: registration slugs are derived
+	// from the trading name, so two "Apex Solar (Pty) Ltd" sign-ups would
+	// otherwise resolve to the same ID and silently overwrite each other.
+	baseID := cleanID
+	for n := 2; ; n++ {
+		if _, exists := h.store.GetMerchantByID(cleanID); !exists {
+			break
+		}
+		if n > 500 {
+			cleanID = fmt.Sprintf("%s-%d", baseID, time.Now().UnixNano()%100000)
+			break
+		}
+		cleanID = fmt.Sprintf("%s-%d", baseID, n)
+	}
+
+	// Registration provisions an UNVERIFIED pending storefront. Trust stamps —
+	// CIPC verification, B-BBEE level, ratings, trading hours — are granted by
+	// the vetting desk against supplied documents, never auto-issued at
+	// sign-up. An automatically awarded "Verified / 5.0" badge is fabricated
+	// truth and would not survive investor due diligence.
+	about := fmt.Sprintf("%s — %s supplier based in %s. Storefront submitted %s; enterprise verification pending.",
+		name, strings.ToLower(category), metro, time.Now().Format("02 Jan 2006"))
+	if bank != "" {
+		about += " Settlement bank and tax details are held for the vetting desk."
+	}
+
 	merchant := models.MerchantStorefront{
 		ID:                 cleanID,
 		Name:               name,
@@ -1292,35 +1385,25 @@ func (h *ConsumerHandler) HandleSellRegister(w http.ResponseWriter, r *http.Requ
 		Email:              email,
 		Website:            "",
 		HasExternalWebsite: false,
-		AboutText:          fmt.Sprintf("Official verified South African commercial wholesale supplier of %s. Registered with CIPC (%s). Direct settlement via %s.", category, cipc, bank),
-		BBBEELevel:         "Level 1 Contributor (135% Procurement Recognition)",
-		Certifications:     []string{"CIPC Verified Enterprise", "SARS Tax Compliant", "Shoppage Verified Trade Partner"},
-		Rating:             5.0,
-		ReviewsCount:       1,
+		AboutText:          about,
+		BBBEELevel:         "",
+		Certifications:     nil,
+		Rating:             0,
+		ReviewsCount:       0,
 		CIPCNumber:         cipc,
-		Verified:           true,
-		IsOpenNow:          true,
-		HoursStatus:        "Open · Closes 17:00 SAST",
+		Verified:           false,
+		IsOpenNow:          false,
+		HoursStatus:        "",
 		DirectionsURL:      fmt.Sprintf("https://www.google.com/maps/search/?api=1&query=%s", url.QueryEscape(address)),
 		Catalog:            []models.SearchItem{},
-		Testimonials: []models.StoreTestimonial{
-			{
-				ID:         "rev-init-1",
-				AuthorName: "Shoppage Verification Team",
-				Company:    "Compliance Desk",
-				Rating:     5,
-				Text:       "Verified enterprise credentials, registered South African corporate entity and active courier distribution agreement.",
-				DateStr:    "Today",
-				Verified:   true,
-			},
-		},
+		Testimonials:       nil,
 	}
 
 	h.store.AddMerchant(merchant)
 
 	data := templates.SellViewData{
-		Title:       "Merchant Registration Completed | Shoppage",
-		Description: "Your enterprise merchant storefront has been provisioned and verified on Shoppage.",
+		Title:       "Merchant Registration Received | Shoppage",
+		Description: h.sellDescription(),
 		CurrentTab:  "sell",
 		Submitted:   true,
 		CreatedID:   cleanID,

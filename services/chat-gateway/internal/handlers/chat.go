@@ -14,27 +14,21 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	// Allow requests from frontend origin (localhost:3000, localhost:3001, shoppage.co.za)
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
 }
 
-// ChatHandler handles WebSocket connections for real-time buyer-merchant negotiation.
 type ChatHandler struct {
-	hub *hub.Hub
+	hub     *hub.Hub
+	sink    hub.MessageSink
+	limiter *hub.RateLimiter
 }
 
-// NewChatHandler creates a new ChatHandler.
-func NewChatHandler(h *hub.Hub) *ChatHandler {
-	return &ChatHandler{hub: h}
+func NewChatHandler(h *hub.Hub, sink hub.MessageSink, limiter *hub.RateLimiter) *ChatHandler {
+	return &ChatHandler{hub: h, sink: sink, limiter: limiter}
 }
 
-// ServeWS handles incoming websocket upgrade requests.
-// Query params:
-// - roomId: conversation/RFQ room identifier
-// - userId: client identifier
-// - role: "buyer" | "merchant" | "agent" | "system" (defaults to "buyer")
 func (h *ChatHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 	roomID := r.URL.Query().Get("roomId")
 	if roomID == "" {
@@ -71,16 +65,36 @@ func (h *ChatHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 		UserID:         userID,
 		Role:           role,
 		ConversationID: roomID,
+		Sink:           h.sink,
+		Limiter:        h.limiter,
 	}
 
 	h.hub.Register <- client
 
-	// Start read/write pumps in separate goroutines
+	if h.sink != nil {
+		if history, err := h.sink.RecentMessages(roomID, 50); err == nil && len(history) > 0 {
+			for i := range history {
+				m := history[i]
+				out := models.ServerOutboundMessage{
+					Event:          "message_received",
+					ConversationID: roomID,
+					Message:        &m,
+					SenderID:       m.SenderID,
+					Timestamp:      m.Timestamp,
+				}
+				data, _ := json.Marshal(out)
+				select {
+				case client.Send <- data:
+				default:
+				}
+			}
+		}
+	}
+
 	go client.WritePump()
 	go client.ReadPump()
 }
 
-// HealthResponse represents system health status
 type HealthResponse struct {
 	Status       string    `json:"status"`
 	Service      string    `json:"service"`
@@ -90,7 +104,6 @@ type HealthResponse struct {
 	Timestamp    time.Time `json:"timestamp"`
 }
 
-// HealthCheck provides liveness and metrics probe for orchestration
 func (h *ChatHandler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	resp := HealthResponse{
 		Status:      "healthy",

@@ -99,8 +99,8 @@ type StorefrontViewData struct {
 	TotalCount       int
 	HeroHeadline     string
 	AnnouncementText string
-	AccentColor      string
 	Testimonials     []models.StoreTestimonial
+	BaseURL          string
 }
 
 type ChatMerchantContact struct {
@@ -110,6 +110,7 @@ type ChatMerchantContact struct {
 	City        string
 	Avatar      string
 	Cipc        string
+	WhatsApp    string
 	Verified    bool
 	Online      bool
 	LastMessage string
@@ -122,6 +123,7 @@ type ChatViewData struct {
 	CurrentTab         string
 	SelectedMerchantID string
 	Merchants          []ChatMerchantContact
+	Selected           *ChatMerchantContact
 	Trends             []models.TradeTrend
 	TopDrops           []models.RetailerDeal
 	Guilds             []models.CommunityGuild
@@ -183,6 +185,13 @@ func FirstRune(s string) string {
 		return string(r)
 	}
 	return "M"
+}
+
+// FormatCount renders an integer with thousands separators, and "-" for
+// negative values. Exported so handlers can build copy from real counts
+// instead of hardcoded marketing numbers.
+func FormatCount(n int) string {
+	return formatComma(n)
 }
 
 // -----------------------------------------------------------------------------
@@ -287,7 +296,11 @@ func RenderBuyerProtection(w io.Writer, data BuyerProtectionViewData) error {
 	return RenderEnterpriseVetting(w, data)
 }
 
-func schemaOrgStoreJSON(store models.MerchantStorefront, desc string) string {
+// schemaOrgStoreJSON builds the JSON-LD block for a storefront. Only fields the
+// merchant record actually carries are emitted: no default opening hours, and
+// no aggregateRating unless real reviews exist. Publishing invented structured
+// data is a Google rich-result violation as well as a trust problem.
+func schemaOrgStoreJSON(store models.MerchantStorefront, desc string, baseURL string) string {
 	sameAs := []string{}
 	if store.Website != "" {
 		sameAs = append(sameAs, store.Website)
@@ -298,25 +311,42 @@ func schemaOrgStoreJSON(store models.MerchantStorefront, desc string) string {
 		}
 	}
 
+	address := map[string]string{
+		"@type":          "PostalAddress",
+		"addressCountry": "ZA",
+	}
+	if store.Address != "" {
+		address["streetAddress"] = store.Address
+	}
+	if store.Suburb != "" {
+		address["addressLocality"] = store.Suburb
+	}
+	if store.City != "" {
+		address["addressRegion"] = store.City
+	}
+
 	payload := map[string]any{
-		"@context": "https://schema.org/",
-		"@type":    "WholesaleStore",
-		"name":     store.Name,
+		"@context":    "https://schema.org/",
+		"@type":       "WholesaleStore",
+		"name":        store.Name,
 		"description": desc,
-		"url":      fmt.Sprintf("http://localhost:3000/m/%s", store.ID),
-		"telephone": store.Phone,
-		"openingHours": "Mo-Fr 08:00-17:00, Sa 08:30-13:00",
-		"hasMap":   store.DirectionsURL,
-		"address": map[string]string{
-			"@type":          "PostalAddress",
-			"streetAddress":  store.Address,
-			"addressCountry": "ZA",
-		},
-		"aggregateRating": map[string]any{
+		"address":     address,
+	}
+	if baseURL != "" {
+		payload["url"] = baseURL + "/m/" + store.ID
+	}
+	if store.Phone != "" {
+		payload["telephone"] = store.Phone
+	}
+	if store.DirectionsURL != "" {
+		payload["hasMap"] = store.DirectionsURL
+	}
+	if store.Rating > 0 && store.ReviewsCount > 0 {
+		payload["aggregateRating"] = map[string]any{
 			"@type":       "AggregateRating",
 			"ratingValue": fmt.Sprintf("%.1f", store.Rating),
 			"reviewCount": fmt.Sprintf("%d", store.ReviewsCount),
-		},
+		}
 	}
 	if store.Email != "" {
 		payload["email"] = store.Email

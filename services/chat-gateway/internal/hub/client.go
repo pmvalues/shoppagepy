@@ -10,40 +10,28 @@ import (
 )
 
 const (
-	// Time allowed to write a message to the peer.
-	writeWait = 10 * time.Second
-
-	// Time allowed to read the next pong message from the peer.
-	pongWait = 60 * time.Second
-
-	// Send pings to peer with this period. Must be less than pongWait.
+	writeWait  = 10 * time.Second
+	pongWait   = 60 * time.Second
 	pingPeriod = (pongWait * 9) / 10
-
-	// Maximum message size allowed from peer (512 KB).
 	maxMessageSize = 512 * 1024
 )
 
-// Client is a middleman between the websocket connection and the hub.
-type Client struct {
-	Hub *Hub
-
-	// The websocket connection.
-	Conn *websocket.Conn
-
-	// Buffered channel of outbound messages.
-	Send chan []byte
-
-	// Identifier of the connected user / merchant / agent
-	UserID string
-
-	// Role of the connected user
-	Role models.SenderRole
-
-	// Active conversation room
-	ConversationID string
+type MessageSink interface {
+	SaveMessage(m *models.ChatMessage) error
+	RecentMessages(conversationID string, limit int) ([]models.ChatMessage, error)
 }
 
-// ReadPump pumps messages from the websocket connection to the hub.
+type Client struct {
+	Hub            *Hub
+	Conn           *websocket.Conn
+	Send           chan []byte
+	UserID         string
+	Role           models.SenderRole
+	ConversationID string
+	Sink           MessageSink
+	Limiter        *RateLimiter
+}
+
 func (c *Client) ReadPump() {
 	defer func() {
 		c.Hub.Unregister <- c
@@ -66,10 +54,36 @@ func (c *Client) ReadPump() {
 			break
 		}
 
-		var inbound models.ClientInboundMessage
-		if err := json.Unmarshal(messageBytes, &inbound); err != nil {
+		var raw map[string]json.RawMessage
+		if err := json.Unmarshal(messageBytes, &raw); err != nil {
 			slog.Warn("Invalid JSON payload from client", "user_id", c.UserID, "err", err)
 			continue
+		}
+
+		var inbound models.ClientInboundMessage
+		if err := json.Unmarshal(messageBytes, &inbound); err != nil {
+			slog.Warn("Invalid client envelope", "user_id", c.UserID, "err", err)
+			continue
+		}
+
+		if inbound.Action == "" {
+			if t, ok := raw["type"]; ok {
+				var typ string
+				_ = json.Unmarshal(t, &typ)
+				if typ == "chat" {
+					inbound.Action = "send_message"
+				}
+			}
+		}
+		if inbound.ConversationID == "" {
+			if r, ok := raw["roomId"]; ok {
+				_ = json.Unmarshal(r, &inbound.ConversationID)
+			}
+		}
+		if inbound.Content == "" {
+			if r, ok := raw["content"]; ok {
+				_ = json.Unmarshal(r, &inbound.Content)
+			}
 		}
 
 		convID := inbound.ConversationID
@@ -79,6 +93,19 @@ func (c *Client) ReadPump() {
 
 		switch inbound.Action {
 		case "send_message":
+			if inbound.Content == "" {
+				continue
+			}
+			if c.Limiter != nil && !c.Limiter.Allow(c.UserID) {
+				c.Hub.BroadcastToRoom(convID, models.ServerOutboundMessage{
+					Event:          "error",
+					ConversationID: convID,
+					SenderID:       c.UserID,
+					Error:          "rate_limited",
+					Timestamp:      time.Now().UTC(),
+				})
+				continue
+			}
 			msg := &models.ChatMessage{
 				ID:             generateID("msg"),
 				ConversationID: convID,
@@ -87,6 +114,11 @@ func (c *Client) ReadPump() {
 				Type:           models.TypeChat,
 				Content:        inbound.Content,
 				Timestamp:      time.Now().UTC(),
+			}
+			if c.Sink != nil {
+				if err := c.Sink.SaveMessage(msg); err != nil {
+					slog.Error("Failed to persist chat message", "err", err)
+				}
 			}
 			outbound := models.ServerOutboundMessage{
 				Event:          "message_received",
@@ -98,31 +130,31 @@ func (c *Client) ReadPump() {
 			c.Hub.BroadcastToRoom(convID, outbound)
 
 		case "typing":
-			outbound := models.ServerOutboundMessage{
+			if c.Limiter != nil && !c.Limiter.Allow(c.UserID+":typing") {
+				continue
+			}
+			c.Hub.BroadcastToRoom(convID, models.ServerOutboundMessage{
 				Event:          "typing",
 				ConversationID: convID,
 				SenderID:       c.UserID,
 				Timestamp:      time.Now().UTC(),
-			}
-			c.Hub.BroadcastToRoom(convID, outbound)
+			})
 
 		case "quote_update":
 			if inbound.Quote != nil {
 				inbound.Quote.ConversationID = convID
-				outbound := models.ServerOutboundMessage{
+				c.Hub.BroadcastToRoom(convID, models.ServerOutboundMessage{
 					Event:          "quote_updated",
 					ConversationID: convID,
 					Quote:          inbound.Quote,
 					SenderID:       c.UserID,
 					Timestamp:      time.Now().UTC(),
-				}
-				c.Hub.BroadcastToRoom(convID, outbound)
+				})
 			}
 		}
 	}
 }
 
-// WritePump pumps messages from the hub to the websocket connection.
 func (c *Client) WritePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
@@ -135,7 +167,6 @@ func (c *Client) WritePump() {
 		case message, ok := <-c.Send:
 			_ = c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
-				// The hub closed the channel.
 				_ = c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
@@ -146,7 +177,6 @@ func (c *Client) WritePump() {
 			}
 			_, _ = w.Write(message)
 
-			// Add queued chat messages to the current websocket message.
 			n := len(c.Send)
 			for i := 0; i < n; i++ {
 				_, _ = w.Write([]byte{'\n'})

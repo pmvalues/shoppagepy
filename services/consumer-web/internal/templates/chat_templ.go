@@ -10,6 +10,9 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
+	"net/url"
+
+	"github.com/shoppage/consumer-web/internal/site"
 )
 
 func ChatComponent(data ChatViewData) templ.Component {
@@ -45,159 +48,474 @@ func ChatComponent(data ChatViewData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full\"><!-- Header --><div class=\"flex flex-wrap items-center justify-between gap-4 mb-6\"><div><div class=\"flex items-center gap-2.5\"><h1 class=\"text-2xl font-display font-black text-slate-900 tracking-tight\">Direct Messages <span class=\"text-emerald-600\">(DM)</span></h1><span id=\"ws-badge\" class=\"inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200\"><span class=\"w-2 h-2 rounded-full bg-amber-500 animate-pulse\"></span> <span id=\"ws-status-text\">Connecting to Gateway (:8080)...</span></span></div><p class=\"text-xs text-slate-500 mt-1\">Commerce-native direct messaging with verified South African wholesalers, structured quotes &amp; instant EFT settlement.</p></div><div class=\"flex items-center gap-2\"><a href=\"/requests\" class=\"px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 transition flex items-center gap-1.5\"><span>📑</span> <span>View RFQ Desk</span></a> <a href=\"http://localhost:8083/tab/chat\" target=\"_blank\" class=\"px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5\"><span>⚡</span> <span>Merchant OS Desk</span></a></div></div><!-- 2-Pane Chat Workstation Grid --><div class=\"grid grid-cols-1 lg:grid-cols-12 gap-5 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-h-[640px]\"><!-- LEFT PANE: Contacts List (4 cols) --><div class=\"lg:col-span-4 border-r border-slate-200 flex flex-col bg-slate-50/50\"><div class=\"p-3.5 border-b border-slate-200 bg-white\"><div class=\"flex items-center justify-between mb-2\"><span class=\"text-xs font-bold text-slate-900 uppercase tracking-wider\">Verified Wholesalers</span> <span class=\"px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full\"><!-- Header --><div class=\"flex flex-wrap items-center justify-between gap-4 mb-6\"><div><div class=\"flex items-center gap-2.5\"><h1 class=\"text-2xl font-display font-black text-slate-900 tracking-tight\">Direct Messages <span class=\"text-emerald-600\">(DM)</span></h1><span id=\"ws-badge\" class=\"inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200\"><span class=\"w-2 h-2 rounded-full bg-amber-500 animate-pulse\"></span> <span id=\"ws-status-text\">Checking chat gateway...</span></span></div><p class=\"text-xs text-slate-500 mt-1\">Direct messaging with South African trade suppliers. Quotes and payment terms are agreed between buyer and supplier &mdash; this chat does not settle payment.</p></div><div class=\"flex items-center gap-2\"><a href=\"/requests\" class=\"px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 transition flex items-center gap-1.5\"><span>📑</span> <span>View RFQ Desk</span></a> <a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d Online", len(data.Merchants)))
+			var templ_7745c5c3_Var3 templ.SafeURL
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(site.MerchantDeskURL()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 43, Col: 143}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 33, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span></div><input type=\"text\" placeholder=\"Search suppliers or products…\" class=\"w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500\" onkeyup=\"filterContacts(this.value);\"></div><div id=\"contacts-list\" class=\"flex-1 overflow-y-auto divide-y divide-slate-100\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" target=\"_blank\" class=\"px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5\"><span>⚡</span> <span>Merchant OS Desk</span></a></div></div><!-- 2-Pane Chat Workstation Grid --><div class=\"grid grid-cols-1 lg:grid-cols-12 gap-5 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-h-[640px]\"><!-- LEFT PANE: Contacts List (4 cols) --><div class=\"lg:col-span-4 border-r border-slate-200 flex flex-col bg-slate-50/50\"><div class=\"p-3.5 border-b border-slate-200 bg-white\"><div class=\"flex items-center justify-between mb-2\"><span class=\"text-xs font-bold text-slate-900 uppercase tracking-wider\">Trade Suppliers</span> <span class=\"px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d Suppliers", len(data.Merchants)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 46, Col: 146}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</span></div><input type=\"text\" placeholder=\"Search suppliers or products…\" class=\"w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500\" onkeyup=\"filterContacts(this.value);\"></div><div id=\"contacts-list\" class=\"flex-1 overflow-y-auto divide-y divide-slate-100\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, m := range data.Merchants {
-				var templ_7745c5c3_Var4 = []any{"contact-card p-3.5 flex items-start gap-3 cursor-pointer transition", templ.KV("bg-emerald-50/80 border-l-4 border-emerald-600", m.ID == data.SelectedMerchantID), templ.KV("hover:bg-slate-100", m.ID != data.SelectedMerchantID)}
-				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var4...)
+				var templ_7745c5c3_Var5 = []any{"contact-card p-3.5 flex items-start gap-3 cursor-pointer transition", templ.KV("bg-emerald-50/80 border-l-4 border-emerald-600", m.ID == data.SelectedMerchantID), templ.KV("hover:bg-slate-100", m.ID != data.SelectedMerchantID)}
+				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("selectMerchant('%s')", m.ID)})
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var5 string
-				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var4).String())
+				var templ_7745c5c3_Var6 string
+				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var5).String())
 				if templ_7745c5c3_Err != nil {
 					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 1, Col: 0}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" onclick=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var6 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("selectMerchant('%s')", m.ID)}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6.Call)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"><div class=\"relative shrink-0\"><div class=\"w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-white font-bold flex items-center justify-center text-sm shadow-sm\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" data-id=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var7 string
-				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(m.Avatar)
+				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(m.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 61, Col: 20}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 60, Col: 22}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if m.Online {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span class=\"absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white\"></span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div class=\"min-w-0 flex-1\"><div class=\"flex items-center justify-between mb-0.5\"><h4 class=\"text-xs font-bold text-slate-900 truncate flex items-center gap-1\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" data-name=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var8 string
-				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(m.Name)
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(m.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 70, Col: 19}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 61, Col: 26}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, " ")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if m.Verified {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"text-emerald-600 text-[10px]\" title=\"CIPC Verified\">✓</span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</h4><span class=\"text-[10px] text-slate-400\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" data-avatar=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var9 string
-				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(m.Time)
+				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(m.Avatar)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 75, Col: 59}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 62, Col: 30}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span></div><div class=\"text-[11px] text-emerald-700 font-semibold mb-1\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" data-category=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var10 string
-				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(m.Category)
+				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(m.Category)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 77, Col: 82}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 63, Col: 34}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " · ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" data-city=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var11 string
-				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(m.City)
+				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(m.City)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 77, Col: 96}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 64, Col: 26}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><p class=\"text-[11px] text-slate-500 line-clamp-1\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" data-cipc=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var12 string
-				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(m.LastMessage)
+				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(m.Cipc)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 78, Col: 75}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 65, Col: 26}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</p></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" data-verified=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var13 string
+				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%t", m.Verified))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 66, Col: 53}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" data-whatsapp=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var14 string
+				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(m.WhatsApp)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 67, Col: 34}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" onclick=\"selectMerchant(this.dataset.id);\"><div class=\"relative shrink-0\"><div class=\"w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-white font-bold flex items-center justify-center text-sm shadow-sm\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var15 string
+				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(m.Avatar)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 72, Col: 20}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if m.Online {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span class=\"absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white\"></span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div class=\"min-w-0 flex-1\"><div class=\"flex items-start justify-between gap-2 min-w-0\"><h4 class=\"text-xs font-bold text-slate-900 truncate min-w-0 flex-1\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var16 string
+				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(m.Name)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 81, Col: 19}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</h4><span class=\"text-[10px] text-slate-400 shrink-0\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if m.Time != "" {
+					var templ_7745c5c3_Var17 string
+					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(m.Time)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 85, Col: 21}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else if m.Online {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "online")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "offline")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span></div><div class=\"text-[11px] text-emerald-700 font-semibold mb-1\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var18 string
+				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(m.Category)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 93, Col: 82}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " · ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var19 string
+				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(m.City)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 93, Col: 96}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><p class=\"text-[11px] text-slate-500 line-clamp-1\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if m.LastMessage != "" {
+					var templ_7745c5c3_Var20 string
+					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(m.LastMessage)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 96, Col: 27}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "No messages yet")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</p></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div><!-- RIGHT PANE: Conversation & Quotes (8 cols) --><div class=\"lg:col-span-8 flex flex-col h-full min-h-[640px]\"><!-- Active Conversation Header --><div class=\"p-4 border-b border-slate-200 bg-white flex items-center justify-between\"><div class=\"flex items-center gap-3\"><div class=\"w-10 h-10 rounded-xl bg-emerald-600 text-white font-bold flex items-center justify-center text-sm\">M</div><div><div class=\"flex items-center gap-2\"><h3 id=\"active-merchant-name\" class=\"text-sm font-bold text-slate-900\">Mitrend Products (Pty) Ltd</h3><span class=\"px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold\">CIPC 2018/489102/07</span></div><div class=\"text-xs text-slate-500 flex items-center gap-2\"><span>Midrand Central Hub, Bay 4</span> <span>·</span> <span class=\"text-emerald-600 font-semibold\">⚡ Typ. reply in 5 min</span></div></div></div><div class=\"flex items-center gap-2\"><a href=\"https://wa.me/27720000000?text=Hi%20Mitrend,%20inquiring%20via%20Shoppage\" target=\"_blank\" class=\"px-3 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition flex items-center gap-1.5\"><span>💬</span> <span>WhatsApp Direct</span></a></div></div><!-- Active Quotation Card (B2B Proforma) --><div class=\"p-3.5 bg-amber-50/70 border-b border-amber-200/80\"><div class=\"flex items-center justify-between mb-2\"><div class=\"flex items-center gap-2\"><span class=\"px-2 py-0.5 rounded bg-amber-200 text-amber-900 font-bold text-[10px] uppercase tracking-wider\">Formal Wholesale Quote</span> <span class=\"font-mono text-xs font-bold text-slate-800\">#QUO-2026-0814</span> <span class=\"text-xs text-slate-500\">· Valid 7 days</span></div><div class=\"text-right\"><span class=\"text-[11px] text-slate-500\">Total (Incl. 15% VAT):</span> <span class=\"text-sm font-black text-slate-900 ml-1\">R 4,735.70</span></div></div><div class=\"bg-white rounded-xl border border-amber-200 p-2.5 flex items-center justify-between text-xs mb-2\"><div><span class=\"font-mono font-bold text-emerald-700\">MIT-3361</span> <span class=\"font-semibold text-slate-900 ml-1.5\">Commercial Anti-Theft Wooden Male Hanger 44cm</span> <span class=\"text-slate-500 ml-2\">&times; 200 units @ R20.59 (10% Tier)</span></div><div class=\"font-mono font-bold text-slate-900\">R 4,118.00</div></div><div class=\"flex items-center justify-between pt-1\"><div class=\"text-[11px] text-slate-500 flex items-center gap-1 flex-wrap\"><span>🚚</span> <span>Delivery: The Courier Guy Express (Gauteng 24h)</span> <span class=\"mx-1 text-slate-300\">·</span> <span class=\"inline-flex items-center gap-1 text-emerald-800 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200\"><span>📦</span> <span>200 Units Reserved (Midrand Hub Bay 4 · LCK-MID-0814)</span></span></div><div class=\"flex items-center gap-2\"><button type=\"button\" onclick=\"alert('Quotation accepted! Proforma tax invoice #INV-3361 generated. EFT details dispatched to buyer email.');\" class=\"px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition\">✓ Accept Quote &amp; Pay EFT</button></div></div></div><!-- Message Thread Stream --><div id=\"chat-messages\" class=\"flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/40\"><!-- Buyer Message --><div class=\"flex justify-end\"><div class=\"max-w-[75%] rounded-2xl rounded-tr-sm bg-emerald-600 text-white p-3 text-xs shadow-sm\"><p class=\"leading-relaxed\">Good morning! We are currently refurbishing 40 executive guest suites at Protea Balalaika in Sandton.</p><div class=\"text-[10px] text-emerald-200 text-right mt-1\">09:40</div></div></div><!-- Merchant Message --><div class=\"flex justify-start\"><div class=\"max-w-[75%] rounded-2xl rounded-tl-sm bg-white border border-slate-200 text-slate-900 p-3 text-xs shadow-sm\"><div class=\"text-[10px] font-bold text-emerald-600 mb-0.5\">Mitrend Sales Desk</div><p class=\"leading-relaxed\">Sawubona! Congratulations on the project. We have 450 units of the MIT-3361 commercial anti-theft hangers in stock at our Midrand central warehouse.</p><div class=\"text-[10px] text-slate-400 text-right mt-1\">09:45</div></div></div><!-- Buyer Message --><div class=\"flex justify-end\"><div class=\"max-w-[75%] rounded-2xl rounded-tr-sm bg-emerald-600 text-white p-3 text-xs shadow-sm\"><p class=\"leading-relaxed\">Can we get 200 wooden hangers delivered to Sandton before Thursday?</p><div class=\"text-[10px] text-emerald-200 text-right mt-1\">10:15</div></div></div><!-- Merchant Message with Quote --><div class=\"flex justify-start\"><div class=\"max-w-[75%] rounded-2xl rounded-tl-sm bg-white border border-slate-200 text-slate-900 p-3 text-xs shadow-sm\"><div class=\"text-[10px] font-bold text-emerald-600 mb-0.5\">Mitrend Sales Desk</div><p class=\"leading-relaxed\">Yes absolutely! I have attached our formal wholesale quotation (#QUO-2026-0814) above with our 10% commercial volume tier applied. Stock is reserved for your dispatch.</p><div class=\"text-[10px] text-slate-400 text-right mt-1\">10:24</div></div></div></div><!-- Message Composer Input --><div class=\"p-3 bg-white border-t border-slate-200\"><form id=\"chat-form\" onsubmit=\"sendChatMessage(event);\" class=\"flex items-center gap-2\"><button type=\"button\" onclick=\"insertQuoteSnippet();\" class=\"p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold\" title=\"Request Quote\">⚡ Quote</button> <input type=\"text\" id=\"chat-input\" placeholder=\"Type a wholesale inquiry, delivery query, or negotiation…\" class=\"flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500\" autocomplete=\"off\"> <button type=\"submit\" class=\"px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition flex items-center gap-1.5\"><span>Send</span> <span>&rarr;</span></button></form></div></div></div><!-- Live WebSocket Script --><script>\n\t\t\t\tlet ws = null;\n\t\t\t\tlet currentMerchantId = 'loc_mitrend_midrand';\n\n\t\t\t\tfunction initChatSocket() {\n\t\t\t\t\tconst badge = document.getElementById('ws-badge');\n\t\t\t\t\tconst text = document.getElementById('ws-status-text');\n\t\t\t\t\t\n\t\t\t\t\ttry {\n\t\t\t\t\t\tws = new WebSocket('ws://localhost:8080/ws/chat?roomId=conv_' + currentMerchantId + '&userId=buyer_demo&role=buyer');\n\n\t\t\t\t\t\tws.onopen = function() {\n\t\t\t\t\t\t\tif (badge && text) {\n\t\t\t\t\t\t\t\tbadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';\n\t\t\t\t\t\t\t\tbadge.querySelector('span').className = 'w-2 h-2 rounded-full bg-emerald-500';\n\t\t\t\t\t\t\t\ttext.textContent = 'Live WebSocket Gateway (:8080) Connected';\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t};\n\n\t\t\t\t\t\tws.onmessage = function(e) {\n\t\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\t\tconst data = JSON.parse(e.data);\n\t\t\t\t\t\t\t\tappendMessage(data.senderRole === 'buyer' ? 'buyer' : 'merchant', data.content || data.message || '', data.senderName || 'Merchant');\n\t\t\t\t\t\t\t} catch (err) {\n\t\t\t\t\t\t\t\tconsole.error('WS parse error:', err);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t};\n\n\t\t\t\t\t\tws.onclose = function() {\n\t\t\t\t\t\t\tif (badge && text) {\n\t\t\t\t\t\t\t\tbadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200';\n\t\t\t\t\t\t\t\tbadge.querySelector('span').className = 'w-2 h-2 rounded-full bg-amber-500 animate-pulse';\n\t\t\t\t\t\t\t\ttext.textContent = 'REST Fallback Mode';\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t};\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tconsole.log('WS offline, using auto-reply mode:', e);\n\t\t\t\t\t}\n\t\t\t\t}\n\n\t\t\t\tfunction sendChatMessage(e) {\n\t\t\t\t\te.preventDefault();\n\t\t\t\t\tconst input = document.getElementById('chat-input');\n\t\t\t\t\tconst msg = input.value.trim();\n\t\t\t\t\tif (!msg) return;\n\n\t\t\t\t\tappendMessage('buyer', msg);\n\t\t\t\t\tinput.value = '';\n\n\t\t\t\t\t// Send via WebSocket if open\n\t\t\t\t\tif (ws && ws.readyState === WebSocket.OPEN) {\n\t\t\t\t\t\tws.send(JSON.stringify({\n\t\t\t\t\t\t\ttype: 'chat',\n\t\t\t\t\t\t\troomId: 'conv_' + currentMerchantId,\n\t\t\t\t\t\t\tsenderId: 'buyer_demo',\n\t\t\t\t\t\t\tsenderRole: 'buyer',\n\t\t\t\t\t\t\tcontent: msg\n\t\t\t\t\t\t}));\n\t\t\t\t\t} else {\n\t\t\t\t\t\t// Simulated instant merchant reply\n\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\tappendMessage('merchant', \"Thank you! Our sales team at \" + currentMerchantId.replace('loc_', '').replace('_', ' ') + \" has received your message and is preparing a proforma.\", 'Mitrend Desk');\n\t\t\t\t\t\t}, 900);\n\t\t\t\t\t}\n\t\t\t\t}\n\n\t\t\t\tfunction appendMessage(role, text, senderName) {\n\t\t\t\t\tconst container = document.getElementById('chat-messages');\n\t\t\t\t\tif (!container) return;\n\n\t\t\t\t\tconst time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });\n\t\t\t\t\tconst wrapper = document.createElement('div');\n\t\t\t\t\twrapper.className = role === 'buyer' ? 'flex justify-end' : 'flex justify-start';\n\n\t\t\t\t\tif (role === 'buyer') {\n\t\t\t\t\t\twrapper.innerHTML = `\n\t\t\t\t\t\t\t<div class=\"max-w-[75%] rounded-2xl rounded-tr-sm bg-emerald-600 text-white p-3 text-xs shadow-sm\">\n\t\t\t\t\t\t\t\t<p class=\"leading-relaxed\">${escapeHtml(text)}</p>\n\t\t\t\t\t\t\t\t<div class=\"text-[10px] text-emerald-200 text-right mt-1\">${time}</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t} else {\n\t\t\t\t\t\twrapper.innerHTML = `\n\t\t\t\t\t\t\t<div class=\"max-w-[75%] rounded-2xl rounded-tl-sm bg-white border border-slate-200 text-slate-900 p-3 text-xs shadow-sm\">\n\t\t\t\t\t\t\t\t<div class=\"text-[10px] font-bold text-emerald-600 mb-0.5\">${senderName || 'Merchant Desk'}</div>\n\t\t\t\t\t\t\t\t<p class=\"leading-relaxed\">${escapeHtml(text)}</p>\n\t\t\t\t\t\t\t\t<div class=\"text-[10px] text-slate-400 text-right mt-1\">${time}</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t}\n\n\t\t\t\t\tcontainer.appendChild(wrapper);\n\t\t\t\t\tcontainer.scrollTop = container.scrollHeight;\n\t\t\t\t}\n\n\t\t\t\tfunction escapeHtml(str) {\n\t\t\t\t\treturn str.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\").replace(/\"/g, \"&quot;\");\n\t\t\t\t}\n\n\t\t\t\tfunction insertQuoteSnippet() {\n\t\t\t\t\tconst input = document.getElementById('chat-input');\n\t\t\t\t\tinput.value = \"Please generate a formal quote for 100 units with delivery to our Sandton depot.\";\n\t\t\t\t\tinput.focus();\n\t\t\t\t}\n\n\t\t\t\tfunction selectMerchant(id) {\n\t\t\t\t\tcurrentMerchantId = id;\n\t\t\t\t\tif (ws) ws.close();\n\t\t\t\t\tinitChatSocket();\n\t\t\t\t}\n\n\t\t\t\tfunction filterContacts(q) {\n\t\t\t\t\tconst filter = q.toLowerCase();\n\t\t\t\t\tdocument.querySelectorAll('.contact-card').forEach(el => {\n\t\t\t\t\t\tel.style.display = el.innerText.toLowerCase().includes(filter) ? '' : 'none';\n\t\t\t\t\t});\n\t\t\t\t}\n\n\t\t\t\tdocument.addEventListener('DOMContentLoaded', initChatSocket);\n\t\t\t\tif (document.readyState !== 'loading') initChatSocket();\n\t\t\t</script></main>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div></div><!-- RIGHT PANE: Conversation & Quotes (8 cols) --><div class=\"lg:col-span-8 flex flex-col h-full min-h-[640px]\"><!-- Active conversation header. Every value comes from the selected\n\t\t\t\t\t     supplier record: an unverified supplier is shown as unverified and\n\t\t\t\t\t     a supplier with no published number gets no WhatsApp button. --><div class=\"p-4 border-b border-slate-200 bg-white flex items-center justify-between gap-3\"><div class=\"flex items-center gap-3 min-w-0\"><div id=\"active-merchant-avatar\" class=\"w-10 h-10 rounded-xl bg-emerald-600 text-white font-bold flex items-center justify-center text-sm shrink-0\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.Selected != nil {
+				var templ_7745c5c3_Var21 string
+				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(data.Selected.Avatar)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 116, Col: 31}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "·")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div><div class=\"min-w-0\"><div class=\"flex items-center gap-2 flex-wrap\"><h3 id=\"active-merchant-name\" class=\"text-sm font-bold text-slate-900 truncate\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.Selected != nil {
+				var templ_7745c5c3_Var22 string
+				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(data.Selected.Name)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 125, Col: 31}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "No supplier selected")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</h3><span id=\"active-merchant-verify\" class=\"flex items-center gap-2\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.Selected != nil && data.Selected.Verified && data.Selected.Cipc != "" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span class=\"px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-bold\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var23 string
+				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(data.Selected.Cipc)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 132, Col: 117}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else if data.Selected != nil && data.Selected.Cipc != "" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span class=\"px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-bold\">CIPC ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var24 string
+				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(data.Selected.Cipc)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 134, Col: 122}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.Selected != nil {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div id=\"active-merchant-meta\" class=\"text-xs text-slate-500 flex items-center gap-2 flex-wrap mt-0.5\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if data.Selected.Category != "" {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var25 string
+					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(data.Selected.Category)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 141, Col: 41}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</span> ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				if data.Selected.City != "" {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<span>·</span> <span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var26 string
+					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(data.Selected.City)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 145, Col: 37}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div id=\"active-merchant-meta\" class=\"text-xs text-slate-500 mt-0.5\"></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div></div><span id=\"active-merchant-cta\" class=\"shrink-0\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.Selected != nil && data.Selected.WhatsApp != "" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<a href=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var27 templ.SafeURL
+				templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("https://wa.me/" + data.Selected.WhatsApp + "?text=" + url.QueryEscape("Inquiry from Shoppage: "+data.Selected.Name)))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 155, Col: 151}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"px-3 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition flex items-center gap-1.5\"><span>💬</span> <span>WhatsApp Direct</span></a>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</span></div><!-- Message stream. The only messages this pane can hold are ones the\n\t\t\t\t\t     chat gateway actually delivered over the WebSocket below. --><div id=\"chat-messages\" class=\"flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/40\"><div data-chat-empty class=\"h-full min-h-[240px] flex flex-col items-center justify-center text-center gap-2 px-6\"><div class=\"w-11 h-11 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-lg\">📨</div><p class=\"text-xs font-bold text-slate-700\">No messages in this conversation yet</p>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if site.ChatGatewayWS() != "" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<p class=\"text-[11px] text-slate-500 max-w-xs\">Messages you send are routed to the supplier's live chat desk and appear here when they reply.</p>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<p class=\"text-[11px] text-amber-800 max-w-xs\">Live chat is unavailable right now — use the supplier's WhatsApp or storefront contact instead.</p>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div></div><!-- Message Composer Input --><div class=\"p-3 bg-white border-t border-slate-200\"><form id=\"chat-form\" onsubmit=\"sendChatMessage(event);\" class=\"flex items-center gap-2\"><button type=\"button\" onclick=\"insertQuoteSnippet();\" class=\"p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold\" title=\"Request Quote\">⚡ Quote</button> <input type=\"text\" id=\"chat-input\" placeholder=\"Type a wholesale inquiry, delivery query, or negotiation…\" class=\"flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500\" autocomplete=\"off\"> <button type=\"submit\" class=\"px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition flex items-center gap-1.5\"><span>Send</span> <span>&rarr;</span></button></form></div></div></div><!-- Live WebSocket Script --><div id=\"chat-gateway-config\" class=\"hidden\" data-ws=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var28 string
+			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(site.ChatGatewayWS())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 199, Col: 78}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "\" data-merchant=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var29 string
+			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.SelectedMerchantID)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/chat.templ`, Line: 199, Col: 120}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\"></div><script>\n\t\t\t\tlet ws = null;\n\t\t\t\tlet currentMerchantId = '';\n\t\t\t\tlet buyerId = '';\n\t\t\t\tfunction chatConfig() {\n\t\t\t\t\treturn document.getElementById('chat-gateway-config') || { dataset: {} };\n\t\t\t\t}\n\t\t\t\tfunction ensureBuyerId() {\n\t\t\t\t\tif (buyerId) return buyerId;\n\t\t\t\t\tbuyerId = sessionStorage.getItem('shoppage-buyer-id');\n\t\t\t\t\tif (!buyerId) {\n\t\t\t\t\t\tbuyerId = 'buyer_' + (crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Date.now().toString(36));\n\t\t\t\t\t\tsessionStorage.setItem('shoppage-buyer-id', buyerId);\n\t\t\t\t\t}\n\t\t\t\t\treturn buyerId;\n\t\t\t\t}\n\t\t\t\tfunction setBadge(kind, label) {\n\t\t\t\t\tconst badge = document.getElementById('ws-badge');\n\t\t\t\t\tconst text = document.getElementById('ws-status-text');\n\t\t\t\t\tif (!badge || !text) return;\n\t\t\t\t\tconst dot = badge.querySelector('span');\n\t\t\t\t\tif (kind === 'green') {\n\t\t\t\t\t\tbadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';\n\t\t\t\t\t\tif (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-500';\n\t\t\t\t\t} else {\n\t\t\t\t\t\tbadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200';\n\t\t\t\t\t\tif (dot) dot.className = 'w-2 h-2 rounded-full bg-amber-500 animate-pulse';\n\t\t\t\t\t}\n\t\t\t\t\ttext.textContent = label;\n\t\t\t\t}\n\n\t\t\t\tfunction initChatSocket() {\n\t\t\t\t\tconst badge = document.getElementById('ws-badge');\n\t\t\t\t\tconst text = document.getElementById('ws-status-text');\n\t\t\t\t\t\n\t\t\t\t\ttry {\n\t\t\t\t\t\tcurrentMerchantId = chatConfig().dataset.merchant || currentMerchantId;\n\t\t\t\t\tconst gateway = chatConfig().dataset.ws || '';\n\t\t\t\t\tif (!gateway) {\n\t\t\t\t\t\tsetBadge('amber', 'Live chat unavailable — use WhatsApp');\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\t\t\t\t\tws = new WebSocket(gateway + '/ws/chat?roomId=conv_' + encodeURIComponent(currentMerchantId) + '&userId=' + encodeURIComponent(ensureBuyerId()) + '&role=buyer');\n\n\t\t\t\t\t\tws.onopen = function() {\n\t\t\t\t\t\t\tif (badge && text) {\n\t\t\t\t\t\t\t\tbadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';\n\t\t\t\t\t\t\t\tbadge.querySelector('span').className = 'w-2 h-2 rounded-full bg-emerald-500';\n\t\t\t\t\t\t\t\tsetBadge('green', 'Connected');\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t};\n\n\t\t\t\t\tws.onmessage = function(e) {\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\t// Gateway may coalesce frames with \\n — parse each line\n\t\t\t\t\t\t\tString(e.data).split('\\n').forEach(function(line) {\n\t\t\t\t\t\t\t\tline = line.trim();\n\t\t\t\t\t\t\t\tif (!line) return;\n\t\t\t\t\t\t\t\tconst data = JSON.parse(line);\n\t\t\t\t\t\t\t\tif (data.event === 'message_received' && data.message) {\n\t\t\t\t\t\t\t\t\tconst role = data.message.senderRole === 'buyer' ? 'buyer' : 'merchant';\n\t\t\t\t\t\t\t\t\tappendMessage(role, data.message.content || '', data.message.senderRole === 'buyer' ? 'You' : (data.message.senderName || 'Merchant'));\n\t\t\t\t\t\t\t\t} else if (data.event === 'error' && data.error === 'rate_limited') {\n\t\t\t\t\t\t\t\t\tsetBadge('amber', 'Slow down — message rate limited');\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t} catch (err) {\n\t\t\t\t\t\t\tconsole.error('WS parse error:', err);\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\n\t\t\t\t\t\tws.onclose = function() {\n\t\t\t\t\t\t\tif (badge && text) {\n\t\t\t\t\t\t\t\tbadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200';\n\t\t\t\t\t\t\t\tbadge.querySelector('span').className = 'w-2 h-2 rounded-full bg-amber-500 animate-pulse';\n\t\t\t\t\t\t\t\tsetBadge('amber', 'Reconnecting — messages may be delayed');\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t};\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tsetBadge('amber', 'Live chat unavailable — use WhatsApp');\n\t\t\t\t\t}\n\t\t\t\t}\n\n\t\t\t\tfunction sendChatMessage(e) {\n\t\t\t\t\te.preventDefault();\n\t\t\t\t\tconst input = document.getElementById('chat-input');\n\t\t\t\t\tconst msg = input.value.trim();\n\t\t\t\t\tif (!msg) return;\n\n\t\t\t\t\tinput.value = '';\n\n\t\t\t\t\t// Send via WebSocket if open; bubble is appended on message_received echo\n\t\t\t\t\tif (ws && ws.readyState === WebSocket.OPEN) {\n\t\t\t\t\t\tws.send(JSON.stringify({\n\t\t\t\t\t\t\taction: 'send_message',\n\t\t\t\t\t\t\tconversationId: 'conv_' + currentMerchantId,\n\t\t\t\t\t\t\tcontent: msg\n\t\t\t\t\t\t}));\n\t\t\t\t\t} else {\n\t\t\t\t\t\tinput.value = msg;\n\t\t\t\t\t\tappendMessage('system', 'Not delivered — use the supplier\\'s WhatsApp or storefront contact to reach them.');\n\t\t\t\t\t\tsetBadge('amber', 'Chat offline');\n\t\t\t\t\t}\n\t\t\t\t}\n\n\t\t\t\tfunction appendMessage(role, text, senderName) {\n\t\t\t\t\tconst container = document.getElementById('chat-messages');\n\t\t\t\t\tif (!container) return;\n\t\t\t\t\tconst empty = container.querySelector('[data-chat-empty]');\n\t\t\t\t\tif (empty) empty.remove();\n\n\t\t\t\t\tconst time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });\n\t\t\t\t\tconst wrapper = document.createElement('div');\n\t\t\t\t\twrapper.className = role === 'buyer' ? 'flex justify-end' : 'flex justify-start';\n\n\t\t\t\t\tif (role === 'system') {\n\t\t\t\t\t\twrapper.className = 'flex justify-center';\n\t\t\t\t\t\twrapper.innerHTML = `\n\t\t\t\t\t\t\t<div class=\"max-w-[85%] rounded-xl bg-amber-50 border border-amber-200 text-amber-900 px-3 py-2 text-[11px]\">\n\t\t\t\t\t\t\t\t${escapeHtml(text)}\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t} else if (role === 'buyer') {\n\t\t\t\t\t\twrapper.innerHTML = `\n\t\t\t\t\t\t\t<div class=\"max-w-[75%] rounded-2xl rounded-tr-sm bg-emerald-600 text-white p-3 text-xs shadow-sm\">\n\t\t\t\t\t\t\t\t<p class=\"leading-relaxed\">${escapeHtml(text)}</p>\n\t\t\t\t\t\t\t\t<div class=\"text-[10px] text-emerald-200 text-right mt-1\">${time}</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t} else {\n\t\t\t\t\t\twrapper.innerHTML = `\n\t\t\t\t\t\t\t<div class=\"max-w-[75%] rounded-2xl rounded-tl-sm bg-white border border-slate-200 text-slate-900 p-3 text-xs shadow-sm\">\n\t\t\t\t\t\t\t\t<div class=\"text-[10px] font-bold text-emerald-600 mb-0.5\">${senderName || 'Merchant Desk'}</div>\n\t\t\t\t\t\t\t\t<p class=\"leading-relaxed\">${escapeHtml(text)}</p>\n\t\t\t\t\t\t\t\t<div class=\"text-[10px] text-slate-400 text-right mt-1\">${time}</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t}\n\n\t\t\t\t\tcontainer.appendChild(wrapper);\n\t\t\t\t\tcontainer.scrollTop = container.scrollHeight;\n\t\t\t\t}\n\n\t\t\t\tfunction escapeHtml(str) {\n\t\t\t\t\treturn str.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\").replace(/\"/g, \"&quot;\");\n\t\t\t\t}\n\n\t\t\t\tfunction insertQuoteSnippet() {\n\t\t\t\t\tconst input = document.getElementById('chat-input');\n\t\t\t\t\tinput.value = \"Please quote for supply and delivery. Quantity: \";\n\t\t\t\t\tinput.focus();\n\t\t\t\t}\n\n\t\t\t\tfunction setActiveMerchant(card) {\n\t\t\t\t\tdocument.querySelectorAll('.contact-card').forEach(el => {\n\t\t\t\t\t\tconst on = card && el === card;\n\t\t\t\t\t\tel.classList.toggle('bg-emerald-50/80', on);\n\t\t\t\t\t\tel.classList.toggle('border-l-4', on);\n\t\t\t\t\t\tel.classList.toggle('border-emerald-600', on);\n\t\t\t\t\t});\n\t\t\t\t\tconst name = document.getElementById('active-merchant-name');\n\t\t\t\t\tconst avatar = document.getElementById('active-merchant-avatar');\n\t\t\t\t\tconst meta = document.getElementById('active-merchant-meta');\n\t\t\t\t\tconst verify = document.getElementById('active-merchant-verify');\n\t\t\t\t\tconst cta = document.getElementById('active-merchant-cta');\n\t\t\t\t\tif (!card || !name || !verify || !cta) return;\n\t\t\t\t\tconst d = card.dataset;\n\t\t\t\t\tname.textContent = d.name || 'Supplier';\n\t\t\t\t\tif (avatar) avatar.textContent = d.avatar || '·';\n\t\t\t\t\tif (meta) meta.textContent = [d.category, d.city].filter(Boolean).join(' · ');\n\t\t\t\t\tverify.textContent = '';\n\t\t\t\t\tif (d.cipc) {\n\t\t\t\t\t\tconst badge = document.createElement('span');\n\t\t\t\t\t\tconst ok = d.verified === 'true';\n\t\t\t\t\t\tbadge.className = ok\n\t\t\t\t\t\t\t? 'px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold'\n\t\t\t\t\t\t\t: 'px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-bold';\n\t\t\t\t\t\tbadge.textContent = 'CIPC ' + d.cipc;\n\t\t\t\t\t\tverify.appendChild(badge);\n\t\t\t\t\t}\n\t\t\t\t\tcta.textContent = '';\n\t\t\t\t\t// Only a digits-only number becomes a link, so no supplier record can\n\t\t\t\t\t// inject a script through the contact button.\n\t\t\t\t\tif (/^[0-9]+$/.test(d.whatsapp || '')) {\n\t\t\t\t\t\tconst a = document.createElement('a');\n\t\t\t\t\t\ta.href = 'https://wa.me/' + d.whatsapp + '?text=' + encodeURIComponent('Inquiry from Shoppage: ' + (d.name || ''));\n\t\t\t\t\t\ta.target = '_blank';\n\t\t\t\t\t\ta.rel = 'noopener noreferrer';\n\t\t\t\t\t\ta.className = 'px-3 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition flex items-center gap-1.5';\n\t\t\t\t\t\ta.textContent = '💬 WhatsApp Direct';\n\t\t\t\t\t\tcta.appendChild(a);\n\t\t\t\t\t}\n\t\t\t\t}\n\n\t\t\t\tfunction selectMerchant(id) {\n\t\t\t\t\tconst card = document.querySelector('.contact-card[data-id=\"' + (window.CSS && CSS.escape ? CSS.escape(id) : id.replace(/[^a-zA-Z0-9_-]/g, '')) + '\"]');\n\t\t\t\t\tif (!card) return;\n\t\t\t\t\tcurrentMerchantId = id;\n\t\t\t\t\tsetActiveMerchant(card);\n\t\t\t\t\tif (ws) ws.close();\n\t\t\t\t\tinitChatSocket();\n\t\t\t\t}\n\n\t\t\t\tfunction filterContacts(q) {\n\t\t\t\t\tconst filter = q.toLowerCase();\n\t\t\t\t\tdocument.querySelectorAll('.contact-card').forEach(el => {\n\t\t\t\t\t\tel.style.display = el.innerText.toLowerCase().includes(filter) ? '' : 'none';\n\t\t\t\t\t});\n\t\t\t\t}\n\n\t\t\t\tdocument.addEventListener('DOMContentLoaded', initChatSocket);\n\t\t\t\tif (document.readyState !== 'loading') initChatSocket();\n\t\t\t</script></main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

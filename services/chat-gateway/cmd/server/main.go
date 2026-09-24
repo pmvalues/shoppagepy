@@ -17,6 +17,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/shoppage/chat-gateway/internal/handlers"
 	"github.com/shoppage/chat-gateway/internal/hub"
+	"github.com/shoppage/chat-gateway/internal/store"
 )
 
 // allowedOrigins reads ALLOWED_ORIGINS (comma-separated) and fails closed to
@@ -56,8 +57,22 @@ func main() {
 	chatHub := hub.NewHub()
 	go chatHub.Run()
 
+	dbPath := os.Getenv("CHAT_DB_PATH")
+	if dbPath == "" {
+		dbPath = "data/chat-gateway.db"
+	}
+	msgStore, err := store.Open(dbPath)
+	if err != nil {
+		slog.Error("Failed to open chat store, continuing without persistence", "err", err)
+		msgStore = nil
+	} else {
+		defer msgStore.Close()
+	}
+
+	limiter := hub.NewRateLimiter(2, 20)
+
 	// Initialize Handlers
-	chatHandler := handlers.NewChatHandler(chatHub)
+	chatHandler := handlers.NewChatHandler(chatHub, msgStore, limiter)
 
 	// Router setup
 	r := chi.NewRouter()
