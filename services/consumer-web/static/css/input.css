@@ -99,3 +99,48 @@
 
 .scrollbar-none::-webkit-scrollbar { display: none; }
 .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Entrance animation for floating panels (AI chat drawer, drawers).
+   Referenced by layout.templ as .animate-fade-in but previously undefined. */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeInUp 0.28s var(--ease-standard) both;
+}
+
+/* Hero quick-filter pills: inline styles carry the base look, so hover/
+   focus feedback lives here (they had no hover state at all before). */
+.hero-pill {
+  transition: background-color 0.2s var(--ease-standard), border-color 0.2s var(--ease-standard), transform 0.2s var(--ease-standard);
+}
+.hero-pill:hover {
+  background: rgba(51, 65, 85, 0.95) !important;
+  border-color: rgba(103, 232, 249, 0.45) !important;
+  transform: translateY(-1px);
+}
+.hero-pill:focus-visible {
+  outline: 2px solid #34d399;
+  outline-offset: 2px;
+}
+.hero-pill-cta {
+  transition: transform 0.2s var(--ease-standard), box-shadow 0.2s var(--ease-standard);
+}
+.hero-pill-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(225, 29, 72, 0.4);
+}
+
+/* Respect users who prefer reduced motion: keep state changes instant. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-slide-in-right {
+    animation: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}

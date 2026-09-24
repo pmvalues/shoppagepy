@@ -23,7 +23,7 @@ templ SearchResultsGridComponent(data SearchViewData) {
 					<h3 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Matching Businesses &amp; Suppliers</h3>
 					<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">{ fmt.Sprintf("%d Found", len(data.MatchingMerchants)) }</span>
 				</div>
-				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+				<div class="grid grid-cols-1 @sm:grid-cols-2 @3xl:grid-cols-3 gap-3.5">
 					for _, m := range data.MatchingMerchants {
 						<div class="bg-white rounded-2xl border border-slate-200/90 p-4 hover:shadow-md hover:border-emerald-500/50 transition flex flex-col justify-between group">
 							<div>
@@ -33,8 +33,8 @@ templ SearchResultsGridComponent(data SearchViewData) {
 									</div>
 									<div class="min-w-0 flex-1">
 										<div class="flex items-center gap-1.5 flex-wrap">
-											<h4 class="font-bold text-slate-900 text-sm truncate">
-												<a href={ templ.SafeURL(fmt.Sprintf("/m/%s", m.ID)) } class="hover:text-emerald-600 transition">{ m.Name }</a>
+											<h4 class="font-bold text-slate-900 text-sm truncate flex-1 min-w-0">
+												<a href={ templ.SafeURL(fmt.Sprintf("/m/%s", m.ID)) } class="block truncate hover:text-emerald-600 transition">{ m.Name }</a>
 											</h4>
 										</div>
 										<p class="text-[11px] text-slate-500 truncate">{ m.Address }</p>
@@ -51,7 +51,7 @@ templ SearchResultsGridComponent(data SearchViewData) {
 									</div>
 								</div>
 							</div>
-							<div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+							<div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
 								<a href={ templ.SafeURL(fmt.Sprintf("/m/%s", m.ID)) } class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1">
 									<span>Open Storefront</span>
 									<span>&rarr;</span>
@@ -75,7 +75,7 @@ templ SearchResultsGridComponent(data SearchViewData) {
 					<h3 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Matching Places &amp; Shopping Centres</h3>
 					<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[10px] font-bold">{ fmt.Sprintf("%d Places", len(data.MatchingMalls)) }</span>
 				</div>
-				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+				<div class="grid grid-cols-1 @sm:grid-cols-2 @3xl:grid-cols-3 gap-3.5">
 					for _, mall := range data.MatchingMalls {
 						<div class="bg-white rounded-2xl border border-slate-200/90 p-4 hover:shadow-md transition flex flex-col justify-between group">
 							<div>
@@ -84,8 +84,8 @@ templ SearchResultsGridComponent(data SearchViewData) {
 										🏬
 									</div>
 									<div class="min-w-0 flex-1">
-										<h4 class="font-bold text-slate-900 text-sm truncate">
-											<a href={ templ.SafeURL(fmt.Sprintf("/malls/%s", mall.ID)) } class="hover:text-emerald-600 transition">{ mall.Name }</a>
+										<h4 class="font-bold text-slate-900 text-sm truncate flex-1 min-w-0">
+											<a href={ templ.SafeURL(fmt.Sprintf("/malls/%s", mall.ID)) } class="block truncate hover:text-emerald-600 transition">{ mall.Name }</a>
 										</h4>
 										<p class="text-[11px] text-slate-500 truncate">{ mall.StreetAddress }, { mall.Suburb }</p>
 										<div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
@@ -105,9 +105,9 @@ templ SearchResultsGridComponent(data SearchViewData) {
 									</div>
 								}
 							</div>
-							<div class="pt-3 border-t border-slate-100 flex items-center justify-between">
-								<span class="text-[11px] text-slate-400 font-medium">{ mall.MarketType }</span>
-								<a href={ templ.SafeURL(fmt.Sprintf("/malls/%s", mall.ID)) } class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1">
+							<div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+								<span class="text-[11px] text-slate-400 font-medium truncate min-w-0">{ mall.MarketType }</span>
+								<a href={ templ.SafeURL(fmt.Sprintf("/malls/%s", mall.ID)) } class="shrink-0 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1">
 									<span>Directory</span>
 									<span>&rarr;</span>
 								</a>
@@ -133,9 +133,9 @@ templ SearchResultsGridComponent(data SearchViewData) {
 					<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">{ fmt.Sprintf("%d Products", len(data.Products)) }</span>
 				</div>
 			}
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+			<div class="grid grid-cols-1 @sm:grid-cols-2 @3xl:grid-cols-3 gap-5">
 				for _, prod := range data.Products {
-					<div class="bg-white rounded-2xl border border-slate-200/80 p-4 hover:shadow-md transition flex flex-col group relative">
+					<div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-card hover:shadow-raised hover:-translate-y-0.5 hover:border-emerald-300/70 transition-all duration-300 flex flex-col group relative">
 						<div class="relative w-full h-44 rounded-xl overflow-hidden bg-slate-100 mb-3">
 							<img src={ prod.ImageURL } alt={ prod.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy" decoding="async" width="320" height="176"/>
 							<div class="absolute top-2 left-2 flex flex-col gap-1">
@@ -165,17 +165,17 @@ templ SearchResultsGridComponent(data SearchViewData) {
 							<span class="text-emerald-700 font-bold shrink-0">Free Pickup</span>
 						</div>
 
-						<div class="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-1.5">
+						<div class="mt-auto pt-3 border-t border-slate-100 space-y-2.5">
 							<div>
 								<div class="text-[10px] text-slate-400">Lowest landed price</div>
-								<div class="text-base font-black text-slate-900">R { fmt.Sprintf("%.2f", prod.PriceZar) }</div>
+								<div class="text-lg font-black text-slate-900 leading-none whitespace-nowrap">R { FormatZAR(prod.PriceZar) }</div>
 							</div>
-							<div class="flex items-center gap-1.5">
+							<div class="flex flex-wrap items-center gap-1.5">
 								<button 
 									type="button"
 									hx-get={ string(templ.SafeURL(fmt.Sprintf("/offer/modal/%s?price=%.2f", prod.ID, prod.PriceZar))) }
 									hx-target="#modal-container"
-									class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition cursor-pointer"
+									class="shrink-0 px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition cursor-pointer"
 									title="Make a counter-offer"
 								>
 									🤝 Offer
@@ -184,7 +184,7 @@ templ SearchResultsGridComponent(data SearchViewData) {
 									type="button"
 									hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", prod.ID))) } 
 									hx-target="#buybox-drawer"
-									class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+									class="flex-1 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs cursor-pointer whitespace-nowrap"
 								>
 									BuyBox
 								</button>
@@ -387,7 +387,7 @@ templ SearchPageComponent(data SearchViewData) {
 				</aside>
 
 				<!-- Main Results Grid Area -->
-				<div class="flex-1">
+				<div class="flex-1 min-w-0 @container">
 					@SearchResultsGridComponent(data)
 				</div>
 			</div>

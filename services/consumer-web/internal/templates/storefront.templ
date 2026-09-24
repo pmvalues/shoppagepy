@@ -892,7 +892,7 @@ templ ProductCardComponent(item models.SearchItem, store models.MerchantStorefro
 				<div class="flex items-baseline justify-between gap-2">
 					<div>
 						<span class="text-base font-extrabold text-slate-900 font-mono">
-							R { fmt.Sprintf("%.2f", item.PriceZar) }
+							R { FormatZAR(item.PriceZar) }
 						</span>
 						<span class="text-[10px] text-slate-400 block">Excl. VAT · Carton Wholesale</span>
 					</div>

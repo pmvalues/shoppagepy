@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
+	"strconv"
 	"strings"
 
 	"github.com/shoppage/consumer-web/internal/models"
@@ -259,6 +261,35 @@ func RenderOfferModal(w io.Writer, data OfferModalViewData) error {
 // RenderOfferSuccessCard renders the confirmation card after submitting an offer
 func RenderOfferSuccessCard(w io.Writer, result models.OfferSubmissionResult) error {
 	return OfferSuccessCardComponent(result).Render(context.Background(), w)
+}
+
+// FormatZAR renders a rand amount with non-breaking-space thousand separators
+// (South African convention): 19850 → "19 850.00". Used on every displayed
+// price; machine-readable values keep using fmt.Sprintf("%.2f", ...).
+func FormatZAR(v float64) string {
+	neg := v < 0
+	cents := int64(math.Round(math.Abs(v) * 100))
+	whole := cents / 100
+	frac := cents % 100
+	w := strconv.FormatInt(whole, 10)
+	var b strings.Builder
+	for i, ch := range w {
+		if i > 0 && (len(w)-i)%3 == 0 {
+			b.WriteRune('\u00A0')
+		}
+		b.WriteRune(ch)
+	}
+	sign := ""
+	if neg {
+		sign = "-"
+	}
+	return fmt.Sprintf("%s%s.%02d", sign, b.String(), frac)
+}
+
+// FormatZARWhole is FormatZAR without forced decimals: 4000 → "4 000".
+// Used for whole-rand figures like "Save R 4 000".
+func FormatZARWhole(v float64) string {
+	return strings.TrimSuffix(FormatZAR(v), ".00")
 }
 
 func starRatingString(rating int) string {

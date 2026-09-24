@@ -310,9 +310,9 @@ func EmbedStoreComponent(data EmbedStoreViewData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var16 string
-					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.PriceZar))
+					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(FormatZAR(item.PriceZar))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/embed_store.templ`, Line: 113, Col: 108}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/embed_store.templ`, Line: 113, Col: 98}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {

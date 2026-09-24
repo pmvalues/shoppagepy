@@ -114,7 +114,7 @@ templ ProductDetailComponent(data ProductViewData) {
 						
 						<div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200/80 mb-3">
 							<div class="text-xs text-emerald-800 font-medium">Lowest Landed Price in South Africa</div>
-							<div class="text-3xl font-black text-emerald-950 mt-1">R { fmt.Sprintf("%.2f", data.Product.LowestOfferPrice) }</div>
+							<div class="text-3xl font-black text-emerald-950 mt-1">R { FormatZAR(data.Product.LowestOfferPrice) }</div>
 						</div>
 
 						<!-- Amazon-Style Instant Checkout CTA -->
@@ -139,7 +139,7 @@ templ ProductDetailComponent(data ProductViewData) {
 										<div class="flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200/60 font-semibold">
 											<span class="text-slate-700">{ tier.Label }</span>
 											<div class="text-right">
-												<span class="font-black text-slate-900">R { fmt.Sprintf("%.2f", tier.PriceZar) }</span>
+												<span class="font-black text-slate-900">R { FormatZAR(tier.PriceZar) }</span>
 												if tier.DiscountPct > 0 {
 													<span class="ml-1 text-[10px] text-emerald-700 font-bold">(-{ fmt.Sprintf("%d", tier.DiscountPct) }%)</span>
 												}
@@ -177,7 +177,7 @@ templ ProductDetailComponent(data ProductViewData) {
 											</div>
 										</div>
 										<div class="text-right shrink-0">
-											<div class="text-base font-black text-slate-900">R { fmt.Sprintf("%.2f", offer.PriceZar) }</div>
+											<div class="text-base font-black text-slate-900">R { FormatZAR(offer.PriceZar) }</div>
 											<div class="text-[10px] text-emerald-700 font-bold">🟢 Floor Stock Ready</div>
 										</div>
 									</div>
@@ -230,7 +230,7 @@ templ ProductDetailComponent(data ProductViewData) {
 							<div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
 								<div>
 									<div class="font-bold text-slate-900">{ data.Product.Title }</div>
-									<div class="text-slate-500 text-[11px]">R { fmt.Sprintf("%.2f", data.Product.LowestOfferPrice) } / unit</div>
+									<div class="text-slate-500 text-[11px]">R { FormatZAR(data.Product.LowestOfferPrice) } / unit</div>
 								</div>
 								<div class="flex items-center gap-2">
 									<label class="text-slate-500 font-semibold">Qty:</label>

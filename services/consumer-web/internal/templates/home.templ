@@ -107,21 +107,28 @@ templ HomeViewComponent(data HomeViewData) {
 
 								<!-- Quick Filter Category Pills -->
 								<div class="pt-2 flex flex-wrap gap-2 text-xs font-semibold">
-									<a href="/?tab=products&category=solar" class="px-3.5 py-1.5 rounded-xl transition backdrop-blur-md" style="background: rgba(30, 41, 59, 0.85); color: #f8fafc; border: 1px solid rgba(71, 85, 105, 0.6);">
+									<a href="/?tab=products&category=solar" class="hero-pill px-3.5 py-1.5 rounded-xl backdrop-blur-md" style="background: rgba(30, 41, 59, 0.85); color: #f8fafc; border: 1px solid rgba(71, 85, 105, 0.6);">
 										⚡ Solar &amp; Power
 									</a>
-									<a href="/?tab=products&category=packaging" class="px-3.5 py-1.5 rounded-xl transition backdrop-blur-md" style="background: rgba(30, 41, 59, 0.85); color: #f8fafc; border: 1px solid rgba(71, 85, 105, 0.6);">
+									<a href="/?tab=products&category=packaging" class="hero-pill px-3.5 py-1.5 rounded-xl backdrop-blur-md" style="background: rgba(30, 41, 59, 0.85); color: #f8fafc; border: 1px solid rgba(71, 85, 105, 0.6);">
 										📦 Packaging &amp; Boxes
 									</a>
-									<a href="/?tab=products&category=hardware" class="px-3.5 py-1.5 rounded-xl transition backdrop-blur-md" style="background: rgba(30, 41, 59, 0.85); color: #f8fafc; border: 1px solid rgba(71, 85, 105, 0.6);">
+									<a href="/?tab=products&category=hardware" class="hero-pill px-3.5 py-1.5 rounded-xl backdrop-blur-md" style="background: rgba(30, 41, 59, 0.85); color: #f8fafc; border: 1px solid rgba(71, 85, 105, 0.6);">
 										🧱 Building &amp; Tools
 									</a>
-									<a href="/?tab=products&category=groceries" class="px-3.5 py-1.5 rounded-xl transition backdrop-blur-md" style="background: rgba(30, 41, 59, 0.85); color: #f8fafc; border: 1px solid rgba(71, 85, 105, 0.6);">
+									<a href="/?tab=products&category=groceries" class="hero-pill px-3.5 py-1.5 rounded-xl backdrop-blur-md" style="background: rgba(30, 41, 59, 0.85); color: #f8fafc; border: 1px solid rgba(71, 85, 105, 0.6);">
 										🛒 Wholesale FMCG
 									</a>
-									<a href="/?tab=deals" class="px-3.5 py-1.5 rounded-xl font-bold transition shadow-sm" style="background: #e11d48; color: #ffffff;">
+									<a href="/?tab=deals" class="hero-pill-cta px-3.5 py-1.5 rounded-xl font-bold shadow-sm" style="background: #e11d48; color: #ffffff;">
 										🔥 Top Specials ({ fmt.Sprintf("%d", len(data.Deals)) })
 									</a>
+								</div>
+								<!-- Trust Stats Strip: live counters prove the grid at a glance -->
+								<div class="pt-4 mt-2 border-t border-white/10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px] font-bold tracking-wide">
+									<span class="flex items-center gap-1.5 text-slate-300"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>{ FormatCount(Stats().Merchants) } Verified Merchants</span>
+									<span class="flex items-center gap-1.5 text-slate-300"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>{ FormatCount(Stats().Products) } Live Listings</span>
+									<span class="flex items-center gap-1.5 text-slate-300"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>{ FormatCount(Stats().Malls) } Malls &amp; Hubs</span>
+									<span class="flex items-center gap-1.5 text-slate-300"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>Sub-3ms Search</span>
 								</div>
 							</div>
 						</div>
@@ -146,10 +153,11 @@ templ HomeViewComponent(data HomeViewData) {
 								<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 									for i, deal := range data.Deals {
 										if i < 3 {
-											<div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 hover:shadow-md hover:border-slate-300 transition flex flex-col justify-between group">
+											<div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-card hover:shadow-raised hover:-translate-y-0.5 hover:border-emerald-300/70 transition-all duration-300 flex flex-col justify-between group">
 												<div>
 													<div class="relative w-full h-36 rounded-xl overflow-hidden bg-slate-50 mb-2.5 border border-slate-100">
-														<img src={ deal.ImageURL } alt={ deal.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy" />
+														<span class="absolute inset-0 flex items-center justify-center text-3xl text-slate-300" aria-hidden="true">📦</span>
+															<img src={ deal.ImageURL } alt={ deal.Title } class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy" onerror="this.style.display='none'"/>
 														if deal.DiscountPct > 0 {
 															<span class="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-rose-600 text-white text-[10px] font-black uppercase shadow-xs">
 																-{ fmt.Sprintf("%d", deal.DiscountPct) }%
@@ -164,16 +172,16 @@ templ HomeViewComponent(data HomeViewData) {
 												</div>
 												<div class="pt-3 border-t border-slate-100 mt-2.5 flex items-baseline justify-between">
 													<div>
-														<div class="text-sm font-black font-mono text-slate-900">R { fmt.Sprintf("%.2f", deal.PriceZar) }</div>
+														<div class="text-sm font-black font-mono text-slate-900">R { FormatZAR(deal.PriceZar) }</div>
 														if deal.SavingsZar > 0 {
-															<div class="text-[10px] font-bold text-emerald-600">Save R { fmt.Sprintf("%.0f", deal.SavingsZar) }</div>
+															<div class="text-[10px] font-bold text-emerald-600">Save R { FormatZARWhole(deal.SavingsZar) }</div>
 														}
 													</div>
 													<button 
 														type="button" 
 														hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", deal.ID))) } 
 														hx-target="#buybox-drawer"
-														class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition cursor-pointer"
+														class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-2xs cursor-pointer"
 													>
 														BuyBox &rarr;
 													</button>
@@ -209,13 +217,12 @@ templ HomeViewComponent(data HomeViewData) {
 								<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 									for i, prod := range data.Products {
 										if i < 6 {
-											<div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 hover:shadow-md hover:border-slate-300 transition flex flex-col justify-between group">
+											<div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-card hover:shadow-raised hover:-translate-y-0.5 hover:border-emerald-300/70 transition-all duration-300 flex flex-col justify-between group">
 												<div>
 													<div class="relative w-full h-36 rounded-xl overflow-hidden bg-slate-50 mb-2.5 border border-slate-100 flex items-center justify-center">
+														<span class="absolute inset-0 flex items-center justify-center text-3xl text-slate-300" aria-hidden="true">📦</span>
 														if prod.ImageURL != "" {
-															<img src={ prod.ImageURL } alt={ prod.Title } class="w-full h-full object-contain p-2 group-hover:scale-105 transition duration-300" loading="lazy" />
-														} else {
-															<span class="text-3xl text-slate-300">📦</span>
+															<img src={ prod.ImageURL } alt={ prod.Title } class="absolute inset-0 w-full h-full object-contain p-2 group-hover:scale-105 transition duration-300" loading="lazy" onerror="this.style.display='none'"/>
 														}
 														<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-900/80 text-white text-[9px] font-bold backdrop-blur-xs">
 															🇿🇦 Local SA Stock
@@ -229,7 +236,7 @@ templ HomeViewComponent(data HomeViewData) {
 												<div class="pt-3 border-t border-slate-100 mt-2.5 flex items-baseline justify-between">
 													<div>
 														<div class="text-[10px] text-slate-400">Wholesale Excl. VAT</div>
-														<div class="text-sm font-black font-mono text-slate-900">R { fmt.Sprintf("%.2f", prod.PriceZar) }</div>
+														<div class="text-sm font-black font-mono text-slate-900">R { FormatZAR(prod.PriceZar) }</div>
 													</div>
 													<button 
 														type="button" 
@@ -471,14 +478,14 @@ templ HomeViewComponent(data HomeViewData) {
 									if len(prod.VolumeTiers) > 1 {
 										<div class="mb-3 text-[10.5px] font-bold text-slate-500 flex items-center justify-between">
 											<span>Wholesale Volume:</span>
-											<span class="text-emerald-700 font-extrabold">From R { fmt.Sprintf("%.2f", prod.VolumeTiers[len(prod.VolumeTiers)-1].PriceZar) } (Save { fmt.Sprintf("%d", prod.VolumeTiers[len(prod.VolumeTiers)-1].DiscountPct) }%)</span>
+											<span class="text-emerald-700 font-extrabold">From R { FormatZAR(prod.VolumeTiers[len(prod.VolumeTiers)-1].PriceZar) } (Save { fmt.Sprintf("%d", prod.VolumeTiers[len(prod.VolumeTiers)-1].DiscountPct) }%)</span>
 										</div>
 									}
 
 									<div class="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
 										<div>
 											<div class="text-[10px] text-slate-400">Lowest landed price</div>
-											<div class="text-base font-black text-slate-900">R { fmt.Sprintf("%.2f", prod.PriceZar) }</div>
+											<div class="text-base font-black text-slate-900">R { FormatZAR(prod.PriceZar) }</div>
 										</div>
 										<div class="flex items-center gap-1.5">
 											<button 
@@ -582,7 +589,7 @@ templ HomeViewComponent(data HomeViewData) {
 						<!-- Overhauled Deals Grid with Rich Bob Shop Indicators -->
 						<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
 							for _, deal := range data.Deals {
-								<div class="bg-white rounded-3xl border border-slate-200/90 p-4 hover:shadow-xl hover:border-emerald-500 transition-all duration-200 flex flex-col group relative">
+								<div class="bg-white rounded-3xl border border-slate-200/90 p-4 shadow-card hover:shadow-raised hover:-translate-y-0.5 hover:border-emerald-300/70 transition-all duration-300 flex flex-col group relative">
 									<!-- Discount Badge & Urgency Pill -->
 									<div class="flex items-center justify-between gap-2 mb-2.5">
 										<div class="flex items-center gap-1.5">
@@ -593,7 +600,7 @@ templ HomeViewComponent(data HomeViewData) {
 											}
 											if deal.SavingsZar > 0 {
 												<span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black">
-													Save R { fmt.Sprintf("%.0f", deal.SavingsZar) }
+													Save R { FormatZARWhole(deal.SavingsZar) }
 												</span>
 											}
 										</div>
@@ -637,39 +644,40 @@ templ HomeViewComponent(data HomeViewData) {
 									</div>
 
 									<!-- Pricing & Tri-Action CTAs -->
-									<div class="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-										<div>
+									<div class="mt-auto pt-3 border-t border-slate-100 space-y-2.5">
+										<div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+											<span class="text-xl font-black text-slate-900 leading-none whitespace-nowrap">R { FormatZAR(deal.PriceZar) }</span>
 											if deal.OldPriceZar > 0.0 {
-												<div class="text-[10px] text-slate-400 line-through font-medium">Was R { fmt.Sprintf("%.2f", deal.OldPriceZar) }</div>
+												<span class="text-[11px] text-slate-400 line-through font-medium whitespace-nowrap">Was R { FormatZAR(deal.OldPriceZar) }</span>
 											}
-											<div class="text-lg font-black text-slate-900">R { fmt.Sprintf("%.2f", deal.PriceZar) }</div>
 										</div>
-										<div class="flex items-center gap-1.5">
+										<div class="flex flex-wrap items-center gap-1.5">
 											<!-- Bob Shop Feature: Make an Offer -->
-											<button 
+											<button
 												type="button"
 												hx-get={ string(templ.SafeURL(fmt.Sprintf("/offer/modal/%s?price=%.2f", deal.ID, deal.PriceZar))) }
 												hx-target="#modal-container"
-												class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer"
+												class="shrink-0 px-2 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer"
 												title="Make an Offer on this special"
 											>
 												🤝 Offer
 											</button>
-											<button 
+											<!-- In-app BuyBox: add to basket with delivery quote -->
+											<button
 												type="button"
-												hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", deal.ID))) } 
+												hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", deal.ID))) }
 												hx-target="#buybox-drawer"
-												class="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition cursor-pointer"
+												class="flex-1 px-2 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs cursor-pointer whitespace-nowrap"
 											>
 												BuyBox
 											</button>
-											<a 
-												href={ templ.SafeURL(deal.DirectURL) } 
-												target="_blank" 
-												class="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition shadow-xs flex items-center gap-1"
+											<a
+												href={ templ.SafeURL(deal.DirectURL) }
+												target="_blank"
+												class="flex-1 inline-flex items-center justify-center gap-1 px-2 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition shadow-xs whitespace-nowrap"
 												title="View circular offer directly"
 											>
-												<span>View Deal</span> <span>↗</span>
+												View Deal ↗
 											</a>
 										</div>
 									</div>
@@ -712,7 +720,7 @@ templ HomeViewComponent(data HomeViewData) {
 										</div>
 									</div>
 									<div class="p-3 bg-white flex items-center justify-between">
-										<div class="text-xs font-black text-slate-900">R { fmt.Sprintf("%.2f", short.PriceZar) }</div>
+										<div class="text-xs font-black text-slate-900">R { FormatZAR(short.PriceZar) }</div>
 										<a 
 											href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi,%%20I'm%%20inquiring%%20about%%20%s%%20on%%20Shoppage", short.MerchantWhatsApp, short.Title)) } 
 											target="_blank"

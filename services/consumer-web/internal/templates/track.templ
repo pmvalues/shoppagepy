@@ -164,7 +164,7 @@ templ TrackPageComponent(data TrackViewData) {
 									SKU: <span class="font-mono font-bold text-slate-700">{ data.Order.SKU }</span> · Quantity: <span class="font-bold text-slate-900">{ fmt.Sprintf("%d", data.Order.Quantity) } Unit(s)</span>
 								</div>
 								<div class="text-xs text-slate-500 mt-0.5">
-									Unit Wholesale Price: <span class="font-bold text-slate-900">R { fmt.Sprintf("%.2f", data.Order.UnitPriceZar) } Excl. VAT</span>
+									Unit Wholesale Price: <span class="font-bold text-slate-900">R { FormatZAR(data.Order.UnitPriceZar) } Excl. VAT</span>
 								</div>
 							</div>
 
@@ -198,7 +198,7 @@ templ TrackPageComponent(data TrackViewData) {
 								<div class="space-y-2 text-xs pt-4">
 									<div class="flex justify-between text-slate-600">
 										<span>Merchandise Subtotal (Excl. VAT):</span>
-										<span class="font-mono font-bold text-slate-900">R { fmt.Sprintf("%.2f", data.Order.SubtotalZar) }</span>
+										<span class="font-mono font-bold text-slate-900">R { FormatZAR(data.Order.SubtotalZar) }</span>
 									</div>
 									<div class="flex justify-between text-slate-600">
 										<span>Logistics / Fulfillment Fee:</span>
@@ -206,11 +206,11 @@ templ TrackPageComponent(data TrackViewData) {
 									</div>
 									<div class="flex justify-between text-slate-600">
 										<span>SARS 15% Standard VAT:</span>
-										<span class="font-mono font-bold text-slate-900">R { fmt.Sprintf("%.2f", data.Order.VatZar) }</span>
+										<span class="font-mono font-bold text-slate-900">R { FormatZAR(data.Order.VatZar) }</span>
 									</div>
 									<div class="pt-3 mt-2 border-t-2 border-slate-900 flex justify-between items-baseline">
 										<span class="text-sm font-black text-slate-900">Grand Total Settled:</span>
-										<span class="text-lg font-black text-emerald-700 font-display">R { fmt.Sprintf("%.2f", data.Order.GrandTotal) }</span>
+										<span class="text-lg font-black text-emerald-700 font-display">R { FormatZAR(data.Order.GrandTotal) }</span>
 									</div>
 								</div>
 							</div>

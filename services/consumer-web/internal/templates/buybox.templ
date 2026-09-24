@@ -49,7 +49,7 @@ templ BuyBoxDrawerComponent(data BuyBoxViewData) {
 					<h3 class="text-sm font-bold text-slate-900 truncate mt-0.5">{ data.Product.Title }</h3>
 					<div class="flex items-baseline gap-2 mt-1 flex-wrap">
 						if data.LowestPrice > 0 {
-							<span class="text-lg font-black text-emerald-950">From R { fmt.Sprintf("%.2f", data.LowestPrice) }</span>
+							<span class="text-lg font-black text-emerald-950">From R { FormatZAR(data.LowestPrice) }</span>
 						} else {
 							<span class="text-base font-black text-slate-700">Price on request</span>
 						}
@@ -85,7 +85,7 @@ templ BuyBoxDrawerComponent(data BuyBoxViewData) {
 								if opt.CostDisplay != "" {
 									<div class="text-emerald-700 font-black text-xs">{ opt.CostDisplay }</div>
 								} else if opt.CostZar > 0 {
-									<div class="text-slate-900 font-black text-xs">R { fmt.Sprintf("%.2f", opt.CostZar) }</div>
+									<div class="text-slate-900 font-black text-xs">R { FormatZAR(opt.CostZar) }</div>
 								} else {
 									<div class="text-slate-500 font-bold text-[10px]">Quoted by supplier</div>
 								}
@@ -115,7 +115,7 @@ templ BuyBoxDrawerComponent(data BuyBoxViewData) {
 						for _, tier := range data.Product.VolumeTiers {
 							<div class="py-1.5 px-2 rounded-lg bg-white border border-slate-200/80">
 								<div class="text-[10px] text-slate-500 font-bold">{ tier.Label }</div>
-								<div class="text-xs font-black text-slate-900">R { fmt.Sprintf("%.2f", tier.PriceZar) }</div>
+								<div class="text-xs font-black text-slate-900">R { FormatZAR(tier.PriceZar) }</div>
 								if tier.DiscountPct > 0 {
 									<div class="text-[9px] font-extrabold text-emerald-600">Save { fmt.Sprintf("%d", tier.DiscountPct) }%</div>
 								} else {
@@ -198,7 +198,7 @@ templ BuyBoxDrawerComponent(data BuyBoxViewData) {
 							</div>
 							<div class="text-right shrink-0">
 								if offer.PriceZar > 0 {
-									<div class="text-base font-black text-slate-900">R { fmt.Sprintf("%.2f", offer.PriceZar) }</div>
+									<div class="text-base font-black text-slate-900">R { FormatZAR(offer.PriceZar) }</div>
 								} else {
 									<div class="text-sm font-black text-slate-700">Price on request</div>
 								}

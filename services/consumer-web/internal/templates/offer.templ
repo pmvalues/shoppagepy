@@ -57,7 +57,7 @@ templ OfferModalComponent(data OfferModalViewData) {
 					<div class="flex items-center gap-2 mt-1 text-xs flex-wrap">
 						if data.TargetPrice > 0 {
 							<span class="text-slate-500">Listed Price:</span>
-							<span class="font-black text-slate-900">R { fmt.Sprintf("%.2f", data.TargetPrice) }</span>
+							<span class="font-black text-slate-900">R { FormatZAR(data.TargetPrice) }</span>
 						} else {
 							<span class="font-black text-slate-700">Price on request</span>
 						}
@@ -249,7 +249,7 @@ templ OfferSuccessCardComponent(result models.OfferSubmissionResult) {
 		<div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200/70 max-w-sm mx-auto text-left space-y-1">
 			<div class="text-xs text-emerald-800 flex justify-between">
 				<span>Offer Price:</span>
-				<strong class="text-emerald-950 font-black">R { fmt.Sprintf("%.2f", result.OfferPrice) }</strong>
+				<strong class="text-emerald-950 font-black">R { FormatZAR(result.OfferPrice) }</strong>
 			</div>
 			<div class="text-xs text-emerald-800 flex justify-between">
 				<span>Quantity:</span>
@@ -258,7 +258,7 @@ templ OfferSuccessCardComponent(result models.OfferSubmissionResult) {
 			if result.TotalSavings > 0 {
 				<div class="text-xs text-emerald-800 flex justify-between pt-1 border-t border-emerald-200/50">
 					<span>Your Potential Savings:</span>
-					<strong class="text-emerald-600 font-black">R { fmt.Sprintf("%.2f", result.TotalSavings) }</strong>
+					<strong class="text-emerald-600 font-black">R { FormatZAR(result.TotalSavings) }</strong>
 				</div>
 			}
 		</div>

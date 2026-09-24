@@ -1524,9 +1524,9 @@ func ProductCardComponent(item models.SearchItem, store models.MerchantStorefron
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var87 string
-		templ_7745c5c3_Var87, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.PriceZar))
+		templ_7745c5c3_Var87, templ_7745c5c3_Err = templ.JoinStringErrs(FormatZAR(item.PriceZar))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/storefront.templ`, Line: 895, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/storefront.templ`, Line: 895, Col: 35}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var87))
 		if templ_7745c5c3_Err != nil {

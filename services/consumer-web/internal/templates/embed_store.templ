@@ -110,7 +110,7 @@ templ EmbedStoreComponent(data EmbedStoreViewData) {
 									<div class="min-w-0">
 										<div class="text-[10px] text-slate-400 uppercase">Wholesale Excl. VAT</div>
 										if item.PriceZar > 0 {
-											<div class="text-xs font-black font-mono text-emerald-700">R { fmt.Sprintf("%.2f", item.PriceZar) }</div>
+											<div class="text-xs font-black font-mono text-emerald-700">R { FormatZAR(item.PriceZar) }</div>
 										} else {
 											<div class="text-xs font-black text-slate-600">Price on request</div>
 										}
