@@ -204,6 +204,12 @@ func main() {
 	// 1. Merchant OS Workstation (:8083)
 	merchantProxy := makeReverseProxy(merchantURL, "")
 	r.Mount("/desk", makeReverseProxy(merchantURL, "/desk"))
+	// Merchant session entry points must be reachable through the unified
+	// gateway: /desk answers 303 → /login, which posts to /auth/login.
+	// Paths are forwarded as-is (no prefix strip): upstream serves them at
+	// the same locations, and stripping would loop on its "/" → /login.
+	r.Mount("/login", merchantProxy)
+	r.Mount("/auth", merchantProxy)
 	r.Mount("/merchant", merchantProxy)
 	r.Mount("/tab", merchantProxy)
 	r.Post("/chat/send", merchantProxy.ServeHTTP)
