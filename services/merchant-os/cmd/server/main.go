@@ -87,6 +87,11 @@ func main() {
 
 	// Authentication: login page + session endpoints are public; everything else
 	// under the merchant workspace requires a valid SHOPPAGE_AUTH_SECRET session.
+	// Development bootstraps a local secret + demo admin when unset; production
+	// still fails closed until real SHOPPAGE_AUTH_SECRET / SHOPPAGE_ADMIN_* are set.
+	if auth.EnsureLocalAuth() {
+		slog.Info("Bootstrapped local Merchant OS auth secret (development only)")
+	}
 	authSecret := os.Getenv("SHOPPAGE_AUTH_SECRET")
 	r.Get("/login", h.ServeLogin)
 	r.Post("/auth/login", h.Login)

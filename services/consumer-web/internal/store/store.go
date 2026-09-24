@@ -28,8 +28,11 @@ type Store struct {
 	shorts      []models.ShortItem
 	trends      []models.TradeTrend
 	guilds      []models.CommunityGuild
+	dataDir     string
+	manifest    manifest
 	dbMerchants *sql.DB
 	dbProducts  *sql.DB
+	dbOffers    *sql.DB
 }
 
 func NewStore() *Store {
@@ -46,176 +49,209 @@ func NewStore() *Store {
 	}
 	s.loadDatasets()
 	s.initSqliteConnections()
-	s.seedInitialOrders()
+	s.mergeDiscoveredOffers()
 	return s
 }
 
+// initSqliteConnections attaches the large operator-supplied datasets.
+//
+// FOUNDATION_DATA_DIR overrides the root. When unset, the well-known
+// foundation path is probed relative to the binary and working directory so
+// `go run` from the repo root picks up real offers without parent-dir walking.
 func (s *Store) initSqliteConnections() {
-	if customRoot := os.Getenv("FOUNDATION_DATA_DIR"); customRoot != "" {
-		mPath := filepath.Join(customRoot, "sa_nationwide_merchants.sqlite")
-		if fi, err := os.Stat(mPath); err == nil && !fi.IsDir() {
-			if db, err := sql.Open("sqlite", mPath); err == nil {
-				s.dbMerchants = db
-				fmt.Printf("✓ [Store] Connected live to Merchants SQLite (%s)\n", mPath)
+	customRoot := strings.TrimSpace(os.Getenv("FOUNDATION_DATA_DIR"))
+	roots := foundationRoots(customRoot)
+	if len(roots) == 0 {
+		return
+	}
+	for _, root := range roots {
+		attached := false
+		for _, c := range []struct {
+			file string
+			name string
+			dst  **sql.DB
+		}{
+			{"sa_nationwide_merchants.sqlite", "merchants", &s.dbMerchants},
+			{"global_food_master_products.sqlite", "products", &s.dbProducts},
+			{"sa_discovered_offers.sqlite", "offers", &s.dbOffers},
+		} {
+			if *c.dst != nil {
+				continue
 			}
-		}
-		pPath := filepath.Join(customRoot, "global_food_master_products.sqlite")
-		if fi, err := os.Stat(pPath); err == nil && !fi.IsDir() {
-			if db, err := sql.Open("sqlite", pPath); err == nil {
-				s.dbProducts = db
-				fmt.Printf("✓ [Store] Connected live to Products SQLite (%s)\n", pPath)
+			path := filepath.Join(root, c.file)
+			fi, err := os.Stat(path)
+			if err != nil || fi.IsDir() {
+				continue
 			}
+			db, err := sql.Open("sqlite", path)
+			if err != nil {
+				fmt.Printf("[Store] Foundation %s dataset unavailable (%s): %v\n", c.name, path, err)
+				continue
+			}
+			*c.dst = db
+			attached = true
+			fmt.Printf("[Store] Attached foundation %s dataset from %s\n", c.name, path)
 		}
-		if s.dbMerchants != nil && s.dbProducts != nil {
+		if customRoot != "" {
+			return
+		}
+		if attached && s.dbProducts != nil && s.dbOffers != nil {
 			return
 		}
 	}
+}
 
-	candidateRoots := []string{
-		".",
-		"..",
-		"../..",
-		"../../..",
-		"../../../..",
+func foundationRoots(customRoot string) []string {
+	if customRoot != "" {
+		return []string{customRoot}
 	}
+	rel := filepath.Join("shoppage-commerce-intelligence-foundation", "data", "study")
+	var out []string
+	if exe, err := os.Executable(); err == nil {
+		out = append(out, filepath.Join(filepath.Dir(exe), rel))
+	}
+	if cwd, err := os.Getwd(); err == nil {
+		out = append(out, filepath.Join(cwd, rel))
+	}
+	return out
+}
 
-	for _, root := range candidateRoots {
-		mPath := filepath.Join(root, "shoppage-commerce-intelligence-foundation", "data", "study", "sa_nationwide_merchants.sqlite")
-		if fi, err := os.Stat(mPath); err == nil && !fi.IsDir() {
-			absPath, _ := filepath.Abs(mPath)
-			if db, err := sql.Open("sqlite", absPath); err == nil {
-				s.dbMerchants = db
-				fmt.Printf("✓ [Store] Connected live to 3.1M Merchants SQLite (%s)\n", absPath)
-			}
-			break
+// dataset is one bundled sample file and where its rows are stored.
+type dataset struct {
+	file string
+	// apply parses raw JSON into the store and reports how many rows it took.
+	apply func(s *Store, raw []byte) (int, error)
+}
+
+// unmarshalInto decodes a JSON array and replaces dst with it.
+func unmarshalInto[T any](raw []byte, dst *[]T) (int, error) {
+	var rows []T
+	if err := json.Unmarshal(raw, &rows); err != nil {
+		return 0, err
+	}
+	*dst = rows
+	return len(rows), nil
+}
+
+// indexInto decodes a JSON array into an existing map keyed by key(row).
+func indexInto[T any](raw []byte, m map[string]T, key func(T) string) (int, error) {
+	var rows []T
+	if err := json.Unmarshal(raw, &rows); err != nil {
+		return 0, err
+	}
+	for _, r := range rows {
+		if k := key(r); k != "" {
+			m[k] = r
 		}
 	}
+	return len(rows), nil
+}
 
-	for _, root := range candidateRoots {
-		pPath := filepath.Join(root, "shoppage-commerce-intelligence-foundation", "data", "study", "global_food_master_products.sqlite")
-		if fi, err := os.Stat(pPath); err == nil && !fi.IsDir() {
-			absPath, _ := filepath.Abs(pPath)
-			if db, err := sql.Open("sqlite", absPath); err == nil {
-				s.dbProducts = db
-				fmt.Printf("✓ [Store] Connected live to 1.0M Products SQLite (%s)\n", absPath)
-			}
-			break
+func (s *Store) datasets() []dataset {
+	return []dataset{
+		{"malls.json", func(s *Store, raw []byte) (int, error) { return unmarshalInto(raw, &s.malls) }},
+		{"deals.json", func(s *Store, raw []byte) (int, error) { return unmarshalInto(raw, &s.deals) }},
+		{"posts.json", func(s *Store, raw []byte) (int, error) { return unmarshalInto(raw, &s.posts) }},
+		{"shorts.json", func(s *Store, raw []byte) (int, error) { return unmarshalInto(raw, &s.shorts) }},
+		{"trends.json", func(s *Store, raw []byte) (int, error) { return unmarshalInto(raw, &s.trends) }},
+		{"guilds.json", func(s *Store, raw []byte) (int, error) { return unmarshalInto(raw, &s.guilds) }},
+		{"products.json", func(s *Store, raw []byte) (int, error) {
+			return indexInto(raw, s.products, func(p models.ProductDetail) string { return p.CanonicalID })
+		}},
+		{"merchants.json", func(s *Store, raw []byte) (int, error) {
+			return indexInto(raw, s.merchants, func(m models.MerchantStorefront) string { return m.ID })
+		}},
+	}
+}
+
+// resolveDataDir returns the sample-data directory, or "" when none is present.
+// Precedence is operator intent first: DATA_DIR, then a directory next to the
+// running binary (the container layout), then the source-tree layout used by
+// "go run" and the tests. The previous build probed four relative guesses in a
+// fixed order, so which dataset a page showed depended on the working
+// directory it was opened from.
+func (s *Store) resolveDataDir() string {
+	if custom := strings.TrimSpace(os.Getenv("DATA_DIR")); custom != "" {
+		if fi, err := os.Stat(custom); err == nil && fi.IsDir() {
+			return custom
+		}
+		fmt.Printf("[Store] DATA_DIR %q is not a directory; using bundled sample data\n", custom)
+	}
+	exeDir := ""
+	if exe, err := os.Executable(); err == nil {
+		exeDir = filepath.Dir(exe)
+	}
+	for _, cand := range executableCandidates(exeDir) {
+		if fi, err := os.Stat(cand); err == nil && fi.IsDir() {
+			return cand
 		}
 	}
+	return ""
+}
+
+// executableCandidates lists data directories relative to the running binary
+// first and to the working directory second.
+func executableCandidates(exeDir string) []string {
+	var out []string
+	rel := []string{"data", filepath.Join("..", "data"), filepath.Join("..", "..", "services", "consumer-web", "data")}
+	if exeDir != "" {
+		for _, r := range rel {
+			out = append(out, filepath.Join(exeDir, r))
+		}
+	}
+	cwd, err := os.Getwd()
+	if err == nil {
+		for _, r := range rel {
+			out = append(out, filepath.Join(cwd, r))
+		}
+	}
+	return out
+}
+
+// manifest describes where the loaded rows came from, so the UI can disclose
+// sample data instead of presenting it as live marketplace truth.
+type manifest struct {
+	Mode    string `json:"mode"`
+	Notice  string `json:"notice"`
+	Source  string `json:"source"`
+	Updated string `json:"updated"`
 }
 
 func (s *Store) loadDatasets() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	var dataDir string
-	if customData := os.Getenv("DATA_DIR"); customData != "" {
-		if fi, err := os.Stat(customData); err == nil && fi.IsDir() {
-			dataDir = customData
+	dir := s.resolveDataDir()
+	s.dataDir = dir
+
+	if dir != "" {
+		if raw, err := os.ReadFile(filepath.Join(dir, "MANIFEST.json")); err == nil {
+			var mf manifest
+			if err := json.Unmarshal(raw, &mf); err == nil {
+				s.manifest = mf
+			} else {
+				fmt.Printf("[Store] Ignoring unreadable MANIFEST.json: %v\n", err)
+			}
 		}
+		for _, ds := range s.datasets() {
+			path := filepath.Join(dir, ds.file)
+			raw, err := os.ReadFile(path)
+			if err != nil {
+				continue
+			}
+			n, err := ds.apply(s, raw)
+			if err != nil {
+				fmt.Printf("[Store] Skipped %s: %v\n", path, err)
+				continue
+			}
+			if n > 0 {
+				fmt.Printf("[Store] %d rows from %s\n", n, path)
+			}
+		}
+	} else {
+		fmt.Println("[Store] No sample-data directory found; running on the built-in fallback rows")
 	}
 
-	candidateDirs := []string{
-		"data",
-		"services/consumer-web/data",
-		"../data",
-		"../../services/consumer-web/data",
-	}
-
-	if dataDir == "" {
-		for _, dir := range candidateDirs {
-			if fi, err := os.Stat(dir); err == nil && fi.IsDir() {
-				dataDir = dir
-				break
-			}
-		}
-	}
-
-	if dataDir != "" {
-		// 1. Load 3,315 Malls
-		mallsFile := filepath.Join(dataDir, "malls.json")
-		if data, err := os.ReadFile(mallsFile); err == nil {
-			var loadedMalls []models.Mall
-			if err := json.Unmarshal(data, &loadedMalls); err == nil && len(loadedMalls) > 0 {
-				s.malls = loadedMalls
-				fmt.Printf("✓ [Store] Loaded %d nationwide malls from %s\n", len(s.malls), mallsFile)
-			}
-		}
-
-		// 2. Load Retailer Deals
-		dealsFile := filepath.Join(dataDir, "deals.json")
-		if data, err := os.ReadFile(dealsFile); err == nil {
-			var loadedDeals []models.RetailerDeal
-			if err := json.Unmarshal(data, &loadedDeals); err == nil && len(loadedDeals) > 0 {
-				s.deals = loadedDeals
-				fmt.Printf("✓ [Store] Loaded %d retailer specials from %s\n", len(s.deals), dealsFile)
-			}
-		}
-
-		// 3. Load Canonical Products
-		productsFile := filepath.Join(dataDir, "products.json")
-		if data, err := os.ReadFile(productsFile); err == nil {
-			var loadedProducts []models.ProductDetail
-			if err := json.Unmarshal(data, &loadedProducts); err == nil && len(loadedProducts) > 0 {
-				for _, p := range loadedProducts {
-					s.products[p.CanonicalID] = p
-				}
-				fmt.Printf("✓ [Store] Loaded %d canonical products from %s\n", len(s.products), productsFile)
-			}
-		}
-
-		// 4. Load Merchants
-		merchantsFile := filepath.Join(dataDir, "merchants.json")
-		if data, err := os.ReadFile(merchantsFile); err == nil {
-			var loadedMerchants []models.MerchantStorefront
-			if err := json.Unmarshal(data, &loadedMerchants); err == nil && len(loadedMerchants) > 0 {
-				for _, m := range loadedMerchants {
-					s.merchants[m.ID] = m
-				}
-				fmt.Printf("✓ [Store] Loaded %d merchants from %s\n", len(s.merchants), merchantsFile)
-			}
-		}
-
-		// 5. Load Social Feed Posts
-		postsFile := filepath.Join(dataDir, "posts.json")
-		if data, err := os.ReadFile(postsFile); err == nil {
-			var loadedPosts []models.PostItem
-			if err := json.Unmarshal(data, &loadedPosts); err == nil && len(loadedPosts) > 0 {
-				s.posts = loadedPosts
-				fmt.Printf("✓ [Store] Loaded %d social feed posts from %s\n", len(s.posts), postsFile)
-			}
-		}
-
-		// 6. Load Video Shorts
-		shortsFile := filepath.Join(dataDir, "shorts.json")
-		if data, err := os.ReadFile(shortsFile); err == nil {
-			var loadedShorts []models.ShortItem
-			if err := json.Unmarshal(data, &loadedShorts); err == nil && len(loadedShorts) > 0 {
-				s.shorts = loadedShorts
-				fmt.Printf("✓ [Store] Loaded %d video shorts from %s\n", len(s.shorts), shortsFile)
-			}
-		}
-
-		// 7. Load Commerce Trends
-		trendsFile := filepath.Join(dataDir, "trends.json")
-		if data, err := os.ReadFile(trendsFile); err == nil {
-			var loadedTrends []models.TradeTrend
-			if err := json.Unmarshal(data, &loadedTrends); err == nil && len(loadedTrends) > 0 {
-				s.trends = loadedTrends
-			}
-		}
-
-		// 8. Load Community Guilds
-		guildsFile := filepath.Join(dataDir, "guilds.json")
-		if data, err := os.ReadFile(guildsFile); err == nil {
-			var loadedGuilds []models.CommunityGuild
-			if err := json.Unmarshal(data, &loadedGuilds); err == nil && len(loadedGuilds) > 0 {
-				s.guilds = loadedGuilds
-			}
-		}
-	}
-
-	// Fallbacks
 	if len(s.malls) == 0 {
 		s.malls = s.fallbackMalls()
 	}
@@ -234,6 +270,31 @@ func (s *Store) loadDatasets() {
 	}
 }
 
+// SampleDataInUse reports whether the catalogue is the bundled, hand-authored
+// sample rather than an operator-supplied dataset. The platform discloses this
+// in the UI instead of letting sample rows read as live marketplace data.
+func (s *Store) SampleDataInUse() bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if s.dbMerchants != nil || s.dbProducts != nil {
+		return false
+	}
+	if mode := strings.ToLower(strings.TrimSpace(s.manifest.Mode)); mode != "" {
+		return mode == "sample" || mode == "demo"
+	}
+	return true
+}
+
+// DataNotice returns the one-line disclosure shown with sample data.
+func (s *Store) DataNotice() string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if n := strings.TrimSpace(s.manifest.Notice); n != "" {
+		return n
+	}
+	return "Illustrative sample catalogue bundled with this build for demonstration."
+}
+
 func (s *Store) GetTotalCounts() (int, int, int, int) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -248,38 +309,12 @@ type DealsStats struct {
 	TotalSavingsZar float64 `json:"totalSavingsZar"`
 }
 
-func (s *Store) GetDealsStats() DealsStats {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	retailers := make(map[string]bool)
-	totalDiscount := 0
-	totalSavings := 0.0
-
-	for _, d := range s.deals {
-		retailers[d.MerchantName] = true
-		totalDiscount += d.DiscountPct
-		if d.SavingsZar > 0 {
-			totalSavings += d.SavingsZar
-		} else if d.OldPriceZar > d.PriceZar {
-			totalSavings += (d.OldPriceZar - d.PriceZar)
-		}
-	}
-
-	avgDisc := 0
-	if len(s.deals) > 0 {
-		avgDisc = totalDiscount / len(s.deals)
-	}
-
-	return DealsStats{
-		TotalDeals:      len(s.deals),
-		AvgDiscountPct:  avgDisc,
-		TotalRetailers:  len(retailers),
-		TotalSavingsZar: totalSavings,
-	}
-}
-
-func (s *Store) GetDeals(retailer string, category string, sortMode ...string) []models.RetailerDeal {
+// GetDeals returns retailer specials, filtered by retailer and category.
+//
+// Savings are always derived from the two published prices. The store never
+// invents a locker rate, branch count or stock level: an absent field stays
+// absent so the UI can render its "quoted by supplier" state.
+func (s *Store) GetDeals(retailer, category string, sortMode ...string) []models.RetailerDeal {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -300,62 +335,127 @@ func (s *Store) GetDeals(retailer string, category string, sortMode ...string) [
 				continue
 			}
 		}
-		// Ensure savings and flags
-		if d.SavingsZar == 0 && d.OldPriceZar > d.PriceZar {
+		if d.OldPriceZar > d.PriceZar {
 			d.SavingsZar = d.OldPriceZar - d.PriceZar
-		}
-		d.IsLocalSAStock = true
-		if d.PudoCost == 0 {
-			d.PudoCost = 60.00
+		} else {
+			d.SavingsZar = 0
 		}
 		out = append(out, d)
 	}
 
-	sort := "savings"
-	if len(sortMode) > 0 && sortMode[0] != "" {
-		sort = strings.ToLower(strings.TrimSpace(sortMode[0]))
+	mode := "savings"
+	if len(sortMode) > 0 && strings.TrimSpace(sortMode[0]) != "" {
+		mode = strings.ToLower(strings.TrimSpace(sortMode[0]))
 	}
-
-	switch sort {
-	case "savings":
-		// Highest discount percentage first
-		for i := 0; i < len(out); i++ {
-			for j := i + 1; j < len(out); j++ {
-				if out[j].DiscountPct > out[i].DiscountPct {
-					out[i], out[j] = out[j], out[i]
-				}
-			}
-		}
+	switch mode {
 	case "price_asc":
-		// Lowest price first
-		for i := 0; i < len(out); i++ {
-			for j := i + 1; j < len(out); j++ {
-				if out[j].PriceZar < out[i].PriceZar {
-					out[i], out[j] = out[j], out[i]
-				}
-			}
-		}
+		sort.SliceStable(out, func(i, j int) bool { return out[i].PriceZar < out[j].PriceZar })
 	case "price_desc":
-		// Highest price first
-		for i := 0; i < len(out); i++ {
-			for j := i + 1; j < len(out); j++ {
-				if out[j].PriceZar > out[i].PriceZar {
-					out[i], out[j] = out[j], out[i]
-				}
-			}
-		}
-	case "expiring":
-		// Lowest stock percentage first (scarcity/urgency)
-		for i := 0; i < len(out); i++ {
-			for j := i + 1; j < len(out); j++ {
-				if out[j].StockPct < out[i].StockPct {
-					out[i], out[j] = out[j], out[i]
-				}
-			}
-		}
+		sort.SliceStable(out, func(i, j int) bool { return out[i].PriceZar > out[j].PriceZar })
+	default:
+		sort.SliceStable(out, func(i, j int) bool { return out[i].DiscountPct > out[j].DiscountPct })
 	}
 
 	return out
+}
+
+// RetailerFacet is one retailer present in the loaded deals, with how many
+// specials it currently has. Retailer navigation is built from this so the
+// platform cannot advertise a chain, a branch count or a catalogue it does not
+// actually hold.
+type RetailerFacet struct {
+	Key   string
+	Label string
+	Deals int
+}
+
+// GetRetailers lists the retailers the loaded deals reference, most deals
+// first. The filter key is the token GetDeals matches on.
+func (s *Store) GetRetailers() []RetailerFacet {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	byKey := map[string]*RetailerFacet{}
+	var keys []string
+	for _, d := range s.deals {
+		key := strings.ToLower(strings.TrimSpace(d.RetailerDomain))
+		if key == "" {
+			key = strings.ToLower(strings.TrimSpace(d.MerchantName))
+		}
+		if key == "" {
+			continue
+		}
+		f, ok := byKey[key]
+		if !ok {
+			f = &RetailerFacet{Key: key, Label: strings.TrimSpace(d.MerchantName)}
+			if f.Label == "" {
+				f.Label = key
+			}
+			byKey[key] = f
+			keys = append(keys, key)
+		}
+		f.Deals++
+	}
+
+	out := make([]RetailerFacet, 0, len(keys))
+	for _, k := range keys {
+		out = append(out, *byKey[k])
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		if out[i].Deals != out[j].Deals {
+			return out[i].Deals > out[j].Deals
+		}
+		return out[i].Label < out[j].Label
+	})
+	return out
+}
+
+// MaxDiscountPct is the deepest cut among the loaded deals, or 0 when no deal
+// publishes one. Used instead of a hardcoded "up to 45%" claim.
+func (s *Store) MaxDiscountPct() int {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	var best int
+	for _, d := range s.deals {
+		if d.DiscountPct > best {
+			best = d.DiscountPct
+		}
+	}
+	return best
+}
+
+// GetDealsStats summarises the loaded deals. Every figure is counted from the
+// rows themselves, so the deals banner can report a real maximum discount and a
+// real retailer count instead of a marketing number.
+func (s *Store) GetDealsStats() DealsStats {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	retailers := make(map[string]bool)
+	totalDiscount := 0
+	totalSavings := 0.0
+
+	for _, d := range s.deals {
+		retailers[d.MerchantName] = true
+		totalDiscount += d.DiscountPct
+		if d.SavingsZar > 0 {
+			totalSavings += d.SavingsZar
+		} else if d.OldPriceZar > d.PriceZar {
+			totalSavings += d.OldPriceZar - d.PriceZar
+		}
+	}
+
+	avgDisc := 0
+	if len(s.deals) > 0 {
+		avgDisc = totalDiscount / len(s.deals)
+	}
+
+	return DealsStats{
+		TotalDeals:      len(s.deals),
+		AvgDiscountPct:  avgDisc,
+		TotalRetailers:  len(retailers),
+		TotalSavingsZar: totalSavings,
+	}
 }
 
 func (s *Store) GetTopDrops(limit int) []models.RetailerDeal {
@@ -571,12 +671,12 @@ func (s *Store) SearchProducts(query string, category string, province string, i
 					Description: fmt.Sprintf("%s · %s", d.Availability, d.LocationHint),
 					PriceZar:    d.PriceZar,
 					OffersCount: 1,
-					City:        "Major Retail Superstores",
+					City:        d.LocationHint,
 					Province:    "Nationwide",
-					InStock:     true,
-					Verified:    true,
+					InStock:     strings.EqualFold(d.Availability, "in stock"),
+					Verified:    false,
 					ImageURL:    d.ImageURL,
-					Rating:      4.9,
+					Rating:      0,
 				})
 			}
 		}
@@ -599,15 +699,15 @@ func (s *Store) SearchProducts(query string, category string, province string, i
 						Title:       name.String,
 						Brand:       brand.String,
 						Category:    cat.String,
-						Description: "1,000,000+ Master Product Index",
-						PriceZar:    49.99,
-						OffersCount: 1,
-						City:        "South Africa Nationwide",
-						Province:    "Nationwide",
-						InStock:     true,
-						Verified:    true,
-						ImageURL:    "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop&q=80",
-						Rating:      4.8,
+						Description: "Master catalogue record — live offers attach when discovered_offers rows match",
+						PriceZar:    0,
+						OffersCount: s.offerCountForMaster(id.String),
+						City:        "",
+						Province:    "",
+						InStock:     false,
+						Verified:    false,
+						ImageURL:    "",
+						Rating:      0,
 					})
 				}
 			}
@@ -665,22 +765,21 @@ func GenerateDefaultDeliveryOptions(city string) []models.DeliveryOption {
 	}
 }
 
+// GenerateMerchantTrust builds a trust block strictly from values that were
+// actually observed. It never invents registration numbers, addresses, trade
+// counts or verification flags: absent data stays absent so the UI can render
+// an honest "unverified" state instead of a fabricated one.
 func GenerateMerchantTrust(name string, city string, rating float64) *models.MerchantTrust {
-	if rating <= 0 {
-		rating = 4.9
-	}
-	if city == "" {
-		city = "Johannesburg"
-	}
-	cipcNum := fmt.Sprintf("2021/%06d/07", (len(name)*142857)%899999+100000)
+	_ = name
+	_ = city
 	return &models.MerchantTrust{
-		CipcVerified:  true,
-		CipcNumber:    cipcNum,
-		PhysicalStore: true,
-		StoreAddress:  fmt.Sprintf("Shop 14, Commercial Centre, %s", city),
-		MallName:      "Mall of Africa / Cresta Centre",
-		ResponseTime:  "< 15 mins",
-		TradesCount:   142 + len(name)*9,
+		CipcVerified:  false,
+		CipcNumber:    "",
+		PhysicalStore: false,
+		StoreAddress:  "",
+		MallName:      "",
+		ResponseTime:  "",
+		TradesCount:   0,
 		Rating:        rating,
 	}
 }
@@ -689,6 +788,23 @@ func (s *Store) detailToSearchItem(p models.ProductDetail) models.SearchItem {
 	price := p.LowestOfferPrice
 	if price <= 0 {
 		price = p.EstimatedPriceZar
+	}
+	// Stock and location are only claimed when a real merchant offer asserts them.
+	inStock := false
+	pickup := false
+	city := ""
+	province := ""
+	for _, off := range p.Offers {
+		if off.InStock {
+			inStock = true
+		}
+		if off.PickupAvailable {
+			pickup = true
+		}
+		if city == "" && off.City != "" {
+			city = off.City
+			province = off.Province
+		}
 	}
 	return models.SearchItem{
 		ID:              p.CanonicalID,
@@ -699,19 +815,19 @@ func (s *Store) detailToSearchItem(p models.ProductDetail) models.SearchItem {
 		Description:     p.Description,
 		PriceZar:        price,
 		OffersCount:     len(p.Offers),
-		City:            "Crown Mines, Johannesburg",
-		Province:        "Gauteng",
-		InStock:         true,
-		Verified:        true,
+		City:            city,
+		Province:        province,
+		InStock:         inStock,
+		Verified:        false,
 		ImageURL:        p.ImageURL,
-		Rating:          4.9,
-		IsLocalSAStock:  true,
-		DispatchHours:   24,
-		PickupAvailable: true,
-		PickupMall:      "Cresta / Mall of Africa",
+		Rating:          0,
+		IsLocalSAStock:  p.IsLocalSAStock,
+		DispatchHours:   0,
+		PickupAvailable: pickup,
+		PickupMall:      "",
 		VolumeTiers:     GenerateDefaultVolumeTiers(price),
-		Trust:           GenerateMerchantTrust(p.Brand, "Johannesburg", 4.9),
-		DeliveryOptions: GenerateDefaultDeliveryOptions("Johannesburg"),
+		Trust:           GenerateMerchantTrust(p.Brand, city, 0),
+		DeliveryOptions: GenerateDefaultDeliveryOptions(city),
 	}
 }
 
@@ -736,8 +852,12 @@ func (s *Store) filterItems(items []models.SearchItem, category string, province
 }
 
 func (s *Store) querySearchCore(q string) []models.SearchItem {
+	base := os.Getenv("SEARCH_CORE_URL")
+	if base == "" {
+		base = "http://localhost:8082"
+	}
 	client := &http.Client{Timeout: 35 * time.Millisecond}
-	resp, err := client.Get(fmt.Sprintf("http://localhost:8082/api/search?q=%s", url.QueryEscape(q)))
+	resp, err := client.Get(fmt.Sprintf("%s/api/search?q=%s", strings.TrimRight(base, "/"), url.QueryEscape(q)))
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return nil
 	}
@@ -769,7 +889,7 @@ func (s *Store) querySearchCore(q string) []models.SearchItem {
 
 	var out []models.SearchItem
 	for _, it := range searchCoreRes.Items {
-		img := "https://images.unsplash.com/photo-1509391365360-2e959784a276?w=600&auto=format&fit=crop&q=80"
+		img := ""
 		offersCount := 1
 		if detail, ok := s.products[it.ID]; ok {
 			img = detail.ImageURL
@@ -996,29 +1116,18 @@ func (s *Store) GetProductByID(id string) (models.ProductDetail, bool) {
 				Model:             "Standard Spec",
 				Category:          cat.String,
 				Description:       fmt.Sprintf("%s by %s. Indexed in the national master catalog.", name.String, brand.String),
-				ImageURL:          "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop&q=80",
-				Gallery:           []string{"https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop&q=80"},
-				EstimatedPriceZar: 89.99,
-				LowestOfferPrice:  84.99,
+				ImageURL:          "",
+				Gallery:           nil,
+				EstimatedPriceZar: 0,
+				LowestOfferPrice:  0,
 				Specs: map[string]string{
 					"Brand":    brand.String,
 					"Category": cat.String,
-					"Catalog":  "1,000,000+ Master Database",
+					"Catalog":  "National Master Database",
 				},
-				Offers: []models.MerchantOffer{
-					{
-						MerchantID:   "loc_sa_trade_depot",
-						MerchantName: "Verified Trade Counter",
-						City:         "Johannesburg",
-						Province:     "Gauteng",
-						PriceZar:     84.99,
-						InStock:      true,
-						Verified:     true,
-						WhatsApp:     "27825551234",
-						Rating:       4.8,
-					},
-				},
+				Offers: s.offersForMaster(pid.String, id, name.String, brand.String),
 			}
+			dtl = applyOfferPrices(dtl)
 			return s.enrichProductDetail(dtl), true
 		}
 	}
@@ -1026,158 +1135,144 @@ func (s *Store) GetProductByID(id string) (models.ProductDetail, bool) {
 	return models.ProductDetail{}, false
 }
 
-// CalculateLiveOperatingHours computes South African Standard Time (SAST, UTC+2) business status
-func CalculateLiveOperatingHours(address string) (bool, string, string) {
-	sastZone := time.FixedZone("SAST", 2*60*60)
-	now := time.Now().In(sastZone)
-	weekday := now.Weekday()
-	hour := now.Hour()
-	minute := now.Minute()
-	timeOfDay := hour*60 + minute
-
-	isOpen := false
-	status := ""
-
-	switch weekday {
-	case time.Saturday:
-		// Sat: 08:30 to 13:00 (510 to 780 mins)
-		if timeOfDay >= 510 && timeOfDay < 780 {
-			isOpen = true
-			status = "● Open Now · Saturday Trade Counter Closes 13:00 (SAST)"
-		} else {
-			isOpen = false
-			status = "○ Closed Now · Reopens Monday 08:00 (SAST)"
+func (s *Store) mergeDiscoveredOffers() {
+	if s.dbOffers == nil {
+		return
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	merged := 0
+	for id, p := range s.products {
+		offers := s.offersForMaster(id, id, p.Title, p.Brand)
+		if len(offers) == 0 {
+			continue
 		}
-	case time.Sunday:
-		isOpen = false
-		status = "○ Closed Sunday · Reopens Monday 08:00 (SAST)"
-	default:
-		// Mon-Fri: 08:00 to 17:00 (480 to 1020 mins)
-		if timeOfDay >= 480 && timeOfDay < 1020 {
-			isOpen = true
-			status = "● Open Now · Dispatch & Trade Counter Closes 17:00 (SAST)"
-		} else if timeOfDay < 480 {
-			isOpen = false
-			status = "○ Closed Now · Opens Today 08:00 (SAST)"
-		} else {
-			if weekday == time.Friday {
-				status = "○ Closed for Today · Opens Saturday 08:30 (SAST)"
-			} else {
-				status = "○ Closed for Today · Opens Tomorrow 08:00 (SAST)"
-			}
-			isOpen = false
+		p.Offers = append(p.Offers, offers...)
+		sort.Slice(p.Offers, func(i, j int) bool { return p.Offers[i].PriceZar < p.Offers[j].PriceZar })
+		p = applyOfferPrices(p)
+		s.products[id] = p
+		merged++
+	}
+	if merged > 0 {
+		fmt.Printf("[Store] Merged discovered offers into %d seed products\n", merged)
+	}
+}
+
+func applyOfferPrices(p models.ProductDetail) models.ProductDetail {
+	lowest := 0.0
+	for _, o := range p.Offers {
+		if o.PriceZar > 0 && (lowest == 0 || o.PriceZar < lowest) {
+			lowest = o.PriceZar
 		}
 	}
+	if lowest > 0 {
+		p.LowestOfferPrice = lowest
+		if p.EstimatedPriceZar <= 0 {
+			p.EstimatedPriceZar = lowest
+		}
+	}
+	return p
+}
 
-	directionsURL := fmt.Sprintf("https://www.google.com/maps/dir/?api=1&destination=%s", url.QueryEscape(address))
-	return isOpen, status, directionsURL
+func (s *Store) offerCountForMaster(masterID string) int {
+	if s.dbOffers == nil {
+		return 0
+	}
+	var n int
+	_ = s.dbOffers.QueryRow(
+		"SELECT COUNT(*) FROM discovered_offers WHERE master_product_ref = ? AND discovered_price_zar > 0",
+		masterID,
+	).Scan(&n)
+	return n
+}
+
+func (s *Store) offersForMaster(ids ...string) []models.MerchantOffer {
+	if s.dbOffers == nil {
+		return nil
+	}
+	query := "master_product_ref = ?"
+	args := make([]any, 0, len(ids))
+	for _, id := range ids {
+		if strings.TrimSpace(id) == "" {
+			continue
+		}
+		args = append(args, id)
+	}
+	if len(args) == 0 {
+		return nil
+	}
+	if len(args) > 1 {
+		placeholders := make([]string, len(args))
+		for i := range args {
+			placeholders[i] = "?"
+		}
+		query = "master_product_ref IN (" + strings.Join(placeholders, ",") + ")"
+	}
+	rows, err := s.dbOffers.Query(
+		"SELECT product_title, merchant_name, source_website, discovered_price_zar, availability_text, location_hint, image_url FROM discovered_offers WHERE "+query+" AND discovered_price_zar > 0 ORDER BY discovered_price_zar ASC LIMIT 24",
+		args...,
+	)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	var out []models.MerchantOffer
+	for rows.Next() {
+		var title, merchant, source, avail, loc, img sql.NullString
+		var price float64
+		if err := rows.Scan(&title, &merchant, &source, &price, &avail, &loc, &img); err != nil {
+			continue
+		}
+		name := merchant.String
+		if name == "" {
+			name = source.String
+		}
+		if name == "" {
+			continue
+		}
+		availL := strings.ToLower(avail.String)
+		out = append(out, models.MerchantOffer{
+			MerchantID:   source.String,
+			MerchantName: name,
+			City:         loc.String,
+			PriceZar:     price,
+			InStock:      strings.Contains(availL, "in stock") || availL == "available",
+			Verified:     false,
+			Rating:       0,
+		})
+	}
+	return out
 }
 
 func (s *Store) enrichStorefront(m *models.MerchantStorefront) {
-	isOpen, status, dirURL := CalculateLiveOperatingHours(m.Address)
-	m.IsOpenNow = isOpen
-	m.HoursStatus = status
-	m.DirectionsURL = dirURL
+	// Operating status is only shown when the merchant supplied trading hours;
+	// we never guess "open now" from a platform-wide default schedule.
+	m.IsOpenNow = false
+	m.HoursStatus = ""
+	m.DirectionsURL = fmt.Sprintf("https://www.google.com/maps/dir/?api=1&destination=%s", url.QueryEscape(m.Address))
 
-	// Default corporate metadata for website mirroring and standalone profile
-	if m.ID == "loc_mitrend_midrand" {
-		m.Website = "https://mitrend.co.za"
+	// Enrichment only derives facts from data we actually hold (a website URL,
+	// a WhatsApp number). Profile copy, certifications and B-BBEE levels are
+	// merchant-supplied at onboarding and are never synthesised here.
+	if m.Website != "" {
 		m.HasExternalWebsite = true
-		m.Email = "sales@mitrend.co.za"
-		m.AboutText = "Mitrend Products (Pty) Ltd is a premier South African wholesale manufacturer and commercial distributor specializing in hospitality guest room supplies, anti-theft hangers, and food-grade packaging containers. Operating from our central Midrand distribution hub, we supply over 450 hotels, safari lodges, and retail chains across SADC."
-		m.BBBEELevel = "Level 1 Contributor (135% B-BBEE Recognition)"
-		m.Certifications = []string{
-			"SABS SANS 1422:2018 Certified",
-			"ISO 9001:2015 Quality Managed",
-			"CIPC Verified South African Enterprise",
-			"HACCP Food Safety Packaging",
-		}
-		m.SocialLinks = []models.SocialLink{
-			{Platform: "website", URL: "https://mitrend.co.za", Label: "mitrend.co.za", Icon: "🌐"},
-			{Platform: "linkedin", URL: "https://linkedin.com/company/mitrend-products", Label: "LinkedIn", Icon: "💼"},
-			{Platform: "whatsapp", URL: fmt.Sprintf("https://wa.me/%s", m.WhatsApp), Label: "WhatsApp Trade Desk", Icon: "💬"},
-			{Platform: "facebook", URL: "https://facebook.com/mitrendproducts", Label: "Facebook", Icon: "📘"},
-		}
-	} else if m.ID == "loc_sunpower_crownmines" {
-		m.Website = "https://sunpowersolutions.co.za"
-		m.HasExternalWebsite = true
-		m.Email = "orders@sunpowersolutions.co.za"
-		m.AboutText = "SunPower Solutions Crown Mines is a leading renewable energy trade distributor in Dragon City, providing Tier-1 hybrid solar inverters, lithium iron phosphate battery packs, and solar PV panels to licensed electrical contractors."
-		m.BBBEELevel = "Level 2 Contributor"
-		m.Certifications = []string{
-			"SABS SANS Approved",
-			"SAPVIA Registered Member",
-			"NRCS Letter of Authority (LOA)",
-			"CIPC Verified",
-		}
-		m.SocialLinks = []models.SocialLink{
-			{Platform: "website", URL: "https://sunpowersolutions.co.za", Label: "sunpowersolutions.co.za", Icon: "🌐"},
-			{Platform: "linkedin", URL: "https://linkedin.com/company/sunpower-za", Label: "LinkedIn", Icon: "💼"},
-			{Platform: "whatsapp", URL: fmt.Sprintf("https://wa.me/%s", m.WhatsApp), Label: "WhatsApp Trade Desk", Icon: "💬"},
+		cleanDomain := strings.TrimPrefix(strings.TrimPrefix(m.Website, "https://"), "http://")
+		cleanDomain = strings.TrimPrefix(cleanDomain, "www.")
+		cleanDomain = strings.TrimRight(cleanDomain, "/")
+		if len(m.SocialLinks) == 0 {
+			m.SocialLinks = append(m.SocialLinks, models.SocialLink{
+				Platform: "website",
+				URL:      m.Website,
+				Label:    cleanDomain,
+				Icon:     "🌐",
+			})
 		}
 	} else {
-		// Dynamic enrichment for SQLite & catalog merchants
-		if m.Website != "" {
-			m.HasExternalWebsite = true
-			cleanDomain := strings.TrimPrefix(strings.TrimPrefix(m.Website, "https://"), "http://")
-			cleanDomain = strings.TrimPrefix(cleanDomain, "www.")
-			cleanDomain = strings.TrimRight(cleanDomain, "/")
-			if len(m.SocialLinks) == 0 {
-				m.SocialLinks = append(m.SocialLinks, models.SocialLink{
-					Platform: "website",
-					URL:      m.Website,
-					Label:    cleanDomain,
-					Icon:     "🌐",
-				})
-			}
-		} else {
-			m.HasExternalWebsite = false
-		}
-		if m.AboutText == "" {
-			m.AboutText = fmt.Sprintf("%s is a CIPC-registered South African commercial enterprise located in %s, %s. We provide verified trade supply, official tax proformas with 15%% SARS VAT, and rapid logistics dispatch.", m.Name, m.Suburb, m.City)
-		}
-		if m.BBBEELevel == "" {
-			m.BBBEELevel = "B-BBEE Verified Enterprise"
-		}
-		if len(m.Certifications) == 0 {
-			m.Certifications = []string{"CIPC Verified Enterprise", "SARS VAT Registered", "Shoppage Verified Trade Desk"}
-		}
-		if len(m.SocialLinks) == 0 {
-			m.SocialLinks = []models.SocialLink{
-				{Platform: "whatsapp", URL: fmt.Sprintf("https://wa.me/%s", m.WhatsApp), Label: "WhatsApp Trade Desk", Icon: "💬"},
-			}
-		}
+		m.HasExternalWebsite = false
 	}
-
-	if len(m.Testimonials) == 0 {
-		m.Testimonials = []models.StoreTestimonial{
-			{
-				ID:         "t1",
-				AuthorName: "Kagiso Mokoena",
-				Company:    "Protea Hospitality Group",
-				Rating:     5,
-				Text:       "Outstanding commercial grade anti-theft hangers and rapid dispatch. Saved us 18% on Sandton executive suite refurbishments.",
-				DateStr:    "2 days ago",
-				Verified:   true,
-			},
-			{
-				ID:         "t2",
-				AuthorName: "Annelize van Zyl",
-				Company:    "Midrand Corporate Supplies",
-				Rating:     5,
-				Text:       "Direct WhatsApp trade desk is seamless. Official proforma generated with SARS 15% VAT in 3 minutes.",
-				DateStr:    "1 week ago",
-				Verified:   true,
-			},
-			{
-				ID:         "t3",
-				AuthorName: "Bongani Sithole",
-				Company:    "Gold Reef City Operations",
-				Rating:     5,
-				Text:       "Pudo smart locker and Courier Guy door delivery options are transparent and reliable for urgent hotel maintenance.",
-				DateStr:    "2 weeks ago",
-				Verified:   true,
-			},
+	if len(m.SocialLinks) == 0 && m.WhatsApp != "" {
+		m.SocialLinks = []models.SocialLink{
+			{Platform: "whatsapp", URL: fmt.Sprintf("https://wa.me/%s", m.WhatsApp), Label: "WhatsApp Trade Desk", Icon: "💬"},
 		}
 	}
 }
@@ -1233,7 +1328,6 @@ func (s *Store) SearchMerchants(query string, limit int) []models.MerchantStoref
 	return matches
 }
 
-
 func (s *Store) GetMerchantByID(id string) (models.MerchantStorefront, bool) {
 	s.mu.RLock()
 	m, ok := s.merchants[id]
@@ -1271,7 +1365,7 @@ func (s *Store) GetMerchantByID(id string) (models.MerchantStorefront, bool) {
 				Rating:             rating.Float64,
 				ReviewsCount:       int(reviews.Int64),
 				CIPCNumber:         cipc.String,
-				Verified:           true,
+				Verified:           cipc.String != "",
 			}
 			s.populateMerchantCatalog(&m)
 			s.enrichStorefront(&m)
@@ -1301,23 +1395,13 @@ func (s *Store) populateMerchantCatalog(m *models.MerchantStorefront) {
 				break
 			}
 		}
-		if hasOffer || (strings.Contains(mid, "mitrend") && (strings.Contains(strings.ToLower(p.Brand), "mitrend") || strings.Contains(strings.ToLower(p.Category), "hanger") || strings.Contains(strings.ToLower(p.Category), "packaging") || strings.Contains(strings.ToLower(p.Category), "hospitality"))) || (strings.Contains(mid, "sunpower") && strings.Contains(strings.ToLower(p.Category), "solar")) {
+		if hasOffer {
 			catalog = append(catalog, s.detailToMerchantSearchItem(p, mid))
 		}
 	}
 
-	// 2. Fallback: if still empty, provide the first 12 active canonical products so storefront is never empty
-	if len(catalog) == 0 {
-		count := 0
-		for _, p := range s.products {
-			catalog = append(catalog, s.detailToMerchantSearchItem(p, mid))
-			count++
-			if count >= 12 {
-				break
-			}
-		}
-	}
-
+	// No fallback inventory: a storefront with no offers of its own shows an
+	// honest empty catalogue rather than another merchant's products.
 	m.Catalog = catalog
 }
 
@@ -1474,88 +1558,28 @@ func (s *Store) fallbackDeals() []models.RetailerDeal {
 }
 
 func (s *Store) fallbackMerchants() []models.MerchantStorefront {
+	// Sample scaffolding used only when no merchant dataset is loaded. It carries
+	// identity and location only — no verification status, ratings, review counts
+	// or registration numbers, because none of those were observed.
 	return []models.MerchantStorefront{
 		{
-			ID:           "loc_sunpower_crownmines",
-			Name:         "SunPower Crown Mines Wholesale",
-			Category:     "Solar, Inverters & Batteries",
-			Suburb:       "Crown Mines",
-			City:         "Johannesburg",
-			Province:     "Gauteng",
-			Address:      "Unit 14, Crown Commercial Park, 84 Main Reef Rd, Crown Mines, 2025",
-			Phone:        "+27 11 839 2000",
-			WhatsApp:     "27825551234",
-			Rating:       4.9,
-			ReviewsCount: 142,
-			CIPCNumber:   "2018/194821/07",
-			Verified:     true,
+			ID:       "loc_sunpower_crownmines",
+			Name:     "SunPower Crown Mines Wholesale",
+			Category: "Solar, Inverters & Batteries",
+			Suburb:   "Crown Mines",
+			City:     "Johannesburg",
+			Province: "Gauteng",
+			Address:  "Unit 14, Crown Commercial Park, 84 Main Reef Rd, Crown Mines, 2025",
 		},
 		{
-			ID:           "loc_mitrend_midrand",
-			Name:         "MiTrend Industrial & Hardware Wholesalers",
-			Category:     "Hardware, Tools & Industrial",
-			Suburb:       "Midrand",
-			City:         "Johannesburg",
-			Province:     "Gauteng",
-			Address:      "Unit 4B, Gallagher Convention Business Park, Richards Dr, Midrand, 1685",
-			Phone:        "+27 11 315 8800",
-			WhatsApp:     "27829994321",
-			Rating:       4.95,
-			ReviewsCount: 284,
-			CIPCNumber:   "2016/482910/07",
-			Verified:     true,
-			Website:      "https://mitrendwholesalers.co.za",
+			ID:       "loc_mitrend_midrand",
+			Name:     "MiTrend Industrial & Hardware Wholesalers",
+			Category: "Hardware, Tools & Industrial",
+			Suburb:   "Midrand",
+			City:     "Johannesburg",
+			Province: "Gauteng",
+			Address:  "Unit 4B, Gallagher Convention Business Park, Richards Dr, Midrand, 1685",
 		},
-	}
-}
-
-func (s *Store) seedInitialOrders() {
-	s.orders["ORD-2026-1042"] = models.PlacedOrder{
-		OrderNumber:     "ORD-2026-1042",
-		BuyerName:       "Sipho Dlamini",
-		Company:         "Dlamini Electrical Contractors (Pty) Ltd",
-		Phone:           "+27 82 555 1294",
-		Email:           "sipho@dlaminielectrical.co.za",
-		DeliveryAddress: "Unit 12, Gallagher Convention Business Park, Midrand, Gauteng, 1685",
-		DeliveryMethod:  "The Courier Guy Express (Door-to-Door)",
-		Waybill:         "TCG-ZA-849201",
-		ProductTitle:    "Sunsynk 5kW Hybrid Inverter (SunSynk-5K-SG01LP1)",
-		SKU:             "SUN-5K-SG01",
-		Quantity:        2,
-		UnitPriceZar:    16499.00,
-		SubtotalZar:     32998.00,
-		VatZar:          4949.70,
-		GrandTotal:      37947.70,
-		Status:          "In Transit",
-		PaymentMethod:   "Ozow Instant EFT (Direct Commercial Settlement)",
-		DateStr:         "Today, 09:15 SAST",
-		EstimatedEta:    "Tomorrow by 14:00 (Out from Midrand Hub)",
-		MerchantName:    "SunPower Crown Mines Wholesale",
-		MerchantAddress: "Unit 14, Crown Commercial Park, Crown Mines, JHB",
-	}
-
-	s.orders["ORD-2026-0988"] = models.PlacedOrder{
-		OrderNumber:     "ORD-2026-0988",
-		BuyerName:       "Thandiwe Khumalo",
-		Company:         "Khumalo Hospitality Group",
-		Phone:           "+27 71 444 8821",
-		Email:           "procurement@khumalohospitality.co.za",
-		DeliveryAddress: "Pudo Smart Locker - Engen Mall of Africa, Midrand",
-		DeliveryMethod:  "Pudo Smart Locker (24/7 Pin Pickup)",
-		Waybill:         "PUDO-ZA-392180",
-		ProductTitle:    "Commercial Heavy-Duty Anti-Theft Wooden Hangers (Carton of 100)",
-		SKU:             "MIT-HNG-WOD-100",
-		Quantity:        3,
-		UnitPriceZar:    1250.00,
-		SubtotalZar:     3750.00,
-		VatZar:          562.50,
-		GrandTotal:      4312.50,
-		Status:          "Delivered",
-		PaymentMethod:   "Capitec Pay (Settled)",
-		DateStr:         "Yesterday, 14:30 SAST",
-		EstimatedEta:    "Ready for Collection (Locker PIN: 8492)",
-		MerchantName:    "MiTrend Industrial Wholesalers",
-		MerchantAddress: "Unit 4B, Gallagher Convention Business Park, Midrand",
 	}
 }
 

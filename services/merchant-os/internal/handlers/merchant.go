@@ -1045,9 +1045,19 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		_, _ = io.WriteString(w, loginPageHTMLWith("Invalid email or password."))
 		return
 	}
+	// Development may have bootstrapped credentials in EnsureLocalAuth; re-check
+	// via VerifyPassword first so a valid local login is never rejected on length.
 	secret := os.Getenv("SHOPPAGE_AUTH_SECRET")
 	if len(secret) < 32 {
-		http.Error(w, `{"error":"auth not configured (set SHOPPAGE_AUTH_SECRET, 32+ chars)"}`, http.StatusInternalServerError)
+		if !auth.IsProduction() {
+			auth.EnsureLocalAuth()
+			secret = os.Getenv("SHOPPAGE_AUTH_SECRET")
+		}
+	}
+	if len(secret) < 32 {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.WriteHeader(http.StatusServiceUnavailable)
+		_, _ = io.WriteString(w, loginPageHTMLWith("Server auth is not configured yet — set SHOPPAGE_AUTH_SECRET (32+ characters)."))
 		return
 	}
 	token, err := auth.EncodeSession(strings.ToLower(email), []byte(secret))

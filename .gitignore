@@ -57,6 +57,10 @@ scratch/
 # Machine-local settings (DB credentials)
 shoppage/settings/local.py
 
+# Local Merchant OS auth bootstrap (generated secret)
+.shoppage-auth-secret
+data/.shoppage-auth-secret
+
 # Virtual Environments
 .venv/
 venv/
