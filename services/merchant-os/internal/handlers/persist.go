@@ -20,6 +20,7 @@ func (s *MerchantStoreState) RestoreSnapshot(data []byte) error {
 	if err := json.Unmarshal(data, s); err != nil {
 		return fmt.Errorf("restore workspace snapshot: %w", err)
 	}
+	s.normalize()
 	return nil
 }
 

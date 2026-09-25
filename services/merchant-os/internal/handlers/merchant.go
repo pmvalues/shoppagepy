@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -44,6 +45,11 @@ type MerchantStoreState struct {
 	ItemLedger      []models.ItemLedgerEntry
 	ChatThreads     []models.ChatThread
 	ActiveThreadID  string
+	// Demo marks the bundled sample business. Screens show a demo banner and
+	// channel actions say they are simulated while it is set.
+	Demo      bool
+	Proposals []models.Proposal
+	UndoLog   []models.UndoEntry
 }
 
 // NewDefaultState initializes the demonstration workspace using the bundled fixture
@@ -57,7 +63,7 @@ func NewDefaultState() *MerchantStoreState {
 func NewStateWithProfile(profile models.StoreProfile) *MerchantStoreState {
 	now := time.Now().UTC()
 
-	return &MerchantStoreState{
+	st := &MerchantStoreState{
 		Store: profile,
 		Catalog: []models.CatalogSKU{
 			{
@@ -610,7 +616,7 @@ func NewStateWithProfile(profile models.StoreProfile) *MerchantStoreState {
 			},
 			{
 				ID:        "log_2",
-				Actor:     "Pemofy Copilot Engine",
+				Actor:     "Volume tier rule",
 				Action:    "Auto-Tier Applied",
 				Entity:    "ProformaOrder",
 				EntityID:  "ORD-9824",
@@ -771,7 +777,7 @@ func NewStateWithProfile(profile models.StoreProfile) *MerchantStoreState {
 					{
 						ID:         "msg_p2",
 						SenderID:   "loc_mitrend_midrand",
-						SenderName: "Mitrend Sales Desk",
+						SenderName: profile.Name,
 						SenderRole: "merchant",
 						Text:       "Sawubona Sipho! Congratulations on the project. We have 450 units of the MIT-3361 commercial anti-theft hangers in stock at our Midrand central warehouse.",
 						Timestamp:  now.Add(-30 * time.Minute),
@@ -808,7 +814,7 @@ func NewStateWithProfile(profile models.StoreProfile) *MerchantStoreState {
 					{
 						ID:         "msg_p4",
 						SenderID:   "loc_mitrend_midrand",
-						SenderName: "Mitrend Sales Desk",
+						SenderName: profile.Name,
 						SenderRole: "merchant",
 						Text:       "Yes absolutely! I have generated a formal wholesale quotation for 200 units with our 10% commercial volume tier applied.",
 						Timestamp:  now.Add(-5 * time.Minute),
@@ -860,7 +866,7 @@ func NewStateWithProfile(profile models.StoreProfile) *MerchantStoreState {
 					{
 						ID:         "msg_g2",
 						SenderID:   "loc_mitrend_midrand",
-						SenderName: "Mitrend Sales Desk",
+						SenderName: profile.Name,
 						SenderRole: "merchant",
 						Text:       "Hi Lindiwe, 300 units are picked and reserved. Ready for same-day dispatch via The Courier Guy.",
 						Timestamp:  now.Add(-25 * time.Hour),
@@ -925,7 +931,7 @@ func NewStateWithProfile(profile models.StoreProfile) *MerchantStoreState {
 					{
 						ID:         "msg_b2",
 						SenderID:   "loc_mitrend_midrand",
-						SenderName: "Mitrend Sales Desk",
+						SenderName: profile.Name,
 						SenderRole: "merchant",
 						Text:       "Yes Johan, all MIT-8609 lids are tested to SABS SANS 460 standards. Test report is available in our compliance vault.",
 						Timestamp:  now.Add(-47 * time.Hour),
@@ -936,6 +942,8 @@ func NewStateWithProfile(profile models.StoreProfile) *MerchantStoreState {
 		},
 		ActiveThreadID: "conv_protea",
 	}
+	seedDemo(st, now)
+	return st
 }
 
 // Handler coordinates merchant requests
@@ -957,7 +965,7 @@ func NewHandlerWithConfig(state *MerchantStoreState, cfg config.Config) *Handler
 // computeNavContext derives every badge/count shown in the workspace shell from
 // live state. Callers must hold at least the read lock; this function never locks.
 func computeNavContext(cfg config.Config, state *MerchantStoreState) models.NavContext {
-	nav := models.NavContext{PublicBaseURL: cfg.PublicBaseURL}
+	nav := models.NavContext{PublicBaseURL: cfg.PublicBaseURL, DemoData: state.Demo}
 	for _, o := range state.Orders {
 		switch strings.ToLower(o.Status) {
 		case "dispatched", "delivered", "collected", "cancelled", "refunded":
@@ -978,21 +986,51 @@ func computeNavContext(cfg config.Config, state *MerchantStoreState) models.NavC
 		if lead.Status == "new" || lead.Status == "quoted" {
 			nav.OpenQuotes++
 		}
+		if lead.Status == "new" {
+			nav.NewQuotes++
+		}
+	}
+	for _, r := range computeReadiness(state) {
+		if r.ReadyCount() < len(models.ListingChannels) {
+			nav.ListingIssues++
+		}
 	}
 	return nav
 }
 
-// getViewData prepares a complete copy of view data under read lock
+// getViewData prepares a complete copy of view data under read lock.
 func (h *Handler) getViewData(activeTab string) models.DashboardViewData {
+	return h.getViewDataFor(activeTab, nil)
+}
+
+// getViewDataFor is getViewData plus the request's list filters and user.
+func (h *Handler) getViewDataFor(activeTab string, r *http.Request) models.DashboardViewData {
+	now := time.Now().UTC()
+	h.state.mu.Lock()
+	h.state.Proposals = buildProposals(h.state, now)
+	h.state.mu.Unlock()
+
 	h.state.mu.RLock()
 	defer h.state.mu.RUnlock()
+
+	readiness := computeReadiness(h.state)
+	nav := computeNavContext(h.cfg, h.state)
+	query := map[string]string{}
+	if r != nil {
+		for k, v := range r.URL.Query() {
+			if len(v) > 0 {
+				query[k] = v[0]
+			}
+		}
+		nav.UserEmail = auth.SessionEmail(r)
+	}
 
 	return models.DashboardViewData{
 		Store:           h.state.Store,
 		ActiveTab:       activeTab,
 		Catalog:         h.state.Catalog,
 		Leads:           h.state.Leads,
-		Orders:          h.state.Orders,
+		Orders:          sortedOrders(h.state.Orders),
 		ReturnRequests:  h.state.ReturnRequests,
 		Warehouses:      h.state.Warehouses,
 		Customers:       h.state.Customers,
@@ -1010,8 +1048,27 @@ func (h *Handler) getViewData(activeTab string) models.DashboardViewData {
 		ItemLedger:      h.state.ItemLedger,
 		ChatThreads:     h.state.ChatThreads,
 		ActiveThreadID:  h.state.ActiveThreadID,
-		Nav:             computeNavContext(h.cfg, h.state),
+		Nav:             nav,
+		Metrics:         computeMetrics(h.state, readiness, now),
+		Proposals:       append([]models.Proposal(nil), h.state.Proposals...),
+		Readiness:       readiness,
+		Query:           query,
 	}
+}
+
+// sortedOrders returns orders newest first without mutating state.
+func sortedOrders(in []models.ProformaOrder) []models.ProformaOrder {
+	out := append([]models.ProformaOrder(nil), in...)
+	sort.SliceStable(out, func(a, b int) bool { return out[a].Date.After(out[b].Date) })
+	return out
+}
+
+// actor names the signed-in user for audit entries.
+func (h *Handler) actor(r *http.Request) string {
+	if e := auth.SessionEmail(r); e != "" {
+		return e
+	}
+	return "Workspace user"
 }
 
 // ServeDashboard renders the full dashboard HTML, optionally for a specific tab
@@ -1020,7 +1077,7 @@ func (h *Handler) ServeDashboard(w http.ResponseWriter, r *http.Request) {
 	if tab == "" {
 		tab = "overview"
 	}
-	data := h.getViewData(tab)
+	data := h.getViewDataFor(tab, r)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	_ = templates.RenderDashboard(w, data)
 }
@@ -1164,8 +1221,12 @@ func (h *Handler) ServeTab(w http.ResponseWriter, r *http.Request) {
 	if tab == "" {
 		tab = "overview"
 	}
+	if !templates.KnownTab(tab) {
+		h.ServeNotFound(w, r)
+		return
+	}
 
-	data := h.getViewData(tab)
+	data := h.getViewDataFor(tab, r)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	// If request is from browser address bar or F5 refresh (non-HTMX), render the full dashboard layout shell
@@ -1175,369 +1236,6 @@ func (h *Handler) ServeTab(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = templates.RenderTabPartial(w, tab, data)
-}
-
-// ServeProductDetail renders the product detail view (Pemofy layout)
-func (h *Handler) ServeProductDetail(w http.ResponseWriter, r *http.Request) {
-	skuID := chi.URLParam(r, "id")
-
-	h.state.mu.RLock()
-	var target models.CatalogSKU
-	found := false
-	for _, item := range h.state.Catalog {
-		if item.ID == skuID {
-			target = item
-			found = true
-			break
-		}
-	}
-	nav := computeNavContext(h.cfg, h.state)
-	h.state.mu.RUnlock()
-
-	if !found {
-		http.Error(w, "Product not found", http.StatusNotFound)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if r.Header.Get("HX-Request") == "true" {
-		_ = templates.RenderProductDetailView(w, target)
-		return
-	}
-	_ = templates.RenderProductDetailPage(w, h.state.Store, target, nav)
-}
-
-// ServeProductEdit renders the 5-tab product editor view (Pemofy layout)
-func (h *Handler) ServeProductEdit(w http.ResponseWriter, r *http.Request) {
-	skuID := chi.URLParam(r, "id")
-
-	h.state.mu.RLock()
-	var target models.CatalogSKU
-	found := false
-	for _, item := range h.state.Catalog {
-		if item.ID == skuID {
-			target = item
-			found = true
-			break
-		}
-	}
-	nav := computeNavContext(h.cfg, h.state)
-	h.state.mu.RUnlock()
-
-	if !found {
-		http.Error(w, "Product not found", http.StatusNotFound)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if r.Header.Get("HX-Request") == "true" {
-		_ = templates.RenderProductEditView(w, target, false)
-		return
-	}
-	_ = templates.RenderProductEditPage(w, h.state.Store, target, false, nav)
-}
-
-// ServeProductNew renders the product editor view for creating a new product (Pemofy layout)
-func (h *Handler) ServeProductNew(w http.ResponseWriter, r *http.Request) {
-	newSKU := models.CatalogSKU{
-		ID:            fmt.Sprintf("sku_%d", time.Now().UnixNano()%10000),
-		StoreID:       h.state.Store.ID,
-		SKU:           fmt.Sprintf("MIT-%d", time.Now().Unix()%10000),
-		Title:         "",
-		Brand:         "Mitrend",
-		Category:      "Hospitality & Packaging",
-		WholesaleZar:  0.00,
-		RetailZar:     0.00,
-		InStock:       true,
-		StockQuantity: 100,
-		LowStockAlert: 15,
-		FeedStatus:    "Active",
-		Spec: models.ProductDetailSpec{
-			WeightKg:       0.35,
-			Dimensions:     "Standard Commercial Unit",
-			HSCode:         "3923.50",
-			Barcode:        "60098824001",
-			SABSApproved:   true,
-			Material:       "Commercial Grade Polymer",
-			LongDesc:       "",
-			SEOScore:       88,
-			SEOTags:        []string{"Packaging", "Hospitality", "Commercial", "Wholesale"},
-			DirectStore:    true,
-			WhatsAppSync:   true,
-			ShoppagePublic: true,
-		},
-	}
-
-	h.state.mu.RLock()
-	nav := computeNavContext(h.cfg, h.state)
-	h.state.mu.RUnlock()
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if r.Header.Get("HX-Request") == "true" {
-		_ = templates.RenderProductEditView(w, newSKU, true)
-		return
-	}
-	_ = templates.RenderProductEditPage(w, h.state.Store, newSKU, true, nav)
-}
-
-// SaveProductEdit updates product fields and returns refreshed catalog tab
-func (h *Handler) SaveProductEdit(w http.ResponseWriter, r *http.Request) {
-	skuID := chi.URLParam(r, "id")
-	_ = r.ParseForm()
-
-	title := r.FormValue("title")
-	skuCode := r.FormValue("sku")
-	brand := r.FormValue("brand")
-	category := r.FormValue("category")
-	desc := r.FormValue("description")
-	hsCode := r.FormValue("hsCode")
-	barcode := r.FormValue("barcode")
-	material := r.FormValue("material")
-	dimensions := r.FormValue("dimensions")
-	tagsRaw := r.FormValue("tags")
-
-	wholesaleZar, _ := strconv.ParseFloat(r.FormValue("wholesaleZar"), 64)
-	retailZar, _ := strconv.ParseFloat(r.FormValue("retailZar"), 64)
-	stockQty, _ := strconv.Atoi(r.FormValue("stockQuantity"))
-	lowStockAlert, _ := strconv.Atoi(r.FormValue("lowStockAlert"))
-	weightKg, _ := strconv.ParseFloat(r.FormValue("weightKg"), 64)
-
-	h.state.mu.Lock()
-	for i := range h.state.Catalog {
-		if h.state.Catalog[i].ID == skuID {
-			if title != "" {
-				h.state.Catalog[i].Title = title
-			}
-			if skuCode != "" {
-				h.state.Catalog[i].SKU = skuCode
-			}
-			if brand != "" {
-				h.state.Catalog[i].Brand = brand
-			}
-			if category != "" {
-				h.state.Catalog[i].Category = category
-			}
-			if wholesaleZar > 0 {
-				h.state.Catalog[i].WholesaleZar = wholesaleZar
-			}
-			if retailZar > 0 {
-				h.state.Catalog[i].RetailZar = retailZar
-			}
-			if stockQty >= 0 {
-				h.state.Catalog[i].StockQuantity = stockQty
-				h.state.Catalog[i].InStock = stockQty > 0
-			}
-			if lowStockAlert > 0 {
-				h.state.Catalog[i].LowStockAlert = lowStockAlert
-			}
-			if desc != "" {
-				h.state.Catalog[i].Spec.LongDesc = desc
-			}
-			if hsCode != "" {
-				h.state.Catalog[i].Spec.HSCode = hsCode
-			}
-			if barcode != "" {
-				h.state.Catalog[i].Spec.Barcode = barcode
-			}
-			if material != "" {
-				h.state.Catalog[i].Spec.Material = material
-			}
-			if dimensions != "" {
-				h.state.Catalog[i].Spec.Dimensions = dimensions
-			}
-			if weightKg > 0 {
-				h.state.Catalog[i].Spec.WeightKg = weightKg
-			}
-			if tagsRaw != "" {
-				parts := strings.Split(tagsRaw, ",")
-				var cleanTags []string
-				for _, p := range parts {
-					t := strings.TrimSpace(p)
-					if t != "" {
-						cleanTags = append(cleanTags, t)
-					}
-				}
-				if len(cleanTags) > 0 {
-					h.state.Catalog[i].Spec.SEOTags = cleanTags
-				}
-			}
-			break
-		}
-	}
-	h.state.mu.Unlock()
-
-	data := h.getViewData("catalog")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "catalog", data)
-}
-
-// CreateProduct adds a new SKU to the catalog
-func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
-	_ = r.ParseForm()
-	title := r.FormValue("title")
-	skuCode := r.FormValue("sku")
-	category := r.FormValue("category")
-	brand := r.FormValue("brand")
-	if brand == "" {
-		brand = "Mitrend"
-	}
-	desc := r.FormValue("description")
-	if desc == "" {
-		desc = title
-	}
-	hsCode := r.FormValue("hsCode")
-	if hsCode == "" {
-		hsCode = "3923.50"
-	}
-	barcode := r.FormValue("barcode")
-	if barcode == "" {
-		barcode = fmt.Sprintf("600988%05d", time.Now().Unix()%100000)
-	}
-	material := r.FormValue("material")
-	if material == "" {
-		material = "Commercial Grade Material"
-	}
-	dimensions := r.FormValue("dimensions")
-	if dimensions == "" {
-		dimensions = "Standard Commercial Unit"
-	}
-	tagsRaw := r.FormValue("tags")
-	var tags []string
-	if tagsRaw != "" {
-		parts := strings.Split(tagsRaw, ",")
-		for _, p := range parts {
-			t := strings.TrimSpace(p)
-			if t != "" {
-				tags = append(tags, t)
-			}
-		}
-	} else {
-		tags = []string{category, "South Africa wholesale"}
-	}
-
-	wholesaleZar, _ := strconv.ParseFloat(r.FormValue("wholesaleZar"), 64)
-	retailZar, _ := strconv.ParseFloat(r.FormValue("retailZar"), 64)
-	stockQty, _ := strconv.Atoi(r.FormValue("stockQuantity"))
-	lowStockAlert, _ := strconv.Atoi(r.FormValue("lowStockAlert"))
-	weightKg, _ := strconv.ParseFloat(r.FormValue("weightKg"), 64)
-	if weightKg == 0 {
-		weightKg = 0.45
-	}
-
-	newSKU := models.CatalogSKU{
-		ID:            fmt.Sprintf("mit_%d", time.Now().UnixNano()%100000),
-		StoreID:       "loc_mitrend_midrand",
-		SKU:           skuCode,
-		Title:         title,
-		Brand:         brand,
-		Category:      category,
-		WholesaleZar:  wholesaleZar,
-		RetailZar:     retailZar,
-		InStock:       stockQty > 0,
-		StockQuantity: stockQty,
-		LowStockAlert: lowStockAlert,
-		FeedStatus:    "Active",
-		Spec: models.ProductDetailSpec{
-			WeightKg:       weightKg,
-			Dimensions:     dimensions,
-			HSCode:         hsCode,
-			Barcode:        barcode,
-			SABSApproved:   true,
-			Material:       material,
-			LongDesc:       desc,
-			SEOScore:       90,
-			SEOTags:        tags,
-			DirectStore:    true,
-			WhatsAppSync:   true,
-			ShoppagePublic: true,
-			Activities: []models.ProductActivity{
-				{Description: "Product SKU created & published to catalog", TimeAgo: "Just now"},
-			},
-		},
-	}
-
-	h.state.mu.Lock()
-	h.state.Catalog = append([]models.CatalogSKU{newSKU}, h.state.Catalog...)
-	h.state.mu.Unlock()
-
-	data := h.getViewData("catalog")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "catalog", data)
-}
-
-// ToggleStock handles 1-tap in/out of stock mutation
-func (h *Handler) ToggleStock(w http.ResponseWriter, r *http.Request) {
-	skuID := chi.URLParam(r, "id")
-
-	h.state.mu.Lock()
-	var updated models.CatalogSKU
-	found := false
-	for i := range h.state.Catalog {
-		if h.state.Catalog[i].ID == skuID {
-			h.state.Catalog[i].InStock = !h.state.Catalog[i].InStock
-			if h.state.Catalog[i].InStock && h.state.Catalog[i].StockQuantity == 0 {
-				h.state.Catalog[i].StockQuantity = 50
-			}
-			updated = h.state.Catalog[i]
-			found = true
-			break
-		}
-	}
-	h.state.mu.Unlock()
-
-	if !found {
-		http.Error(w, "SKU not found", http.StatusNotFound)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderStockButton(w, updated)
-}
-
-// UpdatePrice handles inline price change
-func (h *Handler) UpdatePrice(w http.ResponseWriter, r *http.Request) {
-	skuID := chi.URLParam(r, "id")
-	priceStr := r.FormValue("price")
-	newPrice, err := strconv.ParseFloat(priceStr, 64)
-	if err != nil || newPrice < 0 {
-		http.Error(w, "Invalid price", http.StatusBadRequest)
-		return
-	}
-
-	h.state.mu.Lock()
-	for i := range h.state.Catalog {
-		if h.state.Catalog[i].ID == skuID {
-			h.state.Catalog[i].WholesaleZar = newPrice
-			break
-		}
-	}
-	h.state.mu.Unlock()
-
-	w.WriteHeader(http.StatusOK)
-}
-
-// AdjustInventory updates stock levels from warehouse intake
-func (h *Handler) AdjustInventory(w http.ResponseWriter, r *http.Request) {
-	skuID := chi.URLParam(r, "id")
-	adjStr := r.FormValue("adjustment")
-	adj, _ := strconv.Atoi(adjStr)
-
-	h.state.mu.Lock()
-	for i := range h.state.Catalog {
-		if h.state.Catalog[i].ID == skuID {
-			h.state.Catalog[i].StockQuantity += adj
-			if h.state.Catalog[i].StockQuantity < 0 {
-				h.state.Catalog[i].StockQuantity = 0
-			}
-			h.state.Catalog[i].InStock = h.state.Catalog[i].StockQuantity > 0
-			break
-		}
-	}
-	h.state.mu.Unlock()
-
-	data := h.getViewData("inventory")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "inventory", data)
 }
 
 // ServeInvoiceModal renders the South African tax proforma invoice modal
@@ -1566,168 +1264,6 @@ func (h *Handler) ServeInvoiceModal(w http.ResponseWriter, r *http.Request) {
 	_ = templates.RenderProformaInvoice(w, store, target)
 }
 
-// AdvanceOrderStatus advances an order through the fulfillment pipeline
-func (h *Handler) AdvanceOrderStatus(w http.ResponseWriter, r *http.Request) {
-	orderID := chi.URLParam(r, "id")
-
-	h.state.mu.Lock()
-	for i := range h.state.Orders {
-		if h.state.Orders[i].ID == orderID {
-			switch h.state.Orders[i].Status {
-			case "issued":
-				h.state.Orders[i].Status = "confirmed"
-			case "confirmed":
-				h.state.Orders[i].Status = "paid"
-				h.state.Store.GrossRevenueZar += h.state.Orders[i].GrandTotal
-			case "paid":
-				h.state.Orders[i].Status = "dispatched"
-			}
-			break
-		}
-	}
-	h.state.mu.Unlock()
-
-	data := h.getViewData("orders")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "orders", data)
-}
-
-// CreateOrder generates a new B2B proforma invoice
-func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
-	_ = r.ParseForm()
-	company := r.FormValue("company")
-	customer := r.FormValue("customer")
-	phone := r.FormValue("phone")
-	address := r.FormValue("address")
-	skuID := r.FormValue("skuId")
-	qty, _ := strconv.Atoi(r.FormValue("quantity"))
-	if qty <= 0 {
-		qty = 100
-	}
-
-	h.state.mu.Lock()
-	var selectedItem models.CatalogSKU
-	found := false
-	for _, it := range h.state.Catalog {
-		if it.ID == skuID {
-			selectedItem = it
-			found = true
-			break
-		}
-	}
-	if !found && len(h.state.Catalog) > 0 {
-		selectedItem = h.state.Catalog[0]
-	}
-
-	unitPrice := selectedItem.WholesaleZar
-	subtotal := unitPrice * float64(qty)
-	vat := subtotal * 0.15
-	grandTotal := subtotal + vat
-
-	newNum := fmt.Sprintf("#ORD-%d", 9825+len(h.state.Orders))
-
-	newOrder := models.ProformaOrder{
-		ID:            fmt.Sprintf("ord_%d", time.Now().UnixNano()%10000),
-		OrderNumber:   newNum,
-		Customer:      customer,
-		Company:       company,
-		Phone:         phone,
-		Email:         "buyer@company.co.za",
-		Address:       address,
-		VatNumber:     "4910283000",
-		SubtotalZar:   subtotal,
-		VatZar:        vat,
-		GrandTotal:    grandTotal,
-		PaymentMethod: "Bank EFT",
-		BankingRef:    newNum[1:],
-		Status:        "issued",
-		Date:          time.Now().UTC(),
-		DueDate:       time.Now().UTC().Add(48 * time.Hour),
-		LineItems: []models.ProformaLineItem{
-			{
-				SKU:          selectedItem.SKU,
-				Title:        selectedItem.Title,
-				Quantity:     qty,
-				UnitPriceZar: unitPrice,
-				TotalZar:     subtotal,
-			},
-		},
-	}
-
-	h.state.Orders = append([]models.ProformaOrder{newOrder}, h.state.Orders...)
-	h.state.mu.Unlock()
-
-	data := h.getViewData("orders")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "orders", data)
-}
-
-// ConvertRFQ converts an incoming buyer RFQ into a formal Proforma Order
-func (h *Handler) ConvertRFQ(w http.ResponseWriter, r *http.Request) {
-	rfqID := chi.URLParam(r, "id")
-
-	h.state.mu.Lock()
-	var targetLead models.RFQLead
-	found := false
-	for _, ld := range h.state.Leads {
-		if ld.ID == rfqID {
-			targetLead = ld
-			found = true
-			break
-		}
-	}
-
-	if found {
-		subtotal := targetLead.EstimatedTotal
-		vat := subtotal * 0.15
-		grandTotal := subtotal + vat
-		newNum := fmt.Sprintf("#ORD-%d", 9830+len(h.state.Orders))
-
-		newOrder := models.ProformaOrder{
-			ID:            fmt.Sprintf("ord_%d", time.Now().UnixNano()%10000),
-			OrderNumber:   newNum,
-			Customer:      targetLead.BuyerName,
-			Company:       targetLead.BuyerCompany,
-			Phone:         targetLead.BuyerPhone,
-			Email:         "procurement@buyer.co.za",
-			Address:       fmt.Sprintf("%s, South Africa", targetLead.BuyerCity),
-			VatNumber:     "4920192800",
-			SubtotalZar:   subtotal,
-			VatZar:        vat,
-			GrandTotal:    grandTotal,
-			PaymentMethod: "Bank EFT",
-			BankingRef:    newNum[1:],
-			Status:        "issued",
-			Date:          time.Now().UTC(),
-			DueDate:       time.Now().UTC().Add(48 * time.Hour),
-			LineItems: []models.ProformaLineItem{
-				{
-					SKU:          "MIT-COMMERCIAL",
-					Title:        targetLead.ItemRequested,
-					Quantity:     targetLead.Quantity,
-					UnitPriceZar: subtotal / float64(targetLead.Quantity),
-					TotalZar:     subtotal,
-				},
-			},
-		}
-
-		h.state.Orders = append([]models.ProformaOrder{newOrder}, h.state.Orders...)
-
-		// Mark lead as accepted
-		for i := range h.state.Leads {
-			if h.state.Leads[i].ID == rfqID {
-				h.state.Leads[i].Status = "accepted"
-				break
-			}
-		}
-	}
-	h.state.mu.Unlock()
-
-	data := h.getViewData("rfqs")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "rfqs", data)
-}
-
 // CreateCustomer adds a new trade account to the CRM
 func (h *Handler) CreateCustomer(w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
@@ -1741,30 +1277,32 @@ func (h *Handler) CreateCustomer(w http.ResponseWriter, r *http.Request) {
 	vatNumber := r.FormValue("vatNumber")
 	creditLimit, _ := strconv.ParseFloat(r.FormValue("creditLimit"), 64)
 
+	if strings.TrimSpace(company) == "" {
+		setToast(w, "Enter the customer's company or name.", "")
+		h.renderTab(w, r, "customers")
+		return
+	}
+	now := time.Now().UTC()
 	newCust := models.CustomerAccount{
-		ID:               fmt.Sprintf("cust_%d", time.Now().UnixNano()%10000),
-		Company:          company,
-		ContactName:      contact,
-		Phone:            phone,
-		Email:            email,
-		City:             city,
+		ID:               fmt.Sprintf("cust_%d", now.UnixNano()),
+		Company:          strings.TrimSpace(company),
+		ContactName:      strings.TrimSpace(contact),
+		Phone:            strings.TrimSpace(phone),
+		Email:            strings.TrimSpace(email),
+		City:             strings.TrimSpace(city),
 		Tier:             tier,
-		TotalSpendZar:    0.00,
 		CreditLimit:      creditLimit,
-		BalanceZar:       0.00,
-		CIPCRegistration: cipc,
-		VATNumber:        vatNumber,
-		LastOrderDate:    time.Now().UTC(),
-		OrderCount:       0,
+		CIPCRegistration: strings.TrimSpace(cipc),
+		VATNumber:        strings.TrimSpace(vatNumber),
 	}
 
 	h.state.mu.Lock()
 	h.state.Customers = append([]models.CustomerAccount{newCust}, h.state.Customers...)
+	h.state.audit(h.actor(r), "Customer added", "CustomerAccount", newCust.ID, newCust.Company, now)
 	h.state.mu.Unlock()
 
-	data := h.getViewData("customers")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "customers", data)
+	setToast(w, newCust.Company+" added.", "")
+	h.renderTab(w, r, "customers")
 }
 
 // ToggleCoupon pauses or activates a coupon
@@ -1811,425 +1349,6 @@ func (h *Handler) CreateCoupon(w http.ResponseWriter, r *http.Request) {
 	_ = templates.RenderTabPartial(w, "discounts", data)
 }
 
-// AskCopilot simulates an interactive AI conversation
-func (h *Handler) AskCopilot(w http.ResponseWriter, r *http.Request) {
-	prompt := r.FormValue("prompt")
-	if prompt == "" {
-		prompt = "Optimize my pricing strategy"
-	}
-
-	userMsg := models.CopilotMessage{
-		ID:        fmt.Sprintf("msg_%d", time.Now().UnixNano()%10000),
-		Role:      "user",
-		Content:   prompt,
-		Timestamp: time.Now().UTC(),
-	}
-
-	aiResponse := fmt.Sprintf("Based on your sales volume in Gauteng and South African hospitality demand, here is my suggestion for '%s': Mitrend's wooden male hanger (MIT-3361) at R22.88 wholesale maintains a 24.5%% margin over landed costs. Protea Hotel and Marriott buyers order in 200-unit batches. I recommend setting up a 15%% tier discount for orders of 200+ units, which will lock in recurring quarterly reorders.", prompt)
-
-	aiMsg := models.CopilotMessage{
-		ID:          fmt.Sprintf("msg_%d", time.Now().UnixNano()%10000+1),
-		Role:        "assistant",
-		Content:     aiResponse,
-		ActionLabel: "Apply 15% Volume Discount",
-		Timestamp:   time.Now().UTC(),
-	}
-
-	h.state.mu.Lock()
-	h.state.CopilotMessages = append(h.state.CopilotMessages, userMsg, aiMsg)
-	h.state.mu.Unlock()
-
-	data := h.getViewData("copilot")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "copilot", data)
-}
-
-// SaveSettings updates the merchant profile
-func (h *Handler) SaveSettings(w http.ResponseWriter, r *http.Request) {
-	_ = r.ParseForm()
-	h.state.mu.Lock()
-	if v := r.FormValue("name"); v != "" {
-		h.state.Store.Name = v
-	}
-	if v := r.FormValue("legalName"); v != "" {
-		h.state.Store.LegalName = v
-	}
-	if v := r.FormValue("cipc"); v != "" {
-		h.state.Store.CIPCRegistration = v
-	}
-	if v := r.FormValue("vat"); v != "" {
-		h.state.Store.VATNumber = v
-	}
-	if v := r.FormValue("address"); v != "" {
-		h.state.Store.Address = v
-	}
-	if v := r.FormValue("phone"); v != "" {
-		h.state.Store.Phone = v
-	}
-	if v := r.FormValue("email"); v != "" {
-		h.state.Store.Email = v
-	}
-	h.state.mu.Unlock()
-
-	data := h.getViewData("settings")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "settings", data)
-}
-
-// SaveBanking updates banking rails
-func (h *Handler) SaveBanking(w http.ResponseWriter, r *http.Request) {
-	_ = r.ParseForm()
-	h.state.mu.Lock()
-	if v := r.FormValue("bankName"); v != "" {
-		h.state.Store.BankName = v
-	}
-	if v := r.FormValue("bankAccount"); v != "" {
-		h.state.Store.BankAccount = v
-	}
-	if v := r.FormValue("bankBranchCode"); v != "" {
-		h.state.Store.BankBranchCode = v
-	}
-	h.state.mu.Unlock()
-
-	data := h.getViewData("settings")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "settings", data)
-}
-
-// ServeGMCFeed streams fully compliant Google Merchant Center XML feed
-func (h *Handler) ServeGMCFeed(w http.ResponseWriter, r *http.Request) {
-	h.state.mu.RLock()
-	store := h.state.Store
-	catalog := h.state.Catalog
-	h.state.mu.RUnlock()
-
-	w.Header().Set("Content-Type", "application/xml; charset=utf-8")
-
-	fmt.Fprintf(w, `<?xml version="1.0" encoding="UTF-8"?>`+"\n")
-	fmt.Fprintf(w, `<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">`+"\n")
-	fmt.Fprintf(w, `  <channel>`+"\n")
-	fmt.Fprintf(w, `    <title>%s — Google Merchant Center Feed</title>`+"\n", store.Name)
-	fmt.Fprintf(w, `    <link>%s</link>`+"\n", store.Website)
-	fmt.Fprintf(w, `    <description>Shoppage Google Merchant Center Syndication &amp; Free Product Listings</description>`+"\n")
-
-	for i, item := range catalog {
-		avail := "in stock"
-		if !item.InStock {
-			avail = "out of stock"
-		}
-		gtin := item.Spec.Barcode
-		if gtin == "" {
-			gtin = fmt.Sprintf("60098824%04d", (i+1)*13%10000)
-		}
-		desc := item.Spec.LongDesc
-		if desc == "" {
-			desc = fmt.Sprintf("Wholesale commercial supply: %s by %s. SABS compliant direct factory supply.", item.Title, item.Brand)
-		}
-		baseURL := strings.TrimRight(h.cfg.PublicBaseURL, "/")
-		imgURL := fmt.Sprintf("%s/static/catalog/%s.jpg", baseURL, item.ID)
-		linkURL := fmt.Sprintf("%s/p/%s", baseURL, item.ID)
-
-		category := "Business & Industrial > Hospitality Supplies"
-		if strings.Contains(strings.ToLower(item.Category), "hardware") || strings.Contains(strings.ToLower(item.Title), "ring") {
-			category = "Hardware > Fasteners & Accessories"
-		} else if strings.Contains(strings.ToLower(item.Category), "packaging") || strings.Contains(strings.ToLower(item.Title), "container") {
-			category = "Business & Industrial > Food Service > Take-Out Containers"
-		}
-
-		fmt.Fprintf(w, `    <item>`+"\n")
-		fmt.Fprintf(w, `      <g:id>%s</g:id>`+"\n", item.ID)
-		fmt.Fprintf(w, `      <g:title><![CDATA[%s]]></g:title>`+"\n", item.Title)
-		fmt.Fprintf(w, `      <g:description><![CDATA[%s]]></g:description>`+"\n", desc)
-		fmt.Fprintf(w, `      <g:link>%s</g:link>`+"\n", linkURL)
-		fmt.Fprintf(w, `      <g:image_link>%s</g:image_link>`+"\n", imgURL)
-		fmt.Fprintf(w, `      <g:price>%.2f ZAR</g:price>`+"\n", item.WholesaleZar)
-		fmt.Fprintf(w, `      <g:availability>%s</g:availability>`+"\n", avail)
-		fmt.Fprintf(w, `      <g:condition>new</g:condition>`+"\n")
-		fmt.Fprintf(w, `      <g:brand>%s</g:brand>`+"\n", item.Brand)
-		fmt.Fprintf(w, `      <g:gtin>%s</g:gtin>`+"\n", gtin)
-		fmt.Fprintf(w, `      <g:mpn>%s</g:mpn>`+"\n", item.SKU)
-		fmt.Fprintf(w, `      <g:google_product_category><![CDATA[%s]]></g:google_product_category>`+"\n", category)
-		fmt.Fprintf(w, `      <g:shipping>`+"\n")
-		fmt.Fprintf(w, `        <g:country>ZA</g:country>`+"\n")
-		fmt.Fprintf(w, `        <g:service>The Courier Guy Express</g:service>`+"\n")
-		fmt.Fprintf(w, `        <g:price>85.00 ZAR</g:price>`+"\n")
-		fmt.Fprintf(w, `      </g:shipping>`+"\n")
-		fmt.Fprintf(w, `      <g:shipping>`+"\n")
-		fmt.Fprintf(w, `        <g:country>ZA</g:country>`+"\n")
-		fmt.Fprintf(w, `        <g:service>Pudo Locker-to-Locker</g:service>`+"\n")
-		fmt.Fprintf(w, `        <g:price>60.00 ZAR</g:price>`+"\n")
-		fmt.Fprintf(w, `      </g:shipping>`+"\n")
-		fmt.Fprintf(w, `    </item>`+"\n")
-	}
-
-	fmt.Fprintf(w, `  </channel>`+"\n")
-	fmt.Fprintf(w, `</rss>`+"\n")
-}
-
-// UpdateRMAStatus handles status transitions for Amazon-style RMA return authorization
-func (h *Handler) UpdateRMAStatus(w http.ResponseWriter, r *http.Request) {
-	_ = r.ParseForm()
-	rmaID := r.FormValue("rmaId")
-	newStatus := r.FormValue("status")
-	if newStatus == "" {
-		newStatus = r.FormValue("newStatus")
-	}
-
-	h.state.mu.Lock()
-	var updated models.ReturnRequest
-	found := false
-	for i := range h.state.ReturnRequests {
-		if h.state.ReturnRequests[i].ID == rmaID || h.state.ReturnRequests[i].RMANumber == rmaID {
-			h.state.ReturnRequests[i].Status = newStatus
-			updated = h.state.ReturnRequests[i]
-			found = true
-			break
-		}
-	}
-
-	if found {
-		h.state.AuditLogs = append([]models.AuditLogEntry{
-			{
-				ID:        fmt.Sprintf("log_%d", time.Now().UnixNano()%100000),
-				Timestamp: time.Now().UTC(),
-				Actor:     "Merchant Admin (Midrand)",
-				Action:    "RMA Status Updated",
-				Entity:    "ReturnRequest",
-				EntityID:  updated.RMANumber,
-				Details:   fmt.Sprintf("RMA %s for %s updated to status '%s' (Waybill: %s, Refund: R%.2f)", updated.RMANumber, updated.CustomerName, newStatus, updated.WaybillNo, updated.RefundAmount),
-			},
-		}, h.state.AuditLogs...)
-	}
-	h.state.mu.Unlock()
-
-	data := h.getViewData("orders")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "orders", data)
-}
-
-// CreateRMARequest creates a new return merchandise authorization
-func (h *Handler) CreateRMARequest(w http.ResponseWriter, r *http.Request) {
-	_ = r.ParseForm()
-	orderNumber := r.FormValue("orderNumber")
-	customer := r.FormValue("customer")
-	if customer == "" {
-		customer = r.FormValue("customerName")
-	}
-	sku := r.FormValue("sku")
-	itemTitle := r.FormValue("itemTitle")
-	if itemTitle == "" {
-		for _, cat := range h.state.Catalog {
-			if cat.SKU == sku || cat.ID == sku {
-				itemTitle = cat.Title
-				break
-			}
-		}
-		if itemTitle == "" {
-			itemTitle = sku
-		}
-	}
-	reason := r.FormValue("reason")
-	qty, _ := strconv.Atoi(r.FormValue("quantity"))
-	refundAmount, _ := strconv.ParseFloat(r.FormValue("refundAmount"), 64)
-	if qty <= 0 {
-		qty = 1
-	}
-
-	now := time.Now().UTC()
-	rmaNumber := fmt.Sprintf("RMA-%d-%04d", now.Year(), (now.UnixNano()/1000)%10000)
-	waybillNo := fmt.Sprintf("TCG-RET-%06d", (now.UnixNano()/100)%1000000)
-
-	newRMA := models.ReturnRequest{
-		ID:           fmt.Sprintf("rma_%d", now.UnixNano()%100000),
-		RMANumber:    rmaNumber,
-		OrderNumber:  orderNumber,
-		CustomerName: customer,
-		ItemTitle:    itemTitle,
-		SKU:          sku,
-		Quantity:     qty,
-		Reason:       reason,
-		Status:       "Authorized",
-		WaybillNo:    waybillNo,
-		RefundAmount: refundAmount,
-		CreatedAt:    now,
-	}
-
-	h.state.mu.Lock()
-	h.state.ReturnRequests = append([]models.ReturnRequest{newRMA}, h.state.ReturnRequests...)
-	h.state.AuditLogs = append([]models.AuditLogEntry{
-		{
-			ID:        fmt.Sprintf("log_%d", now.UnixNano()%100000),
-			Timestamp: now,
-			Actor:     "Merchant Admin (Midrand)",
-			Action:    "RMA Created",
-			Entity:    "ReturnRequest",
-			EntityID:  rmaNumber,
-			Details:   fmt.Sprintf("Created return authorization %s for %s (%d units of %s). Assigned reverse waybill %s.", rmaNumber, customer, qty, sku, waybillNo),
-		},
-	}, h.state.AuditLogs...)
-	h.state.mu.Unlock()
-
-	data := h.getViewData("orders")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "orders", data)
-}
-
-// CreateTransfer registers a new inter-hub stock transfer
-func (h *Handler) CreateTransfer(w http.ResponseWriter, r *http.Request) {
-	_ = r.ParseForm()
-
-	sourceHub := r.FormValue("sourceHub")
-	destHub := r.FormValue("destHub")
-	skuID := r.FormValue("skuId")
-	carrier := r.FormValue("carrier")
-	quantity, _ := strconv.Atoi(r.FormValue("quantity"))
-	if quantity <= 0 {
-		quantity = 50
-	}
-	if carrier == "" {
-		carrier = "Road Freight Express"
-	}
-
-	h.state.mu.Lock()
-	itemTitle := "Commercial Item"
-	skuCode := "SKU"
-	var cost float64 = 22.88
-	for _, it := range h.state.Catalog {
-		if it.ID == skuID {
-			itemTitle = it.Title
-			skuCode = it.SKU
-			cost = it.WholesaleZar
-			break
-		}
-	}
-
-	newRef := fmt.Sprintf("TR-%d", 8800+len(h.state.Transfers)+1)
-	transfer := models.StockTransfer{
-		ID:           fmt.Sprintf("tr_%d", time.Now().UnixNano()%10000),
-		TransferRef:  newRef,
-		SourceHub:    sourceHub,
-		DestHub:      destHub,
-		SKU:          skuCode,
-		ItemTitle:    itemTitle,
-		Quantity:     quantity,
-		Status:       "In-Transit",
-		Carrier:      carrier,
-		DispatchedAt: time.Now().UTC(),
-		ExpectedAt:   time.Now().UTC().Add(36 * time.Hour),
-	}
-	h.state.Transfers = append([]models.StockTransfer{transfer}, h.state.Transfers...)
-
-	// Double-entry ILE tracking
-	ile := models.ItemLedgerEntry{
-		ID:           fmt.Sprintf("ile_%d", time.Now().UnixNano()%10000),
-		EntryNumber:  4022 + len(h.state.ItemLedger),
-		PostingDate:  time.Now().UTC(),
-		EntryType:    "Negative Adjmt.",
-		DocumentNo:   newRef,
-		SKU:          skuCode,
-		Description:  fmt.Sprintf("Transfer to %s (%s)", destHub, carrier),
-		Location:     "MIDRAND-01",
-		Quantity:     -quantity,
-		RemainingQty: 400,
-		CostAmount:   -float64(quantity) * cost,
-	}
-	h.state.ItemLedger = append([]models.ItemLedgerEntry{ile}, h.state.ItemLedger...)
-
-	// Audit trail
-	log := models.AuditLogEntry{
-		ID:        fmt.Sprintf("log_%d", time.Now().UnixNano()%10000),
-		Actor:     "Sipho Dlamini (Admin)",
-		Action:    "Inter-Hub Transfer Dispatched",
-		Entity:    "StockTransfer",
-		EntityID:  newRef,
-		Details:   fmt.Sprintf("%d units %s dispatched from %s to %s via %s", quantity, skuCode, sourceHub, destHub, carrier),
-		Timestamp: time.Now().UTC(),
-	}
-	h.state.AuditLogs = append([]models.AuditLogEntry{log}, h.state.AuditLogs...)
-	h.state.mu.Unlock()
-
-	data := h.getViewData("transfers")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "transfers", data)
-}
-
-// POSCheckout records a walk-in counter sale
-func (h *Handler) POSCheckout(w http.ResponseWriter, r *http.Request) {
-	_ = r.ParseForm()
-
-	customer := r.FormValue("customer")
-	if customer == "" {
-		customer = "Walk-in Cash Customer"
-	}
-	method := r.FormValue("paymentMethod")
-	if method == "" {
-		method = "Capitec Pay QR"
-	}
-
-	h.state.mu.Lock()
-	receiptNo := fmt.Sprintf("POS-2026-%04d", len(h.state.RecentPOSTxns)+43)
-	txn := models.POSTransaction{
-		ID:            fmt.Sprintf("pos_%d", time.Now().UnixNano()%10000),
-		ReceiptNumber: receiptNo,
-		Customer:      customer,
-		PaymentMethod: method,
-		Timestamp:     time.Now().UTC(),
-		Items: []models.POSItem{
-			{
-				SKU:      "MIT-3361",
-				Title:    "Commercial Anti-Theft Wooden Male Hanger 44cm",
-				PriceZar: 22.88,
-				Quantity: 20,
-				TotalZar: 457.60,
-			},
-		},
-		TotalZar: 526.24, // R457.60 + 15% VAT
-	}
-	h.state.RecentPOSTxns = append([]models.POSTransaction{txn}, h.state.RecentPOSTxns...)
-	h.state.Store.GrossRevenueZar += txn.TotalZar
-
-	// Deduct stock in catalog
-	for i := range h.state.Catalog {
-		if h.state.Catalog[i].SKU == "MIT-3361" && h.state.Catalog[i].StockQuantity >= 20 {
-			h.state.Catalog[i].StockQuantity -= 20
-			break
-		}
-	}
-
-	// Double-entry ILE entry
-	ile := models.ItemLedgerEntry{
-		ID:           fmt.Sprintf("ile_%d", time.Now().UnixNano()%10000),
-		EntryNumber:  4023 + len(h.state.ItemLedger),
-		PostingDate:  time.Now().UTC(),
-		EntryType:    "Sale Shipment",
-		DocumentNo:   receiptNo,
-		SKU:          "MIT-3361",
-		Description:  fmt.Sprintf("POS Trade Counter Sale (%s)", customer),
-		Location:     "MIDRAND-01",
-		Quantity:     -20,
-		RemainingQty: 430,
-		CostAmount:   -457.60,
-	}
-	h.state.ItemLedger = append([]models.ItemLedgerEntry{ile}, h.state.ItemLedger...)
-
-	// Audit trail
-	log := models.AuditLogEntry{
-		ID:        fmt.Sprintf("log_%d", time.Now().UnixNano()%10000),
-		Actor:     "Counter Cashier (Register #01)",
-		Action:    "POS Trade Sale Settled",
-		Entity:    "POSTransaction",
-		EntityID:  receiptNo,
-		Details:   fmt.Sprintf("Counter sale settled via %s for R%.2f", method, txn.TotalZar),
-		Timestamp: time.Now().UTC(),
-	}
-	h.state.AuditLogs = append([]models.AuditLogEntry{log}, h.state.AuditLogs...)
-	h.state.mu.Unlock()
-
-	data := h.getViewData("pos")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "pos", data)
-}
-
 // ToggleFlowRule toggles an event-driven automation rule
 func (h *Handler) ToggleFlowRule(w http.ResponseWriter, r *http.Request) {
 	ruleID := chi.URLParam(r, "id")
@@ -2248,132 +1367,6 @@ func (h *Handler) ToggleFlowRule(w http.ResponseWriter, r *http.Request) {
 	_ = templates.RenderTabPartial(w, "flow", data)
 }
 
-// GenerateManifest creates a new daily carrier handover manifest
-func (h *Handler) GenerateManifest(w http.ResponseWriter, r *http.Request) {
-	h.state.mu.Lock()
-	ref := fmt.Sprintf("MAN-2026-0920-%02d", len(h.state.Manifests)+1)
-	manifest := models.CarrierManifest{
-		ID:            fmt.Sprintf("man_%d", time.Now().UnixNano()%10000),
-		ManifestRef:   ref,
-		CarrierName:   "The Courier Guy Road Freight",
-		WaybillCount:  6,
-		TotalWeightKg: 85.0,
-		Status:        "Handed Over",
-		DriverName:    "Mandla Zulu",
-		VehicleReg:    "CA 449-102",
-		Date:          time.Now().UTC(),
-	}
-	h.state.Manifests = append([]models.CarrierManifest{manifest}, h.state.Manifests...)
-	h.state.mu.Unlock()
-
-	data := h.getViewData("manifests")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "manifests", data)
-}
-
-// ReceiveTransfer marks an in-transit transfer as received and updates inventory
-func (h *Handler) ReceiveTransfer(w http.ResponseWriter, r *http.Request) {
-	trID := chi.URLParam(r, "id")
-
-	h.state.mu.Lock()
-	for i := range h.state.Transfers {
-		if h.state.Transfers[i].ID == trID {
-			h.state.Transfers[i].Status = "Received"
-			tr := h.state.Transfers[i]
-
-			// Double-entry ILE receipt
-			ile := models.ItemLedgerEntry{
-				ID:           fmt.Sprintf("ile_%d", time.Now().UnixNano()%10000),
-				EntryNumber:  4024 + len(h.state.ItemLedger),
-				PostingDate:  time.Now().UTC(),
-				EntryType:    "Purchase Receipt",
-				DocumentNo:   tr.TransferRef,
-				SKU:          tr.SKU,
-				Description:  fmt.Sprintf("Inwarded at %s from %s", tr.DestHub, tr.SourceHub),
-				Location:     "CPT-DOCK",
-				Quantity:     tr.Quantity,
-				RemainingQty: 200,
-				CostAmount:   float64(tr.Quantity) * 22.88,
-			}
-			h.state.ItemLedger = append([]models.ItemLedgerEntry{ile}, h.state.ItemLedger...)
-
-			// Audit trail
-			log := models.AuditLogEntry{
-				ID:        fmt.Sprintf("log_%d", time.Now().UnixNano()%10000),
-				Actor:     "Depot Inward Clerk",
-				Action:    "Stock Transfer Inwarded",
-				Entity:    "StockTransfer",
-				EntityID:  tr.TransferRef,
-				Details:   fmt.Sprintf("%d units %s inwarded at %s", tr.Quantity, tr.SKU, tr.DestHub),
-				Timestamp: time.Now().UTC(),
-			}
-			h.state.AuditLogs = append([]models.AuditLogEntry{log}, h.state.AuditLogs...)
-			break
-		}
-	}
-	h.state.mu.Unlock()
-
-	data := h.getViewData("transfers")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "transfers", data)
-}
-
-// ReconcileScan records physical cycle count variances directly to the Item Ledger
-func (h *Handler) ReconcileScan(w http.ResponseWriter, r *http.Request) {
-	_ = r.ParseForm()
-	skuID := r.FormValue("skuId")
-	physQty, _ := strconv.Atoi(r.FormValue("physicalCount"))
-
-	h.state.mu.Lock()
-	for i := range h.state.Catalog {
-		if h.state.Catalog[i].ID == skuID {
-			oldQty := h.state.Catalog[i].StockQuantity
-			delta := physQty - oldQty
-			h.state.Catalog[i].StockQuantity = physQty
-			h.state.Catalog[i].InStock = physQty > 0
-
-			entryType := "Positive Adjmt."
-			if delta < 0 {
-				entryType = "Negative Adjmt."
-			}
-
-			// Double-entry ILE entry
-			ile := models.ItemLedgerEntry{
-				ID:           fmt.Sprintf("ile_%d", time.Now().UnixNano()%10000),
-				EntryNumber:  4025 + len(h.state.ItemLedger),
-				PostingDate:  time.Now().UTC(),
-				EntryType:    entryType,
-				DocumentNo:   fmt.Sprintf("CYCLE-%d", time.Now().UnixNano()%1000),
-				SKU:          h.state.Catalog[i].SKU,
-				Description:  fmt.Sprintf("Physical cycle count audit (variance: %+d units)", delta),
-				Location:     "MIDRAND-01",
-				Quantity:     delta,
-				RemainingQty: physQty,
-				CostAmount:   float64(delta) * h.state.Catalog[i].WholesaleZar,
-			}
-			h.state.ItemLedger = append([]models.ItemLedgerEntry{ile}, h.state.ItemLedger...)
-
-			// Audit trail
-			log := models.AuditLogEntry{
-				ID:        fmt.Sprintf("log_%d", time.Now().UnixNano()%10000),
-				Actor:     "Cycle Audit Specialist",
-				Action:    "Inventory Variance Reconciled",
-				Entity:    "CatalogSKU",
-				EntityID:  h.state.Catalog[i].SKU,
-				Details:   fmt.Sprintf("Adjusted stock from %d to %d units (%+d units)", oldQty, physQty, delta),
-				Timestamp: time.Now().UTC(),
-			}
-			h.state.AuditLogs = append([]models.AuditLogEntry{log}, h.state.AuditLogs...)
-			break
-		}
-	}
-	h.state.mu.Unlock()
-
-	data := h.getViewData("scan")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "scan", data)
-}
-
 // CreateFlowRule registers a new event-driven automation rule
 func (h *Handler) CreateFlowRule(w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
@@ -2388,20 +1381,18 @@ func (h *Handler) CreateFlowRule(w http.ResponseWriter, r *http.Request) {
 
 	h.state.mu.Lock()
 	newRule := models.FlowRule{
-		ID:              fmt.Sprintf("flow_%d", time.Now().UnixNano()%10000),
-		Name:            name,
-		Trigger:         trigger,
-		Condition:       condition,
-		Action:          action,
-		Active:          true,
-		ExecutionsCount: 0,
-		LastTriggeredAt: time.Now().UTC(),
+		ID:        fmt.Sprintf("flow_%d", time.Now().UnixNano()%10000),
+		Name:      name,
+		Trigger:   trigger,
+		Condition: condition,
+		Action:    action,
+		Active:    true,
 	}
 	h.state.FlowRules = append([]models.FlowRule{newRule}, h.state.FlowRules...)
 
 	log := models.AuditLogEntry{
 		ID:        fmt.Sprintf("log_%d", time.Now().UnixNano()%10000),
-		Actor:     "Sipho Dlamini (Admin)",
+		Actor:     h.actor(r),
 		Action:    "Flow Rule Created",
 		Entity:    "FlowRule",
 		EntityID:  newRule.ID,
@@ -2432,6 +1423,9 @@ func (h *Handler) CreateMediaAsset(w http.ResponseWriter, r *http.Request) {
 	if category == "" {
 		category = "Product Photography"
 	}
+	// Linking a file to a product records its SKU in the name, which is how
+	// listings find their photo (see hasProductPhoto).
+	linkSKU := strings.TrimSpace(r.FormValue("sku"))
 	now := time.Now().UTC()
 
 	var asset models.MediaAsset
@@ -2450,6 +1444,9 @@ func (h *Handler) CreateMediaAsset(w http.ResponseWriter, r *http.Request) {
 		}
 		if name == "" {
 			name = header.Filename
+		}
+		if linkSKU != "" && !strings.Contains(strings.ToUpper(name), strings.ToUpper(linkSKU)) {
+			name = linkSKU + " " + name
 		}
 		assetID := fmt.Sprintf("med_%d", now.UnixNano()%100000000)
 		relDir := filepath.Join("media", h.state.Store.ID)
@@ -2560,99 +1557,21 @@ func allowedMediaFile(filename string) (ext, mime string, ok bool) {
 	return "", "", false
 }
 
-// SaveEditorSettings saves theme and announcement ribbon settings
+// SaveEditorSettings saves the public store page content and search snippet.
 func (h *Handler) SaveEditorSettings(w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
-
+	now := time.Now().UTC()
+	str := func(k string) string { return strings.TrimSpace(r.FormValue(k)) }
 	h.state.mu.Lock()
-	log := models.AuditLogEntry{
-		ID:        fmt.Sprintf("log_%d", time.Now().UnixNano()%10000),
-		Actor:     "Store Manager",
-		Action:    "Theme Studio Updated",
-		Entity:    "StorefrontSettings",
-		EntityID:  h.state.Store.ID,
-		Details:   "Updated announcement ribbon and brand styling parameters",
-		Timestamp: time.Now().UTC(),
-	}
-	h.state.AuditLogs = append([]models.AuditLogEntry{log}, h.state.AuditLogs...)
+	sf := &h.state.Store.Storefront
+	sf.Headline, sf.About, sf.Ribbon = str("heroHeadline"), str("about"), str("ribbonText")
+	sf.RibbonOn = r.FormValue("ribbonActive") != ""
+	sf.WhatsAppButton = r.FormValue("whatsappFloat") != ""
+	sf.SEOTitle, sf.SEODescription, sf.TradingHours = str("seoTitle"), str("seoDescription"), str("tradingHours")
+	h.state.audit(h.actor(r), "Store page updated", "StorefrontSettings", h.state.Store.ID, "Headline, description and search snippet saved", now)
 	h.state.mu.Unlock()
-
-	data := h.getViewData("editor")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "editor", data)
-}
-
-// AdjustInventoryIntake handles structured stock intake with reason codes, bin assignment and ILE logging
-func (h *Handler) AdjustInventoryIntake(w http.ResponseWriter, r *http.Request) {
-	_ = r.ParseForm()
-	skuID := r.FormValue("skuId")
-	hubName := r.FormValue("hubName")
-	reason := r.FormValue("reason")
-	bin := r.FormValue("bin")
-	qty, _ := strconv.Atoi(r.FormValue("quantity"))
-	batchRef := r.FormValue("batchRef")
-	if batchRef == "" {
-		batchRef = fmt.Sprintf("PO-IN-%d", time.Now().UnixNano()%10000)
-	}
-
-	h.state.mu.Lock()
-	var targetSKU models.CatalogSKU
-	for i := range h.state.Catalog {
-		if h.state.Catalog[i].ID == skuID || h.state.Catalog[i].SKU == skuID {
-			h.state.Catalog[i].StockQuantity += qty
-			if h.state.Catalog[i].StockQuantity < 0 {
-				h.state.Catalog[i].StockQuantity = 0
-			}
-			h.state.Catalog[i].InStock = h.state.Catalog[i].StockQuantity > 0
-			targetSKU = h.state.Catalog[i]
-			break
-		}
-	}
-
-	entryType := "Purchase Receipt"
-	if qty < 0 {
-		entryType = "Negative Adjmt."
-	} else if reason == "Sales Return" {
-		entryType = "Positive Adjmt."
-	}
-
-	loc := "MIDRAND-01"
-	if hubName != "" {
-		loc = hubName
-	}
-
-	// Double-entry ILE entry
-	ile := models.ItemLedgerEntry{
-		ID:           fmt.Sprintf("ile_%d", time.Now().UnixNano()%10000),
-		EntryNumber:  4026 + len(h.state.ItemLedger),
-		PostingDate:  time.Now().UTC(),
-		EntryType:    entryType,
-		DocumentNo:   batchRef,
-		SKU:          targetSKU.SKU,
-		Description:  fmt.Sprintf("%s (%s, Bin: %s)", reason, batchRef, bin),
-		Location:     loc,
-		Quantity:     qty,
-		RemainingQty: targetSKU.StockQuantity,
-		CostAmount:   float64(qty) * targetSKU.WholesaleZar,
-	}
-	h.state.ItemLedger = append([]models.ItemLedgerEntry{ile}, h.state.ItemLedger...)
-
-	// Audit trail log
-	log := models.AuditLogEntry{
-		ID:        fmt.Sprintf("log_%d", time.Now().UnixNano()%10000),
-		Actor:     "Receiving Supervisor",
-		Action:    "Stock Intake / Movement Posted",
-		Entity:    "CatalogSKU",
-		EntityID:  targetSKU.SKU,
-		Details:   fmt.Sprintf("%+d units (%s at %s, Bin %s, Ref: %s)", qty, reason, loc, bin, batchRef),
-		Timestamp: time.Now().UTC(),
-	}
-	h.state.AuditLogs = append([]models.AuditLogEntry{log}, h.state.AuditLogs...)
-	h.state.mu.Unlock()
-
-	data := h.getViewData("inventory")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "inventory", data)
+	setToast(w, "Store page saved.", "")
+	h.renderTab(w, r, "editor")
 }
 
 // ExportInventoryCSV streams a live CSV audit report of catalog stock
@@ -2793,7 +1712,7 @@ func (h *Handler) CreateWholesaleTier(w http.ResponseWriter, r *http.Request) {
 
 	log := models.AuditLogEntry{
 		ID:        fmt.Sprintf("log_%d", time.Now().UnixNano()%10000),
-		Actor:     "Commercial Pricing Manager",
+		Actor:     h.actor(r),
 		Action:    "Wholesale Tier Added",
 		Entity:    "WholesaleTier",
 		EntityID:  newTier.ID,
@@ -2806,182 +1725,6 @@ func (h *Handler) CreateWholesaleTier(w http.ResponseWriter, r *http.Request) {
 	data := h.getViewData("discounts")
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	_ = templates.RenderTabPartial(w, "discounts", data)
-}
-
-// SyncChannels triggers active syndication across all commerce endpoints
-func (h *Handler) SyncChannels(w http.ResponseWriter, r *http.Request) {
-	h.state.mu.Lock()
-	now := time.Now().UTC()
-	for i := range h.state.Channels {
-		h.state.Channels[i].LastSyncAt = now
-		h.state.Channels[i].Status = "Active"
-	}
-
-	log := models.AuditLogEntry{
-		ID:        fmt.Sprintf("log_%d", time.Now().UnixNano()%10000),
-		Actor:     "Channel Dispatcher Service",
-		Action:    "Omnichannel Force Sync",
-		Entity:    "ChannelSync",
-		EntityID:  "ALL_CHANNELS",
-		Details:   "Catalog pushed to GMC RSS Feed, Shoppage Discovery Grid, WhatsApp Catalog, and Takealot B2B",
-		Timestamp: now,
-	}
-	h.state.AuditLogs = append([]models.AuditLogEntry{log}, h.state.AuditLogs...)
-	h.state.mu.Unlock()
-
-	data := h.getViewData("channels")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "channels", data)
-}
-
-// SaveChannelSettings persists automated channel preferences
-func (h *Handler) SaveChannelSettings(w http.ResponseWriter, r *http.Request) {
-	_ = r.ParseForm()
-
-	h.state.mu.Lock()
-	log := models.AuditLogEntry{
-		ID:        fmt.Sprintf("log_%d", time.Now().UnixNano()%10000),
-		Actor:     "Store Administrator",
-		Action:    "Channel Automation Settings Saved",
-		Entity:    "ChannelPreferences",
-		EntityID:  "WHATSAPP_CONFIG",
-		Details:   "Updated auto-quote replies, proforma PDF dispatch, and courier tracking alerts",
-		Timestamp: time.Now().UTC(),
-	}
-	h.state.AuditLogs = append([]models.AuditLogEntry{log}, h.state.AuditLogs...)
-	h.state.mu.Unlock()
-
-	data := h.getViewData("channels")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "channels", data)
-}
-
-// ValidateFeeds audits catalog SKUs against Google Merchant Center & Meta Commerce specs
-func (h *Handler) ValidateFeeds(w http.ResponseWriter, r *http.Request) {
-	h.state.mu.Lock()
-	for i := range h.state.Catalog {
-		h.state.Catalog[i].FeedStatus = "Active"
-	}
-
-	log := models.AuditLogEntry{
-		ID:        fmt.Sprintf("log_%d", time.Now().UnixNano()%10000),
-		Actor:     "Feed Compliance Inspector",
-		Action:    "GMC & Meta Catalog Audit Passed",
-		Entity:    "FeedValidator",
-		EntityID:  "GMC-ZA-VALIDATE",
-		Details:   fmt.Sprintf("Validated %d SKUs: 100%% compliant with EAN-13, ZAR 15%% VAT, and SABS certificates", len(h.state.Catalog)),
-		Timestamp: time.Now().UTC(),
-	}
-	h.state.AuditLogs = append([]models.AuditLogEntry{log}, h.state.AuditLogs...)
-	h.state.mu.Unlock()
-
-	data := h.getViewData("feeds")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "feeds", data)
-}
-
-// ServeMetaCatalogCSV serves standard Meta / Facebook Commerce CSV catalog
-func (h *Handler) ServeMetaCatalogCSV(w http.ResponseWriter, r *http.Request) {
-	h.state.mu.RLock()
-	defer h.state.mu.RUnlock()
-
-	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
-	w.Header().Set("Content-Disposition", "attachment; filename=\"meta-catalog.csv\"")
-
-	writer := csv.NewWriter(w)
-	_ = writer.Write([]string{"id", "title", "description", "availability", "condition", "price", "link", "image_link", "brand", "google_product_category"})
-	for _, item := range h.state.Catalog {
-		avail := "in stock"
-		if !item.InStock {
-			avail = "out of stock"
-		}
-		_ = writer.Write([]string{
-			item.SKU,
-			item.Title,
-			item.Spec.LongDesc,
-			avail,
-			"new",
-			fmt.Sprintf("%.2f ZAR", item.WholesaleZar),
-			fmt.Sprintf("https://shoppage.co.za/p/%s", item.ID),
-			"https://images.shoppage.co.za/cdn/prod-hero.webp",
-			item.Brand,
-			item.Category,
-		})
-	}
-	writer.Flush()
-}
-
-// ExecuteCopilotAction executes real action instructions generated by Pemofy Copilot
-func (h *Handler) ExecuteCopilotAction(w http.ResponseWriter, r *http.Request) {
-	_ = r.ParseForm()
-	actionType := r.FormValue("action")
-
-	h.state.mu.Lock()
-	now := time.Now().UTC()
-	var confirmationContent string
-
-	switch actionType {
-	case "restock":
-		confirmationContent = "Generated automated Purchase Order PO-2026-9921 for 500 units of 101mm Silicone Clip-On Lids routed to Linbro Park Hub."
-	case "discount":
-		confirmationContent = "Applied active 15% Hospitality Trade Discount coupon 'HOSPITALITY15' across all hotel category line items."
-	case "reminder":
-		confirmationContent = "Dispatched WhatsApp Proforma reminder with Standard Bank EFT remittance details to Protea Hotel Balalaika Sandton."
-	default:
-		confirmationContent = fmt.Sprintf("Action '%s' executed successfully and logged to sovereign audit ledger.", actionType)
-	}
-
-	reply := models.CopilotMessage{
-		ID:        fmt.Sprintf("cop_%d", now.UnixNano()%10000),
-		Role:      "assistant",
-		Content:   confirmationContent,
-		Timestamp: now,
-	}
-	h.state.CopilotMessages = append(h.state.CopilotMessages, reply)
-
-	log := models.AuditLogEntry{
-		ID:        fmt.Sprintf("log_%d", now.UnixNano()%10000),
-		Actor:     "Pemofy AI Copilot",
-		Action:    "Autonomous ERP Action Executed",
-		Entity:    "CopilotAction",
-		EntityID:  actionType,
-		Details:   confirmationContent,
-		Timestamp: now,
-	}
-	h.state.AuditLogs = append([]models.AuditLogEntry{log}, h.state.AuditLogs...)
-	h.state.mu.Unlock()
-
-	data := h.getViewData("copilot")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "copilot", data)
-}
-
-// UpdatePlan updates the merchant's subscription plan tier
-func (h *Handler) UpdatePlan(w http.ResponseWriter, r *http.Request) {
-	_ = r.ParseForm()
-	plan := r.FormValue("plan")
-	if plan == "" {
-		plan = "Grow (R199/mo)"
-	}
-
-	h.state.mu.Lock()
-	h.state.Store.CurrentPlan = plan
-
-	log := models.AuditLogEntry{
-		ID:        fmt.Sprintf("log_%d", time.Now().UnixNano()%10000),
-		Actor:     "Account Owner",
-		Action:    "Subscription Plan Updated",
-		Entity:    "StoreProfile",
-		EntityID:  h.state.Store.ID,
-		Details:   fmt.Sprintf("Upgraded subscription tier to '%s' (pod-za-01 billing)", plan),
-		Timestamp: time.Now().UTC(),
-	}
-	h.state.AuditLogs = append([]models.AuditLogEntry{log}, h.state.AuditLogs...)
-	h.state.mu.Unlock()
-
-	data := h.getViewData("settings")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "settings", data)
 }
 
 // ServeChatTab renders the Direct Messages workstation tab
@@ -3033,11 +1776,11 @@ func (h *Handler) SendChatMessage(w http.ResponseWriter, r *http.Request) {
 	if messageText != "" {
 		h.state.mu.Lock()
 		now := time.Now().UTC()
-		senderName := "Mitrend Sales Desk"
+		senderName := h.state.Store.Name
 		senderRole := "merchant"
 		auditAction := "Buyer Direct Message Sent"
 		if isInternal {
-			senderName = "Sipho Dlamini (Staff Whisper)"
+			senderName = h.actor(r)
 			senderRole = "merchant"
 			auditAction = "Internal Staff Note Logged"
 		}
@@ -3069,7 +1812,7 @@ func (h *Handler) SendChatMessage(w http.ResponseWriter, r *http.Request) {
 
 		log := models.AuditLogEntry{
 			ID:        fmt.Sprintf("log_%d", now.UnixNano()%10000),
-			Actor:     "Sipho Dlamini (Admin)",
+			Actor:     h.actor(r),
 			Action:    auditAction,
 			Entity:    "ChatThread",
 			EntityID:  threadID,
@@ -3078,11 +1821,12 @@ func (h *Handler) SendChatMessage(w http.ResponseWriter, r *http.Request) {
 		}
 		h.state.AuditLogs = append([]models.AuditLogEntry{log}, h.state.AuditLogs...)
 		h.state.mu.Unlock()
+		if !isInternal {
+			// Let the Inbox relay the reply to the buyer over the chat gateway.
+			hxTrigger(w, map[string]any{"shoppage:chat-sent": map[string]string{"message": messageText}})
+		}
 	}
-
-	data := h.getViewData("chat")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = templates.RenderTabPartial(w, "chat", data)
+	h.renderTab(w, r, "chat")
 }
 
 // SendStructuredQuote injects a formal commerce quote card into the chat thread
@@ -3099,6 +1843,9 @@ func (h *Handler) SendStructuredQuote(w http.ResponseWriter, r *http.Request) {
 		qty = 50
 	}
 	discountPct, _ := strconv.ParseFloat(r.FormValue("discount_tier"), 64)
+	if discountPct <= 0 {
+		discountPct, _ = tierDiscount(h.state.WholesaleTiers, qty)
+	}
 
 	h.state.mu.Lock()
 	var product models.CatalogSKU
@@ -3115,12 +1862,12 @@ func (h *Handler) SendStructuredQuote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	now := time.Now().UTC()
-	effectiveUnit := product.WholesaleZar * (1 - (discountPct / 100))
-	subtotal := effectiveUnit * float64(qty)
-	vat := subtotal * 0.15
-	grandTotal := subtotal + vat
+	effectiveUnit := round2(product.WholesaleZar * (1 - (discountPct / 100)))
+	subtotal := round2(effectiveUnit * float64(qty))
+	vat := round2(subtotal * 0.15)
+	grandTotal := round2(subtotal + vat)
 
-	quoteNo := fmt.Sprintf("QUO-2026-%04d", len(h.state.Orders)+814)
+	quoteNo := fmt.Sprintf("QUO-%s-%04d", now.In(sast).Format("2006"), now.UnixNano()%10000)
 
 	quote := &models.StructuredQuote{
 		ID:           fmt.Sprintf("quo_%d", now.UnixNano()%100000),
@@ -3139,9 +1886,9 @@ func (h *Handler) SendStructuredQuote(w http.ResponseWriter, r *http.Request) {
 	msg := models.ChatMessage{
 		ID:         fmt.Sprintf("msg_%d", now.UnixNano()%100000),
 		SenderID:   h.state.Store.ID,
-		SenderName: "Mitrend Sales Desk",
+		SenderName: h.state.Store.Name,
 		SenderRole: "merchant",
-		Text:       fmt.Sprintf("Here is the formal quotation %s for %d units of %s. Valid for 7 days with SARS 15%% VAT included.", quoteNo, qty, product.SKU),
+		Text:       fmt.Sprintf("Here's quote %s for %d × %s. It's valid for 7 days and includes 15%% VAT.", quoteNo, qty, product.Title),
 		Timestamp:  now,
 		IsMerchant: true,
 		HasQuote:   true,
@@ -3162,7 +1909,7 @@ func (h *Handler) SendStructuredQuote(w http.ResponseWriter, r *http.Request) {
 
 	log := models.AuditLogEntry{
 		ID:        fmt.Sprintf("log_%d", now.UnixNano()%10000),
-		Actor:     "Sipho Dlamini (Admin)",
+		Actor:     h.actor(r),
 		Action:    "Commerce Quote Generated",
 		Entity:    "StructuredQuote",
 		EntityID:  quoteNo,
@@ -3199,24 +1946,34 @@ func (h *Handler) HandleChatAction(w http.ResponseWriter, r *http.Request) {
 		if qty <= 0 {
 			qty = 200
 		}
-		lockID := fmt.Sprintf("LCK-MID-%04d", now.Unix()%10000)
+		lockID := fmt.Sprintf("HOLD-%04d", now.Unix()%10000)
+		title, where := sku, h.state.hubName(h.state.hubIDFor(r.FormValue("warehouse")))
+		if i := catalogIndexBySKU(h.state.Catalog, sku); i >= 0 {
+			title = h.state.Catalog[i].Title
+			if h.state.Catalog[i].StockQuantity < qty {
+				h.state.mu.Unlock()
+				setToast(w, fmt.Sprintf("Only %d × %s in stock. Nothing was held.", h.state.Catalog[i].StockQuantity, sku), "")
+				h.renderTab(w, r, "chat")
+				return
+			}
+		}
 		msg := models.ChatMessage{
 			ID:         fmt.Sprintf("msg_%d", now.UnixNano()%100000),
 			SenderID:   "system_warehouse",
-			SenderName: "Midrand Hub Automation",
+			SenderName: "Stock hold",
 			SenderRole: "system",
-			Text:       fmt.Sprintf("Inventory reserved: %d units of %s locked for 2 hours.", qty, sku),
+			Text:       fmt.Sprintf("%d × %s held for this buyer for 2 hours.", qty, sku),
 			Timestamp:  now,
 			IsMerchant: true,
 			CardType:   "stock_lock",
 			StockLock: &models.StockLockInfo{
 				SKU:          sku,
-				ProductTitle: "Commercial Anti-Theft Wooden Male Hanger 44cm",
+				ProductTitle: title,
 				Quantity:     qty,
-				Warehouse:    "Midrand Central Hub, Bay 4",
+				Warehouse:    where,
 				LockID:       lockID,
 				ExpiresAt:    now.Add(2 * time.Hour),
-				Status:       "Active (2 Hours Remaining)",
+				Status:       "Active",
 			},
 		}
 		for i := range h.state.ChatThreads {
@@ -3230,7 +1987,7 @@ func (h *Handler) HandleChatAction(w http.ResponseWriter, r *http.Request) {
 		}
 		log := models.AuditLogEntry{
 			ID:        fmt.Sprintf("log_%d", now.UnixNano()%10000),
-			Actor:     "Sipho Dlamini (Admin)",
+			Actor:     h.actor(r),
 			Action:    "Warehouse Stock Locked",
 			Entity:    "StockLock",
 			EntityID:  lockID,
@@ -3245,7 +2002,7 @@ func (h *Handler) HandleChatAction(w http.ResponseWriter, r *http.Request) {
 				for j := range h.state.ChatThreads[i].Messages {
 					if h.state.ChatThreads[i].Messages[j].PaymentProof != nil {
 						h.state.ChatThreads[i].Messages[j].PaymentProof.Verified = true
-						h.state.ChatThreads[i].Messages[j].PaymentProof.VerifiedBy = "Finance (Sipho Dlamini)"
+						h.state.ChatThreads[i].Messages[j].PaymentProof.VerifiedBy = h.actor(r)
 					}
 				}
 				h.state.ChatThreads[i].DealStatus = "Paid & Dispatched"

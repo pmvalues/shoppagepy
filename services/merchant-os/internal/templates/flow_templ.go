@@ -10,9 +10,13 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
+// FlowTab lists automation rules. Rules are saved and switched on here; they
+// run when the matching event happens. Nothing claims runs or savings that
+// weren't recorded.
 func FlowTab(data models.DashboardViewData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -34,151 +38,174 @@ func FlowTab(data models.DashboardViewData) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"panel-head\"><div><h3>Flow Automations &amp; Event-Driven Rules</h3><div class=\"sub\">Visual trigger-condition-action commerce automations connecting inventory, WhatsApp &amp; courier rails</div></div><div class=\"right\"><button class=\"btn solid small\" onclick=\"document.getElementById('new-flow-dialog')?.showModal();\"><span>+</span> Create Custom Automation</button></div></div><!-- Flow Metrics --><div class=\"three-col\" style=\"margin-bottom:18px;\"><div class=\"card kpi\"><div class=\"k-label\"><span>Active Rules</span><span class=\"chip up\">Running</span></div><div class=\"k-val\" style=\"font-size:1.5rem; margin:6px 0 2px;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-head\"><div class=\"head-copy\"><p>When something happens, do something. For example: when stock runs low, draft a purchase order.</p></div><div class=\"actions\"><button class=\"btn solid\" type=\"button\" onclick=\"document.getElementById('new-flow-dialog').showModal()\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d Rules", len(data.FlowRules)))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 25, Col: 112}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+		templ_7745c5c3_Err = IconSized("plus", 16).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"k-foot\"><span class=\"then\">Event listeners on pod-za-01</span></div></div><div class=\"card kpi\"><div class=\"k-label\"><span>Executions This Month</span><span class=\"chip up\">+24 Today</span></div><div class=\"k-val\" style=\"font-size:1.5rem; margin:6px 0 2px;\">104 <span class=\"sub\">Runs</span></div><div class=\"k-foot\"><span class=\"then\">100% execution success rate</span></div></div><div class=\"card kpi\"><div class=\"k-label\"><span>Hours Saved</span><span class=\"chip up\">Automation</span></div><div class=\"k-val\" style=\"font-size:1.5rem; margin:6px 0 2px;\">18.5 <span class=\"sub\">Hours</span></div><div class=\"k-foot\"><span class=\"then\">Reduced manual paper handling</span></div></div></div><!-- Flow Rules List --><div style=\"display:grid; gap:14px; margin-bottom:20px;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "New automation</button></div></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if data.Nav.DemoData {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"notice warn section\">In this demo, automations are saved but don't send messages or book couriers. Run counts shown are from the sample data.</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		if len(data.FlowRules) == 0 {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"card empty\"><h3>No automations yet</h3><p>Start with a low-stock alert or an out-of-hours WhatsApp reply.</p></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"stack\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, rule := range data.FlowRules {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card panel\" style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;\"><div style=\"display:flex; align-items:flex-start; gap:14px;\"><div style=\"width:42px; height:42px; border-radius:10px; background:var(--primary-soft); color:var(--primary-2); display:grid; place-items:center; font-size:20px; flex:none;\">⚡</div><div><div style=\"display:flex; align-items:center; gap:8px;\"><b style=\"font-size:15px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<article class=\"card panel\"><div class=\"panel-head\" style=\"margin-bottom:6px;\"><div><h3>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(rule.Name)
+			var templ_7745c5c3_Var2 string
+			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(rule.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 50, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 38, Col: 21}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</b> ")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if rule.Active {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span class=\"chip up\">Active</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h3><div class=\"sub\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if rule.ExecutionsCount > 0 {
+				var templ_7745c5c3_Var3 string
+				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("Ran %d times · last %s", rule.ExecutionsCount, Ago(rule.LastTriggeredAt, data.Metrics.Now)))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 41, Col: 115}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span class=\"chip flat\">Paused</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "Hasn't run yet")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><div style=\"font-size:12.5px; color:var(--ink-2); margin-top:6px;\"><span style=\"color:var(--muted);\">Trigger:</span> <b>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></div><div class=\"right\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(rule.Trigger)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 58, Col: 74}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			var templ_7745c5c3_Var4 = []any{"toggle", templ.KV("on", rule.Active)}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var4...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</b> <span style=\"color:var(--muted); margin:0 6px;\">&rarr;</span> <span style=\"color:var(--muted);\">Condition:</span> <b>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<button type=\"button\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(rule.Condition)
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var4).String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 60, Col: 78}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 1, Col: 0}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</b> <span style=\"color:var(--muted); margin:0 6px;\">&rarr;</span> <span style=\"color:var(--muted);\">Action:</span> <b style=\"color:var(--primary-2);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" role=\"switch\" aria-checked=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(rule.Action)
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(rule.Active))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 62, Col: 104}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 52, Col: 45}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</b></div><div style=\"font-size:11.5px; color:var(--muted); margin-top:4px;\">Executed ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" aria-label=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d times", rule.ExecutionsCount))
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue("Automation " + rule.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 65, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 53, Col: 45}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, " · Last triggered ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" hx-post=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(rule.LastTriggeredAt.Format("02 Jan · 15:04 SAST"))
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue("/flow/" + rule.ID + "/toggle")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 65, Col: 137}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 54, Col: 47}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></div></div><div><form hx-post=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" hx-target=\"#tab-content\"></button></div></div><div class=\"cluster small-text\"><span class=\"chip info\">When</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/flow/%s/toggle", rule.ID))
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(rule.Trigger)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 71, Col: 60}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 60, Col: 54}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" hx-target=\"#tab-content\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if rule.Active {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<button type=\"submit\" class=\"btn ghost small\">Pause Rule</button>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<button type=\"submit\" class=\"btn solid small\">Enable Rule</button>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " <span class=\"chip\">If</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</form></div></div>")
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(rule.Condition)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 61, Col: 49}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " <span class=\"chip ok\">Then</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(rule.Action)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 62, Col: 51}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></article>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div><!-- Execution History Stream --><div class=\"card panel\"><h4 style=\"font-size:15px; font-weight:700; margin-bottom:12px;\">Recent Automation Execution Stream</h4><div class=\"table-wrap\"><table class=\"table\"><thead><tr><th>Event Time</th><th>Rule Name</th><th>Trigger Context</th><th>Action Dispatched</th><th style=\"text-align:right;\">Status</th></tr></thead> <tbody><tr><td style=\"font-family:var(--mono); font-size:12px; color:var(--muted);\">20 Sep 15:15</td><td><b>Capitec Pay Instant Receipt &amp; Waybill Creation</b></td><td>EFT payment settled for Proforma #ORD-9823 (R4,576.00)</td><td>Waybill #TCG-ZA-984210 booked with The Courier Guy</td><td style=\"text-align:right;\"><span class=\"chip up\">Completed (120ms)</span></td></tr><tr><td style=\"font-family:var(--mono); font-size:12px; color:var(--muted);\">20 Sep 13:40</td><td><b>Auto-Dispatch WhatsApp Proforma on RFQ Accept</b></td><td>Wholesale buyer David van der Merwe accepted quotation</td><td>WhatsApp proforma PDF sent to +27824419988</td><td style=\"text-align:right;\"><span class=\"chip up\">Completed (85ms)</span></td></tr><tr><td style=\"font-family:var(--mono); font-size:12px; color:var(--muted);\">20 Sep 10:00</td><td><b>Depot Low Stock Replenishment Alert</b></td><td>MIT-8610 stock dropped to 0 units at Midrand Bay 4</td><td>Drafted replenishment order + notified Warehouse Manager</td><td style=\"text-align:right;\"><span class=\"chip up\">Completed (45ms)</span></td></tr></tbody></table></div></div><!-- New Custom Automation Dialog --><dialog id=\"new-flow-dialog\" class=\"modal-dialog\"><div class=\"modal-card\"><div class=\"modal-head\"><h4>Create Custom Flow Automation</h4><button type=\"button\" class=\"close-btn\" onclick=\"document.getElementById('new-flow-dialog').close();\">&times;</button></div><form hx-post=\"/flow/new\" hx-target=\"#tab-content\" onsubmit=\"document.getElementById('new-flow-dialog').close();\"><div class=\"modal-body\"><div class=\"form-group\"><label>Automation Rule Name</label> <input type=\"text\" name=\"name\" class=\"input\" placeholder=\"e.g. Alert Manager on R10,000+ Orders\" required></div><div class=\"form-group\"><label>Event Trigger</label> <select name=\"trigger\" class=\"select-full\"><option value=\"Instant EFT / Capitec Pay Settled\">Instant EFT / Capitec Pay Settled</option> <option value=\"New Wholesale RFQ Lead Submitted\">New Wholesale RFQ Lead Submitted</option> <option value=\"SKU Stock Depleted or Below Safety Buffer\">SKU Stock Depleted or Below Safety Buffer</option> <option value=\"Carrier Handover Manifest Created\">Carrier Handover Manifest Created</option></select></div><div class=\"form-group\"><label>Condition Filter</label> <select name=\"condition\" class=\"select-full\"><option value=\"Grand Total > R5,000.00\">Order Grand Total > R5,000.00</option> <option value=\"All Hub Locations\">All Hub Locations (Midrand, CPT, DBN)</option> <option value=\"VIP Commercial Accounts Only\">VIP Commercial Accounts (Platinum/Gold)</option> <option value=\"Hospitality Category Items Only\">Hospitality Category Items Only</option></select></div><div class=\"form-group\"><label>Automated Action to Dispatch</label> <select name=\"action\" class=\"select-full\"><option value=\"Send WhatsApp Proforma + PDF Remittance Link\">Send WhatsApp Proforma + PDF Remittance Link</option> <option value=\"Generate The Courier Guy Waybill & Label\">Generate The Courier Guy Waybill &amp; Label</option> <option value=\"Draft Restock Purchase Order + Email Manager\">Draft Restock Purchase Order + Email Manager</option> <option value=\"Sync Updated Price to Google Shopping Feed\">Sync Updated Price to Google Shopping Feed</option></select></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn ghost\" onclick=\"document.getElementById('new-flow-dialog').close();\">Cancel</button> <button type=\"submit\" class=\"btn solid\">Deploy Automation</button></div></form></div></dialog>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><dialog id=\"new-flow-dialog\" class=\"modal-dialog\" aria-labelledby=\"flow-title\"><div class=\"modal-card\"><div class=\"modal-head\"><h3 id=\"flow-title\">New automation</h3><button type=\"button\" class=\"close-btn\" aria-label=\"Close\" onclick=\"this.closest('dialog').close()\">×</button></div><form hx-post=\"/flow/new\" hx-target=\"#tab-content\" hx-on::after-request=\"this.closest('dialog').close()\"><div class=\"modal-body\"><div class=\"form-group\"><label for=\"fl-name\">Name</label> <input id=\"fl-name\" type=\"text\" name=\"name\" class=\"input\" placeholder=\"e.g. Tell me when stock runs low\" required></div><div class=\"form-group\"><label for=\"fl-when\">When</label> <select id=\"fl-when\" name=\"trigger\" class=\"select-full\"><option>Stock falls to its reorder level</option> <option>A new enquiry arrives</option> <option>A payment is received</option> <option>A quote has had no reply for 2 days</option> <option>A message arrives outside trading hours</option></select></div><div class=\"form-group\"><label for=\"fl-if\">Only if</label> <select id=\"fl-if\" name=\"condition\" class=\"select-full\"><option>Always</option> <option>Order total is over R 5 000</option> <option>Customer has a credit account</option></select></div><div class=\"form-group\"><label for=\"fl-then\">Then</label> <select id=\"fl-then\" name=\"action\" class=\"select-full\"><option>Notify me on WhatsApp</option> <option>Draft a purchase order for me to approve</option> <option>Send the buyer a follow-up message for me to approve</option> <option>Reply with trading hours</option></select></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn ghost\" onclick=\"this.closest('dialog').close()\">Cancel</button> <button type=\"submit\" class=\"btn solid\">Save automation</button></div></form></div></dialog>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

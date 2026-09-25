@@ -3,1352 +3,303 @@ package templates
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
+// fontsHref loads the shared Shoppage type stack (same as the consumer site).
+const fontsHref = "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+
+func oob(on bool) templ.Attributes {
+	if on {
+		return templ.Attributes{"hx-swap-oob": "true"}
+	}
+	return templ.Attributes{}
+}
+
+func docTitle(store models.StoreProfile, tab string) string {
+	return PageTitle(tab) + " · " + store.Name + " · Shoppage Merchant"
+}
+
+func storeURL(nav models.NavContext, store models.StoreProfile) string {
+	return fmt.Sprintf("%s/m/%s", strings.TrimRight(nav.PublicBaseURL, "/"), store.ID)
+}
+
+// Layout is the workspace shell: sidebar (7 sections), top bar with page
+// title, search and account menu, the section's tab strip, and the content
+// area that HTMX swaps. On phones the sidebar becomes a drawer and a bottom
+// tab bar appears.
 templ Layout(store models.StoreProfile, activeTab string, nav models.NavContext) {
 	<!DOCTYPE html>
-	<html lang="en">
+	<html lang="en-ZA">
 		<head>
 			<meta charset="utf-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1"/>
-			<meta name="description" content="Shoppage Merchant OS — Enterprise SME B2B catalog, orders, WMS, POS, GMV threshold, and Pemofy AI copilot."/>
-			<title>{ store.Name } — Shoppage Merchant OS</title>
+			<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+			<meta name="description" content="Shoppage Merchant: orders, products, stock, counter sales, buyer messages and listings in one place."/>
+			<meta name="theme-color" content="#0a2f24"/>
+			<title>{ docTitle(store, activeTab) }</title>
 			<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
 			<link rel="alternate icon" href="/favicon.ico"/>
 			<link rel="apple-touch-icon" href="/favicon.svg"/>
-			<!-- Google Fonts: Bricolage Grotesque & Instrument Sans & JetBrains Mono
-			     Loaded non-blocking (preload + media swap) so first paint never waits on the font CDN. -->
+			<link rel="manifest" href="/merchant-static/manifest.webmanifest"/>
 			<link rel="preconnect" href="https://fonts.googleapis.com"/>
 			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-			<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap"/>
-			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" media="print" onload="this.media='all'"/>
-			<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap"/></noscript>
-			<!-- HTMX 2 served from the embedded local asset (no CDN, works offline) -->
-			<script src="/static/js/htmx.min.js" defer></script>
+			<link rel="stylesheet" href={ fontsHref } media="print" onload="this.media='all'"/>
+			<noscript><link rel="stylesheet" href={ fontsHref }/></noscript>
+			<link rel="stylesheet" href="/merchant-static/css/workspace.css"/>
 			<script>
-				try {
-					var savedTheme = localStorage.getItem('pemofy_admin_theme') || 'artisan';
-					document.documentElement.setAttribute('data-theme', savedTheme);
-				} catch(e) {}
+				(function () {
+					try {
+						var t = localStorage.getItem('shoppage_theme');
+						var legacy = localStorage.getItem('pemofy_admin_theme');
+						if (!t && legacy) { t = legacy === 'graphite' ? 'dark' : 'system'; localStorage.setItem('shoppage_theme', t); }
+						if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+					} catch (e) {}
+				})();
 			</script>
-			<style>
-				:root, [data-theme="artisan"] {
-					--bg: #edf1ec;
-					--surface: #ffffff;
-					--surface-2: #f5f7f4;
-					--sidebar: #0a2f24;
-					--sidebar-2: #0d3a2c;
-					--sidebar-border: rgba(255,255,255,.08);
-					--sidebar-brand-text: #ffffff;
-					--sidebar-label: #6f9384;
-					--sidebar-item-text: #c4d7cd;
-					--sidebar-item-hover-bg: rgba(255,255,255,.07);
-					--sidebar-item-hover-text: #ffffff;
-					--sidebar-badge-bg: rgba(255,255,255,.14);
-					--sidebar-badge-text: #ffffff;
-					--sidebar-note-bg: #0d3a2c;
-					--sidebar-note-text: #8fb3a3;
-					--sidebar-note-border: transparent;
-					--sidebar-btn-color: #8fb3a3;
-					--ink: #0d1c15;
-					--ink-2: #37473e;
-					--muted: #566d60;
-					--primary: #0e7c56;
-					--primary-2: #0a5c40;
-					--primary-soft: #dcefe4;
-					--amber: #c47c14;
-					--amber-soft: #faecd3;
-					--rose: #b5483a;
-					--rose-soft: #f7e2de;
-					--line: rgba(13,28,21,.10);
-					--line-strong: rgba(13,28,21,.20);
-					--display: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont, sans-serif;
-					--body: "Instrument Sans", -apple-system, BlinkMacSystemFont, sans-serif;
-					--mono: "JetBrains Mono", ui-monospace, monospace;
-					--r-sm: 8px; --r: 12px; --r-lg: 18px;
-					--sh-sm: 0 1px 2px rgba(13,28,21,.05);
-					--sh: 0 1px 2px rgba(13,28,21,.05), 0 12px 28px -18px rgba(13,28,21,.30);
-					--shadow-side: 8px 0 30px -22px rgba(13,28,21,.55);
-					--nav-w: 260px;
-				}
-
-				[data-theme="graphite"] {
-					--bg: #0e0f14;
-					--surface: #141620;
-					--surface-2: #1b1e2b;
-					--sidebar: #0d0e15;
-					--sidebar-2: #141620;
-					--sidebar-border: rgba(255,255,255,.08);
-					--sidebar-brand-text: #ffffff;
-					--sidebar-label: #858da8;
-					--sidebar-item-text: #a8adbe;
-					--sidebar-item-hover-bg: rgba(255,255,255,.07);
-					--sidebar-item-hover-text: #ffffff;
-					--sidebar-badge-bg: rgba(255,255,255,.14);
-					--sidebar-badge-text: #ffffff;
-					--sidebar-note-bg: #141620;
-					--sidebar-note-text: #8fb3a3;
-					--sidebar-note-border: transparent;
-					--sidebar-btn-color: #8fb3a3;
-					--ink: #f0f2f5;
-					--ink-2: #c5c9d1;
-					--muted: #888d9e;
-					--line: rgba(255,255,255,.10);
-					--line-strong: rgba(255,255,255,.20);
-				}
-
-				/* STUDIO LIGHT: High Contrast, Legible, Crisp */
-				[data-theme="light"] {
-					--bg: #f0f4f1;
-					--surface: #ffffff;
-					--surface-2: #f2f7f4;
-					--sidebar: #ffffff;
-					--sidebar-2: #edf4f0;
-					--sidebar-border: #d2ddd5;
-					--sidebar-brand-text: #0d1c15;
-					--sidebar-label: #1b4d38;
-					--sidebar-item-text: #173628;
-					--sidebar-item-hover-bg: #e6f0e9;
-					--sidebar-item-hover-text: #0d1c15;
-					--sidebar-badge-bg: #dcece2;
-					--sidebar-badge-text: #0b6848;
-					--sidebar-note-bg: #e8f2ec;
-					--sidebar-note-text: #153828;
-					--sidebar-note-border: #c4d7cc;
-					--sidebar-btn-color: #173628;
-					--ink: #0d1c15;
-					--ink-2: #1e3529;
-					--muted: #456152;
-					--line: #d2ddd5;
-					--line-strong: #a4baa9;
-				}
-
-				* { box-sizing: border-box; }
-				html, body { margin: 0; padding: 0; min-height: 100%; }
-				body {
-					background: var(--bg);
-					color: var(--ink);
-					font-family: var(--body);
-					font-size: 14.5px;
-					line-height: 1.5;
-					-webkit-font-smoothing: antialiased;
-				}
-				h1, h2, h3, h4 {
-					font-family: var(--display);
-					margin: 0;
-					letter-spacing: -.025em;
-					line-height: 1.15;
-					font-weight: 700;
-				}
-				a { color: inherit; text-decoration: none; }
-				button, input, select, textarea { font: inherit; }
-				button { cursor: pointer; }
-
-				/* SIGNATURE PEMOFY DASHBOARD COMPONENTS */
-				.grid-kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px; }
-				.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--sh); }
-				.panel { padding: 18px; }
-				.panel-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-				.panel-head h3 { font-size: 15.5px; margin: 0; }
-				.panel-head .sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
-				.panel-head .right { margin-left: auto; display: flex; gap: 6px; align-items: center; }
-
-				.kpi { padding: 16px 17px; }
-				.kpi .k-label { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .02em; }
-				.kpi .k-val { font-family: var(--display); font-weight: 800; font-size: clamp(1.5rem, 2.4vw, 1.95rem); letter-spacing: -.04em; margin: 8px 0 2px; }
-				.kpi .k-val .sub { font-size: .9rem; font-weight: 600; color: var(--muted); letter-spacing: 0; }
-				.kpi .k-foot { display: flex; align-items: center; gap: 7px; font-size: 12px; margin-top: 6px; }
-				.chip { display: inline-flex; align-items: center; gap: 3px; font-size: 11.5px; font-weight: 700; padding: 2px 7px; border-radius: 999px; }
-				.chip.up { background: var(--primary-soft); color: var(--primary-2); }
-				.chip.down { background: var(--rose-soft); color: var(--rose); }
-				.chip.flat { background: var(--surface-2); color: var(--muted); }
-				.chip.warn { background: var(--amber-soft); color: #7a4e05; }
-				.k-foot .then { color: var(--muted); }
-				.spark { display: block; margin-top: 10px; width: 100%; height: 30px; }
-
-				/* SIGNATURE FREE GMV THRESHOLD METER */
-				.row-2 { display: grid; grid-template-columns: 1.6fr 1fr; gap: 14px; margin-bottom: 14px; }
-				.meter-card { padding: 18px; background: linear-gradient(140deg, #0a2f24, #12513c) !important; border: 1px solid rgba(255,255,255,.08); color: #dbe8e0 !important; border-radius: var(--r-lg); }
-				.meter-card h3 { color: #fff !important; font-size: 15.5px; margin: 0; }
-				.meter-card .sub { color: #9fc2b3 !important; font-size: 12px; margin-top: 2px; }
-				.meter-top { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin: 14px 0 4px; }
-				.meter-big { font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 2.6vw, 2.15rem); letter-spacing: -.04em; color: #fff !important; line-height: 1; }
-				.meter-big .t { font-size: 1rem; color: #9fc2b3 !important; font-weight: 600; letter-spacing: 0; }
-				.meter-flag { margin-left: auto; text-align: right; }
-				.meter-flag b { display: block; color: #4fe0a4 !important; font-family: var(--display); font-weight: 700; font-size: 15px; }
-				.meter-flag span { font-size: 11.5px; color: #9fc2b3 !important; }
-				.bar { height: 14px; border-radius: 999px; background: rgba(255,255,255,.15); overflow: hidden; margin-top: 14px; position: relative; display: flex; }
-				.bar .fill { height: 100%; background: linear-gradient(90deg, #3fb886, #5fe0a4); width: 0; border-radius: 999px; }
-				.bar .free-line { position: absolute; top: -4px; bottom: -4px; left: 82%; width: 2px; background: rgba(255,255,255,.55); }
-				.meter-scale { display: flex; justify-content: space-between; font-size: 11px; color: #9fc2b3 !important; margin-top: 7px; }
-				.meter-scale b { color: #e4f0ea !important; font-weight: 600; }
-
-				/* COPILOT EMBEDDED CARD */
-				.copilot { display: flex; flex-direction: column; gap: 12px; }
-				.msg { display: flex; gap: 10px; }
-				.msg .ava { width: 28px; height: 28px; border-radius: 9px; flex: none; display: grid; place-items: center; font-size: 12px; font-weight: 700; font-family: var(--display); }
-				.msg.bot .ava { background: var(--sidebar); color: #4fe0a4; }
-				.msg.me .ava { background: var(--primary-soft); color: var(--primary-2); }
-				.bubble { background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; font-size: 13px; line-height: 1.45; }
-				.msg.me .bubble { background: var(--primary-soft); border-color: #c6e2d5; }
-				.bubble .act { margin-top: 8px; display: flex; gap: 7px; flex-wrap: wrap; }
-				.mini-btn { font-size: 11.5px; font-weight: 600; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 8px; padding: 4px 10px; cursor: pointer; color: var(--ink); }
-				.mini-btn.done { background: var(--primary); color: #fff; border-color: var(--primary); }
-				.composer { display: flex; gap: 8px; align-items: center; margin-top: 2px; }
-				.composer input { flex: 1; border: 1px solid var(--line); background: var(--surface); border-radius: 11px; padding: 9px 12px; font-size: 13px; color: var(--ink); }
-				.composer input::placeholder { color: var(--muted); }
-				.composer .send { width: 38px; height: 38px; border-radius: 11px; background: var(--primary); color: #fff; border: 0; display: grid; place-items: center; cursor: pointer; flex: none; }
-				.suggest { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
-				.suggest span { font-size: 11.5px; color: var(--primary-2); background: var(--primary-soft); border-radius: 999px; padding: 4px 10px; cursor: pointer; }
-
-				/* REVENUE CHART & RECENT ORDERS */
-				.seg { display: flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 2px; }
-				.seg span { font-size: 12px; font-weight: 600; color: var(--muted); padding: 3px 9px; border-radius: 7px; cursor: pointer; }
-				.seg span.on { background: var(--surface); color: var(--ink); box-shadow: var(--sh-sm); }
-				.chart-wrap { margin-top: 4px; }
-				.chart-legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-				.chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
-				.lg-line { width: 16px; height: 3px; border-radius: 2px; background: var(--primary); }
-				.lg-bar { width: 10px; height: 10px; border-radius: 3px; background: var(--primary-soft); border: 1px solid #bcd9cb; }
-				svg.chart { width: 100%; height: 200px; display: block; overflow: visible; }
-				.who { display: flex; align-items: center; gap: 10px; }
-				.who .av { width: 30px; height: 30px; border-radius: 9px; background: var(--surface-2); display: grid; place-items: center; font-weight: 700; font-size: 12px; color: var(--ink-2); flex: none; font-family: var(--display); }
-				.who b { font-weight: 600; font-size: 13px; }
-				.who span { display: block; font-size: 11px; color: var(--muted); }
-				.oid { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
-				.amt { font-weight: 700; font-family: var(--display); letter-spacing: -.01em; font-size: 13.5px; }
-				.pay { font-size: 12px; color: var(--ink-2); }
-				.status { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; }
-				.status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
-				.st-paid { background: var(--primary-soft); color: var(--primary-2); } .st-paid::before { background: var(--primary); }
-				.st-wait { background: var(--amber-soft); color: #7a4e05; } .st-wait::before { background: var(--amber); }
-				.st-ship { background: #e4ecf5; color: #31577e; } .st-ship::before { background: #3d6b9c; }
-				.st-run { background: var(--surface-2); color: var(--muted); } .st-run::before { background: var(--muted); }
-
-				/* BOTTOM ROW 3 PANELS */
-				.row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 14px; margin-bottom: 14px; }
-				.list { display: flex; flex-direction: column; }
-				.li { display: flex; align-items: center; gap: 11px; padding: 10px 0; border-top: 1px solid var(--line); }
-				.li:first-child { border-top: 0; }
-				.li .thumb { width: 34px; height: 34px; border-radius: 8px; background: var(--surface-2); flex: none; border: 1px solid var(--line); }
-				.li .thumb.a { background: var(--primary-soft); } .li .thumb.b { background: var(--amber-soft); } .li .thumb.c { background: var(--rose-soft); }
-				.li .txt { min-width: 0; }
-				.li .txt b { display: block; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-				.li .txt span { font-size: 11px; color: var(--muted); }
-				.li .val { margin-left: auto; text-align: right; flex: none; }
-				.li .val b { font-family: var(--display); font-size: 13.5px; }
-				.li .val span { font-size: 10.5px; color: var(--muted); margin-left: 3px; }
-				.chan-bar { height: 9px; border-radius: 999px; background: var(--surface-2); overflow: hidden; display: flex; margin-top: 4px; }
-				.chan-bar i { height: 100%; }
-				.chan-legend { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
-				.chan-legend div { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
-				.chan-legend .sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
-				.chan-legend b { margin-left: auto; font-family: var(--display); }
-				.iso { display: flex; gap: 12px; align-items: flex-start; }
-				.iso .shield { width: 38px; height: 38px; border-radius: 11px; background: #0a2f24 !important; color: #4fe0a4 !important; display: grid; place-items: center; flex: none; }
-				.iso b { font-size: 13.5px; }
-				.iso p { margin: 3px 0 0; font-size: 12px; color: var(--muted); line-height: 1.45; }
-				.iso .kv { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
-				.kv span { font-family: var(--mono); font-size: 10.5px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; color: var(--ink-2); }
-				footer.dash-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 11.5px; color: var(--muted); }
-				.app {
-					display: grid;
-					grid-template-columns: var(--nav-w) 1fr;
-					min-height: 100vh;
-					transition: grid-template-columns .2s;
-				}
-				.app.collapsed {
-					grid-template-columns: 68px 1fr;
-				}
-
-				/* SIDEBAR */
-				.side {
-					background: var(--sidebar);
-					color: var(--sidebar-item-text);
-					border-right: 1px solid var(--sidebar-border);
-					padding: 16px 10px;
-					display: flex;
-					flex-direction: column;
-					gap: 3px;
-					box-shadow: var(--shadow-side);
-					position: sticky;
-					top: 0;
-					height: 100vh;
-					overflow-y: auto;
-				}
-				.brand {
-					display: flex;
-					align-items: center;
-					gap: 10px;
-					padding: 4px 8px 12px;
-					color: var(--sidebar-brand-text);
-					font-family: var(--display);
-					font-weight: 800;
-					font-size: 18px;
-					letter-spacing: -.04em;
-				}
-				.brand .mark {
-					width: 32px;
-					height: 32px;
-					border-radius: 9px;
-					background: var(--primary);
-					display: grid;
-					place-items: center;
-					flex: none;
-				}
-				.store-switch {
-					display: flex;
-					align-items: center;
-					gap: 10px;
-					background: var(--sidebar-2);
-					border: 1px solid var(--sidebar-border);
-					border-radius: var(--r);
-					padding: 8px 10px;
-					margin-bottom: 8px;
-				}
-				.store-switch .av {
-					width: 30px;
-					height: 30px;
-					border-radius: 8px;
-					background: linear-gradient(135deg, #0e7c56, #3fb886);
-					display: grid;
-					place-items: center;
-					color: #fff;
-					font-family: var(--display);
-					font-weight: 700;
-					font-size: 13px;
-					flex: none;
-				}
-				.store-switch .meta { min-width: 0; }
-				.store-switch .meta b {
-					display: block;
-					color: var(--sidebar-brand-text);
-					font-size: 12px;
-					font-weight: 600;
-					white-space: nowrap;
-					overflow: hidden;
-					text-overflow: ellipsis;
-				}
-				.store-switch .meta span {
-					font-size: 10.5px;
-					color: var(--sidebar-label);
-					display: flex;
-					align-items: center;
-					gap: 4px;
-				}
-				.live-dot {
-					width: 6px;
-					height: 6px;
-					border-radius: 50%;
-					background: #4fe0a4;
-					box-shadow: 0 0 0 3px rgba(79,224,164,.25);
-				}
-				.nav-label {
-					font-size: 9.5px;
-					text-transform: uppercase;
-					letter-spacing: .14em;
-					color: var(--sidebar-label);
-					padding: 10px 8px 3px;
-					font-weight: 700;
-				}
-				.nav-item {
-					display: flex;
-					align-items: center;
-					gap: 10px;
-					padding: 6px 10px;
-					border-radius: 8px;
-					font-size: 12.5px;
-					color: var(--sidebar-item-text);
-					font-weight: 500;
-					border: 0;
-					background: transparent;
-					width: 100%;
-					text-align: left;
-					transition: all .15s;
-					cursor: pointer;
-					white-space: nowrap;
-				}
-				.nav-item:hover {
-					background: var(--sidebar-item-hover-bg);
-					color: var(--sidebar-item-hover-text);
-				}
-				.nav-item.active {
-					background: var(--primary) !important;
-					color: #ffffff !important;
-					font-weight: 600;
-				}
-				.nav-item .badge {
-					margin-left: auto;
-					background: var(--sidebar-badge-bg);
-					color: var(--sidebar-badge-text);
-					font-size: 10px;
-					font-weight: 600;
-					padding: 1px 6px;
-					border-radius: 999px;
-				}
-				.nav-item .badge.warn {
-					background: var(--amber);
-					color: #3a2600;
-				}
-				.side-collapse-btn {
-					margin-left: auto;
-					background: transparent;
-					border: 0;
-					color: var(--sidebar-btn-color);
-					cursor: pointer;
-					display: inline-flex;
-					align-items: center;
-					justify-content: center;
-					width: 26px;
-					height: 26px;
-					border-radius: 6px;
-					transition: all .15s;
-					padding: 0;
-					flex: none;
-				}
-				.side-collapse-btn:hover {
-					background: var(--sidebar-item-hover-bg);
-					color: var(--sidebar-item-hover-text);
-				}
-				.side-collapse-btn svg {
-					transition: transform .2s ease;
-				}
-				.app.collapsed .side-collapse-btn {
-					margin-left: 0;
-				}
-				.app.collapsed .side-collapse-btn svg {
-					transform: rotate(180deg);
-				}
-				.app.collapsed {
-					grid-template-columns: 68px 1fr;
-				}
-				.app.collapsed .nav-item span:not(.icon-span), 
-				.app.collapsed .nav-label, 
-				.app.collapsed .store-switch .meta, 
-				.app.collapsed .brand-text, 
-				.app.collapsed .side-foot {
-					display: none !important;
-				}
-				.app.collapsed .brand {
-					flex-direction: column;
-					gap: 6px;
-					align-items: center;
-					padding: 4px 0 12px;
-				}
-				.app.collapsed .nav-item {
-					justify-content: center;
-					padding: 10px 0;
-				}
-				.app.collapsed .store-switch {
-					justify-content: center;
-					padding: 6px;
-				}
-				.side-foot {
-					margin-top: auto;
-					padding-top: 14px;
-				}
-				.side-note {
-					display: flex;
-					gap: 8px;
-					align-items: flex-start;
-					font-size: 10.5px;
-					color: var(--sidebar-note-text);
-					background: var(--sidebar-note-bg);
-					border: 1px solid var(--sidebar-note-border);
-					border-radius: 9px;
-					padding: 9px;
-					line-height: 1.4;
-				}
-
-				/* THREAD & ROW SELECTION HIGHLIGHTS */
-				.thread-item {
-					transition: background .15s, border-left .15s;
-				}
-				.thread-item:hover {
-					background: var(--surface-2);
-				}
-				.thread-item.active-thread, .thread-item.selected {
-					background: var(--primary-soft) !important;
-					border-left: 4px solid var(--primary) !important;
-				}
-				.view-switch button {
-					border: 0;
-					background: transparent;
-					color: var(--muted);
-					height: 29px;
-					padding: 0 10px;
-					border-radius: 7px;
-					display: inline-flex;
-					align-items: center;
-					gap: 5px;
-					font-weight: 500;
-					font-size: 12.5px;
-					cursor: pointer;
-					transition: all .15s;
-				}
-				.view-switch button.active {
-					background: var(--surface) !important;
-					color: var(--primary-2) !important;
-					font-weight: 700 !important;
-					box-shadow: 0 1px 2px rgba(13,28,21,.08);
-				}
-				.filter-btn-group .btn.active {
-					background: var(--primary) !important;
-					color: #fff !important;
-					border-color: var(--primary) !important;
-					font-weight: 700;
-				}
-
-				/* PEMOFY PRODUCT DETAIL & EDIT STYLES */
-				.breadcrumb { display: flex; gap: 7px; align-items: center; color: var(--muted); font-size: 12.5px; margin-bottom: 12px; }
-				.breadcrumb a { color: var(--primary-2); font-weight: 600; text-decoration: none; }
-				.breadcrumb a:hover { text-decoration: underline; }
-				.breadcrumb svg { width: 14px; height: 14px; }
-				.detail-head { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
-				.detail-head .head-copy { min-width: 0; }
-				.detail-head h1, .detail-head h2 { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-size: clamp(1.25rem, 1.8vw, 1.55rem); }
-				.detail-head p { color: var(--muted); margin: 4px 0 0; font-size: 12.5px; }
-				.detail-actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
-				.detail-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 14px; margin-bottom: 14px; }
-				.gallery-card { padding: 14px; }
-				.gallery-main { height: 310px; border-radius: 13px; position: relative; display: grid; place-items: center; overflow: hidden; background: linear-gradient(135deg, #dcefe4, #8fbea5); }
-				.gallery-main .g-stamp { position: absolute; bottom: 14px; left: 16px; color: rgba(13,28,21,.45); font-family: var(--display); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
-				.gallery-thumbs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-top: 8px; }
-				.thumb { height: 56px; border-radius: 8px; border: 2px solid transparent; position: relative; overflow: hidden; cursor: pointer; display: grid; place-items: center; font-size: 18px; background: var(--surface-2); transition: border-color .15s; }
-				.thumb.active { border-color: var(--primary); }
-				.info-card { padding: 18px; }
-				.price-line { display: flex; align-items: baseline; gap: 10px; margin-top: 5px; flex-wrap: wrap; }
-				.price-line .large-price { font-family: var(--display); font-size: 2.1rem; font-weight: 800; letter-spacing: -.05em; color: var(--primary-2); }
-				.price-line .compare { text-decoration: line-through; color: var(--muted); font-size: 13px; }
-				.description { color: var(--ink-2); font-size: 13.5px; line-height: 1.6; margin: 14px 0 16px; }
-				.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-				.info-cell { border: 1px solid var(--line); background: var(--surface-2); border-radius: 9px; padding: 10px; }
-				.info-cell label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 700; }
-				.info-cell b { display: block; margin-top: 3px; font-family: var(--display); font-size: 15px; }
-				.progress { height: 7px; border-radius: 99px; background: rgba(13,28,21,.08); overflow: hidden; margin-top: 7px; }
-				.progress span { height: 100%; display: block; background: var(--primary); border-radius: 99px; }
-				.info-note { display: flex; gap: 8px; align-items: flex-start; border-top: 1px solid var(--line); padding-top: 12px; color: var(--muted); font-size: 12px; }
-				.info-note svg { width: 16px; height: 16px; color: var(--primary); flex: none; margin-top: 2px; }
-				.detail-lower { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-				.panel-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-				.panel-title h3 { font-size: 14.5px; margin: 0; }
-				.kv-list { display: grid; gap: 8px; }
-				.kv-row { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 7px; font-size: 12px; }
-				.kv-row:last-child { border-bottom: 0; }
-				.kv-row span { color: var(--muted); }
-				.kv-row b { font-weight: 600; text-align: right; }
-				.tag-list { display: flex; gap: 6px; flex-wrap: wrap; }
-				.tag-list span { font-size: 11px; padding: 4px 8px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; color: var(--ink-2); }
-				.seo-score { display: flex; align-items: center; gap: 12px; }
-				.score-ring { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; position: relative; flex: none; }
-				.score-ring::after { content: ""; position: absolute; inset: 6px; background: var(--surface); border-radius: 50%; }
-				.score-ring b { position: relative; z-index: 1; font-family: var(--display); font-size: 14px; }
-				.activity { display: grid; gap: 9px; }
-				.activity-row { display: flex; gap: 8px; font-size: 11.5px; }
-				.activity-row .time { margin-left: auto; color: var(--muted); white-space: nowrap; }
-				.activity-row .bullet { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); margin-top: 5px; flex: none; }
-				.activity-row .bullet.amber { background: var(--amber); }
-
-				/* EDITOR STYLES */
-				.editor-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-				.editor-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 14px; overflow-x: auto; }
-				.editor-tabs button { border: 0; background: transparent; padding: 9px 14px; color: var(--muted); font-weight: 600; font-size: 13px; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
-				.editor-tabs button.active { color: var(--primary-2); border-color: var(--primary); }
-				.editor-grid { display: grid; grid-template-columns: 1.22fr .78fr; gap: 14px; }
-				.form-card { padding: 18px; }
-				.form-label { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin-bottom: 6px; }
-				.form-label label { font-size: 12.5px; font-weight: 700; color: var(--ink); }
-				.form-label span { font-size: 11px; color: var(--muted); }
-				.rich { border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
-				.rich-tools { display: flex; gap: 2px; padding: 5px 6px; background: var(--surface-2); border-bottom: 1px solid var(--line); }
-				.rich-tools button { border: 0; background: transparent; border-radius: 4px; padding: 3px 7px; color: var(--ink-2); font-weight: 700; font-size: 11.5px; cursor: pointer; }
-				.rich-tools button:hover { background: var(--surface); }
-				.rich .textarea { border: 0; border-radius: 0; display: block; width: 100%; }
-				.help { font-size: 11px; color: var(--muted); margin-top: 4px; }
-				.switch-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); }
-				.switch-row:last-child { border-bottom: 0; }
-				.switch-row b { display: block; font-size: 12.5px; }
-				.switch-row span { display: block; color: var(--muted); font-size: 11px; margin-top: 1px; }
-				.toggle { width: 38px; height: 21px; border-radius: 99px; background: var(--line-strong); padding: 2px; border: 0; flex: none; cursor: pointer; position: relative; transition: background .2s; }
-				.toggle::after { content: ""; display: block; width: 17px; height: 17px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.15); transition: transform .2s; }
-				.toggle.on { background: var(--primary); }
-				.toggle.on::after { transform: translateX(17px); }
-				.media-drop { border: 1.5px dashed var(--line-strong); border-radius: 10px; min-height: 115px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 5px; background: var(--surface-2); color: var(--muted); text-align: center; padding: 12px; cursor: pointer; }
-				.media-drop svg { width: 22px; height: 22px; color: var(--primary); }
-				.media-drop b { font-size: 12.5px; color: var(--ink-2); }
-				.media-drop span { font-size: 11px; }
-				.media-current { display: flex; gap: 8px; margin-top: 9px; align-items: center; }
-				.publish-card { background: var(--sidebar); color: #dbe8e0; border-radius: var(--r-lg); padding: 16px; }
-				.publish-card h3 { color: #fff; font-size: 14.5px; margin: 0 0 4px; }
-				.publish-card p { color: #9fc2b3; font-size: 11.5px; margin: 0 0 12px; }
-				.publish-card .btn { width: 100%; margin-bottom: 8px; }
-				.publish-card .btn:last-child { margin-bottom: 0; }
-				.publish-card .btn.light { background: #fff; color: var(--primary-2); font-weight: 700; border: 0; }
-				.publish-card .btn.light:hover { background: #eef5f1; }
-				.publish-card .btn.line { border-color: rgba(255,255,255,.25); color: #fff; background: transparent; }
-				.publish-card .btn.line:hover { background: rgba(255,255,255,.08); }
-				.side-form { display: grid; gap: 14px; }
-				.side-form .card { padding: 16px; }
-				.side-form h3 { font-size: 14px; margin: 0 0 10px; }
-				.alert { display: flex; gap: 8px; padding: 9px 11px; border-radius: 8px; background: var(--amber-soft); color: #7a4e05; font-size: 11.5px; align-items: flex-start; }
-				.alert svg { width: 15px; height: 15px; flex: none; margin-top: 1px; }
-
-				/* MAIN CONTENT */
-				.main {
-					padding: 18px clamp(14px, 2.5vw, 28px) 36px;
-					max-width: 1440px;
-					width: 100%;
-				}
-				.topbar {
-					display: flex;
-					align-items: center;
-					gap: 12px;
-					flex-wrap: wrap;
-					margin-bottom: 18px;
-				}
-				.greet h1 { font-size: clamp(1.25rem, 1.8vw, 1.55rem); }
-				.greet p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
-				.top-tools { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-				
-				.omni-btn {
-					display: flex;
-					align-items: center;
-					gap: 8px;
-					background: var(--surface);
-					border: 1px solid var(--line);
-					border-radius: 999px;
-					padding: 6px 14px;
-					color: var(--muted);
-					font-size: 12.5px;
-					box-shadow: var(--sh-sm);
-					cursor: pointer;
-				}
-				.omni-btn:hover {
-					border-color: var(--line-strong);
-					color: var(--ink);
-				}
-				.btn {
-					display: inline-flex;
-					align-items: center;
-					justify-content: center;
-					gap: 6px;
-					font-weight: 600;
-					font-size: 12.5px;
-					padding: 7px 13px;
-					border-radius: 8px;
-					border: 1px solid transparent;
-					cursor: pointer;
-					white-space: nowrap;
-					transition: all .15s;
-				}
-				.btn.solid {
-					background: var(--primary);
-					color: #fff;
-					box-shadow: var(--sh-sm);
-				}
-				.btn.solid:hover { background: var(--primary-2); }
-				.btn.ghost {
-					background: var(--surface);
-					border-color: var(--line);
-					color: var(--ink);
-				}
-				.btn.ghost:hover { border-color: var(--line-strong); }
-				.btn.dark {
-					background: var(--sidebar);
-					color: #fff;
-				}
-				.btn.dark:hover { background: var(--sidebar-2); }
-				.btn.small {
-					padding: 4px 8px;
-					font-size: 11px;
-					border-radius: 6px;
-				}
-
-				/* CARDS & PANELS */
-				.card {
-					background: var(--surface);
-					border: 1px solid var(--line);
-					border-radius: var(--r-lg);
-					box-shadow: var(--sh);
-				}
-				.panel { padding: 18px; }
-				.panel-head {
-					display: flex;
-					align-items: center;
-					justify-content: space-between;
-					gap: 10px;
-					margin-bottom: 14px;
-				}
-				.panel-head h3 { font-size: 16px; }
-				.panel-head .sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
-
-				.grid-kpi {
-					display: grid;
-					grid-template-columns: repeat(4, 1fr);
-					gap: 12px;
-				}
-				.kpi { padding: 14px 16px; }
-				.kpi .k-label {
-					display: flex;
-					align-items: center;
-					justify-content: space-between;
-					font-size: 11.5px;
-					color: var(--muted);
-					font-weight: 600;
-				}
-				.kpi .k-val {
-					font-family: var(--display);
-					font-weight: 800;
-					font-size: clamp(1.4rem, 2vw, 1.8rem);
-					letter-spacing: -.04em;
-					margin: 6px 0 2px;
-				}
-				.kpi .k-val .sub { font-size: .85rem; font-weight: 600; color: var(--muted); }
-				.kpi .k-foot {
-					display: flex;
-					align-items: center;
-					gap: 6px;
-					font-size: 11.5px;
-					margin-top: 4px;
-				}
-				.k-foot .then { color: var(--muted); }
-
-				.chip {
-					display: inline-flex;
-					align-items: center;
-					gap: 3px;
-					font-size: 11px;
-					font-weight: 700;
-					padding: 2px 7px;
-					border-radius: 999px;
-				}
-				.chip.up { background: var(--primary-soft); color: var(--primary-2); }
-				.chip.down { background: var(--rose-soft); color: var(--rose); }
-				.chip.warn { background: var(--amber-soft); color: #7a4e05; }
-				.chip.flat { background: var(--surface-2); color: var(--muted); }
-
-				.meter-card {
-					padding: 18px;
-					background: linear-gradient(140deg, var(--sidebar), #12513c);
-					border: 1px solid rgba(255,255,255,.08);
-					color: #dbe8e0;
-				}
-				.meter-card h3 { color: #fff; font-size: 15.5px; }
-				.meter-card .sub { color: #9fc2b3; font-size: 12px; margin-top: 2px; }
-				.meter-top {
-					display: flex;
-					align-items: flex-end;
-					gap: 12px;
-					flex-wrap: wrap;
-					margin: 14px 0 4px;
-				}
-				.meter-big {
-					font-family: var(--display);
-					font-weight: 800;
-					font-size: clamp(1.5rem, 2.2vw, 2rem);
-					letter-spacing: -.04em;
-					color: #fff;
-					line-height: 1;
-				}
-				.meter-big .t { font-size: 1rem; color: #9fc2b3; font-weight: 600; }
-				.meter-flag { margin-left: auto; text-align: right; }
-				.meter-flag b { display: block; color: #4fe0a4; font-family: var(--display); font-weight: 700; font-size: 14px; }
-				.meter-flag span { font-size: 11.5px; color: #9fc2b3; }
-				.bar {
-					height: 12px;
-					border-radius: 999px;
-					background: rgba(255,255,255,.12);
-					overflow: hidden;
-					margin-top: 12px;
-					position: relative;
-				}
-				.bar .fill {
-					height: 100%;
-					background: linear-gradient(90deg, #3fb886, #5fe0a4);
-					border-radius: 999px;
-				}
-				.meter-scale {
-					display: flex;
-					justify-content: space-between;
-					font-size: 11px;
-					color: #9fc2b3;
-					margin-top: 6px;
-				}
-				.meter-scale b { color: #e4f0ea; font-weight: 600; }
-
-				.row-2 {
-					display: grid;
-					grid-template-columns: 1.5fr 1fr;
-					gap: 14px;
-					margin-bottom: 14px;
-				}
-				.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-				.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-
-				.table-wrap { overflow-x: auto; width: 100%; }
-				.table {
-					width: 100%;
-					border-collapse: collapse;
-					font-size: 13px;
-				}
-				.table th {
-					text-align: left;
-					padding: 10px 14px;
-					font-size: 11px;
-					text-transform: uppercase;
-					letter-spacing: .06em;
-					color: var(--muted);
-					border-bottom: 1px solid var(--line);
-					background: var(--surface-2);
-					font-weight: 700;
-				}
-				.table td {
-					padding: 10px 14px;
-					border-bottom: 1px solid var(--line);
-					vertical-align: middle;
-				}
-				.table tr:last-child td { border-bottom: 0; }
-				.table tr:hover td { background: var(--surface-2); }
-
-				/* FORM ELEMENTS */
-				.form-group { margin-bottom: 12px; }
-				.form-group label {
-					display: block;
-					font-size: 12px;
-					font-weight: 700;
-					margin-bottom: 4px;
-					color: var(--ink);
-				}
-				.input, .textarea, .select-full {
-					width: 100%;
-					border: 1px solid var(--line-strong);
-					background: var(--surface);
-					border-radius: 8px;
-					padding: 8px 11px;
-					color: var(--ink);
-					font-size: 13px;
-				}
-				.input:focus, .textarea:focus, .select-full:focus {
-					border-color: var(--primary);
-					outline: 0;
-					box-shadow: 0 0 0 3px rgba(14,124,86,.12);
-				}
-
-				/* MODAL CONTAINER & DIALOG */
-				#modal-container:not(:empty) {
-					position: fixed;
-					inset: 0;
-					background: rgba(10,47,36,.65);
-					backdrop-filter: blur(4px);
-					z-index: 1000;
-					display: grid;
-					place-items: center;
-					padding: 20px;
-					overflow-y: auto;
-				}
-				.modal-card {
-					background: var(--surface);
-					border-radius: var(--r-lg);
-					box-shadow: 0 20px 50px -15px rgba(0,0,0,.35);
-					width: 100%;
-					max-height: 90vh;
-					overflow-y: auto;
-					border: 1px solid var(--line);
-				}
-				.modal-head {
-					display: flex;
-					justify-content: space-between;
-					align-items: center;
-					padding: 16px 20px;
-					border-bottom: 1px solid var(--line);
-				}
-				.modal-head h3, .modal-head h4 { font-size: 16px; margin: 0; }
-				.modal-body { padding: 18px 20px; }
-				.modal-foot {
-					display: flex;
-					justify-content: flex-end;
-					gap: 8px;
-					padding: 14px 20px;
-					border-top: 1px solid var(--line);
-					background: var(--surface-2);
-					border-radius: 0 0 var(--r-lg) var(--r-lg);
-				}
-				.close-btn {
-					background: transparent;
-					border: 0;
-					font-size: 22px;
-					color: var(--muted);
-					cursor: pointer;
-					line-height: 1;
-				}
-				.close-btn:hover { color: var(--rose); }
-
-				dialog.modal-dialog {
-					border: 0;
-					border-radius: var(--r-lg);
-					padding: 0;
-					background: transparent;
-					box-shadow: 0 24px 60px -15px rgba(0,0,0,.4);
-					max-width: 600px;
-					width: 90%;
-				}
-				dialog::backdrop {
-					background: rgba(10,47,36,.65);
-					backdrop-filter: blur(4px);
-				}
-
-				@media(max-width: 1120px) {
-					.grid-kpi { grid-template-columns: repeat(2, 1fr); }
-					.app { grid-template-columns: 1fr; }
-					.side { position: static; height: auto; }
-					.row-2 { grid-template-columns: 1fr; }
-					.three-col { grid-template-columns: 1fr; }
-				}
-			
-			/* ============ Modern polish layer (2026-09-21) ============ */
-			:root { color-scheme: light; }
-			*, *::before, *::after { box-sizing: border-box; }
-			:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
-			button, a, input, select, textarea { transition: border-color .18s cubic-bezier(.16,1,.3,1), box-shadow .18s cubic-bezier(.16,1,.3,1), background .18s cubic-bezier(.16,1,.3,1), transform .12s ease; }
-			.btn:active { transform: translateY(1px) scale(.99); }
-			.card { transition: box-shadow .2s ease, transform .2s ease; }
-			.card:hover { box-shadow: 0 10px 30px rgba(13,28,21,.10), 0 2px 6px rgba(13,28,21,.06); }
-			.topbar { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); background: color-mix(in srgb, var(--surface) 82%, transparent); }
-			.nav-item { position: relative; transition: background .18s ease, color .18s ease, transform .12s ease; }
-			.nav-item:hover { transform: translateX(2px); }
-			.nav-item.active::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: #4fe0a4; }
-			.nav-icon { display: inline-block; vertical-align: -2px; flex: 0 0 auto; }
-			.badge { min-width: 20px; text-align: center; font-variant-numeric: tabular-nums; }
-			#tab-content > * { animation: fadeSlideIn .24s cubic-bezier(.16,1,.3,1); }
-			@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-			table tbody tr { transition: background .15s ease; }
-			table tbody tr:hover { background: rgba(13,28,21,.03); }
-			::-webkit-scrollbar { width: 10px; height: 10px; }
-			::-webkit-scrollbar-thumb { background: rgba(13,28,21,.18); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
-			::-webkit-scrollbar-track { background: transparent; }
-			.side::-webkit-scrollbar-thumb { background: rgba(255,255,255,.16); background-clip: content-box; }
-			.greet h1 { letter-spacing: -0.02em; }
-			@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
-		
-			/* ============ Modern polish layer (2026-09-21) ============ */
-			:root { color-scheme: light; }
-			*, *::before, *::after { box-sizing: border-box; }
-			:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
-			button, a, input, select, textarea { transition: border-color .18s cubic-bezier(.16,1,.3,1), box-shadow .18s cubic-bezier(.16,1,.3,1), background .18s cubic-bezier(.16,1,.3,1), transform .12s ease; }
-			.btn:active { transform: translateY(1px) scale(.99); }
-			.card { transition: box-shadow .2s ease, transform .2s ease; }
-			.card:hover { box-shadow: 0 10px 30px rgba(13,28,21,.10), 0 2px 6px rgba(13,28,21,.06); }
-			.topbar { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); background: color-mix(in srgb, var(--surface) 82%, transparent); }
-			.nav-item { position: relative; transition: background .18s ease, color .18s ease, transform .12s ease; }
-			.nav-item:hover { transform: translateX(2px); }
-			.nav-item.active::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: #4fe0a4; }
-			.nav-icon { display: inline-block; vertical-align: -2px; flex: 0 0 auto; }
-			.badge { min-width: 20px; text-align: center; font-variant-numeric: tabular-nums; }
-			#tab-content > * { animation: fadeSlideIn .24s cubic-bezier(.16,1,.3,1); }
-			@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-			table tbody tr { transition: background .15s ease; }
-			table tbody tr:hover { background: rgba(13,28,21,.03); }
-			::-webkit-scrollbar { width: 10px; height: 10px; }
-			::-webkit-scrollbar-thumb { background: rgba(13,28,21,.18); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
-			::-webkit-scrollbar-track { background: transparent; }
-			.side::-webkit-scrollbar-thumb { background: rgba(255,255,255,.16); background-clip: content-box; }
-			.greet h1 { letter-spacing: -0.02em; }
-			@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
-		
-			/* ============ Modern polish layer (2026-09-21) ============ */
-			:root { color-scheme: light; }
-			*, *::before, *::after { box-sizing: border-box; }
-			:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
-			button, a, input, select, textarea { transition: border-color .18s cubic-bezier(.16,1,.3,1), box-shadow .18s cubic-bezier(.16,1,.3,1), background .18s cubic-bezier(.16,1,.3,1), transform .12s ease; }
-			.btn:active { transform: translateY(1px) scale(.99); }
-			.card { transition: box-shadow .2s ease, transform .2s ease; }
-			.card:hover { box-shadow: 0 10px 30px rgba(13,28,21,.10), 0 2px 6px rgba(13,28,21,.06); }
-			.topbar { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); background: color-mix(in srgb, var(--surface) 82%, transparent); }
-			.nav-item { position: relative; transition: background .18s ease, color .18s ease, transform .12s ease; }
-			.nav-item:hover { transform: translateX(2px); }
-			.nav-item.active::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: #4fe0a4; }
-			.nav-icon { display: inline-block; vertical-align: -2px; flex: 0 0 auto; }
-			.badge { min-width: 20px; text-align: center; font-variant-numeric: tabular-nums; }
-			#tab-content > * { animation: fadeSlideIn .24s cubic-bezier(.16,1,.3,1); }
-			@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-			table tbody tr { transition: background .15s ease; }
-			table tbody tr:hover { background: rgba(13,28,21,.03); }
-			::-webkit-scrollbar { width: 10px; height: 10px; }
-			::-webkit-scrollbar-thumb { background: rgba(13,28,21,.18); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
-			::-webkit-scrollbar-track { background: transparent; }
-			.side::-webkit-scrollbar-thumb { background: rgba(255,255,255,.16); background-clip: content-box; }
-			.greet h1 { letter-spacing: -0.02em; }
-			@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
-		
-			/* ============ Modern polish layer (2026-09-21) ============ */
-			:root { color-scheme: light; }
-			*, *::before, *::after { box-sizing: border-box; }
-			:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
-			button, a, input, select, textarea { transition: border-color .18s cubic-bezier(.16,1,.3,1), box-shadow .18s cubic-bezier(.16,1,.3,1), background .18s cubic-bezier(.16,1,.3,1), transform .12s ease; }
-			.btn:active { transform: translateY(1px) scale(.99); }
-			.card { transition: box-shadow .2s ease, transform .2s ease; }
-			.card:hover { box-shadow: 0 10px 30px rgba(13,28,21,.10), 0 2px 6px rgba(13,28,21,.06); }
-			.topbar { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); background: color-mix(in srgb, var(--surface) 82%, transparent); }
-			.nav-item { position: relative; transition: background .18s ease, color .18s ease, transform .12s ease; }
-			.nav-item:hover { transform: translateX(2px); }
-			.nav-item.active::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: #4fe0a4; }
-			.nav-icon { display: inline-block; vertical-align: -2px; flex: 0 0 auto; }
-			.badge { min-width: 20px; text-align: center; font-variant-numeric: tabular-nums; }
-		</style>
+			<script src="/merchant-static/js/htmx.min.js" defer></script>
+			<script src="/merchant-static/js/workspace.js" defer></script>
 		</head>
 		<body>
+			<a class="skip-link" href="#main">Skip to content</a>
 			<div class="app" id="app-root">
 				<script>
-					if (localStorage.getItem('merchant_sidebar_collapsed') === '1') {
-						document.getElementById('app-root')?.classList.add('collapsed');
-					}
+					try { if (localStorage.getItem('merchant_sidebar_collapsed') === '1') document.getElementById('app-root').classList.add('collapsed'); } catch (e) {}
 				</script>
-				<!-- SIDEBAR -->
 				@LeftSidebar(store, activeTab, nav)
-
-				<!-- MAIN CONTENT -->
-				<main class="main">
+				<div class="scrim" aria-hidden="true"></div>
+				<div class="main-col">
 					<header class="topbar">
-						<button 
-							type="button" 
-							class="btn ghost small" 
-							title="Toggle Sidebar (Ctrl+B)" 
-							onclick="toggleMerchantSidebar()"
-						>
-							<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"></path></svg>
+						<button type="button" class="icon-btn menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="side-nav" onclick="toggleMerchantSidebar()">
+							@Icon("menu")
 						</button>
-
-						<div class="greet">
-							<h1>{ Greeting(time.Now()) }, { store.Name }</h1>
-							if nav.OpenOrders > 0 {
-								<p>{ fmt.Sprintf("%d orders need your attention", nav.OpenOrders) } · { store.SovereignPod }</p>
-							} else {
-								<p>All caught up · { store.SovereignPod }</p>
-							}
-						</div>
-
+						@PageTitleBlock(activeTab, false)
 						<div class="top-tools">
-							<!-- Omnibar Search Trigger -->
-							<div class="omni-btn" onclick="document.getElementById('omnibar-dialog')?.showModal(); document.getElementById('omnibar-search')?.focus();">
-								<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4a7 7 0 105 12l4 4"></path></svg>
-								<span>Quick Search…</span>
-								<span style="font-family:var(--mono); font-size:10.5px; background:var(--surface-2); padding:1px 5px; border-radius:4px; border:1px solid var(--line);">Ctrl+K</span>
-							</div>
-
-							<!-- ERP Entity & Fiscal Context -->
-							<div class="fiscal-badge" style="display:inline-flex; align-items:center; gap:5px; padding:4px 8px; border-radius:7px; background:var(--surface-2); border:1px solid var(--line-strong); font-family:var(--mono); font-size:11px; color:var(--ink);">
-								<span style="color:var(--muted);">ENT:</span>
-								<span style="font-weight:700; color:var(--primary);">{ EntityCode(store.LegalName) }</span>
-								<span style="color:var(--muted);">·</span>
-								<span>{ FiscalYear(time.Now()) }</span>
-								<span style="color:var(--muted);">·</span>
-								<span style="font-weight:700; color:var(--primary);">ZAR</span>
-							</div>
-
-							<!-- Global Accounting Period Calendar -->
-							@PeriodCalendarPicker()
-
-							<!-- Theme Switcher -->
-							<select id="theme-switcher-select" class="select" onchange="applyTheme(this.value);" style="padding:5px 8px; font-size:11.5px; border-radius:8px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink);">
-								<option value="artisan">Artisan Emerald</option>
-								<option value="graphite">Dark Graphite</option>
-								<option value="light">Studio Light</option>
-							</select>
-
-							<a href={ templ.SafeURL(fmt.Sprintf("%s/m/%s", strings.TrimRight(nav.PublicBaseURL, "/"), store.ID)) } target="_blank" class="btn ghost small">
-								<span>↗</span> Public Store
-							</a>
-
-							<button 
-								hx-get="/tab/copilot" 
-								hx-target="#tab-content" 
-								hx-push-url="true" 
-								class="btn dark small"
-							>
-								@Icon("copilot") Copilot (Ctrl+J)
+							<button type="button" class="omni-btn" onclick="openOmnibar()" aria-label="Search products, orders and customers">
+								@IconSized("search", 16)
+								<span class="label">Search or jump to…</span>
+								<kbd>Ctrl K</kbd>
 							</button>
+							<a class="btn solid small hide-sm" href="/tab/pos" hx-get="/tab/pos" hx-target="#tab-content" hx-push-url="true">
+								@IconSized("plus", 16)
+								Counter sale
+							</a>
+							<a class="icon-btn" href="/tab/chat" hx-get="/tab/chat" hx-target="#tab-content" hx-push-url="true" aria-label={ inboxLabel(nav) } title="Inbox">
+								@Icon("chat")
+								if nav.UnreadThreads > 0 {
+									<span class="dot">{ fmt.Sprint(nav.UnreadThreads) }</span>
+								}
+							</a>
+							<a class="icon-btn hide-sm" href={ templ.SafeURL(storeURL(nav, store)) } target="_blank" rel="noopener" aria-label="View your public store (opens in a new tab)" title="View store">
+								@Icon("store")
+							</a>
+							<div class="menu">
+								<button type="button" class="icon-btn" data-menu="account-menu" aria-haspopup="true" aria-expanded="false" aria-label="Account and settings">
+									<b style="font-size:var(--fs-12)">{ Initials(accountName(nav)) }</b>
+								</button>
+								<div class="menu-pop" id="account-menu" hidden>
+									<div class="menu-head">
+										<b>{ store.Name }</b>
+										if nav.UserEmail != "" {
+											{ nav.UserEmail }
+										} else {
+											Signed in
+										}
+									</div>
+									<a href="/tab/settings" hx-get="/tab/settings" hx-target="#tab-content" hx-push-url="true">
+										@Icon("settings")
+										Store settings &amp; billing
+									</a>
+									<a href="/tab/audit-logs" hx-get="/tab/audit-logs" hx-target="#tab-content" hx-push-url="true">
+										@Icon("audit-logs")
+										Activity log
+									</a>
+									<a href={ templ.SafeURL(storeURL(nav, store)) } target="_blank" rel="noopener">
+										@Icon("external")
+										View public store
+									</a>
+									<div class="menu-head" style="border:0;margin:6px 0 0;">Appearance</div>
+									<div class="seg" role="group" aria-label="Theme">
+										<button type="button" data-theme-choice="system" onclick="applyTheme('system')">System</button>
+										<button type="button" data-theme-choice="light" onclick="applyTheme('light')">Light</button>
+										<button type="button" data-theme-choice="dark" onclick="applyTheme('dark')">Dark</button>
+									</div>
+									<form method="post" action="/auth/logout">
+										<button type="submit" class="menu-item">
+											@Icon("logout")
+											Sign out
+										</button>
+									</form>
+								</div>
+							</div>
 						</div>
 					</header>
-
-					<!-- DYNAMIC TAB CONTENT CONTAINER -->
-					<div id="tab-content">
-						{ children... }
+					@SubNav(activeTab, nav, false)
+					if nav.DemoData {
+						<div class="demo-banner" role="note">
+							@IconSized("alert", 16)
+							<span><b>Demo workspace.</b> This is a sample business. Nothing here is sent to real buyers, couriers or channels.</span>
+						</div>
+					}
+					<div class="demo-banner" id="offline-banner" role="status" hidden>
+						@IconSized("offline", 16)
+						<span><b>You're offline.</b> Counter sales are saved on this device and sent when you reconnect.</span>
 					</div>
-				</main>
-
-				<!-- MODAL CONTAINER (Populated via HTMX swaps) -->
+					<main class="main" id="main" tabindex="-1">
+						<div id="tab-content">
+							{ children... }
+						</div>
+					</main>
+				</div>
+				@BottomBar(activeTab, nav, false)
 				<div id="modal-container"></div>
-
-				<!-- OMNIBAR DIALOG -->
 				@OmnibarDialog()
+				<div id="toast-stack" class="toast-stack" aria-live="polite"></div>
 			</div>
-
-			<script>
-				// Toggle Sidebar with localStorage persistence
-				function toggleMerchantSidebar() {
-					var root = document.getElementById('app-root');
-					if (!root) return;
-					var isCollapsed = root.classList.toggle('collapsed');
-					try {
-						localStorage.setItem('merchant_sidebar_collapsed', isCollapsed ? '1' : '0');
-					} catch(e) {}
-				}
-
-				// Active Tab & Navigation Highlighting
-				function syncActiveTabHighlight() {
-					var path = window.location.pathname;
-					var navItems = document.querySelectorAll('.nav-item');
-					var matched = false;
-					navItems.forEach(function(item) {
-						var href = item.getAttribute('hx-get') || item.getAttribute('href');
-						if (href && (path === href || (path.startsWith(href) && href !== '/tab/overview' && href !== '/'))) {
-							item.classList.add('active');
-							matched = true;
-						} else {
-							item.classList.remove('active');
-						}
-					});
-					if (!matched && (path === '/' || path === '' || path === '/tab/overview')) {
-						var overviewBtn = document.querySelector('.nav-item[hx-get="/tab/overview"]');
-						if (overviewBtn) overviewBtn.classList.add('active');
-					}
-				}
-
-				// Immediate click handlers for active selection
-				document.addEventListener('click', function(e) {
-					// Sidebar nav item click
-					var navBtn = e.target.closest('.nav-item');
-					if (navBtn) {
-						document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
-						navBtn.classList.add('active');
-					}
-					
-					// Chat thread item click
-					var threadItem = e.target.closest('.thread-item');
-					if (threadItem) {
-						document.querySelectorAll('.thread-item').forEach(function(el) { el.classList.remove('active-thread', 'selected'); });
-						threadItem.classList.add('active-thread', 'selected');
-					}
-
-					// Table row selection click (when clicking outside buttons/links)
-					var tr = e.target.closest('.table tbody tr');
-					if (tr && !e.target.closest('button, a, input, select')) {
-						document.querySelectorAll('.table tbody tr').forEach(function(el) { el.classList.remove('selected'); });
-						tr.classList.add('selected');
-					}
-				});
-
-				// Global Theme Management
-				window.applyTheme = function(theme) {
-					if (!theme) return;
-					document.documentElement.setAttribute('data-theme', theme);
-					try {
-						localStorage.setItem('pemofy_admin_theme', theme);
-					} catch(e) {}
-					var sel = document.getElementById('theme-switcher-select');
-					if (sel && sel.value !== theme) {
-						sel.value = theme;
-					}
-					// Sync theme cards if present in /tab/editor
-					document.querySelectorAll('.theme-preset-card').forEach(function(card) {
-						var cardTheme = card.getAttribute('data-theme-id') || '';
-						if (cardTheme === theme) {
-							card.style.borderColor = 'var(--primary)';
-							card.style.background = 'var(--primary-soft)';
-						} else {
-							card.style.borderColor = 'var(--line)';
-							card.style.background = 'transparent';
-						}
-					});
-				};
-
-				function syncThemeSwitcher() {
-					var curTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('pemofy_admin_theme') || 'artisan';
-					var sel = document.getElementById('theme-switcher-select');
-					if (sel) sel.value = curTheme;
-				}
-
-				document.addEventListener('DOMContentLoaded', syncThemeSwitcher);
-				document.body.addEventListener('htmx:afterOnLoad', function() {
-					syncActiveTabHighlight();
-					syncThemeSwitcher();
-				});
-
-				// Global Keyboard Shortcuts
-				window.addEventListener('keydown', function(e) {
-					if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-						e.preventDefault();
-						var omni = document.getElementById('omnibar-dialog');
-						if (omni) {
-							if (omni.open) omni.close();
-							else { omni.showModal(); document.getElementById('omnibar-search')?.focus(); }
-						}
-					}
-					if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
-						e.preventDefault();
-						toggleMerchantSidebar();
-					}
-					if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'j') {
-						e.preventDefault();
-						var btn = document.querySelector('[hx-get="/tab/copilot"]');
-						if (btn) btn.click();
-					}
-				});
-			</script>
 		</body>
 	</html>
 }
 
-templ LeftSidebar(store models.StoreProfile, activeTab string, nav models.NavContext) {
-	<aside class="side">
-		<!-- Brand Header -->
-		<div class="brand">
-			<span class="mark">
-				<svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-					<path d="M12 2l2.6 6.3L21 11l-6.4 2.7L12 20l-2.6-6.3L3 11l6.4-2.7L12 2z" fill="#fff"></path>
-				</svg>
-			</span>
-			<span class="brand-text">PEMOFY OS</span>
-			<button 
-				type="button" 
-				id="sidebar-toggle-btn" 
-				class="side-collapse-btn" 
-				title="Collapse / Expand sidebar (Ctrl+B)" 
-				onclick="toggleMerchantSidebar()"
+func inboxLabel(nav models.NavContext) string {
+	if nav.UnreadThreads > 0 {
+		return fmt.Sprintf("Inbox, %d unread", nav.UnreadThreads)
+	}
+	return "Inbox"
+}
+
+func accountName(nav models.NavContext) string {
+	if nav.UserEmail != "" {
+		return nav.UserEmail
+	}
+	return "Store"
+}
+
+// ShellOOB refreshes the shell around a swapped tab (title, tab strip,
+// sidebar, bottom bar) so navigation state can never go stale.
+templ ShellOOB(store models.StoreProfile, activeTab string, nav models.NavContext) {
+	<title>{ docTitle(store, activeTab) }</title>
+	@PageTitleBlock(activeTab, true)
+	@SubNav(activeTab, nav, true)
+	@SideNav(activeTab, nav, true)
+	@BottomBar(activeTab, nav, true)
+}
+
+templ PageTitleBlock(activeTab string, swap bool) {
+	<div class="page-title" id="page-title" { oob(swap)... }>
+		<div class="crumb">
+			{ WorkspaceFor(activeTab).Label }
+			if PageTitle(activeTab) != WorkspaceFor(activeTab).Label {
+				@IconSized("chevron", 12)
+				{ TabLabel(activeTab) }
+			}
+		</div>
+		<h1>{ PageTitle(activeTab) }</h1>
+	</div>
+}
+
+templ SubNav(activeTab string, nav models.NavContext, swap bool) {
+	<nav class="subnav" id="subnav" aria-label={ WorkspaceFor(activeTab).Label + " pages" } { oob(swap)... } hidden?={ len(WorkspaceFor(activeTab).Tabs) < 2 }>
+		for _, t := range WorkspaceFor(activeTab).Tabs {
+			<a
+				href={ templ.SafeURL(TabHref(t.Key)) }
+				hx-get={ "/tab/" + t.Key }
+				hx-target="#tab-content"
+				hx-push-url={ TabHref(t.Key) }
+				class={ templ.KV("active", t.Key == activeTab || (activeTab == "" && t.Key == "overview")) }
+				if t.Key == activeTab {
+					aria-current="page"
+				}
 			>
-				<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<polyline points="15 18 9 12 15 6"></polyline>
-				</svg>
+				{ t.Label }
+				if TabBadge(t.Key, nav) > 0 {
+					<span class="count">{ fmt.Sprint(TabBadge(t.Key, nav)) }</span>
+				}
+			</a>
+		}
+	</nav>
+}
+
+templ LeftSidebar(store models.StoreProfile, activeTab string, nav models.NavContext) {
+	<aside class="side" aria-label="Main">
+		<div class="brand">
+			<span class="mark" aria-hidden="true">
+				<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.6 6.3L21 11l-6.4 2.7L12 20l-2.6-6.3L3 11l6.4-2.7L12 2z" fill="currentColor"></path></svg>
+			</span>
+			<span class="brand-text">Shoppage<small>Merchant</small></span>
+			<button type="button" class="side-collapse-btn" title="Collapse sidebar (Ctrl+B)" aria-label="Collapse sidebar" onclick="toggleMerchantSidebar()">
+				@IconSized("collapse", 16)
 			</button>
 		</div>
-
-		<!-- Store Switcher Pill -->
 		<div class="store-switch">
-			<span class="av">M</span>
+			<span class="av" aria-hidden="true">{ Initials(store.Name) }</span>
 			<div class="meta">
 				<b>{ store.Name }</b>
-				<span><i class="live-dot"></i> Live · CIPC: { store.CIPCRegistration }</span>
+				if nav.DemoData {
+					<span><i class="live-dot demo"></i> Demo data</span>
+				} else {
+					<span><i class="live-dot"></i> Store live</span>
+				}
 			</div>
 		</div>
-
-		<!-- Nav: 1. OPERATE -->
-		<div class="nav-label">Operate</div>
-		<button hx-get="/tab/overview" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "" || activeTab == "overview") }>
-			<span class="icon-span">@Icon("overview")</span>
-			<span>Overview</span>
-		</button>
-		<button hx-get="/tab/orders" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "orders") }>
-			<span class="icon-span">@Icon("orders")</span>
-			<span>Orders</span>
-			if nav.OpenOrders > 0 {
-				<span class="badge warn">{ fmt.Sprint(nav.OpenOrders) }</span>
-			}
-		</button>
-		<button hx-get="/tab/catalog" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "catalog") }>
-			<span class="icon-span">@Icon("catalog")</span>
-			<span>Products</span>
-		</button>
-		<button hx-get="/tab/inventory" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "inventory") }>
-			<span class="icon-span">@Icon("inventory")</span>
-			<span>Inventory</span>
-			if nav.LowStock > 0 {
-				<span class="badge warn">{ fmt.Sprint(nav.LowStock) }</span>
-			}
-		</button>
-		<button hx-get="/tab/customers" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "customers") }>
-			<span class="icon-span">@Icon("customers")</span>
-			<span>Customers</span>
-		</button>
-		<button hx-get="/tab/pick-pack" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "pick-pack") }>
-			<span class="icon-span">@Icon("pick-pack")</span>
-			<span>Pick &amp; Pack</span>
-			<span class="badge" style="background:#e0f2fe; color:#0369a1;">WMS</span>
-		</button>
-		<button hx-get="/tab/manifests" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "manifests") }>
-			<span class="icon-span">@Icon("manifests")</span>
-			<span>Carrier Manifests</span>
-		</button>
-		<button hx-get="/tab/transfers" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "transfers") }>
-			<span class="icon-span">@Icon("transfers")</span>
-			<span>Stock Transfers</span>
-		</button>
-		<button hx-get="/tab/scan" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "scan") }>
-			<span class="icon-span">@Icon("scan")</span>
-			<span>Barcode &amp; Audits</span>
-		</button>
-
-		<!-- Nav: 2. GROW -->
-		<div class="nav-label">Grow</div>
-		<button hx-get="/tab/analytics" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "analytics") }>
-			<span class="icon-span">@Icon("analytics")</span>
-			<span>Analytics</span>
-		</button>
-		<button hx-get="/tab/discounts" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "discounts") }>
-			<span class="icon-span">@Icon("discounts")</span>
-			<span>Promotions</span>
-		</button>
-		<button hx-get="/tab/rfqs" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "rfqs") }>
-			<span class="icon-span">@Icon("rfqs")</span>
-			<span>B2B Wholesale</span>
-			if nav.OpenQuotes > 0 {
-				<span class="badge warn">{ fmt.Sprint(nav.OpenQuotes) }</span>
-			}
-		</button>
-		<button hx-get="/tab/pos" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "pos") }>
-			<span class="icon-span">@Icon("pos")</span>
-			<span>POS Trade Counter</span>
-		</button>
-		<button hx-get="/tab/channels" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "channels") }>
-			<span class="icon-span">@Icon("channels")</span>
-			<span>Channels &amp; WhatsApp</span>
-		</button>
-		<button hx-get="/tab/feeds" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "feeds") }>
-			<span class="icon-span">@Icon("feeds")</span>
-			<span>Google &amp; Meta Feeds</span>
-		</button>
-		<button hx-get="/tab/editor" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "editor") }>
-			<span class="icon-span">@Icon("editor")</span>
-			<span>SEO &amp; Content</span>
-		</button>
-		<button hx-get="/tab/media" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "media") }>
-			<span class="icon-span">@Icon("media")</span>
-			<span>Media &amp; Documents</span>
-		</button>
-
-		<!-- Nav: 3. CONFIGURE -->
-		<div class="nav-label">Configure</div>
-		<button hx-get="/tab/flow" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "flow") }>
-			<span class="icon-span">@Icon("flow")</span>
-			<span>Flow Automations</span>
-		</button>
-		<button hx-get="/tab/copilot" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "copilot") }>
-			<span class="icon-span">@Icon("copilot")</span>
-			<span>AI Studio</span>
-			<span class="badge" style="background:#4fe0a4; color:#0a2f24;">AI</span>
-		</button>
-		<button hx-get="/tab/chat" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "chat") }>
-			<span class="icon-span">@Icon("chat")</span>
-			<span>Direct Messages</span>
-			<span class="badge" style="background:#4fe0a4; color:#0a2f24;">Live</span>
-		</button>
-		<button hx-get="/tab/audit-logs" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "audit-logs") }>
-			<span class="icon-span">@Icon("audit-logs")</span>
-			<span>Audit Trail</span>
-		</button>
-		<button hx-get="/tab/settings" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", activeTab == "settings") }>
-			<span class="icon-span">@Icon("settings")</span>
-			<span>Settings</span>
-		</button>
-
-		<!-- Pod Security Note -->
+		@SideNav(activeTab, nav, false)
 		<div class="side-foot">
-			<div class="side-note">
-				<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4fe0a4" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-				<span>Your store runs in its own database on <b style="color:#fff">pod-za-01</b>, Johannesburg. Backed up nightly.</span>
-			</div>
+			<a href="/tab/settings" hx-get="/tab/settings" hx-target="#tab-content" hx-push-url="true" class={ "nav-item", templ.KV("active", WorkspaceFor(activeTab).Key == "settings") }>
+				<span class="icon-span">
+					@Icon("settings")
+				</span>
+				<span>Settings</span>
+			</a>
 		</div>
 	</aside>
+}
+
+templ SideNav(activeTab string, nav models.NavContext, swap bool) {
+	<nav id="side-nav" aria-label="Sections" { oob(swap)... }>
+		for _, w := range Workspaces {
+			<a
+				href={ templ.SafeURL(TabHref(w.Tabs[0].Key)) }
+				hx-get={ "/tab/" + w.Tabs[0].Key }
+				hx-target="#tab-content"
+				hx-push-url={ TabHref(w.Tabs[0].Key) }
+				class={ "nav-item", templ.KV("active", WorkspaceFor(activeTab).Key == w.Key) }
+				if WorkspaceFor(activeTab).Key == w.Key {
+					aria-current="page"
+				}
+				title={ w.Label }
+			>
+				<span class="icon-span">
+					@Icon(w.Icon)
+				</span>
+				<span>{ w.Label }</span>
+				if WorkspaceBadge(w.Key, nav) > 0 {
+					<span class="badge warn" aria-label={ fmt.Sprintf("%d need attention", WorkspaceBadge(w.Key, nav)) }>{ fmt.Sprint(WorkspaceBadge(w.Key, nav)) }</span>
+				}
+			</a>
+		}
+	</nav>
+}
+
+// BottomBar is the phone navigation: the four most-used sections plus More,
+// which opens the full sidebar drawer.
+templ BottomBar(activeTab string, nav models.NavContext, swap bool) {
+	<nav class="bottombar" id="bottombar" aria-label="Quick navigation" { oob(swap)... }>
+		@bottomLink("overview", "Home", "overview", WorkspaceFor(activeTab).Key == "home", 0)
+		@bottomLink("orders", "Sell", "orders", WorkspaceFor(activeTab).Key == "sell", WorkspaceBadge("sell", nav))
+		@bottomLink("catalog", "Products", "catalog", WorkspaceFor(activeTab).Key == "products", 0)
+		@bottomLink("inventory", "Stock", "inventory", WorkspaceFor(activeTab).Key == "stock", WorkspaceBadge("stock", nav))
+		<button type="button" onclick="toggleMerchantSidebar()" aria-label="More sections">
+			@Icon("more")
+			More
+		</button>
+	</nav>
+}
+
+templ bottomLink(tab, label, icon string, active bool, badge int) {
+	<a href={ templ.SafeURL(TabHref(tab)) } hx-get={ "/tab/" + tab } hx-target="#tab-content" hx-push-url={ TabHref(tab) } class={ templ.KV("active", active) }>
+		@Icon(icon)
+		{ label }
+		if badge > 0 {
+			<span class="dot">{ fmt.Sprint(badge) }</span>
+		}
+	</a>
 }

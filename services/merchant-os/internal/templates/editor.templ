@@ -2,178 +2,138 @@ package templates
 
 import (
 	"fmt"
-	"strings"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
+func seoTitle(data models.DashboardViewData) string {
+	if data.Store.Storefront.SEOTitle != "" {
+		return data.Store.Storefront.SEOTitle
+	}
+	t := data.Store.Name
+	if data.Store.City != "" {
+		t += " · " + data.Store.City
+	}
+	return t
+}
+
+func seoDesc(data models.DashboardViewData) string {
+	sf := data.Store.Storefront
+	switch {
+	case sf.SEODescription != "":
+		return sf.SEODescription
+	case sf.About != "":
+		return sf.About
+	}
+	return "Add a short description of what you sell and who you sell to."
+}
+
+// EditorTab edits the public store page and how it appears in search. The
+// preview uses the same values; structured data only includes stored facts.
 templ EditorTab(data models.DashboardViewData) {
-	<div class="panel-head">
-		<div>
-			<h3>Storefront Theme Studio &amp; Visual Customizer</h3>
-			<div class="sub">Storefront branding palettes, announcement ribbons &amp; public discovery appearance</div>
+	{{ sf := data.Store.Storefront }}
+	<div class="page-head">
+		<div class="head-copy">
+			<p>Your store page on Shoppage, and how it shows up in Google and AI search.</p>
 		</div>
-		<div class="right">
-			<a href={ templ.SafeURL(fmt.Sprintf("%s/m/%s", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID)) } target="_blank" class="btn solid small">
-				<span>↗</span> Open Live Storefront
-			</a>
+		<div class="actions">
+			<a class="btn ghost" href={ templ.SafeURL(storeLink(data)) } target="_blank" rel="noopener">View store</a>
 		</div>
 	</div>
-
-	<div class="row-2">
-		<!-- Left: Styling Controls Form -->
-		<div class="card panel">
-			<form hx-post="/editor/save" hx-target="#tab-content">
-				<h4 style="font-size:15px; font-weight:700; margin-bottom:14px;">Executive Theme Preset</h4>
-				
-				<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:18px;">
-					<div 
-						class="card theme-preset-card" 
-						data-theme-id="artisan"
-						style="padding:12px; border:2px solid var(--primary); background:var(--primary-soft); cursor:pointer;" 
-						onclick="applyTheme('artisan');"
-					>
-						<div style="height:32px; border-radius:6px; background:#0a2f24; margin-bottom:6px;"></div>
-						<b style="font-size:13px; color:var(--ink);">Artisan Emerald</b>
-						<div style="font-size:11px; color:var(--muted);">Default Executive</div>
-					</div>
-
-					<div 
-						class="card theme-preset-card" 
-						data-theme-id="graphite"
-						style="padding:12px; border:1px solid var(--line); cursor:pointer;" 
-						onclick="applyTheme('graphite');"
-					>
-						<div style="height:32px; border-radius:6px; background:#0d0e15; margin-bottom:6px;"></div>
-						<b style="font-size:13px; color:var(--ink);">Dark Graphite</b>
-						<div style="font-size:11px; color:var(--muted);">Deep Charcoal</div>
-					</div>
-
-					<div 
-						class="card theme-preset-card" 
-						data-theme-id="light"
-						style="padding:12px; border:1px solid var(--line); cursor:pointer;" 
-						onclick="applyTheme('light');"
-					>
-						<div style="height:32px; border-radius:6px; background:#ffffff; border:1px solid #d5ddd4; margin-bottom:6px;"></div>
-						<b style="font-size:13px; color:var(--ink);">Studio Light</b>
-						<div style="font-size:11px; color:var(--muted);">Clean Minimal</div>
-					</div>
-				</div>
-
+	if data.Nav.DemoData {
+		<div class="notice warn section">Demo: settings save here, but the public demo store doesn't read them yet. The preview shows how they'll look.</div>
+	}
+	<div class="row-2 even">
+		<article class="card panel">
+			<form hx-post="/editor/save" hx-target="#tab-content" data-store-form>
+				<h3 style="margin-bottom:12px;">Store page</h3>
 				<div class="form-group">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-						<label style="margin:0;">Announcement Ribbon Text</label>
-						<label style="font-size:12px; color:var(--muted); display:flex; align-items:center; gap:4px;">
-							<input type="checkbox" name="ribbonActive" checked="checked" style="accent-color:var(--primary);" />
-							Show on Storefront
-						</label>
-					</div>
-					<input 
-						type="text" 
-						name="ribbonText"
-						id="ribbon-input" 
-						class="input" 
-						value="Free wholesale delivery on commercial orders over R5,000 across Gauteng." 
-						oninput="document.getElementById('mockup-ribbon-text').textContent = this.value;"
-					/>
+					<label for="sf-headline">Headline</label>
+					<input id="sf-headline" type="text" name="heroHeadline" class="input" value={ sf.Headline } maxlength="90" placeholder="What you sell, in one line"/>
 				</div>
-
 				<div class="form-group">
-					<label>Hero Headline &amp; Positioning</label>
-					<input 
-						type="text" 
-						name="heroHeadline"
-						id="hero-input" 
-						class="input" 
-						value="Hospitality, Packaging & Catering Wholesale Supplies" 
-						oninput="document.getElementById('mockup-hero-text').textContent = this.value;"
-					/>
+					<label for="sf-about">About your business</label>
+					<textarea id="sf-about" name="about" class="textarea" rows="3" maxlength="400" placeholder="Who you supply, where you deliver, what makes you different">{ sf.About }</textarea>
 				</div>
-
 				<div class="two-col">
 					<div class="form-group">
-						<label>Primary Brand Accent Color</label>
-						<div style="display:flex; gap:8px; align-items:center;">
-							<input type="color" id="accent-color-picker" value="#0e7c56" style="width:42px; height:38px; border:1px solid var(--line); border-radius:8px; cursor:pointer;" onchange="document.getElementById('accent-hex-input').value = this.value;" />
-							<input type="text" id="accent-hex-input" name="accentColor" class="input" value="#0e7c56" style="font-family:var(--mono); max-width:140px;" oninput="document.getElementById('accent-color-picker').value = this.value;" />
-						</div>
+						<label for="sf-hours">Trading hours</label>
+						<input id="sf-hours" type="text" name="tradingHours" class="input" value={ sf.TradingHours } placeholder="Mon–Fri 08:00–17:00"/>
 					</div>
 					<div class="form-group">
-						<label>Storefront Quick Contact</label>
-						<div style="display:flex; flex-direction:column; gap:6px; margin-top:8px;">
-							<label style="font-size:12.5px; display:flex; align-items:center; gap:6px;">
-								<input type="checkbox" name="whatsappFloat" checked="checked" style="accent-color:var(--primary);" />
-								WhatsApp Floating Action Button
-							</label>
-							<label style="font-size:12.5px; display:flex; align-items:center; gap:6px;">
-								<input type="checkbox" name="shoppageBadge" checked="checked" style="accent-color:var(--primary);" />
-								Verified Shoppage SME Badge
-							</label>
-						</div>
+						<label for="sf-ribbon">Announcement</label>
+						<input id="sf-ribbon" type="text" name="ribbonText" class="input" value={ sf.Ribbon } maxlength="100"/>
 					</div>
 				</div>
-
-				<div style="margin-top:18px; display:flex; justify-content:space-between; align-items:center;">
-					<span style="font-size:12px; color:var(--muted);">Palettes stored in localStorage &amp; synchronized with Next.js storefront.</span>
-					<button type="submit" class="btn solid">
-						Save Theme Settings
-					</button>
+				<label class="switch-row">
+					<div><b>Show the announcement</b><span>A thin banner across the top of your store.</span></div>
+					<input type="checkbox" name="ribbonActive" value="on" checked?={ sf.RibbonOn }/>
+				</label>
+				<label class="switch-row">
+					<div><b>WhatsApp button</b><span>Lets buyers message you from any page.</span></div>
+					<input type="checkbox" name="whatsappFloat" value="on" checked?={ sf.WhatsAppButton }/>
+				</label>
+				<h3 style="margin:18px 0 12px;">Search snippet</h3>
+				<div class="form-group">
+					<div class="form-label"><label for="sf-seo-title">Title</label><span data-count-for="sf-seo-title">{ fmt.Sprintf("%d / 60", len([]rune(sf.SEOTitle))) }</span></div>
+					<input id="sf-seo-title" type="text" name="seoTitle" class="input" value={ sf.SEOTitle } maxlength="70" placeholder={ seoTitle(data) }/>
 				</div>
+				<div class="form-group">
+					<div class="form-label"><label for="sf-seo-desc">Description</label><span data-count-for="sf-seo-desc">{ fmt.Sprintf("%d / 155", len([]rune(sf.SEODescription))) }</span></div>
+					<textarea id="sf-seo-desc" name="seoDescription" class="textarea" rows="2" maxlength="170" placeholder="Leave blank to use your About text">{ sf.SEODescription }</textarea>
+				</div>
+				<div style="text-align:right;"><button type="submit" class="btn solid">Save store page</button></div>
 			</form>
-		</div>
-
-		<!-- Right: Storefront Live Mockup Preview -->
-		<div class="card panel" style="background:var(--surface-2); display:flex; flex-direction:column; padding:20px;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-				<h4 style="font-size:14px; font-weight:700;">Live Storefront Preview</h4>
-				<span class="chip up">Responsive Desktop / Mobile</span>
-			</div>
-
-			<div style="background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; box-shadow:var(--sh);">
-				<!-- Storefront Preview Ribbon -->
-				<div style="background:#0a2f24; color:#4fe0a4; padding:6px 12px; font-size:11px; text-align:center; font-weight:600;">
-					<span id="mockup-ribbon-text">Free wholesale delivery on commercial orders over R5,000 across Gauteng.</span>
-				</div>
-
-				<!-- Storefront Header Mockup -->
-				<div style="padding:14px 16px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
-					<div style="display:flex; align-items:center; gap:8px;">
-						<div style="width:24px; height:24px; border-radius:6px; background:#0e7c56; color:#fff; display:grid; place-items:center; font-size:11px; font-weight:800;">M</div>
-						<b style="font-size:13.5px;">{ data.Store.Name }</b>
-					</div>
-					<span style="font-size:11px; color:#0e7c56; font-weight:700;">CIPC Verified</span>
-				</div>
-
-				<!-- Storefront Hero Mockup -->
-				<div style="padding:20px 16px; text-align:center; background:var(--surface-2);">
-					<h3 id="mockup-hero-text" style="font-size:16px; line-height:1.3; margin-bottom:6px;">Hospitality, Packaging &amp; Catering Wholesale Supplies</h3>
-					<p style="font-size:11.5px; color:var(--muted); margin:0 auto; max-width:320px;">Direct factory pricing from Midrand Warehouse Hub. SABS compliant coat hangers, food lids &amp; catering tubs.</p>
-					<div style="margin-top:10px;">
-						<span class="btn solid small" style="font-size:11px; padding:3px 10px;">Browse Catalog ({ fmt.Sprintf("%d SKUs", len(data.Catalog)) })</span>
+		</article>
+		<div class="stack">
+			<article class="card panel">
+				<h3 style="margin-bottom:10px;">Preview</h3>
+				<div class="card" style="overflow:hidden;">
+					if sf.RibbonOn && sf.Ribbon != "" {
+						<div style="background:var(--sidebar); color:#fff; font-size:var(--fs-12); text-align:center; padding:6px 10px;" data-pv="ribbon">{ sf.Ribbon }</div>
+					}
+					<div style="padding:16px;">
+						<div class="who" style="margin-bottom:10px;">
+							<span class="av" aria-hidden="true">{ Initials(data.Store.Name) }</span>
+							<div><b>{ data.Store.Name }</b><span>{ data.Store.City }</span></div>
+						</div>
+						<h3 data-pv="headline">{ orText(sf.Headline, "Your headline") }</h3>
+						<p class="small-text muted" style="margin-top:4px;" data-pv="about">{ orText(sf.About, "Tell buyers about your business.") }</p>
+						<p class="small-text" style="margin-top:8px;">{ fmt.Sprintf("%d products", len(data.Catalog)) }
+							if sf.TradingHours != "" {
+								· { sf.TradingHours }
+							}
+						</p>
 					</div>
 				</div>
-			</div>
-
-			<div style="margin-top:16px; text-align:center;">
-				<a href={ templ.SafeURL(fmt.Sprintf("%s/m/%s", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID)) } target="_blank" class="btn ghost small" style="justify-content:center;">
-					<span>↗</span> Open Live Public Storefront
-				</a>
-			</div>
+			</article>
+			<article class="card panel">
+				<h3 style="margin-bottom:10px;">In search results</h3>
+				<div style="border:1px solid var(--line); border-radius:var(--r-lg); padding:12px;">
+					<div class="small-text muted mono">{ storeLink(data) }</div>
+					<div style="color:var(--info); font-size:var(--fs-16); font-weight:600;" data-pv="seo-title">{ seoTitle(data) }</div>
+					<div class="small-text muted" data-pv="seo-desc">{ seoDesc(data) }</div>
+				</div>
+				<p class="help" style="margin-top:10px;">
+					Your store also publishes structured data (business name, address, phone
+					if data.Store.VerificationStatus == "fully_verified" {
+						, verified status
+					}
+					) so search engines and AI assistants can answer questions about you accurately. Only facts on record are included.
+				</p>
+			</article>
 		</div>
 	</div>
-
 	<script>
-		// Highlight active preset card on tab load
-		(function() {
-			var cur = document.documentElement.getAttribute('data-theme') || localStorage.getItem('pemofy_admin_theme') || 'artisan';
-			document.querySelectorAll('.theme-preset-card').forEach(function(card) {
-				if (card.getAttribute('data-theme-id') === cur) {
-					card.style.borderColor = 'var(--primary)';
-					card.style.background = 'var(--primary-soft)';
-				} else {
-					card.style.borderColor = 'var(--line)';
-					card.style.background = 'transparent';
-				}
+		(function () {
+			var f = document.querySelector('[data-store-form]');
+			if (!f) return;
+			var map = { 'sf-headline': 'headline', 'sf-about': 'about', 'sf-ribbon': 'ribbon', 'sf-seo-title': 'seo-title', 'sf-seo-desc': 'seo-desc' };
+			f.addEventListener('input', function (e) {
+				var key = map[e.target.id];
+				if (key) document.querySelectorAll('[data-pv="' + key + '"]').forEach(function (el) { if (e.target.value) el.textContent = e.target.value; });
+				var c = f.querySelector('[data-count-for="' + e.target.id + '"]');
+				if (c) c.textContent = e.target.value.length + ' / ' + (e.target.id === 'sf-seo-title' ? 60 : 155);
 			});
 		})();
 	</script>

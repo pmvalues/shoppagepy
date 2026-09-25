@@ -2,280 +2,199 @@ package templates
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
-templ OrdersTab(data models.DashboardViewData) {
-	<div style="margin-bottom: 20px;">
-		<div class="panel-head" style="margin-bottom: 16px;">
-			<div>
-				<h3 style="font-size: 1.3rem;">B2B Proforma Orders Ledger</h3>
-				<div class="sub">South African bank EFT settlements, 15% VAT calculation &amp; proforma delivery pipeline</div>
-			</div>
-			<div style="margin-left: auto;">
-				<button class="btn solid small" onclick="document.getElementById('new-order-dialog')?.showModal();">
-					<span>+</span> Issue Proforma Invoice
-				</button>
-			</div>
-		</div>
+// Order views are addressable (/tab/orders?status=awaiting_payment) so a
+// filtered list can be shared or linked from Home.
+var orderViews = [][2]string{
+	{"", "All open"},
+	{"awaiting_payment", "Awaiting payment"},
+	{"to_pack", "To pack"},
+	{"dispatched", "Dispatched"},
+	{"done", "Completed"},
+	{"returns", "Returns"},
+}
 
-		<!-- ERP Accounting Period & Filter Bar (Matching Pemofy OrderWorkbench) -->
-		<div class="card panel" style="padding:12px 16px; margin-bottom:14px; background:var(--surface); border:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-			<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-				<!-- Period Selector Button -->
-				<div style="display:flex; align-items:center; gap:6px;">
-					<span style="font-size:12px; font-weight:700; color:var(--ink);">Accounting Period:</span>
-					<button type="button" class="btn ghost small" onclick="togglePeriodPickerPopover();" style="display:inline-flex; align-items:center; gap:6px; font-weight:600; padding:4px 9px; border-radius:7px; border:1px solid var(--line-strong);">
-						<span style="color:var(--primary);">📅</span>
-						<span id="orders-period-label">This Month (MTD)</span>
-						<span style="color:var(--muted); font-size:10px;">▼</span>
-					</button>
-				</div>
+func orderInView(o models.ProformaOrder, view string) bool {
+	s := strings.ToLower(o.Status)
+	switch view {
+	case "":
+		return s == "issued" || s == "confirmed" || s == "paid" || s == "packed"
+	case "awaiting_payment":
+		return s == "issued"
+	case "to_pack":
+		return s == "confirmed" || s == "paid" || s == "packed"
+	case "dispatched":
+		return s == "dispatched"
+	case "done":
+		return s == "delivered" || s == "collected" || s == "cancelled" || s == "refunded"
+	case "all":
+		return true
+	}
+	return false
+}
 
-				<!-- Text Search Filter -->
-				<div class="search" style="min-width:230px;">
-					<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4a7 7 0 105 12l4 4"></path></svg>
-					<input 
-						type="text" 
-						id="orders-search-input" 
-						placeholder="Search order #, buyer, company…" 
-						style="border:0; outline:0; background:transparent; width:100%; font-size:12.5px; color:var(--ink);"
-						onkeyup="filterOrdersTable();"
-					/>
-				</div>
-
-				<!-- Status Filter Select -->
-				<select id="orders-status-filter" onchange="filterOrdersTable();" style="padding:4px 8px; font-size:12px; border-radius:7px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); font-weight:500;">
-					<option value="">All Statuses</option>
-					<option value="issued">Issued</option>
-					<option value="confirmed">Confirmed</option>
-					<option value="paid">Paid (EFT)</option>
-					<option value="dispatched">Dispatched</option>
-				</select>
-			</div>
-
-			<!-- Live Matching Metrics Counter -->
-			<div style="display:flex; align-items:center; gap:6px; font-size:12px; font-family:var(--mono); color:var(--muted);">
-				<span>Matching:</span>
-				<span id="orders-matching-count" style="font-weight:700; color:var(--ink);">{ fmt.Sprintf("%d", len(data.Orders)) }</span>
-				<span>transactions ·</span>
-				<span id="orders-matching-total" style="font-weight:800; color:var(--primary); font-family:var(--display); font-size:14px;">R 18,420.00</span>
-			</div>
-		</div>
-
-		<script>
-			function filterOrdersTable() {
-				var searchVal = (document.getElementById('orders-search-input')?.value || '').toLowerCase().trim();
-				var statusVal = document.getElementById('orders-status-filter')?.value || '';
-				var matchCount = 0;
-				var totalZar = 0;
-
-				document.querySelectorAll('.order-row').forEach(function(row) {
-					var rowStatus = row.dataset.status || '';
-					var rowDate = row.dataset.date || '';
-					var rowSearch = row.dataset.search || '';
-					var rowTotal = parseFloat(row.dataset.total || '0');
-
-					var matchesStatus = !statusVal || rowStatus === statusVal;
-					var matchesSearch = !searchVal || rowSearch.includes(searchVal);
-					var matchesDate = !window.isDateInPeriod || window.isDateInPeriod(rowDate);
-
-					if (matchesStatus && matchesSearch && matchesDate) {
-						row.style.display = '';
-						matchCount++;
-						totalZar += rowTotal;
-					} else {
-						row.style.display = 'none';
-					}
-				});
-
-				var countEl = document.getElementById('orders-matching-count');
-				var totalEl = document.getElementById('orders-matching-total');
-				if (countEl) countEl.textContent = matchCount;
-				if (totalEl) totalEl.textContent = 'R ' + totalZar.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+func orderRows(data models.DashboardViewData) []models.ProformaOrder {
+	view := orderView(data)
+	q := strings.ToLower(strings.TrimSpace(data.Query["q"]))
+	var out []models.ProformaOrder
+	for _, o := range data.Orders {
+		if q != "" {
+			if !strings.Contains(strings.ToLower(o.OrderNumber+" "+o.Company+" "+o.Customer+" "+o.Phone), q) {
+				continue
 			}
+		} else if !orderInView(o, view) {
+			continue
+		}
+		out = append(out, o)
+	}
+	return out
+}
 
-			// Initialize filter on load
-			filterOrdersTable();
-		</script>
+func orderView(data models.DashboardViewData) string {
+	if v := data.Query["view"]; v != "" {
+		return v
+	}
+	return data.Query["status"]
+}
 
-		<!-- Orders Table Card -->
-		<div class="card panel" style="padding: 0; overflow: hidden;">
-			<table class="table">
-				<thead>
-					<tr>
-						<th style="padding-left: 20px;">Order # &amp; Buyer</th>
-						<th>Company / Contact</th>
-						<th>Date</th>
-						<th>Grand Total (ZAR)</th>
-						<th>Status Pipeline</th>
-						<th style="text-align: right; padding-right: 20px;">Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, order := range data.Orders {
-						<tr class="order-row" data-status={ order.Status } data-date={ order.Date.Format("2006-01-02T15:04:05Z") } data-total={ fmt.Sprintf("%.2f", order.GrandTotal) } data-search={ strings.ToLower(fmt.Sprintf("%s %s %s %s", order.OrderNumber, order.Customer, order.Company, order.Phone)) }>
-							<td style="padding-left: 20px;">
-								<a 
-									href="javascript:void(0)" 
-									hx-get={ fmt.Sprintf("/orders/%s/invoice", order.ID) } 
-									hx-target="#modal-container"
-									style="font-weight: 700; color: var(--primary-2); font-family: var(--mono); text-decoration: none;"
-								>
-									{ order.OrderNumber }
-								</a>
-								<div style="font-size: 12px; color: var(--ink-2);">{ order.Customer }</div>
-							</td>
-							<td>
-								<div style="font-size: 12.5px; font-weight: 600;">{ order.Company }</div>
-								<div style="font-size: 11.5px; color: var(--muted);">{ order.Phone }</div>
-							</td>
-							<td style="font-size: 12px; color: var(--muted);">{ order.Date.Format("02 Jan 2006 · 15:04") }</td>
-							<td>
-								<div style="font-family: var(--display); font-weight: 800; font-size: 15px; color: var(--ink);">
-									{ fmt.Sprintf("R%.2f", order.GrandTotal) }
-								</div>
-								<div style="font-size: 10.5px; color: var(--muted);">Incl. 15% VAT</div>
-							</td>
-							<td>
-								if order.Status == "paid" {
-									<span class="chip up">Paid · EFT Verified</span>
-								} else if order.Status == "dispatched" {
-									<span class="chip up">Dispatched · Courier Guy</span>
-								} else if order.Status == "confirmed" {
-									<span class="chip warn">Confirmed · Awaiting Proof</span>
-								} else {
-									<span class="chip warn">Issued · Waiting EFT</span>
-								}
-							</td>
-							<td style="text-align: right; padding-right: 20px;">
-								<div style="display:flex; justify-content:flex-end; gap:6px; align-items:center;">
-									<button 
-										type="button" 
-										hx-get={ fmt.Sprintf("/orders/%s/invoice", order.ID) } 
-										hx-target="#modal-container" 
-										class="btn ghost small"
-										style="padding:4px 8px; font-size:11.5px;"
-									>
-										View Tax Proforma
-									</button>
+func orderViewCount(data models.DashboardViewData, view string) int {
+	if view == "returns" {
+		n := 0
+		for _, r := range data.ReturnRequests {
+			if r.Status != "Refund Issued" && r.Status != "Rejected" {
+				n++
+			}
+		}
+		return n
+	}
+	n := 0
+	for _, o := range data.Orders {
+		if orderInView(o, view) {
+			n++
+		}
+	}
+	return n
+}
 
-									<form hx-post={ fmt.Sprintf("/orders/%s/advance-status", order.ID) } hx-target="#tab-content" style="display:inline;">
-										if order.Status == "issued" {
-											<button type="submit" class="btn solid small" style="padding:4px 8px; font-size:11.5px;">Mark Confirmed</button>
-										} else if order.Status == "confirmed" {
-											<button type="submit" class="btn solid small" style="padding:4px 8px; font-size:11.5px; background:var(--primary-2);">Verify Paid</button>
-										} else if order.Status == "paid" {
-											<button type="submit" class="btn ghost small" style="padding:4px 8px; font-size:11.5px;">Dispatch</button>
-										}
-									</form>
+func sumOrders(orders []models.ProformaOrder) float64 {
+	t := 0.0
+	for _, o := range orders {
+		t += o.GrandTotal
+	}
+	return t
+}
 
-									<a 
-										href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Proforma%%20Invoice%%20%s%%20for%%20R%.2f%%20ready", order.Phone, order.OrderNumber, order.GrandTotal)) } 
-										target="_blank"
-										class="btn ghost small"
-										style="padding:4px 8px; font-size:11.5px;"
-									>
-										💬 WhatsApp
-									</a>
-								</div>
-							</td>
-						</tr>
-					}
-				</tbody>
-			</table>
+func orderNextAction(status string) string {
+	switch strings.ToLower(status) {
+	case "issued":
+		return "Mark paid"
+	case "confirmed", "paid", "packed":
+		return "Mark dispatched"
+	case "dispatched":
+		return "Mark delivered"
+	}
+	return ""
+}
+
+func waLink(phone, msg string) string {
+	p := strings.TrimPrefix(strings.ReplaceAll(phone, " ", ""), "+")
+	return "https://wa.me/" + p + "?text=" + url.QueryEscape(msg)
+}
+
+func itemsSummary(o models.ProformaOrder) string {
+	units := 0
+	for _, ln := range o.LineItems {
+		units += ln.Quantity
+	}
+	return fmt.Sprintf("%d %s · %s units", len(o.LineItems), Plural(len(o.LineItems), "line", "lines"), Int(units))
+}
+
+templ OrdersTab(data models.DashboardViewData) {
+	{{ view := orderView(data) }}
+	{{ rows := orderRows(data) }}
+	<div class="page-head">
+		<div class="head-copy">
+			<p>Trade orders and invoices. Totals include 15% VAT.</p>
 		</div>
-
-		<!-- Amazon-Style Returns & RMA Workbench -->
-		<div style="margin-top: 28px;">
-			<div class="panel-head" style="margin-bottom: 12px;">
-				<div>
-					<h3 style="font-size: 1.2rem; display:flex; align-items:center; gap:8px;">
-						<span>📦</span>
-						<span>Customer Returns &amp; RMA Workbench</span>
-					</h3>
-					<div class="sub">Amazon-style reverse logistics, The Courier Guy return waybills &amp; SARS VAT credit notes</div>
-				</div>
-				<div style="margin-left: auto;">
-					<button class="btn ghost small" onclick="document.getElementById('new-rma-dialog')?.showModal();">
-						<span>+</span> Authorize New Return
-					</button>
-				</div>
+		<div class="actions">
+			<button class="btn ghost" type="button" onclick="document.getElementById('new-rma-dialog').showModal()">Record a return</button>
+			<button class="btn solid" type="button" onclick="document.getElementById('new-order-dialog').showModal()">
+				@IconSized("plus", 16)
+				New order
+			</button>
+		</div>
+	</div>
+	<section class="card">
+		<div class="panel" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; border-bottom:1px solid var(--line);">
+			<div class="seg" role="group" aria-label="Order views" style="flex-wrap:wrap;">
+				for _, v := range orderViews {
+					<a href={ templ.SafeURL("/tab/orders?view=" + v[0]) } hx-get={ "/tab/orders?view=" + v[0] } hx-target="#tab-content" hx-push-url="true" class={ templ.KV("on", view == v[0] && data.Query["q"] == "") }>
+						{ v[1] }
+						if c := orderViewCount(data, v[0]); c > 0 && v[0] != "done" && v[0] != "dispatched" {
+							<span class="muted">{ fmt.Sprint(c) }</span>
+						}
+					</a>
+				}
 			</div>
-
-			<div class="card panel" style="padding:0; overflow:hidden; border:1px solid var(--line);">
-				<table class="data-table" style="width:100%; border-collapse:collapse; font-size:12.5px;">
+			<form hx-get="/tab/orders" hx-target="#tab-content" hx-push-url="true" style="flex:1 1 220px;">
+				<label class="sr-only" for="orders-q">Search orders</label>
+				<input class="input" id="orders-q" type="search" name="q" value={ data.Query["q"] } placeholder="Search order number, company or phone" hx-get="/tab/orders" hx-trigger="input changed delay:350ms, search" hx-target="#tab-content" hx-push-url="true"/>
+			</form>
+		</div>
+		if view == "returns" && data.Query["q"] == "" {
+			@ReturnsTable(data)
+		} else if len(rows) == 0 {
+			<div class="empty">
+				<div class="empty-icon">
+					@IconSized("orders", 22)
+				</div>
+				if data.Query["q"] != "" {
+					<h3>No orders match "{ data.Query["q"] }"</h3>
+					<p>Search by order number, company or phone number.</p>
+				} else {
+					<h3>Nothing here</h3>
+					<p>Orders in this view will appear here.</p>
+				}
+			</div>
+		} else {
+			<div class="table-wrap">
+				<table class="table">
 					<thead>
-						<tr style="background:var(--surface-2); text-align:left; border-bottom:1px solid var(--line);">
-							<th style="padding:10px 14px;">RMA # / Date</th>
-							<th style="padding:10px 14px;">Order / Customer</th>
-							<th style="padding:10px 14px;">Item &amp; Qty</th>
-							<th style="padding:10px 14px;">Return Reason</th>
-							<th style="padding:10px 14px;">Reverse Courier Waybill</th>
-							<th style="padding:10px 14px;">Refund Amount</th>
-							<th style="padding:10px 14px;">RMA Status &amp; Actions</th>
+						<tr>
+							<th>Order</th>
+							<th>Buyer</th>
+							<th>Date</th>
+							<th class="r">Total</th>
+							<th>Status</th>
+							<th><span class="sr-only">Actions</span></th>
 						</tr>
 					</thead>
 					<tbody>
-						if len(data.ReturnRequests) == 0 {
+						for _, o := range rows {
 							<tr>
-								<td colspan="7" style="padding:24px; text-align:center; color:var(--muted);">
-									No active customer returns or RMA requests on file.
+								<td>
+									<button type="button" class="link" style="border:0;background:none;padding:0;font:inherit;font-weight:600;" hx-get={ "/orders/" + o.ID + "/invoice" } hx-target="#modal-container">{ o.OrderNumber }</button>
+									<div class="small-text muted">{ itemsSummary(o) }</div>
 								</td>
-							</tr>
-						}
-						for _, rma := range data.ReturnRequests {
-							<tr style="border-bottom:1px solid var(--line);">
-								<td style="padding:10px 14px; font-family:var(--mono);">
-									<span style="font-weight:700; color:var(--ink);">{ rma.RMANumber }</span>
-									<div style="font-size:10.5px; color:var(--muted);">{ rma.CreatedAt.Format("02 Jan 2006") }</div>
+								<td>
+									<b style="font-weight:600;">{ o.Company }</b>
+									<div class="small-text muted">{ orDash(o.Customer) }</div>
 								</td>
-								<td style="padding:10px 14px;">
-									<div style="font-weight:600; color:var(--ink);">{ rma.CustomerName }</div>
-									<div style="font-size:11px; font-family:var(--mono); color:var(--muted);">{ rma.OrderNumber }</div>
-								</td>
-								<td style="padding:10px 14px;">
-									<div style="font-weight:500; color:var(--ink); max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title={ rma.ItemTitle }>{ rma.ItemTitle }</div>
-									<div style="font-size:11px; color:var(--muted); font-family:var(--mono);">{ fmt.Sprintf("%d units", rma.Quantity) } · { rma.SKU }</div>
-								</td>
-								<td style="padding:10px 14px;">
-									<span class="chip" style="font-size:11px;">{ rma.Reason }</span>
-								</td>
-								<td style="padding:10px 14px; font-family:var(--mono); font-size:11.5px;">
-									if rma.WaybillNo != "" {
-										<span style="color:var(--primary); font-weight:700;">🚚 { rma.WaybillNo }</span>
-									} else {
-										<span style="color:var(--muted);">-</span>
-									}
-								</td>
-								<td style="padding:10px 14px; font-family:var(--mono); font-weight:700;">
-									R { fmt.Sprintf("%.2f", rma.RefundAmount) }
-								</td>
-								<td style="padding:10px 14px;">
-									<div style="display:flex; align-items:center; gap:8px;">
-										if rma.Status == "Authorized" {
-											<span class="chip" style="background:#fef3c7; color:#b45309; font-weight:700; font-size:11px;">Authorized</span>
-											<form hx-post="/rma/update" hx-target="#tab-content" style="display:inline;">
-												<input type="hidden" name="rmaId" value={ rma.ID } />
-												<input type="hidden" name="status" value="Goods Received" />
-												<button type="submit" class="btn ghost small" style="padding:3px 7px; font-size:11px;" title="Confirm receipt at Midrand warehouse">
-													Mark Received
-												</button>
-											</form>
-										} else if rma.Status == "Goods Received" {
-											<span class="chip" style="background:#e0e7ff; color:#3730a3; font-weight:700; font-size:11px;">Goods Received</span>
-											<form hx-post="/rma/update" hx-target="#tab-content" style="display:inline;">
-												<input type="hidden" name="rmaId" value={ rma.ID } />
-												<input type="hidden" name="status" value="Refund Issued" />
-												<button type="submit" class="btn solid small" style="padding:3px 7px; font-size:11px;" title="Issue bank refund and VAT credit note">
-													Issue Refund
-												</button>
-											</form>
-										} else if rma.Status == "Refund Issued" {
-											<span class="chip up" style="font-weight:700; font-size:11px;">✓ Refund Issued</span>
-										} else {
-											<span class="chip" style="font-size:11px;">{ rma.Status }</span>
+								<td class="small-text muted" title={ LocalDateTime(o.Date) }>{ Ago(o.Date, data.Metrics.Now) }</td>
+								<td class="r"><span class="amt">{ ZAR(o.GrandTotal) }</span><div class="small-text muted">{ o.PaymentMethod }</div></td>
+								<td><span class={ OrderStatusClass(o.Status) }>{ OrderStatusLabel(o.Status) }</span></td>
+								<td class="r">
+									<div class="cluster" style="justify-content:flex-end;">
+										if o.Phone != "" {
+											<a class="btn ghost small" target="_blank" rel="noopener" href={ templ.SafeURL(waLink(o.Phone, fmt.Sprintf("Hi %s, your invoice %s for %s is ready. Bank reference: %s. %s", o.Customer, o.OrderNumber, models.FormatZAR(o.GrandTotal), o.BankingRef, data.Store.Name))) }>WhatsApp</a>
+										}
+										if orderNextAction(o.Status) != "" {
+											<button class="btn solid small" type="button" hx-post={ "/orders/" + o.ID + "/advance-status" } hx-target="#tab-content">{ orderNextAction(o.Status) }</button>
 										}
 									</div>
 								</td>
@@ -284,111 +203,189 @@ templ OrdersTab(data models.DashboardViewData) {
 					</tbody>
 				</table>
 			</div>
-		</div>
-	</div>
+			<div class="panel small-text muted" style="border-top:1px solid var(--line);">
+				{ fmt.Sprintf("%d %s · %s", len(rows), Plural(len(rows), "order", "orders"), ZAR(sumOrders(rows))) }
+			</div>
+		}
+	</section>
+	@NewOrderDialog(data)
+	@NewReturnDialog(data)
+}
 
-	<!-- New Proforma Dialog -->
-	<dialog id="new-order-dialog" class="modal-dialog">
+templ ReturnsTable(data models.DashboardViewData) {
+	if len(data.ReturnRequests) == 0 {
+		<div class="empty">
+			<h3>No returns</h3>
+			<p>When a buyer sends goods back, record it here so stock and refunds stay right.</p>
+		</div>
+	} else {
+		<div class="table-wrap">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Return</th>
+						<th>Buyer</th>
+						<th>Item</th>
+						<th>Reason</th>
+						<th class="r">Refund</th>
+						<th>Status</th>
+						<th><span class="sr-only">Actions</span></th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, rm := range data.ReturnRequests {
+						<tr>
+							<td><b class="mono">{ rm.RMANumber }</b><div class="small-text muted">{ LocalDate(rm.CreatedAt) }</div></td>
+							<td>{ rm.CustomerName }<div class="small-text muted">{ rm.OrderNumber }</div></td>
+							<td>{ fmt.Sprintf("%d × ", rm.Quantity) }<span class="mono">{ rm.SKU }</span><div class="small-text muted">{ rm.ItemTitle }</div></td>
+							<td>{ rm.Reason }<div class="small-text muted">
+								if rm.WaybillNo != "" {
+									Waybill <span class="mono">{ rm.WaybillNo }</span>
+								} else {
+									No courier booked yet
+								}
+							</div></td>
+							<td class="r amt">{ ZAR(rm.RefundAmount) }</td>
+							<td>
+								switch rm.Status {
+									case "Refund Issued":
+										<span class="status ok">Refunded</span>
+									case "Goods Received":
+										<span class="status info">Goods received</span>
+									case "Rejected":
+										<span class="status bad">Rejected</span>
+									default:
+										<span class="status warn">{ rm.Status }</span>
+								}
+							</td>
+							<td class="r">
+								if rm.Status == "Authorized" || rm.Status == "Requested" {
+									<button class="btn ghost small" hx-post="/rma/update" hx-vals={ fmt.Sprintf(`{"rmaId": %q, "status": "Goods Received"}`, rm.ID) } hx-target="#tab-content">Goods received</button>
+								} else if rm.Status == "Goods Received" {
+									<button class="btn solid small" hx-post="/rma/update" hx-vals={ fmt.Sprintf(`{"rmaId": %q, "status": "Refund Issued"}`, rm.ID) } hx-target="#tab-content">Mark refunded</button>
+								}
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+}
+
+templ NewOrderDialog(data models.DashboardViewData) {
+	<dialog id="new-order-dialog" class="modal-dialog" aria-labelledby="new-order-title">
 		<div class="modal-card">
 			<div class="modal-head">
-				<h4>Issue B2B Commercial Proforma</h4>
-				<button type="button" class="close-btn" onclick="document.getElementById('new-order-dialog').close();">&times;</button>
+				<h3 id="new-order-title">New order</h3>
+				<button type="button" class="close-btn" aria-label="Close" onclick="this.closest('dialog').close()">×</button>
 			</div>
-			<form hx-post="/orders/new" hx-target="#tab-content" onsubmit="document.getElementById('new-order-dialog').close();">
+			<form hx-post="/orders/new" hx-target="#tab-content" hx-on::after-request="this.closest('dialog').close()">
 				<div class="modal-body">
 					<div class="form-group">
-						<label>Buyer Company / Account</label>
-						<input type="text" name="company" class="input" placeholder="e.g. Radisson Blu Sandton" required />
+						<label for="no-company">Buyer's company</label>
+						<input id="no-company" type="text" name="company" class="input" list="customer-list" required autocomplete="organization"/>
+						<datalist id="customer-list">
+							for _, c := range data.Customers {
+								<option value={ c.Company }></option>
+							}
+						</datalist>
 					</div>
 					<div class="two-col">
 						<div class="form-group">
-							<label>Contact Person</label>
-							<input type="text" name="customer" class="input" placeholder="e.g. Nomvula Sithole" required />
+							<label for="no-contact">Contact person</label>
+							<input id="no-contact" type="text" name="customer" class="input" autocomplete="name"/>
 						</div>
 						<div class="form-group">
-							<label>WhatsApp / Phone</label>
-							<input type="text" name="phone" class="input" placeholder="27821234567" required />
+							<label for="no-phone">WhatsApp number</label>
+							<input id="no-phone" type="tel" name="phone" class="input" placeholder="27 82 123 4567" autocomplete="tel"/>
 						</div>
 					</div>
 					<div class="two-col">
 						<div class="form-group">
-							<label>Select Product Item</label>
-							<select name="skuId" class="select-full">
+							<label for="no-sku">Product</label>
+							<select id="no-sku" name="skuId" class="select-full" required>
 								for _, item := range data.Catalog {
-									<option value={ item.ID }>{ item.Title } (R{ fmt.Sprintf("%.2f", item.WholesaleZar) })</option>
+									<option value={ item.ID }>{ item.Title } · { ZAR(item.WholesaleZar) }</option>
 								}
 							</select>
 						</div>
 						<div class="form-group">
-							<label>Carton Quantity</label>
-							<input type="number" name="quantity" class="input" value="100" min="1" required />
+							<label for="no-qty">Quantity</label>
+							<input id="no-qty" type="number" name="quantity" class="input" min="1" required inputmode="numeric"/>
 						</div>
 					</div>
 					<div class="form-group">
-						<label>Delivery Destination Address</label>
-						<input type="text" name="address" class="input" placeholder="e.g. Cnr Rivonia Rd & Daisy St, Sandton" required />
+						<label for="no-address">Delivery address</label>
+						<input id="no-address" type="text" name="address" class="input" autocomplete="street-address"/>
 					</div>
+					<p class="help">Priced from your catalogue plus 15% VAT. The order starts as awaiting payment.</p>
 				</div>
 				<div class="modal-foot">
-					<button type="button" class="btn ghost" onclick="document.getElementById('new-order-dialog').close();">Cancel</button>
-					<button type="submit" class="btn solid">Issue Proforma (EFT)</button>
+					<button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button>
+					<button type="submit" class="btn solid">Create order</button>
 				</div>
 			</form>
 		</div>
 	</dialog>
+}
 
-	<!-- New RMA Dialog -->
-	<dialog id="new-rma-dialog" class="modal-dialog">
+templ NewReturnDialog(data models.DashboardViewData) {
+	<dialog id="new-rma-dialog" class="modal-dialog" aria-labelledby="new-rma-title">
 		<div class="modal-card">
 			<div class="modal-head">
-				<h4>Authorize Customer Return (RMA)</h4>
-				<button type="button" class="close-btn" onclick="document.getElementById('new-rma-dialog').close();">&times;</button>
+				<h3 id="new-rma-title">Record a return</h3>
+				<button type="button" class="close-btn" aria-label="Close" onclick="this.closest('dialog').close()">×</button>
 			</div>
-			<form hx-post="/rma/new" hx-target="#tab-content" onsubmit="document.getElementById('new-rma-dialog').close();">
+			<form hx-post="/rma/new" hx-target="#tab-content" hx-on::after-request="this.closest('dialog').close()">
 				<div class="modal-body">
 					<div class="two-col">
 						<div class="form-group">
-							<label>Associated Order #</label>
-							<input type="text" name="orderNumber" class="input" placeholder="e.g. #ORD-9824" required />
+							<label for="rma-order">Order number</label>
+							<input id="rma-order" type="text" name="orderNumber" class="input" placeholder="#ORD-9824" required/>
 						</div>
 						<div class="form-group">
-							<label>Customer / Company</label>
-							<input type="text" name="customer" class="input" placeholder="e.g. Protea Hotel Sandton" required />
+							<label for="rma-customer">Buyer</label>
+							<input id="rma-customer" type="text" name="customer" class="input" list="customer-list" required/>
 						</div>
 					</div>
 					<div class="two-col">
 						<div class="form-group">
-							<label>Select Returned Product</label>
-							<select name="sku" class="select-full">
+							<label for="rma-sku">Product returned</label>
+							<select id="rma-sku" name="sku" class="select-full">
 								for _, item := range data.Catalog {
-									<option value={ item.SKU }>{ item.Title } ({ item.SKU })</option>
+									<option value={ item.SKU }>{ item.Title }</option>
 								}
 							</select>
 						</div>
 						<div class="form-group">
-							<label>Return Reason</label>
-							<select name="reason" class="select-full">
-								<option value="Transit Packaging Damage">Transit Packaging Damage</option>
-								<option value="Defective Unit">Defective Unit</option>
-								<option value="Wrong SKU Delivered">Wrong SKU Delivered</option>
-								<option value="Ordered Incompatible Model">Ordered Incompatible Model</option>
-							</select>
+							<label for="rma-qty">Quantity</label>
+							<input id="rma-qty" type="number" name="quantity" class="input" min="1" value="1" required/>
 						</div>
 					</div>
 					<div class="two-col">
 						<div class="form-group">
-							<label>Quantity to Return</label>
-							<input type="number" name="quantity" class="input" value="10" min="1" required />
+							<label for="rma-reason">Reason</label>
+							<select id="rma-reason" name="reason" class="select-full">
+								<option>Damaged in transit</option>
+								<option>Faulty</option>
+								<option>Wrong item delivered</option>
+								<option>Buyer ordered the wrong item</option>
+							</select>
 						</div>
 						<div class="form-group">
-							<label>Estimated Refund Amount (ZAR)</label>
-							<input type="number" name="refundAmount" class="input" value="228.80" step="0.01" required />
+							<label for="rma-refund">Refund (optional)</label>
+							<input id="rma-refund" type="number" name="refundAmount" class="input" min="0" step="0.01" placeholder="Calculated from price + VAT"/>
 						</div>
+					</div>
+					<div class="form-group">
+						<label for="rma-waybill">Return waybill (optional)</label>
+						<input id="rma-waybill" type="text" name="waybill" class="input"/>
 					</div>
 				</div>
 				<div class="modal-foot">
-					<button type="button" class="btn ghost" onclick="document.getElementById('new-rma-dialog').close();">Cancel</button>
-					<button type="submit" class="btn solid">Generate RMA &amp; Courier Waybill</button>
+					<button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button>
+					<button type="submit" class="btn solid">Authorise return</button>
 				</div>
 			</form>
 		</div>

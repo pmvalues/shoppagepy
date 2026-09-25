@@ -10,9 +10,28 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
+func todaysCounterSales(txns []models.POSTransaction, now time.Time) (int, float64) {
+	y, m, d := now.In(sast).Date()
+	n, total := 0, 0.0
+	for _, t := range txns {
+		ty, tm, td := t.Timestamp.In(sast).Date()
+		if ty == y && tm == m && td == d {
+			n++
+			total += t.TotalZar
+		}
+	}
+	return n, total
+}
+
+// POSTerminalTab is the counter sale screen: tap or scan to add, take
+// payment, done. Sales rung up offline are queued on the device and sent
+// when the connection returns (each carries a client reference, so a
+// resend can never double-count).
 func POSTerminalTab(data models.DashboardViewData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -34,188 +53,386 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"panel-head\"><div><h3>Trade Counter POS Terminal &amp; Walk-In Sales</h3><div class=\"sub\">Cashier register for physical warehouse &amp; shopping centre counter collections with instant Capitec Pay &amp; till slip printing</div></div><div class=\"right\"><span class=\"chip up\">● Register #01 · Midrand Central Hub</span></div></div><div class=\"row-2\"><!-- Left: Quick Tap Product Grid --><div class=\"card panel\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;\"><div><h4 style=\"font-size:15px; font-weight:700;\">Catalog Quick Select</h4><span style=\"font-size:12px; color:var(--muted);\">Tap SKU to add to register cart</span></div><!-- Category Filter Pills --><div style=\"display:flex; gap:6px;\"><button type=\"button\" class=\"chip flat\" onclick=\"filterPOS('all');\">All SKUs</button> <button type=\"button\" class=\"chip flat\" onclick=\"filterPOS('hospitality');\">Hospitality</button> <button type=\"button\" class=\"chip flat\" onclick=\"filterPOS('packaging');\">Packaging</button></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:10px;\">")
+		n, total := todaysCounterSales(data.RecentPOSTxns, data.Metrics.Now)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-head\"><div class=\"head-copy\"><p>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var2 string
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("Today: %d %s, %s", n, Plural(n, "sale", "sales"), ZAR(total)))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 31, Col: 82}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</p></div><div class=\"actions\"><span class=\"chip warn\" id=\"pos-queue\" hidden>0 sales waiting to sync</span></div></div><div class=\"row-2 even\"><article class=\"card panel\"><div class=\"panel-head\"><h3>Products</h3></div><div class=\"form-group\"><label class=\"sr-only\" for=\"pos-find\">Scan a barcode or search</label> <input class=\"input\" id=\"pos-find\" type=\"search\" placeholder=\"Scan a barcode or type to search, then press Enter\" autocomplete=\"off\" autofocus></div><div id=\"pos-grid\" style=\"display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:10px;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, item := range data.Catalog {
-			templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("addToCart('%s', '%s', %.2f)", item.SKU, item.Title, item.WholesaleZar)})
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<button type=\"button\" class=\"card\" style=\"padding:12px; text-align:left; display:flex; flex-direction:column; gap:6px; min-height:112px;\" data-pos-item data-sku=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<button type=\"button\" class=\"card pos-sku-btn\" data-category=\"")
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.SKU)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 53, Col: 25}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var2 string
-			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Category)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 40, Col: 35}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" style=\"padding:12px; text-align:left; border:1px solid var(--line); cursor:pointer; background:var(--surface); display:flex; flex-direction:column; justify-content:space-between; min-height:115px;\" onclick=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var3 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("addToCart('%s', '%s', %.2f)", item.SKU, item.Title, item.WholesaleZar)}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3.Call)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\"><div><span style=\"font-family:var(--mono); font-size:10.5px; color:var(--muted);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" data-title=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(item.SKU)
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 45, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 54, Col: 29}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span> <b style=\"display:block; font-size:12px; line-height:1.3; margin-top:2px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" data-price=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(item.Title)
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.2f", item.WholesaleZar))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 46, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 55, Col: 57}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</b></div><div style=\"display:flex; justify-content:space-between; align-items:center; margin-top:8px; border-top:1px solid var(--line); padding-top:4px;\"><b style=\"font-family:var(--display); font-size:14px; color:var(--primary-2);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" data-stock=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("R%.2f", item.WholesaleZar))
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(item.StockQuantity))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 49, Col: 127}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 56, Col: 49}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</b> <span class=\"chip up\" style=\"font-size:10px;\">+ Tap</span></div></button>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div><!-- Right: Active Till Register Cart --><div class=\"card panel\" style=\"display:flex; flex-direction:column; justify-content:space-between;\"><div><div style=\"display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:8px; margin-bottom:12px;\"><h4 style=\"font-size:15px; font-weight:700;\">Current Register Cart</h4><button type=\"button\" class=\"btn ghost small\" onclick=\"clearCart();\">Clear Cart</button></div><!-- Cart Items Container --><div id=\"pos-cart-items\" style=\"display:grid; gap:8px; max-height:220px; overflow-y:auto; margin-bottom:14px;\"><div id=\"empty-cart-msg\" style=\"text-align:center; padding:24px 0; color:var(--muted); font-size:13px;\">Till register empty. Tap any SKU from the left to add.</div></div></div><!-- Checkout Form --><form hx-post=\"/pos/checkout\" hx-target=\"#tab-content\"><div style=\"border-top:1px solid var(--line); padding-top:10px; margin-bottom:12px;\"><div class=\"form-group\"><label>Customer Name / Account</label> <input type=\"text\" name=\"customer\" class=\"input\" placeholder=\"Walk-in Trade / Protea Hotel\" value=\"Walk-in Trade (Balalaika Sandton)\" required></div><!-- Discount Promo Code in Register --><div style=\"display:flex; gap:6px; margin-bottom:10px;\"><input type=\"text\" id=\"pos-coupon-input\" placeholder=\"Trade Promo (e.g. HOSPITALITY15)\" style=\"flex:1; padding:6px 10px; font-family:var(--mono); font-size:12px; border:1px solid var(--line); border-radius:6px;\"> <button type=\"button\" class=\"btn ghost small\" onclick=\"applyPOSDiscount();\">Apply</button></div><div style=\"display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;\"><span style=\"color:var(--muted);\">Subtotal</span> <b id=\"pos-subtotal\" style=\"font-family:var(--mono);\">R 0.00</b></div><div id=\"pos-discount-row\" style=\"display:none; justify-content:space-between; font-size:13px; margin-bottom:4px; color:var(--primary-2);\"><span>Trade Discount</span> <b id=\"pos-discount\" style=\"font-family:var(--mono);\">-R 0.00</b></div><div style=\"display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;\"><span style=\"color:var(--muted);\">SARS VAT (15%)</span> <b id=\"pos-vat\" style=\"font-family:var(--mono);\">R 0.00</b></div><div style=\"display:flex; justify-content:space-between; font-size:18px; border-top:2px solid var(--ink); padding-top:6px; margin-top:6px;\"><b>Total Due</b> <b id=\"pos-total\" style=\"font-family:var(--display); color:var(--primary-2);\">R 0.00</b></div></div><div class=\"form-group\"><label>Tender Method</label> <select name=\"paymentMethod\" class=\"select-full\" onchange=\"toggleCashCalculator(this.value);\"><option value=\"Capitec Pay QR\">Capitec Pay Instant QR (Scan-to-Pay)</option> <option value=\"Speedpoint Card Terminal\">Speedpoint Card Terminal (EMV Chip &amp; PIN)</option> <option value=\"Direct Bank EFT\">Direct Bank EFT Remittance</option> <option value=\"Cash Tender\">Cash Tender</option></select></div><!-- Cash Tender & Change Due Calculator --><div id=\"cash-calculator\" style=\"display:none; background:var(--surface-2); padding:10px; border-radius:8px; margin-bottom:12px;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;\"><span style=\"font-size:12px; color:var(--muted);\">Cash Tendered:</span> <input type=\"number\" id=\"cash-tendered-input\" placeholder=\"0.00\" step=\"10\" style=\"width:110px; padding:4px 8px; font-family:var(--mono); font-weight:700; border:1px solid var(--line); border-radius:6px;\" oninput=\"calculateChange(this.value);\"></div><div style=\"display:flex; justify-content:space-between; font-size:13px; font-weight:700;\"><span>Change Due:</span> <b id=\"cash-change-due\" style=\"color:var(--primary-2); font-family:var(--mono);\">R 0.00</b></div></div><button type=\"submit\" class=\"btn solid\" style=\"width:100%; padding:10px; font-size:14px;\">💳 Complete Counter Sale (Print Till Slip)</button></form></div></div><!-- Recent Counter Transactions Table --><div class=\"card panel\" style=\"margin-top:20px;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;\"><div><h4 style=\"font-size:15px; font-weight:700;\">Recent Counter Transactions (Shift Log)</h4><div style=\"font-size:12px; color:var(--muted);\">Current cashier shift register settlements</div></div><span style=\"font-size:12px; color:var(--muted);\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d Transactions Today", len(data.RecentPOSTxns)))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 141, Col: 116}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span></div><div class=\"table-wrap\"><table class=\"table\"><thead><tr><th>Receipt #</th><th>Time</th><th>Customer / Account</th><th>Tender Method</th><th>Items</th><th style=\"text-align:right;\">Amount (ZAR)</th><th style=\"text-align:right;\">Till Slip</th></tr></thead> <tbody>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		for _, txn := range data.RecentPOSTxns {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<tr><td style=\"font-family:var(--mono); font-size:12px; font-weight:600;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" data-barcode=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Spec.Barcode)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 57, Col: 38}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if item.StockQuantity <= 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, " disabled")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "><span class=\"small-text muted mono\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(txn.ReceiptNumber)
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(item.SKU)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 160, Col: 96}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 60, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</td><td style=\"font-size:12px; color:var(--muted);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span> <b style=\"font-size:var(--fs-13); line-height:1.3;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(txn.Timestamp.Format("15:04:05"))
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(item.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 161, Col: 89}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 61, Col: 70}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</td><td><b>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</b> <span class=\"cluster\" style=\"margin-top:auto; justify-content:space-between; width:100%;\"><b class=\"num\" style=\"color:var(--primary-2);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(txn.Customer)
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(ZAR(item.WholesaleZar))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 162, Col: 28}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 63, Col: 78}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</b></td><td><span class=\"chip up\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</b> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(txn.PaymentMethod)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 163, Col: 52}
+			if item.StockQuantity <= 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span class=\"chip bad\">Out</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span class=\"small-text muted\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var11 string
+				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(Int(item.StockQuantity))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 67, Col: 64}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " left</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span></td><td style=\"font-size:12px; color:var(--muted);\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var12 string
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d items", len(txn.Items)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 164, Col: 96}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</td><td style=\"text-align:right; font-family:var(--display); font-weight:700;\">R ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var13 string
-			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", txn.TotalZar))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 165, Col: 119}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</td><td style=\"text-align:right;\"><button type=\"button\" class=\"btn ghost small\" onclick=\"window.print();\">Reprint Slip</button></td></tr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</span></button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</tbody></table></div></div><script>\n\t\tvar cart = [];\n\t\tvar discountPct = 0;\n\t\tvar grandTotalDue = 0;\n\n\t\tfunction addToCart(sku, title, price) {\n\t\t\tvar existing = cart.find(function(it) { return it.sku === sku; });\n\t\t\tif (existing) {\n\t\t\t\texisting.qty += 1;\n\t\t\t} else {\n\t\t\t\tcart.push({ sku: sku, title: title, price: price, qty: 1 });\n\t\t\t}\n\t\t\trenderCart();\n\t\t}\n\n\t\tfunction updateCartQty(sku, delta) {\n\t\t\tvar item = cart.find(function(it) { return it.sku === sku; });\n\t\t\tif (!item) return;\n\t\t\titem.qty += delta;\n\t\t\tif (item.qty <= 0) {\n\t\t\t\tcart = cart.filter(function(it) { return it.sku !== sku; });\n\t\t\t}\n\t\t\trenderCart();\n\t\t}\n\n\t\tfunction clearCart() {\n\t\t\tcart = [];\n\t\t\tdiscountPct = 0;\n\t\t\trenderCart();\n\t\t}\n\n\t\tfunction applyPOSDiscount() {\n\t\t\tvar code = (document.getElementById('pos-coupon-input')?.value || '').trim().toUpperCase();\n\t\t\tvar couponInput = document.getElementById('pos-coupon-input');\n\t\t\tif (code === 'HOSPITALITY15') {\n\t\t\t\tdiscountPct = 0.15;\n\t\t\t\tif (couponInput) couponInput.style.borderColor = 'var(--primary)';\n\t\t\t} else if (code === 'BULK2026') {\n\t\t\t\tdiscountPct = 0.20;\n\t\t\t\tif (couponInput) couponInput.style.borderColor = 'var(--primary)';\n\t\t\t} else {\n\t\t\t\tdiscountPct = 0;\n\t\t\t\tif (couponInput) couponInput.style.borderColor = 'var(--rose)';\n\t\t\t}\n\t\t\trenderCart();\n\t\t}\n\n\t\tfunction toggleCashCalculator(method) {\n\t\t\tvar el = document.getElementById('cash-calculator');\n\t\t\tif (!el) return;\n\t\t\tel.style.display = method === 'Cash Tender' ? 'block' : 'none';\n\t\t}\n\n\t\tfunction calculateChange(tenderVal) {\n\t\t\tvar tender = parseFloat(tenderVal) || 0;\n\t\t\tvar change = tender - grandTotalDue;\n\t\t\tvar chEl = document.getElementById('cash-change-due');\n\t\t\tif (!chEl) return;\n\t\t\tif (change >= 0) {\n\t\t\t\tchEl.textContent = 'R ' + change.toFixed(2);\n\t\t\t\tchEl.style.color = 'var(--primary-2)';\n\t\t\t} else {\n\t\t\t\tchEl.textContent = 'Short by R ' + Math.abs(change).toFixed(2);\n\t\t\t\tchEl.style.color = 'var(--rose)';\n\t\t\t}\n\t\t}\n\n\t\tfunction filterPOS(category) {\n\t\t\tvar btns = document.querySelectorAll('.pos-sku-btn');\n\t\t\tbtns.forEach(function(btn) {\n\t\t\t\tif (category === 'all') {\n\t\t\t\t\tbtn.style.display = 'flex';\n\t\t\t\t} else if (category === 'hospitality') {\n\t\t\t\t\tbtn.style.display = btn.dataset.category.toLowerCase().includes('hospitality') ? 'flex' : 'none';\n\t\t\t\t} else if (category === 'packaging') {\n\t\t\t\t\tbtn.style.display = btn.dataset.category.toLowerCase().includes('packaging') ? 'flex' : 'none';\n\t\t\t\t}\n\t\t\t});\n\t\t}\n\n\t\tfunction renderCart() {\n\t\t\tvar cont = document.getElementById('pos-cart-items');\n\t\t\tif (!cont) return;\n\t\t\tif (cart.length === 0) {\n\t\t\t\tcont.innerHTML = '<div style=\"text-align:center; padding:24px 0; color:var(--muted); font-size:13px;\">Till register empty. Tap any SKU from the left to add.</div>';\n\t\t\t\tdocument.getElementById('pos-subtotal').textContent = 'R 0.00';\n\t\t\t\tdocument.getElementById('pos-vat').textContent = 'R 0.00';\n\t\t\t\tdocument.getElementById('pos-total').textContent = 'R 0.00';\n\t\t\t\tdocument.getElementById('pos-discount-row').style.display = 'none';\n\t\t\t\tgrandTotalDue = 0;\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tvar subtotal = 0;\n\t\t\tvar html = '';\n\t\t\tcart.forEach(function(it) {\n\t\t\t\tvar lineTotal = it.price * it.qty;\n\t\t\t\tsubtotal += lineTotal;\n\t\t\t\thtml += '<div style=\"display:flex; justify-content:space-between; align-items:center; background:var(--surface-2); padding:6px 10px; border-radius:6px; font-size:12.5px;\">' +\n\t\t\t\t\t'<div style=\"min-width:0; flex:1;\"><b>' + it.sku + '</b> <span style=\"color:var(--muted); font-size:11.5px;\">' + it.title + '</span></div>' +\n\t\t\t\t\t'<div style=\"display:flex; align-items:center; gap:6px; margin:0 10px;\">' +\n\t\t\t\t\t\t'<button type=\"button\" style=\"width:22px; height:22px; border-radius:4px; border:1px solid var(--line); background:#fff; cursor:pointer;\" onclick=\"updateCartQty(\\'' + it.sku + '\\', -1)\">-</button>' +\n\t\t\t\t\t\t'<b style=\"font-family:var(--mono);\">' + it.qty + '</b>' +\n\t\t\t\t\t\t'<button type=\"button\" style=\"width:22px; height:22px; border-radius:4px; border:1px solid var(--line); background:#fff; cursor:pointer;\" onclick=\"updateCartQty(\\'' + it.sku + '\\', 1)\">+</button>' +\n\t\t\t\t\t'</div>' +\n\t\t\t\t\t'<b style=\"font-family:var(--mono); min-width:65px; text-align:right;\">R ' + lineTotal.toFixed(2) + '</b>' +\n\t\t\t\t'</div>';\n\t\t\t});\n\t\t\tcont.innerHTML = html;\n\n\t\t\tvar discAmount = subtotal * discountPct;\n\t\t\tvar discRow = document.getElementById('pos-discount-row');\n\t\t\tif (discAmount > 0 && discRow) {\n\t\t\t\tdiscRow.style.display = 'flex';\n\t\t\t\tdocument.getElementById('pos-discount').textContent = '-R ' + discAmount.toFixed(2);\n\t\t\t} else if (discRow) {\n\t\t\t\tdiscRow.style.display = 'none';\n\t\t\t}\n\n\t\t\tvar taxableSubtotal = subtotal - discAmount;\n\t\t\tvar vat = taxableSubtotal * 0.15;\n\t\t\tvar total = taxableSubtotal + vat;\n\t\t\tgrandTotalDue = total;\n\n\t\t\tdocument.getElementById('pos-subtotal').textContent = 'R ' + subtotal.toFixed(2);\n\t\t\tdocument.getElementById('pos-vat').textContent = 'R ' + vat.toFixed(2);\n\t\t\tdocument.getElementById('pos-total').textContent = 'R ' + total.toFixed(2);\n\n\t\t\tvar cashIn = document.getElementById('cash-tendered-input');\n\t\t\tif (cashIn && cashIn.value) calculateChange(cashIn.value);\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></article><article class=\"card panel\" style=\"display:flex; flex-direction:column;\"><div class=\"panel-head\"><h3>Sale</h3><button type=\"button\" class=\"right btn quiet small\" id=\"pos-clear\">Clear</button></div><div id=\"pos-cart\" class=\"list\" style=\"min-height:120px;\"><p class=\"muted small-text\" id=\"pos-empty\">Tap a product or scan a barcode to start.</p></div><form id=\"pos-form\" hx-post=\"/pos/checkout\" hx-target=\"#tab-content\" style=\"margin-top:auto;\"><input type=\"hidden\" name=\"cart\" id=\"pos-cart-field\"> <input type=\"hidden\" name=\"discountPct\" id=\"pos-discount-field\" value=\"0\"> <input type=\"hidden\" name=\"clientRef\" id=\"pos-ref\"><div class=\"kv-list\" style=\"margin:12px 0;\"><div class=\"kv-row\"><span>Subtotal</span><b class=\"num\" id=\"pos-subtotal\">R 0.00</b></div><div class=\"kv-row\" id=\"pos-discount-row\" hidden><span>Discount</span><b class=\"num\" id=\"pos-discount\">−R 0.00</b></div><div class=\"kv-row\"><span>VAT (15%)</span><b class=\"num\" id=\"pos-vat\">R 0.00</b></div><div class=\"kv-row\" style=\"font-size:var(--fs-20);\"><span style=\"color:var(--ink); font-weight:700;\">Total</span><b class=\"num\" id=\"pos-total\">R 0.00</b></div></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if len(activeCoupons(data.Coupons)) > 0 {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"form-group\"><label for=\"pos-coupon\">Promotion</label> <select id=\"pos-coupon\" class=\"select-full\"><option value=\"0\">None</option> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			for _, c := range activeCoupons(data.Coupons) {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<option value=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var12 string
+				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.2f", c.DiscountPct))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 98, Col: 58}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var13 string
+				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(c.Code)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 98, Col: 69}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, " · ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var14 string
+				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%% off", c.DiscountPct))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 98, Col: 117}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</option>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</select></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"two-col\"><div class=\"form-group\"><label for=\"pos-customer\">Customer</label> <input id=\"pos-customer\" type=\"text\" name=\"customer\" class=\"input\" placeholder=\"Walk-in customer\" list=\"customer-list-pos\"> <datalist id=\"customer-list-pos\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, c := range data.Customers {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<option value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var15 string
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(c.Company)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 109, Col: 33}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\"></option>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</datalist></div><div class=\"form-group\"><label for=\"pos-method\">Payment</label> <select id=\"pos-method\" name=\"paymentMethod\" class=\"select-full\"><option>Cash</option> <option>Card</option> <option>Capitec Pay</option> <option>Instant EFT</option> <option>SnapScan / Zapper</option></select></div></div><div class=\"form-group\" id=\"pos-cash\" hidden><label for=\"pos-tendered\">Cash received</label> <input id=\"pos-tendered\" type=\"number\" class=\"input money\" min=\"0\" step=\"10\" inputmode=\"decimal\"><p class=\"help\" id=\"pos-change\"></p></div><button type=\"submit\" class=\"btn solid large block\" id=\"pos-pay\" disabled>Take payment</button></form></article></div><section class=\"card\"><div class=\"panel-head panel\" style=\"margin:0; border-bottom:1px solid var(--line);\"><h3>Recent counter sales</h3></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if len(data.RecentPOSTxns) == 0 {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div class=\"empty\"><p>No counter sales yet.</p></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"table-wrap\"><table class=\"table\"><thead><tr><th>Receipt</th><th>When</th><th>Customer</th><th>Paid by</th><th class=\"r\">Items</th><th class=\"r\">Total</th></tr></thead> <tbody>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			for _, t := range data.RecentPOSTxns {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<tr><td class=\"mono\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var16 string
+				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(t.ReceiptNumber)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 148, Col: 42}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</td><td class=\"small-text muted\" title=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var17 string
+				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(LocalDateTime(t.Timestamp))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 149, Col: 71}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var18 string
+				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(Ago(t.Timestamp, data.Metrics.Now))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 149, Col: 110}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</td><td>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var19 string
+				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(t.Customer)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 150, Col: 24}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</td><td>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var20 string
+				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(t.PaymentMethod)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 151, Col: 29}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</td><td class=\"r num\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var21 string
+				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(len(t.Items)))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 152, Col: 52}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</td><td class=\"r amt\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var22 string
+				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(ZAR(t.TotalZar))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 153, Col: 43}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</td></tr>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</tbody></table></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</section><script>\n\t\t(function () {\n\t\t\tvar root = document.getElementById('pos-form');\n\t\t\tif (!root) return;\n\t\t\tvar cart = [];\n\t\t\tvar fmt = function (v) { return 'R\u00a0' + v.toFixed(2).replace(/\\B(?=(\\d{3})+(?!\\d))/g, '\u00a0'); };\n\t\t\tvar $ = function (id) { return document.getElementById(id); };\n\t\t\tvar items = Array.prototype.slice.call(document.querySelectorAll('[data-pos-item]'));\n\t\t\tfunction add(el) {\n\t\t\t\tvar sku = el.dataset.sku, stock = parseInt(el.dataset.stock, 10) || 0;\n\t\t\t\tvar line = cart.find(function (l) { return l.sku === sku; });\n\t\t\t\tif (line) { if (line.qty < stock) line.qty++; else if (window.showToast) showToast('Only ' + stock + ' × ' + sku + ' in stock.'); }\n\t\t\t\telse cart.push({ sku: sku, title: el.dataset.title, price: parseFloat(el.dataset.price), qty: 1, stock: stock });\n\t\t\t\trender();\n\t\t\t}\n\t\t\tfunction render() {\n\t\t\t\tvar box = $('pos-cart');\n\t\t\t\tbox.textContent = '';\n\t\t\t\tif (!cart.length) { var p = document.createElement('p'); p.className = 'muted small-text'; p.textContent = 'Tap a product or scan a barcode to start.'; box.appendChild(p); }\n\t\t\t\tvar sub = 0;\n\t\t\t\tcart.forEach(function (l) {\n\t\t\t\t\tsub += l.price * l.qty;\n\t\t\t\t\tvar row = document.createElement('div'); row.className = 'li';\n\t\t\t\t\tvar txt = document.createElement('div'); txt.className = 'txt';\n\t\t\t\t\tvar b = document.createElement('b'); b.textContent = l.title;\n\t\t\t\t\tvar s = document.createElement('span'); s.textContent = l.sku + ' · ' + fmt(l.price);\n\t\t\t\t\ttxt.appendChild(b); txt.appendChild(s);\n\t\t\t\t\tvar qty = document.createElement('div'); qty.className = 'cluster';\n\t\t\t\t\t[['−', -1], ['+', 1]].forEach(function (d, i) {\n\t\t\t\t\t\tvar btn = document.createElement('button'); btn.type = 'button'; btn.className = 'btn ghost small';\n\t\t\t\t\t\tbtn.textContent = d[0]; btn.setAttribute('aria-label', (d[1] > 0 ? 'Add one ' : 'Remove one ') + l.sku);\n\t\t\t\t\t\tbtn.onclick = function () { l.qty = Math.max(0, Math.min(l.stock, l.qty + d[1])); cart = cart.filter(function (x) { return x.qty > 0; }); render(); };\n\t\t\t\t\t\tif (i === 1) { var q = document.createElement('b'); q.className = 'num'; q.textContent = l.qty; qty.appendChild(q); }\n\t\t\t\t\t\tqty.appendChild(btn);\n\t\t\t\t\t});\n\t\t\t\t\tvar val = document.createElement('div'); val.className = 'val';\n\t\t\t\t\tvar vb = document.createElement('b'); vb.textContent = fmt(l.price * l.qty); val.appendChild(vb);\n\t\t\t\t\trow.appendChild(txt); row.appendChild(qty); row.appendChild(val);\n\t\t\t\t\tbox.appendChild(row);\n\t\t\t\t});\n\t\t\t\tvar pct = parseFloat(($('pos-coupon') || { value: '0' }).value) || 0;\n\t\t\t\tvar disc = sub * pct / 100, net = sub - disc, vat = net * 0.15, total = net + vat;\n\t\t\t\t$('pos-subtotal').textContent = fmt(sub);\n\t\t\t\t$('pos-discount-row').hidden = disc <= 0;\n\t\t\t\t$('pos-discount').textContent = '−' + fmt(disc);\n\t\t\t\t$('pos-vat').textContent = fmt(vat);\n\t\t\t\t$('pos-total').textContent = fmt(total);\n\t\t\t\t$('pos-discount-field').value = pct;\n\t\t\t\t$('pos-cart-field').value = cart.map(function (l) { return l.sku + ':' + l.qty; }).join(',');\n\t\t\t\t$('pos-pay').disabled = !cart.length;\n\t\t\t\t$('pos-pay').textContent = cart.length ? 'Take payment · ' + fmt(total) : 'Take payment';\n\t\t\t\troot.dataset.total = total;\n\t\t\t\tchange();\n\t\t\t}\n\t\t\tfunction change() {\n\t\t\t\tvar t = parseFloat($('pos-tendered').value), due = parseFloat(root.dataset.total || '0');\n\t\t\t\t$('pos-change').textContent = isNaN(t) ? '' : (t >= due ? 'Change: ' + fmt(t - due) : 'Short by ' + fmt(due - t));\n\t\t\t}\n\t\t\titems.forEach(function (el) { el.addEventListener('click', function () { add(el); }); });\n\t\t\t$('pos-clear').onclick = function () { cart = []; render(); };\n\t\t\tif ($('pos-coupon')) $('pos-coupon').onchange = render;\n\t\t\t$('pos-method').onchange = function () { $('pos-cash').hidden = this.value !== 'Cash'; };\n\t\t\t$('pos-cash').hidden = $('pos-method').value !== 'Cash';\n\t\t\t$('pos-tendered').oninput = change;\n\t\t\t$('pos-find').addEventListener('keydown', function (e) {\n\t\t\t\tif (e.key !== 'Enter') return;\n\t\t\t\te.preventDefault();\n\t\t\t\tvar q = this.value.trim().toLowerCase();\n\t\t\t\tvar hit = items.find(function (el) { return el.dataset.barcode === q || el.dataset.sku.toLowerCase() === q; }) ||\n\t\t\t\t\titems.find(function (el) { return (el.dataset.title + ' ' + el.dataset.sku).toLowerCase().indexOf(q) >= 0; });\n\t\t\t\tif (hit && !hit.disabled) { add(hit); this.value = ''; } else if (window.showToast) showToast('No product matches \"' + this.value + '\".');\n\t\t\t});\n\t\t\t$('pos-find').addEventListener('input', function () {\n\t\t\t\tvar q = this.value.trim().toLowerCase();\n\t\t\t\titems.forEach(function (el) { el.hidden = q && (el.dataset.title + ' ' + el.dataset.sku + ' ' + el.dataset.barcode).toLowerCase().indexOf(q) < 0; });\n\t\t\t});\n\n\t\t\t// Offline queue: keep the sale on this device and send it later.\n\t\t\tvar KEY = 'shoppage_pos_queue';\n\t\t\tfunction queue() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } }\n\t\t\tfunction save(q) { try { localStorage.setItem(KEY, JSON.stringify(q)); } catch (e) {} showQueue(); }\n\t\t\tfunction showQueue() { var q = queue(), el = $('pos-queue'); if (!el) return; el.hidden = !q.length; el.textContent = q.length + ' ' + (q.length === 1 ? 'sale' : 'sales') + ' waiting to sync'; }\n\t\t\tfunction flush() {\n\t\t\t\tvar q = queue();\n\t\t\t\tif (!q.length || !navigator.onLine) return;\n\t\t\t\tvar next = q[0];\n\t\t\t\tfetch('/pos/checkout', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(next).toString() })\n\t\t\t\t\t.then(function (r) { if (r.ok) { save(queue().slice(1)); flush(); } });\n\t\t\t}\n\t\t\troot.addEventListener('htmx:configRequest', function () { $('pos-ref').value = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random()); });\n\t\t\troot.addEventListener('submit', function (e) {\n\t\t\t\tif (navigator.onLine) return;\n\t\t\t\te.preventDefault(); e.stopImmediatePropagation();\n\t\t\t\tvar data = Object.fromEntries(new FormData(root).entries());\n\t\t\t\tdata.clientRef = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random();\n\t\t\t\tvar q = queue(); q.push(data); save(q);\n\t\t\t\tcart = []; render();\n\t\t\t\tif (window.showToast) showToast('Offline: sale saved on this device. It will sync when you reconnect.');\n\t\t\t}, true);\n\t\t\twindow.addEventListener('online', flush);\n\t\t\tshowQueue(); flush(); render();\n\t\t})();\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		return nil
 	})
+}
+
+func activeCoupons(cs []models.CouponCode) []models.CouponCode {
+	var out []models.CouponCode
+	for _, c := range cs {
+		if c.Active {
+			out = append(out, c)
+		}
+	}
+	return out
 }
 
 var _ = templruntime.GeneratedTemplate

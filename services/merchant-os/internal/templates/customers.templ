@@ -2,280 +2,240 @@ package templates
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
+type custStats struct {
+	Owed, Credit, Spend float64
+	OverLimit, Owing  int
+}
+
+func customerStats(cs []models.CustomerAccount) custStats {
+	var s custStats
+	for _, c := range cs {
+		s.Owed += c.BalanceZar
+		s.Credit += c.CreditLimit
+		s.Spend += c.TotalSpendZar
+		if c.BalanceZar > 0 {
+			s.Owing++
+		}
+		if c.CreditLimit > 0 && c.BalanceZar > c.CreditLimit {
+			s.OverLimit++
+		}
+	}
+	return s
+}
+
+func customerRows(data models.DashboardViewData) []models.CustomerAccount {
+	q := strings.ToLower(strings.TrimSpace(data.Query["q"]))
+	var out []models.CustomerAccount
+	for _, c := range data.Customers {
+		if q != "" && !strings.Contains(strings.ToLower(c.Company+" "+c.ContactName+" "+c.Email+" "+c.Phone+" "+c.City), q) {
+			continue
+		}
+		if data.Query["view"] == "owing" && c.BalanceZar <= 0 {
+			continue
+		}
+		out = append(out, c)
+	}
+	return out
+}
+
+func creditPct(c models.CustomerAccount) float64 {
+	if c.CreditLimit <= 0 {
+		return 0
+	}
+	return c.BalanceZar / c.CreditLimit * 100
+}
+
 templ CustomersTab(data models.DashboardViewData) {
-	<div class="panel-head">
-		<div>
-			<h3>B2B Customers &amp; Commercial Accounts CRM</h3>
-			<div class="sub">Wholesale trade accounts, credit allowances &amp; buyer relationship records</div>
+	{{ st := customerStats(data.Customers) }}
+	{{ rows := customerRows(data) }}
+	<div class="page-head">
+		<div class="head-copy">
+			<p>{ fmt.Sprintf("%d %s. Contact details are personal information: only use them for this business.", len(data.Customers), Plural(len(data.Customers), "customer", "customers")) }</p>
 		</div>
-		<div class="right">
-			<a href="/customers/export.csv" class="btn ghost small">
-				<span>📥</span> Export CRM CSV
-			</a>
-			<button class="btn solid small" onclick="document.getElementById('new-customer-dialog')?.showModal();">
-				<span>+</span> Add B2B Account
+		<div class="actions">
+			<a class="btn ghost" href="/customers/export.csv">Export CSV</a>
+			<button class="btn solid" type="button" onclick="document.getElementById('new-customer-dialog').showModal()">
+				@IconSized("plus", 16)
+				Add customer
 			</button>
 		</div>
 	</div>
-
-	<!-- CRM Metric Cards -->
-	<div class="grid-kpi" style="margin-bottom:18px;">
-		<div class="card kpi">
-			<div class="k-label"><span>Active B2B Accounts</span><span class="chip up">+3 this mo</span></div>
-			<div class="k-val">{ fmt.Sprintf("%d", len(data.Customers)) } <span class="sub">Holders</span></div>
-			<div class="k-foot"><span class="then">Hotels, Caterers, Wholesalers</span></div>
+	<section class="grid-kpi">
+		<article class="card kpi">
+			<div class="k-label">Customers</div>
+			<div class="k-val">{ Int(len(data.Customers)) }</div>
+			<div class="k-foot">lifetime spend { ZARWhole(st.Spend) }</div>
+		</article>
+		<a class="card kpi" href="/tab/customers?view=owing" hx-get="/tab/customers?view=owing" hx-target="#tab-content" hx-push-url="true">
+			<div class="k-label">Owed to you</div>
+			<div class="k-val">{ ZARWhole(st.Owed) }</div>
+			<div class="k-foot">{ fmt.Sprintf("%d %s with a balance", st.Owing, Plural(st.Owing, "customer", "customers")) }</div>
+		</a>
+		<article class="card kpi">
+			<div class="k-label">Credit extended</div>
+			<div class="k-val">{ ZARWhole(st.Credit) }</div>
+			<div class="k-foot">total of credit limits</div>
+		</article>
+		<article class="card kpi">
+			<div class="k-label">
+				Over their limit
+				if st.OverLimit > 0 {
+					<span class="chip bad">Check</span>
+				}
+			</div>
+			<div class="k-val">{ Int(st.OverLimit) }</div>
+			<div class="k-foot">balance above credit limit</div>
+		</article>
+	</section>
+	<section class="card">
+		<div class="panel" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; border-bottom:1px solid var(--line);">
+			<form hx-get="/tab/customers" hx-target="#tab-content" hx-push-url="true" style="flex:1 1 240px;">
+				<label class="sr-only" for="cust-q">Search customers</label>
+				<input class="input" id="cust-q" type="search" name="q" value={ data.Query["q"] } placeholder="Search name, contact, phone or email" hx-get="/tab/customers" hx-trigger="input changed delay:350ms, search" hx-target="#tab-content" hx-push-url="true"/>
+			</form>
+			<div class="seg" role="group" aria-label="Filter customers">
+				<a href="/tab/customers" hx-get="/tab/customers" hx-target="#tab-content" hx-push-url="true" class={ templ.KV("on", data.Query["view"] == "") }>All</a>
+				<a href="/tab/customers?view=owing" hx-get="/tab/customers?view=owing" hx-target="#tab-content" hx-push-url="true" class={ templ.KV("on", data.Query["view"] == "owing") }>Owing</a>
+			</div>
 		</div>
-		<div class="card kpi">
-			<div class="k-label"><span>Combined Credit Facility</span><span class="chip flat">30-Day Terms</span></div>
-			<div class="k-val">R350,000 <span class="sub">ZAR</span></div>
-			<div class="k-foot"><span class="then">Insured trade credit</span></div>
-		</div>
-		<div class="card kpi">
-			<div class="k-label"><span>Avg Payment Velocity</span><span class="chip up">14.2 Days</span></div>
-			<div class="k-val">98.4% <span class="sub">On Time</span></div>
-			<div class="k-foot"><span class="then">Standard Bank EFT clearance</span></div>
-		</div>
-		<div class="card kpi">
-			<div class="k-label"><span>Repeat Order Rate</span><span class="chip up">+8.4% MoM</span></div>
-			<div class="k-val">74.2% <span class="sub">Repeat</span></div>
-			<div class="k-foot"><span class="then">Monthly re-orders</span></div>
-		</div>
-	</div>
-
-	<!-- Customers Table -->
-	<div class="card panel" style="margin-bottom:18px;">
-		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-			<h4 style="font-size:15px; font-weight:700;">Verified Trade Accounts &amp; Commercial Balances</h4>
-			<span style="font-size:12px; color:var(--muted);">{ fmt.Sprintf("%d Accounts Listed", len(data.Customers)) }</span>
-		</div>
-		<div class="table-wrap">
-			<table class="table">
-				<thead>
-					<tr>
-						<th>Buyer &amp; Entity</th>
-						<th>CIPC &amp; Tax VAT</th>
-						<th>Contact Details</th>
-						<th>Trade Tier</th>
-						<th>Total Spend</th>
-						<th>Credit Limit</th>
-						<th>Balance Due</th>
-						<th>Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, cust := range data.Customers {
-						<tr>
-							<td>
-								<b>{ cust.Company }</b>
-								<div style="font-size:12px; color:var(--muted);">{ cust.ContactName } · { cust.City }</div>
-							</td>
-							<td>
-								<div style="font-family:var(--mono); font-size:11.5px;">CIPC: { cust.CIPCRegistration }</div>
-								<div style="font-family:var(--mono); font-size:11px; color:var(--muted);">VAT: { cust.VATNumber }</div>
-							</td>
-							<td>
-								<div style="font-size:12px;">{ cust.Phone }</div>
-								<div style="font-size:11.5px; color:var(--muted);">{ cust.Email }</div>
-							</td>
-							<td>
-								if cust.Tier == "Platinum Trade" {
-									<span class="chip up">{ cust.Tier }</span>
-								} else if cust.Tier == "Gold Wholesale" {
-									<span class="chip warn">{ cust.Tier }</span>
-								} else {
-									<span class="chip flat">{ cust.Tier }</span>
-								}
-							</td>
-							<td><b style="font-family:var(--display);">{ fmt.Sprintf("R%.2f", cust.TotalSpendZar) }</b></td>
-							<td><span style="font-family:var(--mono); font-size:12px; color:var(--muted);">{ fmt.Sprintf("R%.2f", cust.CreditLimit) }</span></td>
-							<td>
-								if cust.BalanceZar > 0 {
-									<b style="font-family:var(--mono); font-size:12.5px; color:var(--rose);">{ fmt.Sprintf("R%.2f", cust.BalanceZar) }</b>
-								} else {
-									<span class="chip up" style="font-size:11px;">Settled (R0)</span>
-								}
-							</td>
-							<td>
-								<div style="display:flex; gap:6px;">
-									<a href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hello%%20%s,%%20following%%20up%%20from%%20Mitrend%%20Products%%20regarding%%20your%%20account%%20balance%%20R%.2f", cust.Phone, cust.ContactName, cust.BalanceZar)) } target="_blank" class="btn ghost small" style="padding:4px 8px; font-size:11.5px;">
-										<span>💬</span> WhatsApp
-									</a>
-									<button class="btn solid small" style="padding:4px 8px; font-size:11.5px;" onclick={ templ.ComponentScript{Call: fmt.Sprintf("document.getElementById('statement-modal-%s')?.showModal();", cust.ID)} }>
-										Statement
-									</button>
-								</div>
-							</td>
-						</tr>
-					}
-				</tbody>
-			</table>
-		</div>
-	</div>
-
-	<!-- Add Customer Modal Dialog -->
-	<dialog id="new-customer-dialog" class="modal-dialog">
+		if len(rows) == 0 {
+			<div class="empty">
+				if len(data.Customers) == 0 {
+					<h3>No customers yet</h3>
+					<p>Customers are added when you create an order, or you can add them here.</p>
+				} else {
+					<h3>No customers match</h3>
+				}
+			</div>
+		} else {
+			<div class="table-wrap">
+				<table class="table">
+					<thead>
+						<tr><th>Customer</th><th>Contact</th><th class="r">Orders</th><th class="r">Spend</th><th>Balance / limit</th><th>Last order</th><th><span class="sr-only">Actions</span></th></tr>
+					</thead>
+					<tbody>
+						for _, c := range rows {
+							<tr>
+								<td>
+									<div class="who">
+										<span class="av" aria-hidden="true">{ Initials(c.Company) }</span>
+										<div><b>{ c.Company }</b><span>{ orDash(c.City) }{ tierSuffix(c.Tier) }</span></div>
+									</div>
+								</td>
+								<td>{ orDash(c.ContactName) }<div class="small-text muted">{ c.Phone }</div></td>
+								<td class="r num">{ fmt.Sprint(c.OrderCount) }</td>
+								<td class="r amt">{ ZARWhole(c.TotalSpendZar) }</td>
+								<td style="min-width:170px;">
+									<div class="cluster small-text" style="justify-content:space-between;">
+										<b class="num">{ ZAR(c.BalanceZar) }</b>
+										if c.CreditLimit > 0 {
+											<span class="muted">of { ZARWhole(c.CreditLimit) }</span>
+										}
+									</div>
+									if c.CreditLimit > 0 {
+										<div class={ "progress", templ.KV("warn", creditPct(c) >= 80 && creditPct(c) <= 100), templ.KV("bad", creditPct(c) > 100) } style="margin-top:4px;"><span style={ Width(creditPct(c)) }></span></div>
+									}
+								</td>
+								<td class="small-text muted">
+									if c.LastOrderDate.IsZero() {
+										None yet
+									} else {
+										{ Ago(c.LastOrderDate, data.Metrics.Now) }
+									}
+								</td>
+								<td class="r">
+									if c.Phone != "" && c.BalanceZar > 0 {
+										<a class="btn ghost small" target="_blank" rel="noopener" href={ templ.SafeURL(waLink(c.Phone, fmt.Sprintf("Hi %s, a friendly reminder that your account with %s has a balance of %s. Thank you!", c.ContactName, data.Store.Name, models.FormatZAR(c.BalanceZar)))) }>Send reminder</a>
+									} else if c.Phone != "" {
+										<a class="btn ghost small" target="_blank" rel="noopener" href={ templ.SafeURL(waLink(c.Phone, "Hi "+c.ContactName+", ")) }>WhatsApp</a>
+									}
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</section>
+	<dialog id="new-customer-dialog" class="modal-dialog" aria-labelledby="cust-title">
 		<div class="modal-card">
 			<div class="modal-head">
-				<h4>Add New B2B Wholesale Customer</h4>
-				<button type="button" class="close-btn" onclick="document.getElementById('new-customer-dialog').close();">&times;</button>
+				<h3 id="cust-title">Add customer</h3>
+				<button type="button" class="close-btn" aria-label="Close" onclick="this.closest('dialog').close()">×</button>
 			</div>
-			<form hx-post="/customers/new" hx-target="#tab-content" onsubmit="document.getElementById('new-customer-dialog').close();">
+			<form hx-post="/customers/new" hx-target="#tab-content" hx-on::after-request="this.closest('dialog').close()">
 				<div class="modal-body">
 					<div class="form-group">
-						<label>Company / Legal Entity</label>
-						<input type="text" name="company" class="input" placeholder="e.g. Radisson Blu Sandton" required />
+						<label for="c-company">Company or name</label>
+						<input id="c-company" type="text" name="company" class="input" required autocomplete="organization"/>
 					</div>
 					<div class="two-col">
 						<div class="form-group">
-							<label>CIPC Registration Number</label>
-							<input type="text" name="cipc" class="input" placeholder="e.g. 2019/381920/07" value="2019/381920/07" required />
+							<label for="c-contact">Contact person</label>
+							<input id="c-contact" type="text" name="contactName" class="input" autocomplete="name"/>
 						</div>
 						<div class="form-group">
-							<label>SARS VAT Registration Number</label>
-							<input type="text" name="vatNumber" class="input" placeholder="e.g. 4810293819" value="4810293819" />
-						</div>
-					</div>
-					<div class="two-col">
-						<div class="form-group">
-							<label>Primary Contact Name</label>
-							<input type="text" name="contactName" class="input" placeholder="e.g. Nomvula Sithole" required />
-						</div>
-						<div class="form-group">
-							<label>City / Commercial Area</label>
-							<input type="text" name="city" class="input" placeholder="e.g. Sandton, JHB" required />
+							<label for="c-city">Town or city</label>
+							<input id="c-city" type="text" name="city" class="input"/>
 						</div>
 					</div>
 					<div class="two-col">
 						<div class="form-group">
-							<label>WhatsApp Phone</label>
-							<input type="text" name="phone" class="input" placeholder="+27821234567" required />
+							<label for="c-phone">Phone / WhatsApp</label>
+							<input id="c-phone" type="tel" name="phone" class="input" autocomplete="tel"/>
 						</div>
 						<div class="form-group">
-							<label>Email Address</label>
-							<input type="email" name="email" class="input" placeholder="procurement@entity.co.za" required />
+							<label for="c-email">Email</label>
+							<input id="c-email" type="email" name="email" class="input" autocomplete="email"/>
 						</div>
 					</div>
-					<div class="two-col">
-						<div class="form-group">
-							<label>Wholesale Tier</label>
-							<select name="tier" class="select-full">
-								<option value="Platinum Trade">Platinum Trade (25% off)</option>
-								<option value="Gold Wholesale">Gold Wholesale (18% off)</option>
-								<option value="Standard Commercial">Standard Commercial (10% off)</option>
-							</select>
+					<details>
+						<summary class="small-text link" style="cursor:pointer;">Trade account details (optional)</summary>
+						<div class="two-col" style="margin-top:10px;">
+							<div class="form-group">
+								<label for="c-cipc">Company registration</label>
+								<input id="c-cipc" type="text" name="cipc" class="input"/>
+							</div>
+							<div class="form-group">
+								<label for="c-vat">VAT number</label>
+								<input id="c-vat" type="text" name="vatNumber" class="input"/>
+							</div>
 						</div>
-						<div class="form-group">
-							<label>Initial Credit Facility (ZAR)</label>
-							<input type="number" name="creditLimit" class="input" value="50000" />
+						<div class="two-col">
+							<div class="form-group">
+								<label for="c-tier">Price tier</label>
+								<select id="c-tier" name="tier" class="select-full">
+									<option value="">Standard prices</option>
+									for _, t := range data.WholesaleTiers {
+										<option value={ t.TierName }>{ t.TierName }</option>
+									}
+								</select>
+							</div>
+							<div class="form-group">
+								<label for="c-credit">Credit limit</label>
+								<input id="c-credit" type="number" name="creditLimit" class="input" min="0" step="100" placeholder="0 = pay upfront"/>
+							</div>
 						</div>
-					</div>
+					</details>
+					<p class="help" style="margin-top:10px;">Only add people who've agreed to be contacted by your business.</p>
 				</div>
 				<div class="modal-foot">
-					<button type="button" class="btn ghost" onclick="document.getElementById('new-customer-dialog').close();">Cancel</button>
-					<button type="submit" class="btn solid">Save Customer Account</button>
+					<button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button>
+					<button type="submit" class="btn solid">Add customer</button>
 				</div>
 			</form>
 		</div>
 	</dialog>
+}
 
-	<!-- Customer Statement & Ledger Modals -->
-	for _, cust := range data.Customers {
-		<dialog id={ fmt.Sprintf("statement-modal-%s", cust.ID) } class="modal-dialog">
-			<div class="modal-card" style="max-width:760px;">
-				<div class="modal-head">
-					<div>
-						<div class="breadcrumb" style="margin-bottom:2px;">
-							<span>Trade CRM</span>
-							<span>&gt;</span>
-							<span>Statements</span>
-							<span>&gt;</span>
-							<b>{ cust.Company }</b>
-						</div>
-						<h4 style="font-size:16px;">Statement of Account &amp; Credit Ledger</h4>
-					</div>
-					<button type="button" class="close-btn" onclick={ templ.ComponentScript{Call: fmt.Sprintf("document.getElementById('statement-modal-%s').close();", cust.ID)} }>&times;</button>
-				</div>
-				<div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
-					<!-- Entity Header Info -->
-					<div style="background:var(--surface-2); padding:14px; border-radius:10px; border:1px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-						<div>
-							<b style="font-size:15px; display:block;">{ cust.Company }</b>
-							<div style="font-size:12px; color:var(--muted); margin-top:2px;">Contact: { cust.ContactName } ({ cust.Phone })</div>
-							<div style="font-size:11.5px; color:var(--muted); font-family:var(--mono); margin-top:2px;">CIPC: { cust.CIPCRegistration } · SARS VAT: { cust.VATNumber }</div>
-						</div>
-						<div style="text-align:right;">
-							<span class="chip up" style="margin-bottom:4px;">{ cust.Tier }</span>
-							<div style="font-size:11.5px; color:var(--muted);">Terms: <b>30 Days Net</b></div>
-						</div>
-					</div>
-
-					<!-- Credit Utilization Bar -->
-					<div class="card" style="padding:14px; border:1px solid var(--line);">
-						<div style="display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:6px;">
-							<span>Trade Facility: <b>{ fmt.Sprintf("R%.2f", cust.CreditLimit) }</b></span>
-							<span>Current Outstanding: <b style="color:var(--rose);">{ fmt.Sprintf("R%.2f", cust.BalanceZar) }</b></span>
-						</div>
-						<div style="height:8px; border-radius:99px; background:var(--surface-2); overflow:hidden;">
-							<div style={ fmt.Sprintf("height:100%%; background:var(--primary); width:%d%%; border-radius:99px;", int((cust.BalanceZar/cust.CreditLimit)*100)) }></div>
-						</div>
-						<div style="display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:4px;">
-							<span>Available Credit: R { fmt.Sprintf("%.2f", cust.CreditLimit - cust.BalanceZar) }</span>
-							<span>Insured via CGIC</span>
-						</div>
-					</div>
-
-					<!-- Transaction Ledger Table -->
-					<div class="table-wrap">
-						<table class="table">
-							<thead>
-								<tr>
-									<th>Date</th>
-									<th>Type</th>
-									<th>Reference</th>
-									<th style="text-align:right;">Debit</th>
-									<th style="text-align:right;">Credit</th>
-									<th style="text-align:right;">Running Balance</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td style="font-size:12px;">Yesterday</td>
-									<td><span class="chip warn" style="font-size:10.5px;">Proforma Issued</span></td>
-									<td style="font-family:var(--mono); font-size:12px;">#ORD-9824</td>
-									<td style="text-align:right; font-family:var(--mono);">R 5,656.28</td>
-									<td style="text-align:right; font-family:var(--mono); color:var(--muted);">-</td>
-									<td style="text-align:right; font-family:var(--mono); font-weight:700;">R 5,656.28</td>
-								</tr>
-								<tr>
-									<td style="font-size:12px;">12 Sep 2026</td>
-									<td><span class="chip up" style="font-size:10.5px;">Standard Bank EFT</span></td>
-									<td style="font-family:var(--mono); font-size:12px;">DEP-9102</td>
-									<td style="text-align:right; font-family:var(--mono); color:var(--muted);">-</td>
-									<td style="text-align:right; font-family:var(--mono); color:var(--primary-2);">R 12,450.00</td>
-									<td style="text-align:right; font-family:var(--mono); font-weight:700;">R 0.00</td>
-								</tr>
-								<tr>
-									<td style="font-size:12px;">01 Sep 2026</td>
-									<td><span class="chip flat" style="font-size:10.5px;">Proforma Invoice</span></td>
-									<td style="font-family:var(--mono); font-size:12px;">#ORD-9780</td>
-									<td style="text-align:right; font-family:var(--mono);">R 12,450.00</td>
-									<td style="text-align:right; font-family:var(--mono); color:var(--muted);">-</td>
-									<td style="text-align:right; font-family:var(--mono); font-weight:700;">R 12,450.00</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
-				<div class="modal-foot">
-					<button type="button" class="btn ghost" onclick="window.print();">🖨️ Print Statement</button>
-					<a href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Your%%20official%%20Mitrend%%20account%%20statement%%20is%%20ready.%%20Balance:%%20R%.2f", cust.Phone, cust.BalanceZar)) } target="_blank" class="btn solid">
-						<span>💬</span> Dispatch via WhatsApp
-					</a>
-				</div>
-			</div>
-		</dialog>
+func tierSuffix(t string) string {
+	if t == "" {
+		return ""
 	}
+	return " · " + t
 }

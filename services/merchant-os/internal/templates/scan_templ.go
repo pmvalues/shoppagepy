@@ -10,9 +10,24 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
+func recentCounts(ledger []models.ItemLedgerEntry) []models.ItemLedgerEntry {
+	var out []models.ItemLedgerEntry
+	for _, e := range ledger {
+		if strings.HasPrefix(e.Description, "Count at") || strings.HasPrefix(e.DocumentNo, "COUNT-") || strings.HasPrefix(e.DocumentNo, "CYCLE-") {
+			out = append(out, e)
+		}
+	}
+	return out
+}
+
+// ScanStationTab records physical stock counts. Scan with a handheld scanner,
+// the phone camera (where the browser supports it) or type the code; the
+// count replaces the location's quantity and the difference is logged.
 func ScanStationTab(data models.DashboardViewData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -34,87 +49,251 @@ func ScanStationTab(data models.DashboardViewData) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"panel-head\"><div><h3>Barcode Scanner Station &amp; Cycle Count Audits</h3><div class=\"sub\">Handheld laser scanner intake, real-time SKU lookup &amp; physical inventory variance reconciliation</div></div><div class=\"right\"><span class=\"chip up\">● Scanner Ready (USB / Bluetooth / Camera)</span></div></div><!-- Barcode Scanner Live Audit Console --><div class=\"card panel\" style=\"margin-bottom:18px; background:linear-gradient(135deg, var(--surface), var(--surface-2));\"><div style=\"max-width:700px; margin:0 auto; text-align:center; padding:10px 0;\"><div style=\"font-size:36px; margin-bottom:8px;\">📷 🔍</div><h4 style=\"font-size:17px; font-weight:700; margin-bottom:4px;\">Scan or Enter Product Barcode (EAN-13 / SKU)</h4><p style=\"font-size:12.5px; color:var(--muted); margin-bottom:12px;\">Point handheld laser scanner at item label to trigger instant cycle audit.</p><div style=\"display:flex; gap:8px; justify-content:center; margin-bottom:14px;\"><input type=\"text\" id=\"barcode-input\" placeholder=\"Scan or type EAN: e.g. 60098824001 or MIT-3361\" style=\"width:380px; padding:10px 14px; font-family:var(--mono); font-size:14px; border:2px solid var(--primary); border-radius:9px; outline:0;\" onkeydown=\"if(event.key==='Enter'){event.preventDefault(); lookupScannedBarcode(this.value.trim());}\"> <button type=\"button\" class=\"btn solid\" onclick=\"lookupScannedBarcode(document.getElementById('barcode-input').value.trim());\">Lookup SKU</button></div><!-- Quick Test Barcode Pills --><div style=\"display:flex; gap:8px; justify-content:center; flex-wrap:wrap; font-size:11.5px; color:var(--muted);\"><span>Test Barcodes:</span> <button type=\"button\" class=\"chip flat\" onclick=\"lookupScannedBarcode('60098824001');\">60098824001 (MIT-3361 Hanger)</button> <button type=\"button\" class=\"chip flat\" onclick=\"lookupScannedBarcode('60098824002');\">60098824002 (MIT-2088 Ring)</button> <button type=\"button\" class=\"chip flat\" onclick=\"lookupScannedBarcode('60098824003');\">60098824003 (MIT-8609 Lid)</button></div><!-- Live SKU Inspection & Audit Reconciliation Card --><div id=\"scan-result-card\" style=\"margin-top:20px; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px; display:none; box-shadow:var(--sh);\"><form hx-post=\"/scan/reconcile\" hx-target=\"#tab-content\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;\"><div><span id=\"scan-sku-code\" style=\"font-family:var(--mono); font-size:12px; color:var(--primary-2); font-weight:700;\">MIT-3361</span><h4 id=\"scan-sku-title\" style=\"font-size:16px; margin:2px 0;\">Commercial Anti-Theft Wooden Male Hanger 44cm</h4><div style=\"font-size:12px; color:var(--muted);\">Location: <b id=\"scan-sku-bin\">Midrand Central Hub · Bay 4, Shelf B-02</b></div></div><span class=\"chip up\">SABS Verified</span></div><input type=\"hidden\" id=\"scan-sku-id\" name=\"skuId\" value=\"mit_3361\"><div class=\"three-col\" style=\"background:var(--surface-2); padding:12px; border-radius:8px; margin-bottom:14px;\"><div><div style=\"font-size:11px; color:var(--muted);\">System Record</div><b id=\"scan-sys-qty\" style=\"font-family:var(--mono); font-size:18px;\">450 units</b></div><div><div style=\"font-size:11px; color:var(--muted);\">Physical Counted</div><input type=\"number\" id=\"scan-phys-qty\" name=\"physicalCount\" value=\"448\" style=\"width:90px; padding:4px 8px; font-family:var(--mono); font-size:15px; font-weight:700; border:1px solid var(--line); border-radius:6px;\" oninput=\"calculateVariance(this.value);\" required></div><div><div style=\"font-size:11px; color:var(--muted);\">Variance Delta</div><b id=\"scan-variance-delta\" style=\"font-family:var(--mono); font-size:18px; color:var(--rose);\">-2 units</b></div></div><div style=\"display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:12px; color:var(--muted);\">Posting will record an immutable Negative/Positive Adjustment in Item Ledger (ILE).</span> <button type=\"submit\" class=\"btn solid small\">✓ Post Audit Adjustment to ILE</button></div></form></div></div></div><!-- Cycle Count Audits Table --><div class=\"card panel\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;\"><div><h4 style=\"font-size:15px; font-weight:700;\">Physical Cycle Count Discrepancies</h4><div style=\"font-size:12px; color:var(--muted);\">Audited vs ERP System Variance across Hub Bins</div></div><div style=\"display:flex; align-items:center; gap:8px;\"><span id=\"audit-reconcile-pill\" class=\"chip up\" style=\"font-size:11px;\">✓ ERP Ledger In Sync</span> <button type=\"button\" class=\"btn ghost small\" onclick=\"var p=document.getElementById('audit-reconcile-pill'); if(p){p.textContent='✓ All Audited Counts Matched to ILE';}\">✓ Reconcile All Counts</button></div></div><div class=\"table-wrap\"><table class=\"table\"><thead><tr><th>SKU &amp; Barcode</th><th>Item Description</th><th>Warehouse Bin</th><th style=\"text-align:right;\">System Record</th><th style=\"text-align:right;\">Physical Counted</th><th style=\"text-align:right;\">Variance</th><th style=\"text-align:right;\">Audit Status</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-head\"><div class=\"head-copy\"><p>Count what's on the shelf. The difference from your records is logged as an adjustment.</p></div></div><div class=\"row-2 even\"><article class=\"card panel\"><div class=\"panel-head\"><h3>Count a product</h3></div><div class=\"form-group\"><label for=\"count-find\">Scan or enter a barcode or SKU</label><div class=\"cluster\" style=\"flex-wrap:nowrap;\"><input class=\"input mono\" id=\"count-find\" type=\"search\" autocomplete=\"off\" placeholder=\"e.g. 6009882400018 or MIT-3361\" autofocus> <button type=\"button\" class=\"btn ghost\" id=\"count-camera\" hidden>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for _, item := range data.Catalog {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<tr><td><b style=\"font-family:var(--mono);\">")
+		templ_7745c5c3_Err = IconSized("barcode", 16).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "Camera</button></div><video id=\"count-video\" playsinline muted hidden style=\"width:100%; border-radius:var(--r-lg); margin-top:8px; background:#000;\"></video></div><form id=\"count-form\" hx-post=\"/scan/reconcile\" hx-target=\"#tab-content\" hidden><input type=\"hidden\" name=\"skuId\" id=\"count-sku\"><div class=\"card\" style=\"padding:12px; background:var(--surface-2); margin-bottom:12px;\"><b id=\"count-title\"></b><div class=\"small-text muted mono\" id=\"count-code\"></div></div><div class=\"two-col\"><div class=\"form-group\"><label for=\"count-hub\">Location</label> <select id=\"count-hub\" name=\"hub\" class=\"select-full\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, h := range data.Warehouses {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<option value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var2 string
-			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(item.SKU)
+			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(h.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/scan.templ`, Line: 131, Col: 54}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `scan.templ`, Line: 54, Col: 28}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</b><div style=\"font-family:var(--mono); font-size:11px; color:var(--muted);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(item.Spec.Barcode)
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(h.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/scan.templ`, Line: 132, Col: 101}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `scan.templ`, Line: 54, Col: 39}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div></td><td><b>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(item.Title)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/scan.templ`, Line: 134, Col: 26}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</b></td><td><span class=\"chip flat\">Midrand · Bay 4</span></td><td style=\"text-align:right; font-family:var(--mono);\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", item.StockQuantity))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/scan.templ`, Line: 136, Col: 101}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</td><td style=\"text-align:right; font-family:var(--mono); font-weight:700;\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", item.StockQuantity))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/scan.templ`, Line: 137, Col: 118}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</td><td style=\"text-align:right;\"><span class=\"chip up\">0 (Exact)</span></td><td style=\"text-align:right;\"><span class=\"chip up\">Verified</span></td></tr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</option>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</tbody></table></div></div><script>\n\t\tvar skuCatalog = {\n\t\t\t'60098824001': { id: 'mit_3361', sku: 'MIT-3361', title: 'Commercial Anti-Theft Wooden Male Hanger 44cm', bin: 'Midrand Central Hub · Bay 4, Shelf B-02', qty: 450 },\n\t\t\t'mit-3361': { id: 'mit_3361', sku: 'MIT-3361', title: 'Commercial Anti-Theft Wooden Male Hanger 44cm', bin: 'Midrand Central Hub · Bay 4, Shelf B-02', qty: 450 },\n\t\t\t'60098824002': { id: 'mit_2088', sku: 'MIT-2088', title: 'Anti-Theft Security Replacement Ring 38mm Chrome', bin: 'Midrand Central Hub · Bay 2, Shelf A-01', qty: 1200 },\n\t\t\t'mit-2088': { id: 'mit_2088', sku: 'MIT-2088', title: 'Anti-Theft Security Replacement Ring 38mm Chrome', bin: 'Midrand Central Hub · Bay 2, Shelf A-01', qty: 1200 },\n\t\t\t'60098824003': { id: 'mit_8609', sku: 'MIT-8609', title: '101mm Silicone Clip-On-Lid Food Safe SABS', bin: 'Midrand Central Hub · Bay 3, Shelf C-04', qty: 3000 },\n\t\t\t'mit-8609': { id: 'mit_8609', sku: 'MIT-8609', title: '101mm Silicone Clip-On-Lid Food Safe SABS', bin: 'Midrand Central Hub · Bay 3, Shelf C-04', qty: 3000 }\n\t\t};\n\n\t\tvar currentSysQty = 450;\n\n\t\tfunction lookupScannedBarcode(val) {\n\t\t\tval = val.toLowerCase().trim();\n\t\t\tvar item = skuCatalog[val] || skuCatalog['60098824001'];\n\t\t\tvar card = document.getElementById('scan-result-card');\n\t\t\tif (!card) return;\n\t\t\tcard.style.display = 'block';\n\t\t\tdocument.getElementById('scan-sku-code').textContent = item.sku;\n\t\t\tdocument.getElementById('scan-sku-title').textContent = item.title;\n\t\t\tdocument.getElementById('scan-sku-bin').textContent = item.bin;\n\t\t\tdocument.getElementById('scan-sys-qty').textContent = item.qty + ' units';\n\t\t\tdocument.getElementById('scan-sku-id').value = item.id;\n\t\t\tdocument.getElementById('scan-phys-qty').value = item.qty;\n\t\t\tcurrentSysQty = item.qty;\n\t\t\tcalculateVariance(item.qty);\n\t\t}\n\n\t\tfunction calculateVariance(physVal) {\n\t\t\tvar phys = parseInt(physVal, 10);\n\t\t\tif (isNaN(phys)) phys = currentSysQty;\n\t\t\tvar delta = phys - currentSysQty;\n\t\t\tvar deltaEl = document.getElementById('scan-variance-delta');\n\t\t\tif (!deltaEl) return;\n\t\t\tif (delta === 0) {\n\t\t\t\tdeltaEl.textContent = '0 (Exact Match)';\n\t\t\t\tdeltaEl.style.color = 'var(--primary)';\n\t\t\t} else if (delta > 0) {\n\t\t\t\tdeltaEl.textContent = '+' + delta + ' units (Surplus)';\n\t\t\t\tdeltaEl.style.color = 'var(--primary)';\n\t\t\t} else {\n\t\t\t\tdeltaEl.textContent = delta + ' units (Deficit)';\n\t\t\t\tdeltaEl.style.color = 'var(--rose)';\n\t\t\t}\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</select></div><div class=\"form-group\"><label for=\"count-qty\">Counted</label> <input id=\"count-qty\" type=\"number\" name=\"physicalCount\" class=\"input\" min=\"0\" inputmode=\"numeric\" required><p class=\"help\" id=\"count-diff\"></p></div></div><button type=\"submit\" class=\"btn solid block\">Save count</button></form><p class=\"muted small-text\" id=\"count-hint\">Nothing selected yet.</p><div hidden id=\"count-data\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, p := range data.Catalog {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span data-id=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ID)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `scan.templ`, Line: 70, Col: 20}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" data-sku=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.SKU)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `scan.templ`, Line: 71, Col: 22}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" data-barcode=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Spec.Barcode)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `scan.templ`, Line: 72, Col: 35}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" data-title=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Title)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `scan.templ`, Line: 73, Col: 26}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, hubAttrs(p, data.Warehouses))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "></span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div></article><article class=\"card panel\"><div class=\"panel-head\"><div><h3>Recent counts</h3><div class=\"sub\">Newest first</div></div></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if len(recentCounts(data.ItemLedger)) == 0 {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<p class=\"muted small-text\">No counts recorded yet.</p>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"list\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, e := range recentCounts(data.ItemLedger) {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"li\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var8 = []any{countThumb(e.Quantity)}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var9 string
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var8).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `scan.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" aria-hidden=\"true\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%+d", e.Quantity))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `scan.templ`, Line: 92, Col: 96}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span><div class=\"txt\"><b>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(e.SKU)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `scan.templ`, Line: 94, Col: 17}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</b> <span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(e.Description)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `scan.templ`, Line: 95, Col: 28}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></div><div class=\"val\"><span title=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var13 string
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(LocalDateTime(e.PostingDate))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `scan.templ`, Line: 97, Col: 65}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var14 string
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(Ago(e.PostingDate, data.Metrics.Now))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `scan.templ`, Line: 97, Col: 106}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span></div></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></article></div><script>\n\t\t(function () {\n\t\t\tvar $ = function (id) { return document.getElementById(id); };\n\t\t\tvar items = Array.prototype.slice.call(document.querySelectorAll('#count-data span'));\n\t\t\tvar current = null;\n\t\t\tfunction pick(el) {\n\t\t\t\tcurrent = el;\n\t\t\t\t$('count-form').hidden = false;\n\t\t\t\t$('count-hint').hidden = true;\n\t\t\t\t$('count-sku').value = el.dataset.id;\n\t\t\t\t$('count-title').textContent = el.dataset.title;\n\t\t\t\t$('count-code').textContent = el.dataset.sku + ' · ' + el.dataset.barcode;\n\t\t\t\t$('count-qty').value = '';\n\t\t\t\tdiff();\n\t\t\t\t$('count-qty').focus();\n\t\t\t}\n\t\t\tfunction onRecord() { return current ? parseInt(current.getAttribute('data-hub-' + $('count-hub').value) || '0', 10) : 0; }\n\t\t\tfunction diff() {\n\t\t\t\tvar rec = onRecord(), c = parseInt($('count-qty').value, 10);\n\t\t\t\t$('count-diff').textContent = isNaN(c) ? 'On record here: ' + rec : 'On record ' + rec + ' · difference ' + (c - rec > 0 ? '+' : '') + (c - rec);\n\t\t\t}\n\t\t\tfunction find(q) {\n\t\t\t\tq = (q || '').trim().toLowerCase();\n\t\t\t\tif (!q) return;\n\t\t\t\tvar hit = items.find(function (el) { return el.dataset.barcode === q || el.dataset.sku.toLowerCase() === q; }) ||\n\t\t\t\t\titems.find(function (el) { return (el.dataset.title + ' ' + el.dataset.sku).toLowerCase().indexOf(q) >= 0; });\n\t\t\t\tif (hit) { pick(hit); $('count-find').value = ''; }\n\t\t\t\telse if (window.showToast) showToast('No product has the code \"' + q + '\".');\n\t\t\t}\n\t\t\t$('count-find').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); find(this.value); } });\n\t\t\t$('count-hub').onchange = diff;\n\t\t\t$('count-qty').oninput = diff;\n\n\t\t\t// Camera scanning where the browser has a built-in barcode reader.\n\t\t\tif ('BarcodeDetector' in window && navigator.mediaDevices) {\n\t\t\t\tvar btn = $('count-camera'), video = $('count-video'), stream = null;\n\t\t\t\tbtn.hidden = false;\n\t\t\t\tbtn.onclick = function () {\n\t\t\t\t\tif (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; video.hidden = true; return; }\n\t\t\t\t\tvar det = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'code_128'] });\n\t\t\t\t\tnavigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(function (s) {\n\t\t\t\t\t\tstream = s; video.srcObject = s; video.hidden = false; video.play();\n\t\t\t\t\t\t(function loop() {\n\t\t\t\t\t\t\tif (!stream) return;\n\t\t\t\t\t\t\tdet.detect(video).then(function (codes) {\n\t\t\t\t\t\t\t\tif (codes.length) { find(codes[0].rawValue); stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; video.hidden = true; }\n\t\t\t\t\t\t\t\telse requestAnimationFrame(loop);\n\t\t\t\t\t\t\t}).catch(function () { requestAnimationFrame(loop); });\n\t\t\t\t\t\t})();\n\t\t\t\t\t}).catch(function () { if (window.showToast) showToast('Camera access was blocked.'); });\n\t\t\t\t};\n\t\t\t}\n\t\t})();\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		return nil
 	})
+}
+
+func countThumb(q int) string {
+	switch {
+	case q > 0:
+		return "thumb ok"
+	case q < 0:
+		return "thumb danger"
+	}
+	return "thumb"
+}
+
+func hubAttrs(p models.CatalogSKU, hubs []models.WarehouseHub) templ.Attributes {
+	a := templ.Attributes{}
+	for _, h := range hubs {
+		a["data-hub-"+h.ID] = fmt.Sprint(p.StockByHub[h.ID])
+	}
+	return a
 }
 
 var _ = templruntime.GeneratedTemplate

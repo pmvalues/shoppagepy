@@ -7,14 +7,13 @@ import (
 )
 
 templ MediaTab(data models.DashboardViewData) {
-	<div class="panel-head">
-		<div>
-			<h3>Media &amp; Documents</h3>
-			<div class="sub">Product photography, compliance certificates, datasheets and brochures. Uploaded files are stored on this node and served from it.</div>
+	<div class="page-head">
+		<div class="head-copy">
+			<p>Product photos, certificates, datasheets and brochures.</p>
 		</div>
-		<div class="right">
+		<div class="actions">
 			<button class="btn solid small" onclick="document.getElementById('upload-media-dialog')?.showModal();">
-				<span>+</span> Upload Asset
+				Upload file
 			</button>
 		</div>
 	</div>
@@ -24,7 +23,7 @@ templ MediaTab(data models.DashboardViewData) {
 		<div class="card kpi">
 			<div class="k-label"><span>Assets Registered</span><span class="chip up">{ fmt.Sprintf("%d", len(data.MediaAssets)) }</span></div>
 			<div class="k-val" style="font-size:1.5rem; margin:6px 0 2px;">{ fmt.Sprintf("%d Files", len(data.MediaAssets)) }</div>
-			<div class="k-foot"><span class="then">Stored on this node</span></div>
+			<div class="k-foot"><span class="then">uploaded or linked</span></div>
 		</div>
 		<div class="card kpi">
 			<div class="k-label"><span>Compliance Documents</span><span class="chip up">Certificates</span></div>
@@ -46,7 +45,7 @@ templ MediaTab(data models.DashboardViewData) {
 			<button type="button" class="chip flat" onclick="filterMedia('photo');">Packshots &amp; Studio</button>
 			<button type="button" class="chip flat" onclick="filterMedia('spec');">Datasheets</button>
 		</div>
-		<span style="font-size:12px; color:var(--muted);">{ fmt.Sprintf("%d Assets Synced to Storefront", len(data.MediaAssets)) }</span>
+		<span style="font-size:12px; color:var(--muted);">{ fmt.Sprintf("%d files", len(data.MediaAssets)) }</span>
 	</div>
 
 	<!-- Media Asset Grid -->
@@ -108,6 +107,16 @@ templ MediaTab(data models.DashboardViewData) {
 					<div class="form-group">
 						<label>Display Name (optional — defaults to the file name)</label>
 						<input type="text" name="name" class="input" placeholder="e.g. SABS 1422 Commercial Hotel Certificate 2026"/>
+					</div>
+					<div class="form-group">
+						<label for="media-sku">Product (for product photos)</label>
+						<select id="media-sku" name="sku" class="select-full">
+							<option value="">Not for a specific product</option>
+							for _, p := range data.Catalog {
+								<option value={ p.SKU }>{ p.SKU } · { p.Title }</option>
+							}
+						</select>
+						<p class="help">A product photo lets the product list on Google, Facebook, Instagram and WhatsApp.</p>
 					</div>
 					<div class="form-group">
 						<label>Asset Category</label>

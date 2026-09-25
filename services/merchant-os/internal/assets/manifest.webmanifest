@@ -1,0 +1,18 @@
+{
+	"name": "Shoppage Merchant",
+	"short_name": "Shoppage",
+	"description": "Run your Shoppage store: orders, products, stock, counter sales and buyer messages.",
+	"start_url": "/desk",
+	"scope": "/",
+	"display": "standalone",
+	"background_color": "#f3f6f4",
+	"theme_color": "#0a2f24",
+	"icons": [
+		{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+	],
+	"shortcuts": [
+		{ "name": "Counter sale", "url": "/tab/pos" },
+		{ "name": "Orders", "url": "/tab/orders" },
+		{ "name": "Inbox", "url": "/tab/chat" }
+	]
+}

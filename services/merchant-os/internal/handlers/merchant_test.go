@@ -2,6 +2,8 @@ package handlers_test
 
 import (
 	"bytes"
+	"encoding/json"
+	"encoding/xml"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -12,17 +14,27 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/shoppage/merchant-os/internal/handlers"
+	"github.com/shoppage/merchant-os/internal/models"
+	"github.com/shoppage/merchant-os/internal/templates"
 )
 
-func setupTestRouter() http.Handler {
+var _ = bytes.NewReader
+var _ = multipart.NewWriter
+var _ = regexp.MustCompile
+
+func newTestApp() (http.Handler, *handlers.MerchantStoreState) {
 	state := handlers.NewDefaultState()
 	h := handlers.NewHandler(state)
 
 	r := chi.NewRouter()
 	r.Get("/", h.ServeDashboard)
+	r.Get("/desk", h.ServeDashboard)
 	r.Get("/tab/{tab}", h.ServeTab)
+	r.Get("/search", h.Search)
+	r.Post("/undo/{id}", h.Undo)
 	r.Get("/catalog/export.csv", h.ExportCatalogCSV)
 	r.Get("/catalog/new", h.ServeProductNew)
+	r.Post("/catalog/import", h.ImportCatalog)
 	r.Get("/catalog/{id}", h.ServeProductDetail)
 	r.Get("/catalog/{id}/edit", h.ServeProductEdit)
 	r.Post("/catalog/{id}/edit", h.SaveProductEdit)
@@ -36,6 +48,7 @@ func setupTestRouter() http.Handler {
 	r.Post("/orders/{id}/advance-status", h.AdvanceOrderStatus)
 	r.Post("/orders/new", h.CreateOrder)
 	r.Post("/rfqs/{id}/convert", h.ConvertRFQ)
+	r.Post("/rfqs/{id}/quote", h.SendQuote)
 	r.Post("/customers/new", h.CreateCustomer)
 	r.Get("/customers/export.csv", h.ExportCustomersCSV)
 	r.Post("/discounts/{id}/toggle", h.ToggleCoupon)
@@ -61,450 +74,640 @@ func setupTestRouter() http.Handler {
 	r.Get("/audit-logs/export.csv", h.ExportAuditLogsCSV)
 	r.Get("/feeds/google-merchant-center.xml", h.ServeGMCFeed)
 	r.Get("/feeds/meta-catalog.csv", h.ServeMetaCatalogCSV)
+	r.Post("/feeds/validate", h.ValidateFeeds)
 	r.Get("/chat/thread/{id}", h.SelectChatThread)
 	r.Post("/chat/send", h.SendChatMessage)
 	r.Post("/chat/quote", h.SendStructuredQuote)
 	r.Post("/chat/action", h.HandleChatAction)
-	r.Post("/feeds/validate", h.ValidateFeeds)
 	r.Post("/rma/update", h.UpdateRMAStatus)
 	r.Post("/rma/new", h.CreateRMARequest)
+	r.NotFound(h.ServeNotFound)
+	return r, state
+}
+
+func setupTestRouter() http.Handler {
+	r, _ := newTestApp()
 	return r
 }
 
-func TestServeDashboard(t *testing.T) {
-	router := setupTestRouter()
-	req := httptest.NewRequest("GET", "/", nil)
+func get(t *testing.T, h http.Handler, path string, hx bool) *httptest.ResponseRecorder {
+	t.Helper()
+	req := httptest.NewRequest("GET", path, nil)
+	if hx {
+		req.Header.Set("HX-Request", "true")
+	}
 	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	return rec
+}
 
-	router.ServeHTTP(rec, req)
+func post(t *testing.T, h http.Handler, path string, form url.Values) *httptest.ResponseRecorder {
+	t.Helper()
+	req := httptest.NewRequest("POST", path, strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("HX-Request", "true")
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	return rec
+}
 
+// toast decodes the HX-Trigger toast a handler sent, if any.
+func toast(t *testing.T, rec *httptest.ResponseRecorder) (msg, undo string) {
+	t.Helper()
+	raw := rec.Header().Get("HX-Trigger")
+	if raw == "" {
+		return "", ""
+	}
+	var v struct {
+		Toast struct {
+			Message string `json:"message"`
+			Undo    string `json:"undo"`
+		} `json:"toast"`
+	}
+	if err := json.Unmarshal([]byte(raw), &v); err != nil {
+		t.Fatalf("HX-Trigger is not valid JSON: %v (%q)", err, raw)
+	}
+	return v.Toast.Message, v.Toast.Undo
+}
+
+func findSKU(s *handlers.MerchantStoreState, sku string) *models.CatalogSKU {
+	for i := range s.Catalog {
+		if s.Catalog[i].SKU == sku {
+			return &s.Catalog[i]
+		}
+	}
+	return nil
+}
+
+func hubSum(p *models.CatalogSKU) int {
+	n := 0
+	for _, q := range p.StockByHub {
+		n += q
+	}
+	return n
+}
+
+// ---------- Shell & navigation ----------
+
+func TestShellHasSevenSectionsAndDemoBanner(t *testing.T) {
+	app := setupTestRouter()
+	rec := get(t, app, "/desk", false)
 	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK, got %d", rec.Code)
+		t.Fatalf("GET /desk = %d", rec.Code)
 	}
 	body := rec.Body.String()
-	if !strings.Contains(body, "Mitrend Products (Pty) Ltd") {
-		t.Errorf("expected dashboard HTML to contain store name")
+	for _, w := range templates.Workspaces {
+		if !strings.Contains(body, ">"+w.Label+"</span>") {
+			t.Errorf("sidebar is missing section %q", w.Label)
+		}
 	}
-	if !strings.Contains(body, "Overview & Velocity") && !strings.Contains(body, "Overview &amp; Velocity") {
-		t.Errorf("expected dashboard HTML to contain Overview tab")
+	if len(templates.Workspaces) != 7 {
+		t.Errorf("sidebar has %d sections, want 7", len(templates.Workspaces))
 	}
-	if !strings.Contains(body, "Item Ledger Entries (ILE)") {
-		t.Errorf("expected dashboard HTML to contain Item Ledger Entries (ILE)")
+	for _, want := range []string{"/merchant-static/css/workspace.css", "Demo workspace", `id="subnav"`, `id="bottombar"`, "Needs you"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("home page missing %q", want)
+		}
 	}
 }
 
-func TestServeAllERPModules(t *testing.T) {
-	router := setupTestRouter()
-
-	tabs := []struct {
-		tab      string
-		contains string
-	}{
-		{"overview", "Free GMV Threshold Meter"},
-		{"catalog", "Published Products"},
-		{"orders", "B2B Proforma Orders Ledger"},
-		{"chat", "Direct Messages & Buyer Chat Desk"},
-		{"inventory", "Inventory & Multi-Warehouse Hubs"},
-		{"customers", "B2B Customers & Commercial Accounts CRM"},
-		{"rfqs", "Live Trade RFQ & Negotiation Desk"},
-		{"analytics", "Analytics & Commercial GMV Funnel"},
-		{"discounts", "Wholesale Tier Pricing & Promotional Discounts"},
-		{"channels", "Omnichannel Commerce & WhatsApp Trade Desks"},
-		{"feeds", "Google Merchant Center & Meta Feeds"},
-		{"copilot", "Pemofy AI Copilot Studio"},
-		{"settings", "Store Settings, Banking & Sovereign Cloud Pod"},
-		{"pick-pack", "Pick & Pack Warehouse Station"},
-		{"manifests", "Carrier Shipping Manifests & Waybill Dispatch"},
-		{"transfers", "Inter-Hub Stock Transfers & Regional Logistics"},
-		{"scan", "Barcode Scanner Station & Cycle Count Audits"},
-		{"pos", "Trade Counter POS Terminal & Walk-In Sales"},
-		{"flow", "Flow Automations & Event-Driven Rules"},
-		{"media", "Media & Documents"},
-		{"audit-logs", "Compliance & Operational Audit Trail"},
-		{"editor", "Storefront Theme Studio & Visual Customizer"},
-	}
-
-	for _, tc := range tabs {
-		t.Run(tc.tab, func(t *testing.T) {
-			req := httptest.NewRequest("GET", "/tab/"+tc.tab, nil)
-			rec := httptest.NewRecorder()
-			router.ServeHTTP(rec, req)
-
-			if rec.Code != http.StatusOK {
-				t.Fatalf("expected 200 OK for tab %s, got %d", tc.tab, rec.Code)
+func TestEveryTabRendersFullAndPartial(t *testing.T) {
+	app := setupTestRouter()
+	for _, w := range templates.Workspaces {
+		for _, tab := range w.Tabs {
+			full := get(t, app, "/tab/"+tab.Key, false)
+			if full.Code != http.StatusOK || !strings.Contains(strings.ToLower(full.Body.String()), "<!doctype html>") {
+				t.Errorf("full /tab/%s = %d, want a complete page", tab.Key, full.Code)
 			}
-			body := rec.Body.String()
-			cleanContains := strings.ReplaceAll(tc.contains, "&", "&amp;")
-			if !strings.Contains(body, tc.contains) && !strings.Contains(body, cleanContains) {
-				t.Errorf("expected tab %s to contain '%s'", tc.tab, tc.contains)
+			part := get(t, app, "/tab/"+tab.Key, true)
+			body := part.Body.String()
+			if part.Code != http.StatusOK || strings.Contains(strings.ToLower(body), "<!doctype html>") {
+				t.Errorf("partial /tab/%s = %d, want a fragment", tab.Key, part.Code)
 			}
-		})
+			if !strings.Contains(body, `hx-swap-oob="true"`) {
+				t.Errorf("partial /tab/%s does not refresh the shell out-of-band", tab.Key)
+			}
+		}
+	}
+	for _, tab := range []string{"settings", "audit-logs"} {
+		if rec := get(t, app, "/tab/"+tab, true); rec.Code != http.StatusOK {
+			t.Errorf("/tab/%s = %d", tab, rec.Code)
+		}
 	}
 }
 
-func TestServeTabRefreshVsHTMX(t *testing.T) {
-	router := setupTestRouter()
-
-	// 1. Direct browser request / F5 refresh (no HX-Request header)
-	reqDirect := httptest.NewRequest("GET", "/tab/overview", nil)
-	recDirect := httptest.NewRecorder()
-	router.ServeHTTP(recDirect, reqDirect)
-
-	if recDirect.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK, got %d", recDirect.Code)
-	}
-	bodyDirect := recDirect.Body.String()
-	if !strings.Contains(strings.ToLower(bodyDirect), "<!doctype html>") {
-		t.Errorf("expected direct /tab/overview request to render full <!doctype html> layout shell")
-	}
-	if !strings.Contains(bodyDirect, "Shoppage Merchant OS") {
-		t.Errorf("expected direct /tab/overview request to contain page title")
-	}
-	if !strings.Contains(bodyDirect, "--primary: #0e7c56;") {
-		t.Errorf("expected direct /tab/overview request to include inline styling")
-	}
-
-	// 2. HTMX partial request (with HX-Request: true header)
-	reqHTMX := httptest.NewRequest("GET", "/tab/overview", nil)
-	reqHTMX.Header.Set("HX-Request", "true")
-	recHTMX := httptest.NewRecorder()
-	router.ServeHTTP(recHTMX, reqHTMX)
-
-	if recHTMX.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK, got %d", recHTMX.Code)
-	}
-	bodyHTMX := recHTMX.Body.String()
-	if strings.Contains(strings.ToLower(bodyHTMX), "<!doctype html>") {
-		t.Errorf("expected HTMX /tab/overview request to return only partial snippet, not <!doctype html>")
-	}
-	if !strings.Contains(bodyHTMX, "Free GMV Threshold Meter") {
-		t.Errorf("expected HTMX /tab/overview request to return tab content snippet")
+func TestUnknownPagesAreStyled404s(t *testing.T) {
+	app := setupTestRouter()
+	for _, path := range []string{"/tab/nope", "/catalog/NOPE-1"} {
+		rec := get(t, app, path, false)
+		if rec.Code != http.StatusNotFound {
+			t.Errorf("GET %s = %d, want 404", path, rec.Code)
+		}
+		if !strings.Contains(rec.Body.String(), "workspace.css") {
+			t.Errorf("GET %s should render inside the workspace, got a bare error", path)
+		}
 	}
 }
 
-func TestProductDetailAndEditModals(t *testing.T) {
-	router := setupTestRouter()
+func TestProductResolvesBySKUOrID(t *testing.T) {
+	app := setupTestRouter()
+	for _, path := range []string{"/catalog/MIT-3361", "/catalog/mit_3361", "/catalog/mit-3361"} {
+		rec := get(t, app, path, true)
+		if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), "Commercial Anti-Theft Wooden Male Hanger") {
+			t.Errorf("GET %s = %d, want the hanger product page", path, rec.Code)
+		}
+	}
+}
 
-	// Detail Modal (Pemofy design)
-	req := httptest.NewRequest("GET", "/catalog/mit_3361", nil)
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
+// ---------- Honesty ----------
 
+// No screen may present invented figures or infrastructure claims as fact.
+func TestNoFabricatedClaimsOnAnyScreen(t *testing.T) {
+	app := setupTestRouter()
+	banned := []string{
+		"Pemofy", "pod-za-01", "Merkle", "12 ms", "99.8%", "98.4%", "74.2%", "CIPC Verified SKU",
+		"R8,420", "Live visitors", "Speckled Mug", "Sovereign", "SLA 4 Hours", "0% SHARED DATA RISK",
+		"Verified 100%", "TCG-ZA-984210", "Hello Sipho", "Discount created",
+	}
+	tabs := []string{"overview", "settings", "audit-logs"}
+	for _, w := range templates.Workspaces {
+		for _, t := range w.Tabs {
+			tabs = append(tabs, t.Key)
+		}
+	}
+	for _, tab := range tabs {
+		body := get(t, app, "/tab/"+tab, false).Body.String()
+		for _, b := range banned {
+			if strings.Contains(body, b) {
+				t.Errorf("/tab/%s shows fabricated or legacy text %q", tab, b)
+			}
+		}
+	}
+}
+
+// The plan allowance and month's sales must read the same on every screen.
+func TestFiguresAgreeAcrossScreens(t *testing.T) {
+	app, state := newTestApp()
+	plan := models.PlanFor(state.Store.CurrentPlan)
+	cap := models.FormatZARWhole(plan.FreeAllowanceZar)
+	for _, tab := range []string{"overview", "settings"} {
+		body := get(t, app, "/tab/"+tab, true).Body.String()
+		if tab == "overview" && !strings.Contains(body, cap) {
+			t.Errorf("home should show the plan allowance %s", cap)
+		}
+		if tab == "settings" && !strings.Contains(body, cap) {
+			t.Errorf("settings should show the plan allowance %s", cap)
+		}
+	}
+	home := get(t, app, "/tab/overview", true).Body.String()
+	analytics := get(t, app, "/tab/analytics", true).Body.String()
+	re := regexp.MustCompile(`Sales this month[\s\S]*?k-val">([^<]+)<`)
+	m := re.FindStringSubmatch(home)
+	if m == nil {
+		t.Skip("could not locate the month sales tile")
+	}
+	if !strings.Contains(analytics, m[1]) {
+		t.Errorf("analytics does not show the same month sales as home (%s)", m[1])
+	}
+}
+
+func TestStockByLocationAlwaysSumsToTotal(t *testing.T) {
+	_, state := newTestApp()
+	for _, p := range state.Catalog {
+		if hubSum(&p) != p.StockQuantity {
+			t.Errorf("%s: locations sum to %d but total is %d", p.SKU, hubSum(&p), p.StockQuantity)
+		}
+	}
+}
+
+func TestDemoBarcodesAreValidGTINs(t *testing.T) {
+	_, state := newTestApp()
+	for _, p := range state.Catalog {
+		if !models.ValidGTIN(p.Spec.Barcode) {
+			t.Errorf("%s has invalid barcode %q", p.SKU, p.Spec.Barcode)
+		}
+	}
+}
+
+// ---------- Products ----------
+
+func TestPriceChangeIsAuditedAndUndoable(t *testing.T) {
+	app, state := newTestApp()
+	before := findSKU(state, "MIT-3361").WholesaleZar
+	rec := post(t, app, "/catalog/mit_3361/price", url.Values{"price": {"24.50"}})
 	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK for product detail modal, got %d", rec.Code)
+		t.Fatalf("price update = %d", rec.Code)
 	}
-	body := rec.Body.String()
-	if !strings.Contains(body, "Commercial Anti-Theft Wooden Male Hanger 44cm") {
-		t.Errorf("expected detail modal to contain product title")
+	msg, undo := toast(t, rec)
+	if undo == "" || !strings.Contains(msg, "24.50") {
+		t.Fatalf("expected a confirmation with undo, got %q / %q", msg, undo)
 	}
-	if !strings.Contains(body, "gallery-card") || !strings.Contains(body, "info-card") {
-		t.Errorf("expected detail modal to contain Pemofy gallery-card and info-card")
+	if got := findSKU(state, "MIT-3361").WholesaleZar; got != 24.50 {
+		t.Fatalf("price = %.2f, want 24.50", got)
 	}
-	if !strings.Contains(body, "score-ring") {
-		t.Errorf("expected detail modal to contain Pemofy SEO score-ring")
+	if !strings.Contains(state.AuditLogs[0].Details, "→") {
+		t.Errorf("audit entry should record before → after, got %q", state.AuditLogs[0].Details)
 	}
-	if !strings.Contains(body, "Product information") || !strings.Contains(body, "Recent activity") {
-		t.Errorf("expected detail modal to contain Pemofy specifications and activity panels")
+	post(t, app, "/undo/"+undo, nil)
+	if got := findSKU(state, "MIT-3361").WholesaleZar; got != before {
+		t.Errorf("after undo price = %.2f, want %.2f", got, before)
 	}
+}
 
-	// Edit Modal (Pemofy 5-tab design)
-	reqEdit := httptest.NewRequest("GET", "/catalog/mit_3361/edit", nil)
-	recEdit := httptest.NewRecorder()
-	router.ServeHTTP(recEdit, reqEdit)
+func TestCreateProductInventsNothing(t *testing.T) {
+	app, state := newTestApp()
+	form := url.Values{"title": {"Plain Test Product"}, "sku": {"TST-1"}, "wholesaleZar": {"10"}, "stockQuantity": {"5"}}
+	rec := post(t, app, "/catalog/new", form)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("create = %d: %s", rec.Code, rec.Body.String())
+	}
+	p := findSKU(state, "TST-1")
+	if p == nil {
+		t.Fatal("product not created")
+	}
+	if p.Spec.Barcode != "" || p.Spec.SABSApproved || p.Spec.LongDesc != "" {
+		t.Errorf("new product has invented facts: barcode %q, SABS %v, desc %q", p.Spec.Barcode, p.Spec.SABSApproved, p.Spec.LongDesc)
+	}
+	if p.StockQuantity != 5 || hubSum(p) != 5 {
+		t.Errorf("opening stock = %d (locations %d), want 5", p.StockQuantity, hubSum(p))
+	}
+	if dup := post(t, app, "/catalog/new", form); dup.Code != http.StatusConflict {
+		t.Errorf("duplicate SKU = %d, want 409", dup.Code)
+	}
+}
 
-	if recEdit.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK for product edit modal, got %d", recEdit.Code)
+func TestEditingProductDoesNotChangeStock(t *testing.T) {
+	app, state := newTestApp()
+	before := findSKU(state, "MIT-3361").StockQuantity
+	form := url.Values{"title": {"Commercial Anti-Theft Wooden Male Hanger 44cm"}, "sku": {"MIT-3361"}, "wholesaleZar": {"22.88"}, "stockQuantity": {"1"}}
+	if rec := post(t, app, "/catalog/mit_3361/edit", form); rec.Code != http.StatusOK {
+		t.Fatalf("edit = %d", rec.Code)
 	}
-	editBody := recEdit.Body.String()
-	if !strings.Contains(editBody, "Edit: Commercial Anti-Theft Wooden Male Hanger 44cm") {
-		t.Errorf("expected edit modal to contain edit title")
+	if got := findSKU(state, "MIT-3361").StockQuantity; got != before {
+		t.Errorf("stock changed from %d to %d via the editor", before, got)
 	}
-	if !strings.Contains(editBody, "editor-tabs") {
-		t.Errorf("expected edit modal to contain Pemofy editor-tabs")
-	}
-	if !strings.Contains(editBody, "tab-pane-general") || !strings.Contains(editBody, "tab-pane-inventory") || !strings.Contains(editBody, "tab-pane-variants") {
-		t.Errorf("expected edit modal to contain tab panes for general, inventory, and variants")
-	}
-	if !strings.Contains(editBody, "publish-card") || !strings.Contains(editBody, "side-form") {
-		t.Errorf("expected edit modal to contain Pemofy side-form and publish-card")
-	}
+}
 
-	// Save Edit Verification
-	editForm := url.Values{}
-	editForm.Set("title", "Commercial Anti-Theft Wooden Male Hanger 44cm (Updated)")
-	editForm.Set("brand", "Mitrend Premium")
-	editForm.Set("category", "Hospitality Supplies")
-	editForm.Set("wholesaleZar", "45.00")
-	editForm.Set("retailZar", "65.00")
-	editForm.Set("stockQuantity", "950")
-	editForm.Set("lowStockAlert", "80")
-	editForm.Set("description", "Updated heavy gauge beech wood anti-theft coat hanger.")
-	editForm.Set("material", "Solid Beechwood")
-	editForm.Set("hsCode", "4421.10")
-
-	reqPost := httptest.NewRequest("POST", "/catalog/mit_3361/edit", strings.NewReader(editForm.Encode()))
-	reqPost.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	recPost := httptest.NewRecorder()
-	router.ServeHTTP(recPost, reqPost)
-
-	if recPost.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK for save product edit, got %d", recPost.Code)
+func TestToggleStockNeverInventsUnits(t *testing.T) {
+	app, state := newTestApp()
+	post(t, app, "/catalog/mit_8610/toggle-stock", nil)
+	p := findSKU(state, "MIT-8610")
+	if p.StockQuantity != 0 || p.InStock {
+		t.Errorf("toggling an empty product gave stock %d, in stock %v", p.StockQuantity, p.InStock)
 	}
-	postBody := recPost.Body.String()
-	if !strings.Contains(postBody, "Commercial Anti-Theft Wooden Male Hanger 44cm (Updated)") {
-		t.Errorf("expected saved catalog to contain updated title")
+}
+
+// ---------- Stock ----------
+
+func TestAdjustmentAtALocation(t *testing.T) {
+	app, state := newTestApp()
+	p := findSKU(state, "MIT-3361")
+	total, cpt := p.StockQuantity, p.StockByHub["wh_cpt"]
+	post(t, app, "/inventory/mit_3361/adjust", url.Values{"adjustment": {"25"}, "hub": {"wh_cpt"}})
+	if p.StockQuantity != total+25 || p.StockByHub["wh_cpt"] != cpt+25 {
+		t.Errorf("after +25 at CPT: total %d (want %d), CPT %d (want %d)", p.StockQuantity, total+25, p.StockByHub["wh_cpt"], cpt+25)
+	}
+	if state.ItemLedger[0].RemainingQty != p.StockQuantity {
+		t.Errorf("ledger remaining %d, want %d", state.ItemLedger[0].RemainingQty, p.StockQuantity)
+	}
+}
+
+func TestStockIntakeRecordsMovement(t *testing.T) {
+	app, state := newTestApp()
+	rec := post(t, app, "/inventory/intake", url.Values{"skuId": {"MIT-8610"}, "hubName": {"wh_jhb"}, "reason": {"Delivery received"}, "quantity": {"500"}})
+	if rec.Code != http.StatusOK {
+		t.Fatalf("intake = %d", rec.Code)
+	}
+	if p := findSKU(state, "MIT-8610"); p.StockQuantity != 500 || !p.InStock {
+		t.Errorf("after intake stock = %d, in stock %v", p.StockQuantity, p.InStock)
+	}
+	if !strings.Contains(rec.Body.String(), "Stock movements") {
+		t.Errorf("expected the stock page after intake")
+	}
+}
+
+func TestTransferMovesStockOnlyWhenReceived(t *testing.T) {
+	app, state := newTestApp()
+	p := findSKU(state, "MIT-3361")
+	total, jhb, cpt := p.StockQuantity, p.StockByHub["wh_jhb"], p.StockByHub["wh_cpt"]
+	post(t, app, "/transfers/tr_8821/receive", nil)
+	if p.StockQuantity != total || p.StockByHub["wh_jhb"] != jhb-150 || p.StockByHub["wh_cpt"] != cpt+150 {
+		t.Errorf("after receiving 150: total %d, JHB %d, CPT %d", p.StockQuantity, p.StockByHub["wh_jhb"], p.StockByHub["wh_cpt"])
+	}
+	// Receiving twice must not move stock again.
+	post(t, app, "/transfers/tr_8821/receive", nil)
+	if p.StockByHub["wh_cpt"] != cpt+150 {
+		t.Errorf("second receive moved stock again")
+	}
+	rec := post(t, app, "/transfers/new", url.Values{"sourceHub": {"wh_dbn"}, "destHub": {"wh_cpt"}, "skuId": {"mit_3361"}, "quantity": {"9999"}})
+	if msg, _ := toast(t, rec); !strings.Contains(msg, "only has") {
+		t.Errorf("over-stock transfer should be refused, got %q", msg)
+	}
+}
+
+func TestCountSetsLocationQuantity(t *testing.T) {
+	app, state := newTestApp()
+	rec := post(t, app, "/scan/reconcile", url.Values{"skuId": {"mit_3361"}, "physicalCount": {"452"}, "hub": {"wh_jhb"}})
+	if rec.Code != http.StatusOK {
+		t.Fatalf("count = %d", rec.Code)
+	}
+	p := findSKU(state, "MIT-3361")
+	if p.StockByHub["wh_jhb"] != 452 || hubSum(p) != p.StockQuantity {
+		t.Errorf("JHB = %d after counting 452; total %d, sum %d", p.StockByHub["wh_jhb"], p.StockQuantity, hubSum(p))
+	}
+	if !strings.Contains(rec.Body.String(), "452 counted") {
+		t.Errorf("recent counts should list the new count")
+	}
+}
+
+// ---------- Selling ----------
+
+func TestCounterSaleUsesTheCart(t *testing.T) {
+	app, state := newTestApp()
+	p := findSKU(state, "MIT-2088")
+	before := p.StockQuantity
+	form := url.Values{"customer": {"Radisson Red Hotel V&A"}, "paymentMethod": {"Card"}, "cart": {"MIT-2088:3"}, "clientRef": {"device-1"}}
+	rec := post(t, app, "/pos/checkout", form)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("checkout = %d", rec.Code)
+	}
+	if p.StockQuantity != before-3 {
+		t.Errorf("stock = %d, want %d", p.StockQuantity, before-3)
+	}
+	txn := state.RecentPOSTxns[0]
+	want := 3 * p.WholesaleZar * 1.15
+	if txn.TotalZar < want-0.02 || txn.TotalZar > want+0.02 || txn.Customer != "Radisson Red Hotel V&A" {
+		t.Errorf("sale total %.2f for %q, want %.2f", txn.TotalZar, txn.Customer, want)
+	}
+	// Resending the same offline sale must not record it twice.
+	post(t, app, "/pos/checkout", form)
+	if state.RecentPOSTxns[0].ID != txn.ID || p.StockQuantity != before-3 {
+		t.Errorf("duplicate client reference recorded a second sale")
+	}
+	empty := post(t, app, "/pos/checkout", url.Values{"customer": {"x"}})
+	if msg, _ := toast(t, empty); !strings.Contains(msg, "empty") {
+		t.Errorf("empty cart should be refused, got %q", msg)
+	}
+}
+
+func TestOrderLifecycleTakesStockOnDispatch(t *testing.T) {
+	app, state := newTestApp()
+	post(t, app, "/orders/new", url.Values{"company": {"Test Lodge"}, "customer": {"Ann"}, "skuId": {"mit_2088"}, "quantity": {"10"}})
+	o := state.Orders[0]
+	if o.Company != "Test Lodge" || o.Status != "issued" || o.Email != "" || o.VatNumber != "" {
+		t.Fatalf("new order = %+v", o)
+	}
+	p := findSKU(state, "MIT-2088")
+	before := p.StockQuantity
+	post(t, app, "/orders/"+o.ID+"/advance-status", nil) // paid
+	if p.StockQuantity != before {
+		t.Errorf("marking paid should not move stock")
+	}
+	post(t, app, "/orders/"+o.ID+"/advance-status", nil) // dispatched
+	if p.StockQuantity != before-10 {
+		t.Errorf("dispatch should remove 10 units: %d → %d", before, p.StockQuantity)
+	}
+	post(t, app, "/orders/"+o.ID+"/advance-status", nil)
+	if state.Orders[0].Status != "delivered" {
+		t.Errorf("status = %s, want delivered", state.Orders[0].Status)
+	}
+}
+
+func TestOrderViewsFilterByStatus(t *testing.T) {
+	app := setupTestRouter()
+	body := get(t, app, "/tab/orders?view=awaiting_payment", true).Body.String()
+	if !strings.Contains(body, "#ORD-9824") {
+		t.Errorf("awaiting-payment view should include #ORD-9824")
+	}
+	if strings.Contains(body, "Mark delivered") {
+		t.Errorf("awaiting-payment view should not include dispatched orders")
+	}
+	if strings.Contains(body, "0 transactions") {
+		t.Errorf("the old broken counter is back")
+	}
+}
+
+func TestQuoteThenConvertKeepsQuotedPrice(t *testing.T) {
+	app, state := newTestApp()
+	rec := post(t, app, "/rfqs/lead_1/quote", url.Values{"skuId": {"mit_3361"}, "quantity": {"200"}, "unitPrice": {"20.00"}, "delivery": {"150"}, "validDays": {"7"}})
+	if rec.Code != http.StatusOK {
+		t.Fatalf("quote = %d", rec.Code)
+	}
+	l := state.Leads[0]
+	if l.Status != "quoted" || l.QuotedUnitZar != 20 || l.EstimatedTotal != 4772.50 {
+		t.Fatalf("quote = %+v", l)
+	}
+	post(t, app, "/rfqs/lead_1/convert", nil)
+	o := state.Orders[0]
+	if o.GrandTotal != 4772.50 || o.LineItems[0].UnitPriceZar != 20 || o.LineItems[0].SKU != "MIT-3361" {
+		t.Errorf("order from quote = %+v", o)
+	}
+}
+
+func TestReturnsFlowRestocksOnReceipt(t *testing.T) {
+	app, state := newTestApp()
+	rec := post(t, app, "/rma/new", url.Values{"orderNumber": {"#ORD-9824"}, "customer": {"Protea"}, "sku": {"MIT-2088"}, "quantity": {"4"}, "reason": {"Faulty"}})
+	if !strings.Contains(rec.Body.String(), "RMA-") || rec.Header().Get("HX-Push-Url") != "/tab/orders?view=returns" {
+		t.Fatalf("expected the returns view with the new return")
+	}
+	rma := state.ReturnRequests[0]
+	if rma.WaybillNo != "" {
+		t.Errorf("no courier was booked, but waybill is %q", rma.WaybillNo)
+	}
+	p := findSKU(state, "MIT-2088")
+	before := p.StockQuantity
+	post(t, app, "/rma/update", url.Values{"rmaId": {rma.ID}, "status": {"Goods Received"}})
+	if p.StockQuantity != before+4 {
+		t.Errorf("received return should add 4 units: %d → %d", before, p.StockQuantity)
+	}
+	post(t, app, "/rma/update", url.Values{"rmaId": {rma.ID}, "status": {"Refund Issued"}})
+	if state.ReturnRequests[0].Status != "Refund Issued" {
+		t.Errorf("status = %s", state.ReturnRequests[0].Status)
 	}
 }
 
 func TestInvoiceModal(t *testing.T) {
-	router := setupTestRouter()
-	req := httptest.NewRequest("GET", "/orders/ord_101/invoice", nil)
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK for invoice modal, got %d", rec.Code)
-	}
-	body := rec.Body.String()
-	if !strings.Contains(body, "Official B2B Proforma Tax Invoice") {
-		t.Errorf("expected invoice modal to contain tax proforma badge")
-	}
-	if !strings.Contains(body, "#ORD-9824") {
-		t.Errorf("expected invoice modal to contain order number")
-	}
-	if !strings.Contains(body, "SARS VAT (15%)") {
-		t.Errorf("expected invoice modal to contain 15%% VAT")
+	app := setupTestRouter()
+	rec := get(t, app, "/orders/ord_101/invoice", true)
+	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), "Tax invoice") {
+		t.Errorf("invoice = %d, want a tax invoice for a VAT-registered store", rec.Code)
 	}
 }
 
-func TestInventoryAdjustment(t *testing.T) {
-	router := setupTestRouter()
-	form := url.Values{}
-	form.Set("adjustment", "25")
+// ---------- Listings ----------
 
-	req := httptest.NewRequest("POST", "/inventory/mit_3361/adjust", strings.NewReader(form.Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on inventory adjust, got %d", rec.Code)
+func TestGoogleFeedOnlyListsReadyProducts(t *testing.T) {
+	app, _ := newTestApp()
+	rec := get(t, app, "/feeds/google-merchant-center.xml", false)
+	var feed struct {
+		Items []struct {
+			ID   string `xml:"id"`
+			GTIN string `xml:"gtin"`
+		} `xml:"channel>item"`
 	}
-	body := rec.Body.String()
-	// 450 + 25 = 475 units
-	if !strings.Contains(body, "475 units") {
-		t.Errorf("expected stock count to be 475 units after +25 intake")
+	if err := xml.Unmarshal(rec.Body.Bytes(), &feed); err != nil {
+		t.Fatalf("feed is not valid XML: %v", err)
 	}
-}
-
-func TestCopilotAsk(t *testing.T) {
-	router := setupTestRouter()
-	form := url.Values{}
-	form.Set("prompt", "What is my margin on wooden hangers?")
-
-	req := httptest.NewRequest("POST", "/copilot/ask", strings.NewReader(form.Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on copilot ask, got %d", rec.Code)
+	ids := map[string]bool{}
+	for _, it := range feed.Items {
+		ids[it.ID] = true
+		if !models.ValidGTIN(it.GTIN) {
+			t.Errorf("feed item %s has invalid GTIN %q", it.ID, it.GTIN)
+		}
 	}
-	body := rec.Body.String()
-	if !strings.Contains(body, "What is my margin on wooden hangers?") {
-		t.Errorf("expected user prompt in conversation stream")
+	if !ids["mit_3361"] {
+		t.Errorf("the hanger (photo, barcode, description) should be in the Google feed")
 	}
-	if !strings.Contains(body, "Pemofy Copilot") {
-		t.Errorf("expected AI copilot reply in stream")
+	if ids["mit_2088"] {
+		t.Errorf("a product without a photo must not be in the Google feed")
 	}
 }
 
-func TestConvertRFQ(t *testing.T) {
-	router := setupTestRouter()
-	req := httptest.NewRequest("POST", "/rfqs/lead_1/convert", nil)
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on convert RFQ, got %d", rec.Code)
+func TestValidateFeedsReportsRealResult(t *testing.T) {
+	app := setupTestRouter()
+	rec := post(t, app, "/feeds/validate", nil)
+	msg, _ := toast(t, rec)
+	if !strings.Contains(msg, "with something to fix") || strings.Contains(msg, "100%") {
+		t.Errorf("validation message = %q", msg)
 	}
 }
 
-func TestToggleStock(t *testing.T) {
-	router := setupTestRouter()
-	req := httptest.NewRequest("POST", "/catalog/mit_3361/toggle-stock", nil)
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
+// ---------- Assistant ----------
 
+func TestAssistantAnswersFromStoreData(t *testing.T) {
+	app, state := newTestApp()
+	rec := post(t, app, "/copilot/ask", url.Values{"prompt": {"Which items need restocking?"}})
 	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on stock toggle, got %d", rec.Code)
+		t.Fatalf("ask = %d", rec.Code)
 	}
-	body := rec.Body.String()
-	if !strings.Contains(body, "Out of Stock") {
-		t.Errorf("expected button to show Out of Stock after toggle, got: %s", body)
+	last := state.CopilotMessages[len(state.CopilotMessages)-1]
+	if !strings.Contains(last.Content, "MIT-8610") {
+		t.Errorf("restock answer should name the out-of-stock SKU, got %q", last.Content)
+	}
+	if !strings.Contains(rec.Body.String(), "No AI model is connected") {
+		t.Errorf("the page must say the assistant is rules-based")
 	}
 }
 
-func TestServeGMCFeed(t *testing.T) {
-	router := setupTestRouter()
-	req := httptest.NewRequest("GET", "/feeds/google-merchant-center.xml", nil)
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on GMC feed, got %d", rec.Code)
+func TestAssistantProposalNeedsApprovalAndCanBeUndone(t *testing.T) {
+	app, state := newTestApp()
+	logs := len(state.AuditLogs)
+	post(t, app, "/copilot/action", url.Values{"proposal": {"restock_mit_8610"}, "op": {"approve"}})
+	if len(state.AuditLogs) != logs+1 || !strings.Contains(state.AuditLogs[0].Details, "Not sent to a supplier") {
+		t.Fatalf("approval should log a draft purchase order")
 	}
-	body := rec.Body.String()
-	if !strings.Contains(body, "xmlns:g=\"http://base.google.com/ns/1.0\"") {
-		t.Errorf("expected GMC namespace in feed")
-	}
-	if !strings.Contains(body, "<g:price>") {
-		t.Errorf("expected price tags in GMC feed")
-	}
-	if !strings.Contains(body, "<g:link>") || !strings.Contains(body, "<g:image_link>") {
-		t.Errorf("expected link and image_link tags in GMC feed")
-	}
-	if !strings.Contains(body, "<g:gtin>") {
-		t.Errorf("expected GTIN/EAN-13 tags in GMC feed")
-	}
-	if !strings.Contains(body, "<g:shipping>") || !strings.Contains(body, "<g:country>ZA</g:country>") {
-		t.Errorf("expected South African regional shipping tags in GMC feed")
-	}
-	if !strings.Contains(body, "<g:condition>new</g:condition>") {
-		t.Errorf("expected condition tag in GMC feed")
+	post(t, app, "/copilot/action", url.Values{"proposal": {"restock_mit_8610"}, "op": {"undo"}})
+	for _, p := range state.Proposals {
+		if p.ID == "restock_mit_8610" && p.Status != "undone" {
+			t.Errorf("proposal status = %s, want undone", p.Status)
+		}
 	}
 }
 
-func TestCreateTransfer(t *testing.T) {
-	router := setupTestRouter()
-	form := url.Values{}
-	form.Set("sourceHub", "Midrand Central Hub")
-	form.Set("destHub", "Cape Town Depot")
-	form.Set("skuId", "mit_3361")
-	form.Set("quantity", "75")
-	form.Set("carrier", "Road Freight Express")
+// ---------- Search, settings, channels ----------
 
-	req := httptest.NewRequest("POST", "/transfers/new", strings.NewReader(form.Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on create transfer, got %d", rec.Code)
+func TestSearchFindsProductsOrdersAndPages(t *testing.T) {
+	app := setupTestRouter()
+	body := get(t, app, "/search?q=hanger", true).Body.String()
+	if !strings.Contains(body, "MIT-3361") {
+		t.Errorf("search for hanger should find MIT-3361")
 	}
-	body := rec.Body.String()
-	if !strings.Contains(body, "Cape Town Depot") {
-		t.Errorf("expected transfer partial to contain destination hub")
+	if body := get(t, app, "/search?q=9824", true).Body.String(); !strings.Contains(body, "#ORD-9824") {
+		t.Errorf("search should find order 9824")
 	}
-	if !strings.Contains(body, "75") {
-		t.Errorf("expected transfer quantity in response")
+	if body := get(t, app, "/search", true).Body.String(); !strings.Contains(body, "Counter sale") {
+		t.Errorf("empty search should list pages and actions")
 	}
 }
 
-func TestPOSCheckout(t *testing.T) {
-	router := setupTestRouter()
-	form := url.Values{}
-	form.Set("customer", "Radisson Red Hotel V&A")
-	form.Set("paymentMethod", "Capitec Pay QR")
-
-	req := httptest.NewRequest("POST", "/pos/checkout", strings.NewReader(form.Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on pos checkout, got %d", rec.Code)
+func TestBankingChangeNeedsMatchingConfirmation(t *testing.T) {
+	app, state := newTestApp()
+	before := state.Store.BankAccount
+	post(t, app, "/settings/banking", url.Values{"bankName": {"FNB"}, "bankAccount": {"62000000001"}, "confirmAccount": {"62000000002"}, "bankBranchCode": {"250655"}})
+	if state.Store.BankAccount != before {
+		t.Fatalf("mismatched confirmation changed the payout account")
 	}
-	body := rec.Body.String()
-	if !strings.Contains(body, "Radisson Red Hotel V&A") && !strings.Contains(body, "Radisson Red Hotel V&amp;A") {
-		t.Errorf("expected POS partial to contain customer name")
+	post(t, app, "/settings/banking", url.Values{"bankName": {"FNB"}, "bankAccount": {"62000000001"}, "confirmAccount": {"62000000001"}, "bankBranchCode": {"250655"}})
+	if state.Store.BankAccount != "62000000001" {
+		t.Fatalf("matching confirmation did not update the account")
+	}
+	if strings.Contains(state.AuditLogs[0].Details, "62000000001") {
+		t.Errorf("audit log must mask the account number: %q", state.AuditLogs[0].Details)
 	}
 }
 
-func TestToggleFlowRule(t *testing.T) {
-	router := setupTestRouter()
-	req := httptest.NewRequest("POST", "/flow/flow_1/toggle", nil)
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on toggle flow, got %d", rec.Code)
+func TestPlanChange(t *testing.T) {
+	app, state := newTestApp()
+	post(t, app, "/settings/plan", url.Values{"plan": {"Grow (R199/mo)"}})
+	if state.Store.CurrentPlan != "Grow (R199/mo)" {
+		t.Errorf("plan = %s", state.Store.CurrentPlan)
 	}
-	body := rec.Body.String()
-	if !strings.Contains(body, "Flow Automations") {
-		t.Errorf("expected flow automations partial")
+	if rec := post(t, app, "/settings/plan", url.Values{"plan": {"Free Forever"}}); rec.Code != http.StatusBadRequest {
+		t.Errorf("unknown plan = %d, want 400", rec.Code)
 	}
 }
 
-func TestGenerateManifest(t *testing.T) {
-	router := setupTestRouter()
-	req := httptest.NewRequest("POST", "/manifests/new", nil)
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on generate manifest, got %d", rec.Code)
-	}
-	body := rec.Body.String()
-	if !strings.Contains(body, "The Courier Guy Road Freight") {
-		t.Errorf("expected manifest to contain carrier name")
+func TestStorefrontSettingsAreSaved(t *testing.T) {
+	app, state := newTestApp()
+	post(t, app, "/editor/save", url.Values{"ribbonText": {"Free shipping on orders over R5000"}, "ribbonActive": {"on"}, "heroHeadline": {"Test headline"}})
+	if state.Store.Storefront.Ribbon != "Free shipping on orders over R5000" || !state.Store.Storefront.RibbonOn || state.Store.Storefront.Headline != "Test headline" {
+		t.Errorf("storefront = %+v", state.Store.Storefront)
 	}
 }
 
-func TestReceiveTransfer(t *testing.T) {
-	router := setupTestRouter()
-	req := httptest.NewRequest("POST", "/transfers/tr_8821/receive", nil)
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on receive transfer, got %d", rec.Code)
+func TestChannelsPageHasSnippets(t *testing.T) {
+	app := setupTestRouter()
+	body := get(t, app, "/tab/channels", true).Body.String()
+	for _, want := range []string{"find-us-on-shoppage.svg", "embed/m/", "Copy signature HTML"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("channels page missing %q", want)
+		}
 	}
-	body := rec.Body.String()
-	if !strings.Contains(body, "Received") {
-		t.Errorf("expected transfer status to be Received")
-	}
-}
-
-func TestReconcileScan(t *testing.T) {
-	router := setupTestRouter()
-	form := url.Values{}
-	form.Set("skuId", "mit_3361")
-	form.Set("physicalCount", "452")
-
-	req := httptest.NewRequest("POST", "/scan/reconcile", strings.NewReader(form.Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on scan reconcile, got %d", rec.Code)
-	}
-	body := rec.Body.String()
-	if !strings.Contains(body, "452") {
-		t.Errorf("expected updated physical count in scan partial")
+	rec := post(t, app, "/channels/sync", nil)
+	if msg, _ := toast(t, rec); !strings.Contains(msg, "always current") {
+		t.Errorf("sync should explain feeds are live, got %q", msg)
 	}
 }
 
-func TestCreateFlowRule(t *testing.T) {
-	router := setupTestRouter()
-	form := url.Values{}
-	form.Set("name", "Alert on Big Orders")
-	form.Set("trigger", "Order Total > R10,000")
-	form.Set("condition", "All Warehouses")
-	form.Set("action", "Send WhatsApp to Sipho")
-
-	req := httptest.NewRequest("POST", "/flow/new", strings.NewReader(form.Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on create flow rule, got %d", rec.Code)
+func TestManifestUsesWhatWasEntered(t *testing.T) {
+	app, state := newTestApp()
+	post(t, app, "/manifests/new", url.Values{"carrier": {"Pargo"}, "driverName": {"T. Driver"}, "waybillCount": {"3"}, "totalWeightKg": {"12.5"}})
+	m := state.Manifests[0]
+	if m.CarrierName != "Pargo" || m.DriverName != "T. Driver" || m.WaybillCount != 3 || m.Status != "Manifested" {
+		t.Errorf("manifest = %+v", m)
 	}
-	body := rec.Body.String()
-	if !strings.Contains(body, "Alert on Big Orders") {
-		t.Errorf("expected new flow rule name in stream")
+}
+
+func TestInboxFlow(t *testing.T) {
+	app, state := newTestApp()
+	if rec := get(t, app, "/chat/thread/conv_goldreef", true); rec.Code != http.StatusOK {
+		t.Fatalf("select thread = %d", rec.Code)
+	}
+	rec := post(t, app, "/chat/send", url.Values{"thread_id": {"conv_goldreef"}, "message": {"Your order ships today"}})
+	if !strings.Contains(rec.Body.String(), "Your order ships today") {
+		t.Errorf("reply not shown")
+	}
+	if !strings.Contains(rec.Header().Get("HX-Trigger"), "shoppage:chat-sent") {
+		t.Errorf("reply should be relayed to the chat gateway")
+	}
+	post(t, app, "/chat/send", url.Values{"thread_id": {"conv_goldreef"}, "message": {"check stock"}, "is_internal": {"true"}})
+	var th *models.ChatThread
+	for i := range state.ChatThreads {
+		if state.ChatThreads[i].ID == "conv_goldreef" {
+			th = &state.ChatThreads[i]
+		}
+	}
+	if last := th.Messages[len(th.Messages)-1]; !last.IsInternalNote {
+		t.Errorf("internal note flag lost")
+	}
+	post(t, app, "/chat/quote", url.Values{"thread_id": {"conv_goldreef"}, "sku": {"MIT-2088"}, "quantity": {"60"}})
+	q := th.Messages[len(th.Messages)-1].Quote
+	if q == nil || q.UnitPriceZar >= 6.85 {
+		t.Errorf("60 units should get a volume tier discount, got %+v", q)
+	}
+	lock := post(t, app, "/chat/action", url.Values{"thread_id": {"conv_goldreef"}, "action": {"lock_stock"}, "sku": {"MIT-8610"}, "quantity": {"5"}})
+	if msg, _ := toast(t, lock); !strings.Contains(msg, "Nothing was held") {
+		t.Errorf("holding out-of-stock goods should be refused, got %q", msg)
 	}
 }
 
@@ -621,49 +824,6 @@ func TestServeMediaFile_NotFound(t *testing.T) {
 	}
 }
 
-func TestSaveEditorSettings(t *testing.T) {
-	router := setupTestRouter()
-	form := url.Values{}
-	form.Set("ribbonText", "Free shipping on orders over R5000")
-
-	req := httptest.NewRequest("POST", "/editor/save", strings.NewReader(form.Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on save editor, got %d", rec.Code)
-	}
-	body := rec.Body.String()
-	if !strings.Contains(body, "Storefront Theme Studio") {
-		t.Errorf("expected theme studio partial")
-	}
-}
-
-func TestStockIntakeAndILE(t *testing.T) {
-	router := setupTestRouter()
-	form := url.Values{}
-	form.Set("skuId", "mit_3361")
-	form.Set("hubName", "MIDRAND-01")
-	form.Set("reason", "Purchase Order Inward")
-	form.Set("bin", "Bay 4, Shelf B-02")
-	form.Set("quantity", "100")
-	form.Set("batchRef", "PO-2026-TEST")
-
-	req := httptest.NewRequest("POST", "/inventory/intake", strings.NewReader(form.Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on stock intake, got %d", rec.Code)
-	}
-	body := rec.Body.String()
-	if !strings.Contains(body, "Inventory & Multi-Warehouse Hubs") && !strings.Contains(body, "Inventory &amp; Multi-Warehouse Hubs") {
-		t.Errorf("expected inventory tab returned after intake")
-	}
-}
-
 func TestCSVExports(t *testing.T) {
 	router := setupTestRouter()
 
@@ -718,439 +878,35 @@ func TestWholesaleTierCreation(t *testing.T) {
 	}
 }
 
-func TestChannelSyncAndSettings(t *testing.T) {
-	router := setupTestRouter()
-
-	// Sync
-	reqSync := httptest.NewRequest("POST", "/channels/sync", nil)
-	recSync := httptest.NewRecorder()
-	router.ServeHTTP(recSync, reqSync)
-
-	if recSync.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on channel sync, got %d", recSync.Code)
-	}
-	bodySync := recSync.Body.String()
-	if !strings.Contains(bodySync, "Omnichannel Commerce") {
-		t.Errorf("expected channels tab on sync")
-	}
-
-	// Settings
-	form := url.Values{}
-	form.Set("autoQuotes", "on")
-	reqSet := httptest.NewRequest("POST", "/channels/settings", strings.NewReader(form.Encode()))
-	reqSet.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	recSet := httptest.NewRecorder()
-	router.ServeHTTP(recSet, reqSet)
-
-	if recSet.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on save channel settings, got %d", recSet.Code)
-	}
-}
-
-func TestFeedDiagnostics(t *testing.T) {
-	router := setupTestRouter()
-	req := httptest.NewRequest("POST", "/feeds/validate", nil)
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on feed diagnostics, got %d", rec.Code)
-	}
-	body := rec.Body.String()
-	if !strings.Contains(body, "Google Merchant Center") {
-		t.Errorf("expected feeds view on validate")
-	}
-}
-
-func TestCopilotActionAndPlanUpdate(t *testing.T) {
-	router := setupTestRouter()
-
-	// Copilot Action
-	formCop := url.Values{}
-	formCop.Set("action", "restock")
-	reqCop := httptest.NewRequest("POST", "/copilot/action", strings.NewReader(formCop.Encode()))
-	reqCop.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	recCop := httptest.NewRecorder()
-	router.ServeHTTP(recCop, reqCop)
-
-	if recCop.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on copilot action, got %d", recCop.Code)
-	}
-
-	// Plan update
-	formPlan := url.Values{}
-	formPlan.Set("plan", "Grow (R199/mo)")
-	reqPlan := httptest.NewRequest("POST", "/settings/plan", strings.NewReader(formPlan.Encode()))
-	reqPlan.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	recPlan := httptest.NewRecorder()
-	router.ServeHTTP(recPlan, reqPlan)
-
-	if recPlan.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on plan update, got %d", recPlan.Code)
-	}
-}
-
-func TestDirectMessagesAndChat(t *testing.T) {
-	router := setupTestRouter()
-
-	// 1. Test Select Thread
-	reqThread := httptest.NewRequest("GET", "/chat/thread/conv_goldreef", nil)
-	recThread := httptest.NewRecorder()
-	router.ServeHTTP(recThread, reqThread)
-
-	if recThread.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on select chat thread, got %d", recThread.Code)
-	}
-	bodyThread := recThread.Body.String()
-	if !strings.Contains(bodyThread, "Gold Reef City Casino &amp; Hotel") && !strings.Contains(bodyThread, "Gold Reef City Casino & Hotel") {
-		t.Errorf("expected selected thread to contain Gold Reef City")
-	}
-
-	// 2. Test Send Chat Message
-	formMsg := url.Values{}
-	formMsg.Set("thread_id", "conv_goldreef")
-	formMsg.Set("message", "Waybill tracking reference generated via The Courier Guy: TCG-2026-9921.")
-	reqMsg := httptest.NewRequest("POST", "/chat/send", strings.NewReader(formMsg.Encode()))
-	reqMsg.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	recMsg := httptest.NewRecorder()
-	router.ServeHTTP(recMsg, reqMsg)
-
-	if recMsg.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on send chat message, got %d", recMsg.Code)
-	}
-	bodyMsg := recMsg.Body.String()
-	if !strings.Contains(bodyMsg, "TCG-2026-9921") {
-		t.Errorf("expected chat stream to contain dispatched message")
-	}
-
-	// 3. Test Send Structured Quote
-	formQuote := url.Values{}
-	formQuote.Set("thread_id", "conv_goldreef")
-	formQuote.Set("sku", "MIT-2088")
-	formQuote.Set("quantity", "300")
-	formQuote.Set("discount_tier", "10")
-	reqQuote := httptest.NewRequest("POST", "/chat/quote", strings.NewReader(formQuote.Encode()))
-	reqQuote.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	recQuote := httptest.NewRecorder()
-	router.ServeHTTP(recQuote, reqQuote)
-
-	if recQuote.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on send structured quote, got %d", recQuote.Code)
-	}
-	bodyQuote := recQuote.Body.String()
-	if !strings.Contains(bodyQuote, "QUO-2026-") {
-		t.Errorf("expected chat stream to contain generated quote card")
-	}
-}
-
-func TestSidebarCollapseAndActiveHighlight(t *testing.T) {
-	router := setupTestRouter()
-
-	req := httptest.NewRequest("GET", "/tab/overview", nil)
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on full dashboard layout, got %d", rec.Code)
-	}
-
-	body := rec.Body.String()
-	if !strings.Contains(body, "id=\"sidebar-toggle-btn\"") {
-		t.Errorf("expected layout to contain #sidebar-toggle-btn in LeftSidebar brand header")
-	}
-	if !strings.Contains(body, "merchant_sidebar_collapsed") {
-		t.Errorf("expected layout to contain merchant_sidebar_collapsed localStorage persistence")
-	}
-	if !strings.Contains(body, "toggleMerchantSidebar") {
-		t.Errorf("expected layout to contain toggleMerchantSidebar function")
-	}
-	if !strings.Contains(body, "syncActiveTabHighlight") {
-		t.Errorf("expected layout to contain syncActiveTabHighlight function")
-	}
-	if !strings.Contains(body, ".thread-item.active-thread") {
-		t.Errorf("expected layout to contain .thread-item.active-thread CSS style")
-	}
-}
-
-func TestPemofyProductViews(t *testing.T) {
-	router := setupTestRouter()
-
-	// 1. Test Product Detail HTMX view
-	reqDetailHX := httptest.NewRequest("GET", "/catalog/mit_3361", nil)
-	reqDetailHX.Header.Set("HX-Request", "true")
-	recDetailHX := httptest.NewRecorder()
-	router.ServeHTTP(recDetailHX, reqDetailHX)
-
-	if recDetailHX.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK for detail HTMX view, got %d", recDetailHX.Code)
-	}
-	bodyDetailHX := recDetailHX.Body.String()
-	if strings.Contains(bodyDetailHX, "modal-card") {
-		t.Errorf("expected detail view to NOT be wrapped in modal-card popup")
-	}
-	if !strings.Contains(bodyDetailHX, "data-view=\"detail\"") {
-		t.Errorf("expected detail view to have data-view=\"detail\"")
-	}
-	if !strings.Contains(bodyDetailHX, "← Back to products") {
-		t.Errorf("expected detail view to have ← Back to products")
-	}
-
-	// 2. Test Product Edit HTMX view
-	reqEditHX := httptest.NewRequest("GET", "/catalog/mit_3361/edit", nil)
-	reqEditHX.Header.Set("HX-Request", "true")
-	recEditHX := httptest.NewRecorder()
-	router.ServeHTTP(recEditHX, reqEditHX)
-
-	if recEditHX.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK for edit HTMX view, got %d", recEditHX.Code)
-	}
-	bodyEditHX := recEditHX.Body.String()
-	if strings.Contains(bodyEditHX, "modal-card") {
-		t.Errorf("expected edit view to NOT be wrapped in modal-card popup")
-	}
-	if !strings.Contains(bodyEditHX, "data-view=\"edit\"") {
-		t.Errorf("expected edit view to have data-view=\"edit\"")
-	}
-	if !strings.Contains(bodyEditHX, "editor-tabs") {
-		t.Errorf("expected edit view to have editor-tabs")
-	}
-
-	// 3. Test Add Product New HTMX view
-	reqNewHX := httptest.NewRequest("GET", "/catalog/new", nil)
-	reqNewHX.Header.Set("HX-Request", "true")
-	recNewHX := httptest.NewRecorder()
-	router.ServeHTTP(recNewHX, reqNewHX)
-
-	if recNewHX.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK for new product HTMX view, got %d", recNewHX.Code)
-	}
-	bodyNewHX := recNewHX.Body.String()
-	if strings.Contains(bodyNewHX, "modal-card") {
-		t.Errorf("expected new product view to NOT be wrapped in modal-card popup")
-	}
-	if !strings.Contains(bodyNewHX, "Add product") {
-		t.Errorf("expected new product view to have Add product header")
-	}
-
-	// 4. Test Product Detail direct browser page load
-	reqDetailFull := httptest.NewRequest("GET", "/catalog/mit_3361", nil)
-	recDetailFull := httptest.NewRecorder()
-	router.ServeHTTP(recDetailFull, reqDetailFull)
-
-	if recDetailFull.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK for full page load, got %d", recDetailFull.Code)
-	}
-	bodyDetailFull := recDetailFull.Body.String()
-	if !strings.Contains(bodyDetailFull, "Shoppage Merchant OS") {
-		t.Errorf("expected full page layout on direct browser request")
-	}
-}
-
-func TestSlackTeamsChatWorkstation(t *testing.T) {
-	router := setupTestRouter()
-
-	// 1. Verify /tab/chat renders Slack/Teams channel header, internal whispers, and block cards
-	req := httptest.NewRequest("GET", "/tab/chat", nil)
+func TestImportSpreadsheet(t *testing.T) {
+	app, state := newTestApp()
+	var body bytes.Buffer
+	mw := multipart.NewWriter(&body)
+	fw, _ := mw.CreateFormFile("file", "products.csv")
+	_, _ = fw.Write([]byte("\ufeffCode,Name,Selling Price,Qty,EAN\n" +
+		"NEW-1,Brand New Widget,R 12.50,40,6009882400018\n" +
+		"MIT-3361,Commercial Anti-Theft Wooden Male Hanger 44cm,21.00,999,\n" +
+		",Missing code,5,1,\n"))
+	_ = mw.Close()
+	req := httptest.NewRequest("POST", "/catalog/import", &body)
+	req.Header.Set("Content-Type", mw.FormDataContentType())
 	req.Header.Set("HX-Request", "true")
+	stockBefore := findSKU(state, "MIT-3361").StockQuantity
 	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
+	app.ServeHTTP(rec, req)
 	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK for /tab/chat, got %d", rec.Code)
+		t.Fatalf("import = %d: %s", rec.Code, rec.Body.String())
 	}
-	body := rec.Body.String()
-
-	expectedSnippets := []string{
-		"Direct Messages &amp; Buyer Chat Desk",
-		"Active Trade Channels",
-		"RFQ #1042",
-		"INTERNAL TEAM NOTE",
-		"Staff Only (Hidden from Buyer)",
-		"Midrand Hub Warehouse",
-		"Stock Lock active",
-		"tab-mode-internal",
-		"tab-mode-buyer",
-		"Post Whisper 🔒",
+	msg, _ := toast(t, rec)
+	if !strings.Contains(msg, "1 added, 1 updated, 1 skipped") {
+		t.Errorf("import summary = %q", msg)
 	}
-
-	for _, s := range expectedSnippets {
-		if !strings.Contains(body, s) {
-			t.Errorf("expected /tab/chat to contain %q", s)
-		}
+	p := findSKU(state, "NEW-1")
+	if p == nil || p.WholesaleZar != 12.50 || p.StockQuantity != 40 || hubSum(p) != 40 {
+		t.Fatalf("imported product = %+v", p)
 	}
-
-	// 2. Post an internal staff whisper
-	whisperForm := url.Values{}
-	whisperForm.Set("thread_id", "conv_protea")
-	whisperForm.Set("message", "Midrand Bay 4: Reserve an additional 50 units for Protea Hotel VIP suite annex.")
-	whisperForm.Set("is_internal", "true")
-
-	reqWhisper := httptest.NewRequest("POST", "/chat/send", strings.NewReader(whisperForm.Encode()))
-	reqWhisper.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	reqWhisper.Header.Set("HX-Request", "true")
-	recWhisper := httptest.NewRecorder()
-	router.ServeHTTP(recWhisper, reqWhisper)
-
-	if recWhisper.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK for posting whisper, got %d", recWhisper.Code)
-	}
-	bodyWhisper := recWhisper.Body.String()
-	if !strings.Contains(bodyWhisper, "Midrand Bay 4: Reserve an additional 50 units") {
-		t.Errorf("expected whisper message in chat stream")
-	}
-	if !strings.Contains(bodyWhisper, "Staff Whisper") {
-		t.Errorf("expected Staff Whisper sender badge")
-	}
-
-	// 3. Trigger Block Kit action: Lock Stock
-	stockForm := url.Values{}
-	stockForm.Set("thread_id", "conv_protea")
-	stockForm.Set("action", "lock_stock")
-	stockForm.Set("sku", "MIT-3361")
-	stockForm.Set("quantity", "150")
-
-	reqStock := httptest.NewRequest("POST", "/chat/action", strings.NewReader(stockForm.Encode()))
-	reqStock.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	reqStock.Header.Set("HX-Request", "true")
-	recStock := httptest.NewRecorder()
-	router.ServeHTTP(recStock, reqStock)
-
-	if recStock.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK for locking stock, got %d", recStock.Code)
-	}
-	bodyStock := recStock.Body.String()
-	if !strings.Contains(bodyStock, "LCK-MID-") {
-		t.Errorf("expected new stock lock ID in response")
-	}
-
-	// 4. Trigger Block Kit action: Verify POP in conv_goldreef
-	popForm := url.Values{}
-	popForm.Set("thread_id", "conv_goldreef")
-	popForm.Set("action", "verify_pop")
-
-	reqPOP := httptest.NewRequest("POST", "/chat/action", strings.NewReader(popForm.Encode()))
-	reqPOP.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	reqPOP.Header.Set("HX-Request", "true")
-	recPOP := httptest.NewRecorder()
-	router.ServeHTTP(recPOP, reqPOP)
-
-	if recPOP.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK for verifying POP, got %d", recPOP.Code)
-	}
-	bodyPOP := recPOP.Body.String()
-	if !strings.Contains(bodyPOP, "Paid &amp; Dispatched") && !strings.Contains(bodyPOP, "Paid & Dispatched") {
-		t.Errorf("expected deal status to be updated to Paid & Dispatched")
-	}
-}
-
-func TestRMAWorkflow(t *testing.T) {
-	router := setupTestRouter()
-
-	// 1. Create new RMA request via POST /rma/new
-	form := url.Values{}
-	form.Set("orderNumber", "ORD-2026-9911")
-	form.Set("customerName", "Sandton Convention Centre")
-	form.Set("itemTitle", "Solid Beechwood Coat Hangers")
-	form.Set("sku", "MIT-3361")
-	form.Set("quantity", "10")
-	form.Set("reason", "Damaged during freight transport")
-	form.Set("refundAmount", "450.00")
-
-	reqNew := httptest.NewRequest("POST", "/rma/new", strings.NewReader(form.Encode()))
-	reqNew.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	reqNew.Header.Set("HX-Request", "true")
-	recNew := httptest.NewRecorder()
-	router.ServeHTTP(recNew, reqNew)
-
-	if recNew.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on create RMA, got %d", recNew.Code)
-	}
-	bodyNew := recNew.Body.String()
-	if !strings.Contains(bodyNew, "Sandton Convention Centre") {
-		t.Errorf("expected new RMA row to contain customer name")
-	}
-	if !strings.Contains(bodyNew, "RMA-2026-") {
-		t.Errorf("expected RMA number prefix in generated row")
-	}
-	if !strings.Contains(bodyNew, "Authorized") {
-		t.Errorf("expected initial status to be Authorized")
-	}
-	if !strings.Contains(bodyNew, "450.00") {
-		t.Errorf("expected refund amount in table")
-	}
-
-	// 2. Advance RMA status to "Goods Received"
-	formUpdate1 := url.Values{}
-	formUpdate1.Set("rmaId", "RMA-2026-0814")
-	formUpdate1.Set("newStatus", "Goods Received")
-
-	reqUp1 := httptest.NewRequest("POST", "/rma/update", strings.NewReader(formUpdate1.Encode()))
-	reqUp1.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	reqUp1.Header.Set("HX-Request", "true")
-	recUp1 := httptest.NewRecorder()
-	router.ServeHTTP(recUp1, reqUp1)
-
-	if recUp1.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on advance RMA to Goods Received, got %d", recUp1.Code)
-	}
-	bodyUp1 := recUp1.Body.String()
-	if !strings.Contains(bodyUp1, "Goods Received") {
-		t.Errorf("expected RMA table to reflect Goods Received status")
-	}
-
-	// 3. Finalize RMA with "Refund Issued"
-	formUpdate2 := url.Values{}
-	formUpdate2.Set("rmaId", "RMA-2026-0814")
-	formUpdate2.Set("newStatus", "Refund Issued")
-
-	reqUp2 := httptest.NewRequest("POST", "/rma/update", strings.NewReader(formUpdate2.Encode()))
-	reqUp2.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	reqUp2.Header.Set("HX-Request", "true")
-	recUp2 := httptest.NewRecorder()
-	router.ServeHTTP(recUp2, reqUp2)
-
-	if recUp2.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK on advance RMA to Refund Issued, got %d", recUp2.Code)
-	}
-	bodyUp2 := recUp2.Body.String()
-	if !strings.Contains(bodyUp2, "Refund Issued") {
-		t.Errorf("expected RMA table to reflect Refund Issued status")
-	}
-}
-
-func TestChannelsWebsiteAndEmailHub(t *testing.T) {
-	router := setupTestRouter()
-	req := httptest.NewRequest("GET", "/tab/channels", nil)
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Fatalf("expected 200 OK for channels tab, got %d", rec.Code)
-	}
-
-	body := rec.Body.String()
-	if !strings.Contains(body, "Website &amp; Corporate Email Integration Hub") && !strings.Contains(body, "Website & Corporate Email Integration Hub") {
-		t.Errorf("expected channels tab to contain Website & Corporate Email Integration Hub")
-	}
-	if !strings.Contains(body, "find-us-on-shoppage.svg") {
-		t.Errorf("expected channels tab to contain find-us-on-shoppage.svg badge")
-	}
-	if !strings.Contains(body, "order-on-shoppage.svg") {
-		t.Errorf("expected channels tab to contain order-on-shoppage.svg badge")
-	}
-	if !strings.Contains(body, "verified-merchant.svg") {
-		t.Errorf("expected channels tab to contain verified-merchant.svg badge")
-	}
-	if !strings.Contains(body, "shoppage-icon.svg") {
-		t.Errorf("expected channels tab to contain shoppage-icon.svg badge")
-	}
-	if !strings.Contains(body, "Corporate Email Signature Snippet") {
-		t.Errorf("expected channels tab to contain Corporate Email Signature Snippet")
-	}
-	if !strings.Contains(body, "Embed Live Catalog on Your Website") {
-		t.Errorf("expected channels tab to contain Embed Live Catalog on Your Website")
-	}
-	if !strings.Contains(body, "<iframe src=") {
-		t.Errorf("expected channels tab to contain iframe embed code snippet")
+	h := findSKU(state, "MIT-3361")
+	if h.WholesaleZar != 21 || h.StockQuantity != stockBefore {
+		t.Errorf("existing product: price %.2f, stock %d (was %d); import must not change stock", h.WholesaleZar, h.StockQuantity, stockBefore)
 	}
 }

@@ -103,7 +103,11 @@ func New(ctx context.Context, opts Options) (http.Handler, error) {
 
 	// Embedded assets (HTMX) served locally: the merchant workspace must not depend
 	// on a public CDN, so it keeps working on slow, filtered or offline store networks.
+	// Served under /merchant-static (not /static) so the paths are unique when
+	// the workspace is mounted inside the consumer gateway.
+	r.Handle("/merchant-static/*", http.StripPrefix("/merchant-static", assets.Handler()))
 	r.Handle("/static/*", http.StripPrefix("/static", assets.Handler()))
+	r.Get("/merchant-sw.js", assets.ServiceWorker)
 
 	// Authentication: login page + session endpoints are public; everything else
 	// under the merchant workspace requires a valid SHOPPAGE_AUTH_SECRET session.
@@ -128,10 +132,15 @@ func New(ctx context.Context, opts Options) (http.Handler, error) {
 	protected.Get("/", h.ServeDashboard)
 	protected.Get("/desk", h.ServeDashboard)
 	protected.Get("/tab/{tab}", h.ServeTab)
+	protected.Get("/search", h.Search)
+	protected.Post("/undo/{id}", h.Undo)
+	protected.NotFound(h.ServeNotFound)
 
 	// Catalog & Product Operations
 	protected.Get("/catalog/export.csv", h.ExportCatalogCSV)
 	protected.Get("/catalog/new", h.ServeProductNew)
+	protected.Get("/catalog/import-template.csv", h.ServeImportTemplate)
+	protected.Post("/catalog/import", h.ImportCatalog)
 	protected.Get("/catalog/{id}", h.ServeProductDetail)
 	protected.Get("/catalog/{id}/edit", h.ServeProductEdit)
 	protected.Post("/catalog/{id}/edit", h.SaveProductEdit)
@@ -155,6 +164,7 @@ func New(ctx context.Context, opts Options) (http.Handler, error) {
 
 	// RFQ Commercial Leads
 	protected.Post("/rfqs/{id}/convert", h.ConvertRFQ)
+	protected.Post("/rfqs/{id}/quote", h.SendQuote)
 
 	// Customers & CRM
 	protected.Post("/customers/new", h.CreateCustomer)

@@ -3,162 +3,127 @@ package templates
 import (
 	"fmt"
 	"strings"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
+func channelListed(data models.DashboardViewData, ch string) int {
+	n := 0
+	for _, p := range data.Catalog {
+		if data.Readiness[p.ID].ReadyOn(ch) {
+			n++
+		}
+	}
+	return n
+}
+
+func channelNote(ch string) string {
+	switch ch {
+	case models.ChannelShoppage:
+		return "Buyers searching Shoppage and asking AI assistants that use it."
+	case models.ChannelGoogle:
+		return "Free listings in Google Shopping and Search, from your product feed."
+	case models.ChannelMeta:
+		return "Shops on Facebook and Instagram, from your catalogue file."
+	case models.ChannelWhatsApp:
+		return "Your catalogue inside WhatsApp Business chats."
+	}
+	return ""
+}
+
+func feedURL(data models.DashboardViewData, path string) string {
+	return strings.TrimRight(data.Nav.PublicBaseURL, "/") + path
+}
+
+// FeedsTab is "Where you sell": one product record, checked against each
+// channel's rules, with the exact fix for anything blocked.
 templ FeedsTab(data models.DashboardViewData) {
-	<div style="margin-bottom: 20px;">
-		<div class="panel-head" style="margin-bottom: 16px;">
-			<div>
-				<h3 style="font-size: 1.3rem;">Google Merchant Center &amp; Meta Feeds Vault</h3>
-				<div class="sub">Automated South African commercial feed syndication, XML RSS 2.0 &amp; Meta Catalog feeds</div>
-			</div>
-			<div style="margin-left: auto; display:flex; gap:8px;">
-				<a href="/feeds/meta-catalog.csv" target="_blank" class="btn ghost small">
-					<span>📥</span> Meta Catalog CSV
-				</a>
-				<a href="/feeds/google-merchant-center.xml" target="_blank" class="btn solid small">
-					<span>↗</span> View Raw GMC XML Feed
-				</a>
-			</div>
+	<div class="page-head">
+		<div class="head-copy">
+			<p>You edit each product once. Here's where it can be listed, and exactly what to fix where it can't.</p>
 		</div>
-
-		<!-- Feed Diagnostics & Metrics Overview -->
-		<div class="card panel" style="margin-bottom:18px;">
-			<div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
-				<div>
-					<div style="font-weight: 700; font-size: 15px; color: var(--ink);">Automated GMC Syndication Status</div>
-					<div style="font-size: 12.5px; color: var(--muted); margin-top: 2px;">
-						Live endpoint: <code style="font-family: var(--mono); background: var(--surface-2); padding: 2px 6px; border-radius: 4px;">/feeds/google-merchant-center.xml</code>
-					</div>
-				</div>
-				<div style="display:flex; gap:8px; align-items:center;">
-					<form hx-post="/feeds/validate" hx-target="#tab-content" style="display:inline;">
-						<button type="submit" class="btn ghost small">
-							<span>🔍</span> Run Feed Diagnostics
-						</button>
-					</form>
-					<span class="chip up">● Active Sync (200 OK)</span>
-				</div>
-			</div>
-
-			<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
-				<div style="padding: 12px; background: var(--surface-2); border-radius: 9px; border: 1px solid var(--line);">
-					<div style="font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700;">Feed Standard</div>
-					<div style="font-weight: 800; font-family: var(--display); font-size: 15px; margin-top: 4px;">RSS 2.0 / GMC 1.0</div>
-				</div>
-				<div style="padding: 12px; background: var(--surface-2); border-radius: 9px; border: 1px solid var(--line);">
-					<div style="font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700;">Currency &amp; VAT</div>
-					<div style="font-weight: 800; font-family: var(--display); font-size: 15px; margin-top: 4px;">ZAR (15% SARS VAT)</div>
-				</div>
-				<div style="padding: 12px; background: var(--surface-2); border-radius: 9px; border: 1px solid var(--line);">
-					<div style="font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700;">Active Items In Feed</div>
-					<div style="font-weight: 800; font-family: var(--display); font-size: 15px; margin-top: 4px; color: var(--primary);">
-						{ fmt.Sprintf("%d", len(data.Catalog)) } SKUs Approved
-					</div>
-				</div>
-				<div style="padding: 12px; background: var(--surface-2); border-radius: 9px; border: 1px solid var(--line);">
-					<div style="font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700;">Courier Shipping</div>
-					<div style="font-weight: 800; font-family: var(--display); font-size: 15px; margin-top: 4px; color: #16a34a;">
-						Courier Guy &amp; Pudo
-					</div>
-				</div>
-			</div>
-
-			<!-- SKU-by-SKU Policy Compliance Diagnostics Table -->
-			<div style="margin-bottom: 20px;">
-				<div style="font-weight: 700; font-size: 13.5px; color: var(--ink); margin-bottom: 8px;">
-					GMC Catalog Item Policy Diagnostics ({ fmt.Sprintf("%d", len(data.Catalog)) } SKUs)
-				</div>
-				<div class="table-wrap" style="border: 1px solid var(--line); border-radius: 10px; overflow-x: auto;">
-					<table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12px;">
-						<thead>
-							<tr style="background: var(--surface-2); text-align: left; border-bottom: 1px solid var(--line);">
-								<th style="padding: 10px 12px;">SKU / Product</th>
-								<th style="padding: 10px 12px;">GTIN / EAN-13</th>
-								<th style="padding: 10px 12px;">Landing Link</th>
-								<th style="padding: 10px 12px;">Image Asset</th>
-								<th style="padding: 10px 12px;">Price (ZAR)</th>
-								<th style="padding: 10px 12px;">Shipping Matrix</th>
-								<th style="padding: 10px 12px;">Policy Status</th>
-							</tr>
-						</thead>
-						<tbody>
-							for i, item := range data.Catalog {
-								<tr style="border-bottom: 1px solid var(--line);">
-									<td style="padding: 10px 12px;">
-										<div style="font-weight: 700; color: var(--ink);">{ item.Title }</div>
-										<div style="font-size: 10.5px; font-family: var(--mono); color: var(--muted);">{ item.SKU } · { item.Brand }</div>
-									</td>
-									<td style="padding: 10px 12px; font-family: var(--mono);">
-										if item.Spec.Barcode != "" {
-											<span class="chip" style="font-size: 11px;">✓ { item.Spec.Barcode }</span>
-										} else {
-											<span class="chip" style="font-size: 11px;">✓ { fmt.Sprintf("60098824%04d", (i+1)*13%10000) }</span>
-										}
-									</td>
-									<td style="padding: 10px 12px;">
-										<a href={ templ.SafeURL(fmt.Sprintf("%s/p/%s", strings.TrimRight(data.Nav.PublicBaseURL, "/"), item.ID)) } target="_blank" style="color: var(--primary); text-decoration: underline; font-family: var(--mono); font-size: 11px;">
-											/p/{ item.ID } ↗
-										</a>
-									</td>
-									<td style="padding: 10px 12px;">
-										<span class="chip up" style="font-size: 10.5px;">✓ Synced (HD)</span>
-									</td>
-									<td style="padding: 10px 12px; font-family: var(--mono); font-weight: 700;">
-										R { fmt.Sprintf("%.2f", item.WholesaleZar) }
-									</td>
-									<td style="padding: 10px 12px; font-size: 11px; color: var(--muted);">
-										TCG R85 · Pudo R60
-									</td>
-									<td style="padding: 10px 12px;">
-										<span class="chip up" style="font-weight: 700;">● Approved</span>
-									</td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			</div>
-
-			<!-- Live XML Code Preview Snippet -->
-			<div style="background: var(--sidebar); color: #dbe8e0; border-radius: 12px; padding: 16px; font-family: var(--mono); font-size: 11.5px; overflow-x: auto; margin-bottom:16px;">
-				<div style="color: #6f9384; margin-bottom: 6px;">&lt;!-- Verified GMC XML Feed Item Output Sample --&gt;</div>
-				<div>&lt;item&gt;</div>
-				<div style="padding-left: 16px;">&lt;g:id&gt;mit_3361&lt;/g:id&gt;</div>
-				<div style="padding-left: 16px;">&lt;g:title&gt;Commercial Anti-Theft Wooden Male Hanger 44cm&lt;/g:title&gt;</div>
-				<div style="padding-left: 16px;">&lt;g:link&gt;{ fmt.Sprintf("%s/p/mit_3361", strings.TrimRight(data.Nav.PublicBaseURL, "/")) }&lt;/g:link&gt;</div>
-				<div style="padding-left: 16px;">&lt;g:image_link&gt;{ fmt.Sprintf("%s/static/catalog/mit_3361.jpg", strings.TrimRight(data.Nav.PublicBaseURL, "/")) }&lt;/g:image_link&gt;</div>
-				<div style="padding-left: 16px;">&lt;g:price&gt;22.88 ZAR&lt;/g:price&gt;</div>
-				<div style="padding-left: 16px;">&lt;g:availability&gt;in stock&lt;/g:availability&gt;</div>
-				<div style="padding-left: 16px;">&lt;g:condition&gt;new&lt;/g:condition&gt;</div>
-				<div style="padding-left: 16px;">&lt;g:gtin&gt;60098824001&lt;/g:gtin&gt;</div>
-				<div style="padding-left: 16px;">&lt;g:google_product_category&gt;Business &amp; Industrial &gt; Hospitality Supplies&lt;/g:google_product_category&gt;</div>
-				<div style="padding-left: 16px;">&lt;g:shipping&gt;</div>
-				<div style="padding-left: 32px;">&lt;g:country&gt;ZA&lt;/g:country&gt;&lt;g:service&gt;The Courier Guy Express&lt;/g:service&gt;&lt;g:price&gt;85.00 ZAR&lt;/g:price&gt;</div>
-				<div style="padding-left: 16px;">&lt;/g:shipping&gt;</div>
-				<div>&lt;/item&gt;</div>
-			</div>
-
-			<!-- Specification Checklist -->
-			<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; font-size:12px;">
-				<div style="display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;">
-					<span style="color:var(--primary-2); font-weight:700;">✓</span>
-					<span>EAN-13 / GTIN Barcode Matched</span>
-				</div>
-				<div style="display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;">
-					<span style="color:var(--primary-2); font-weight:700;">✓</span>
-					<span>SARS 15% VAT In Pricing</span>
-				</div>
-				<div style="display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;">
-					<span style="color:var(--primary-2); font-weight:700;">✓</span>
-					<span>Canonical Product URL Live</span>
-				</div>
-				<div style="display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;">
-					<span style="color:var(--primary-2); font-weight:700;">✓</span>
-					<span>SA Courier Shipping Defined</span>
-				</div>
-			</div>
+		<div class="actions">
+			<button class="btn ghost" type="button" hx-post="/feeds/validate" hx-target="#tab-content">Re-check listings</button>
 		</div>
 	</div>
+	<section class="grid-kpi">
+		for _, ch := range models.ListingChannels {
+			{{ n := channelListed(data, ch) }}
+			<article class="card kpi">
+				<div class="k-label">
+					{ ch }
+					if n == len(data.Catalog) && n > 0 {
+						<span class="chip ok">All listed</span>
+					} else if n < len(data.Catalog) {
+						<span class="chip warn">{ fmt.Sprintf("%d blocked", len(data.Catalog)-n) }</span>
+					}
+				</div>
+				<div class="k-val">{ fmt.Sprintf("%d", n) } <span class="sub">{ fmt.Sprintf("of %d", len(data.Catalog)) }</span></div>
+				<div class="k-foot">{ channelNote(ch) }</div>
+			</article>
+		}
+	</section>
+	<section class="card section">
+		<div class="panel-head panel" style="margin:0; border-bottom:1px solid var(--line);">
+			<div>
+				<h3>Products by channel</h3>
+				<div class="sub">Fix the top item on each product first. It unblocks the most channels.</div>
+			</div>
+		</div>
+		<div class="table-wrap">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Product</th>
+						<th class="r">Score</th>
+						for _, ch := range models.ListingChannels {
+							<th>{ ch }</th>
+						}
+						<th>Next fix</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, p := range data.Catalog {
+						{{ r := data.Readiness[p.ID] }}
+						<tr>
+							<td>
+								<a class="link" href={ templ.SafeURL("/catalog/" + p.ID) } hx-get={ "/catalog/" + p.ID } hx-target="#tab-content" hx-push-url="true">{ p.Title }</a>
+								<div class="small-text muted mono">{ p.SKU }</div>
+							</td>
+							<td class="r"><span class={ listingChip(r) }>{ fmt.Sprint(r.Score) }</span></td>
+							for _, ch := range models.ListingChannels {
+								<td>
+									if r.ReadyOn(ch) {
+										<span class="status ok">Listed</span>
+									} else {
+										<span class="status warn" title={ "Needs: " + strings.Join(r.Blocked[ch], ", ") }>Blocked</span>
+									}
+								</td>
+							}
+							<td style="min-width:220px;">
+								if f := r.FailedChecks(); len(f) > 0 {
+									<b class="small-text">{ f[0].Label }</b>
+									<p class="small-text muted">{ f[0].Fix }</p>
+									<a class="btn quiet small" href={ templ.SafeURL("/catalog/" + p.ID + "/edit") } hx-get={ "/catalog/" + p.ID + "/edit" } hx-target="#tab-content" hx-push-url="true">Fix now</a>
+								} else {
+									<span class="muted small-text">Nothing to fix</span>
+								}
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</section>
+	<details class="card panel">
+		<summary style="cursor:pointer; font-weight:600;">Advanced: feed addresses for Google Merchant Center and Meta Commerce Manager</summary>
+		<p class="muted small-text" style="margin:10px 0;">Paste these into Google Merchant Center (scheduled fetch) and Meta Commerce Manager (data feed). They're generated from your products each time they're read, and only include products that pass that channel's rules.</p>
+		<div class="kv-list">
+			<div class="kv-row"><span>Google product feed (XML)</span><a class="mono link" href="/feeds/google-merchant-center.xml" target="_blank" rel="noopener">{ feedURL(data, "/feeds/google-merchant-center.xml") }</a></div>
+			<div class="kv-row"><span>Meta catalogue (CSV)</span><a class="mono link" href="/feeds/meta-catalog.csv">{ feedURL(data, "/feeds/meta-catalog.csv") }</a></div>
+		</div>
+		if strings.Contains(data.Nav.PublicBaseURL, "localhost") {
+			<div class="notice warn" style="margin-top:10px;">These addresses point at localhost, so Google and Meta can't reach them. Set SHOPPAGE_PUBLIC_URL to your public web address.</div>
+		}
+	</details>
 }

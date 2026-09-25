@@ -35,14 +35,14 @@ func MediaTab(data models.DashboardViewData) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"panel-head\"><div><h3>Media &amp; Documents</h3><div class=\"sub\">Product photography, compliance certificates, datasheets and brochures. Uploaded files are stored on this node and served from it.</div></div><div class=\"right\"><button class=\"btn solid small\" onclick=\"document.getElementById('upload-media-dialog')?.showModal();\"><span>+</span> Upload Asset</button></div></div><!-- Storage Metrics (computed from records) --><div class=\"three-col\" style=\"margin-bottom:18px;\"><div class=\"card kpi\"><div class=\"k-label\"><span>Assets Registered</span><span class=\"chip up\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-head\"><div class=\"head-copy\"><p>Product photos, certificates, datasheets and brochures.</p></div><div class=\"actions\"><button class=\"btn solid small\" onclick=\"document.getElementById('upload-media-dialog')?.showModal();\">Upload file</button></div></div><!-- Storage Metrics (computed from records) --><div class=\"three-col\" style=\"margin-bottom:18px;\"><div class=\"card kpi\"><div class=\"k-label\"><span>Assets Registered</span><span class=\"chip up\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.MediaAssets)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/media.templ`, Line: 25, Col: 118}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `media.templ`, Line: 24, Col: 118}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -55,20 +55,20 @@ func MediaTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d Files", len(data.MediaAssets)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/media.templ`, Line: 26, Col: 114}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `media.templ`, Line: 25, Col: 114}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div class=\"k-foot\"><span class=\"then\">Stored on this node</span></div></div><div class=\"card kpi\"><div class=\"k-label\"><span>Compliance Documents</span><span class=\"chip up\">Certificates</span></div><div class=\"k-val\" style=\"font-size:1.5rem; margin:6px 0 2px;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div class=\"k-foot\"><span class=\"then\">uploaded or linked</span></div></div><div class=\"card kpi\"><div class=\"k-label\"><span>Compliance Documents</span><span class=\"chip up\">Certificates</span></div><div class=\"k-val\" style=\"font-size:1.5rem; margin:6px 0 2px;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", MediaCountCategory(data.MediaAssets, "SABS")))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/media.templ`, Line: 31, Col: 131}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `media.templ`, Line: 30, Col: 131}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -81,7 +81,7 @@ func MediaTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", float64(MediaTotalKb(data.MediaAssets))/1024.0))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/media.templ`, Line: 36, Col: 135}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `media.templ`, Line: 35, Col: 135}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -92,9 +92,9 @@ func MediaTab(data models.DashboardViewData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
-		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d Assets Synced to Storefront", len(data.MediaAssets)))
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d files", len(data.MediaAssets)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/media.templ`, Line: 49, Col: 122}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `media.templ`, Line: 48, Col: 100}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -130,7 +130,7 @@ func MediaTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(asset.Category)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/media.templ`, Line: 63, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `media.templ`, Line: 62, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
@@ -148,7 +148,7 @@ func MediaTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.SafeURL(asset.URL))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/media.templ`, Line: 67, Col: 42}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `media.templ`, Line: 66, Col: 42}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 				if templ_7745c5c3_Err != nil {
@@ -161,7 +161,7 @@ func MediaTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(asset.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/media.templ`, Line: 67, Col: 61}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `media.templ`, Line: 66, Col: 61}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 				if templ_7745c5c3_Err != nil {
@@ -194,7 +194,7 @@ func MediaTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(asset.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/media.templ`, Line: 76, Col: 101}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `media.templ`, Line: 75, Col: 101}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -207,7 +207,7 @@ func MediaTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(asset.Category)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/media.templ`, Line: 78, Col: 46}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `media.templ`, Line: 77, Col: 46}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -220,7 +220,7 @@ func MediaTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d KB", asset.SizeKb))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/media.templ`, Line: 78, Col: 95}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `media.templ`, Line: 77, Col: 95}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -243,7 +243,7 @@ func MediaTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(asset.UploadedAt.Format("02 Jan 2006"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/media.templ`, Line: 85, Col: 95}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `media.templ`, Line: 84, Col: 95}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -256,7 +256,7 @@ func MediaTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var14 templ.SafeURL
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(asset.URL))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/media.templ`, Line: 87, Col: 40}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `media.templ`, Line: 86, Col: 40}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -267,7 +267,56 @@ func MediaTab(data models.DashboardViewData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><!-- Upload Media Dialog (real multipart upload) --><dialog id=\"upload-media-dialog\" class=\"modal-dialog\"><div class=\"modal-card\"><div class=\"modal-head\"><h4>Upload a Media Asset or Compliance Document</h4><button type=\"button\" class=\"close-btn\" onclick=\"document.getElementById('upload-media-dialog').close();\">&times;</button></div><form hx-post=\"/media/new\" hx-encoding=\"multipart/form-data\" hx-target=\"#tab-content\" onsubmit=\"document.getElementById('upload-media-dialog')?.close();\"><div class=\"modal-body\"><div class=\"form-group\"><label>File (PDF, JPG, PNG or WEBP — max 20 MB)</label> <input type=\"file\" name=\"file\" accept=\".pdf,.jpg,.jpeg,.png,.webp\" class=\"input\"></div><div class=\"form-group\"><label>Display Name (optional — defaults to the file name)</label> <input type=\"text\" name=\"name\" class=\"input\" placeholder=\"e.g. SABS 1422 Commercial Hotel Certificate 2026\"></div><div class=\"form-group\"><label>Asset Category</label> <select name=\"category\" class=\"select-full\"><option value=\"SABS Certificate\">SABS Compliance Certificate</option> <option value=\"Product Photography\">Product Photography (Packshot)</option> <option value=\"Spec Sheet\">Material Safety / Tech Datasheet</option> <option value=\"Trade Brochure\">Wholesale Commercial Trade Brochure</option></select></div><div class=\"form-group\" style=\"border-top:1px dashed var(--line); padding-top:12px;\"><label>Or link an externally hosted asset (URL)</label> <input type=\"text\" name=\"url\" class=\"input\" placeholder=\"https://cdn.example.co.za/brochure.pdf\"></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn ghost\" onclick=\"document.getElementById('upload-media-dialog').close();\">Cancel</button> <button type=\"submit\" class=\"btn solid\">Save Asset</button></div></form></div></dialog><script>\n\t\tfunction filterMedia(cat) {\n\t\t\tvar cards = document.querySelectorAll('.media-card');\n\t\t\tcards.forEach(function(card) {\n\t\t\t\tif (cat === 'all') {\n\t\t\t\t\tcard.style.display = 'flex';\n\t\t\t\t} else if (cat === 'sabs') {\n\t\t\t\t\tcard.style.display = card.dataset.category.includes('SABS') ? 'flex' : 'none';\n\t\t\t\t} else if (cat === 'photo') {\n\t\t\t\t\tcard.style.display = card.dataset.category.includes('Photography') ? 'flex' : 'none';\n\t\t\t\t} else if (cat === 'spec') {\n\t\t\t\t\tcard.style.display = card.dataset.category.includes('Spec') ? 'flex' : 'none';\n\t\t\t\t}\n\t\t\t});\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><!-- Upload Media Dialog (real multipart upload) --><dialog id=\"upload-media-dialog\" class=\"modal-dialog\"><div class=\"modal-card\"><div class=\"modal-head\"><h4>Upload a Media Asset or Compliance Document</h4><button type=\"button\" class=\"close-btn\" onclick=\"document.getElementById('upload-media-dialog').close();\">&times;</button></div><form hx-post=\"/media/new\" hx-encoding=\"multipart/form-data\" hx-target=\"#tab-content\" onsubmit=\"document.getElementById('upload-media-dialog')?.close();\"><div class=\"modal-body\"><div class=\"form-group\"><label>File (PDF, JPG, PNG or WEBP — max 20 MB)</label> <input type=\"file\" name=\"file\" accept=\".pdf,.jpg,.jpeg,.png,.webp\" class=\"input\"></div><div class=\"form-group\"><label>Display Name (optional — defaults to the file name)</label> <input type=\"text\" name=\"name\" class=\"input\" placeholder=\"e.g. SABS 1422 Commercial Hotel Certificate 2026\"></div><div class=\"form-group\"><label for=\"media-sku\">Product (for product photos)</label> <select id=\"media-sku\" name=\"sku\" class=\"select-full\"><option value=\"\">Not for a specific product</option> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, p := range data.Catalog {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<option value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var15 string
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.SKU)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `media.templ`, Line: 116, Col: 29}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var16 string
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(p.SKU)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `media.templ`, Line: 116, Col: 39}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, " · ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var17 string
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `media.templ`, Line: 116, Col: 54}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</option>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</select><p class=\"help\">A product photo lets the product list on Google, Facebook, Instagram and WhatsApp.</p></div><div class=\"form-group\"><label>Asset Category</label> <select name=\"category\" class=\"select-full\"><option value=\"SABS Certificate\">SABS Compliance Certificate</option> <option value=\"Product Photography\">Product Photography (Packshot)</option> <option value=\"Spec Sheet\">Material Safety / Tech Datasheet</option> <option value=\"Trade Brochure\">Wholesale Commercial Trade Brochure</option></select></div><div class=\"form-group\" style=\"border-top:1px dashed var(--line); padding-top:12px;\"><label>Or link an externally hosted asset (URL)</label> <input type=\"text\" name=\"url\" class=\"input\" placeholder=\"https://cdn.example.co.za/brochure.pdf\"></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn ghost\" onclick=\"document.getElementById('upload-media-dialog').close();\">Cancel</button> <button type=\"submit\" class=\"btn solid\">Save Asset</button></div></form></div></dialog><script>\n\t\tfunction filterMedia(cat) {\n\t\t\tvar cards = document.querySelectorAll('.media-card');\n\t\t\tcards.forEach(function(card) {\n\t\t\t\tif (cat === 'all') {\n\t\t\t\t\tcard.style.display = 'flex';\n\t\t\t\t} else if (cat === 'sabs') {\n\t\t\t\t\tcard.style.display = card.dataset.category.includes('SABS') ? 'flex' : 'none';\n\t\t\t\t} else if (cat === 'photo') {\n\t\t\t\t\tcard.style.display = card.dataset.category.includes('Photography') ? 'flex' : 'none';\n\t\t\t\t} else if (cat === 'spec') {\n\t\t\t\t\tcard.style.display = card.dataset.category.includes('Spec') ? 'flex' : 'none';\n\t\t\t\t}\n\t\t\t});\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

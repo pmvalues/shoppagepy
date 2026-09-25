@@ -10,10 +10,34 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
+
 	"github.com/shoppage/merchant-os/internal/models"
-	"strings"
 )
 
+func seoTitle(data models.DashboardViewData) string {
+	if data.Store.Storefront.SEOTitle != "" {
+		return data.Store.Storefront.SEOTitle
+	}
+	t := data.Store.Name
+	if data.Store.City != "" {
+		t += " · " + data.Store.City
+	}
+	return t
+}
+
+func seoDesc(data models.DashboardViewData) string {
+	sf := data.Store.Storefront
+	switch {
+	case sf.SEODescription != "":
+		return sf.SEODescription
+	case sf.About != "":
+		return sf.About
+	}
+	return "Add a short description of what you sell and who you sell to."
+}
+
+// EditorTab edits the public store page and how it appears in search. The
+// preview uses the same values; structured data only includes stored facts.
 func EditorTab(data models.DashboardViewData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -35,59 +59,337 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"panel-head\"><div><h3>Storefront Theme Studio &amp; Visual Customizer</h3><div class=\"sub\">Storefront branding palettes, announcement ribbons &amp; public discovery appearance</div></div><div class=\"right\"><a href=\"")
+		sf := data.Store.Storefront
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-head\"><div class=\"head-copy\"><p>Your store page on Shoppage, and how it shows up in Google and AI search.</p></div><div class=\"actions\"><a class=\"btn ghost\" href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 templ.SafeURL
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("%s/m/%s", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID)))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(storeLink(data)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 16, Col: 113}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 40, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" target=\"_blank\" class=\"btn solid small\"><span>↗</span> Open Live Storefront</a></div></div><div class=\"row-2\"><!-- Left: Styling Controls Form --><div class=\"card panel\"><form hx-post=\"/editor/save\" hx-target=\"#tab-content\"><h4 style=\"font-size:15px; font-weight:700; margin-bottom:14px;\">Executive Theme Preset</h4><div style=\"display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:18px;\"><div class=\"card theme-preset-card\" data-theme-id=\"artisan\" style=\"padding:12px; border:2px solid var(--primary); background:var(--primary-soft); cursor:pointer;\" onclick=\"applyTheme('artisan');\"><div style=\"height:32px; border-radius:6px; background:#0a2f24; margin-bottom:6px;\"></div><b style=\"font-size:13px; color:var(--ink);\">Artisan Emerald</b><div style=\"font-size:11px; color:var(--muted);\">Default Executive</div></div><div class=\"card theme-preset-card\" data-theme-id=\"graphite\" style=\"padding:12px; border:1px solid var(--line); cursor:pointer;\" onclick=\"applyTheme('graphite');\"><div style=\"height:32px; border-radius:6px; background:#0d0e15; margin-bottom:6px;\"></div><b style=\"font-size:13px; color:var(--ink);\">Dark Graphite</b><div style=\"font-size:11px; color:var(--muted);\">Deep Charcoal</div></div><div class=\"card theme-preset-card\" data-theme-id=\"light\" style=\"padding:12px; border:1px solid var(--line); cursor:pointer;\" onclick=\"applyTheme('light');\"><div style=\"height:32px; border-radius:6px; background:#ffffff; border:1px solid #d5ddd4; margin-bottom:6px;\"></div><b style=\"font-size:13px; color:var(--ink);\">Studio Light</b><div style=\"font-size:11px; color:var(--muted);\">Clean Minimal</div></div></div><div class=\"form-group\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;\"><label style=\"margin:0;\">Announcement Ribbon Text</label> <label style=\"font-size:12px; color:var(--muted); display:flex; align-items:center; gap:4px;\"><input type=\"checkbox\" name=\"ribbonActive\" checked=\"checked\" style=\"accent-color:var(--primary);\"> Show on Storefront</label></div><input type=\"text\" name=\"ribbonText\" id=\"ribbon-input\" class=\"input\" value=\"Free wholesale delivery on commercial orders over R5,000 across Gauteng.\" oninput=\"document.getElementById('mockup-ribbon-text').textContent = this.value;\"></div><div class=\"form-group\"><label>Hero Headline &amp; Positioning</label> <input type=\"text\" name=\"heroHeadline\" id=\"hero-input\" class=\"input\" value=\"Hospitality, Packaging & Catering Wholesale Supplies\" oninput=\"document.getElementById('mockup-hero-text').textContent = this.value;\"></div><div class=\"two-col\"><div class=\"form-group\"><label>Primary Brand Accent Color</label><div style=\"display:flex; gap:8px; align-items:center;\"><input type=\"color\" id=\"accent-color-picker\" value=\"#0e7c56\" style=\"width:42px; height:38px; border:1px solid var(--line); border-radius:8px; cursor:pointer;\" onchange=\"document.getElementById('accent-hex-input').value = this.value;\"> <input type=\"text\" id=\"accent-hex-input\" name=\"accentColor\" class=\"input\" value=\"#0e7c56\" style=\"font-family:var(--mono); max-width:140px;\" oninput=\"document.getElementById('accent-color-picker').value = this.value;\"></div></div><div class=\"form-group\"><label>Storefront Quick Contact</label><div style=\"display:flex; flex-direction:column; gap:6px; margin-top:8px;\"><label style=\"font-size:12.5px; display:flex; align-items:center; gap:6px;\"><input type=\"checkbox\" name=\"whatsappFloat\" checked=\"checked\" style=\"accent-color:var(--primary);\"> WhatsApp Floating Action Button</label> <label style=\"font-size:12.5px; display:flex; align-items:center; gap:6px;\"><input type=\"checkbox\" name=\"shoppageBadge\" checked=\"checked\" style=\"accent-color:var(--primary);\"> Verified Shoppage SME Badge</label></div></div></div><div style=\"margin-top:18px; display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:12px; color:var(--muted);\">Palettes stored in localStorage &amp; synchronized with Next.js storefront.</span> <button type=\"submit\" class=\"btn solid\">Save Theme Settings</button></div></form></div><!-- Right: Storefront Live Mockup Preview --><div class=\"card panel\" style=\"background:var(--surface-2); display:flex; flex-direction:column; padding:20px;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;\"><h4 style=\"font-size:14px; font-weight:700;\">Live Storefront Preview</h4><span class=\"chip up\">Responsive Desktop / Mobile</span></div><div style=\"background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; box-shadow:var(--sh);\"><!-- Storefront Preview Ribbon --><div style=\"background:#0a2f24; color:#4fe0a4; padding:6px 12px; font-size:11px; text-align:center; font-weight:600;\"><span id=\"mockup-ribbon-text\">Free wholesale delivery on commercial orders over R5,000 across Gauteng.</span></div><!-- Storefront Header Mockup --><div style=\"padding:14px 16px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;\"><div style=\"display:flex; align-items:center; gap:8px;\"><div style=\"width:24px; height:24px; border-radius:6px; background:#0e7c56; color:#fff; display:grid; place-items:center; font-size:11px; font-weight:800;\">M</div><b style=\"font-size:13.5px;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" target=\"_blank\" rel=\"noopener\">View store</a></div></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if data.Nav.DemoData {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"notice warn section\">Demo: settings save here, but the public demo store doesn't read them yet. The preview shows how they'll look.</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"row-2 even\"><article class=\"card panel\"><form hx-post=\"/editor/save\" hx-target=\"#tab-content\" data-store-form><h3 style=\"margin-bottom:12px;\">Store page</h3><div class=\"form-group\"><label for=\"sf-headline\">Headline</label> <input id=\"sf-headline\" type=\"text\" name=\"heroHeadline\" class=\"input\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.Name)
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sf.Headline)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 142, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 52, Col: 94}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</b></div><span style=\"font-size:11px; color:#0e7c56; font-weight:700;\">CIPC Verified</span></div><!-- Storefront Hero Mockup --><div style=\"padding:20px 16px; text-align:center; background:var(--surface-2);\"><h3 id=\"mockup-hero-text\" style=\"font-size:16px; line-height:1.3; margin-bottom:6px;\">Hospitality, Packaging &amp; Catering Wholesale Supplies</h3><p style=\"font-size:11.5px; color:var(--muted); margin:0 auto; max-width:320px;\">Direct factory pricing from Midrand Warehouse Hub. SABS compliant coat hangers, food lids &amp; catering tubs.</p><div style=\"margin-top:10px;\"><span class=\"btn solid small\" style=\"font-size:11px; padding:3px 10px;\">Browse Catalog (")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" maxlength=\"90\" placeholder=\"What you sell, in one line\"></div><div class=\"form-group\"><label for=\"sf-about\">About your business</label> <textarea id=\"sf-about\" name=\"about\" class=\"textarea\" rows=\"3\" maxlength=\"400\" placeholder=\"Who you supply, where you deliver, what makes you different\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d SKUs", len(data.Catalog)))
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sf.About)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 152, Col: 137}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 56, Col: 168}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, ")</span></div></div></div><div style=\"margin-top:16px; text-align:center;\"><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</textarea></div><div class=\"two-col\"><div class=\"form-group\"><label for=\"sf-hours\">Trading hours</label> <input id=\"sf-hours\" type=\"text\" name=\"tradingHours\" class=\"input\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var5 templ.SafeURL
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("%s/m/%s", strings.TrimRight(data.Nav.PublicBaseURL, "/"), data.Store.ID)))
+		var templ_7745c5c3_Var5 string
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(sf.TradingHours)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 158, Col: 114}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 61, Col: 96}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" target=\"_blank\" class=\"btn ghost small\" style=\"justify-content:center;\"><span>↗</span> Open Live Public Storefront</a></div></div></div><script>\n\t\t// Highlight active preset card on tab load\n\t\t(function() {\n\t\t\tvar cur = document.documentElement.getAttribute('data-theme') || localStorage.getItem('pemofy_admin_theme') || 'artisan';\n\t\t\tdocument.querySelectorAll('.theme-preset-card').forEach(function(card) {\n\t\t\t\tif (card.getAttribute('data-theme-id') === cur) {\n\t\t\t\t\tcard.style.borderColor = 'var(--primary)';\n\t\t\t\t\tcard.style.background = 'var(--primary-soft)';\n\t\t\t\t} else {\n\t\t\t\t\tcard.style.borderColor = 'var(--line)';\n\t\t\t\t\tcard.style.background = 'transparent';\n\t\t\t\t}\n\t\t\t});\n\t\t})();\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" placeholder=\"Mon–Fri 08:00–17:00\"></div><div class=\"form-group\"><label for=\"sf-ribbon\">Announcement</label> <input id=\"sf-ribbon\" type=\"text\" name=\"ribbonText\" class=\"input\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var6 string
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(sf.Ribbon)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 65, Col: 89}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" maxlength=\"100\"></div></div><label class=\"switch-row\"><div><b>Show the announcement</b><span>A thin banner across the top of your store.</span></div><input type=\"checkbox\" name=\"ribbonActive\" value=\"on\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if sf.RibbonOn {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, " checked")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "></label> <label class=\"switch-row\"><div><b>WhatsApp button</b><span>Lets buyers message you from any page.</span></div><input type=\"checkbox\" name=\"whatsappFloat\" value=\"on\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if sf.WhatsAppButton {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, " checked")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "></label><h3 style=\"margin:18px 0 12px;\">Search snippet</h3><div class=\"form-group\"><div class=\"form-label\"><label for=\"sf-seo-title\">Title</label><span data-count-for=\"sf-seo-title\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var7 string
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d / 60", len([]rune(sf.SEOTitle))))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 78, Col: 154}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></div><input id=\"sf-seo-title\" type=\"text\" name=\"seoTitle\" class=\"input\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var8 string
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(sf.SEOTitle)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 79, Col: 91}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" maxlength=\"70\" placeholder=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var9 string
+		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(seoTitle(data))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 79, Col: 137}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"></div><div class=\"form-group\"><div class=\"form-label\"><label for=\"sf-seo-desc\">Description</label><span data-count-for=\"sf-seo-desc\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var10 string
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d / 155", len([]rune(sf.SEODescription))))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 82, Col: 165}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span></div><textarea id=\"sf-seo-desc\" name=\"seoDescription\" class=\"textarea\" rows=\"2\" maxlength=\"170\" placeholder=\"Leave blank to use your About text\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var11 string
+		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(sf.SEODescription)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 83, Col: 164}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</textarea></div><div style=\"text-align:right;\"><button type=\"submit\" class=\"btn solid\">Save store page</button></div></form></article><div class=\"stack\"><article class=\"card panel\"><h3 style=\"margin-bottom:10px;\">Preview</h3><div class=\"card\" style=\"overflow:hidden;\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if sf.RibbonOn && sf.Ribbon != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div style=\"background:var(--sidebar); color:#fff; font-size:var(--fs-12); text-align:center; padding:6px 10px;\" data-pv=\"ribbon\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(sf.Ribbon)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 93, Col: 147}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div style=\"padding:16px;\"><div class=\"who\" style=\"margin-bottom:10px;\"><span class=\"av\" aria-hidden=\"true\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var13 string
+		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(Initials(data.Store.Name))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 97, Col: 70}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span><div><b>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var14 string
+		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.Name)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 98, Col: 32}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</b><span>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var15 string
+		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.City)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 98, Col: 61}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span></div></div><h3 data-pv=\"headline\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var16 string
+		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(orText(sf.Headline, "Your headline"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 100, Col: 67}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</h3><p class=\"small-text muted\" style=\"margin-top:4px;\" data-pv=\"about\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var17 string
+		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(orText(sf.About, "Tell buyers about your business."))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 101, Col: 128}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</p><p class=\"small-text\" style=\"margin-top:8px;\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var18 string
+		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d products", len(data.Catalog)))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 102, Col: 99}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, " ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if sf.TradingHours != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "· ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var19 string
+			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(sf.TradingHours)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 104, Col: 28}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</p></div></div></article><article class=\"card panel\"><h3 style=\"margin-bottom:10px;\">In search results</h3><div style=\"border:1px solid var(--line); border-radius:var(--r-lg); padding:12px;\"><div class=\"small-text muted mono\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var20 string
+		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(storeLink(data))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 113, Col: 57}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><div style=\"color:var(--info); font-size:var(--fs-16); font-weight:600;\" data-pv=\"seo-title\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var21 string
+		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(seoTitle(data))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 114, Col: 114}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div><div class=\"small-text muted\" data-pv=\"seo-desc\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var22 string
+		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(seoDesc(data))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 115, Col: 69}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div></div><p class=\"help\" style=\"margin-top:10px;\">Your store also publishes structured data (business name, address, phone ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if data.Store.VerificationStatus == "fully_verified" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, ", verified status ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, ") so search engines and AI assistants can answer questions about you accurately. Only facts on record are included.</p></article></div></div><script>\n\t\t(function () {\n\t\t\tvar f = document.querySelector('[data-store-form]');\n\t\t\tif (!f) return;\n\t\t\tvar map = { 'sf-headline': 'headline', 'sf-about': 'about', 'sf-ribbon': 'ribbon', 'sf-seo-title': 'seo-title', 'sf-seo-desc': 'seo-desc' };\n\t\t\tf.addEventListener('input', function (e) {\n\t\t\t\tvar key = map[e.target.id];\n\t\t\t\tif (key) document.querySelectorAll('[data-pv=\"' + key + '\"]').forEach(function (el) { if (e.target.value) el.textContent = e.target.value; });\n\t\t\t\tvar c = f.querySelector('[data-count-for=\"' + e.target.id + '\"]');\n\t\t\t\tif (c) c.textContent = e.target.value.length + ' / ' + (e.target.id === 'sf-seo-title' ? 60 : 155);\n\t\t\t});\n\t\t})();\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
