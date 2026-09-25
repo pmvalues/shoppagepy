@@ -34,17 +34,17 @@ type DeliveryOption struct {
 
 // OfferRequest represents a buyer's counter-negotiation request.
 type OfferRequest struct {
-	ProductID    string  `json:"productId"`
-	ProductTitle string  `json:"productTitle"`
-	MerchantID   string  `json:"merchantId"`
-	MerchantName string  `json:"merchantName"`
-	MerchantPhone string `json:"merchantPhone"`
-	ListedPrice  float64 `json:"listedPrice"`
-	OfferPrice   float64 `json:"offerPrice"`
-	Quantity     int     `json:"quantity"`
-	BuyerName    string  `json:"buyerName"`
-	BuyerPhone   string  `json:"buyerPhone"`
-	Notes        string  `json:"notes"`
+	ProductID     string  `json:"productId"`
+	ProductTitle  string  `json:"productTitle"`
+	MerchantID    string  `json:"merchantId"`
+	MerchantName  string  `json:"merchantName"`
+	MerchantPhone string  `json:"merchantPhone"`
+	ListedPrice   float64 `json:"listedPrice"`
+	OfferPrice    float64 `json:"offerPrice"`
+	Quantity      int     `json:"quantity"`
+	BuyerName     string  `json:"buyerName"`
+	BuyerPhone    string  `json:"buyerPhone"`
+	Notes         string  `json:"notes"`
 }
 
 // OfferSubmissionResult represents the outcome of submitting an offer.
@@ -60,51 +60,51 @@ type OfferSubmissionResult struct {
 
 // SearchItem represents an individual item returned in search grids and discovery feeds.
 type SearchItem struct {
-	ID              string          `json:"id"`
-	Title           string          `json:"title"`
-	Brand           string          `json:"brand"`
-	Model           string          `json:"model"`
-	Category        string          `json:"category"`
-	Description     string          `json:"description"`
-	PriceZar        float64         `json:"priceZar"`
-	OffersCount     int             `json:"offersCount"`
-	City            string          `json:"city"`
-	Province        string          `json:"province"`
-	InStock         bool            `json:"inStock"`
-	Verified        bool            `json:"verified"`
-	ImageURL        string          `json:"imageUrl"`
-	Score           float64         `json:"score,omitempty"`
-	DistanceKm      float64         `json:"distanceKm,omitempty"`
-	Rating          float64         `json:"rating,omitempty"`
-	IsLocalSAStock  bool            `json:"isLocalSaStock"`
-	DispatchHours   int             `json:"dispatchHours"` // e.g. 24
-	PickupAvailable bool            `json:"pickupAvailable"`
-	PickupMall      string          `json:"pickupMall,omitempty"`
-	VolumeTiers     []VolumeTier    `json:"volumeTiers,omitempty"`
-	Trust           *MerchantTrust  `json:"trust,omitempty"`
+	ID              string           `json:"id"`
+	Title           string           `json:"title"`
+	Brand           string           `json:"brand"`
+	Model           string           `json:"model"`
+	Category        string           `json:"category"`
+	Description     string           `json:"description"`
+	PriceZar        float64          `json:"priceZar"`
+	OffersCount     int              `json:"offersCount"`
+	City            string           `json:"city"`
+	Province        string           `json:"province"`
+	InStock         bool             `json:"inStock"`
+	Verified        bool             `json:"verified"`
+	ImageURL        string           `json:"imageUrl"`
+	Score           float64          `json:"score,omitempty"`
+	DistanceKm      float64          `json:"distanceKm,omitempty"`
+	Rating          float64          `json:"rating,omitempty"`
+	IsLocalSAStock  bool             `json:"isLocalSaStock"`
+	DispatchHours   int              `json:"dispatchHours"` // e.g. 24
+	PickupAvailable bool             `json:"pickupAvailable"`
+	PickupMall      string           `json:"pickupMall,omitempty"`
+	VolumeTiers     []VolumeTier     `json:"volumeTiers,omitempty"`
+	Trust           *MerchantTrust   `json:"trust,omitempty"`
 	DeliveryOptions []DeliveryOption `json:"deliveryOptions,omitempty"`
 }
 
 // MerchantOffer represents an offer from a specific seller for a product.
 type MerchantOffer struct {
-	MerchantID      string          `json:"merchantId"`
-	MerchantName    string          `json:"merchantName"`
-	City            string          `json:"city"`
-	Province        string          `json:"province"`
-	PriceZar        float64         `json:"priceZar"`
-	InStock         bool            `json:"inStock"`
-	LeadTimeDays    int             `json:"leadTimeDays"`
-	Verified        bool            `json:"verified"`
-	WhatsApp        string          `json:"whatsapp"`
-	Rating          float64         `json:"rating"`
-	IsLocalSAStock  bool            `json:"isLocalSaStock"`
-	PickupAvailable bool            `json:"pickupAvailable"`
-	PickupTime      string          `json:"pickupTime,omitempty"` // "Ready in 2h"
-	Trust           *MerchantTrust  `json:"trust,omitempty"`
-	VolumeTiers     []VolumeTier    `json:"volumeTiers,omitempty"`
+	MerchantID      string           `json:"merchantId"`
+	MerchantName    string           `json:"merchantName"`
+	City            string           `json:"city"`
+	Province        string           `json:"province"`
+	PriceZar        float64          `json:"priceZar"`
+	InStock         bool             `json:"inStock"`
+	LeadTimeDays    int              `json:"leadTimeDays"`
+	Verified        bool             `json:"verified"`
+	WhatsApp        string           `json:"whatsapp"`
+	Rating          float64          `json:"rating"`
+	IsLocalSAStock  bool             `json:"isLocalSaStock"`
+	PickupAvailable bool             `json:"pickupAvailable"`
+	PickupTime      string           `json:"pickupTime,omitempty"` // "Ready in 2h"
+	Trust           *MerchantTrust   `json:"trust,omitempty"`
+	VolumeTiers     []VolumeTier     `json:"volumeTiers,omitempty"`
 	DeliveryOptions []DeliveryOption `json:"deliveryOptions,omitempty"`
-	IsBuyBoxWinner  bool            `json:"isBuyBoxWinner,omitempty"`
-	BuyBoxScore     float64         `json:"buyBoxScore,omitempty"`
+	IsBuyBoxWinner  bool             `json:"isBuyBoxWinner,omitempty"`
+	BuyBoxScore     float64          `json:"buyBoxScore,omitempty"`
 }
 
 // ProductDetail represents the canonical product view and BuyBox comparison.
@@ -359,4 +359,3 @@ type PlacedOrder struct {
 	MerchantName    string  `json:"merchantName"`
 	MerchantAddress string  `json:"merchantAddress"`
 }
-

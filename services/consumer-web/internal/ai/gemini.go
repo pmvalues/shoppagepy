@@ -9,8 +9,12 @@ import (
 	"math"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
+	"sync"
 	"time"
+
+	"github.com/VictoriaMetrics/metrics"
 
 	"github.com/shoppage/consumer-web/internal/models"
 	"github.com/shoppage/consumer-web/internal/site"
@@ -20,6 +24,7 @@ import (
 type AssistantService struct {
 	store      *store.Store
 	httpClient *http.Client
+	budget     *DailyBudget
 }
 
 func NewAssistantService(s *store.Store) *AssistantService {
@@ -28,7 +33,50 @@ func NewAssistantService(s *store.Store) *AssistantService {
 		httpClient: &http.Client{
 			Timeout: 25 * time.Second,
 		},
+		budget: NewDailyBudget(dailyLimitFromEnv()),
 	}
+}
+
+// DefaultDailyLimit caps live model calls per UTC day when
+// GEMINI_DAILY_LIMIT is unset, bounding spend if the endpoint is abused.
+const DefaultDailyLimit = 2000
+
+func dailyLimitFromEnv() int {
+	if v, err := strconv.Atoi(strings.TrimSpace(os.Getenv("GEMINI_DAILY_LIMIT"))); err == nil && v >= 0 {
+		return v
+	}
+	return DefaultDailyLimit
+}
+
+// DailyBudget counts live model calls per UTC day. When the day's allowance
+// is spent the assistant answers with offline rules until midnight UTC. The
+// count is per process; set a hard quota on the Google Cloud key as well.
+type DailyBudget struct {
+	mu    sync.Mutex
+	limit int
+	day   string
+	used  int
+	now   func() time.Time
+}
+
+// NewDailyBudget returns a budget of limit calls per UTC day.
+func NewDailyBudget(limit int) *DailyBudget {
+	return &DailyBudget{limit: limit, now: time.Now}
+}
+
+// Take consumes one call and reports whether it was within budget.
+func (b *DailyBudget) Take() bool {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	today := b.now().UTC().Format("2006-01-02")
+	if today != b.day {
+		b.day, b.used = today, 0
+	}
+	if b.used >= b.limit {
+		return false
+	}
+	b.used++
+	return true
 }
 
 type AssistantResponse struct {
@@ -83,10 +131,15 @@ func (a *AssistantService) Ask(ctx context.Context, message string) (*AssistantR
 	apiKey := strings.TrimSpace(os.Getenv(site.EnvGeminiAPIKey))
 	model := site.GeminiModel()
 
-	// Offline / fallback if no API key configured
+	// Offline / fallback if no API key configured or today's budget is spent
 	if apiKey == "" {
 		return a.offlineFallback(clean, start)
 	}
+	if !a.budget.Take() {
+		metrics.GetOrCreateCounter(`ai_budget_exhausted_total`).Inc()
+		return a.offlineFallback(clean, start)
+	}
+	metrics.GetOrCreateCounter(`ai_model_calls_total`).Inc()
 
 	// Call Gemini with tools
 	reqPayload := map[string]any{

@@ -76,21 +76,21 @@ func NormalizeRecord(raw models.RawMerchantRecord) models.NormalizedMerchantReco
 	}
 
 	return models.NormalizedMerchantRecord{
-		ID:          id,
-		Slug:        slug,
-		Name:        cleanName,
-		Category:    category,
-		Phone:       cleanPhone,
-		Email:       strings.ToLower(strings.TrimSpace(raw.Email)),
-		Website:     strings.TrimSpace(raw.Website),
-		Street:      strings.TrimSpace(raw.Address),
-		City:        strings.TrimSpace(raw.City),
-		Province:    strings.TrimSpace(raw.Province),
-		PostalCode:  strings.TrimSpace(raw.PostalCode),
-		Latitude:    raw.Latitude,
-		Longitude:   raw.Longitude,
-		Verified:    false, // Default unverified until merchant claims/subscribes
-		Source:      raw.Source,
-		UpdatedAt:   time.Now().UTC(),
+		ID:         id,
+		Slug:       slug,
+		Name:       cleanName,
+		Category:   category,
+		Phone:      cleanPhone,
+		Email:      strings.ToLower(strings.TrimSpace(raw.Email)),
+		Website:    strings.TrimSpace(raw.Website),
+		Street:     strings.TrimSpace(raw.Address),
+		City:       strings.TrimSpace(raw.City),
+		Province:   strings.TrimSpace(raw.Province),
+		PostalCode: strings.TrimSpace(raw.PostalCode),
+		Latitude:   raw.Latitude,
+		Longitude:  raw.Longitude,
+		Verified:   false, // Default unverified until merchant claims/subscribes
+		Source:     raw.Source,
+		UpdatedAt:  time.Now().UTC(),
 	}
 }

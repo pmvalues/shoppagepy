@@ -170,7 +170,7 @@ type CouponCode struct {
 type ChannelSync struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
-	Type        string    `json:"type"` // "Storefront", "WhatsApp", "Shoppage Network", "Google Shopping"
+	Type        string    `json:"type"`   // "Storefront", "WhatsApp", "Shoppage Network", "Google Shopping"
 	Status      string    `json:"status"` // "Active", "Syncing", "Paused"
 	Endpoint    string    `json:"endpoint"`
 	ItemsSynced int       `json:"itemsSynced"`
@@ -204,17 +204,17 @@ type AnalyticsSummary struct {
 
 // StockTransfer represents an inter-hub inventory transfer
 type StockTransfer struct {
-	ID            string    `json:"id"`
-	TransferRef   string    `json:"transferRef"`
-	SourceHub     string    `json:"sourceHub"`
-	DestHub       string    `json:"destHub"`
-	SKU           string    `json:"sku"`
-	ItemTitle     string    `json:"itemTitle"`
-	Quantity      int       `json:"quantity"`
-	Status        string    `json:"status"` // "Preparing", "In-Transit", "Received"
-	Carrier       string    `json:"carrier"` // "Road Freight Express", "Internal Depot Shuttle"
-	DispatchedAt  time.Time `json:"dispatchedAt"`
-	ExpectedAt    time.Time `json:"expectedAt"`
+	ID           string    `json:"id"`
+	TransferRef  string    `json:"transferRef"`
+	SourceHub    string    `json:"sourceHub"`
+	DestHub      string    `json:"destHub"`
+	SKU          string    `json:"sku"`
+	ItemTitle    string    `json:"itemTitle"`
+	Quantity     int       `json:"quantity"`
+	Status       string    `json:"status"`  // "Preparing", "In-Transit", "Received"
+	Carrier      string    `json:"carrier"` // "Road Freight Express", "Internal Depot Shuttle"
+	DispatchedAt time.Time `json:"dispatchedAt"`
+	ExpectedAt   time.Time `json:"expectedAt"`
 }
 
 // CarrierManifest represents a shipping dispatch manifest for SA couriers
@@ -232,14 +232,14 @@ type CarrierManifest struct {
 
 // FlowRule represents an event-driven automation rule from Pemofy
 type FlowRule struct {
-	ID               string    `json:"id"`
-	Name             string    `json:"name"`
-	Trigger          string    `json:"trigger"`
-	Condition        string    `json:"condition"`
-	Action           string    `json:"action"`
-	Active           bool      `json:"active"`
-	ExecutionsCount  int       `json:"executionsCount"`
-	LastTriggeredAt  time.Time `json:"lastTriggeredAt"`
+	ID              string    `json:"id"`
+	Name            string    `json:"name"`
+	Trigger         string    `json:"trigger"`
+	Condition       string    `json:"condition"`
+	Action          string    `json:"action"`
+	Active          bool      `json:"active"`
+	ExecutionsCount int       `json:"executionsCount"`
+	LastTriggeredAt time.Time `json:"lastTriggeredAt"`
 }
 
 // MediaAsset represents a digital asset or compliance document
@@ -257,7 +257,7 @@ type MediaAsset struct {
 // AuditLogEntry represents a security or operational event log
 type AuditLogEntry struct {
 	ID        string    `json:"id"`
-	Actor     string    `json:"actor"` // e.g. "Sipho Dlamini (Admin)"
+	Actor     string    `json:"actor"`  // e.g. "Sipho Dlamini (Admin)"
 	Action    string    `json:"action"` // e.g. "Price Updated", "Stock Intake", "Proforma Issued"
 	Entity    string    `json:"entity"`
 	EntityID  string    `json:"entityId"`
@@ -346,7 +346,7 @@ type ChatMessage struct {
 	Text           string            `json:"text"`
 	Timestamp      time.Time         `json:"timestamp"`
 	IsMerchant     bool              `json:"isMerchant"`
-	IsInternalNote bool              `json:"isInternalNote"` // Slack-style internal team whisper (merchant-only)
+	IsInternalNote bool              `json:"isInternalNote"`     // Slack-style internal team whisper (merchant-only)
 	CardType       string            `json:"cardType,omitempty"` // "quote", "stock_lock", "pop_verification", "note"
 	HasQuote       bool              `json:"hasQuote"`
 	Quote          *StructuredQuote  `json:"quote,omitempty"`
@@ -384,9 +384,9 @@ type ReturnRequest struct {
 	ItemTitle    string    `json:"itemTitle"`
 	SKU          string    `json:"sku"`
 	Quantity     int       `json:"quantity"`
-	Reason       string    `json:"reason"`       // "Transit Packaging Damage", "Defective Pin", "Wrong SKU"
-	Status       string    `json:"status"`       // "Requested", "Authorized", "Goods Received", "Refund Issued", "Rejected"
-	WaybillNo    string    `json:"waybillNo"`    // "TCG-RET-883492"
+	Reason       string    `json:"reason"`    // "Transit Packaging Damage", "Defective Pin", "Wrong SKU"
+	Status       string    `json:"status"`    // "Requested", "Authorized", "Goods Received", "Refund Issued", "Rejected"
+	WaybillNo    string    `json:"waybillNo"` // "TCG-RET-883492"
 	RefundAmount float64   `json:"refundAmount"`
 	CreatedAt    time.Time `json:"createdAt"`
 }
@@ -442,5 +442,3 @@ func (d DashboardViewData) GetActiveThread() *ChatThread {
 	}
 	return nil
 }
-
-

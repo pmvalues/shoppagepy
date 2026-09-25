@@ -12,9 +12,9 @@ import (
 
 // SweepJob represents a batch sweeping task across geographic bounding boxes or public data sources
 type SweepJob struct {
-	Source   models.SourceKind
-	Region   string
-	Records  []models.RawMerchantRecord
+	Source  models.SourceKind
+	Region  string
+	Records []models.RawMerchantRecord
 }
 
 // Pool represents a concurrent worker pool processing raw merchant streams

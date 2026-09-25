@@ -47,7 +47,7 @@ dist/
 build/
 bin/
 *.exe
-archive/
+/archive/
 Pemofy Nestjs/
 .turbo/
 *.tsbuildinfo
@@ -68,10 +68,10 @@ shoppage/settings/local.py
 data/.shoppage-auth-secret
 
 # Virtual Environments
-.venv/
-venv/
-ENV/
-env/
+/.venv/
+/venv/
+/ENV/
+/env/
 
 # Logs and test artifacts
 *.log

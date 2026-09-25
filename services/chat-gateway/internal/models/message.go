@@ -25,14 +25,14 @@ const (
 
 // ChatMessage represents a single message in a trade room
 type ChatMessage struct {
-	ID             string     `json:"id"`
-	ConversationID string     `json:"conversationId"`
-	SenderID       string     `json:"senderId"`
-	SenderRole     SenderRole `json:"senderRole"`
+	ID             string      `json:"id"`
+	ConversationID string      `json:"conversationId"`
+	SenderID       string      `json:"senderId"`
+	SenderRole     SenderRole  `json:"senderRole"`
 	Type           MessageType `json:"type"`
-	Content        string     `json:"content"`
-	Metadata       any        `json:"metadata,omitempty"`
-	Timestamp      time.Time  `json:"timestamp"`
+	Content        string      `json:"content"`
+	Metadata       any         `json:"metadata,omitempty"`
+	Timestamp      time.Time   `json:"timestamp"`
 }
 
 // QuoteLine represents an item in an active RFQ quote
@@ -64,10 +64,10 @@ type QuotePayload struct {
 
 // ClientInboundMessage is the envelope received from WebSocket clients
 type ClientInboundMessage struct {
-	Action         string          `json:"action"` // send_message, join_room, leave_room, typing, quote_update
-	ConversationID string          `json:"conversationId"`
-	Content        string          `json:"content,omitempty"`
-	Quote          *QuotePayload   `json:"quote,omitempty"`
+	Action         string        `json:"action"` // send_message, join_room, leave_room, typing, quote_update
+	ConversationID string        `json:"conversationId"`
+	Content        string        `json:"content,omitempty"`
+	Quote          *QuotePayload `json:"quote,omitempty"`
 }
 
 // ServerOutboundMessage is the envelope dispatched to WebSocket clients

@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -231,7 +233,10 @@ func (h *ConsumerHandler) HandleBroadcastPost(w http.ResponseWriter, r *http.Req
 		},
 	}
 
-	h.store.AddPost(newPost)
+	if err := h.store.AddPost(newPost); err != nil {
+		h.unavailable(w, r, "post", err)
+		return
+	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := templates.RenderNewPostCard(w, newPost); err != nil {
@@ -657,15 +662,15 @@ func (h *ConsumerHandler) HandleAssistant(w http.ResponseWriter, r *http.Request
 		}
 		fmt.Fprintf(w, `<span>%.1fms</span>`, resp.LatencyMs)
 		fmt.Fprintf(w, `</div>`)
-		fmt.Fprintf(w, `<div class="text-sm text-slate-200 leading-relaxed">%s</div>`, resp.Reply)
+		fmt.Fprintf(w, `<div class="text-sm text-slate-200 leading-relaxed">%s</div>`, html.EscapeString(resp.Reply))
 		if len(resp.Products) > 0 {
 			fmt.Fprintf(w, `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-800">`)
 			for _, p := range resp.Products {
-				fmt.Fprintf(w, `<a href="/p/%s" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 transition flex items-center gap-3 text-left">`, p.ID)
+				fmt.Fprintf(w, `<a href="/p/%s" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 transition flex items-center gap-3 text-left">`, url.PathEscape(p.ID))
 				if p.ImageURL != "" {
-					fmt.Fprintf(w, `<img src="%s" class="w-12 h-12 object-cover rounded" alt="" />`, p.ImageURL)
+					fmt.Fprintf(w, `<img src="%s" class="w-12 h-12 object-cover rounded" alt="" />`, html.EscapeString(p.ImageURL))
 				}
-				fmt.Fprintf(w, `<div class="min-w-0 flex-1"><div class="text-xs font-semibold text-white truncate">%s</div><div class="text-xs text-emerald-400 font-bold">R %.2f</div></div>`, p.Title, p.PriceZar)
+				fmt.Fprintf(w, `<div class="min-w-0 flex-1"><div class="text-xs font-semibold text-white truncate">%s</div><div class="text-xs text-emerald-400 font-bold">R %.2f</div></div>`, html.EscapeString(p.Title), p.PriceZar)
 				fmt.Fprintf(w, `</a>`)
 			}
 			fmt.Fprintf(w, `</div>`)
@@ -992,7 +997,7 @@ func (h *ConsumerHandler) HandleStoreReviewSubmit(w http.ResponseWriter, r *http
 	}
 
 	review := models.StoreTestimonial{
-		ID:         fmt.Sprintf("t_%d", time.Now().UnixNano()%100000),
+		ID:         site.NewID("t_"),
 		AuthorName: author,
 		Company:    company,
 		Rating:     rating,
@@ -1001,7 +1006,10 @@ func (h *ConsumerHandler) HandleStoreReviewSubmit(w http.ResponseWriter, r *http
 		Verified:   true,
 	}
 
-	h.store.AddStoreTestimonial(storeID, review)
+	if err := h.store.AddStoreTestimonial(storeID, review); err != nil {
+		h.unavailable(w, r, "review", err)
+		return
+	}
 
 	// If HTMX request, return the rendered testimonial card snippet
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -1048,9 +1056,9 @@ func (h *ConsumerHandler) HandleInstantCheckout(w http.ResponseWriter, r *http.R
 	subtotal := unitPrice * float64(qty)
 	vat := subtotal * vatRate
 	grandTotal := subtotal + vat
-	orderNo := fmt.Sprintf("ORD-DEMO-%04d", time.Now().Unix()%10000)
+	orderNo := site.NewID("ORD-DEMO-")
 
-	h.store.CreateOrder(models.PlacedOrder{
+	if err := h.store.CreateOrder(models.PlacedOrder{
 		OrderNumber:     orderNo,
 		BuyerName:       buyerName,
 		Company:         r.FormValue("company"),
@@ -1071,7 +1079,10 @@ func (h *ConsumerHandler) HandleInstantCheckout(w http.ResponseWriter, r *http.R
 		DateStr:         time.Now().Format("02 Jan 15:04"),
 		EstimatedEta:    "Merchant confirms dispatch after payment",
 		MerchantName:    r.FormValue("merchant_name"),
-	})
+	}); err != nil {
+		h.unavailable(w, r, "order", err)
+		return
+	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	// All buyer- and merchant-supplied strings are escaped before being written
@@ -1399,7 +1410,21 @@ func (h *ConsumerHandler) HandleSellRegister(w http.ResponseWriter, r *http.Requ
 		Testimonials:       nil,
 	}
 
-	h.store.AddMerchant(merchant)
+	if err := h.store.AddMerchant(merchant); err != nil {
+		if errors.Is(err, store.ErrMerchantExists) {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.WriteHeader(http.StatusConflict)
+			_ = templates.RenderSell(w, templates.SellViewData{
+				Title:       "Sell on Shoppage | South Africa's Commercial Supplier Network",
+				Description: h.sellDescription(),
+				CurrentTab:  "sell",
+				ErrorMsg:    "A storefront with this company name is already registered. If it is yours, contact support to claim it.",
+			})
+			return
+		}
+		h.unavailable(w, r, "registration", err)
+		return
+	}
 
 	data := templates.SellViewData{
 		Title:       "Merchant Registration Received | Shoppage",
@@ -1434,4 +1459,12 @@ func (h *ConsumerHandler) HandleEnterpriseVetting(w http.ResponseWriter, r *http
 // HandleBuyerProtection redirects to HandleEnterpriseVetting
 func (h *ConsumerHandler) HandleBuyerProtection(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/enterprise-vetting", http.StatusMovedPermanently)
+}
+
+// unavailable reports a failed durable write. The buyer or supplier is told
+// plainly that nothing was saved rather than shown a false confirmation.
+func (h *ConsumerHandler) unavailable(w http.ResponseWriter, r *http.Request, what string, err error) {
+	slog.Error("durable write failed", "record", what, "err", err, "path", r.URL.Path)
+	http.Error(w, "We couldn't save your "+what+" just now. Nothing was submitted — please try again in a moment.",
+		http.StatusServiceUnavailable)
 }

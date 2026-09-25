@@ -234,7 +234,10 @@ templ ChatComponent(data ChatViewData) {
 					
 					try {
 						currentMerchantId = chatConfig().dataset.merchant || currentMerchantId;
-					const gateway = chatConfig().dataset.ws || '';
+					let gateway = chatConfig().dataset.ws || '';
+					if (gateway === 'same-origin') {
+						gateway = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host;
+					}
 					if (!gateway) {
 						setBadge('amber', 'Live chat unavailable — use WhatsApp');
 						return;

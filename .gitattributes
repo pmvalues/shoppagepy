@@ -1,3 +1,8 @@
 # Normalize shell scripts and Dockerfile line endings to LF (Linux-friendly)
 *.sh text eol=lf
 Dockerfile text eol=lf
+# Go sources and templ templates are LF everywhere: templ embeds template
+# whitespace in the generated *_templ.go files, so a CRLF checkout produces
+# different generated code and fails the CI drift check.
+*.go text eol=lf
+*.templ text eol=lf

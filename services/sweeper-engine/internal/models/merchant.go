@@ -38,7 +38,7 @@ type NormalizedMerchantRecord struct {
 	Name        string     `json:"name"`
 	Category    string     `json:"category"`
 	Subcategory string     `json:"subcategory,omitempty"`
-	Phone       string     `json:"phone"`     // Standardized +27 format
+	Phone       string     `json:"phone"` // Standardized +27 format
 	Email       string     `json:"email,omitempty"`
 	Website     string     `json:"website,omitempty"`
 	Street      string     `json:"street"`

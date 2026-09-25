@@ -1,20 +1,13 @@
 node_modules
-.next
 .git
 .github
 .venv
 venv
 env
-# Local env files must never reach the build context. Next.js inlines NEXT_PUBLIC_*
-# at build time, so a local .env.local containing NEXT_PUBLIC_SERVER_URL=http://localhost:3000
-# bakes localhost into robots.txt, sitemap.xml and metadataBase — verified in a local
-# production build. The deploy pipeline supplies real values as build args instead.
-#
-# The `**/` prefix is load-bearing: a bare `.env.*` matches only a root-level file,
-# and the real one lives at apps/web/.env.local. Left unanchored it was still being
-# copied in — carrying PAYLOAD_SECRET, SHOPPAGE_AUTH_SECRET, the platform admin
-# password and every SHOPPAGE_MERCHANT_SECRET_*. The deploy pipeline supplies real
-# values as build args instead.
+# Local env files must never reach the build context: they hold
+# SHOPPAGE_AUTH_SECRET, the admin password, DATABASE_URL and API keys. The
+# runtime receives secrets as environment variables, never baked into layers.
+# The `**/` patterns also catch env files in nested service directories.
 .env
 .env.*
 !.env.example
@@ -36,8 +29,8 @@ db.sqlite3
 *.sqlite3
 *.sqlite-wal
 *.sqlite-shm
-# Gitignored bulk datasets must never enter the image build context (README blocker #1).
-# Mount via docker-compose volumes instead.
+# Gitignored bulk datasets must never enter the image build context.
+# Mount them read-only and set FOUNDATION_DATA_DIR (see docs/DEPLOYMENT.md).
 shoppage-commerce-intelligence-foundation/
 tmp
 temp

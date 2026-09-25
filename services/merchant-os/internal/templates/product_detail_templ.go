@@ -493,7 +493,7 @@ func ProductDetailView(sku models.CatalogSKU) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div></article></div><script>\r\n\t\t\tfunction switchDetailThumb(el, icon) {\r\n\t\t\t\tel.parentElement.querySelectorAll('.thumb').forEach(function(t) { t.classList.remove('active'); });\r\n\t\t\t\tel.classList.add('active');\r\n\t\t\t\tvar hero = document.getElementById('product-detail-hero');\r\n\t\t\t\tif (hero) hero.querySelector('div').textContent = icon;\r\n\t\t\t}\r\n\t\t</script></section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div></article></div><script>\n\t\t\tfunction switchDetailThumb(el, icon) {\n\t\t\t\tel.parentElement.querySelectorAll('.thumb').forEach(function(t) { t.classList.remove('active'); });\n\t\t\t\tel.classList.add('active');\n\t\t\t\tvar hero = document.getElementById('product-detail-hero');\n\t\t\t\tif (hero) hero.querySelector('div').textContent = icon;\n\t\t\t}\n\t\t</script></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

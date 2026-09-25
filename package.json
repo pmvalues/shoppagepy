@@ -2,7 +2,7 @@
     "name": "shoppage-platform",
     "version": "10.0.0",
     "private": true,
-    "description": "Shoppage â€” 100% Pure Go National Commerce Intelligence Grid & Merchant OS",
+    "description": "Shoppage platform — Go services; Node is only used for the Tailwind CSS build and Windows-friendly script wrappers",
     "workspaces": [],
     "scripts": {
         "dev": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
@@ -20,13 +20,13 @@
         "go:search": "node scripts/go-run.mjs run ./services/search-core/cmd/searchd/main.go",
         "go:merchant": "node scripts/go-run.mjs run ./services/merchant-os/cmd/server/main.go",
         "go:consumer": "node scripts/go-run.mjs run ./services/consumer-web/cmd/server/main.go",
-        "go:test": "node scripts/go-run.mjs test ./services/chat-gateway/... ./services/sweeper-engine/... ./services/search-core/... ./services/merchant-os/... ./services/consumer-web/...",
+        "go:test": "node scripts/go-run.mjs test ./pkg/platform/... ./services/chat-gateway/... ./services/sweeper-engine/... ./services/search-core/... ./services/merchant-os/... ./services/consumer-web/...",
         "scrape:guzzle": "python scripts/scrapers/shoppage_scrape_guzzle_specials.py",
         "scout:once": "python scripts/orchestrator/shoppage_scouting_daemon.py --run-once",
-        "scout:daemon": "python scripts/orchestrator/shoppage_scouting_daemon.py --daemon"
+        "scout:daemon": "python scripts/orchestrator/shoppage_scouting_daemon.py --daemon",
+        "go:vet": "node scripts/go-run.mjs vet ./pkg/platform/... ./services/chat-gateway/... ./services/sweeper-engine/... ./services/search-core/... ./services/merchant-os/... ./services/consumer-web/..."
     },
     "devDependencies": {
-        "@tailwindcss/cli": "^4.3.3",
-        "typescript": "^5.5.4"
+        "@tailwindcss/cli": "^4.3.3"
     }
 }
