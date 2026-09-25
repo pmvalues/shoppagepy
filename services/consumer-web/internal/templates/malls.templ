@@ -52,7 +52,7 @@ templ MallsComponent(data MallsViewData) {
 					<div class="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-md hover:border-emerald-500 transition flex flex-col market-card" data-lat={ fmt.Sprintf("%f", mall.Latitude) } data-lng={ fmt.Sprintf("%f", mall.Longitude) } data-province={ mall.Province }>
 						<div class="flex items-start justify-between gap-2 mb-2">
 							<span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
-								{ mall.MarketType }
+								{ Humanize(mall.MarketType) }
 							</span>
 							<span class="text-xs text-slate-400 font-medium">{ mall.Province }</span>
 						</div>
@@ -66,7 +66,7 @@ templ MallsComponent(data MallsViewData) {
 							if mall.StoreCount > 0 {
 								<div class="text-slate-600"><span class="font-bold text-slate-900">{ fmt.Sprintf("%d", mall.StoreCount) }</span> outlets · markets within this market</div>
 							} else {
-								<div class="text-slate-500 italic">{ mall.MarketType } · { mall.Metro }</div>
+								<div class="text-slate-500 italic">{ Humanize(mall.MarketType) } · { mall.Metro }</div>
 							}
 						</div>
 

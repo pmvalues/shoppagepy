@@ -48,7 +48,12 @@ func (h *ConsumerHandler) HandleHome(w http.ResponseWriter, r *http.Request) {
 		tab = "foryou"
 	}
 
-	posts := h.store.GetFeedPosts(tab, q)
+	// Trade Wire is the whole feed; other tabs show posts tagged for them.
+	feedTab := tab
+	if tab == "tradewire" {
+		feedTab = ""
+	}
+	posts := h.store.GetFeedPosts(feedTab, q)
 	products := h.store.SearchProducts(q, category, province, false)
 	deals := h.store.GetDeals(retailer, category, sort)
 	dealsStats := h.store.GetDealsStats()
@@ -80,7 +85,13 @@ func (h *ConsumerHandler) HandleHome(w http.ResponseWriter, r *http.Request) {
 		title = fmt.Sprintf("South Africa Commercial Discovery Grid · %s Trade Listings", templates.FormatCount(totalProducts))
 	}
 
+	postLimit, _ := strconv.Atoi(r.URL.Query().Get("n"))
+	if postLimit <= 0 {
+		postLimit = 30
+	}
 	data := templates.HomeViewData{
+		PostLimit:       postLimit,
+		Categories:      topCategories(h.store.SearchProducts("", "", "", false), 8),
 		Title:           title,
 		Description:     "Compare wholesale prices, live retailer specials, and supplier offers across South Africa.",
 		Query:           q,
@@ -302,12 +313,9 @@ func (h *ConsumerHandler) HandleSearch(w http.ResponseWriter, r *http.Request) {
 				Description: fmt.Sprintf("%s · %s", d.Availability, d.LocationHint),
 				PriceZar:    d.PriceZar,
 				OffersCount: 1,
-				City:        "Major Retail Superstores",
-				Province:    "Nationwide",
-				InStock:     true,
-				Verified:    true,
+				City:        d.LocationHint,
+				InStock:     strings.EqualFold(d.Availability, "in stock"),
 				ImageURL:    d.ImageURL,
-				Rating:      4.9,
 			})
 		}
 	} else {
@@ -326,10 +334,35 @@ func (h *ConsumerHandler) HandleSearch(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	categories := topCategories(products, 10)
+	if category != "" && !containsString(categories, category) {
+		categories = append([]string{category}, categories...)
+	}
+	sortBy := r.URL.Query().Get("sort")
+	switch sortBy {
+	case "price_asc", "price_desc":
+		asc := sortBy == "price_asc"
+		sort.SliceStable(products, func(a, b int) bool {
+			pa, pb := products[a].PriceZar, products[b].PriceZar
+			// Items without a price go last either way.
+			if pa <= 0 || pb <= 0 {
+				return pb <= 0 && pa > 0
+			}
+			if asc {
+				return pa < pb
+			}
+			return pa > pb
+		})
+	default:
+		sortBy = ""
+	}
+
 	latencyMs := float64(time.Since(start).Microseconds()) / 1000.0
-	isHX := r.Header.Get("HX-Request") == "true"
+	isHX := r.Header.Get("HX-Request") == "true" && r.Header.Get("HX-Boosted") != "true"
 
 	data := templates.SearchViewData{
+		Sort:              sortBy,
+		Categories:        categories,
 		Title:             "Search Results",
 		Description:       "Compare wholesale prices, verified businesses, and shopping centres across South Africa.",
 		Query:             q,
@@ -572,33 +605,54 @@ func (h *ConsumerHandler) HandleFavicon(w http.ResponseWriter, r *http.Request) 
 // HandleServiceWorker serves the PWA service worker script
 func (h *ConsumerHandler) HandleServiceWorker(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/javascript")
+	w.Header().Set("Cache-Control", "no-cache")
+	// Static assets: stale-while-revalidate, keyed by URL (the ?v= suffix
+	// changes on every release, so a new release never reuses old files).
+	// Pages: network first, falling back to the last copy when offline.
+	// Only successful same-origin responses are cached; a failed or partial
+	// response must never be stored and replayed as the stylesheet.
 	sw := `
-const CACHE_NAME = 'shoppage-v2';
-self.addEventListener('install', (e) => {
-  self.skipWaiting();
-});
+const CACHE = 'shoppage-v4';
+self.addEventListener('install', (e) => { self.skipWaiting(); });
 self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    ).then(() => clients.claim())
-  );
+  e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
 });
+function cacheable(res) { return res && res.ok && res.type === 'basic' && res.status === 200; }
 self.addEventListener('fetch', (e) => {
-  // Pass-through network requests with sub-5ms caching for static assets
-  if (e.request.url.includes('/static/')) {
-    e.respondWith(
-      caches.open(CACHE_NAME).then((cache) =>
-        cache.match(e.request).then((resp) => resp || fetch(e.request).then((netResp) => {
-          cache.put(e.request, netResp.clone());
-          return netResp;
-        }))
-      )
-    );
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== location.origin) return;
+  if (url.pathname.startsWith('/static/')) {
+    e.respondWith(caches.open(CACHE).then((cache) => cache.match(req).then((hit) => {
+      const net = fetch(req).then((res) => { if (cacheable(res)) cache.put(req, res.clone()); return res; });
+      return hit || net;
+    })));
+    return;
+  }
+  if (req.mode === 'navigate' && !url.pathname.startsWith('/desk') && !url.pathname.startsWith('/tab/')) {
+    e.respondWith(fetch(req).then((res) => {
+      if (cacheable(res)) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
+      return res;
+    }).catch(() => caches.match(req).then((hit) => hit || new Response('<!doctype html><meta name=viewport content="width=device-width"><title>Offline</title><body style="font-family:system-ui;padding:40px;text-align:center"><h1>You're offline</h1><p>Check your connection and try again.</p>', { headers: { 'Content-Type': 'text/html' } }))));
   }
 });
 `
-	w.Write([]byte(sw))
+	_, _ = w.Write([]byte(sw))
+}
+
+// HandleOpenSearch lets browsers add Shoppage as a search engine.
+func (h *ConsumerHandler) HandleOpenSearch(w http.ResponseWriter, r *http.Request) {
+	base := strings.TrimRight(site.BaseURL(), "/")
+	w.Header().Set("Content-Type", "application/opensearchdescription+xml")
+	fmt.Fprintf(w, `<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <ShortName>Shoppage</ShortName>
+  <Description>Compare prices across South African stores</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Url type="text/html" template="%s/search?q={searchTerms}"/>
+  <Url type="application/x-suggestions+json" template="%s/api/search/suggest?q={searchTerms}&amp;format=opensearch"/>
+</OpenSearchDescription>`, base, base)
 }
 
 // HandleHealth provides system health and metrics
@@ -685,7 +739,11 @@ func (h *ConsumerHandler) HandleAssistant(w http.ResponseWriter, r *http.Request
 
 // HandleShorts redirects or renders the 9:16 Trade Shorts stream
 func (h *ConsumerHandler) HandleShorts(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/?tab=shorts", http.StatusFound)
+	// Serve the Shorts feed at its own address (so links like /shorts#id work).
+	q := r.URL.Query()
+	q.Set("tab", "shorts")
+	r.URL.RawQuery = q.Encode()
+	h.HandleHome(w, r)
 }
 
 // HandleRequests redirects or renders the Wholesale Buyer RFQ desk
@@ -970,6 +1028,12 @@ func (h *ConsumerHandler) HandleRobotsTXT(w http.ResponseWriter, r *http.Request
 func (h *ConsumerHandler) HandleSearchSuggest(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("q")
 	suggestions := h.store.GetSearchSuggestions(q)
+	if r.URL.Query().Get("format") == "opensearch" {
+		// Browser address-bar suggestions: ["query", ["s1", "s2", …]].
+		w.Header().Set("Content-Type", "application/x-suggestions+json")
+		_ = json.NewEncoder(w).Encode([]any{q, suggestions})
+		return
+	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	_ = json.NewEncoder(w).Encode(suggestions)
 }
@@ -978,22 +1042,21 @@ func (h *ConsumerHandler) HandleSearchSuggest(w http.ResponseWriter, r *http.Req
 func (h *ConsumerHandler) HandleStoreReviewSubmit(w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	storeID := r.FormValue("store_id")
-	author := r.FormValue("author_name")
-	company := r.FormValue("company")
-	rating, _ := strconv.Atoi(r.FormValue("rating"))
-	if rating <= 0 || rating > 5 {
-		rating = 5
-	}
+	author := strings.TrimSpace(r.FormValue("author_name"))
+	company := strings.TrimSpace(r.FormValue("company"))
 	text := strings.TrimSpace(r.FormValue("review_text"))
-
-	if author == "" {
-		author = "Verified Trade Buyer"
+	rating, err := strconv.Atoi(r.FormValue("rating"))
+	// A review is only what the buyer wrote: no default text, no invented
+	// author, and never marked verified (it isn't checked against an order).
+	if err != nil || rating < 1 || rating > 5 || author == "" || text == "" {
+		http.Error(w, "Add a rating from 1 to 5, your name and your review.", http.StatusBadRequest)
+		return
 	}
-	if company == "" {
-		company = "South African Commercial Client"
+	if len([]rune(text)) > 600 {
+		text = string([]rune(text)[:600])
 	}
-	if text == "" {
-		text = "Excellent supplier with dependable stock availability and prompt communication."
+	if len([]rune(author)) > 60 {
+		author = string([]rune(author)[:60])
 	}
 
 	review := models.StoreTestimonial{
@@ -1003,7 +1066,7 @@ func (h *ConsumerHandler) HandleStoreReviewSubmit(w http.ResponseWriter, r *http
 		Rating:     rating,
 		Text:       text,
 		DateStr:    "Just now",
-		Verified:   true,
+		Verified:   false,
 	}
 
 	if err := h.store.AddStoreTestimonial(storeID, review); err != nil {
@@ -1011,24 +1074,8 @@ func (h *ConsumerHandler) HandleStoreReviewSubmit(w http.ResponseWriter, r *http
 		return
 	}
 
-	// If HTMX request, return the rendered testimonial card snippet
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprintf(w, `<div class="bg-white rounded-2xl border-2 border-emerald-500/60 p-5 shadow-xs relative overflow-hidden transition animate-fadeIn">
-		<div class="absolute top-0 right-0 bg-emerald-600 text-white text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-bl-lg">
-			✓ Just Posted
-		</div>
-		<div class="flex items-center gap-1 text-amber-500 text-sm mb-3">
-			%s
-		</div>
-		<p class="text-xs text-slate-700 leading-relaxed italic mb-4">"%s"</p>
-		<div class="border-t border-slate-100 pt-3 flex items-center justify-between">
-			<div>
-				<div class="font-bold text-xs text-slate-900">%s</div>
-				<div class="text-[10px] text-slate-500">%s · Verified Buyer</div>
-			</div>
-			<span class="text-[10px] text-slate-400 font-mono">Just now</span>
-		</div>
-	</div>`, strings.Repeat("★", rating), text, author, company)
+	_ = templates.RenderReviewCard(w, review)
 }
 
 // HandleInstantCheckout creates a demo order reservation. No payment rail is
@@ -1467,4 +1514,35 @@ func (h *ConsumerHandler) unavailable(w http.ResponseWriter, r *http.Request, wh
 	slog.Error("durable write failed", "record", what, "err", err, "path", r.URL.Path)
 	http.Error(w, "We couldn't save your "+what+" just now. Nothing was submitted — please try again in a moment.",
 		http.StatusServiceUnavailable)
+}
+
+// topCategories returns the most common product categories, most frequent
+// first, so filter chips only offer categories the catalogue actually has.
+func topCategories(items []models.SearchItem, n int) []string {
+	counts := map[string]int{}
+	var order []string
+	for _, it := range items {
+		c := strings.TrimSpace(it.Category)
+		if c == "" {
+			continue
+		}
+		if counts[c] == 0 {
+			order = append(order, c)
+		}
+		counts[c]++
+	}
+	sort.SliceStable(order, func(a, b int) bool { return counts[order[a]] > counts[order[b]] })
+	if len(order) > n {
+		order = order[:n]
+	}
+	return order
+}
+
+func containsString(xs []string, v string) bool {
+	for _, x := range xs {
+		if x == v {
+			return true
+		}
+	}
+	return false
 }

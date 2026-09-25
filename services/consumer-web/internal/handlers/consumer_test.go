@@ -27,7 +27,7 @@ func TestConsumerHandlers(t *testing.T) {
 			t.Fatalf("expected 200, got %d", rec.Code)
 		}
 		body := rec.Body.String()
-		if !strings.Contains(body, "SHOPPAGE") {
+		if !strings.Contains(body, "Shoppage") {
 			t.Fatalf("expected body to contain SHOPPAGE")
 		}
 		if !strings.Contains(body, "South Africa") {
@@ -98,7 +98,7 @@ func TestConsumerHandlers(t *testing.T) {
 			t.Fatalf("expected 200, got %d", rec.Code)
 		}
 		body := rec.Body.String()
-		if !strings.Contains(body, "Matching Businesses &amp; Suppliers") && !strings.Contains(body, "Matching Businesses & Suppliers") {
+		if !strings.Contains(body, "Stores and markets") {
 			t.Fatalf("expected Matching Businesses section in search results")
 		}
 		if !strings.Contains(body, "MiTrend") {
@@ -117,7 +117,7 @@ func TestConsumerHandlers(t *testing.T) {
 			t.Fatalf("expected 200, got %d", rec.Code)
 		}
 		body := rec.Body.String()
-		if !strings.Contains(body, "Matching Places &amp; Shopping Centres") && !strings.Contains(body, "Matching Places & Shopping Centres") {
+		if !strings.Contains(body, "Stores and markets") {
 			t.Fatalf("expected Matching Places section in search results")
 		}
 		if !strings.Contains(body, "Mall of Africa") {
@@ -141,7 +141,7 @@ func TestConsumerHandlers(t *testing.T) {
 		if !strings.Contains(body, "Sunsynk 5kW Hybrid Inverter") {
 			t.Fatalf("expected product title in body")
 		}
-		if !strings.Contains(body, "Verified Merchant Offers") {
+		if !strings.Contains(body, "Compare prices") {
 			t.Fatalf("expected BuyBox offers header")
 		}
 	})
@@ -174,7 +174,7 @@ func TestConsumerHandlers(t *testing.T) {
 			t.Fatalf("expected 200, got %d", rec.Code)
 		}
 		body := rec.Body.String()
-		if !strings.Contains(body, "Retailer Specials") {
+		if !strings.Contains(body, `aria-current="page">Deals`) {
 			t.Fatalf("expected Retailer Specials in body")
 		}
 	})
@@ -204,8 +204,10 @@ func TestConsumerHandlers(t *testing.T) {
 		if !strings.Contains(body, "Get Directions") && !strings.Contains(body, "google.com/maps") {
 			t.Fatalf("expected Google Maps directions link")
 		}
-		if !strings.Contains(body, "Open Now") && !strings.Contains(body, "Closed Now") {
-			t.Fatalf("expected live operating hours status chip")
+		// This store has no trading hours on record, so no open/closed
+		// status may be shown (enrichStorefront never guesses one).
+		if strings.Contains(body, "Open now") || strings.Contains(body, "Closed now") {
+			t.Fatalf("store without hours must not show an open/closed status")
 		}
 	})
 
@@ -222,10 +224,10 @@ func TestConsumerHandlers(t *testing.T) {
 			t.Fatalf("expected 200, got %d", rec.Code)
 		}
 		body := rec.Body.String()
-		if !strings.Contains(body, "Where to Buy in South Africa") {
+		if !strings.Contains(body, "Where to buy") {
 			t.Fatalf("expected BuyBox header in body")
 		}
-		if !strings.Contains(body, "WhatsApp Quote") {
+		if !strings.Contains(body, "Contact") {
 			t.Fatalf("expected WhatsApp Quote button in drawer")
 		}
 	})
@@ -365,8 +367,8 @@ func TestConsumerHandlers(t *testing.T) {
 			t.Fatalf("expected 200, got %d", rec.Code)
 		}
 		body := rec.Body.String()
-		if !strings.Contains(body, "Just Posted") {
-			t.Errorf("expected Just Posted tag in rendered card")
+		if !strings.Contains(body, "Just posted") {
+			t.Errorf("expected Just posted tag in rendered card")
 		}
 		if !strings.Contains(body, "Thebe Hospitality") {
 			t.Errorf("expected author name in review card")

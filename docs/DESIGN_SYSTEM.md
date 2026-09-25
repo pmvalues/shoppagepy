@@ -341,3 +341,17 @@ What the Merchant OS now ships, and where it lives:
 | Listings | `models.ComputeReadiness` scores each product (0–100) against Shoppage, Google, Meta and WhatsApp rules, with a plain-language fix per failed check. Feeds include only products that pass. |
 
 Honesty rules enforced by tests (`internal/handlers/merchant_test.go`): no invented KPIs, infrastructure claims, signatures, waybills, barcodes or AI; stock per location always sums to the product total; figures agree across screens.
+
+## 15. Consumer site revamp (2026-09-25)
+
+The shopper site now follows three references, blended on one token set:
+
+| Reference | What we took |
+|---|---|
+| Google Search | A search-first Home (large central search box, popular searches), search-as-you-type with recent searches, results timing, and a short computed summary at the top of results. OpenSearch support so browsers can search Shoppage from the address bar. |
+| Google Shopping | Product tiles (image on a light square, two-line title, price, store count, availability, place), filter chips, a filter column on results, and a "Compare prices" table on product pages, cheapest first. |
+| X | Three-column shell (icon + label navigation, content column, "what's happening" right column), underline tabs, hairline dividers instead of heavy cards, pill buttons, Trade Wire posts laid out like X posts, and a true-black dark mode. |
+
+**Files:** `services/consumer-web/internal/assets/css/site.css` (tokens + components, loaded after Tailwind), `internal/assets/js/site.js` (theme, suggestions, assistant, drawer), `internal/templates/layout.templ` (shell), `components.templ` (ProductTile, DealTile, PostCard, ShortCard). Rebuilt pages: Home (For you, Deals, Products, Trade Wire, Shorts), Search, Product, Where-to-buy drawer, Store. Other pages sit inside the new shell and follow the theme through a small Tailwind compatibility block at the end of `site.css`.
+
+**Honesty fixes shipped with it:** no invented ratings, "verified" marks, branch counts, delivery promises or open/closed status; retailer filters come from the loaded deals; product structured data now carries real values; the reserve flow says no payment is taken; store reviews are escaped, never auto-filled and never marked verified.

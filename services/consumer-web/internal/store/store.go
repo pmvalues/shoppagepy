@@ -922,10 +922,9 @@ func (s *Store) querySearchCore(q string) []models.SearchItem {
 			City:        it.City,
 			Province:    it.Province,
 			InStock:     it.InStock,
-			Verified:    it.Verified,
+			Verified:    false, // verification is a stored fact, never inferred from search
 			ImageURL:    img,
 			Score:       it.Score,
-			Rating:      4.9,
 		})
 	}
 	return out
@@ -1101,12 +1100,8 @@ func (s *Store) GetProductByID(id string) (models.ProductDetail, bool) {
 						MerchantID:   "retailer_" + strings.ToLower(d.RetailerDomain),
 						MerchantName: d.MerchantName,
 						City:         d.LocationHint,
-						Province:     "Nationwide",
 						PriceZar:     d.PriceZar,
-						InStock:      true,
-						Verified:     true,
-						WhatsApp:     "27825551234",
-						Rating:       4.8,
+						InStock:      strings.EqualFold(d.Availability, "in stock"),
 					},
 				},
 			}

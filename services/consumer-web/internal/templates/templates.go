@@ -25,6 +25,8 @@ type HomeViewData struct {
 	CurrentRetailer string
 	CurrentProvince string
 	CurrentSort     string
+	Categories      []string // most common product categories, for filter chips
+	PostLimit       int      // Trade Wire posts shown; "Show more" raises it
 	AvgSavingsPct   int
 	Posts           []models.PostItem
 	Products        []models.SearchItem
@@ -62,7 +64,9 @@ type SearchViewData struct {
 	Category          string
 	Province          string
 	Retailer          string
+	Sort              string
 	InStockOnly       bool
+	Categories        []string
 	Products          []models.SearchItem
 	Deals             []models.RetailerDeal
 	MatchingMerchants []models.MerchantStorefront
@@ -388,4 +392,9 @@ func schemaOrgStoreJSON(store models.MerchantStorefront, desc string, baseURL st
 
 	b, _ := json.MarshalIndent(payload, "", "  ")
 	return string(b)
+}
+
+// RenderReviewCard renders one just-posted review (escaped by templ).
+func RenderReviewCard(w io.Writer, t models.StoreTestimonial) error {
+	return ReviewCard(t, true).Render(context.Background(), w)
 }

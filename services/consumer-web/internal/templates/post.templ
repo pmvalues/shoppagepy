@@ -4,38 +4,7 @@ import (
 	"github.com/shoppage/consumer-web/internal/models"
 )
 
+// NewPostCardComponent renders a just-published Trade Wire post for HTMX.
 templ NewPostCardComponent(post models.PostItem) {
-	<article class="p-4 sm:p-5 hover:bg-slate-50/70 transition bg-emerald-50/20">
-		<div class="flex gap-3">
-			<div class="w-10 h-10 rounded-full bg-emerald-600 text-white font-extrabold flex items-center justify-center text-sm shrink-0">
-				{ post.Initials }
-			</div>
-			<div class="flex-1 min-w-0">
-				<div class="flex items-center gap-1.5 flex-wrap">
-					<span class="font-bold text-sm text-slate-900">{ post.Name }</span>
-					<span class="text-emerald-600 text-xs">✓</span>
-					<span class="text-xs text-slate-400">{ post.Handle }</span>
-					<span class="text-slate-300">·</span>
-					<span class="text-xs text-emerald-600 font-bold">just now</span>
-					<span class="ml-auto px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase">
-						LIVE TRADE
-					</span>
-				</div>
-				<p class="text-sm text-slate-800 mt-1.5 leading-relaxed">
-					{ post.Text }
-				</p>
-				if post.Poll != nil {
-					<div class="mt-3 p-3 bg-white rounded-2xl border border-slate-200 space-y-2">
-						<div class="text-xs font-bold text-slate-700">📊 Interactive Community Poll</div>
-						for _, opt := range post.Poll.Options {
-							<button type="button" class="w-full text-left p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold flex items-center justify-between">
-								<span>{ opt.Label }</span>
-								<span class="text-slate-400 font-mono">0 votes</span>
-							</button>
-						}
-					</div>
-				}
-			</div>
-		</div>
-	</article>
+	@PostCard(post)
 }

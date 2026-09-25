@@ -1,0 +1,259 @@
+package templates
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/shoppage/consumer-web/internal/models"
+)
+
+func priceLine(p float64) string {
+	if p <= 0 {
+		return "Price on request"
+	}
+	return "R " + FormatZAR(p)
+}
+
+func storesLabel(n int) string {
+	switch {
+	case n > 1:
+		return fmt.Sprintf("Compare %d stores", n)
+	case n == 1:
+		return "1 store"
+	}
+	return ""
+}
+
+func placeLabel(city, province string) string {
+	switch {
+	case city != "" && province != "" && !strings.Contains(city, province):
+		return city + ", " + province
+	case city != "":
+		return city
+	}
+	return province
+}
+
+// ProductTile is a Google Shopping style product card: image on a light
+// square, two-line title, price, how many stores sell it, and where.
+templ ProductTile(p models.SearchItem) {
+	<a class="tile" href={ templ.SafeURL("/p/" + p.ID) }>
+		<div class="t-img">
+			if p.ImageURL != "" {
+				<img src={ p.ImageURL } alt="" loading="lazy" decoding="async" width="240" height="240"/>
+			} else {
+				<span class="ph">
+					@Ico("bag", 40)
+				</span>
+			}
+		</div>
+		<h3 class="t-title">{ p.Title }</h3>
+		<div class="t-price num">{ priceLine(p.PriceZar) }</div>
+		<div class="t-meta">
+			if storesLabel(p.OffersCount) != "" {
+				<span class="store">{ storesLabel(p.OffersCount) }</span>
+			} else if p.Brand != "" {
+				<span class="store">{ p.Brand }</span>
+			}
+			if p.PickupAvailable {
+				<span class="ok">Collect in store</span>
+			} else if p.InStock {
+				<span class="ok">In stock</span>
+			}
+			if placeLabel(p.City, p.Province) != "" {
+				<span>{ placeLabel(p.City, p.Province) }</span>
+			}
+		</div>
+	</a>
+}
+
+// DealTile is a retailer special: sale price, was-price and saving.
+templ DealTile(d models.RetailerDeal) {
+	<a class="tile" href={ templ.SafeURL("/buybox/" + d.ID) } hx-get={ "/buybox/" + d.ID } hx-target="#buybox-drawer" hx-push-url="false">
+		<div class="t-img">
+			if d.ImageURL != "" {
+				<img src={ d.ImageURL } alt="" loading="lazy" decoding="async" width="240" height="240"/>
+			}
+			if d.DiscountPct > 0 {
+				<span class="t-badge sale">{ fmt.Sprintf("−%d%%", d.DiscountPct) }</span>
+			}
+		</div>
+		<h3 class="t-title">{ d.Title }</h3>
+		<div class="t-price num">
+			R { FormatZAR(d.PriceZar) }
+			if d.OldPriceZar > d.PriceZar {
+				<s>R { FormatZAR(d.OldPriceZar) }</s>
+			}
+		</div>
+		<div class="t-meta">
+			<span class="store">{ d.MerchantName }</span>
+			if d.EndsIn != "" {
+				<span>{ d.EndsIn }</span>
+			} else if d.ValidUntil != "" {
+				<span>Until { d.ValidUntil }</span>
+			}
+		</div>
+	</a>
+}
+
+// PostCard is a Trade Wire post, laid out like X.
+templ PostCard(p models.PostItem) {
+	<article class="post" id={ "post-" + p.ID }>
+		<span class="avatar" aria-hidden="true">
+			if p.Avatar != "" && strings.HasPrefix(p.Avatar, "http") {
+				<img src={ p.Avatar } alt=""/>
+			} else {
+				{ p.Initials }
+			}
+		</span>
+		<div style="min-width:0;">
+			<div class="head">
+				<b>{ p.Name }</b>
+				<span>{ p.Handle }</span>
+				<span>· { p.Time }</span>
+				if p.Badge != nil && p.Badge.Label != "" {
+					<span class="fact" style="padding:1px 8px;font-size:12px;">{ p.Badge.Label }</span>
+				}
+			</div>
+			<p class="body">{ p.Text }</p>
+			if p.Image != "" {
+				<div class="media"><img src={ p.Image } alt="" loading="lazy"/></div>
+			}
+			if p.Product != nil {
+				<a class="prod" href={ templ.SafeURL(postProductHref(p)) }>
+					<div style="min-width:0;flex:1;">
+						<b style="display:block;font-size:14px;">{ p.Product.Name }</b>
+						if p.Product.Note != "" {
+							<small class="muted">{ p.Product.Note }</small>
+						}
+					</div>
+					<div style="text-align:right;">
+						<b class="num">{ p.Product.Price }</b>
+						if p.Product.Old != "" {
+							<div class="muted" style="font-size:12px;"><s>{ p.Product.Old }</s> { p.Product.Off }</div>
+						}
+					</div>
+				</a>
+			}
+			if p.Poll != nil && len(p.Poll.Options) > 0 {
+				<div style="display:grid;gap:6px;margin-bottom:8px;">
+					for _, o := range p.Poll.Options {
+						<div class="chip" style="justify-content:space-between;width:100%;height:36px;">
+							<span>{ o.Label }</span>
+							<span class="muted num">{ fmt.Sprintf("%d", o.Votes) }</span>
+						</div>
+					}
+				</div>
+			}
+			<div class="acts">
+				<span title="Replies">
+					@Ico("chat", 18)
+					{ fmt.Sprint(p.Stats.Replies) }
+				</span>
+				<span title="Likes">
+					@Ico("heart", 18)
+					{ fmt.Sprint(p.Stats.Likes) }
+				</span>
+				if p.WhatsApp != "" {
+					<a href={ templ.SafeURL("https://wa.me/" + p.WhatsApp) } target="_blank" rel="noopener">
+						@Ico("wa", 18)
+						Message
+					</a>
+				}
+			</div>
+		</div>
+	</article>
+}
+
+func postProductHref(p models.PostItem) string {
+	if p.Product != nil && p.Product.Href != "" {
+		return p.Product.Href
+	}
+	return "/search?q=" + strings.ReplaceAll(p.Product.Name, " ", "+")
+}
+
+// ShortCard is a vertical video tile.
+templ ShortCard(s models.ShortItem) {
+	<a class="short" href={ templ.SafeURL("/shorts#" + s.ID) }>
+		<img src={ s.Image } alt="" loading="lazy"/>
+		<div class="cap">
+			{ s.Title }
+			<small>
+				{ s.MerchantName }
+				if s.PriceZar > 0 {
+					· R { FormatZARWhole(s.PriceZar) }
+				}
+			</small>
+		</div>
+	</a>
+}
+
+templ EmptyState(title, text, href, action string) {
+	<div class="empty">
+		@Ico("search", 40)
+		<h2>{ title }</h2>
+		<p>{ text }</p>
+		if href != "" {
+			<a class="btn btn-outline" href={ templ.SafeURL(href) }>{ action }</a>
+		}
+	</div>
+}
+
+// Category shortcuts shown as chips. Keys match the store's category filter.
+var shopCategories = [][2]string{
+	{"solar", "Solar & power"},
+	{"hardware", "Building & hardware"},
+	{"packaging", "Packaging"},
+	{"groceries", "Groceries"},
+	{"electronics", "Electronics"},
+	{"food-service", "Catering"},
+}
+
+// Humanize turns a category code like "solar_energy" or
+// "food-service-equipment" into "Solar energy" / "Food service equipment".
+func Humanize(s string) string {
+	s = strings.TrimSpace(strings.NewReplacer("_", " ", "-", " ").Replace(s))
+	if s == "" {
+		return s
+	}
+	if strings.ToLower(s) == s {
+		return strings.ToUpper(s[:1]) + s[1:]
+	}
+	return s
+}
+
+// SplitTag turns "#LoadSheddingSolutions" into "Load shedding solutions".
+func SplitTag(tag string) string {
+	tag = strings.TrimPrefix(strings.TrimSpace(tag), "#")
+	var b strings.Builder
+	rs := []rune(tag)
+	for i, r := range rs {
+		isUp := r >= 'A' && r <= 'Z'
+		if i > 0 && isUp {
+			prevLow := rs[i-1] >= 'a' && rs[i-1] <= 'z'
+			nextLow := i+1 < len(rs) && rs[i+1] >= 'a' && rs[i+1] <= 'z'
+			prevUp := rs[i-1] >= 'A' && rs[i-1] <= 'Z'
+			if prevLow || (prevUp && nextLow) {
+				b.WriteRune(' ')
+			}
+		}
+		b.WriteRune(r)
+	}
+	words := strings.Fields(b.String())
+	for i := 1; i < len(words); i++ {
+		if len(words[i]) > 1 && strings.ToUpper(words[i]) != words[i] {
+			words[i] = strings.ToLower(words[i])
+		}
+	}
+	return strings.Join(words, " ")
+}
+
+func joinDot(parts ...string) string {
+	var out []string
+	for _, p := range parts {
+		if strings.TrimSpace(p) != "" {
+			out = append(out, strings.TrimSpace(p))
+		}
+	}
+	return strings.Join(out, " · ")
+}

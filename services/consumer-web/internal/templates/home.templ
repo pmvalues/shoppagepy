@@ -2,739 +2,354 @@ package templates
 
 import (
 	"fmt"
+	"net/url"
+
+	"github.com/shoppage/consumer-web/internal/models"
 )
 
+func tabHref(tab string) string {
+	switch tab {
+	case "foryou":
+		return "/"
+	case "shorts":
+		return "/shorts"
+	}
+	return "/?tab=" + tab
+}
+
+func catHref(tab, cat string) string {
+	v := url.Values{}
+	if tab != "" && tab != "foryou" {
+		v.Set("tab", tab)
+	}
+	if cat != "" {
+		v.Set("category", cat)
+	}
+	if len(v) == 0 {
+		return "/"
+	}
+	return "/?" + v.Encode()
+}
+
+func dealsHref(retailer, category, sort string) string {
+	v := url.Values{"tab": {"deals"}}
+	if retailer != "" {
+		v.Set("retailer", retailer)
+	}
+	if category != "" {
+		v.Set("category", category)
+	}
+	if sort != "" {
+		v.Set("sort", sort)
+	}
+	return "/?" + v.Encode()
+}
+
+func pressed(on bool) string { return fmt.Sprint(on) }
+
+func firstN[T any](xs []T, n int) []T {
+	if len(xs) > n {
+		return xs[:n]
+	}
+	return xs
+}
+
+// HomeViewComponent is Home: a Google-style search front door, then
+// Shopping-style rails, with X-style tabs for Deals, Products, Trade Wire
+// and Shorts.
 templ HomeViewComponent(data HomeViewData) {
 	@Layout(data.Title, data.Description, data.CurrentTab, data.Trends, data.TopDrops, data.Guilds) {
-		<!-- CENTER DISCOVERY COLUMN -->
-		<main class="flex-1 min-w-0 bg-white border-r border-slate-200/80 flex flex-col min-h-screen">
-			<!-- Global Search Bar & Mode Tabs Sub-Bar -->
-			<div class="sticky top-7 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200">
-				<div class="p-3.5">
-					<form action="/search" method="GET" class="relative flex items-center w-full group">
-						<!-- Magnifying Glass Icon (Explicit inline positioning to guarantee rendering) -->
-						<div style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; pointer-events: none; z-index: 10; color: #059669;">
-							<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
-								<circle cx="11" cy="11" r="7"></circle>
-								<path stroke-linecap="round" d="M21 21l-4.35-4.35"></path>
-							</svg>
-						</div>
+		<nav class="tabs" aria-label="Home sections">
+			for _, t := range [][2]string{{"foryou", "For you"}, {"deals", "Deals"}, {"products", "Products"}, {"tradewire", "Trade Wire"}, {"shorts", "Shorts"}} {
+				<a href={ templ.SafeURL(tabHref(t[0])) } { current(data.CurrentTab == t[0] || (t[0] == "foryou" && data.CurrentTab == ""))... }>{ t[1] }</a>
+			}
+		</nav>
+		switch data.CurrentTab {
+			case "deals":
+				@homeDeals(data)
+			case "products":
+				@homeProducts(data)
+			case "tradewire":
+				@homeWire(data)
+			case "shorts":
+				@homeShorts(data)
+			default:
+				@homeForYou(data)
+		}
+	}
+}
 
-						<input 
-							type="text" 
-							name="q" 
-							value={ data.Query }
-							placeholder="Search products, brands, categories or suppliers..."
-							hx-get="/search" 
-							hx-trigger="keyup changed delay:200ms, search" 
-							hx-target="#main-stream-content"
-							hx-indicator="#search-spinner"
-							hx-push-url="true"
-							style="padding-left: 44px; padding-right: 96px;"
-							class="w-full bg-slate-100 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-500 rounded-full py-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 outline-none transition shadow-xs"
-							autocomplete="off"
-						/>
-
-						<!-- Right Controls: Spinner + Search Button -->
-						<div style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 6px; z-index: 10;">
-							<div id="search-spinner" class="htmx-indicator mr-1">
-								<div class="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-							</div>
-							<button 
-								type="submit" 
-								class="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5 cursor-pointer"
-								title="Search Shoppage"
-							>
-								<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
-									<circle cx="11" cy="11" r="7"></circle>
-									<path stroke-linecap="round" d="M21 21l-4.35-4.35"></path>
-								</svg>
-								<span class="hidden sm:inline">Search</span>
-							</button>
-						</div>
-					</form>
-				</div>
-
-				<!-- 6 Stream Mode Tabs -->
-				<div class="flex items-center px-4 gap-6 overflow-x-auto text-xs font-bold scrollbar-none border-t border-slate-100">
-					<a href="/?tab=foryou" class={ "py-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "" || data.CurrentTab == "foryou"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "" && data.CurrentTab != "foryou") }>
-						<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-						<span>Discovery</span>
-					</a>
-					<a href="/?tab=deals" class={ "py-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "deals"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "deals") }>
-						<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
-						<span>Deals &amp; Circulars</span>
-					</a>
-					<a href="/?tab=products" class={ "py-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "products"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "products") }>
-						<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-						<span>Products</span>
-						if Stats().Products > 0 {
-							<span class="px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-black">{ FormatCount(Stats().Products) }</span>
-						}
-					</a>
-					<a href="/?tab=tradewire" class={ "py-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "tradewire"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "tradewire") }>
-						<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-						<span>Trade Wire</span>
-					</a>
-					<a href="/?tab=shorts" class={ "py-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition", templ.KV("border-emerald-600 text-emerald-700 font-extrabold", data.CurrentTab == "shorts"), templ.KV("border-transparent text-slate-500 hover:text-slate-900", data.CurrentTab != "shorts") }>
-						<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-						<span>Shorts &amp; Reels</span>
-					</a>
-				</div>
-			</div>
-
-			<!-- Dynamic Content Stream Container -->
-			<div id="main-stream-content">
-				<!-- TAB 1: COMMERCE & DISCOVERY HUB (Default) -->
-				if data.CurrentTab == "" || data.CurrentTab == "foryou" {
-					<div class="p-4 sm:p-6 space-y-8">
-						<!-- 1. HIGH-IMPACT COMMERCE HERO -->
-						<div class="relative overflow-hidden rounded-3xl bg-slate-950 p-6 sm:p-8 text-white shadow-xl border border-slate-800" style="background-color: #090d16; background-image: linear-gradient(135deg, #090d16 0%, #0f172a 55%, #064e3b 100%);">
-							<!-- Subtle Ambient Glow -->
-							<div style="position: absolute; right: -40px; top: -40px; width: 280px; height: 280px; background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(0, 0, 0, 0) 70%); border-radius: 50%; pointer-events: none;"></div>
-							<div class="relative z-10 space-y-4 max-w-2xl">
-							<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider" style="background: rgba(16, 185, 129, 0.12); color: #34d399; border-color: rgba(52, 211, 153, 0.35);">
-								<span>🇿🇦 Nationwide Trade Network</span>
-								<span>•</span>
-								<span>Live Price Discovery</span>
-							</div>
-								<h1 class="text-2xl sm:text-4xl font-extrabold font-display tracking-tight text-white leading-tight" style="color: #ffffff !important;">
-									Wholesale Inventory, Price Drops &amp; Verified Trade Desks
-								</h1>
-								<p class="text-xs sm:text-sm leading-relaxed max-w-xl" style="color: #cbd5e1 !important;">
-									Direct manufacturer catalog pricing, nationwide logistics via The Courier Guy &amp; Pudo, and instant WhatsApp proforma invoices.
-								</p>
-
-								<!-- Quick Filter Category Pills -->
-								<div class="pt-2 flex flex-wrap gap-2 text-xs font-semibold">
-									<a href="/?tab=products&category=solar" class="hero-pill px-3.5 py-1.5 rounded-xl backdrop-blur-md" style="background: rgba(30, 41, 59, 0.85); color: #f8fafc; border: 1px solid rgba(71, 85, 105, 0.6);">
-										⚡ Solar &amp; Power
-									</a>
-									<a href="/?tab=products&category=packaging" class="hero-pill px-3.5 py-1.5 rounded-xl backdrop-blur-md" style="background: rgba(30, 41, 59, 0.85); color: #f8fafc; border: 1px solid rgba(71, 85, 105, 0.6);">
-										📦 Packaging &amp; Boxes
-									</a>
-									<a href="/?tab=products&category=hardware" class="hero-pill px-3.5 py-1.5 rounded-xl backdrop-blur-md" style="background: rgba(30, 41, 59, 0.85); color: #f8fafc; border: 1px solid rgba(71, 85, 105, 0.6);">
-										🧱 Building &amp; Tools
-									</a>
-									<a href="/?tab=products&category=groceries" class="hero-pill px-3.5 py-1.5 rounded-xl backdrop-blur-md" style="background: rgba(30, 41, 59, 0.85); color: #f8fafc; border: 1px solid rgba(71, 85, 105, 0.6);">
-										🛒 Wholesale FMCG
-									</a>
-									<a href="/?tab=deals" class="hero-pill-cta px-3.5 py-1.5 rounded-xl font-bold shadow-sm" style="background: #e11d48; color: #ffffff;">
-										🔥 Top Specials ({ fmt.Sprintf("%d", len(data.Deals)) })
-									</a>
-								</div>
-								<!-- Trust Stats Strip: live counters prove the grid at a glance -->
-								<div class="pt-4 mt-2 border-t border-white/10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px] font-bold tracking-wide">
-									<span class="flex items-center gap-1.5 text-slate-300"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>{ FormatCount(Stats().Merchants) } Verified Merchants</span>
-									<span class="flex items-center gap-1.5 text-slate-300"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>{ FormatCount(Stats().Products) } Live Listings</span>
-									<span class="flex items-center gap-1.5 text-slate-300"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>{ FormatCount(Stats().Malls) } Malls &amp; Hubs</span>
-									<span class="flex items-center gap-1.5 text-slate-300"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>Sub-3ms Search</span>
-								</div>
-							</div>
-						</div>
-
-						<!-- 2. TOP WHOLESALE SPECIALS & PRICE DROPS -->
-						if len(data.Deals) > 0 {
-							<div class="space-y-3.5">
-								<div class="flex items-center justify-between">
-									<div>
-										<div class="flex items-center gap-2">
-											<h2 class="text-lg font-extrabold text-slate-900 tracking-tight font-display">Featured Specials &amp; Price Cuts</h2>
-											<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-black uppercase">Live Drops</span>
-										</div>
-										<p class="text-xs text-slate-500">Live verified savings from national retailers and wholesale distributors</p>
-									</div>
-									<a href="/?tab=deals" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 transition">
-										<span>View all specials</span>
-										<span>&rarr;</span>
-									</a>
-								</div>
-
-								<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-									for i, deal := range data.Deals {
-										if i < 3 {
-											<div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-card hover:shadow-raised hover:-translate-y-0.5 hover:border-emerald-300/70 transition-all duration-300 flex flex-col justify-between group">
-												<div>
-													<div class="relative w-full h-36 rounded-xl overflow-hidden bg-slate-50 mb-2.5 border border-slate-100">
-														<span class="absolute inset-0 flex items-center justify-center text-3xl text-slate-300" aria-hidden="true">📦</span>
-															<img src={ deal.ImageURL } alt={ deal.Title } class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy" onerror="this.style.display='none'"/>
-														if deal.DiscountPct > 0 {
-															<span class="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-rose-600 text-white text-[10px] font-black uppercase shadow-xs">
-																-{ fmt.Sprintf("%d", deal.DiscountPct) }%
-															</span>
-														}
-														<span class="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-slate-950/80 text-white text-[9px] font-bold backdrop-blur-xs">
-															{ deal.MerchantName }
-														</span>
-													</div>
-													<div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">{ deal.CategoryLabel }</div>
-													<h3 class="font-bold text-slate-900 text-xs leading-snug line-clamp-2">{ deal.Title }</h3>
-												</div>
-												<div class="pt-3 border-t border-slate-100 mt-2.5 flex items-baseline justify-between">
-													<div>
-														<div class="text-sm font-black font-mono text-slate-900">R { FormatZAR(deal.PriceZar) }</div>
-														if deal.SavingsZar > 0 {
-															<div class="text-[10px] font-bold text-emerald-600">Save R { FormatZARWhole(deal.SavingsZar) }</div>
-														}
-													</div>
-													<button 
-														type="button" 
-														hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", deal.ID))) } 
-														hx-target="#buybox-drawer"
-														class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-2xs cursor-pointer"
-													>
-														BuyBox &rarr;
-													</button>
-												</div>
-											</div>
-										}
-									}
-								</div>
-							</div>
-						}
-
-						<!-- 3. TRENDING PRODUCTS CATALOG PREVIEW -->
-						if len(data.Products) > 0 {
-							<div class="space-y-3.5">
-								<div class="flex items-center justify-between">
-									<div>
-										<div class="flex items-center gap-2">
-											<h2 class="text-lg font-extrabold text-slate-900 tracking-tight font-display">Trending Commercial Inventory</h2>
-											if Stats().Products > 0 {
-											<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">{ FormatCount(Stats().Products) } indexed</span>
-										} else {
-											<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold">No index published</span>
-										}
-										</div>
-										<p class="text-xs text-slate-500">Live wholesale pricing available for instant quotation and delivery</p>
-									</div>
-									<a href="/?tab=products" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 transition">
-										<span>Browse all products</span>
-										<span>&rarr;</span>
-									</a>
-								</div>
-
-								<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-									for i, prod := range data.Products {
-										if i < 6 {
-											<div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-card hover:shadow-raised hover:-translate-y-0.5 hover:border-emerald-300/70 transition-all duration-300 flex flex-col justify-between group">
-												<div>
-													<div class="relative w-full h-36 rounded-xl overflow-hidden bg-slate-50 mb-2.5 border border-slate-100 flex items-center justify-center">
-														<span class="absolute inset-0 flex items-center justify-center text-3xl text-slate-300" aria-hidden="true">📦</span>
-														if prod.ImageURL != "" {
-															<img src={ prod.ImageURL } alt={ prod.Title } class="absolute inset-0 w-full h-full object-contain p-2 group-hover:scale-105 transition duration-300" loading="lazy" onerror="this.style.display='none'"/>
-														}
-														<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-900/80 text-white text-[9px] font-bold backdrop-blur-xs">
-															🇿🇦 Local SA Stock
-														</span>
-													</div>
-													<div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">{ prod.Brand } · { prod.Category }</div>
-													<h3 class="font-bold text-slate-900 text-xs leading-snug line-clamp-2">
-														<a href={ templ.SafeURL(fmt.Sprintf("/p/%s", prod.ID)) } class="hover:text-emerald-700 transition">{ prod.Title }</a>
-													</h3>
-												</div>
-												<div class="pt-3 border-t border-slate-100 mt-2.5 flex items-baseline justify-between">
-													<div>
-														<div class="text-[10px] text-slate-400">Wholesale Excl. VAT</div>
-														<div class="text-sm font-black font-mono text-slate-900">R { FormatZAR(prod.PriceZar) }</div>
-													</div>
-													<button 
-														type="button" 
-														hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", prod.ID))) } 
-														hx-target="#buybox-drawer"
-														class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-2xs cursor-pointer"
-													>
-														BuyBox &rarr;
-													</button>
-												</div>
-											</div>
-										}
-									}
-								</div>
-							</div>
-						}
-					</div>
-				}
-
-				<!-- TAB: TRADE WIRE (Broadcasts & Community RFQs) -->
-				if data.CurrentTab == "tradewire" {
-					<!-- Live Trade Broadcast Composer -->
-					<div id="trade-composer" class="p-4 border-b border-slate-200 bg-white">
-						<form hx-post="/feed/post" hx-target="#timeline-posts" hx-swap="afterbegin" hx-on::after-request="this.reset(); document.getElementById('char-counter').textContent='280';">
-							<div class="flex gap-3">
-								<div class="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold flex items-center justify-center text-sm shrink-0">
-									Y
-								</div>
-								<div class="flex-1 min-w-0">
-									<textarea 
-										id="composer-textarea"
-										name="text" 
-										rows="2" 
-										placeholder="What's happening in trade?! Request quotations, announce price drops..."
-										oninput="const left = 280 - this.value.length; document.getElementById('char-counter').textContent = left;"
-										class="w-full text-sm font-medium text-slate-900 placeholder-slate-400 outline-none resize-none bg-transparent"
-										required
-									></textarea>
-
-									<!-- Poll Setup Box (collapsible) -->
-									<div id="poll-setup" class="hidden my-2 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2">
-										<div class="flex items-center justify-between font-bold text-slate-700">
-											<span>📊 Trade Poll Options</span>
-											<button type="button" onclick="document.getElementById('poll-setup').classList.add('hidden');" class="text-slate-400 hover:text-rose-600">✕</button>
-										</div>
-										<input type="text" name="pollOpt1" placeholder="Option 1 (e.g. 5kW Hybrid)" class="w-full p-2 bg-white border border-slate-200 rounded-lg outline-none"/>
-										<input type="text" name="pollOpt2" placeholder="Option 2 (e.g. 8kW Hybrid)" class="w-full p-2 bg-white border border-slate-200 rounded-lg outline-none"/>
-										<input type="text" name="pollOpt3" placeholder="Option 3 (Optional, e.g. 10kW 3-Phase)" class="w-full p-2 bg-white border border-slate-200 rounded-lg outline-none"/>
-									</div>
-
-									<!-- Composer Actions -->
-									<div class="pt-2 flex items-center justify-between border-t border-slate-100 mt-2">
-										<div class="flex items-center gap-1 text-slate-400">
-											<button type="button" onclick="document.getElementById('poll-setup').classList.toggle('hidden');" class="p-1.5 rounded-lg hover:bg-slate-100 hover:text-emerald-600 transition" title="Add Trade Poll">
-												📊
-											</button>
-											<button type="button" onclick="alert('Media attachment ready on trade counter.');" class="p-1.5 rounded-lg hover:bg-slate-100 hover:text-emerald-600 transition" title="Attach Spec Sheet">
-												📎
-											</button>
-											<button type="button" onclick="alert('Midrand Trade Counter location tagged.');" class="p-1.5 rounded-lg hover:bg-slate-100 hover:text-emerald-600 transition" title="Tag Location">
-												📍
-											</button>
-										</div>
-										<div class="flex items-center gap-3">
-											<span id="char-counter" class="text-xs font-mono text-slate-400">280</span>
-											<button 
-												type="submit" 
-												class="px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition cursor-pointer"
-											>
-												Broadcast
-											</button>
-										</div>
-									</div>
-								</div>
-							</div>
-						</form>
-					</div>
-
-					<!-- Timeline Posts Stream -->
-					<div id="timeline-posts" class="divide-y divide-slate-100">
-						for _, post := range data.Posts {
-							<article class="p-4 sm:p-5 hover:bg-slate-50/70 transition">
-								<div class="flex gap-3">
-									<div class="w-10 h-10 rounded-full bg-slate-900 text-white font-extrabold flex items-center justify-center text-sm shrink-0">
-										{ post.Initials }
-									</div>
-									<div class="flex-1 min-w-0">
-										<div class="flex items-center gap-1.5 flex-wrap">
-											<span class="font-bold text-sm text-slate-900">{ post.Name }</span>
-											if post.Verified {
-												<span class="text-emerald-600 text-xs">✓</span>
-											}
-											<span class="text-xs text-slate-400">{ post.Handle }</span>
-											<span class="text-slate-300">·</span>
-											<span class="text-xs text-slate-400">{ post.Time }</span>
-											if post.Badge != nil {
-												<span class="ml-auto px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase">
-													{ post.Badge.Label }
-												</span>
-											}
-										</div>
-
-										<p class="text-sm text-slate-800 mt-1.5 leading-relaxed">
-											{ post.Text }
-										</p>
-
-										if post.Product != nil {
-											<div class="mt-3 rounded-2xl border border-slate-200 bg-white overflow-hidden group">
-												<div class="p-3.5 flex items-center justify-between gap-4">
-													<div class="min-w-0">
-														<div class="text-xs font-bold text-slate-900 truncate">{ post.Product.Name }</div>
-														<div class="text-[11px] text-slate-400">{ post.Product.Note }</div>
-														<div class="flex items-baseline gap-2 mt-1">
-															<span class="text-base font-black text-slate-900">{ post.Product.Price }</span>
-															if post.Product.Old != "" {
-																<span class="text-xs text-slate-400 line-through">{ post.Product.Old }</span>
-															}
-															if post.Product.Off != "" {
-																<span class="px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 text-[10px] font-black">{ post.Product.Off }</span>
-															}
-														</div>
-													</div>
-													<button 
-														type="button"
-														hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", post.ID))) } 
-														hx-target="#buybox-drawer"
-														class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-bold transition shadow-xs shrink-0 cursor-pointer"
-													>
-														Get Deal / BuyBox &rarr;
-													</button>
-												</div>
-											</div>
-										}
-
-										if post.Poll != nil {
-											<div class="mt-3 p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
-												<div class="text-xs font-bold text-slate-700">📊 Interactive Community Poll</div>
-												for _, opt := range post.Poll.Options {
-													<button 
-														type="button"
-														onclick="alert('Vote recorded');"
-														class="w-full text-left p-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-500 transition text-xs font-semibold flex items-center justify-between"
-													>
-														<span>{ opt.Label }</span>
-														<span class="text-slate-400 font-mono">{ fmt.Sprintf("%d", opt.Votes) } votes</span>
-													</button>
-												}
-											</div>
-										}
-
-										<div class="mt-3.5 flex items-center justify-between text-xs text-slate-500 max-w-md">
-											<button type="button" class="hover:text-emerald-600 transition flex items-center gap-1.5">
-												<span>💬</span> <span>{ fmt.Sprintf("%d", post.Stats.Replies) }</span>
-											</button>
-											<button type="button" class="hover:text-emerald-600 transition flex items-center gap-1.5">
-												<span>🔁</span> <span>{ fmt.Sprintf("%d", post.Stats.Reposts) }</span>
-											</button>
-											<button type="button" onclick="const s = this.querySelector('.likes-count'); s.textContent = parseInt(s.textContent)+1;" class="hover:text-rose-600 transition flex items-center gap-1.5">
-												<span>❤️</span> <span class="likes-count">{ fmt.Sprintf("%d", post.Stats.Likes) }</span>
-											</button>
-											<button type="button" class="hover:text-slate-900 transition flex items-center gap-1.5">
-												<span>👁️</span> <span>{ post.Stats.Views }</span>
-											</button>
-											<button type="button" onclick="navigator.clipboard?.writeText(window.location.href); alert('Trade link copied!');" class="hover:text-slate-900 transition">
-												<span>↗️</span>
-											</button>
-										</div>
-									</div>
-								</div>
-							</article>
-						}
-					</div>
-				}
-
-				<!-- TAB 2: PRODUCTS CATALOG -->
-				if data.CurrentTab == "products" {
-					<div class="p-4 sm:p-6">
-						<div class="flex items-center justify-between mb-4">
-							<div>
-								<div class="flex items-center gap-2">
-									<h2 class="text-xl font-display font-black text-slate-900 tracking-tight">Products &amp; Trade Catalog</h2>
-									<span class="px-2 py-0.5 rounded-full bg-slate-900 text-emerald-400 text-[10px] font-bold">🇿🇦 Local SA Stock</span>
-								</div>
-								<p class="text-xs text-slate-500">Trade listings published by verified suppliers</p>
-							</div>
-						</div>
-
-						<!-- Category Filter Pills -->
-						<div class="flex items-center gap-2 overflow-x-auto pb-3 mb-4 scrollbar-none text-xs font-bold">
-							<a href="/?tab=products" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-slate-900 text-white", data.CurrentCategory == "" || data.CurrentCategory == "all"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentCategory != "" && data.CurrentCategory != "all") }>All Categories</a>
-							<a href="/?tab=products&category=solar" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentCategory == "solar"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentCategory != "solar") }>⚡ Solar &amp; Power</a>
-							<a href="/?tab=products&category=electronics" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentCategory == "electronics"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentCategory != "electronics") }>📱 Phones &amp; Tech</a>
-							<a href="/?tab=products&category=packaging" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentCategory == "packaging"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentCategory != "packaging") }>📦 Packaging &amp; Catering</a>
-							<a href="/?tab=products&category=hardware" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentCategory == "hardware"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentCategory != "hardware") }>🧱 Building &amp; Hardware</a>
-							<a href="/?tab=products&category=automotive" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentCategory == "automotive"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentCategory != "automotive") }>🚗 Automotive Spares</a>
-							<a href="/?tab=products&category=groceries" class={ "px-3.5 py-1.5 rounded-full shrink-0", templ.KV("bg-emerald-600 text-white", data.CurrentCategory == "groceries"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentCategory != "groceries") }>🛒 Wholesale FMCG</a>
-						</div>
-
-						<!-- Products Grid -->
-						<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-							for _, prod := range data.Products {
-								<div class="bg-white rounded-2xl border border-slate-200 p-4 hover:shadow-md hover:border-emerald-500 transition flex flex-col group relative">
-									<!-- SA Stock & Verified Badges -->
-									<div class="relative w-full h-44 rounded-xl overflow-hidden bg-slate-100 mb-3">
-										<img src={ prod.ImageURL } alt={ prod.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy" decoding="async" width="320" height="176"/>
-										<div class="absolute top-2 left-2 flex flex-col gap-1">
-											<span class="px-2 py-0.5 rounded-md bg-slate-900/90 text-emerald-400 text-[10px] font-black backdrop-blur-xs flex items-center gap-1 shadow-2xs">
-												<span>🇿🇦</span> <span>Local SA Stock</span>
-											</span>
-											if prod.Verified {
-												<span class="px-2 py-0.5 rounded-md bg-emerald-700 text-white text-[9px] font-bold shadow-2xs">
-													✓ Verified Seller
-												</span>
-											}
-										</div>
-										<span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-black shadow-2xs">
-											Dispatches 24h
-										</span>
-									</div>
-
-									<div class="text-[11px] text-emerald-600 font-bold uppercase tracking-wider mb-0.5">{ prod.Brand } · { prod.Category }</div>
-									<h3 class="font-bold text-slate-900 text-sm leading-snug line-clamp-2 mb-2">
-										<a href={ templ.SafeURL(fmt.Sprintf("/p/%s", prod.ID)) } class="hover:text-emerald-600 transition">{ prod.Title }</a>
-									</h3>
-
-									<!-- Delivery & Mall Pickup Estimator -->
-									<div class="mb-3 p-2 rounded-xl bg-slate-50 border border-slate-100 text-[11px] text-slate-600 space-y-1">
-										<div class="flex items-center justify-between">
-											<span class="flex items-center gap-1 font-semibold"><span>🏬</span> <span>Mall Pickup:</span></span>
-											<span class="text-emerald-700 font-black">FREE</span>
-										</div>
-										<div class="flex items-center justify-between text-slate-500">
-											<span class="flex items-center gap-1"><span>📦</span> <span>Pudo Locker:</span></span>
-											<span class="font-bold text-slate-800">R 60.00</span>
-										</div>
-									</div>
-
-									<!-- Wholesale Tier Highlight -->
-									if len(prod.VolumeTiers) > 1 {
-										<div class="mb-3 text-[10.5px] font-bold text-slate-500 flex items-center justify-between">
-											<span>Wholesale Volume:</span>
-											<span class="text-emerald-700 font-extrabold">From R { FormatZAR(prod.VolumeTiers[len(prod.VolumeTiers)-1].PriceZar) } (Save { fmt.Sprintf("%d", prod.VolumeTiers[len(prod.VolumeTiers)-1].DiscountPct) }%)</span>
-										</div>
-									}
-
-									<div class="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-										<div>
-											<div class="text-[10px] text-slate-400">Lowest landed price</div>
-											<div class="text-base font-black text-slate-900">R { FormatZAR(prod.PriceZar) }</div>
-										</div>
-										<div class="flex items-center gap-1.5">
-											<button 
-												type="button"
-												hx-get={ string(templ.SafeURL(fmt.Sprintf("/offer/modal/%s?price=%.2f", prod.ID, prod.PriceZar))) }
-												hx-target="#modal-container"
-												class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition cursor-pointer"
-												title="Make a counter-offer"
-											>
-												🤝 Offer
-											</button>
-											<button 
-												type="button"
-												hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", prod.ID))) } 
-												hx-target="#buybox-drawer"
-												class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs cursor-pointer"
-											>
-												BuyBox &rarr;
-											</button>
-										</div>
-									</div>
-								</div>
-							}
-						</div>
-					</div>
-				}
-
-				<!-- TAB 3: DEALS & CIRCULARS (OVERHAULED WITH BOB SHOP FEATURES) -->
-				if data.CurrentTab == "deals" {
-					<div class="p-4 sm:p-6 space-y-6">
-						<!-- Deal Intelligence & Live Savings Summary Banner -->
-						<div class="bg-gradient-to-r from-slate-950 via-slate-900 to-emerald-950 rounded-3xl p-5 sm:p-6 text-white shadow-xl relative overflow-hidden">
-							<div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-								<div>
-									<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold mb-2">
-										<span>🔥</span> <span>Live South African Retail Circulars &amp; Drops</span>
-									</div>
-									<h2 class="text-xl sm:text-2xl font-display font-black tracking-tight text-white">
-										Verified Retailer Specials &amp; Clearance Grid
-									</h2>
-									<p class="text-xs text-slate-300 mt-1 max-w-xl">
-										Specials published by our retail partners. Prices, availability and collection options are confirmed with the retailer at the point of sale.
-									</p>
-								</div>
-								<!-- Stat Badges -->
-								<div class="flex items-center gap-3 shrink-0">
-									<div class="px-4 py-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 text-center">
-										<div class="text-lg font-black text-emerald-400">{ fmt.Sprintf("%d", len(data.Deals)) }</div>
-										<div class="text-[10px] text-slate-300 font-bold uppercase">Active Specials</div>
-									</div>
-									<div class="px-4 py-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 text-center">
-										if Stats().MaxDiscountPct > 0 {
-											<div class="text-lg font-black text-rose-400">Up to { fmt.Sprintf("%d", Stats().MaxDiscountPct) }%</div>
-											<div class="text-[10px] text-slate-300 font-bold uppercase">Price Slashes</div>
-										} else {
-											<div class="text-lg font-black text-slate-400">&mdash;</div>
-											<div class="text-[10px] text-slate-300 font-bold uppercase">No discounts listed</div>
-										}
-									</div>
-									<div class="px-4 py-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 text-center">
-										<div class="text-lg font-black text-white">{ fmt.Sprintf("%d", len(Stats().Retailers)) }</div>
-										<div class="text-[10px] text-slate-300 font-bold uppercase">Retailers listed</div>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<!-- Retailer Selector Pills -->
-						<div>
-							<div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Select National Retailer</div>
-							<div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs font-bold">
-								<a href="/?tab=deals" class={ "px-3.5 py-1.5 rounded-full shrink-0 transition", templ.KV("bg-slate-900 text-white", data.CurrentRetailer == "" || data.CurrentRetailer == "all"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentRetailer != "" && data.CurrentRetailer != "all") }>All Major Retailers</a>
-								<a href="/?tab=deals&retailer=makro" class={ "px-3.5 py-1.5 rounded-full shrink-0 transition", templ.KV("bg-emerald-600 text-white", data.CurrentRetailer == "makro"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentRetailer != "makro") }>🔴 Makro (22 Superstores)</a>
-								<a href="/?tab=deals&retailer=builders" class={ "px-3.5 py-1.5 rounded-full shrink-0 transition", templ.KV("bg-emerald-600 text-white", data.CurrentRetailer == "builders"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentRetailer != "builders") }>🟠 Builders (48 Depots)</a>
-								<a href="/?tab=deals&retailer=buco" class={ "px-3.5 py-1.5 rounded-full shrink-0 transition", templ.KV("bg-emerald-600 text-white", data.CurrentRetailer == "buco"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentRetailer != "buco") }>🟡 BUCO (65 Branches)</a>
-								<a href="/?tab=deals&retailer=game" class={ "px-3.5 py-1.5 rounded-full shrink-0 transition", templ.KV("bg-emerald-600 text-white", data.CurrentRetailer == "game"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentRetailer != "game") }>🔵 Game (84 Stores)</a>
-								<a href="/?tab=deals&retailer=spar" class={ "px-3.5 py-1.5 rounded-full shrink-0 transition", templ.KV("bg-emerald-600 text-white", data.CurrentRetailer == "spar"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentRetailer != "spar") }>🟢 SPAR (900+ Supermarkets)</a>
-								<a href="/?tab=deals&retailer=leroy" class={ "px-3.5 py-1.5 rounded-full shrink-0 transition", templ.KV("bg-emerald-600 text-white", data.CurrentRetailer == "leroy"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentRetailer != "leroy") }>🟢 Leroy Merlin</a>
-							</div>
-						</div>
-
-						<!-- Category & Sort Sub-Bar -->
-						<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
-							<div class="flex items-center gap-1.5 overflow-x-auto scrollbar-none text-xs font-bold">
-								<span class="text-slate-400 font-normal mr-1">Category:</span>
-								<a href="/?tab=deals" class={ "px-2.5 py-1 rounded-lg", templ.KV("bg-emerald-100 text-emerald-800", data.CurrentCategory == "" || data.CurrentCategory == "all"), templ.KV("text-slate-600 hover:bg-slate-100", data.CurrentCategory != "" && data.CurrentCategory != "all") }>All</a>
-								<a href="/?tab=deals&category=hardware" class={ "px-2.5 py-1 rounded-lg", templ.KV("bg-emerald-100 text-emerald-800", data.CurrentCategory == "hardware"), templ.KV("text-slate-600 hover:bg-slate-100", data.CurrentCategory != "hardware") }>🧱 Hardware</a>
-								<a href="/?tab=deals&category=solar" class={ "px-2.5 py-1 rounded-lg", templ.KV("bg-emerald-100 text-emerald-800", data.CurrentCategory == "solar"), templ.KV("text-slate-600 hover:bg-slate-100", data.CurrentCategory != "solar") }>⚡ Solar &amp; Power</a>
-								<a href="/?tab=deals&category=electronics" class={ "px-2.5 py-1 rounded-lg", templ.KV("bg-emerald-100 text-emerald-800", data.CurrentCategory == "electronics"), templ.KV("text-slate-600 hover:bg-slate-100", data.CurrentCategory != "electronics") }>📱 Tech &amp; TV</a>
-								<a href="/?tab=deals&category=groceries" class={ "px-2.5 py-1 rounded-lg", templ.KV("bg-emerald-100 text-emerald-800", data.CurrentCategory == "groceries"), templ.KV("text-slate-600 hover:bg-slate-100", data.CurrentCategory != "groceries") }>🛒 Groceries</a>
-							</div>
-
-							<div class="flex items-center gap-2 text-xs font-bold text-slate-600 shrink-0">
-								<span class="text-slate-400 font-normal">Sort:</span>
-								<a href="/?tab=deals&sort=savings" class={ "px-2.5 py-1 rounded-lg", templ.KV("bg-slate-900 text-white", data.CurrentSort == "" || data.CurrentSort == "savings"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentSort != "" && data.CurrentSort != "savings") }>🔥 Biggest % Off</a>
-								<a href="/?tab=deals&sort=price_asc" class={ "px-2.5 py-1 rounded-lg", templ.KV("bg-slate-900 text-white", data.CurrentSort == "price_asc"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentSort != "price_asc") }>Lowest Price</a>
-								<a href="/?tab=deals&sort=expiring" class={ "px-2.5 py-1 rounded-lg", templ.KV("bg-slate-900 text-white", data.CurrentSort == "expiring"), templ.KV("bg-slate-100 text-slate-700 hover:bg-slate-200", data.CurrentSort != "expiring") }>⏳ Urgency / Stock</a>
-							</div>
-						</div>
-
-						<!-- Overhauled Deals Grid with Rich Bob Shop Indicators -->
-						<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-							for _, deal := range data.Deals {
-								<div class="bg-white rounded-3xl border border-slate-200/90 p-4 shadow-card hover:shadow-raised hover:-translate-y-0.5 hover:border-emerald-300/70 transition-all duration-300 flex flex-col group relative">
-									<!-- Discount Badge & Urgency Pill -->
-									<div class="flex items-center justify-between gap-2 mb-2.5">
-										<div class="flex items-center gap-1.5">
-											if deal.DiscountPct > 0 {
-												<span class="px-2.5 py-1 rounded-lg bg-rose-600 text-white text-[11px] font-black uppercase shadow-xs">
-													-{ fmt.Sprintf("%d", deal.DiscountPct) }% OFF
-												</span>
-											}
-											if deal.SavingsZar > 0 {
-												<span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black">
-													Save R { FormatZARWhole(deal.SavingsZar) }
-												</span>
-											}
-										</div>
-										<span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60 flex items-center gap-1">
-											<span>⏳</span> <span>{ deal.EndsIn }</span>
-										</span>
-									</div>
-
-									<!-- Product Image Container -->
-									<div class="relative w-full h-44 rounded-2xl overflow-hidden bg-slate-50 mb-3 border border-slate-100">
-										<img src={ deal.ImageURL } alt={ deal.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy" decoding="async" width="320" height="176"/>
-										<span class="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-slate-950/80 text-white text-[9.5px] font-bold backdrop-blur-xs flex items-center gap-1">
-											<span>🇿🇦</span> <span>{ deal.MerchantName }</span>
-										</span>
-									</div>
-
-									<div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">{ deal.CategoryLabel } · { deal.Brand }</div>
-									<h3 class="font-bold text-slate-900 text-sm leading-snug line-clamp-2 mb-2">
-										{ deal.Title }
-									</h3>
-
-									<!-- Bob Shop Feature: Scarcity Progress Bar -->
-									<div class="mb-3 space-y-1">
-										<div class="flex items-center justify-between text-[10.5px] font-bold">
-											<span class="text-rose-600 flex items-center gap-1">
-												<span>🔥</span> <span>{ deal.StockLevel }</span>
-											</span>
-											<span class="text-slate-400">{ deal.BranchesCount } Branches</span>
-										</div>
-										<div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-											<div class="h-full bg-rose-500 rounded-full" style={ fmt.Sprintf("width: %d%%", deal.StockPct) }></div>
-										</div>
-									</div>
-
-									<!-- Delivery & Collection Badge -->
-									<div class="mb-3.5 p-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-[11px]">
-										<span class="text-slate-600 truncate flex items-center gap-1">
-											<span>🏬</span> <span>{ deal.MallName }</span>
-										</span>
-										<span class="text-emerald-700 font-bold shrink-0">Free Pickup</span>
-									</div>
-
-									<!-- Pricing & Tri-Action CTAs -->
-									<div class="mt-auto pt-3 border-t border-slate-100 space-y-2.5">
-										<div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-											<span class="text-xl font-black text-slate-900 leading-none whitespace-nowrap">R { FormatZAR(deal.PriceZar) }</span>
-											if deal.OldPriceZar > 0.0 {
-												<span class="text-[11px] text-slate-400 line-through font-medium whitespace-nowrap">Was R { FormatZAR(deal.OldPriceZar) }</span>
-											}
-										</div>
-										<div class="flex flex-wrap items-center gap-1.5">
-											<!-- Bob Shop Feature: Make an Offer -->
-											<button
-												type="button"
-												hx-get={ string(templ.SafeURL(fmt.Sprintf("/offer/modal/%s?price=%.2f", deal.ID, deal.PriceZar))) }
-												hx-target="#modal-container"
-												class="shrink-0 px-2 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer"
-												title="Make an Offer on this special"
-											>
-												🤝 Offer
-											</button>
-											<!-- In-app BuyBox: add to basket with delivery quote -->
-											<button
-												type="button"
-												hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", deal.ID))) }
-												hx-target="#buybox-drawer"
-												class="flex-1 px-2 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs cursor-pointer whitespace-nowrap"
-											>
-												BuyBox
-											</button>
-											<a
-												href={ templ.SafeURL(deal.DirectURL) }
-												target="_blank"
-												class="flex-1 inline-flex items-center justify-center gap-1 px-2 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition shadow-xs whitespace-nowrap"
-												title="View circular offer directly"
-											>
-												View Deal ↗
-											</a>
-										</div>
-									</div>
-								</div>
-							}
-						</div>
-					</div>
-				}
-
-				<!-- TAB 4: SHORTS & REELS -->
-				if data.CurrentTab == "shorts" {
-					<div class="p-4 sm:p-6">
-						<div class="flex items-center justify-between mb-4">
-							<div>
-								<h2 class="text-xl font-display font-black text-slate-900 tracking-tight">Trade Shorts &amp; Unboxings</h2>
-								<p class="text-xs text-slate-500">Vertical product demonstrations, load-shedding stress tests, and unboxings</p>
-							</div>
-						</div>
-
-						<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-							for _, short := range data.Shorts {
-								<div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition flex flex-col group">
-									<div class="relative w-full h-80 bg-slate-900 overflow-hidden">
-										<img src={ short.Image } alt={ short.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-90" loading="lazy" decoding="async" width="280" height="320"/>
-										<div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
-										<button 
-											type="button"
-											onclick="alert('Playing trade demo');"
-											class="absolute inset-0 m-auto w-12 h-12 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center text-white text-xl hover:scale-110 transition cursor-pointer"
-										>
-											▶
-										</button>
-										<div class="absolute top-3 right-3 px-2 py-0.5 rounded-md bg-black/60 text-white text-[10px] font-bold">
-											{ short.Duration }
-										</div>
-										<div class="absolute bottom-3 left-3 right-3 text-white">
-											<div class="text-[10px] text-emerald-400 font-bold uppercase">{ short.MerchantName }</div>
-											<h4 class="text-xs font-bold leading-snug line-clamp-2 mt-0.5">{ short.Title }</h4>
-											<div class="text-[10px] text-slate-300 mt-1">👁️ { short.Views } views · ❤️ { fmt.Sprintf("%d", short.Likes) }</div>
-										</div>
-									</div>
-									<div class="p-3 bg-white flex items-center justify-between">
-										<div class="text-xs font-black text-slate-900">R { FormatZAR(short.PriceZar) }</div>
-										<a 
-											href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi,%%20I'm%%20inquiring%%20about%%20%s%%20on%%20Shoppage", short.MerchantWhatsApp, short.Title)) } 
-											target="_blank"
-											class="px-2.5 py-1 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition"
-										>
-											WhatsApp Trade
-										</a>
-									</div>
-								</div>
-							}
-						</div>
-					</div>
+templ homeForYou(data HomeViewData) {
+	<section class="hero">
+		<div class="mark">Shop<span>page</span></div>
+		@SearchBox(data.Query, true)
+		if data.ProductsCount > 0 {
+			<p class="tag">{ fmt.Sprintf("Compare prices on %s products from %s South African stores", FormatCount(data.ProductsCount), FormatCount(data.MerchantsCount)) }</p>
+		} else {
+			<p class="tag">Compare prices across South African stores</p>
+		}
+		if len(data.Trends) > 0 {
+			<div class="popular" aria-label="Popular searches">
+				for _, tr := range firstN(data.Trends, 6) {
+					<a class="chip" href={ templ.SafeURL("/search?q=" + url.QueryEscape(SplitTag(tr.Tag))) }>{ SplitTag(tr.Tag) }</a>
 				}
 			</div>
-		</main>
+		}
+	</section>
+	if len(data.Categories) > 0 {
+		<div class="chips" aria-label="Categories">
+			for _, c := range data.Categories {
+				<a class="chip" href={ templ.SafeURL("/search?category=" + url.QueryEscape(c)) }>{ Humanize(c) }</a>
+			}
+		</div>
+	}
+	if len(data.Deals) > 0 {
+		<section class="section">
+			<div class="sec-head">
+				<div>
+					<h2>Price drops</h2>
+					if data.AvgSavingsPct > 0 {
+						<p>{ fmt.Sprintf("Retailer specials, %d%% off on average", data.AvgSavingsPct) }</p>
+					}
+				</div>
+				<a class="more" href="/?tab=deals">See all deals</a>
+			</div>
+			<div class="tiles rowscroll">
+				for _, d := range firstN(data.Deals, 12) {
+					@DealTile(d)
+				}
+			</div>
+		</section>
+	}
+	if len(data.Products) > 0 {
+		<section class="section">
+			<div class="sec-head">
+				<div>
+					<h2>Popular products</h2>
+					<p>Prices from stores across South Africa</p>
+				</div>
+				<a class="more" href="/?tab=products">Browse all</a>
+			</div>
+			<div class="tiles">
+				for _, p := range firstN(data.Products, 18) {
+					@ProductTile(p)
+				}
+			</div>
+		</section>
+	}
+	if len(data.Shorts) > 0 {
+		<section class="section">
+			<div class="sec-head">
+				<div>
+					<h2>Shorts</h2>
+					<p>Products in action, from the stores that sell them</p>
+				</div>
+				<a class="more" href="/shorts">Watch</a>
+			</div>
+			<div class="shorts">
+				for _, s := range firstN(data.Shorts, 10) {
+					@ShortCard(s)
+				}
+			</div>
+		</section>
+	}
+	if len(data.Malls) > 0 {
+		<section class="section">
+			<div class="sec-head">
+				<div>
+					<h2>Stores &amp; markets</h2>
+					<p>Malls, trade districts and wholesale hubs</p>
+				</div>
+				<a class="more" href="/malls">See all</a>
+			</div>
+			<div class="box">
+				for _, m := range firstN(data.Malls, 5) {
+					<a class="row" href={ templ.SafeURL("/malls/" + m.ID) }>
+						<span class="avatar" aria-hidden="true">
+							@Ico("store", 20)
+						</span>
+						<div class="txt">
+							<b>{ m.Name }</b>
+							<small>{ placeLabel(m.Suburb, m.Metro) }{ mallKind(m) }</small>
+						</div>
+					</a>
+				}
+			</div>
+		</section>
+	}
+}
+
+func mallKind(m models.Mall) string {
+	if m.MarketType == "" {
+		return ""
+	}
+	return " · " + Humanize(m.MarketType)
+}
+
+templ homeDeals(data HomeViewData) {
+	<div class="chips" aria-label="Retailers">
+		<a class="chip" href="/?tab=deals" aria-pressed={ pressed(data.CurrentRetailer == "" || data.CurrentRetailer == "all") }>All retailers</a>
+		for _, r := range Stats().Retailers {
+			<a class="chip" href={ templ.SafeURL(dealsHref(r.Key, data.CurrentCategory, data.CurrentSort)) } aria-pressed={ pressed(data.CurrentRetailer == r.Key) }>
+				{ r.Label }
+				<span class="faint num">{ fmt.Sprint(r.Deals) }</span>
+			</a>
+		}
+	</div>
+	<div class="chips" aria-label="Sort deals" style="padding-top:0;">
+		for _, s := range [][2]string{{"savings", "Biggest saving"}, {"price_asc", "Lowest price"}, {"expiring", "Ending soon"}} {
+			<a class="chip" href={ templ.SafeURL(dealsHref(data.CurrentRetailer, data.CurrentCategory, s[0])) } aria-pressed={ pressed(data.CurrentSort == s[0] || (s[0] == "savings" && data.CurrentSort == "")) }>{ s[1] }</a>
+		}
+	</div>
+	<section class="section">
+		if len(data.Deals) == 0 {
+			@EmptyState("No deals here right now", "Try another retailer, or check back after the next circular.", "/?tab=deals", "All deals")
+		} else {
+			<p class="muted" style="margin:0 0 14px;font-size:14px;">
+				{ fmt.Sprintf("%d specials", len(data.Deals)) }
+				if Stats().MaxDiscountPct > 0 {
+					{ fmt.Sprintf(" · up to %d%% off", Stats().MaxDiscountPct) }
+				}
+			</p>
+			<div class="tiles">
+				for _, d := range data.Deals {
+					@DealTile(d)
+				}
+			</div>
+		}
+	</section>
+}
+
+templ homeProducts(data HomeViewData) {
+	if len(data.Categories) > 0 {
+		<div class="chips" aria-label="Categories">
+			<a class="chip" href="/?tab=products" aria-pressed={ pressed(data.CurrentCategory == "") }>All</a>
+			for _, c := range data.Categories {
+				<a class="chip" href={ templ.SafeURL(catHref("products", c)) } aria-pressed={ pressed(data.CurrentCategory == c) }>{ Humanize(c) }</a>
+			}
+		</div>
+	}
+	<section class="section">
+		if len(data.Products) == 0 {
+			@EmptyState("No products in this category", "Try another category or search for what you need.", "/?tab=products", "All products")
+		} else {
+			<div class="tiles">
+				for _, p := range data.Products {
+					@ProductTile(p)
+				}
+			</div>
+		}
+	</section>
+}
+
+templ homeWire(data HomeViewData) {
+	<form class="composer" id="compose" hx-post="/feed/post" hx-target="#timeline-posts" hx-swap="afterbegin" hx-on::after-request="if(event.detail.successful) this.reset()">
+		<span class="avatar" aria-hidden="true">
+			@Ico("feed", 20)
+		</span>
+		<div>
+			<label class="sr" for="wire-text">Post a request or offer</label>
+			<textarea id="wire-text" name="text" maxlength="280" rows="2" placeholder="What are you looking for? e.g. 200 bags of cement delivered to Midrand"></textarea>
+			<details style="margin:6px 0;">
+				<summary class="muted" style="cursor:pointer;font-size:14px;">Add a poll</summary>
+				<div style="display:grid;gap:6px;margin-top:8px;">
+					<input class="chip" style="height:38px;width:100%;" type="text" name="pollOpt1" placeholder="Option 1"/>
+					<input class="chip" style="height:38px;width:100%;" type="text" name="pollOpt2" placeholder="Option 2"/>
+					<input class="chip" style="height:38px;width:100%;" type="text" name="pollOpt3" placeholder="Option 3 (optional)"/>
+				</div>
+			</details>
+			<div class="bar">
+				<span class="muted" style="font-size:13px;">Stores that stock it can reply with a price.</span>
+				<button type="submit" class="btn btn-brand btn-sm" style="margin-left:auto;">Post</button>
+			</div>
+		</div>
+	</form>
+	<div id="timeline-posts">
+		if len(data.Posts) == 0 {
+			@EmptyState("Nothing posted yet", "Requests and offers from buyers and stores appear here.", "", "")
+		}
+		for _, p := range firstN(data.Posts, data.PostLimit) {
+			@PostCard(p)
+		}
+	</div>
+	if len(data.Posts) > data.PostLimit {
+		<div style="padding:16px 20px;text-align:center;">
+			<a class="btn btn-outline" href={ templ.SafeURL(fmt.Sprintf("/?tab=tradewire&n=%d", data.PostLimit+30)) }>Show more</a>
+		</div>
+	}
+}
+
+templ homeShorts(data HomeViewData) {
+	if len(data.Shorts) == 0 {
+		<section class="section">
+			@EmptyState("No shorts yet", "Stores post short videos of their products here.", "", "")
+		</section>
+	} else {
+		<div class="shorts-feed" data-shorts>
+			for _, sh := range data.Shorts {
+				<article class="reel" id={ sh.ID }>
+					<div class="frame">
+						if sh.VideoURL != "" {
+							<video src={ sh.VideoURL } poster={ sh.Image } muted loop playsinline preload="none" aria-label={ sh.Title }></video>
+						} else {
+							<img src={ sh.Image } alt="" loading="lazy"/>
+						}
+						<div class="over">
+							<h2>{ sh.Title }</h2>
+							<div style="font-size:14px;opacity:.9;">
+								{ sh.MerchantName }
+								if sh.PriceZar > 0 {
+									· R { FormatZARWhole(sh.PriceZar) }
+								}
+							</div>
+							if sh.Summary != "" {
+								<p style="margin:6px 0 0;font-size:14px;opacity:.85;">{ sh.Summary }</p>
+							}
+						</div>
+						<div class="side">
+							if sh.MerchantWhatsApp != "" {
+								<a href={ templ.SafeURL("https://wa.me/" + sh.MerchantWhatsApp + "?text=" + url.QueryEscape("Hi, I saw \""+sh.Title+"\" on Shoppage.")) } target="_blank" rel="noopener" aria-label={ "Message " + sh.MerchantName }>
+									@Ico("wa", 24)
+								</a>
+								<span>Ask</span>
+							}
+							<a href={ templ.SafeURL("/search?q=" + url.QueryEscape(sh.MerchantName)) } aria-label="See the store's products">
+								@Ico("bag", 24)
+							</a>
+							<span>Shop</span>
+							<a href={ templ.SafeURL("#" + sh.ID) } data-share aria-label="Share">
+								@Ico("share", 24)
+							</a>
+							<span>Share</span>
+						</div>
+					</div>
+				</article>
+			}
+		</div>
+		<script>
+			(function () {
+				var feed = document.querySelector('[data-shorts]');
+				if (!feed || !('IntersectionObserver' in window)) return;
+				var io = new IntersectionObserver(function (entries) {
+					entries.forEach(function (e) {
+						var v = e.target.querySelector('video');
+						if (!v) return;
+						if (e.isIntersecting && e.intersectionRatio > 0.6) { v.play().catch(function () {}); } else { v.pause(); }
+					});
+				}, { root: feed, threshold: [0, 0.6, 1] });
+				feed.querySelectorAll('.reel').forEach(function (r) { io.observe(r); });
+				feed.addEventListener('click', function (e) {
+					var v = e.target.closest('video');
+					if (v) { v.muted = !v.muted; if (v.paused) v.play(); }
+					var sh = e.target.closest('[data-share]');
+					if (sh) {
+						e.preventDefault();
+						var url = location.origin + '/shorts' + sh.getAttribute('href');
+						if (navigator.share) navigator.share({ url: url }); else navigator.clipboard.writeText(url);
+					}
+				});
+				if (location.hash) { var t = document.getElementById(location.hash.slice(1)); if (t) t.scrollIntoView(); }
+			})();
+		</script>
 	}
 }
