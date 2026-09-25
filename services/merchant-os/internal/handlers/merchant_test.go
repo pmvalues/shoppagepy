@@ -1154,4 +1154,3 @@ func TestChannelsWebsiteAndEmailHub(t *testing.T) {
 		t.Errorf("expected channels tab to contain iframe embed code snippet")
 	}
 }
-

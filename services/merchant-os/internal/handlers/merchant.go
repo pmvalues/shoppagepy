@@ -58,7 +58,7 @@ func NewStateWithProfile(profile models.StoreProfile) *MerchantStoreState {
 	now := time.Now().UTC()
 
 	return &MerchantStoreState{
-		Store:  profile,
+		Store: profile,
 		Catalog: []models.CatalogSKU{
 			{
 				ID:            "mit_3361",
@@ -74,15 +74,15 @@ func NewStateWithProfile(profile models.StoreProfile) *MerchantStoreState {
 				LowStockAlert: 50,
 				FeedStatus:    "Active",
 				Spec: models.ProductDetailSpec{
-					WeightKg:       0.32,
-					Dimensions:     "440mm x 220mm x 14mm",
-					HSCode:         "4421.10",
-					Barcode:        "60098824001",
-					SABSApproved:   true,
-					Material:       "Solid Lotus Hardwood with Chrome Ring Pin",
-					LongDesc:       "Heavy-duty commercial anti-theft coat hanger designed specifically for hotel guest wardrobes, lodges, and commercial apparel displays. Fitted with a secure chrome pin that locks onto wardrobe security rings.",
-					SEOScore:       94,
-					SEOTags:        []string{"hotel hangers", "anti-theft coat hanger", "wooden male hanger", "hospitality supplies South Africa"},
+					WeightKg:     0.32,
+					Dimensions:   "440mm x 220mm x 14mm",
+					HSCode:       "4421.10",
+					Barcode:      "60098824001",
+					SABSApproved: true,
+					Material:     "Solid Lotus Hardwood with Chrome Ring Pin",
+					LongDesc:     "Heavy-duty commercial anti-theft coat hanger designed specifically for hotel guest wardrobes, lodges, and commercial apparel displays. Fitted with a secure chrome pin that locks onto wardrobe security rings.",
+					SEOScore:     94,
+					SEOTags:      []string{"hotel hangers", "anti-theft coat hanger", "wooden male hanger", "hospitality supplies South Africa"},
 					Activities: []models.ProductActivity{
 						{Icon: "check", Description: "Wholesale price synchronized to GMC Feed", TimeAgo: "Today, 10:14"},
 						{Icon: "stock", Description: "Restocked +200 units at Midrand Hub", TimeAgo: "Yesterday"},
@@ -107,15 +107,15 @@ func NewStateWithProfile(profile models.StoreProfile) *MerchantStoreState {
 				LowStockAlert: 100,
 				FeedStatus:    "Active",
 				Spec: models.ProductDetailSpec{
-					WeightKg:       0.05,
-					Dimensions:     "38mm Internal Diameter x 3mm Steel",
-					HSCode:         "7326.90",
-					Barcode:        "60098824002",
-					SABSApproved:   true,
-					Material:       "Hardened Carbon Steel Chrome Plated",
-					LongDesc:       "Replacement wardrobe security ring compatible with all standard 32mm–35mm hotel closet hanging rails. Heavy gauge steel prevents opening without rail detachment.",
-					SEOScore:       91,
-					SEOTags:        []string{"security ring", "hanger ring", "closet rail accessories", "hotel hardware"},
+					WeightKg:     0.05,
+					Dimensions:   "38mm Internal Diameter x 3mm Steel",
+					HSCode:       "7326.90",
+					Barcode:      "60098824002",
+					SABSApproved: true,
+					Material:     "Hardened Carbon Steel Chrome Plated",
+					LongDesc:     "Replacement wardrobe security ring compatible with all standard 32mm–35mm hotel closet hanging rails. Heavy gauge steel prevents opening without rail detachment.",
+					SEOScore:     91,
+					SEOTags:      []string{"security ring", "hanger ring", "closet rail accessories", "hotel hardware"},
 					Activities: []models.ProductActivity{
 						{Icon: "stock", Description: "Stock count confirmed: 1,200 units", TimeAgo: "Today, 09:00"},
 					},
@@ -138,15 +138,15 @@ func NewStateWithProfile(profile models.StoreProfile) *MerchantStoreState {
 				LowStockAlert: 500,
 				FeedStatus:    "Active",
 				Spec: models.ProductDetailSpec{
-					WeightKg:       0.02,
-					Dimensions:     "101mm Outer Diameter",
-					HSCode:         "3923.50",
-					Barcode:        "60098824003",
-					SABSApproved:   true,
-					Material:       "100% Food-Grade Silicone BPA Free",
-					LongDesc:       "Airtight silicone clip-on lid for takeaway food tubs, deli containers, and commercial kitchen meal-prep tubs. Reusable, dishwasher safe, freezer grade.",
-					SEOScore:       89,
-					SEOTags:        []string{"silicone lid", "food packaging", "takeaway container lid", "catering supplies"},
+					WeightKg:     0.02,
+					Dimensions:   "101mm Outer Diameter",
+					HSCode:       "3923.50",
+					Barcode:      "60098824003",
+					SABSApproved: true,
+					Material:     "100% Food-Grade Silicone BPA Free",
+					LongDesc:     "Airtight silicone clip-on lid for takeaway food tubs, deli containers, and commercial kitchen meal-prep tubs. Reusable, dishwasher safe, freezer grade.",
+					SEOScore:     89,
+					SEOTags:      []string{"silicone lid", "food packaging", "takeaway container lid", "catering supplies"},
 					Activities: []models.ProductActivity{
 						{Icon: "stock", Description: "Carton bulk packaging audit passed", TimeAgo: "4 days ago"},
 					},
@@ -169,15 +169,15 @@ func NewStateWithProfile(profile models.StoreProfile) *MerchantStoreState {
 				LowStockAlert: 200,
 				FeedStatus:    "Active",
 				Spec: models.ProductDetailSpec{
-					WeightKg:       0.005,
-					Dimensions:     "90mm Length x 1ml Bowl",
-					HSCode:         "3924.10",
-					Barcode:        "60098824004",
-					SABSApproved:   true,
-					Material:       "Virgin Polypropylene Medical Grade",
-					LongDesc:       "Calibrated 1ml accurate dosage spoon for pharmaceutical, nutraceutical, and food powder portioning.",
-					SEOScore:       88,
-					SEOTags:        []string{"dosage spoon", "1ml spoon", "measuring spoon", "pharmaceutical packaging"},
+					WeightKg:     0.005,
+					Dimensions:   "90mm Length x 1ml Bowl",
+					HSCode:       "3924.10",
+					Barcode:      "60098824004",
+					SABSApproved: true,
+					Material:     "Virgin Polypropylene Medical Grade",
+					LongDesc:     "Calibrated 1ml accurate dosage spoon for pharmaceutical, nutraceutical, and food powder portioning.",
+					SEOScore:     88,
+					SEOTags:      []string{"dosage spoon", "1ml spoon", "measuring spoon", "pharmaceutical packaging"},
 					Activities: []models.ProductActivity{
 						{Icon: "alert", Description: "Stockout alert flagged for restock", TimeAgo: "1 day ago"},
 					},
@@ -1065,8 +1065,12 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "session error", http.StatusInternalServerError)
 		return
 	}
-	auth.SetSessionCookie(w, token, r.TLS != nil && r.URL.Scheme == "https")
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	// TLS terminates at Caddy in production, so r.TLS is nil there; the
+	// cookie must still be Secure.
+	auth.SetSessionCookie(w, token, r.TLS != nil || auth.IsProduction())
+	// /desk resolves to the dashboard both standalone and behind the gateway,
+	// where "/" is the consumer home page.
+	http.Redirect(w, r, "/desk", http.StatusSeeOther)
 }
 
 // Logout clears the session cookie and returns the client to /login.
@@ -3279,7 +3283,3 @@ func (h *Handler) HandleChatAction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	_ = templates.RenderTabPartial(w, "chat", data)
 }
-
-
-
-

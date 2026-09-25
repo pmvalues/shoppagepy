@@ -389,5 +389,3 @@ func schemaOrgStoreJSON(store models.MerchantStorefront, desc string, baseURL st
 	b, _ := json.MarshalIndent(payload, "", "  ")
 	return string(b)
 }
-
-

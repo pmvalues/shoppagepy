@@ -8,6 +8,8 @@
 package site
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"net/http"
 	"os"
 	"strconv"
@@ -52,7 +54,9 @@ const (
 )
 
 // DefaultGeminiModel is used when a key is configured but no model is pinned.
-const DefaultGeminiModel = "gemini-2.5-flash"
+// Google limits the 2.5 family to accounts that already used it, so new keys
+// need a 3.x model. Override with GEMINI_MODEL.
+const DefaultGeminiModel = "gemini-3.6-flash"
 
 // DefaultVATRate is the South African standard VAT rate. It is a statutory
 // default, overridable per instance via EnvVATRate.
@@ -122,14 +126,18 @@ func MerchantDeskURL() string {
 	return "/desk/tab/chat"
 }
 
+// ChatGatewaySameOrigin tells the chat page to connect to /ws/chat on the
+// origin it was served from (ws:// or wss:// to match the page).
+const ChatGatewaySameOrigin = "same-origin"
+
 // ChatGatewayWS returns the chat gateway WebSocket origin. When the env var is
-// unset (local/dev), defaults to the same host path consumers already reverse-
-// proxy: ws://localhost:8080 — matching CHAT_GATEWAY_URL HTTP default.
+// unset it returns ChatGatewaySameOrigin: the platform binary serves /ws/chat
+// itself, so the browser connects back to the host it loaded the page from.
 func ChatGatewayWS() string {
 	if v := strings.TrimRight(strings.TrimSpace(os.Getenv(EnvChatGatewayWS)), "/"); v != "" {
 		return v
 	}
-	return "ws://localhost:8080"
+	return ChatGatewaySameOrigin
 }
 
 // GeminiConfigured reports whether a live AI key is present.
@@ -175,4 +183,15 @@ func RequestBaseURL(r *http.Request) string {
 		}
 	}
 	return scheme + "://" + r.Host
+}
+
+// NewID returns prefix followed by 10 random uppercase hex characters, e.g.
+// "ORD-DEMO-3F9A0C1B2D". Randomness keeps identifiers unique across restarts
+// and replicas, which a clock-derived suffix does not.
+func NewID(prefix string) string {
+	b := make([]byte, 5)
+	if _, err := rand.Read(b); err != nil {
+		panic("crypto/rand unavailable: " + err.Error())
+	}
+	return prefix + strings.ToUpper(hex.EncodeToString(b))
 }

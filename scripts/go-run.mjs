@@ -10,7 +10,15 @@ if (args.length === 0) {
   process.exit(0);
 }
 
-const child = spawn(`"${goCmd}"`, args, { stdio: 'inherit', shell: true });
+// Production safeguards are the default (an unset SHOPPAGE_ENV is treated as
+// production). Local `npm run dev` / `npm test` opt out explicitly unless the
+// caller already chose an environment.
+const envOverrides = {};
+if (!process.env.SHOPPAGE_ENV && (args[0] === 'run' || args[0] === 'test')) {
+  envOverrides.SHOPPAGE_ENV = args[0] === 'test' ? 'test' : 'development';
+}
+
+const child = spawn(`"${goCmd}"`, args, { stdio: 'inherit', shell: true, env: { ...process.env, ...envOverrides } });
 child.on('exit', (code) => {
   process.exit(code ?? 0);
 });

@@ -1,87 +1,69 @@
+# syntax=docker/dockerfile:1
 # ==============================================================================
-# Shoppage 100% Pure Go Platform Multi-Stage Container
+# Shoppage platform image
+#
+# Default target: one static binary that serves the consumer site and mounts
+# Merchant OS, the chat gateway and the search core in-process. The per-service
+# targets exist only for split deployments (see docs/DEPLOYMENT.md).
 # ==============================================================================
 
-FROM golang:1.25-alpine AS builder
+FROM golang:1.27.1-alpine3.24 AS builder
+WORKDIR /src
+RUN apk add --no-cache ca-certificates git
 
-WORKDIR /app
-RUN apk add --no-cache git ca-certificates
-
-# Copy Go workspace and module manifests
-COPY go.work go.work.sum* ./
+COPY go.work go.work.sum ./
+COPY pkg/ ./pkg/
 COPY services/ ./services/
 
-# Compile all static Go binaries (CGO-free, stripped for ultra-small size)
-RUN cd services/consumer-web && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /bin/shoppage-consumer ./cmd/server/main.go
-RUN cd services/merchant-os && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /bin/shoppage-merchant ./cmd/server/main.go
-RUN cd services/chat-gateway && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /bin/shoppage-chat ./cmd/server/main.go
-RUN cd services/search-core && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /bin/shoppage-search ./cmd/searchd/main.go
+ARG SHOPPAGE_RELEASE=dev
+ENV CGO_ENABLED=0 GOOS=linux
+RUN go build -trimpath -ldflags="-s -w" -o /out/shoppage ./services/consumer-web/cmd/server \
+ && go build -trimpath -ldflags="-s -w" -o /out/shoppage-merchant ./services/merchant-os/cmd/server \
+ && go build -trimpath -ldflags="-s -w" -o /out/shoppage-chat ./services/chat-gateway/cmd/server \
+ && go build -trimpath -ldflags="-s -w" -o /out/shoppage-search ./services/search-core/cmd/searchd
 
 # ------------------------------------------------------------------------------
-# Target: consumer-web (Frontend Gateway, PWA, AI Assistant)
+# Shared runtime: non-root user, CA roots and zoneinfo, writable /app/state.
 # ------------------------------------------------------------------------------
-FROM alpine:3.20 AS consumer-web
+FROM alpine:3.24 AS runtime
+RUN apk add --no-cache ca-certificates tzdata \
+ && addgroup -S shoppage && adduser -S -G shoppage -H -h /app shoppage \
+ && mkdir -p /app/state && chown shoppage:shoppage /app/state
 WORKDIR /app
-RUN apk add --no-cache ca-certificates tzdata
-COPY --from=builder /bin/shoppage-consumer /app/shoppage
-COPY services/consumer-web/data/ /app/data/
-ENV PORT=3000
-EXPOSE 3000
-CMD ["/app/shoppage"]
+ENV SHOPPAGE_ENV=production \
+    CHAT_DB_PATH=/app/state/chat-gateway.db \
+    MERCHANT_DATA_DIR=/app/state/merchant
+USER shoppage
 
 # ------------------------------------------------------------------------------
-# Target: merchant-os (Merchant Dashboard & Operations)
+# Split-deployment targets (optional)
 # ------------------------------------------------------------------------------
-FROM alpine:3.20 AS merchant-os
-WORKDIR /app
-RUN apk add --no-cache ca-certificates tzdata
-COPY --from=builder /bin/shoppage-merchant /app/shoppage
-ENV PORT=8083
+FROM runtime AS merchant-os
+COPY --from=builder /out/shoppage-merchant /app/shoppage
 EXPOSE 8083
 CMD ["/app/shoppage"]
 
-# ------------------------------------------------------------------------------
-# Target: chat-gateway (WebSocket & Real-Time Hub)
-# ------------------------------------------------------------------------------
-FROM alpine:3.20 AS chat-gateway
-WORKDIR /app
-RUN apk add --no-cache ca-certificates tzdata
-COPY --from=builder /bin/shoppage-chat /app/shoppage
-ENV PORT=8080
+FROM runtime AS chat-gateway
+COPY --from=builder /out/shoppage-chat /app/shoppage
 EXPOSE 8080
 CMD ["/app/shoppage"]
 
-# ------------------------------------------------------------------------------
-# Target: search-core (Fast SQLite Search Engine)
-# ------------------------------------------------------------------------------
-FROM alpine:3.20 AS search-core
-WORKDIR /app
-RUN apk add --no-cache ca-certificates tzdata
-COPY --from=builder /bin/shoppage-search /app/shoppage
-ENV PORT=8082
+FROM runtime AS search-core
+COPY --from=builder /out/shoppage-search /app/shoppage
 EXPOSE 8082
 CMD ["/app/shoppage"]
 
 # ------------------------------------------------------------------------------
-# Target: all-in-one (Default - Single Container Running All 4 Services)
+# Default target: the single-binary platform
 # ------------------------------------------------------------------------------
-FROM alpine:3.20 AS all-in-one
-WORKDIR /app
-RUN apk add --no-cache ca-certificates tzdata
-
-COPY --from=builder /bin/shoppage-consumer /app/shoppage-consumer
-COPY --from=builder /bin/shoppage-merchant /app/shoppage-merchant
-COPY --from=builder /bin/shoppage-chat /app/shoppage-chat
-COPY --from=builder /bin/shoppage-search /app/shoppage-search
-
+FROM runtime AS shoppage
+ARG SHOPPAGE_RELEASE=dev
+ENV SHOPPAGE_RELEASE=${SHOPPAGE_RELEASE} PORT=3000 DATA_DIR=/app/data
+COPY --from=builder /out/shoppage /app/shoppage
 COPY services/consumer-web/data/ /app/data/
-# Bulk *.sqlite datasets are gitignored and excluded via .dockerignore —
-# mount shoppage-commerce-intelligence-foundation/ as a volume in compose.
-
-RUN chmod +x /app/shoppage-* && \
-    printf '#!/bin/sh\nset -e\nCHAT_PORT=8080 /app/shoppage-chat &\nSEARCH_PORT=8082 /app/shoppage-search &\nMERCHANT_PORT=8083 /app/shoppage-merchant &\nsleep 1\nexec /app/shoppage-consumer\n' > /app/entrypoint.sh && \
-    chmod +x /app/entrypoint.sh
-
-ENV PORT=3000
-EXPOSE 3000 80 8080 8082 8083
-CMD ["/app/entrypoint.sh"]
+# Bulk *.sqlite reference datasets are not in git or the image; mount them
+# read-only and point FOUNDATION_DATA_DIR at the mount.
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD wget -qO /dev/null http://127.0.0.1:3000/healthz || exit 1
+CMD ["/app/shoppage"]

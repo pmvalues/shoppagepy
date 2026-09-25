@@ -1,106 +1,90 @@
-version: '3.8'
-
 # ==============================================================================
-# Shoppage 100% Pure Go Platform Production Stack
-# Zero Node.js / Zero Python / Zero external databases required
-# Runs on Embedded SQLite + Pure Go microservices with Caddy automatic SSL
+# Shoppage production stack: Caddy (TLS) → one Shoppage binary → PostgreSQL.
+#
+# Only Caddy publishes ports. The app and database are reachable solely on the
+# internal network, so client IPs cannot be spoofed by bypassing Caddy.
+#
+#   cp .env.example .env   # fill in every value marked REQUIRED
+#   docker compose up -d --build
 # ==============================================================================
 
 services:
-  # 1. Main Unified Gateway & Consumer Web Front-End (:3000)
-  consumer-web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: consumer-web
-    container_name: shoppage-consumer
+  caddy:
+    image: caddy:2.11-alpine
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
     environment:
-      - PORT=3000
-      - MERCHANT_OS_URL=http://merchant-os:8083
-      - CHAT_GATEWAY_URL=http://chat-gateway:8080
-      - SEARCH_CORE_URL=http://search-core:8082
-      - FOUNDATION_DATA_DIR=/app/shoppage-commerce-intelligence-foundation/data/study
-      - DATA_DIR=/app/data
-      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
-      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
+      DOMAIN: ${DOMAIN:-shoppage.co.za}
     volumes:
-      - ./services/consumer-web/data:/app/data
-      - ./shoppage-commerce-intelligence-foundation/data/study:/app/shoppage-commerce-intelligence-foundation/data/study
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
     depends_on:
-      - merchant-os
-      - chat-gateway
-      - search-core
-    networks:
-      - shoppage-network
+      shoppage:
+        condition: service_healthy
+    networks: [edge]
 
-  # 2. Merchant OS Workstation & POS (:8083)
-  merchant-os:
+  shoppage:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: merchant-os
-    container_name: shoppage-merchant
+      target: shoppage
+      args:
+        SHOPPAGE_RELEASE: ${SHOPPAGE_RELEASE:-dev}
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      SHOPPAGE_ENV: production
+      SHOPPAGE_PUBLIC_URL: https://${DOMAIN:-shoppage.co.za}
+      ALLOWED_ORIGINS: https://${DOMAIN:-shoppage.co.za},https://www.${DOMAIN:-shoppage.co.za}
+      DATABASE_URL: postgres://shoppage:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/shoppage?sslmode=disable
+      SHOPPAGE_AUTH_SECRET: ${SHOPPAGE_AUTH_SECRET:?set SHOPPAGE_AUTH_SECRET in .env}
+      SHOPPAGE_ADMIN_EMAIL: ${SHOPPAGE_ADMIN_EMAIL:?set SHOPPAGE_ADMIN_EMAIL in .env}
+      SHOPPAGE_ADMIN_PASSWORD: ${SHOPPAGE_ADMIN_PASSWORD:?set SHOPPAGE_ADMIN_PASSWORD in .env}
+      SHOPPAGE_STORE_ID: ${SHOPPAGE_STORE_ID:-}
+      SHOPPAGE_STORE_NAME: ${SHOPPAGE_STORE_NAME:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.6-flash}
+      GEMINI_DAILY_LIMIT: ${GEMINI_DAILY_LIMIT:-2000}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    volumes:
+      - shoppage_state:/app/state
+      # Optional bulk reference datasets (read-only). Uncomment and set
+      # FOUNDATION_DATA_DIR=/app/foundation above to enable.
+      # - ./shoppage-commerce-intelligence-foundation/data/study:/app/foundation:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [edge, data]
+
+  postgres:
+    image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      - PORT=8083
-    networks:
-      - shoppage-network
-
-  # 3. Chat Gateway & WebSockets (:8080)
-  chat-gateway:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: chat-gateway
-    container_name: shoppage-chat
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    environment:
-      - PORT=8080
-    networks:
-      - shoppage-network
-
-  # 4. Search Core SQLite Engine (:8082)
-  search-core:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: search-core
-    container_name: shoppage-search
-    restart: unless-stopped
-    environment:
-      - PORT=8082
-    networks:
-      - shoppage-network
-
-  # 5. Caddy Reverse Proxy (Automatic Let's Encrypt SSL & HTTPS)
-  # Uncomment below when pointing your production domain (e.g. shoppage.co.za) to this host
-  # caddy:
-  #   image: caddy:2-alpine
-  #   container_name: shoppage-caddy
-  #   restart: unless-stopped
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   environment:
-  #     - DOMAIN=${DOMAIN:-shoppage.co.za}
-  #   volumes:
-  #     - ./Caddyfile:/etc/caddy/Caddyfile
-  #     - caddy_data:/data
-  #     - caddy_config:/config
-  #   depends_on:
-  #     - consumer-web
-  #   networks:
-  #     - shoppage-network
+      POSTGRES_DB: shoppage
+      POSTGRES_USER: shoppage
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shoppage -d shoppage"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [data]
 
 networks:
-  shoppage-network:
-    driver: bridge
+  edge:
+  data:
+    internal: true
 
 volumes:
   caddy_data:
   caddy_config:
+  shoppage_state:
+  pgdata:

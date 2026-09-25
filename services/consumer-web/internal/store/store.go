@@ -3,6 +3,7 @@ package store
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -33,6 +34,8 @@ type Store struct {
 	dbMerchants *sql.DB
 	dbProducts  *sql.DB
 	dbOffers    *sql.DB
+	persist     Persister
+	searchCore  *http.Client
 }
 
 func NewStore() *Store {
@@ -520,10 +523,19 @@ func (s *Store) GetFeedPosts(tab string, query string) []models.PostItem {
 	return out
 }
 
-func (s *Store) AddPost(post models.PostItem) {
+// AddPost stores a feed post durably (when persistence is attached) and
+// prepends it to the in-memory feed.
+func (s *Store) AddPost(post models.PostItem) error {
+	if err := s.save(kindPost, post.ID, post); err != nil {
+		return err
+	}
+	s.addPostLocked(post)
+	return nil
+}
+
+func (s *Store) addPostLocked(post models.PostItem) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	// Prepend new post
 	s.posts = append([]models.PostItem{post}, s.posts...)
 }
 
@@ -856,7 +868,10 @@ func (s *Store) querySearchCore(q string) []models.SearchItem {
 	if base == "" {
 		base = "http://localhost:8082"
 	}
-	client := &http.Client{Timeout: 35 * time.Millisecond}
+	client := s.searchCore
+	if client == nil {
+		client = &http.Client{Timeout: 35 * time.Millisecond}
+	}
 	resp, err := client.Get(fmt.Sprintf("%s/api/search?q=%s", strings.TrimRight(base, "/"), url.QueryEscape(q)))
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return nil
@@ -1277,8 +1292,17 @@ func (s *Store) enrichStorefront(m *models.MerchantStorefront) {
 	}
 }
 
-// AddStoreTestimonial adds a verified buyer review to a merchant storefront
-func (s *Store) AddStoreTestimonial(storeID string, t models.StoreTestimonial) {
+// AddStoreTestimonial durably records a buyer review and adds it to the
+// merchant storefront.
+func (s *Store) AddStoreTestimonial(storeID string, t models.StoreTestimonial) error {
+	if err := s.save(kindTestimonial, t.ID, storedTestimonial{StoreID: storeID, Testimonial: t}); err != nil {
+		return err
+	}
+	s.addTestimonial(storeID, t)
+	return nil
+}
+
+func (s *Store) addTestimonial(storeID string, t models.StoreTestimonial) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if m, ok := s.merchants[storeID]; ok {
@@ -1583,11 +1607,16 @@ func (s *Store) fallbackMerchants() []models.MerchantStorefront {
 	}
 }
 
-// CreateOrder saves a placed order for real-time tracking
-func (s *Store) CreateOrder(order models.PlacedOrder) {
+// CreateOrder durably saves a placed order for real-time tracking. The
+// order is only visible once the database has accepted it.
+func (s *Store) CreateOrder(order models.PlacedOrder) error {
+	if err := s.save(kindOrder, order.OrderNumber, order); err != nil {
+		return err
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.orders[order.OrderNumber] = order
+	return nil
 }
 
 // GetOrderByNumber looks up an order by order number (e.g. "ORD-2026-1042")
@@ -1612,8 +1641,25 @@ func (s *Store) GetOrderByWaybill(waybill string) (models.PlacedOrder, bool) {
 	return models.PlacedOrder{}, false
 }
 
-// AddMerchant registers a new verified supplier storefront
-func (s *Store) AddMerchant(m models.MerchantStorefront) {
+// ErrMerchantExists is returned when a registration would replace an
+// existing storefront (IDs are derived from the company name).
+var ErrMerchantExists = errors.New("a storefront with this ID already exists")
+
+// AddMerchant durably registers a new supplier storefront. It never replaces
+// an existing storefront, so one supplier cannot overwrite another's page by
+// registering under the same name.
+func (s *Store) AddMerchant(m models.MerchantStorefront) error {
+	if _, ok := s.GetMerchantByID(m.ID); ok {
+		return ErrMerchantExists
+	}
+	if err := s.save(kindMerchant, m.ID, m); err != nil {
+		return err
+	}
+	s.addMerchant(m)
+	return nil
+}
+
+func (s *Store) addMerchant(m models.MerchantStorefront) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.enrichStorefront(&m)

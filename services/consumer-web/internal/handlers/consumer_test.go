@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -467,40 +468,40 @@ func TestConsumerHandlers(t *testing.T) {
 		// Remediation removed seedInitialOrders — tracking is fed only by
 		// orders created through the checkout flow (or explicit test setup).
 		st.CreateOrder(models.PlacedOrder{
-			OrderNumber:     "ORD-2026-1042",
-			BuyerName:       "Test Buyer",
-			ProductTitle:    "Sunsynk 5kW Hybrid Inverter",
-			SKU:             "SUN-5K",
-			Quantity:        1,
-			UnitPriceZar:    14500,
-			SubtotalZar:     14500,
-			VatZar:          2175,
-			GrandTotal:      16675,
-			Status:          "In Transit",
-			Waybill:         "TCG-ZA-849201",
-			DeliveryMethod:  "The Courier Guy",
-			PaymentMethod:   "Ozow Instant EFT",
-			DateStr:         "22 Sep 10:00",
-			EstimatedEta:    "24 Sep",
-			MerchantName:    "SunPower Crown Mines Wholesale",
+			OrderNumber:    "ORD-2026-1042",
+			BuyerName:      "Test Buyer",
+			ProductTitle:   "Sunsynk 5kW Hybrid Inverter",
+			SKU:            "SUN-5K",
+			Quantity:       1,
+			UnitPriceZar:   14500,
+			SubtotalZar:    14500,
+			VatZar:         2175,
+			GrandTotal:     16675,
+			Status:         "In Transit",
+			Waybill:        "TCG-ZA-849201",
+			DeliveryMethod: "The Courier Guy",
+			PaymentMethod:  "Ozow Instant EFT",
+			DateStr:        "22 Sep 10:00",
+			EstimatedEta:   "24 Sep",
+			MerchantName:   "SunPower Crown Mines Wholesale",
 		})
 		st.CreateOrder(models.PlacedOrder{
-			OrderNumber:     "ORD-2026-0988",
-			BuyerName:       "Test Buyer 2",
-			ProductTitle:    "PPC Cement 42.5N",
-			SKU:             "PPC-425",
-			Quantity:        10,
-			UnitPriceZar:    95,
-			SubtotalZar:     950,
-			VatZar:          142.5,
-			GrandTotal:      1092.5,
-			Status:          "Delivered",
-			Waybill:         "PUDO-ZA-392180",
-			DeliveryMethod:  "Pudo Smart Locker",
-			PaymentMethod:   "EFT",
-			DateStr:         "20 Sep 09:00",
-			EstimatedEta:    "Delivered",
-			MerchantName:    "Mitrend Products",
+			OrderNumber:    "ORD-2026-0988",
+			BuyerName:      "Test Buyer 2",
+			ProductTitle:   "PPC Cement 42.5N",
+			SKU:            "PPC-425",
+			Quantity:       10,
+			UnitPriceZar:   95,
+			SubtotalZar:    950,
+			VatZar:         142.5,
+			GrandTotal:     1092.5,
+			Status:         "Delivered",
+			Waybill:        "PUDO-ZA-392180",
+			DeliveryMethod: "Pudo Smart Locker",
+			PaymentMethod:  "EFT",
+			DateStr:        "20 Sep 09:00",
+			EstimatedEta:   "Delivered",
+			MerchantName:   "Mitrend Products",
 		})
 
 		// Test existing order
@@ -651,5 +652,16 @@ func TestConsumerHandlers(t *testing.T) {
 	})
 }
 
-
-
+func TestAssistantCardEscapesReply(t *testing.T) {
+	t.Setenv("GEMINI_API_KEY", "")
+	h := NewConsumerHandler(store.NewStore())
+	form := url.Values{"message": {`<img src=x onerror=alert(1)>`}}
+	req := httptest.NewRequest(http.MethodPost, "/api/assistant", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("HX-Request", "true")
+	rec := httptest.NewRecorder()
+	h.HandleAssistant(rec, req)
+	if strings.Contains(rec.Body.String(), "<img src=x onerror") {
+		t.Fatal("assistant card reflects unescaped user input")
+	}
+}

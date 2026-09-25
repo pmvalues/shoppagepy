@@ -1,6 +1,12 @@
+# Shoppage single-binary service for hosts without Docker.
+# Install the binary at /opt/shoppage/shoppage, put secrets in
+# /etc/shoppage/shoppage.env (mode 0600, see .env.example), run PostgreSQL
+# locally or managed, and front it with Caddy on the same host.
+
 [Unit]
-Description=Shoppage 100% Pure Go Unified Platform
-After=network.target
+Description=Shoppage platform
+After=network-online.target postgresql.service
+Wants=network-online.target
 
 [Service]
 Type=simple
@@ -12,18 +18,30 @@ Restart=always
 RestartSec=3s
 LimitNOFILE=65535
 
-# Environment Configuration
+Environment=SHOPPAGE_ENV=production
 Environment=PORT=3000
-Environment=ENVIRONMENT=production
-Environment=GEMINI_API_KEY=
-Environment=GEMINI_MODEL=gemini-2.5-flash
-Environment=FOUNDATION_DATA_DIR=/opt/shoppage/shoppage-commerce-intelligence-foundation/data/study
 Environment=DATA_DIR=/opt/shoppage/data
+Environment=CHAT_DB_PATH=/opt/shoppage/state/chat-gateway.db
+Environment=MERCHANT_DATA_DIR=/opt/shoppage/state/merchant
+# Only Caddy on this host may set X-Forwarded-For.
+Environment=TRUSTED_PROXIES=127.0.0.1/32,::1/128
+# DATABASE_URL, SHOPPAGE_AUTH_SECRET, SHOPPAGE_ADMIN_*, GEMINI_API_KEY, ...
+EnvironmentFile=/etc/shoppage/shoppage.env
 
-# Security Hardening
-ProtectSystem=full
-ProtectHome=true
+# Hardening
 NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/opt/shoppage/state
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+AmbientCapabilities=
 
 [Install]
 WantedBy=multi-user.target

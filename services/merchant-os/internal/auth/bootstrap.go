@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/shoppage/platform/env"
 )
 
 const (
@@ -20,28 +22,18 @@ const (
 	defaultLocalPassword = "shoppage-local-admin"
 )
 
-// IsProduction reports whether the process is configured for a public host.
-// Localhost / 127.0.0.1 / empty public URL are development.
+// IsProduction reports whether production safeguards apply. It delegates to
+// the shared, fail-closed detector: only an explicit SHOPPAGE_ENV of
+// development|dev|local|test counts as non-production.
 func IsProduction() bool {
-	env := strings.ToLower(strings.TrimSpace(os.Getenv("SHOPPAGE_ENV")))
-	if env == "production" || env == "prod" {
-		return true
-	}
-	pub := strings.ToLower(strings.TrimSpace(os.Getenv("SHOPPAGE_PUBLIC_URL")))
-	if pub == "" {
-		return false
-	}
-	if strings.HasPrefix(pub, "http://localhost") || strings.HasPrefix(pub, "http://127.0.0.1") {
-		return false
-	}
-	return strings.HasPrefix(pub, "https://")
+	return env.IsProduction()
 }
 
 // EnsureLocalAuth bootstraps development credentials when the desk has no
 // SHOPPAGE_AUTH_SECRET / SHOPPAGE_ADMIN_* configured.
 //
-// Production (SHOPPAGE_ENV=production or a non-localhost https public URL)
-// never bootstraps: those instances must fail closed until an operator sets
+// Production (any SHOPPAGE_ENV other than development|dev|local|test,
+// including unset) never bootstraps: those instances must fail closed until an operator sets
 // real secrets. Development persists a generated HMAC secret under data/ so
 // sessions survive restarts, and fills demo admin credentials when unset.
 // Returns true when a missing secret was bootstrapped (caller may log it).

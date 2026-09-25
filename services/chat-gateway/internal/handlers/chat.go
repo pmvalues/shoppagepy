@@ -4,29 +4,46 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/shoppage/chat-gateway/internal/hub"
 	"github.com/shoppage/chat-gateway/internal/models"
+	"github.com/shoppage/platform/env"
 )
 
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
-
 type ChatHandler struct {
-	hub     *hub.Hub
-	sink    hub.MessageSink
-	limiter *hub.RateLimiter
+	hub      *hub.Hub
+	sink     hub.MessageSink
+	limiter  *hub.RateLimiter
+	upgrader websocket.Upgrader
 }
 
+// NewChatHandler builds the WebSocket handler. Browser upgrades are accepted
+// only from the page's own host or an origin in ALLOWED_ORIGINS, which blocks
+// cross-site WebSocket hijacking; non-browser clients send no Origin.
 func NewChatHandler(h *hub.Hub, sink hub.MessageSink, limiter *hub.RateLimiter) *ChatHandler {
-	return &ChatHandler{hub: h, sink: sink, limiter: limiter}
+	allowed := map[string]bool{}
+	for _, o := range env.AllowedOrigins() {
+		allowed[strings.ToLower(strings.TrimRight(o, "/"))] = true
+	}
+	return &ChatHandler{hub: h, sink: sink, limiter: limiter, upgrader: websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		CheckOrigin: func(r *http.Request) bool {
+			origin := r.Header.Get("Origin")
+			if origin == "" {
+				return true
+			}
+			u, err := url.Parse(origin)
+			if err != nil {
+				return false
+			}
+			return strings.EqualFold(u.Host, r.Host) || allowed[strings.ToLower(origin)]
+		},
+	}}
 }
 
 func (h *ChatHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
@@ -48,11 +65,11 @@ func (h *ChatHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 		role = models.RoleMerchant
 	case models.RoleAgent:
 		role = models.RoleAgent
-	case models.RoleSystem:
-		role = models.RoleSystem
 	}
+	// RoleSystem is reserved for server-originated events and is never
+	// accepted from a client.
 
-	conn, err := upgrader.Upgrade(w, r, nil)
+	conn, err := h.upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		slog.Error("Failed to upgrade websocket", "err", err)
 		return
@@ -96,12 +113,12 @@ func (h *ChatHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 }
 
 type HealthResponse struct {
-	Status       string    `json:"status"`
-	Service      string    `json:"service"`
-	Version      string    `json:"version"`
-	ActiveRooms  int       `json:"activeRooms"`
-	ActiveUsers  int       `json:"activeUsers"`
-	Timestamp    time.Time `json:"timestamp"`
+	Status      string    `json:"status"`
+	Service     string    `json:"service"`
+	Version     string    `json:"version"`
+	ActiveRooms int       `json:"activeRooms"`
+	ActiveUsers int       `json:"activeUsers"`
+	Timestamp   time.Time `json:"timestamp"`
 }
 
 func (h *ChatHandler) HealthCheck(w http.ResponseWriter, r *http.Request) {

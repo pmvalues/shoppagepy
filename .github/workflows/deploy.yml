@@ -1,4 +1,4 @@
-name: Build & Deploy Shoppage Platform
+name: CI & Deploy
 
 on:
   push:
@@ -7,53 +7,90 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+env:
+  GO_VERSION: '1.27.1'
+
 jobs:
   secret-scan:
-    name: Secret Scanning
+    name: Secret scanning
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Run gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build-and-test:
-    name: Build & Test
+  go:
+    name: Lint, test & templ drift
     runs-on: ubuntu-latest
-    needs: secret-scan
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Run Test Suite
-        run: npm test
+    services:
+      postgres:
+        image: postgres:17-alpine
         env:
-          NODE_ENV: test
+          POSTGRES_USER: shoppage
+          POSTGRES_PASSWORD: shoppage
+          POSTGRES_DB: shoppage_test
+        ports: [ "5432:5432" ]
+        options: >-
+          --health-cmd "pg_isready -U shoppage -d shoppage_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgres://shoppage:shoppage@localhost:5432/shoppage_test?sslmode=disable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: '**/go.sum'
+      - name: gofmt
+        run: make fmt-check
+      - name: go vet
+        run: make vet
+      - name: Tests (incl. PostgreSQL integration)
+        run: make test-db
+      - name: Generated templ files are up to date
+        run: make templ-check
 
-      - name: Build Static Go Binary
-        run: npm run build
+  vuln:
+    name: Vulnerability scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: '**/go.sum'
+      - name: govulncheck
+        run: make vuln
+
+  image:
+    name: Container image builds
+    runs-on: ubuntu-latest
+    needs: [ go ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build default (single-binary) target
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: shoppage
+          push: false
+          build-args: SHOPPAGE_RELEASE=${{ github.sha }}
 
   deploy:
     name: Deploy to Dokploy
     runs-on: ubuntu-latest
-    needs: build-and-test
+    needs: [ secret-scan, go, vuln, image ]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
-      - name: Trigger Dokploy Auto-Deploy Webhook (if configured)
+      - name: Trigger Dokploy deploy webhook (if configured)
         env:
           DOKPLOY_WEBHOOK_URL: ${{ secrets.DOKPLOY_WEBHOOK_URL }}
         run: |
@@ -61,5 +98,4 @@ jobs:
             echo "DOKPLOY_WEBHOOK_URL not configured; skipping deployment."
             exit 0
           fi
-          echo "Triggering Dokploy deployment webhook..."
           curl -fsS -X POST "$DOKPLOY_WEBHOOK_URL"

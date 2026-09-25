@@ -1,6 +1,7 @@
-go 1.25.0
+go 1.27.1
 
 use (
+	./pkg/platform
 	./services/chat-gateway
 	./services/consumer-web
 	./services/merchant-os

@@ -1,42 +1,39 @@
 # Shoppage — National Commerce Intelligence Grid & Merchant OS
 
-> **100% Pure Go Distributed Commerce Infrastructure for Physical Retail & B2B Wholesale**  
-> *Verified runtime: 5 Go services, 3,315-reference mall directory, 181 seeded catalogue products, AI assistant, PWA — see **Verified status** below.*
+> **Go commerce platform for physical retail and B2B wholesale in South Africa**  
+> *One Go binary serving the consumer site, Merchant OS, live chat, search and an AI assistant, backed by PostgreSQL. See **Verified status** below.*
 
-[![Go 1.25+](https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat&logo=go)](https://go.dev/)
-[![Chi Router](https://img.shields.io/badge/Router-Chi_v5-007D9C?style=flat)](https://github.com/go-chi/chi)
+[![Go 1.27](https://img.shields.io/badge/Go-1.27-00ADD8?style=flat&logo=go)](https://go.dev/)
+[![Chi Router](https://img.shields.io/badge/Router-Chi_v5.3-007D9C?style=flat)](https://github.com/go-chi/chi)
 [![Templ + HTMX](https://img.shields.io/badge/Frontend-Templ_%2B_HTMX-336699?style=flat)](https://templ.guide/)
-[![SQLite Engine](https://img.shields.io/badge/Storage-Embedded_SQLite-003B57?style=flat&logo=sqlite)](https://modernc.org/sqlite)
-[![Gemini AI](https://img.shields.io/badge/AI-Google_Gemini_3.6-4285F4?style=flat&logo=google)](https://ai.google.dev/)
-[![Tests](https://img.shields.io/badge/Tests-39_functions_%2F_5_packages_passing-brightgreen?style=flat)]()
+[![PostgreSQL](https://img.shields.io/badge/Storage-PostgreSQL_17-4169E1?style=flat&logo=postgresql)](https://www.postgresql.org/)
+[![Gemini AI](https://img.shields.io/badge/AI-Google_Gemini_3.6_Flash-4285F4?style=flat&logo=google)](https://ai.google.dev/)
+[![Tests](https://img.shields.io/badge/Tests-76_functions_%2F_15_packages-brightgreen?style=flat)]()
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)]()
 
 ---
 
-## ✅ Verified status (2026-09-21)
+## ✅ Verified status (2026-09-25)
 
-This section is the authoritative statement of what the runtime does. It is kept true to the
-machine: `GET /health` on a running instance returns the counts below.
-
-```json
-{"data":{"deals":30,"malls":3315,"merchants":16,"products":181},"engine":"pure-go","status":"healthy"}
-```
+This section is the authoritative statement of what the runtime does. `GET /healthz` on a running
+instance returns the live catalogue counts.
 
 | Item | Verified state |
 |---|---|
-| Services | 5 pure-Go services (`consumer-web`, `merchant-os`, `search-core`, `chat-gateway`, `sweeper-engine`), ~28,100 lines, 73 files |
-| Tests | 39 test functions across 5 packages; `npm test` green |
-| Build | `npm run build` → `bin/shoppage.exe` (~19 MB static binary) |
+| Runtime | **One Go binary** (`services/consumer-web/cmd/server`) that mounts Merchant OS, the chat gateway and the search core in-process; each can still be split out (`docs/DEPLOYMENT.md`). `sweeper-engine` is a separate batch CLI |
+| Tests | 76 test functions across 15 packages, race detector on, including PostgreSQL integration tests (`make test-db`) |
 | Live data served | 16 seed merchants, 181 seed catalogue products, 3,315 mall records, 183 feed posts, 30 deals |
-| Merchant OS | Full 12-tab UI running against **one hardcoded demo tenant** with in-memory state |
-| Persistence | **Not implemented** — orders, catalogue edits, posts and chat live in memory and are lost on restart |
-| Authentication | HMAC-signed, fail-closed session auth on merchant routes (`internal/auth/session.go`) — single global admin credential, no per-merchant roles yet |
+| Persistence | **PostgreSQL** (pgx, migrations embedded with goose). Orders, supplier registrations, reviews, feed posts and the Merchant OS workspace survive restarts. Chat history is SQLite on the state volume |
+| Merchant OS | Full workspace UI for **one tenant** (the configured store), saved to PostgreSQL |
+| Authentication | Fail-closed HMAC session auth; production refuses to start with missing, weak or default secrets. Still a **single admin credential**, no per-merchant users or roles |
+| Security | TLS via Caddy, trusted-proxy client IPs, CSRF protection, CSP and security headers, rate limits, AI daily spend cap. See `SECURITY.md` (including known gaps) |
+| Observability | JSON request logs, Prometheus `/metrics`, `/readyz` with DB check, optional Sentry |
 | Billing | **Not implemented** — plans are display state only |
 | Datasets | Reference datasets exist (1M Open Food Facts product masters, 93k discovered offers, 25k-node Zimbabwe market graph). The 3.1M-merchant and generated mall layers are **synthetic placeholder data** and are not licensed records |
 
-**Before any public deployment, read `docs/PLATFORM_READINESS_ANALYSIS_2026-09-21.md` (gap register)
-and `docs/INVESTOR_READINESS_ROADMAP.md` (sequenced remediation).** Both documents were produced by
-running the system, not by reading intentions.
+**Before any public deployment, read `SECURITY.md` (known gaps), `docs/DEPLOYMENT.md`,
+`docs/PLATFORM_READINESS_ANALYSIS_2026-09-21.md` (gap register) and
+`docs/INVESTOR_READINESS_ROADMAP.md` (sequenced remediation).**
 
 ### Product & design
 
@@ -52,70 +49,76 @@ running the system, not by reading intentions.
 
 ## 🏛️ System Architecture
 
-Shoppage operates as a **100% pure Go unified platform**, eliminating Node.js runtime overhead, Turbopack build latency, and heavy client-side JavaScript bundles. Measured on this host (2026-09-21): `/search` renders in 110–362 ms end-to-end over HTTP, including full page render.
-
 ```mermaid
 flowchart TD
-    subgraph Client_Layer["1. Client Surfaces (HTMX + PWA)"]
-        A1["Universal Search & Google Shopping Grid (/search)"]
-        A2["12-Tab Merchant OS Command Center (/desk)"]
-        A3["Nationwide Malls & Hubs Directory (/malls)"]
-        A4["9:16 Video Shorts & Trade Shows (/shorts)"]
-        A5["Gemini AI Commerce Assistant (/api/assistant)"]
+    subgraph Edge["Edge"]
+        E1["Caddy: automatic HTTPS, HSTS, www redirect"]
     end
 
-    subgraph Core_Engine["2. Pure Go Core Engine (:3000)"]
-        B1["Chi v5 High-Performance HTTP Router"]
-        B2["Templ Compiled Type-Safe View Templates"]
-        B3["Embedded SQLite Engine (modernc.org/sqlite)"]
-        B4["Gemini 3.6 Flash Agent & Solar Math Engine"]
-        B5["In-Memory Trigram Fuzzy Search Daemon"]
+    subgraph Binary["Shoppage binary (:3000)"]
+        B0["Middleware: trusted client IP, JSON logs + metrics, CSP, CSRF, rate limits"]
+        B1["Consumer web: search, product, storefronts, malls, AI assistant (Templ + HTMX)"]
+        B2["Merchant OS (in-process)"]
+        B3["Chat gateway, WebSockets (in-process)"]
+        B4["Search core, trigram index (in-process)"]
     end
 
-    subgraph Datasets["3. Reference & Placeholder Datasets"]
-        C1["1.0M Open Food Facts product masters (real, ODbL)"]
-        C2["3,315 mall records (generated placeholder layer)"]
-        C3["93,021 discovered retail offers (real, no price captured)"]
+    subgraph Data["Data"]
+        D1["PostgreSQL: orders, registrations, reviews, posts, merchant workspace"]
+        D2["State volume: chat history (SQLite), media uploads"]
+        D3["Read-only reference datasets (SQLite, optional mount)"]
     end
 
-    Client_Layer --> Core_Engine
-    Core_Engine --> Datasets
+    E1 --> B0 --> B1
+    B0 --> B2
+    B0 --> B3
+    B0 --> B4
+    B1 --> D1
+    B2 --> D1
+    B3 --> D2
+    B1 --> D3
 ```
+
+Shared middleware and infrastructure live in `pkg/platform` (`env`, `web`, `db`, `obs`).
 
 ---
 
 ## 🚀 Quick Start & Testing
 
 ### Prerequisites
-- **Go**: 1.25 or higher
-- **Node.js**: (optional, used only as script runner wrapper via `scripts/go-run.mjs`)
+- **Go** 1.27.1+
+- **PostgreSQL** (optional locally; required in production)
+- **Node.js** only for rebuilding Tailwind CSS (`make css`)
 
-### 1. Run Development Server
-Start the unified Go platform on port 3000:
+### 1. Run the platform locally
 
 ```bash
+make dev                    # SHOPPAGE_ENV=development, in-memory state
+# with persistence:
+DATABASE_URL=postgres://localhost:5432/shoppage?sslmode=disable make dev
+# Windows without make:
 npm run dev
-# or directly via Go:
-go run ./services/consumer-web/cmd/server/main.go
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000). The Merchant OS sign-in for local development is
+printed to the log on first start.
 
-### 2. Run Test Suite
-Run tests across all Go workspace services:
+> An unset `SHOPPAGE_ENV` means **production**: the binary then requires `DATABASE_URL`,
+> `SHOPPAGE_AUTH_SECRET` and non-default admin credentials, and refuses to start without them.
+
+### 2. Checks
 
 ```bash
-npm test
-# equivalent, run per module (a bare `go test ./services/...` fails under go.work):
-#   go test ./services/consumer-web/...   (and likewise for each module)
+make check                  # gofmt, go vet, race tests, templ drift
+make test-db                # + PostgreSQL integration tests (TEST_DATABASE_URL=...)
+make vuln                   # govulncheck across every module
 ```
 
-### 3. Production Static Binary Build
-Compile the single-binary static executable:
+### 3. Production build
 
 ```bash
-npm run build
-# Generates bin/shoppage.exe (or bin/shoppage on Linux)
+make build                  # bin/shoppage — static linux binary
+docker build -t shoppage .  # default target: the single-binary image
 ```
 
 ---
@@ -129,90 +132,27 @@ npm run build
 | **Malls & Trading Hubs** | [/malls](http://localhost:3000/malls) | Directory of 3,315 mall records across 9 provinces. **Note:** this layer is generated placeholder data pending licensed ingestion. |
 | **9:16 Trade Shorts** | [/shorts](http://localhost:3000/shorts) | Vertical video demo stream for verified South African merchant products. |
 | **Buyer Wholesale RFQ** | [/requests](http://localhost:3000/requests) | Demand-first buyer RFQ portal broadcasting tenders to local suppliers. |
-| **Gemini AI Assistant** | [/api/assistant](http://localhost:3000/api/assistant) | Server-side Gemini 3.6 agent with automated solar load-shedding battery sizing tools. |
-| **System Health API** | [/health](http://localhost:3000/health) | Live counts of loaded malls, products, merchants and deals, plus engine and version. |
+| **Gemini AI Assistant** | [/api/assistant](http://localhost:3000/api/assistant) | Server-side Gemini agent (default `gemini-3.6-flash`, daily call cap) with automated solar load-shedding battery sizing tools. |
+| **Health / readiness** | [/healthz](http://localhost:3000/healthz), [/readyz](http://localhost:3000/readyz) | Catalogue counts; readiness including a database ping. |
+| **Metrics** | [/metrics](http://localhost:3000/metrics) | Prometheus metrics (needs `METRICS_TOKEN` in production). |
 
 ---
 
-## 🌐 Production Hosting Guide
+## 🌐 Production Hosting
 
-Because Shoppage is 100% pure Go with embedded SQLite, hosting is dramatically simpler and cheaper than standard JavaScript/Node stacks. There are no Node runtime dependencies, no external database servers required, and RAM consumption is under 150 MB.
+Full instructions: **`docs/DEPLOYMENT.md`**.
 
-> **⚠ Before deploying — two verified blockers (2026-09-21).**
-> 1. `Dockerfile` copies `shoppage-commerce-intelligence-foundation/`, which contains ~8.6 GB of
->    `*.sqlite` files that are **gitignored**. A clean checkout therefore builds either a huge image
->    or an image missing the datasets, and the runtime silently falls back to 181 seed products.
->    `.dockerignore` excludes `*.sqlite3` and `*.zip` but **not** `*.sqlite`.
-> 2. Merchant routes (`/desk`, `/merchant/*`, `/orders`, `/settings`, `/audit-logs`) are protected
->    by HMAC-signed, fail-closed session auth (`internal/auth/session.go`), but it is a **single
->    global admin credential** with no per-merchant users or roles. Treat the instance as
->    single-tenant until Phase 1 of `docs/INVESTOR_READINESS_ROADMAP.md` is complete.
+| Option | Best for |
+|---|---|
+| Docker Compose: Caddy + Shoppage + PostgreSQL (`docker-compose.yml`) 🏆 | A single VPS; only Caddy publishes ports |
+| Dokploy / Coolify from the `Dockerfile` | Web-UI deploys on your own VPS |
+| systemd unit (`deploy/shoppage.service`) + Caddy | Hosts without Docker |
 
-### Option 1: Docker Compose + Caddy (Recommended for Linux VPS)
+### In-store edge server / offline kiosk
 
-A complete `docker-compose.yml` and `Caddyfile` are included in the repository.
-
-1. **Provision any Linux VPS** (e.g., Hetzner Cloud CX22 at ~€4/mo, DigitalOcean Droplet, Linode, or AWS Lightsail with 2GB+ RAM).
-2. **Clone the repository and launch**:
-   ```bash
-   # Clone codebase
-   git clone https://github.com/shoppage/shoppage.git /opt/shoppage
-   cd /opt/shoppage
-
-   # Start all 4 Go services in isolated microservice containers
-   docker compose up -d --build
-   ```
-3. **Automatic SSL / HTTPS**:
-   Uncomment the `caddy` service in `docker-compose.yml` and set your domain:
-   ```bash
-   DOMAIN=shoppage.co.za docker compose up -d
-   ```
-   Caddy automatically provisions and auto-renews Let's Encrypt certificates.
-
----
-
-### Option 2: Bare-Metal Linux Binary via Systemd (Fastest & Leanest)
-
-Run directly on Ubuntu/Debian with zero container overhead:
-
-1. **Cross-compile Linux binary** (from Windows or macOS):
-   ```bash
-   npm run build:linux
-   # Or directly:
-   # GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o bin/shoppage-linux-amd64 ./services/consumer-web/cmd/server/main.go
-   ```
-2. **Transfer to VPS**:
-   ```bash
-   scp bin/shoppage-linux-amd64 user@your-server-ip:/opt/shoppage/shoppage
-   scp -r data shoppage-commerce-intelligence-foundation user@your-server-ip:/opt/shoppage/
-   ```
-3. **Install Systemd Service**:
-   ```bash
-   sudo cp deploy/shoppage.service /etc/systemd/system/
-   sudo systemctl daemon-reload
-   sudo systemctl enable --now shoppage
-   ```
-4. **Front with Caddy**:
-   Install Caddy (`sudo apt install -y caddy`) and copy `Caddyfile` to `/etc/caddy/Caddyfile`, then reload `sudo systemctl reload caddy`.
-
----
-
-### Option 3: Modern Self-Hosted PaaS (Coolify / Dokploy)
-
-If you prefer a web UI like Vercel or Heroku on your own VPS:
-1. Install [Coolify](https://coolify.io) or [Dokploy](https://dokploy.com) on your VPS (`curl -fsSL https://cdn.coolify.io/install.sh | bash`).
-2. Add a new Project -> Link your GitHub repo.
-3. Select **Dockerfile** as build pack (it will automatically build the `all-in-one` lightweight Alpine container).
-4. Set Persistent Volume for `/app/shoppage-commerce-intelligence-foundation/data/study` so the 7GB SQLite datasets are retained across builds.
-5. Set environment variable: `PORT=3000`.
-
----
-
-### Option 4: In-Store Edge Server / Offline Kiosk (Physical Resilience)
-
-In South Africa, load-shedding and fiber outages can interrupt retail sales. Shoppage can run locally on an in-store Windows Mini-PC, POS terminal, or Linux Intel NUC:
-- Run `bin/shoppage.exe` directly on the local store network.
-- Staff and in-store kiosks can access `http://192.168.1.xxx:3000` even when the internet is completely offline.
+For load-shedding and fibre outages, the same binary can run on an in-store mini-PC with a local
+PostgreSQL, so staff and kiosks keep working at `http://<store-ip>:3000` while the internet is down.
+Set `SHOPPAGE_ENV=production`, a local `DATABASE_URL` and `TRUSTED_PROXIES=none`.
 
 ---
 
