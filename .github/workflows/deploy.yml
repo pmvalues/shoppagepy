@@ -98,4 +98,6 @@ jobs:
             echo "DOKPLOY_WEBHOOK_URL not configured; skipping deployment."
             exit 0
           fi
-          curl -fsS -X POST "$DOKPLOY_WEBHOOK_URL"
+          # Dokploy checks the pushed branch against the app's configured
+          # branch, so send a GitHub-style push payload naming it.
+          curl -fsS -X POST "$DOKPLOY_WEBHOOK_URL"             -H "Content-Type: application/json"             -H "X-GitHub-Event: push"             -d "{\"ref\":\"${GITHUB_REF}\",\"after\":\"${GITHUB_SHA}\",\"head_commit\":{\"id\":\"${GITHUB_SHA}\",\"message\":\"deploy\"}}"
