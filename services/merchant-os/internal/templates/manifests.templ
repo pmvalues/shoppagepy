@@ -2,194 +2,140 @@ package templates
 
 import (
 	"fmt"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
+// ManifestsTab lists courier handover sheets. A printed sheet is signed by
+// the driver on paper; the screen never claims a signature it doesn't have.
 templ ManifestsTab(data models.DashboardViewData) {
-	<div class="panel-head">
-		<div>
-			<h3>Carrier Shipping Manifests &amp; Waybill Dispatch</h3>
-			<div class="sub">Courier Guy road freight, Pargo mall collection lockers &amp; driver sign-off sheets</div>
+	<div class="page-head">
+		<div class="head-copy">
+			<p>A handover sheet for each courier collection. Print it and have the driver sign.</p>
 		</div>
-		<div class="right">
-			<button class="btn solid small" onclick="document.getElementById('new-manifest-dialog')?.showModal();">
-				<span>+</span> Generate Today's Manifest
+		<div class="actions">
+			<button class="btn solid" type="button" onclick="document.getElementById('new-manifest-dialog').showModal()">
+				@IconSized("plus", 16)
+				New manifest
 			</button>
 		</div>
 	</div>
-
-	<!-- Carrier Integration Status Cards -->
-	<div class="three-col" style="margin-bottom:18px;">
-		<div class="card kpi">
-			<div class="k-label"><span>Primary Freight Partner</span><span class="chip up">Connected</span></div>
-			<div class="k-val" style="font-size:1.4rem; margin:6px 0 2px;">The Courier Guy</div>
-			<div class="k-foot"><span class="then">Daily collection 15:30 SAST · Account: TCG-MIT882</span></div>
-		</div>
-		<div class="card kpi">
-			<div class="k-label"><span>Smart Locker Network</span><span class="chip up">Active</span></div>
-			<div class="k-val" style="font-size:1.4rem; margin:6px 0 2px;">Pargo Mall Points</div>
-			<div class="k-foot"><span class="then">3,315 Shopping Centre Pickup Lockers</span></div>
-		</div>
-		<div class="card kpi">
-			<div class="k-label"><span>Warehouse Depot Desk</span><span class="chip flat">Midrand</span></div>
-			<div class="k-val" style="font-size:1.4rem; margin:6px 0 2px;">Click &amp; Collect</div>
-			<div class="k-foot"><span class="then">Customer collection bay open 08:00–17:00</span></div>
-		</div>
-	</div>
-
-	<!-- Manifests Table -->
-	<div class="card panel">
-		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-			<h4 style="font-size:15px; font-weight:700;">Recent Dispatch Manifests</h4>
-			<span style="font-size:12px; color:var(--muted);">{ fmt.Sprintf("%d Manifests Logged", len(data.Manifests)) }</span>
-		</div>
-
-		<div class="table-wrap">
-			<table class="table">
-				<thead>
-					<tr>
-						<th>Manifest Ref</th>
-						<th>Carrier / Channel</th>
-						<th>Waybills / Parcels</th>
-						<th>Total Weight</th>
-						<th>Driver &amp; Vehicle</th>
-						<th>Dispatch Date</th>
-						<th>Status</th>
-						<th style="text-align:right;">Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, man := range data.Manifests {
-						<tr>
-							<td>
-								<b style="font-family:var(--mono); color:var(--primary-2); font-size:13px;">{ man.ManifestRef }</b>
-							</td>
-							<td>
-								<b>{ man.CarrierName }</b>
-							</td>
-							<td>
-								<span style="font-family:var(--mono); font-weight:600;">{ fmt.Sprintf("%d waybills", man.WaybillCount) }</span>
-							</td>
-							<td>
-								<span style="font-family:var(--mono);">{ fmt.Sprintf("%.1f kg", man.TotalWeightKg) }</span>
-							</td>
-							<td>
-								<div><b>{ man.DriverName }</b></div>
-								<div style="font-family:var(--mono); font-size:11px; color:var(--muted);">{ man.VehicleReg }</div>
-							</td>
-							<td style="font-size:12px; color:var(--muted);">
-								{ man.Date.Format("02 Jan 15:04") }
-							</td>
-							<td>
-								if man.Status == "Handed Over" {
-									<span class="chip up">Handed Over</span>
-								} else {
-									<span class="chip warn">{ man.Status }</span>
-								}
-							</td>
-							<td style="text-align:right;">
-								<button type="button" class="btn ghost small" onclick={ templ.ComponentScript{Call: fmt.Sprintf("document.getElementById('manifest-modal-%s')?.showModal();", man.ID)} }>
-									<span>📑</span> View Sheet
-								</button>
-							</td>
-						</tr>
-
-						<!-- Handover Sheet Modal -->
-						<dialog id={ fmt.Sprintf("manifest-modal-%s", man.ID) } class="modal-dialog" style="max-width:560px;">
-							<div class="modal-card">
-								<div class="modal-head">
-									<h4>Carrier Handover Dispatch Manifest</h4>
-									<button type="button" class="close-btn" onclick={ templ.ComponentScript{Call: fmt.Sprintf("document.getElementById('manifest-modal-%s')?.close();", man.ID)} }>&times;</button>
-								</div>
-								<div class="modal-body" style="font-size:13px;">
-									<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:12px; margin-bottom:12px;">
-										<div>
-											<div style="font-weight:800; font-size:16px;">{ man.CarrierName }</div>
-											<div style="font-family:var(--mono); color:var(--muted); font-size:12px;">Ref: { man.ManifestRef }</div>
-										</div>
-										<div style="text-align:right;">
-											<div style="font-weight:700;">Mitrand Products Central Hub</div>
-											<div style="color:var(--muted); font-size:12px;">Midrand, Gauteng</div>
-										</div>
-									</div>
-
-									<div style="background:var(--surface-2); padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:12.5px;">
-										<div><b>Driver Name:</b> { man.DriverName }</div>
-										<div><b>Vehicle Registration:</b> { man.VehicleReg }</div>
-										<div><b>Total Parcels:</b> { fmt.Sprintf("%d cartons", man.WaybillCount) } (Gross Weight: { fmt.Sprintf("%.1f kg", man.TotalWeightKg) })</div>
-										<div><b>Collection Time:</b> { man.Date.Format("02 Jan 2006 · 15:04 SAST") }</div>
-									</div>
-
-									<p style="font-size:11.5px; color:var(--muted); line-height:1.4;">
-										Carrier confirms receipt of above documented consignments in sound condition. Subject to the Standard Trading Terms and Conditions of carriage and SARS export compliance.
-									</p>
-
-									<div style="margin-top:16px; border-top:1px dashed var(--line); padding-top:14px; display:flex; justify-content:space-between; align-items:flex-end;">
-										<div>
-											<div style="font-size:11px; color:var(--muted);">Driver Signature:</div>
-											<div style="font-family:cursive; font-size:16px; margin-top:4px; color:var(--ink-2);">{ man.DriverName }</div>
-										</div>
-										<div style="text-align:right;">
-											<span class="chip up">Signed &amp; Verified</span>
-										</div>
-									</div>
-								</div>
-								<div class="modal-foot">
-									<button type="button" class="btn ghost" onclick={ templ.ComponentScript{Call: fmt.Sprintf("document.getElementById('manifest-modal-%s')?.close();", man.ID)} }>Close</button>
-									<button type="button" class="btn solid" onclick="window.print();">Print Handover Sheet</button>
-								</div>
-							</div>
-						</dialog>
-					}
-				</tbody>
-			</table>
-		</div>
-	</div>
-
-	<!-- New Manifest Dialog -->
-	<dialog id="new-manifest-dialog" class="modal-dialog">
+	<section class="card">
+		if len(data.Manifests) == 0 {
+			<div class="empty">
+				<h3>No manifests yet</h3>
+				<p>Create one when a courier collects parcels.</p>
+			</div>
+		} else {
+			<div class="table-wrap">
+				<table class="table">
+					<thead>
+						<tr><th>Manifest</th><th>Courier</th><th class="r">Parcels</th><th class="r">Weight</th><th>Driver</th><th>Created</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr>
+					</thead>
+					<tbody>
+						for _, m := range data.Manifests {
+							<tr>
+								<td class="mono"><b>{ m.ManifestRef }</b></td>
+								<td>{ m.CarrierName }</td>
+								<td class="r num">{ fmt.Sprint(m.WaybillCount) }</td>
+								<td class="r num">{ fmt.Sprintf("%.1f kg", m.TotalWeightKg) }</td>
+								<td>{ orDash(m.DriverName) }<div class="small-text muted mono">{ m.VehicleReg }</div></td>
+								<td class="small-text muted" title={ LocalDateTime(m.Date) }>{ Ago(m.Date, data.Metrics.Now) }</td>
+								<td>
+									if m.Status == "Handed Over" || m.Status == "Delivered" {
+										<span class="status ok">{ m.Status }</span>
+									} else {
+										<span class="status warn">{ m.Status }</span>
+									}
+								</td>
+								<td class="r"><button type="button" class="btn ghost small" onclick={ openDialog("manifest-" + m.ID) }>Print sheet</button></td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</section>
+	for _, m := range data.Manifests {
+		<dialog id={ "manifest-" + m.ID } class="modal-dialog" aria-label={ "Manifest " + m.ManifestRef }>
+			<div class="modal-card">
+				<div class="modal-head">
+					<h3>Courier handover · { m.ManifestRef }</h3>
+					<button type="button" class="close-btn" aria-label="Close" onclick="this.closest('dialog').close()">×</button>
+				</div>
+				<div class="modal-body">
+					<div class="kv-list">
+						<div class="kv-row"><span>From</span><b>{ data.Store.Name }, { data.Store.Address }</b></div>
+						<div class="kv-row"><span>Courier</span><b>{ m.CarrierName }</b></div>
+						<div class="kv-row"><span>Parcels</span><b>{ fmt.Sprint(m.WaybillCount) }</b></div>
+						<div class="kv-row"><span>Total weight</span><b>{ fmt.Sprintf("%.1f kg", m.TotalWeightKg) }</b></div>
+						<div class="kv-row"><span>Driver</span><b>{ orDash(m.DriverName) } { m.VehicleReg }</b></div>
+						<div class="kv-row"><span>Date</span><b>{ LocalDateTime(m.Date) }</b></div>
+					</div>
+					<p class="small-text muted" style="margin:14px 0 28px;">The courier confirms receipt of the parcels listed above in good condition.</p>
+					<div class="two-col">
+						<div style="border-top:1px solid var(--ink); padding-top:6px;" class="small-text">Driver signature</div>
+						<div style="border-top:1px solid var(--ink); padding-top:6px;" class="small-text">Dispatched by</div>
+					</div>
+				</div>
+				<div class="modal-foot">
+					<button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Close</button>
+					<button type="button" class="btn solid" onclick="window.print()">Print</button>
+				</div>
+			</div>
+		</dialog>
+	}
+	<dialog id="new-manifest-dialog" class="modal-dialog" aria-labelledby="man-title">
 		<div class="modal-card">
 			<div class="modal-head">
-				<h4>Generate Daily Carrier Handover Manifest</h4>
-				<button type="button" class="close-btn" onclick="document.getElementById('new-manifest-dialog').close();">&times;</button>
+				<h3 id="man-title">New courier manifest</h3>
+				<button type="button" class="close-btn" aria-label="Close" onclick="this.closest('dialog').close()">×</button>
 			</div>
-			<form hx-post="/manifests/new" hx-target="#tab-content" onsubmit="document.getElementById('new-manifest-dialog').close();">
+			<form hx-post="/manifests/new" hx-target="#tab-content" hx-on::after-request="this.closest('dialog').close()">
 				<div class="modal-body">
 					<div class="form-group">
-						<label>Carrier Partner</label>
-						<select name="carrier" class="select-full">
-							<option value="The Courier Guy Road Freight">The Courier Guy Road Freight</option>
-							<option value="Pargo Smart Mall Lockers">Pargo Smart Mall Lockers</option>
-							<option value="Customer Depot Collection">Customer Depot Click &amp; Collect</option>
-							<option value="RAM Specialized Courier">RAM Hand-to-Hand Courier</option>
-						</select>
+						<label for="man-carrier">Courier</label>
+						<input id="man-carrier" type="text" name="carrier" class="input" list="carrier-list" required/>
+						<datalist id="carrier-list">
+							<option value="The Courier Guy"></option>
+							<option value="Pargo"></option>
+							<option value="Pudo"></option>
+							<option value="RAM"></option>
+							<option value="Customer collection"></option>
+						</datalist>
 					</div>
 					<div class="two-col">
 						<div class="form-group">
-							<label>Driver Full Name</label>
-							<input type="text" name="driverName" class="input" placeholder="e.g. Kagiso Mokoena" value="Mandla Zulu" required />
+							<label for="man-driver">Driver name</label>
+							<input id="man-driver" type="text" name="driverName" class="input"/>
 						</div>
 						<div class="form-group">
-							<label>Vehicle Registration Number</label>
-							<input type="text" name="vehicleReg" class="input" placeholder="e.g. JM 92 YB GP" value="CA 449-102" required />
+							<label for="man-reg">Vehicle registration</label>
+							<input id="man-reg" type="text" name="vehicleReg" class="input"/>
 						</div>
 					</div>
 					<div class="two-col">
 						<div class="form-group">
-							<label>Total Parcels / Waybills</label>
-							<input type="number" name="waybillCount" class="input" value="6" min="1" required />
+							<label for="man-parcels">Parcels</label>
+							<input id="man-parcels" type="number" name="waybillCount" class="input" min="1" placeholder="From dispatched orders"/>
 						</div>
 						<div class="form-group">
-							<label>Total Gross Weight (kg)</label>
-							<input type="number" name="totalWeightKg" class="input" value="85.0" step="0.5" min="0.5" required />
+							<label for="man-kg">Total weight (kg)</label>
+							<input id="man-kg" type="number" name="totalWeightKg" class="input" min="0" step="0.1" placeholder="From product weights"/>
 						</div>
 					</div>
 				</div>
 				<div class="modal-foot">
-					<button type="button" class="btn ghost" onclick="document.getElementById('new-manifest-dialog').close();">Cancel</button>
-					<button type="submit" class="btn solid">Generate &amp; Dispatch Manifest</button>
+					<button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button>
+					<button type="submit" class="btn solid">Create manifest</button>
 				</div>
 			</form>
 		</div>
 	</dialog>
+}
+
+// openDialog opens a <dialog> by id.
+script openDialog(id string) {
+	var d = document.getElementById(id);
+	if (d) d.showModal();
 }

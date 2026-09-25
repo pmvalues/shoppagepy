@@ -6,17 +6,16 @@ import (
 )
 
 templ DiscountsTab(data models.DashboardViewData) {
-	<div class="panel-head">
-		<div>
-			<h3>Wholesale Tier Pricing &amp; Promotional Discounts</h3>
-			<div class="sub">Volume-based wholesale price matrices, trade discounts &amp; promo coupons</div>
+	<div class="page-head">
+		<div class="head-copy">
+			<p>Volume price tiers apply to quotes automatically. Promotion codes work at the counter and on your store.</p>
 		</div>
-		<div class="right" style="display:flex; gap:8px;">
+		<div class="actions">
 			<button class="btn ghost small" onclick="document.getElementById('new-tier-dialog')?.showModal();">
-				<span>+</span> Add Wholesale Tier
+				Add price tier
 			</button>
 			<button class="btn solid small" onclick="document.getElementById('new-coupon-dialog')?.showModal();">
-				<span>+</span> Create Promo Coupon
+				New promotion code
 			</button>
 		</div>
 	</div>
@@ -25,10 +24,10 @@ templ DiscountsTab(data models.DashboardViewData) {
 	<div class="card panel" style="margin-bottom:18px;">
 		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
 			<div>
-				<h4 style="font-size:15px; font-weight:700;">Automatic Wholesale Volume Tier Matrix</h4>
-				<p style="margin:2px 0 0; font-size:12px; color:var(--muted);">Applied automatically on B2B proforma generation based on carton order quantities.</p>
+				<h3>Volume price tiers</h3>
+				<p style="margin:2px 0 0; font-size:12px; color:var(--muted);">Used to price quotes by quantity. The example column shows the effect on your best-selling product.</p>
 			</div>
-			<span class="chip up">Active on All Catalog SKUs</span>
+			
 		</div>
 
 		<div class="table-wrap">
@@ -38,8 +37,9 @@ templ DiscountsTab(data models.DashboardViewData) {
 						<th>Tier Name</th>
 						<th>Minimum Units</th>
 						<th>Maximum Units</th>
-						<th>Wholesale Discount</th>
-						<th>Commercial Note</th>
+						<th>Discount</th>
+						<th>Example</th>
+						<th>Note</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -54,7 +54,12 @@ templ DiscountsTab(data models.DashboardViewData) {
 									<span class="chip up">Unlimited</span>
 								}
 							</td>
-							<td><span class="chip up" style="font-size:12.5px;">{ fmt.Sprintf("-%.1f%% off retail", tier.DiscountPct) }</span></td>
+							<td><span class="chip ok">{ fmt.Sprintf("%.0f%% off", tier.DiscountPct) }</span></td>
+							<td class="small-text">
+								if ex, ok := tierExample(data); ok {
+									{ ex.Title }: { ZAR(ex.WholesaleZar) } → <b>{ ZAR(ex.WholesaleZar * (1 - tier.DiscountPct/100)) }</b>
+								}
+							</td>
 							<td><span style="font-size:12px; color:var(--muted);">{ tier.Description }</span></td>
 						</tr>
 					}
@@ -67,8 +72,8 @@ templ DiscountsTab(data models.DashboardViewData) {
 	<div class="card panel">
 		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
 			<div>
-				<h4 style="font-size:15px; font-weight:700;">Promotional Coupons &amp; Trade Incentives</h4>
-				<p style="margin:2px 0 0; font-size:12px; color:var(--muted);">Redeemable via Web Storefront checkout or WhatsApp proforma invoice quoting.</p>
+				<h3>Promotion codes</h3>
+				<p style="margin:2px 0 0; font-size:12px; color:var(--muted);">Buyers enter the code at checkout; staff pick it at the counter.</p>
 			</div>
 			<span style="font-size:12px; color:var(--muted);">{ fmt.Sprintf("%d Coupons Configured", len(data.Coupons)) }</span>
 		</div>
@@ -188,4 +193,20 @@ templ DiscountsTab(data models.DashboardViewData) {
 			</form>
 		</div>
 	</dialog>
+}
+
+// tierExample is the product used to illustrate tier prices: this month's
+// best seller, or the first product.
+func tierExample(data models.DashboardViewData) (models.CatalogSKU, bool) {
+	if len(data.Metrics.TopProducts) > 0 {
+		for _, p := range data.Catalog {
+			if p.Title == data.Metrics.TopProducts[0].Label {
+				return p, true
+			}
+		}
+	}
+	if len(data.Catalog) > 0 {
+		return data.Catalog[0], true
+	}
+	return models.CatalogSKU{}, false
 }

@@ -34,7 +34,7 @@ func DiscountsTab(data models.DashboardViewData) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"panel-head\"><div><h3>Wholesale Tier Pricing &amp; Promotional Discounts</h3><div class=\"sub\">Volume-based wholesale price matrices, trade discounts &amp; promo coupons</div></div><div class=\"right\" style=\"display:flex; gap:8px;\"><button class=\"btn ghost small\" onclick=\"document.getElementById('new-tier-dialog')?.showModal();\"><span>+</span> Add Wholesale Tier</button> <button class=\"btn solid small\" onclick=\"document.getElementById('new-coupon-dialog')?.showModal();\"><span>+</span> Create Promo Coupon</button></div></div><!-- Wholesale Volume Pricing Table --><div class=\"card panel\" style=\"margin-bottom:18px;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;\"><div><h4 style=\"font-size:15px; font-weight:700;\">Automatic Wholesale Volume Tier Matrix</h4><p style=\"margin:2px 0 0; font-size:12px; color:var(--muted);\">Applied automatically on B2B proforma generation based on carton order quantities.</p></div><span class=\"chip up\">Active on All Catalog SKUs</span></div><div class=\"table-wrap\"><table class=\"table\"><thead><tr><th>Tier Name</th><th>Minimum Units</th><th>Maximum Units</th><th>Wholesale Discount</th><th>Commercial Note</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-head\"><div class=\"head-copy\"><p>Volume price tiers apply to quotes automatically. Promotion codes work at the counter and on your store.</p></div><div class=\"actions\"><button class=\"btn ghost small\" onclick=\"document.getElementById('new-tier-dialog')?.showModal();\">Add price tier</button> <button class=\"btn solid small\" onclick=\"document.getElementById('new-coupon-dialog')?.showModal();\">New promotion code</button></div></div><!-- Wholesale Volume Pricing Table --><div class=\"card panel\" style=\"margin-bottom:18px;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;\"><div><h3>Volume price tiers</h3><p style=\"margin:2px 0 0; font-size:12px; color:var(--muted);\">Used to price quotes by quantity. The example column shows the effect on your best-selling product.</p></div></div><div class=\"table-wrap\"><table class=\"table\"><thead><tr><th>Tier Name</th><th>Minimum Units</th><th>Maximum Units</th><th>Discount</th><th>Example</th><th>Note</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -46,7 +46,7 @@ func DiscountsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(tier.TierName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/discounts.templ`, Line: 48, Col: 29}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `discounts.templ`, Line: 48, Col: 29}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -59,7 +59,7 @@ func DiscountsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d units", tier.MinUnits))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/discounts.templ`, Line: 49, Col: 107}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `discounts.templ`, Line: 49, Col: 107}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -77,7 +77,7 @@ func DiscountsTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d units", tier.MaxUnits))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/discounts.templ`, Line: 52, Col: 88}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `discounts.templ`, Line: 52, Col: 88}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -93,161 +93,222 @@ func DiscountsTab(data models.DashboardViewData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</td><td><span class=\"chip up\" style=\"font-size:12.5px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</td><td><span class=\"chip ok\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("-%.1f%% off retail", tier.DiscountPct))
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%% off", tier.DiscountPct))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/discounts.templ`, Line: 57, Col: 112}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `discounts.templ`, Line: 57, Col: 78}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span></td><td><span style=\"font-size:12px; color:var(--muted);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span></td><td class=\"small-text\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(tier.Description)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/discounts.templ`, Line: 58, Col: 79}
+			if ex, ok := tierExample(data); ok {
+				var templ_7745c5c3_Var6 string
+				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(ex.Title)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `discounts.templ`, Line: 60, Col: 19}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, ": ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var7 string
+				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(ZAR(ex.WholesaleZar))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `discounts.templ`, Line: 60, Col: 45}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, " → <b>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var8 string
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(ZAR(ex.WholesaleZar * (1 - tier.DiscountPct/100)))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `discounts.templ`, Line: 60, Col: 106}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</b>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></td></tr>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</tbody></table></div></div><!-- Promo Coupon Codes --><div class=\"card panel\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;\"><div><h4 style=\"font-size:15px; font-weight:700;\">Promotional Coupons &amp; Trade Incentives</h4><p style=\"margin:2px 0 0; font-size:12px; color:var(--muted);\">Redeemable via Web Storefront checkout or WhatsApp proforma invoice quoting.</p></div><span style=\"font-size:12px; color:var(--muted);\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d Coupons Configured", len(data.Coupons)))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/discounts.templ`, Line: 73, Col: 110}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span></div><div class=\"table-wrap\"><table class=\"table\"><thead><tr><th>Coupon Code</th><th>Discount</th><th>Description</th><th>Redemptions</th><th>Status</th><th>Actions</th></tr></thead> <tbody>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		for _, coup := range data.Coupons {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<tr><td><b style=\"font-family:var(--mono); color:var(--primary-2); font-size:14px;\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(coup.Code)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/discounts.templ`, Line: 91, Col: 98}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</b></td><td><span class=\"chip up\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</td><td><span style=\"font-size:12px; color:var(--muted);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%% Off", coup.DiscountPct))
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(tier.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/discounts.templ`, Line: 92, Col: 78}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `discounts.templ`, Line: 63, Col: 79}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span></td><td><span style=\"font-size:12.5px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span></td></tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(coup.Description)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/discounts.templ`, Line: 93, Col: 61}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span></td><td><span style=\"font-family:var(--mono); font-size:12px;\">")
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</tbody></table></div></div><!-- Promo Coupon Codes --><div class=\"card panel\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;\"><div><h3>Promotion codes</h3><p style=\"margin:2px 0 0; font-size:12px; color:var(--muted);\">Buyers enter the code at checkout; staff pick it at the counter.</p></div><span style=\"font-size:12px; color:var(--muted);\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var10 string
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d Coupons Configured", len(data.Coupons)))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `discounts.templ`, Line: 78, Col: 110}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span></div><div class=\"table-wrap\"><table class=\"table\"><thead><tr><th>Coupon Code</th><th>Discount</th><th>Description</th><th>Redemptions</th><th>Status</th><th>Actions</th></tr></thead> <tbody>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, coup := range data.Coupons {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<tr><td><b style=\"font-family:var(--mono); color:var(--primary-2); font-size:14px;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d uses", coup.UsageCount))
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(coup.Code)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/discounts.templ`, Line: 94, Col: 107}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `discounts.templ`, Line: 96, Col: 98}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</span></td><td>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if coup.Active {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span class=\"chip up\">Active</span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"chip flat\">Paused</span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</td><td><form hx-post=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</b></td><td><span class=\"chip up\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var12 string
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/discounts/%s/toggle", coup.ID))
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%% Off", coup.DiscountPct))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/discounts.templ`, Line: 103, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `discounts.templ`, Line: 97, Col: 78}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" hx-target=\"#tab-content\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span></td><td><span style=\"font-size:12.5px;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var13 string
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(coup.Description)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `discounts.templ`, Line: 98, Col: 61}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span></td><td><span style=\"font-family:var(--mono); font-size:12px;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var14 string
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d uses", coup.UsageCount))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `discounts.templ`, Line: 99, Col: 107}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></td><td>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if coup.Active {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<button type=\"submit\" class=\"btn ghost small\" style=\"padding:4px 8px; font-size:11px;\">Pause</button>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"chip up\">Active</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<button type=\"submit\" class=\"btn solid small\" style=\"padding:4px 8px; font-size:11px;\">Activate</button>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span class=\"chip flat\">Paused</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</form></td></tr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</td><td><form hx-post=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var15 string
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/discounts/%s/toggle", coup.ID))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `discounts.templ`, Line: 108, Col: 68}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" hx-target=\"#tab-content\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if coup.Active {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<button type=\"submit\" class=\"btn ghost small\" style=\"padding:4px 8px; font-size:11px;\">Pause</button>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<button type=\"submit\" class=\"btn solid small\" style=\"padding:4px 8px; font-size:11px;\">Activate</button>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</form></td></tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</tbody></table></div></div><!-- New Wholesale Tier Modal Dialog --><dialog id=\"new-tier-dialog\" class=\"modal-dialog\"><div class=\"modal-card\"><div class=\"modal-head\"><h4>Add Wholesale Pricing Tier Rule</h4><button type=\"button\" class=\"close-btn\" onclick=\"document.getElementById('new-tier-dialog').close();\">&times;</button></div><form hx-post=\"/discounts/tier/new\" hx-target=\"#tab-content\" onsubmit=\"document.getElementById('new-tier-dialog').close();\"><div class=\"modal-body\"><div class=\"form-group\"><label>Tier Name</label> <input type=\"text\" name=\"tierName\" class=\"input\" placeholder=\"e.g. Master Distributor Tier\" required></div><div class=\"two-col\"><div class=\"form-group\"><label>Minimum Units</label> <input type=\"number\" name=\"minUnits\" class=\"input\" value=\"100\" required></div><div class=\"form-group\"><label>Maximum Units (0 for Unlimited)</label> <input type=\"number\" name=\"maxUnits\" class=\"input\" value=\"0\"></div></div><div class=\"two-col\"><div class=\"form-group\"><label>Wholesale Discount Percentage (%)</label> <input type=\"number\" step=\"0.5\" name=\"discountPct\" class=\"input\" value=\"28.0\" required></div><div class=\"form-group\"><label>Commercial Note</label> <input type=\"text\" name=\"description\" class=\"input\" placeholder=\"FOB Warehouse Dispatch\" required></div></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn ghost\" onclick=\"document.getElementById('new-tier-dialog').close();\">Cancel</button> <button type=\"submit\" class=\"btn solid\">Save Wholesale Tier</button></div></form></div></dialog><!-- New Coupon Modal Dialog --><dialog id=\"new-coupon-dialog\" class=\"modal-dialog\"><div class=\"modal-card\"><div class=\"modal-head\"><h4>Create Promotional Discount Coupon</h4><button type=\"button\" class=\"close-btn\" onclick=\"document.getElementById('new-coupon-dialog').close();\">&times;</button></div><form hx-post=\"/discounts/new\" hx-target=\"#tab-content\" onsubmit=\"document.getElementById('new-coupon-dialog').close();\"><div class=\"modal-body\"><div class=\"form-group\"><label>Coupon Code</label> <input type=\"text\" name=\"code\" class=\"input\" placeholder=\"e.g. EXPO2026\" style=\"text-transform:uppercase;\" required></div><div class=\"two-col\"><div class=\"form-group\"><label>Discount Percentage (%)</label> <input type=\"number\" name=\"discountPct\" class=\"input\" value=\"15\" min=\"1\" max=\"100\" required></div><div class=\"form-group\"><label>Description</label> <input type=\"text\" name=\"description\" class=\"input\" placeholder=\"Trade Fair Special\" required></div></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn ghost\" onclick=\"document.getElementById('new-coupon-dialog').close();\">Cancel</button> <button type=\"submit\" class=\"btn solid\">Publish Coupon</button></div></form></div></dialog>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</tbody></table></div></div><!-- New Wholesale Tier Modal Dialog --><dialog id=\"new-tier-dialog\" class=\"modal-dialog\"><div class=\"modal-card\"><div class=\"modal-head\"><h4>Add Wholesale Pricing Tier Rule</h4><button type=\"button\" class=\"close-btn\" onclick=\"document.getElementById('new-tier-dialog').close();\">&times;</button></div><form hx-post=\"/discounts/tier/new\" hx-target=\"#tab-content\" onsubmit=\"document.getElementById('new-tier-dialog').close();\"><div class=\"modal-body\"><div class=\"form-group\"><label>Tier Name</label> <input type=\"text\" name=\"tierName\" class=\"input\" placeholder=\"e.g. Master Distributor Tier\" required></div><div class=\"two-col\"><div class=\"form-group\"><label>Minimum Units</label> <input type=\"number\" name=\"minUnits\" class=\"input\" value=\"100\" required></div><div class=\"form-group\"><label>Maximum Units (0 for Unlimited)</label> <input type=\"number\" name=\"maxUnits\" class=\"input\" value=\"0\"></div></div><div class=\"two-col\"><div class=\"form-group\"><label>Wholesale Discount Percentage (%)</label> <input type=\"number\" step=\"0.5\" name=\"discountPct\" class=\"input\" value=\"28.0\" required></div><div class=\"form-group\"><label>Commercial Note</label> <input type=\"text\" name=\"description\" class=\"input\" placeholder=\"FOB Warehouse Dispatch\" required></div></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn ghost\" onclick=\"document.getElementById('new-tier-dialog').close();\">Cancel</button> <button type=\"submit\" class=\"btn solid\">Save Wholesale Tier</button></div></form></div></dialog><!-- New Coupon Modal Dialog --><dialog id=\"new-coupon-dialog\" class=\"modal-dialog\"><div class=\"modal-card\"><div class=\"modal-head\"><h4>Create Promotional Discount Coupon</h4><button type=\"button\" class=\"close-btn\" onclick=\"document.getElementById('new-coupon-dialog').close();\">&times;</button></div><form hx-post=\"/discounts/new\" hx-target=\"#tab-content\" onsubmit=\"document.getElementById('new-coupon-dialog').close();\"><div class=\"modal-body\"><div class=\"form-group\"><label>Coupon Code</label> <input type=\"text\" name=\"code\" class=\"input\" placeholder=\"e.g. EXPO2026\" style=\"text-transform:uppercase;\" required></div><div class=\"two-col\"><div class=\"form-group\"><label>Discount Percentage (%)</label> <input type=\"number\" name=\"discountPct\" class=\"input\" value=\"15\" min=\"1\" max=\"100\" required></div><div class=\"form-group\"><label>Description</label> <input type=\"text\" name=\"description\" class=\"input\" placeholder=\"Trade Fair Special\" required></div></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn ghost\" onclick=\"document.getElementById('new-coupon-dialog').close();\">Cancel</button> <button type=\"submit\" class=\"btn solid\">Publish Coupon</button></div></form></div></dialog>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		return nil
 	})
+}
+
+// tierExample is the product used to illustrate tier prices: this month's
+// best seller, or the first product.
+func tierExample(data models.DashboardViewData) (models.CatalogSKU, bool) {
+	if len(data.Metrics.TopProducts) > 0 {
+		for _, p := range data.Catalog {
+			if p.Title == data.Metrics.TopProducts[0].Label {
+				return p, true
+			}
+		}
+	}
+	if len(data.Catalog) > 0 {
+		return data.Catalog[0], true
+	}
+	return models.CatalogSKU{}, false
 }
 
 var _ = templruntime.GeneratedTemplate

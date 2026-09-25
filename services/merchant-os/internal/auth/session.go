@@ -198,3 +198,17 @@ a:hover { background:#047857; }
 </div>
 </body>
 </html>`
+
+// SessionEmail returns the signed-in user's email for audit entries, or ""
+// when the request carries no valid session.
+func SessionEmail(r *http.Request) string {
+	c, err := r.Cookie(CookieName)
+	if err != nil {
+		return ""
+	}
+	p, ok := DecodeSession(c.Value, secretKey())
+	if !ok {
+		return ""
+	}
+	return p.Email
+}

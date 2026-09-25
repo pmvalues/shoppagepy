@@ -4,29 +4,43 @@ import "time"
 
 // StoreProfile represents a verified South African merchant
 type StoreProfile struct {
-	ID                 string    `json:"id"`
-	Name               string    `json:"name"`
-	LegalName          string    `json:"legalName"`
-	Category           string    `json:"category"`
-	Address            string    `json:"address"`
-	City               string    `json:"city"`
-	Province           string    `json:"province"`
-	Phone              string    `json:"phone"`
-	WhatsApp           string    `json:"whatsapp"`
-	Email              string    `json:"email"`
-	Website            string    `json:"website"`
-	CIPCRegistration   string    `json:"cipcRegistration"`
-	VATNumber          string    `json:"vatNumber"`
-	BankName           string    `json:"bankName"`
-	BankAccount        string    `json:"bankAccount"`
-	BankBranchCode     string    `json:"bankBranchCode"`
-	CurrentPlan        string    `json:"currentPlan"`        // "Launch Free (R0/mo)", "Grow (R199/mo)", "Pro (R599/mo)"
-	SovereignPod       string    `json:"sovereignPod"`       // "pod-za-01, Johannesburg"
-	VerificationStatus string    `json:"verificationStatus"` // "fully_verified", "phone_verified", "candidate"
-	GrossRevenueZar    float64   `json:"grossRevenueZar"`
-	QuotesSentCount    int       `json:"quotesSentCount"`
-	MedianResponseMins int       `json:"medianResponseMins"`
-	UpdatedAt          time.Time `json:"updatedAt"`
+	ID                 string     `json:"id"`
+	Name               string     `json:"name"`
+	LegalName          string     `json:"legalName"`
+	Category           string     `json:"category"`
+	Address            string     `json:"address"`
+	City               string     `json:"city"`
+	Province           string     `json:"province"`
+	Phone              string     `json:"phone"`
+	WhatsApp           string     `json:"whatsapp"`
+	Email              string     `json:"email"`
+	Website            string     `json:"website"`
+	CIPCRegistration   string     `json:"cipcRegistration"`
+	VATNumber          string     `json:"vatNumber"`
+	BankName           string     `json:"bankName"`
+	BankAccount        string     `json:"bankAccount"`
+	BankBranchCode     string     `json:"bankBranchCode"`
+	CurrentPlan        string     `json:"currentPlan"`        // "Launch Free (R0/mo)", "Grow (R199/mo)", "Pro (R599/mo)"
+	SovereignPod       string     `json:"sovereignPod"`       // "pod-za-01, Johannesburg"
+	VerificationStatus string     `json:"verificationStatus"` // "fully_verified", "phone_verified", "candidate"
+	GrossRevenueZar    float64    `json:"grossRevenueZar"`
+	QuotesSentCount    int        `json:"quotesSentCount"`
+	MedianResponseMins int        `json:"medianResponseMins"`
+	UpdatedAt          time.Time  `json:"updatedAt"`
+	Storefront         Storefront `json:"storefront"`
+}
+
+// Storefront is what the merchant chooses to show on their public store page
+// and in search results for it.
+type Storefront struct {
+	Headline       string `json:"headline"`
+	About          string `json:"about"`
+	Ribbon         string `json:"ribbon"`
+	RibbonOn       bool   `json:"ribbonOn"`
+	WhatsAppButton bool   `json:"whatsappButton"`
+	SEOTitle       string `json:"seoTitle"`
+	SEODescription string `json:"seoDescription"`
+	TradingHours   string `json:"tradingHours"`
 }
 
 // ProductActivity represents an event in a product's audit trail
@@ -55,19 +69,23 @@ type ProductDetailSpec struct {
 
 // CatalogSKU represents a product managed by the merchant
 type CatalogSKU struct {
-	ID            string            `json:"id"`
-	StoreID       string            `json:"storeId"`
-	SKU           string            `json:"sku"`
-	Title         string            `json:"title"`
-	Brand         string            `json:"brand"`
-	Category      string            `json:"category"`
-	WholesaleZar  float64           `json:"wholesaleZar"`
-	RetailZar     float64           `json:"retailZar"`
-	InStock       bool              `json:"inStock"`
-	StockQuantity int               `json:"stockQuantity"`
-	LowStockAlert int               `json:"lowStockAlert"`
-	FeedStatus    string            `json:"feedStatus"` // "Active", "Pending", "Paused"
-	Spec          ProductDetailSpec `json:"spec"`
+	ID            string  `json:"id"`
+	StoreID       string  `json:"storeId"`
+	SKU           string  `json:"sku"`
+	Title         string  `json:"title"`
+	Brand         string  `json:"brand"`
+	Category      string  `json:"category"`
+	WholesaleZar  float64 `json:"wholesaleZar"`
+	RetailZar     float64 `json:"retailZar"`
+	InStock       bool    `json:"inStock"`
+	StockQuantity int     `json:"stockQuantity"`
+	LowStockAlert int     `json:"lowStockAlert"`
+	FeedStatus    string  `json:"feedStatus"` // "Active", "Pending", "Paused"
+	// StockByHub holds on-hand units per warehouse ID. StockQuantity is always
+	// the sum of these; handlers change stock only through the helpers that
+	// keep the two in step.
+	StockByHub map[string]int    `json:"stockByHub,omitempty"`
+	Spec       ProductDetailSpec `json:"spec"`
 }
 
 // RFQLead represents an active commercial lead / negotiation from a buyer
@@ -83,6 +101,13 @@ type RFQLead struct {
 	EstimatedTotal float64   `json:"estimatedTotal"`
 	Status         string    `json:"status"` // "new", "quoted", "accepted", "completed"
 	ReceivedAt     time.Time `json:"receivedAt"`
+	// Quote terms, set when the merchant sends a quote. The price is held
+	// until ValidUntil and used as-is when the quote becomes an order.
+	SKU           string    `json:"sku,omitempty"`
+	QuotedUnitZar float64   `json:"quotedUnitZar,omitempty"`
+	DeliveryZar   float64   `json:"deliveryZar,omitempty"`
+	QuotedAt      time.Time `json:"quotedAt,omitempty"`
+	ValidUntil    time.Time `json:"validUntil,omitempty"`
 }
 
 // ProformaLineItem represents an individual line in a proforma tax invoice
@@ -177,7 +202,7 @@ type ChannelSync struct {
 	LastSyncAt  time.Time `json:"lastSyncAt"`
 }
 
-// CopilotMessage represents a chat or recommendation message in Pemofy Copilot
+// CopilotMessage represents a chat or recommendation message in the Assistant
 type CopilotMessage struct {
 	ID          string    `json:"id"`
 	Role        string    `json:"role"` // "assistant", "user", "system"
@@ -230,7 +255,7 @@ type CarrierManifest struct {
 	Date          time.Time `json:"date"`
 }
 
-// FlowRule represents an event-driven automation rule from Pemofy
+// FlowRule represents an event-driven automation rule
 type FlowRule struct {
 	ID              string    `json:"id"`
 	Name            string    `json:"name"`
@@ -283,9 +308,12 @@ type POSTransaction struct {
 	TotalZar      float64   `json:"totalZar"`
 	PaymentMethod string    `json:"paymentMethod"` // "Capitec Pay QR", "Card Terminal", "Cash", "Instant EFT"
 	Timestamp     time.Time `json:"timestamp"`
+	// ClientRef is generated on the device that rang up the sale, so a sale
+	// queued offline and re-sent on reconnect is never recorded twice.
+	ClientRef string `json:"clientRef,omitempty"`
 }
 
-// ItemLedgerEntry represents double-entry stock transactions from Pemofy Role Center
+// ItemLedgerEntry represents double-entry stock movement
 type ItemLedgerEntry struct {
 	ID           string    `json:"id"`
 	EntryNumber  int       `json:"entryNumber"`
@@ -392,6 +420,22 @@ type ReturnRequest struct {
 }
 
 // DashboardViewData encapsulates the full page state for Go HTML rendering across all modules
+// Proposal is a change the assistant suggests. Nothing is applied until the
+// merchant approves it, and an applied proposal can be undone.
+type Proposal struct {
+	ID        string    `json:"id"`
+	Kind      string    `json:"kind"` // "restock", "price", "follow_up", "listing"
+	Title     string    `json:"title"`
+	Reason    string    `json:"reason"` // the data behind the suggestion
+	Change    string    `json:"change"` // before -> after, in plain words
+	TargetID  string    `json:"targetId"`
+	Quantity  int       `json:"quantity,omitempty"`
+	OldValue  float64   `json:"oldValue,omitempty"`
+	NewValue  float64   `json:"newValue,omitempty"`
+	Status    string    `json:"status"` // "pending", "applied", "dismissed", "undone"
+	CreatedAt time.Time `json:"createdAt"`
+}
+
 // NavContext carries live navigation state into the workspace shell. Every number
 // the sidebar or topbar shows is computed from state here — nothing may be hardcoded.
 type NavContext struct {
@@ -400,6 +444,15 @@ type NavContext struct {
 	LowStock      int    `json:"lowStock"`
 	UnreadThreads int    `json:"unreadThreads"`
 	OpenQuotes    int    `json:"openQuotes"`
+	NewQuotes     int    `json:"newQuotes"`     // enquiries not yet quoted
+	ListingIssues int    `json:"listingIssues"` // products blocked on at least one channel
+	// DemoData is true when the workspace runs on the bundled sample business,
+	// so every screen can say so instead of implying the figures are real.
+	DemoData bool `json:"demoData"`
+	// AIConnected is true only when a language model is configured. Without
+	// one the assistant runs deterministic rules and is labelled that way.
+	AIConnected bool   `json:"aiConnected"`
+	UserEmail   string `json:"userEmail"`
 }
 
 type DashboardViewData struct {
@@ -426,8 +479,12 @@ type DashboardViewData struct {
 	ChatThreads     []ChatThread
 	ActiveThreadID  string
 	Nav             NavContext
-	ActiveSKU       *CatalogSKU    // Optional: for Product Detail & Edit modal
-	ActiveInvoice   *ProformaOrder // Optional: for Proforma Invoice modal
+	Metrics         Metrics
+	Proposals       []Proposal
+	Readiness       map[string]ProductReadiness // keyed by CatalogSKU.ID
+	Query           map[string]string           // list filters from the URL (?status=…)
+	ActiveSKU       *CatalogSKU                 // Optional: for Product Detail & Edit modal
+	ActiveInvoice   *ProformaOrder              // Optional: for Proforma Invoice modal
 }
 
 // GetActiveThread returns the active ChatThread or first thread

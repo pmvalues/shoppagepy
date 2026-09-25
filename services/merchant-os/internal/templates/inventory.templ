@@ -3,344 +3,268 @@ package templates
 import (
 	"fmt"
 	"strings"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
+func inventoryRows(data models.DashboardViewData) []models.CatalogSKU {
+	q := strings.ToLower(strings.TrimSpace(data.Query["q"]))
+	stock := data.Query["stock"]
+	var out []models.CatalogSKU
+	for _, p := range data.Catalog {
+		if q != "" && !strings.Contains(strings.ToLower(p.SKU+" "+p.Title+" "+p.Category+" "+p.Spec.Barcode), q) {
+			continue
+		}
+		low := p.LowStockAlert > 0 && p.StockQuantity <= p.LowStockAlert
+		switch stock {
+		case "low":
+			if !low {
+				continue
+			}
+		case "out":
+			if p.StockQuantity > 0 {
+				continue
+			}
+		}
+		out = append(out, p)
+	}
+	return out
+}
+
+func ledgerTone(entryType string, qty int) string {
+	if qty < 0 {
+		return "chip bad"
+	}
+	if strings.Contains(entryType, "Receipt") {
+		return "chip ok"
+	}
+	return "chip info"
+}
+
+func ledgerLabel(entryType string) string {
+	switch entryType {
+	case "Positive Adjmt.":
+		return "Adjustment +"
+	case "Negative Adjmt.":
+		return "Adjustment −"
+	case "Purchase Receipt":
+		return "Delivery in"
+	case "Sale Shipment":
+		return "Sale"
+	case "Assembly Consumption":
+		return "Used in assembly"
+	case "Transfer Receipt":
+		return "Transfer in"
+	}
+	return entryType
+}
+
 templ InventoryTab(data models.DashboardViewData) {
-	<div class="panel-head">
-		<div>
-			<h3>Inventory &amp; Multi-Warehouse Hubs</h3>
-			<div class="sub">Regional depot distribution, double-entry ILE tracking &amp; safety stock allocations</div>
+	{{ m := data.Metrics }}
+	{{ rows := inventoryRows(data) }}
+	{{ stock := data.Query["stock"] }}
+	<div class="page-head">
+		<div class="head-copy">
+			<p>{ fmt.Sprintf("%s units across %d %s · worth %s at selling price", Int(m.CatalogUnits), len(m.Hubs), Plural(len(m.Hubs), "location", "locations"), ZARWhole(m.CatalogValueZar)) }</p>
 		</div>
-		<div class="right">
-			<a href="/inventory/export.csv" class="btn ghost small">
-				<span>📥</span> Export Audit CSV
-			</a>
-			<button class="btn solid small" onclick="document.getElementById('adjust-modal')?.showModal();">
-				<span>+</span> Stock Intake
-			</button>
+		<div class="actions">
+			<a class="btn ghost" href="/inventory/export.csv">Export CSV</a>
+			<button class="btn solid" type="button" onclick="document.getElementById('adjust-modal').showModal()">Record stock movement</button>
 		</div>
 	</div>
-
-	<!-- Warehouse Hubs Overview -->
-	<div class="grid-kpi" style="margin-bottom:18px;">
-		for _, hub := range data.Warehouses {
-			<div class="card kpi">
+	<section class="grid-kpi">
+		for _, h := range m.Hubs {
+			<article class="card kpi">
 				<div class="k-label">
-					<span>{ hub.Name }</span>
-					<span class="chip up">{ hub.Status }</span>
-				</div>
-				<div class="k-val" style="font-size:1.6rem; margin:6px 0 2px;">
-					{ fmt.Sprintf("%d", hub.SKUsStocked) } <span class="sub">SKUs</span>
-				</div>
-				<div class="k-foot">
-					<span class="then">{ hub.Location }, { hub.Province }</span>
-				</div>
-				<div style="margin-top:10px;">
-					<div style="display:flex; justify-content:space-between; font-size:11.5px; color:var(--muted); margin-bottom:4px;">
-						<span>Depot Capacity</span>
-						<b>{ fmt.Sprintf("%d%%", hub.CapacityUsedPct) }</b>
-					</div>
-					<div style="height:6px; border-radius:99px; background:var(--surface-2); overflow:hidden;">
-						<div style={ fmt.Sprintf("height:100%%; background:var(--primary); width:%d%%; border-radius:99px;", hub.CapacityUsedPct) }></div>
-					</div>
-				</div>
-			</div>
-		}
-		<!-- Inventory Asset Valuation Card -->
-		<div class="card kpi">
-			<div class="k-label">
-				<span>Total Stock Valuation</span>
-				<span class="chip up">FIFO Landed</span>
-			</div>
-			<div class="k-val" style="font-size:1.6rem; margin:6px 0 2px; color:var(--primary-2);">
-				R 84,260 <span class="sub">ZAR</span>
-			</div>
-			<div class="k-foot">
-				<span class="then">4 Active SKUs across 3 Hubs</span>
-			</div>
-			<div style="margin-top:10px; font-size:11px; color:var(--muted); display:flex; justify-content:space-between;">
-				<span>Turnover Rate: <b>4.8x/yr</b></span>
-				<span>Safety Deficit: <b style="color:var(--rose);">0</b></span>
-			</div>
-		</div>
-	</div>
-
-	<!-- Inventory Multi-Criteria Filter Bar (Matching Pemofy Inventory Workbench) -->
-	<div class="card panel" style="padding:12px 16px; margin-bottom:14px; background:var(--surface); border:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-		<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-			<!-- Search Filter -->
-			<div class="search" style="min-width:240px;">
-				<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4a7 7 0 105 12l4 4"></path></svg>
-				<input 
-					type="text" 
-					id="inv-search-input" 
-					placeholder="Search SKU code, title, or category…" 
-					style="border:0; outline:0; background:transparent; width:100%; font-size:12.5px; color:var(--ink);"
-					onkeyup="filterInventoryTable();"
-				/>
-			</div>
-
-			<!-- Category Filter -->
-			<select id="inv-category-filter" onchange="filterInventoryTable();" style="padding:4px 8px; font-size:12px; border-radius:7px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); font-weight:500;">
-				<option value="">All Categories</option>
-				<option value="Hospitality Supplies">Hospitality Supplies</option>
-				<option value="Packaging & Catering">Packaging &amp; Catering</option>
-			</select>
-
-			<!-- Stock Level Status Filter -->
-			<select id="inv-stock-filter" onchange="filterInventoryTable();" style="padding:4px 8px; font-size:12px; border-radius:7px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); font-weight:500;">
-				<option value="">All Stock Levels</option>
-				<option value="instock">In Stock</option>
-				<option value="low">Low Stock Buffer Alert</option>
-				<option value="depleted">Depleted / Out of Stock</option>
-			</select>
-		</div>
-
-		<!-- Live Counter -->
-		<div style="display:flex; align-items:center; gap:6px; font-size:12px; font-family:var(--mono); color:var(--muted);">
-			<span>Showing:</span>
-			<span id="inv-matching-count" style="font-weight:700; color:var(--ink);">{ fmt.Sprintf("%d", len(data.Catalog)) }</span>
-			<span>of { fmt.Sprintf("%d", len(data.Catalog)) } SKUs</span>
-		</div>
-	</div>
-
-	<script>
-		function filterInventoryTable() {
-			var searchVal = (document.getElementById('inv-search-input')?.value || '').toLowerCase().trim();
-			var catVal = document.getElementById('inv-category-filter')?.value || '';
-			var stockVal = document.getElementById('inv-stock-filter')?.value || '';
-			var matchCount = 0;
-
-			document.querySelectorAll('.inv-row').forEach(function(row) {
-				var rowSearch = row.dataset.search || '';
-				var rowCat = row.dataset.category || '';
-				var rowStock = row.dataset.stockStatus || '';
-
-				var matchesSearch = !searchVal || rowSearch.includes(searchVal);
-				var matchesCat = !catVal || rowCat === catVal;
-				var matchesStock = !stockVal || rowStock === stockVal;
-
-				if (matchesSearch && matchesCat && matchesStock) {
-					row.style.display = '';
-					matchCount++;
-				} else {
-					row.style.display = 'none';
-				}
-			});
-
-			var countEl = document.getElementById('inv-matching-count');
-			if (countEl) countEl.textContent = matchCount;
-		}
-	</script>
-
-	<!-- Stock Levels Table -->
-	<div class="card panel" style="margin-bottom:18px;">
-		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
-			<div>
-				<h4 style="font-size:15px; font-weight:700;">Live SKU Stock Matrix &amp; Multi-Hub Allocations</h4>
-				<div style="font-size:12px; color:var(--muted);">Audited physical on-hand balances with real-time double-entry ledger integration</div>
-			</div>
-			<span style="font-size:12px; color:var(--muted);">{ fmt.Sprintf("%d SKUs in Catalog", len(data.Catalog)) }</span>
-		</div>
-		<div class="table-wrap">
-			<table class="table">
-				<thead>
-					<tr>
-						<th>SKU &amp; Title</th>
-						<th>Category</th>
-						<th>Total Stock</th>
-						<th>Midrand (JHB)</th>
-						<th>Cape Town (CPT)</th>
-						<th>Durban (DBN)</th>
-						<th>Buffer</th>
-						<th>Status</th>
-						<th>Quick Adjust</th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, item := range data.Catalog {
-						<tr class="inv-row" data-search={ strings.ToLower(fmt.Sprintf("%s %s %s", item.SKU, item.Title, item.Category)) } data-category={ item.Category } data-stock-status={ func() string { if !item.InStock || item.StockQuantity == 0 { return "depleted" } else if item.StockQuantity <= item.LowStockAlert { return "low" } else { return "instock" } }() }>
-							<td>
-								<b>{ item.SKU }</b>
-								<div style="font-size:12px; color:var(--muted);">{ item.Title }</div>
-							</td>
-							<td><span class="chip flat">{ item.Category }</span></td>
-							<td>
-								if item.InStock {
-									<span class="stock" style="font-weight:700; color:var(--primary-2);">
-										<i></i> { fmt.Sprintf("%d units", item.StockQuantity) }
-									</span>
-								} else {
-									<span class="stock out" style="font-weight:700; color:var(--rose);">
-										<i></i> Depleted (0)
-									</span>
-								}
-							</td>
-							<td>
-								<span style="font-family:var(--mono); font-size:12px; font-weight:600;">
-									{ fmt.Sprintf("%d", int(float64(item.StockQuantity)*0.65)) }
-								</span>
-							</td>
-							<td>
-								<span style="font-family:var(--mono); font-size:12px; font-weight:600;">
-									{ fmt.Sprintf("%d", int(float64(item.StockQuantity)*0.25)) }
-								</span>
-							</td>
-							<td>
-								<span style="font-family:var(--mono); font-size:12px; font-weight:600;">
-									{ fmt.Sprintf("%d", int(float64(item.StockQuantity)*0.10)) }
-								</span>
-							</td>
-							<td>
-								<span style="font-size:12px; color:var(--muted);">
-									Min: { fmt.Sprintf("%d", item.LowStockAlert) }
-								</span>
-							</td>
-							<td>
-								if item.StockQuantity > item.LowStockAlert {
-									<span class="chip up">Healthy</span>
-								} else if item.StockQuantity > 0 {
-									<span class="chip warn">Low Stock</span>
-								} else {
-									<span class="chip down">Depleted</span>
-								}
-							</td>
-							<td>
-								<form hx-post={ fmt.Sprintf("/inventory/%s/adjust", item.ID) } hx-target="#tab-content" style="display:flex; gap:6px; align-items:center;">
-									<input type="number" name="adjustment" value="10" style="width:60px; padding:4px 6px; border:1px solid var(--line); border-radius:6px; font-size:12px;" />
-									<button type="submit" class="btn ghost small" style="padding:4px 8px; font-size:11px;">+ Restock</button>
-								</form>
-							</td>
-						</tr>
+					{ h.Hub.Name }
+					if h.Hub.Status != "" && h.Hub.Status != "Operational" {
+						<span class="chip warn">{ h.Hub.Status }</span>
 					}
-				</tbody>
-			</table>
-		</div>
-	</div>
-
-	<!-- Multi-Warehouse Stock Allocation Breakdown Panel -->
-	<div class="row-2">
-		<div class="card panel">
-			<h4 style="font-size:15px; font-weight:700; margin-bottom:6px;">Regional Depot Fulfillment SLAs</h4>
-			<p style="font-size:12.5px; color:var(--muted); margin-bottom:14px;">Logistics corridors optimized for same-day dispatch via The Courier Guy.</p>
-
-			<div style="display:grid; gap:10px; font-size:12.5px;">
-				<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--surface-2); border-radius:8px;">
-					<div>
-						<b>Gauteng Golden Triangle (JHB / PTA / Midrand)</b>
-						<div style="font-size:11.5px; color:var(--muted);">Primary Hub ERF710 · Same-day delivery cut-off 14:00</div>
-					</div>
-					<span class="chip up">SLA 4 Hours</span>
 				</div>
-				<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--surface-2); border-radius:8px;">
-					<div>
-						<b>Western Cape Corridor (CPT Depot)</b>
-						<div style="font-size:11.5px; color:var(--muted);">Airport Industrial Park Unit 4 · Next-day dispatch</div>
+				<div class="k-val">{ Int(h.Units) } <span class="sub">units</span></div>
+				<div class="k-foot">{ fmt.Sprintf("%d %s · %s", h.Products, Plural(h.Products, "product", "products"), ZARWhole(h.ValueZar)) }</div>
+				if h.Hub.CapacityUsedPct > 0 {
+					<div style="margin-top:8px;">
+						<div class="cluster small-text muted" style="justify-content:space-between;"><span>Space used (last recorded)</span><b>{ fmt.Sprintf("%d%%", h.Hub.CapacityUsedPct) }</b></div>
+						<div class={ "progress", templ.KV("warn", h.Hub.CapacityUsedPct >= 80) } style="margin-top:4px;"><span style={ Width(float64(h.Hub.CapacityUsedPct)) }></span></div>
 					</div>
-					<span class="chip up">SLA 24 Hours</span>
-				</div>
-				<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--surface-2); border-radius:8px;">
-					<div>
-						<b>KZN Coastal Corridor (Durban Port)</b>
-						<div style="font-size:11.5px; color:var(--muted);">Bayhead Harbor Hub · Road freight transfer buffer</div>
-					</div>
-					<span class="chip warn">SLA 48 Hours</span>
-				</div>
+				}
+			</article>
+		}
+		<a class="card kpi" href="/tab/inventory?stock=low" hx-get="/tab/inventory?stock=low" hx-target="#tab-content" hx-push-url="true">
+			<div class="k-label">Needs reordering</div>
+			<div class="k-val">{ Int(len(m.LowStock)) }</div>
+			<div class="k-foot">{ fmt.Sprintf("%d out of stock", m.OutOfStock) }</div>
+		</a>
+	</section>
+	<section class="card section">
+		<div class="panel" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; border-bottom:1px solid var(--line);">
+			<form hx-get="/tab/inventory" hx-target="#tab-content" hx-push-url="true" style="flex:1 1 240px;">
+				<input type="hidden" name="stock" value={ stock }/>
+				<label class="sr-only" for="inv-q">Search stock</label>
+				<input class="input" id="inv-q" type="search" name="q" value={ data.Query["q"] } placeholder="Search SKU, product or barcode" hx-get="/tab/inventory" hx-trigger="input changed delay:350ms, search" hx-include="closest form" hx-target="#tab-content" hx-push-url="true"/>
+			</form>
+			<div class="seg" role="group" aria-label="Filter stock">
+				for _, f := range [][2]string{{"", "All"}, {"low", "Low"}, {"out", "Out of stock"}} {
+					<a href={ templ.SafeURL("/tab/inventory?stock=" + f[0]) } hx-get={ "/tab/inventory?stock=" + f[0] } hx-target="#tab-content" hx-push-url="true" class={ templ.KV("on", stock == f[0]) }>{ f[1] }</a>
+				}
 			</div>
 		</div>
-
-		<div class="card panel">
-			<h4 style="font-size:15px; font-weight:700; margin-bottom:6px;">Sovereign Stocktake Compliance</h4>
-			<p style="font-size:12.5px; color:var(--muted); margin-bottom:14px;">Cryptographic double-entry integrity conforming to SARS Tax Invoice rules.</p>
-
-			<div style="display:grid; gap:8px; font-size:12.5px;">
-				<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:6px;">
-					<span style="color:var(--muted);">Valuation Method</span>
-					<b>FIFO (First-In, First-Out)</b>
-				</div>
-				<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:6px;">
-					<span style="color:var(--muted);">SARS 15% VAT Tracking</span>
-					<b style="color:var(--primary-2);">Automated on Inward / Outward</b>
-				</div>
-				<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:6px;">
-					<span style="color:var(--muted);">Audit Ledger Hash</span>
-					<b style="font-family:var(--mono); font-size:11px;">pod-za-01:merkle:9e4b7</b>
-				</div>
-				<div style="display:flex; justify-content:space-between;">
-					<span style="color:var(--muted);">Last Physical Audit</span>
-					<b>Today, 09:30 SAST (Cycle Count)</b>
-				</div>
+		if len(rows) == 0 {
+			<div class="empty">
+				<h3>Nothing to show</h3>
+				<p>No products match this filter.</p>
+			</div>
+		} else {
+			<div class="table-wrap">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Product</th>
+							for _, h := range data.Warehouses {
+								<th class="r">{ h.Name }</th>
+							}
+							<th class="r">Total</th>
+							<th class="r">Reorder at</th>
+							<th>Adjust</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, p := range rows {
+							<tr>
+								<td>
+									<a class="link" href={ templ.SafeURL("/catalog/" + p.ID) } hx-get={ "/catalog/" + p.ID } hx-target="#tab-content" hx-push-url="true">{ p.Title }</a>
+									<div class="small-text muted mono">{ p.SKU }</div>
+								</td>
+								for _, h := range data.Warehouses {
+									<td class="r num">{ Int(p.StockByHub[h.ID]) }</td>
+								}
+								<td class="r num">
+									<b>{ Int(p.StockQuantity) }</b>
+									if p.StockQuantity <= 0 {
+										<div><span class="chip bad">Out</span></div>
+									} else if p.LowStockAlert > 0 && p.StockQuantity <= p.LowStockAlert {
+										<div><span class="chip warn">Low</span></div>
+									}
+								</td>
+								<td class="r num muted">{ Int(p.LowStockAlert) }</td>
+								<td>
+									<form class="cluster" hx-post={ "/inventory/" + p.ID + "/adjust" } hx-target="#tab-content" style="flex-wrap:nowrap;">
+										<label class="sr-only" for={ "adj-hub-" + p.ID }>Location</label>
+										<select id={ "adj-hub-" + p.ID } name="hub" class="select">
+											for _, h := range data.Warehouses {
+												<option value={ h.ID }>{ h.Name }</option>
+											}
+										</select>
+										<label class="sr-only" for={ "adj-" + p.ID }>{ "Units to add or remove for " + p.SKU }</label>
+										<input id={ "adj-" + p.ID } class="input" type="number" name="adjustment" placeholder="±0" style="width:84px; min-height:32px;" required/>
+										<button type="submit" class="btn ghost small">Apply</button>
+									</form>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</section>
+	<section class="card">
+		<div class="panel-head panel" style="margin:0; border-bottom:1px solid var(--line);">
+			<div>
+				<h3>Stock movements</h3>
+				<div class="sub">Every change to stock, newest first</div>
 			</div>
 		</div>
-	</div>
-
-	<!-- Full-Blown Stock Intake Dialog -->
-	<dialog id="adjust-modal" class="modal-dialog">
+		if len(data.ItemLedger) == 0 {
+			<div class="empty"><p>No stock movements recorded yet.</p></div>
+		} else {
+			<div class="table-wrap">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>When</th>
+							<th>Type</th>
+							<th>Product</th>
+							<th>Location</th>
+							<th>Reference</th>
+							<th class="r">Change</th>
+							<th class="r">Left after</th>
+						</tr>
+					</thead>
+					<tbody>
+						for i, e := range data.ItemLedger {
+							if i < 25 {
+								<tr>
+									<td class="small-text muted" title={ LocalDateTime(e.PostingDate) }>{ Ago(e.PostingDate, data.Metrics.Now) }</td>
+									<td><span class={ ledgerTone(e.EntryType, e.Quantity) }>{ ledgerLabel(e.EntryType) }</span></td>
+									<td><span class="mono">{ e.SKU }</span><div class="small-text muted">{ e.Description }</div></td>
+									<td class="small-text">{ e.Location }</td>
+									<td class="mono small-text">{ e.DocumentNo }</td>
+									<td class="r num"><b>{ fmt.Sprintf("%+d", e.Quantity) }</b></td>
+									<td class="r num">{ Int(e.RemainingQty) }</td>
+								</tr>
+							}
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</section>
+	<dialog id="adjust-modal" class="modal-dialog" aria-labelledby="adjust-title">
 		<div class="modal-card">
 			<div class="modal-head">
-				<div>
-					<div class="breadcrumb" style="margin-bottom:2px;">
-						<span>Inventory</span>
-						<span>&gt;</span>
-						<b>Stock Intake &amp; Ledger Posting</b>
-					</div>
-					<h4 style="font-size:16px;">Post Warehouse Stock Intake / Adjustment</h4>
-				</div>
-				<button type="button" class="close-btn" onclick="document.getElementById('adjust-modal').close();">&times;</button>
+				<h3 id="adjust-title">Record stock movement</h3>
+				<button type="button" class="close-btn" aria-label="Close" onclick="this.closest('dialog').close()">×</button>
 			</div>
-			<form hx-post="/inventory/intake" hx-target="#tab-content" onsubmit="document.getElementById('adjust-modal').close();">
+			<form hx-post="/inventory/intake" hx-target="#tab-content" hx-on::after-request="this.closest('dialog').close()">
 				<div class="modal-body">
 					<div class="form-group">
-						<label>Product SKU to Adjust</label>
-						<select name="skuId" class="select-full">
+						<label for="mv-sku">Product</label>
+						<select id="mv-sku" name="skuId" class="select-full">
 							for _, item := range data.Catalog {
-								<option value={ item.ID }>{ item.SKU } — { item.Title } (Current: { fmt.Sprintf("%d units", item.StockQuantity) })</option>
+								<option value={ item.ID }>{ item.SKU } · { item.Title } ({ Int(item.StockQuantity) } on hand)</option>
 							}
 						</select>
 					</div>
-
 					<div class="two-col">
 						<div class="form-group">
-							<label>Target Warehouse Hub</label>
-							<select name="hubName" class="select-full">
-								<option value="MIDRAND-01">Midrand Central Hub (JHB)</option>
-								<option value="CPT-DOCK">Cape Town Depot (CPT)</option>
-								<option value="DBN-TRANSIT">Durban Port Transit (DBN)</option>
+							<label for="mv-hub">Location</label>
+							<select id="mv-hub" name="hubName" class="select-full">
+								for _, h := range data.Warehouses {
+									<option value={ h.ID }>{ h.Name }</option>
+								}
 							</select>
 						</div>
 						<div class="form-group">
-							<label>Warehouse Storage Bin</label>
-							<input type="text" name="bin" class="input" placeholder="e.g. Bay 4, Shelf B-02" value="Bay 4, Shelf B-02" required />
-						</div>
-					</div>
-
-					<div class="two-col">
-						<div class="form-group">
-							<label>Movement Reason Code</label>
-							<select name="reason" class="select-full">
-								<option value="Purchase Order Inward">Purchase Order Inward (PO Receipt)</option>
-								<option value="Sales Return">Customer Return (Restock)</option>
-								<option value="Stocktake Physical Variance">Stocktake Physical Variance</option>
-								<option value="Scrap / Damaged">Damaged / Scrap Write-Off (-)</option>
-								<option value="Sample Requisition">Internal Trade Sample (-)</option>
+							<label for="mv-reason">Reason</label>
+							<select id="mv-reason" name="reason" class="select-full">
+								<option value="Delivery received">Delivery received (+)</option>
+								<option value="Sales Return">Customer return (+)</option>
+								<option value="Count correction">Count correction (±)</option>
+								<option value="Damaged or expired">Damaged or expired (−)</option>
+								<option value="Sample or own use">Sample or own use (−)</option>
 							</select>
 						</div>
+					</div>
+					<div class="two-col">
 						<div class="form-group">
-							<label>Quantity Delta (units)</label>
-							<input type="number" name="quantity" class="input" value="50" required />
-							<div class="micro">Enter negative numbers for write-offs / deductions.</div>
+							<label for="mv-qty">Units</label>
+							<input id="mv-qty" type="number" name="quantity" class="input" required inputmode="numeric"/>
+							<p class="help">Use a minus sign to remove stock, e.g. −12.</p>
+						</div>
+						<div class="form-group">
+							<label for="mv-ref">Reference (optional)</label>
+							<input id="mv-ref" type="text" name="batchRef" class="input" placeholder="Supplier invoice or PO number"/>
 						</div>
 					</div>
-
 					<div class="form-group">
-						<label>Batch / Purchase Order Reference</label>
-						<input type="text" name="batchRef" class="input" placeholder="e.g. PO-2026-9921" value="PO-2026-9921" required />
+						<label for="mv-bin">Shelf or bin (optional)</label>
+						<input id="mv-bin" type="text" name="bin" class="input"/>
 					</div>
 				</div>
 				<div class="modal-foot">
-					<button type="button" class="btn ghost" onclick="document.getElementById('adjust-modal').close();">Cancel</button>
-					<button type="submit" class="btn solid">Post to Item Ledger (ILE)</button>
+					<button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button>
+					<button type="submit" class="btn solid">Save movement</button>
 				</div>
 			</form>
 		</div>

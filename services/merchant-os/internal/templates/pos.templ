@@ -2,309 +2,273 @@ package templates
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
+func todaysCounterSales(txns []models.POSTransaction, now time.Time) (int, float64) {
+	y, m, d := now.In(sast).Date()
+	n, total := 0, 0.0
+	for _, t := range txns {
+		ty, tm, td := t.Timestamp.In(sast).Date()
+		if ty == y && tm == m && td == d {
+			n++
+			total += t.TotalZar
+		}
+	}
+	return n, total
+}
+
+// POSTerminalTab is the counter sale screen: tap or scan to add, take
+// payment, done. Sales rung up offline are queued on the device and sent
+// when the connection returns (each carries a client reference, so a
+// resend can never double-count).
 templ POSTerminalTab(data models.DashboardViewData) {
-	<div class="panel-head">
-		<div>
-			<h3>Trade Counter POS Terminal &amp; Walk-In Sales</h3>
-			<div class="sub">Cashier register for physical warehouse &amp; shopping centre counter collections with instant Capitec Pay &amp; till slip printing</div>
+	{{ n, total := todaysCounterSales(data.RecentPOSTxns, data.Metrics.Now) }}
+	<div class="page-head">
+		<div class="head-copy">
+			<p>{ fmt.Sprintf("Today: %d %s, %s", n, Plural(n, "sale", "sales"), ZAR(total)) }</p>
 		</div>
-		<div class="right">
-			<span class="chip up">● Register #01 · Midrand Central Hub</span>
+		<div class="actions">
+			<span class="chip warn" id="pos-queue" hidden>0 sales waiting to sync</span>
 		</div>
 	</div>
-
-	<div class="row-2">
-		<!-- Left: Quick Tap Product Grid -->
-		<div class="card panel">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-				<div>
-					<h4 style="font-size:15px; font-weight:700;">Catalog Quick Select</h4>
-					<span style="font-size:12px; color:var(--muted);">Tap SKU to add to register cart</span>
-				</div>
-				<!-- Category Filter Pills -->
-				<div style="display:flex; gap:6px;">
-					<button type="button" class="chip flat" onclick="filterPOS('all');">All SKUs</button>
-					<button type="button" class="chip flat" onclick="filterPOS('hospitality');">Hospitality</button>
-					<button type="button" class="chip flat" onclick="filterPOS('packaging');">Packaging</button>
-				</div>
+	<div class="row-2 even">
+		<article class="card panel">
+			<div class="panel-head">
+				<h3>Products</h3>
 			</div>
-
-			<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:10px;">
+			<div class="form-group">
+				<label class="sr-only" for="pos-find">Scan a barcode or search</label>
+				<input class="input" id="pos-find" type="search" placeholder="Scan a barcode or type to search, then press Enter" autocomplete="off" autofocus/>
+			</div>
+			<div id="pos-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:10px;">
 				for _, item := range data.Catalog {
-					<button 
-						type="button" 
-						class="card pos-sku-btn" 
-						data-category={ item.Category }
-						style="padding:12px; text-align:left; border:1px solid var(--line); cursor:pointer; background:var(--surface); display:flex; flex-direction:column; justify-content:space-between; min-height:115px;"
-						onclick={ templ.ComponentScript{Call: fmt.Sprintf("addToCart('%s', '%s', %.2f)", item.SKU, item.Title, item.WholesaleZar)} }
+					<button
+						type="button"
+						class="card"
+						style="padding:12px; text-align:left; display:flex; flex-direction:column; gap:6px; min-height:112px;"
+						data-pos-item
+						data-sku={ item.SKU }
+						data-title={ item.Title }
+						data-price={ fmt.Sprintf("%.2f", item.WholesaleZar) }
+						data-stock={ fmt.Sprint(item.StockQuantity) }
+						data-barcode={ item.Spec.Barcode }
+						disabled?={ item.StockQuantity <= 0 }
 					>
-						<div>
-							<span style="font-family:var(--mono); font-size:10.5px; color:var(--muted);">{ item.SKU }</span>
-							<b style="display:block; font-size:12px; line-height:1.3; margin-top:2px;">{ item.Title }</b>
-						</div>
-						<div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; border-top:1px solid var(--line); padding-top:4px;">
-							<b style="font-family:var(--display); font-size:14px; color:var(--primary-2);">{ fmt.Sprintf("R%.2f", item.WholesaleZar) }</b>
-							<span class="chip up" style="font-size:10px;">+ Tap</span>
-						</div>
+						<span class="small-text muted mono">{ item.SKU }</span>
+						<b style="font-size:var(--fs-13); line-height:1.3;">{ item.Title }</b>
+						<span class="cluster" style="margin-top:auto; justify-content:space-between; width:100%;">
+							<b class="num" style="color:var(--primary-2);">{ ZAR(item.WholesaleZar) }</b>
+							if item.StockQuantity <= 0 {
+								<span class="chip bad">Out</span>
+							} else {
+								<span class="small-text muted">{ Int(item.StockQuantity) } left</span>
+							}
+						</span>
 					</button>
 				}
 			</div>
-		</div>
-
-		<!-- Right: Active Till Register Cart -->
-		<div class="card panel" style="display:flex; flex-direction:column; justify-content:space-between;">
-			<div>
-				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:8px; margin-bottom:12px;">
-					<h4 style="font-size:15px; font-weight:700;">Current Register Cart</h4>
-					<button type="button" class="btn ghost small" onclick="clearCart();">Clear Cart</button>
-				</div>
-
-				<!-- Cart Items Container -->
-				<div id="pos-cart-items" style="display:grid; gap:8px; max-height:220px; overflow-y:auto; margin-bottom:14px;">
-					<div id="empty-cart-msg" style="text-align:center; padding:24px 0; color:var(--muted); font-size:13px;">
-						Till register empty. Tap any SKU from the left to add.
-					</div>
-				</div>
+		</article>
+		<article class="card panel" style="display:flex; flex-direction:column;">
+			<div class="panel-head">
+				<h3>Sale</h3>
+				<button type="button" class="right btn quiet small" id="pos-clear">Clear</button>
 			</div>
-
-			<!-- Checkout Form -->
-			<form hx-post="/pos/checkout" hx-target="#tab-content">
-				<div style="border-top:1px solid var(--line); padding-top:10px; margin-bottom:12px;">
+			<div id="pos-cart" class="list" style="min-height:120px;">
+				<p class="muted small-text" id="pos-empty">Tap a product or scan a barcode to start.</p>
+			</div>
+			<form id="pos-form" hx-post="/pos/checkout" hx-target="#tab-content" style="margin-top:auto;">
+				<input type="hidden" name="cart" id="pos-cart-field"/>
+				<input type="hidden" name="discountPct" id="pos-discount-field" value="0"/>
+				<input type="hidden" name="clientRef" id="pos-ref"/>
+				<div class="kv-list" style="margin:12px 0;">
+					<div class="kv-row"><span>Subtotal</span><b class="num" id="pos-subtotal">R 0.00</b></div>
+					<div class="kv-row" id="pos-discount-row" hidden><span>Discount</span><b class="num" id="pos-discount">−R 0.00</b></div>
+					<div class="kv-row"><span>VAT (15%)</span><b class="num" id="pos-vat">R 0.00</b></div>
+					<div class="kv-row" style="font-size:var(--fs-20);"><span style="color:var(--ink); font-weight:700;">Total</span><b class="num" id="pos-total">R 0.00</b></div>
+				</div>
+				if len(activeCoupons(data.Coupons)) > 0 {
 					<div class="form-group">
-						<label>Customer Name / Account</label>
-						<input type="text" name="customer" class="input" placeholder="Walk-in Trade / Protea Hotel" value="Walk-in Trade (Balalaika Sandton)" required />
+						<label for="pos-coupon">Promotion</label>
+						<select id="pos-coupon" class="select-full">
+							<option value="0">None</option>
+							for _, c := range activeCoupons(data.Coupons) {
+								<option value={ fmt.Sprintf("%.2f", c.DiscountPct) }>{ c.Code } · { fmt.Sprintf("%.0f%% off", c.DiscountPct) }</option>
+							}
+						</select>
 					</div>
-
-					<!-- Discount Promo Code in Register -->
-					<div style="display:flex; gap:6px; margin-bottom:10px;">
-						<input type="text" id="pos-coupon-input" placeholder="Trade Promo (e.g. HOSPITALITY15)" style="flex:1; padding:6px 10px; font-family:var(--mono); font-size:12px; border:1px solid var(--line); border-radius:6px;" />
-						<button type="button" class="btn ghost small" onclick="applyPOSDiscount();">Apply</button>
-					</div>
-
-					<div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;">
-						<span style="color:var(--muted);">Subtotal</span>
-						<b id="pos-subtotal" style="font-family:var(--mono);">R 0.00</b>
-					</div>
-					<div id="pos-discount-row" style="display:none; justify-content:space-between; font-size:13px; margin-bottom:4px; color:var(--primary-2);">
-						<span>Trade Discount</span>
-						<b id="pos-discount" style="font-family:var(--mono);">-R 0.00</b>
-					</div>
-					<div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;">
-						<span style="color:var(--muted);">SARS VAT (15%)</span>
-						<b id="pos-vat" style="font-family:var(--mono);">R 0.00</b>
-					</div>
-					<div style="display:flex; justify-content:space-between; font-size:18px; border-top:2px solid var(--ink); padding-top:6px; margin-top:6px;">
-						<b>Total Due</b>
-						<b id="pos-total" style="font-family:var(--display); color:var(--primary-2);">R 0.00</b>
-					</div>
-				</div>
-
-				<div class="form-group">
-					<label>Tender Method</label>
-					<select name="paymentMethod" class="select-full" onchange="toggleCashCalculator(this.value);">
-						<option value="Capitec Pay QR">Capitec Pay Instant QR (Scan-to-Pay)</option>
-						<option value="Speedpoint Card Terminal">Speedpoint Card Terminal (EMV Chip &amp; PIN)</option>
-						<option value="Direct Bank EFT">Direct Bank EFT Remittance</option>
-						<option value="Cash Tender">Cash Tender</option>
-					</select>
-				</div>
-
-				<!-- Cash Tender & Change Due Calculator -->
-				<div id="cash-calculator" style="display:none; background:var(--surface-2); padding:10px; border-radius:8px; margin-bottom:12px;">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-						<span style="font-size:12px; color:var(--muted);">Cash Tendered:</span>
-						<input type="number" id="cash-tendered-input" placeholder="0.00" step="10" style="width:110px; padding:4px 8px; font-family:var(--mono); font-weight:700; border:1px solid var(--line); border-radius:6px;" oninput="calculateChange(this.value);" />
-					</div>
-					<div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700;">
-						<span>Change Due:</span>
-						<b id="cash-change-due" style="color:var(--primary-2); font-family:var(--mono);">R 0.00</b>
-					</div>
-				</div>
-
-				<button type="submit" class="btn solid" style="width:100%; padding:10px; font-size:14px;">
-					💳 Complete Counter Sale (Print Till Slip)
-				</button>
-			</form>
-		</div>
-	</div>
-
-	<!-- Recent Counter Transactions Table -->
-	<div class="card panel" style="margin-top:20px;">
-		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-			<div>
-				<h4 style="font-size:15px; font-weight:700;">Recent Counter Transactions (Shift Log)</h4>
-				<div style="font-size:12px; color:var(--muted);">Current cashier shift register settlements</div>
-			</div>
-			<span style="font-size:12px; color:var(--muted);">{ fmt.Sprintf("%d Transactions Today", len(data.RecentPOSTxns)) }</span>
-		</div>
-
-		<div class="table-wrap">
-			<table class="table">
-				<thead>
-					<tr>
-						<th>Receipt #</th>
-						<th>Time</th>
-						<th>Customer / Account</th>
-						<th>Tender Method</th>
-						<th>Items</th>
-						<th style="text-align:right;">Amount (ZAR)</th>
-						<th style="text-align:right;">Till Slip</th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, txn := range data.RecentPOSTxns {
-						<tr>
-							<td style="font-family:var(--mono); font-size:12px; font-weight:600;">{ txn.ReceiptNumber }</td>
-							<td style="font-size:12px; color:var(--muted);">{ txn.Timestamp.Format("15:04:05") }</td>
-							<td><b>{ txn.Customer }</b></td>
-							<td><span class="chip up">{ txn.PaymentMethod }</span></td>
-							<td style="font-size:12px; color:var(--muted);">{ fmt.Sprintf("%d items", len(txn.Items)) }</td>
-							<td style="text-align:right; font-family:var(--display); font-weight:700;">R { fmt.Sprintf("%.2f", txn.TotalZar) }</td>
-							<td style="text-align:right;">
-								<button type="button" class="btn ghost small" onclick="window.print();">
-									Reprint Slip
-								</button>
-							</td>
-						</tr>
-					}
-				</tbody>
-			</table>
-		</div>
-	</div>
-
-	<script>
-		var cart = [];
-		var discountPct = 0;
-		var grandTotalDue = 0;
-
-		function addToCart(sku, title, price) {
-			var existing = cart.find(function(it) { return it.sku === sku; });
-			if (existing) {
-				existing.qty += 1;
-			} else {
-				cart.push({ sku: sku, title: title, price: price, qty: 1 });
-			}
-			renderCart();
-		}
-
-		function updateCartQty(sku, delta) {
-			var item = cart.find(function(it) { return it.sku === sku; });
-			if (!item) return;
-			item.qty += delta;
-			if (item.qty <= 0) {
-				cart = cart.filter(function(it) { return it.sku !== sku; });
-			}
-			renderCart();
-		}
-
-		function clearCart() {
-			cart = [];
-			discountPct = 0;
-			renderCart();
-		}
-
-		function applyPOSDiscount() {
-			var code = (document.getElementById('pos-coupon-input')?.value || '').trim().toUpperCase();
-			var couponInput = document.getElementById('pos-coupon-input');
-			if (code === 'HOSPITALITY15') {
-				discountPct = 0.15;
-				if (couponInput) couponInput.style.borderColor = 'var(--primary)';
-			} else if (code === 'BULK2026') {
-				discountPct = 0.20;
-				if (couponInput) couponInput.style.borderColor = 'var(--primary)';
-			} else {
-				discountPct = 0;
-				if (couponInput) couponInput.style.borderColor = 'var(--rose)';
-			}
-			renderCart();
-		}
-
-		function toggleCashCalculator(method) {
-			var el = document.getElementById('cash-calculator');
-			if (!el) return;
-			el.style.display = method === 'Cash Tender' ? 'block' : 'none';
-		}
-
-		function calculateChange(tenderVal) {
-			var tender = parseFloat(tenderVal) || 0;
-			var change = tender - grandTotalDue;
-			var chEl = document.getElementById('cash-change-due');
-			if (!chEl) return;
-			if (change >= 0) {
-				chEl.textContent = 'R ' + change.toFixed(2);
-				chEl.style.color = 'var(--primary-2)';
-			} else {
-				chEl.textContent = 'Short by R ' + Math.abs(change).toFixed(2);
-				chEl.style.color = 'var(--rose)';
-			}
-		}
-
-		function filterPOS(category) {
-			var btns = document.querySelectorAll('.pos-sku-btn');
-			btns.forEach(function(btn) {
-				if (category === 'all') {
-					btn.style.display = 'flex';
-				} else if (category === 'hospitality') {
-					btn.style.display = btn.dataset.category.toLowerCase().includes('hospitality') ? 'flex' : 'none';
-				} else if (category === 'packaging') {
-					btn.style.display = btn.dataset.category.toLowerCase().includes('packaging') ? 'flex' : 'none';
 				}
-			});
+				<div class="two-col">
+					<div class="form-group">
+						<label for="pos-customer">Customer</label>
+						<input id="pos-customer" type="text" name="customer" class="input" placeholder="Walk-in customer" list="customer-list-pos"/>
+						<datalist id="customer-list-pos">
+							for _, c := range data.Customers {
+								<option value={ c.Company }></option>
+							}
+						</datalist>
+					</div>
+					<div class="form-group">
+						<label for="pos-method">Payment</label>
+						<select id="pos-method" name="paymentMethod" class="select-full">
+							<option>Cash</option>
+							<option>Card</option>
+							<option>Capitec Pay</option>
+							<option>Instant EFT</option>
+							<option>SnapScan / Zapper</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-group" id="pos-cash" hidden>
+					<label for="pos-tendered">Cash received</label>
+					<input id="pos-tendered" type="number" class="input money" min="0" step="10" inputmode="decimal"/>
+					<p class="help" id="pos-change"></p>
+				</div>
+				<button type="submit" class="btn solid large block" id="pos-pay" disabled>Take payment</button>
+			</form>
+		</article>
+	</div>
+	<section class="card">
+		<div class="panel-head panel" style="margin:0; border-bottom:1px solid var(--line);">
+			<h3>Recent counter sales</h3>
+		</div>
+		if len(data.RecentPOSTxns) == 0 {
+			<div class="empty"><p>No counter sales yet.</p></div>
+		} else {
+			<div class="table-wrap">
+				<table class="table">
+					<thead>
+						<tr><th>Receipt</th><th>When</th><th>Customer</th><th>Paid by</th><th class="r">Items</th><th class="r">Total</th></tr>
+					</thead>
+					<tbody>
+						for _, t := range data.RecentPOSTxns {
+							<tr>
+								<td class="mono">{ t.ReceiptNumber }</td>
+								<td class="small-text muted" title={ LocalDateTime(t.Timestamp) }>{ Ago(t.Timestamp, data.Metrics.Now) }</td>
+								<td>{ t.Customer }</td>
+								<td>{ t.PaymentMethod }</td>
+								<td class="r num">{ fmt.Sprint(len(t.Items)) }</td>
+								<td class="r amt">{ ZAR(t.TotalZar) }</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
 		}
-
-		function renderCart() {
-			var cont = document.getElementById('pos-cart-items');
-			if (!cont) return;
-			if (cart.length === 0) {
-				cont.innerHTML = '<div style="text-align:center; padding:24px 0; color:var(--muted); font-size:13px;">Till register empty. Tap any SKU from the left to add.</div>';
-				document.getElementById('pos-subtotal').textContent = 'R 0.00';
-				document.getElementById('pos-vat').textContent = 'R 0.00';
-				document.getElementById('pos-total').textContent = 'R 0.00';
-				document.getElementById('pos-discount-row').style.display = 'none';
-				grandTotalDue = 0;
-				return;
+	</section>
+	<script>
+		(function () {
+			var root = document.getElementById('pos-form');
+			if (!root) return;
+			var cart = [];
+			var fmt = function (v) { return 'R ' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); };
+			var $ = function (id) { return document.getElementById(id); };
+			var items = Array.prototype.slice.call(document.querySelectorAll('[data-pos-item]'));
+			function add(el) {
+				var sku = el.dataset.sku, stock = parseInt(el.dataset.stock, 10) || 0;
+				var line = cart.find(function (l) { return l.sku === sku; });
+				if (line) { if (line.qty < stock) line.qty++; else if (window.showToast) showToast('Only ' + stock + ' × ' + sku + ' in stock.'); }
+				else cart.push({ sku: sku, title: el.dataset.title, price: parseFloat(el.dataset.price), qty: 1, stock: stock });
+				render();
 			}
-
-			var subtotal = 0;
-			var html = '';
-			cart.forEach(function(it) {
-				var lineTotal = it.price * it.qty;
-				subtotal += lineTotal;
-				html += '<div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-2); padding:6px 10px; border-radius:6px; font-size:12.5px;">' +
-					'<div style="min-width:0; flex:1;"><b>' + it.sku + '</b> <span style="color:var(--muted); font-size:11.5px;">' + it.title + '</span></div>' +
-					'<div style="display:flex; align-items:center; gap:6px; margin:0 10px;">' +
-						'<button type="button" style="width:22px; height:22px; border-radius:4px; border:1px solid var(--line); background:#fff; cursor:pointer;" onclick="updateCartQty(\'' + it.sku + '\', -1)">-</button>' +
-						'<b style="font-family:var(--mono);">' + it.qty + '</b>' +
-						'<button type="button" style="width:22px; height:22px; border-radius:4px; border:1px solid var(--line); background:#fff; cursor:pointer;" onclick="updateCartQty(\'' + it.sku + '\', 1)">+</button>' +
-					'</div>' +
-					'<b style="font-family:var(--mono); min-width:65px; text-align:right;">R ' + lineTotal.toFixed(2) + '</b>' +
-				'</div>';
+			function render() {
+				var box = $('pos-cart');
+				box.textContent = '';
+				if (!cart.length) { var p = document.createElement('p'); p.className = 'muted small-text'; p.textContent = 'Tap a product or scan a barcode to start.'; box.appendChild(p); }
+				var sub = 0;
+				cart.forEach(function (l) {
+					sub += l.price * l.qty;
+					var row = document.createElement('div'); row.className = 'li';
+					var txt = document.createElement('div'); txt.className = 'txt';
+					var b = document.createElement('b'); b.textContent = l.title;
+					var s = document.createElement('span'); s.textContent = l.sku + ' · ' + fmt(l.price);
+					txt.appendChild(b); txt.appendChild(s);
+					var qty = document.createElement('div'); qty.className = 'cluster';
+					[['−', -1], ['+', 1]].forEach(function (d, i) {
+						var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'btn ghost small';
+						btn.textContent = d[0]; btn.setAttribute('aria-label', (d[1] > 0 ? 'Add one ' : 'Remove one ') + l.sku);
+						btn.onclick = function () { l.qty = Math.max(0, Math.min(l.stock, l.qty + d[1])); cart = cart.filter(function (x) { return x.qty > 0; }); render(); };
+						if (i === 1) { var q = document.createElement('b'); q.className = 'num'; q.textContent = l.qty; qty.appendChild(q); }
+						qty.appendChild(btn);
+					});
+					var val = document.createElement('div'); val.className = 'val';
+					var vb = document.createElement('b'); vb.textContent = fmt(l.price * l.qty); val.appendChild(vb);
+					row.appendChild(txt); row.appendChild(qty); row.appendChild(val);
+					box.appendChild(row);
+				});
+				var pct = parseFloat(($('pos-coupon') || { value: '0' }).value) || 0;
+				var disc = sub * pct / 100, net = sub - disc, vat = net * 0.15, total = net + vat;
+				$('pos-subtotal').textContent = fmt(sub);
+				$('pos-discount-row').hidden = disc <= 0;
+				$('pos-discount').textContent = '−' + fmt(disc);
+				$('pos-vat').textContent = fmt(vat);
+				$('pos-total').textContent = fmt(total);
+				$('pos-discount-field').value = pct;
+				$('pos-cart-field').value = cart.map(function (l) { return l.sku + ':' + l.qty; }).join(',');
+				$('pos-pay').disabled = !cart.length;
+				$('pos-pay').textContent = cart.length ? 'Take payment · ' + fmt(total) : 'Take payment';
+				root.dataset.total = total;
+				change();
+			}
+			function change() {
+				var t = parseFloat($('pos-tendered').value), due = parseFloat(root.dataset.total || '0');
+				$('pos-change').textContent = isNaN(t) ? '' : (t >= due ? 'Change: ' + fmt(t - due) : 'Short by ' + fmt(due - t));
+			}
+			items.forEach(function (el) { el.addEventListener('click', function () { add(el); }); });
+			$('pos-clear').onclick = function () { cart = []; render(); };
+			if ($('pos-coupon')) $('pos-coupon').onchange = render;
+			$('pos-method').onchange = function () { $('pos-cash').hidden = this.value !== 'Cash'; };
+			$('pos-cash').hidden = $('pos-method').value !== 'Cash';
+			$('pos-tendered').oninput = change;
+			$('pos-find').addEventListener('keydown', function (e) {
+				if (e.key !== 'Enter') return;
+				e.preventDefault();
+				var q = this.value.trim().toLowerCase();
+				var hit = items.find(function (el) { return el.dataset.barcode === q || el.dataset.sku.toLowerCase() === q; }) ||
+					items.find(function (el) { return (el.dataset.title + ' ' + el.dataset.sku).toLowerCase().indexOf(q) >= 0; });
+				if (hit && !hit.disabled) { add(hit); this.value = ''; } else if (window.showToast) showToast('No product matches "' + this.value + '".');
 			});
-			cont.innerHTML = html;
+			$('pos-find').addEventListener('input', function () {
+				var q = this.value.trim().toLowerCase();
+				items.forEach(function (el) { el.hidden = q && (el.dataset.title + ' ' + el.dataset.sku + ' ' + el.dataset.barcode).toLowerCase().indexOf(q) < 0; });
+			});
 
-			var discAmount = subtotal * discountPct;
-			var discRow = document.getElementById('pos-discount-row');
-			if (discAmount > 0 && discRow) {
-				discRow.style.display = 'flex';
-				document.getElementById('pos-discount').textContent = '-R ' + discAmount.toFixed(2);
-			} else if (discRow) {
-				discRow.style.display = 'none';
+			// Offline queue: keep the sale on this device and send it later.
+			var KEY = 'shoppage_pos_queue';
+			function queue() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } }
+			function save(q) { try { localStorage.setItem(KEY, JSON.stringify(q)); } catch (e) {} showQueue(); }
+			function showQueue() { var q = queue(), el = $('pos-queue'); if (!el) return; el.hidden = !q.length; el.textContent = q.length + ' ' + (q.length === 1 ? 'sale' : 'sales') + ' waiting to sync'; }
+			function flush() {
+				var q = queue();
+				if (!q.length || !navigator.onLine) return;
+				var next = q[0];
+				fetch('/pos/checkout', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(next).toString() })
+					.then(function (r) { if (r.ok) { save(queue().slice(1)); flush(); } });
 			}
-
-			var taxableSubtotal = subtotal - discAmount;
-			var vat = taxableSubtotal * 0.15;
-			var total = taxableSubtotal + vat;
-			grandTotalDue = total;
-
-			document.getElementById('pos-subtotal').textContent = 'R ' + subtotal.toFixed(2);
-			document.getElementById('pos-vat').textContent = 'R ' + vat.toFixed(2);
-			document.getElementById('pos-total').textContent = 'R ' + total.toFixed(2);
-
-			var cashIn = document.getElementById('cash-tendered-input');
-			if (cashIn && cashIn.value) calculateChange(cashIn.value);
-		}
+			root.addEventListener('htmx:configRequest', function () { $('pos-ref').value = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random()); });
+			root.addEventListener('submit', function (e) {
+				if (navigator.onLine) return;
+				e.preventDefault(); e.stopImmediatePropagation();
+				var data = Object.fromEntries(new FormData(root).entries());
+				data.clientRef = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random();
+				var q = queue(); q.push(data); save(q);
+				cart = []; render();
+				if (window.showToast) showToast('Offline: sale saved on this device. It will sync when you reconnect.');
+			}, true);
+			window.addEventListener('online', flush);
+			showQueue(); flush(); render();
+		})();
 	</script>
+}
+
+func activeCoupons(cs []models.CouponCode) []models.CouponCode {
+	var out []models.CouponCode
+	for _, c := range cs {
+		if c.Active {
+			out = append(out, c)
+		}
+	}
+	return out
 }

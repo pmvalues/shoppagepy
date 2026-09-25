@@ -10,8 +10,45 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
+
+// insights turns the month's figures into plain-language observations. Each
+// one is computed; nothing is shown when the data can't support it.
+func insights(m models.Metrics) []string {
+	var out []string
+	if pct, ok := models.PctChange(m.MonthSalesZar, m.PrevMonthSalesZar); ok {
+		dir := "up"
+		if pct < 0 {
+			dir, pct = "down", -pct
+		}
+		out = append(out, fmt.Sprintf("Sales are %s %.0f%% on the same days last month (%s vs %s).", dir, pct, ZARWhole(m.MonthSalesZar), ZARWhole(m.PrevMonthSalesZar)))
+	}
+	if len(m.TopProducts) > 0 && m.MonthSalesZar > 0 {
+		t := m.TopProducts[0]
+		out = append(out, fmt.Sprintf("%s brought in %s of this month's sales. Keep it in stock.", t.Label, Pct(t.Pct)))
+	}
+	if len(m.LowStock) > 0 {
+		out = append(out, fmt.Sprintf("%d %s at or below the reorder level. Suggested reorder quantities are on the Assistant page.", len(m.LowStock), Plural(len(m.LowStock), "product is", "products are")))
+	}
+	if m.QuotesTotal > 0 {
+		out = append(out, fmt.Sprintf("You've won %d of %d quotes. %d still open, worth about %s.", m.QuotesWon, m.QuotesTotal, m.OpenQuotes, ZARWhole(m.QuotePipelineZar)))
+	}
+	if m.ProjectedFeeZar > 0 {
+		out = append(out, fmt.Sprintf("At this pace you'll pass your free allowance this month, with a platform fee of about %s. The %s plan would raise the allowance.", ZAR(m.ProjectedFeeZar), nextPlan(m.Plan).Label))
+	}
+	return out
+}
+
+func nextPlan(p models.Plan) models.Plan {
+	for i, pl := range models.Plans {
+		if pl.Name == p.Name && i+1 < len(models.Plans) {
+			return models.Plans[i+1]
+		}
+	}
+	return p
+}
 
 func AnalyticsTab(data models.DashboardViewData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -34,59 +71,231 @@ func AnalyticsTab(data models.DashboardViewData) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"panel-head\"><div><h3>Analytics &amp; Commercial GMV Funnel</h3><div class=\"sub\">Revenue velocity, conversion funnel stages &amp; zero-fee threshold utilization</div></div><div class=\"right\"><button class=\"btn ghost small\" onclick=\"document.getElementById('analytics-report-modal')?.showModal();\"><span>📊</span> Executive Tax &amp; GMV Report</button></div></div><!-- Top Metric Grid --><div class=\"grid-kpi\" style=\"margin-bottom:18px;\"><div class=\"card kpi\"><div class=\"k-label\"><span>30-Day Processed GMV</span><span class=\"chip up\">+14.2% MoM</span></div><div class=\"k-val\">R1,248,500 <span class=\"sub\">ZAR</span></div><div class=\"k-foot\"><span class=\"then\">vs R1,093,200 previous month</span></div></div><div class=\"card kpi\"><div class=\"k-label\"><span>Average Order Value (AOV)</span><span class=\"chip up\">+6.1%</span></div><div class=\"k-val\">R4,680 <span class=\"sub\">ZAR</span></div><div class=\"k-foot\"><span class=\"then\">Wholesale carton average</span></div></div><div class=\"card kpi\"><div class=\"k-label\"><span>Proforma Conversion</span><span class=\"chip up\">+4.1% MoM</span></div><div class=\"k-val\">68.4% <span class=\"sub\">Paid</span></div><div class=\"k-foot\"><span class=\"then\">22 of 32 quotes converted</span></div></div><div class=\"card kpi\"><div class=\"k-label\"><span>Pending Pipeline</span><span class=\"chip warn\">Active</span></div><div class=\"k-val\">R342,000 <span class=\"sub\">ZAR</span></div><div class=\"k-foot\"><span class=\"then\">18 active quotation leads</span></div></div></div><!-- Free Threshold Utilization & Savings --><div class=\"card meter-card\" style=\"margin-bottom:18px;\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;\"><div><h3>Zero-Fee Platform Threshold Status</h3><div class=\"sub\">Pemofy guarantees 0% platform commission on your first R50,000 each month</div></div><div style=\"text-align:right;\"><span class=\"chip up\" style=\"font-size:12px; padding:3px 10px;\">Zero Commission Tier Active</span></div></div><div class=\"meter-top\"><div class=\"meter-big\">")
+		m := data.Metrics
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-head\"><div class=\"head-copy\"><p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("R%.2f", data.Analytics.FreeThresholdUsedZar))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("Month to date, %s. Includes trade orders and counter sales; cancelled and refunded orders are excluded.", m.Now.In(sast).Format("January 2006")))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/analytics.templ`, Line: 59, Col: 63}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 49, Col: 165}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " <span class=\"t\">/ R50,000.00</span></div><div class=\"meter-flag\"><b>R1,750.00 REMAINING</b> <span>96.5% of zero-fee volume processed</span></div></div><div class=\"bar\"><div class=\"fill\" style=\"width:96.5%;\"></div></div><div class=\"meter-scale\"><span>R0 (Zero Start)</span> <b>Platform Fee Savings to Date: R1,206.25 (100% Retained)</b> <span>R50,000 Free Quota</span></div></div><!-- Funnel Stages & Payment Rails --><div class=\"row-2\"><!-- Commercial B2B Funnel --><div class=\"card panel\"><h4 style=\"font-size:15px; font-weight:700; margin-bottom:14px;\">Commercial Deal Conversion Funnel</h4><div style=\"display:flex; flex-direction:column; gap:12px;\"><div><div style=\"display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;\"><span>1. Incoming Wholesale Inquiries</span> <b>48 Leads (100%)</b></div><div style=\"height:10px; border-radius:99px; background:var(--surface-2); overflow:hidden;\"><div style=\"height:100%; background:var(--primary); width:100%; border-radius:99px;\"></div></div></div><div><div style=\"display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;\"><span>2. Formal Quotes Dispatched (WhatsApp/Email)</span> <b>32 Quotes (66.7%)</b></div><div style=\"height:10px; border-radius:99px; background:var(--surface-2); overflow:hidden;\"><div style=\"height:100%; background:var(--primary); width:66.7%; border-radius:99px;\"></div></div></div><div><div style=\"display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;\"><span>3. B2B Proforma Invoices Issued</span> <b>22 Proformas (45.8%)</b></div><div style=\"height:10px; border-radius:99px; background:var(--surface-2); overflow:hidden;\"><div style=\"height:100%; background:var(--primary); width:45.8%; border-radius:99px;\"></div></div></div><div><div style=\"display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;\"><span>4. Bank EFT &amp; Capitec Pay Settlement</span> <b>15 Settled Orders (31.2%)</b></div><div style=\"height:10px; border-radius:99px; background:var(--surface-2); overflow:hidden;\"><div style=\"height:100%; background:#4fe0a4; width:31.2%; border-radius:99px;\"></div></div></div></div></div><!-- Payment Rail Share --><div class=\"card panel\"><h4 style=\"font-size:15px; font-weight:700; margin-bottom:14px;\">Settlement Rail Breakdown</h4><div style=\"display:grid; gap:10px;\"><div style=\"display:flex; justify-content:space-between; align-items:center; padding:9px 12px; background:var(--surface-2); border-radius:8px;\"><div style=\"display:flex; align-items:center; gap:8px;\"><span style=\"width:10px; height:10px; border-radius:50%; background:var(--primary);\"></span> <b>Direct Bank EFT (Standard / FNB)</b></div><b style=\"font-family:var(--display);\">58%</b></div><div style=\"display:flex; justify-content:space-between; align-items:center; padding:9px 12px; background:var(--surface-2); border-radius:8px;\"><div style=\"display:flex; align-items:center; gap:8px;\"><span style=\"width:10px; height:10px; border-radius:50%; background:#3f6f9f;\"></span> <b>Capitec Pay Instant Debit</b></div><b style=\"font-family:var(--display);\">22%</b></div><div style=\"display:flex; justify-content:space-between; align-items:center; padding:9px 12px; background:var(--surface-2); border-radius:8px;\"><div style=\"display:flex; align-items:center; gap:8px;\"><span style=\"width:10px; height:10px; border-radius:50%; background:var(--amber);\"></span> <b>Ozow Instant EFT</b></div><b style=\"font-family:var(--display);\">12%</b></div><div style=\"display:flex; justify-content:space-between; align-items:center; padding:9px 12px; background:var(--surface-2); border-radius:8px;\"><div style=\"display:flex; align-items:center; gap:8px;\"><span style=\"width:10px; height:10px; border-radius:50%; background:var(--muted);\"></span> <b>COD / Commercial Terms</b></div><b style=\"font-family:var(--display);\">8%</b></div></div></div></div><!-- Executive Monthly Tax & GMV Report Modal Dialog --><dialog id=\"analytics-report-modal\" class=\"modal-dialog\"><div class=\"modal-card\" style=\"max-width:820px;\"><div class=\"modal-head\"><div><div class=\"breadcrumb\" style=\"margin-bottom:2px;\"><span>Executive Center</span> <span>&gt;</span> <b>SARS VAT &amp; Monthly Performance Audit</b></div><h4 style=\"font-size:16px;\">Executive Monthly Performance &amp; Tax Statement</h4></div><button type=\"button\" class=\"close-btn\" onclick=\"document.getElementById('analytics-report-modal').close();\">&times;</button></div><div class=\"modal-body\" style=\"display:flex; flex-direction:column; gap:16px;\"><!-- Merchant Tax Header --><div style=\"background:var(--surface-2); padding:14px; border-radius:10px; border:1px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;\"><div><b style=\"font-size:15px; display:block;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</p></div><div class=\"actions\"><a class=\"btn ghost\" href=\"/catalog/export.csv\">Export products CSV</a></div></div><section class=\"grid-kpi\"><article class=\"card kpi\"><div class=\"k-label\">Sales ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.Name)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/analytics.templ`, Line: 182, Col: 65}
+		if pct, ok := models.PctChange(m.MonthSalesZar, m.PrevMonthSalesZar); ok {
+			var templ_7745c5c3_Var3 = []any{"chip", templ.KV("up", pct >= 0), templ.KV("down", pct < 0)}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var3...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var3).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(Signed(pct))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 60, Col: 94}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div class=\"k-val\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</b><div style=\"font-size:12px; color:var(--muted); margin-top:2px;\">CIPC Registration: ")
+		var templ_7745c5c3_Var6 string
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(ZARWhole(m.MonthSalesZar))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 63, Col: 49}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.CIPCRegistration)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/analytics.templ`, Line: 183, Col: 119}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><div class=\"k-foot\">same days last month ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><div style=\"font-size:11.5px; color:var(--muted); font-family:var(--mono); margin-top:2px;\">SARS VAT Registration: ")
+		var templ_7745c5c3_Var7 string
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(ZARWhole(m.PrevMonthSalesZar))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 64, Col: 75}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var5 string
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.VATNumber)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/analytics.templ`, Line: 184, Col: 143}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></article><article class=\"card kpi\"><div class=\"k-label\">Average sale</div><div class=\"k-val\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div></div><div style=\"text-align:right;\"><span class=\"chip up\">Reporting Period: Sep 2026</span><div style=\"font-size:11px; color:var(--muted); margin-top:4px;\">Sovereign Pod: pod-za-01 (Teraco JB1)</div></div></div><!-- SARS VAT Reconciliation Box --><div class=\"card\" style=\"padding:16px; border:1px solid var(--line);\"><h4 style=\"font-size:14px; font-weight:700; margin-bottom:12px; color:var(--primary-2);\">SARS 15% VAT Monthly Tax Reconciliation</h4><div style=\"display:grid; gap:8px; font-size:13px;\"><div style=\"display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:6px;\"><span style=\"color:var(--muted);\">Gross Invoiced GMV (Incl. 15% VAT):</span> <b style=\"font-family:var(--mono);\">R 1,248,500.00</b></div><div style=\"display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:6px;\"><span style=\"color:var(--muted);\">Net Commercial Sales (Excl. VAT):</span> <b style=\"font-family:var(--mono);\">R 1,085,652.17</b></div><div style=\"display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:6px;\"><span style=\"color:var(--muted);\">Output VAT Collected (15%):</span> <b style=\"font-family:var(--mono); color:var(--primary-2);\">+ R 162,847.83</b></div><div style=\"display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:6px;\"><span style=\"color:var(--muted);\">Input VAT Credits (Freight &amp; Inward Stock):</span> <b style=\"font-family:var(--mono); color:var(--amber);\">- R 78,410.50</b></div><div style=\"display:flex; justify-content:space-between; font-size:15px; border-top:2px solid var(--ink); padding-top:8px; margin-top:2px;\"><b>Net VAT Liability Due to SARS:</b> <b style=\"font-family:var(--display); color:var(--primary-2);\">R 84,437.33</b></div></div></div><!-- Zero-Fee Platform Savings Box --><div style=\"background:var(--primary-soft); padding:14px; border-radius:10px; border:1px solid rgba(14,124,86,.2); display:flex; justify-content:space-between; align-items:center;\"><div><b style=\"color:var(--primary-2); font-size:13.5px; display:block;\">Zero-Commission SME Allowance Savings</b><p style=\"margin:2px 0 0; font-size:12px; color:var(--ink-2);\">You processed R48,250 of your monthly R50,000 threshold without platform commission.</p></div><div style=\"text-align:right;\"><div style=\"font-size:11px; color:var(--muted); text-transform:uppercase; font-weight:700;\">Retained Savings</div><b style=\"font-family:var(--display); font-size:1.4rem; color:var(--primary-2);\">R 1,206.25</b></div></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn ghost\" onclick=\"document.getElementById('analytics-report-modal').close();\">Close</button> <button type=\"button\" class=\"btn solid\" onclick=\"window.print();\">🖨️ Print Executive Tax PDF</button></div></div></dialog>")
+		var templ_7745c5c3_Var8 string
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(ZARWhole(m.AvgOrderValueZar))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 68, Col: 52}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div class=\"k-foot\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var9 string
+		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("across %d %s", m.MonthOrders, Plural(m.MonthOrders, "sale", "sales")))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 69, Col: 107}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></article><article class=\"card kpi\"><div class=\"k-label\">Quotes won</div><div class=\"k-val\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var10 string
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d of %d", m.QuotesWon, m.QuotesTotal))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 73, Col: 75}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div class=\"k-foot\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var11 string
+		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d open", m.OpenQuotes))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 74, Col: 61}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></article><article class=\"card kpi\"><div class=\"k-label\">Open quote value</div><div class=\"k-val\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var12 string
+		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(ZARWhole(m.QuotePipelineZar))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 78, Col: 52}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div class=\"k-foot\">estimated, not yet won</div></article></section>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if len(insights(m)) > 0 {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<section class=\"card panel section\"><div class=\"panel-head\"><h3>What stands out</h3></div><ul style=\"margin:0; padding-left:18px; display:grid; gap:6px;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			for _, line := range insights(m) {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<li>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var13 string
+				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(line)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 87, Col: 15}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</li>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</ul></section>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<section class=\"row-2\"><article class=\"card panel\"><div class=\"panel-head\"><div><h3>Daily sales</h3><div class=\"sub\">Last 14 days · ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var14 string
+		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(ZARWhole(m.Last14Sales))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 97, Col: 63}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div></div></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = SalesBars(m.Daily).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</article><article class=\"card panel\"><div class=\"panel-head\"><h3>Top products</h3></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = ShareList(m.TopProducts, "No sales this month yet.").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</article></section><section class=\"row-2\"><article class=\"card panel\"><div class=\"panel-head\"><h3>Where sales came from</h3></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = ShareList(m.ChannelMix, "No sales this month yet.").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</article><article class=\"card panel\"><div class=\"panel-head\"><h3>How buyers paid</h3></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = ShareList(m.PaymentMix, "No sales this month yet.").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</article></section><p class=\"muted small-text\">Visitor and search-impression figures appear here once your store and listings start receiving traffic. Nothing is estimated.</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

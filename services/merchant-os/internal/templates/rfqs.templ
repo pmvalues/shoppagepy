@@ -1,230 +1,232 @@
 package templates
 
 import (
+	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
+func leadProduct(catalog []models.CatalogSKU, l models.RFQLead) models.CatalogSKU {
+	if l.SKU != "" {
+		return catalogFor(catalog, l.SKU)
+	}
+	want := strings.ToLower(l.ItemRequested)
+	for _, p := range catalog {
+		if strings.Contains(strings.ToLower(p.Title), want) || strings.Contains(want, strings.ToLower(p.Title)) {
+			return p
+		}
+	}
+	return models.CatalogSKU{}
+}
+
+func leadStatus(s string) (string, string) {
+	switch s {
+	case "new":
+		return "New enquiry", "status warn"
+	case "quoted":
+		return "Quote sent", "status info"
+	case "accepted", "completed", "converted":
+		return "Won · order created", "status ok"
+	case "lost":
+		return "Lost", "status bad"
+	}
+	return s, "status"
+}
+
+func quoteMessage(l models.RFQLead, store models.StoreProfile) string {
+	if l.Status != "quoted" {
+		return fmt.Sprintf("Hi %s, thanks for your enquiry about %d × %s. ", l.BuyerName, l.Quantity, l.ItemRequested)
+	}
+	return fmt.Sprintf("Hi %s, here's our quote: %d × %s at %s each%s. Total %s incl. VAT, valid until %s. Reply YES to confirm and we'll send the invoice. %s",
+		l.BuyerName, l.Quantity, l.ItemRequested, models.FormatZAR(l.QuotedUnitZar), deliveryText(l.DeliveryZar),
+		models.FormatZAR(l.EstimatedTotal), LocalDate(l.ValidUntil), store.Name)
+}
+
+func deliveryText(d float64) string {
+	if d <= 0 {
+		return ", collection or free delivery"
+	}
+	return " plus " + models.FormatZAR(d) + " delivery"
+}
+
+// RFQsTab is the quote desk: enquiries in, priced quotes out (from the
+// catalogue and the merchant's own volume tiers), then one click to an order.
 templ RFQsTab(data models.DashboardViewData) {
-	<div style="margin-bottom: 20px;">
-		<div class="panel-head" style="margin-bottom: 16px;">
-			<div>
-				<h3 style="font-size: 1.3rem;">Live Trade RFQ &amp; Negotiation Desk</h3>
-				<div class="sub">Direct buyer wholesale demand routed through Shoppage Discovery Grid &amp; WhatsApp Business API</div>
-			</div>
-			<div style="margin-left: auto; display:flex; align-items:center; gap:8px;">
-				<span class="chip up">● { fmt.Sprintf("%d", len(data.Leads)) } Active Commercial Leads</span>
-			</div>
+	{{ m := data.Metrics }}
+	<div class="page-head">
+		<div class="head-copy">
+			<p>{ fmt.Sprintf("%d open, worth about %s. %d of %d won.", m.OpenQuotes, ZARWhole(m.QuotePipelineZar), m.QuotesWon, m.QuotesTotal) }</p>
 		</div>
-
-		<!-- Negotiation Pipeline Overview Cards -->
-		<div class="grid-kpi" style="margin-bottom:18px;">
-			<div class="card kpi">
-				<div class="k-label"><span>Active Inquiry Volume</span><span class="chip up">+4 this wk</span></div>
-				<div class="k-val">R 58,400 <span class="sub">ZAR</span></div>
-				<div class="k-foot"><span class="then">Pending wholesale demand</span></div>
-			</div>
-			<div class="card kpi">
-				<div class="k-label"><span>Average Turnaround</span><span class="chip up">5.2 mins</span></div>
-				<div class="k-val">&lt; 15 mins <span class="sub">SLA</span></div>
-				<div class="k-foot"><span class="then">WhatsApp quote dispatch</span></div>
-			</div>
-			<div class="card kpi">
-				<div class="k-label"><span>Quote Conversion Rate</span><span class="chip up">68.4%</span></div>
-				<div class="k-val">22 / 32 <span class="sub">Won</span></div>
-				<div class="k-foot"><span class="then">Converted to proforma</span></div>
-			</div>
-			<div class="card kpi">
-				<div class="k-label"><span>Preferred Freight Rail</span><span class="chip flat">National</span></div>
-				<div class="k-val">The Courier Guy</div>
-				<div class="k-foot"><span class="then">Road Express 24-48h</span></div>
-			</div>
-		</div>
-
-		<!-- Commercial Leads List -->
-		<div style="display: grid; gap: 12px;">
-			for _, lead := range data.Leads {
-				<div class="card panel" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
-					<div style="display: flex; align-items: center; gap: 12px;">
-						<div style="width: 46px; height: 46px; border-radius: 12px; background: var(--surface-2); display: grid; place-items: center; font-weight: 800; font-family: var(--display); color: var(--primary); font-size:14px; border:1px solid var(--line);">
-							RFQ
-						</div>
-						<div>
-							<div style="display: flex; align-items: center; gap: 8px; flex-wrap:wrap;">
-								<span style="font-weight: 700; font-size: 15px; color: var(--ink);">{ lead.BuyerName }</span>
-								<span style="font-size: 12.5px; color: var(--primary-2); font-weight:600;">{ lead.BuyerCompany }</span>
-								<span style="font-size: 11px; color: var(--muted); background: var(--surface-2); padding: 2px 7px; border-radius: 4px;">📍 { lead.BuyerCity }</span>
-								if lead.Status == "accepted" {
-									<span class="chip up" style="font-size:11px;">✓ Proforma Converted</span>
-								} else {
-									<span class="chip warn" style="font-size:11px;">● Negotiation Open</span>
-								}
-							</div>
-							<div style="font-size: 13px; color: var(--ink-2); margin-top: 3px;">
-								Requested: <b>{ lead.ItemRequested }</b> ({ fmt.Sprintf("%d units", lead.Quantity) }) · Inquired at { lead.ReceivedAt.Format("15:04 SAST") }
-							</div>
-						</div>
-					</div>
-
-					<div style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
-						<div style="text-align: right; margin-right: 4px;">
-							<div style="font-size: 11px; color: var(--muted);">Estimated Deal Size</div>
-							<div style="font-family: var(--display); font-weight: 800; font-size: 16px; color: var(--ink);">
-								{ fmt.Sprintf("R%.2f", lead.EstimatedTotal) }
-							</div>
-						</div>
-
-						<button 
-							type="button" 
-							class="btn solid small" 
-							style="padding: 7px 12px;"
-							onclick={ templ.ComponentScript{Call: fmt.Sprintf("document.getElementById('quote-modal-%s')?.showModal();", lead.ID)} }
-						>
-							<span>⚖️</span> Negotiate &amp; Quote
-						</button>
-
-						<a 
-							href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi%%20%s,%%20regarding%%20your%%20RFQ%%20for%%20%d%%20units%%20of%%20%s%%20(Est%%20R%.2f)", lead.BuyerPhone, lead.BuyerName, lead.Quantity, lead.ItemRequested, lead.EstimatedTotal)) } 
-							target="_blank"
-							class="btn ghost small"
-							style="padding: 7px 10px;"
-						>
-							<span>💬</span> WhatsApp
-						</a>
-
-						if lead.Status != "accepted" {
-							<form hx-post={ fmt.Sprintf("/rfqs/%s/convert", lead.ID) } hx-target="#tab-content" style="display:inline;">
-								<button type="submit" class="btn ghost small" style="padding:7px 10px;">
-									⚡ Convert
-								</button>
-							</form>
-						}
-					</div>
-				</div>
-
-				<!-- Full-Blown Quotation Negotiation Modal -->
-				<dialog id={ fmt.Sprintf("quote-modal-%s", lead.ID) } class="modal-dialog">
-					<div class="modal-card" style="max-width:740px;">
-						<div class="modal-head">
-							<div>
-								<div class="breadcrumb" style="margin-bottom:2px;">
-									<span>RFQ Desk</span>
-									<span>&gt;</span>
-									<b>Negotiation: { lead.BuyerCompany }</b>
-								</div>
-								<h4 style="font-size:16px;">Wholesale Quotation &amp; Pricing Workstation</h4>
-							</div>
-							<button type="button" class="close-btn" onclick={ templ.ComponentScript{Call: fmt.Sprintf("document.getElementById('quote-modal-%s').close();", lead.ID)} }>&times;</button>
-						</div>
-						<div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
-							<!-- Buyer & Item Banner -->
-							<div style="background:var(--surface-2); padding:12px 14px; border-radius:9px; border:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
-								<div>
-									<b>{ lead.BuyerName } — { lead.BuyerCompany }</b>
-									<div style="font-size:12px; color:var(--muted);">{ lead.BuyerPhone } · { lead.BuyerCity }</div>
-								</div>
-								<div style="text-align:right;">
-									<div style="font-size:11.5px; color:var(--muted);">Requested Line Item</div>
-									<b style="color:var(--primary-2);">{ lead.ItemRequested }</b>
-								</div>
-							</div>
-
-							<!-- Negotiation Line Items Form Simulation -->
-							<div class="card" style="padding:14px; border:1px solid var(--line);">
-								<div style="font-size:13px; font-weight:700; margin-bottom:10px;">Carton Volume &amp; Wholesale Tier Matrix</div>
-								<div class="two-col" style="margin-bottom:12px;">
-									<div class="form-group">
-										<label>Requested Quantity (units)</label>
-										<input type="number" id={ fmt.Sprintf("quote-qty-%s", lead.ID) } class="input" value={ fmt.Sprintf("%d", lead.Quantity) } oninput={ templ.ComponentScript{Call: fmt.Sprintf("recalcQuote('%s');", lead.ID)} } />
-									</div>
-									<div class="form-group">
-										<label>Wholesale Pricing Tier</label>
-										<select id={ fmt.Sprintf("quote-tier-%s", lead.ID) } class="select-full" onchange={ templ.ComponentScript{Call: fmt.Sprintf("recalcQuote('%s');", lead.ID)} }>
-											<option value="0.25">Platinum Trade (-25% discount)</option>
-											<option value="0.18" selected="selected">Gold Wholesale (-18% discount)</option>
-											<option value="0.10">Standard Commercial (-10% discount)</option>
-											<option value="0.00">Standard Retail List (No discount)</option>
-										</select>
-									</div>
-								</div>
-
-								<div class="form-group" style="margin-bottom:12px;">
-									<label>Delivery Freight Corridor (The Courier Guy / Depot)</label>
-									<select id={ fmt.Sprintf("quote-freight-%s", lead.ID) } class="select-full" onchange={ templ.ComponentScript{Call: fmt.Sprintf("recalcQuote('%s');", lead.ID)} }>
-										<option value="185.00">The Courier Guy Road Freight Express — R 185.00</option>
-										<option value="85.00">Pargo Smart Mall Locker Drop — R 85.00</option>
-										<option value="0.00">Midrand Hub Central Depot Collection — Free (R 0.00)</option>
-									</select>
-								</div>
-
-								<!-- Quote Calculation Summary Breakdown -->
-								<div style="background:var(--surface-2); padding:12px; border-radius:8px; display:grid; gap:6px; font-size:12.5px;">
-									<div style="display:flex; justify-content:space-between;">
-										<span style="color:var(--muted);">Product Subtotal (Excl. VAT):</span>
-										<b id={ fmt.Sprintf("quote-subtotal-%s", lead.ID) } style="font-family:var(--mono);">{ fmt.Sprintf("R %.2f", lead.EstimatedTotal/1.15) }</b>
-									</div>
-									<div style="display:flex; justify-content:space-between;">
-										<span style="color:var(--muted);">Freight &amp; Courier Handling:</span>
-										<b id={ fmt.Sprintf("quote-freight-val-%s", lead.ID) } style="font-family:var(--mono);">R 185.00</b>
-									</div>
-									<div style="display:flex; justify-content:space-between;">
-										<span style="color:var(--muted);">SARS 15% VAT:</span>
-										<b id={ fmt.Sprintf("quote-vat-%s", lead.ID) } style="font-family:var(--mono);">{ fmt.Sprintf("R %.2f", (lead.EstimatedTotal/1.15 + 185.00)*0.15) }</b>
-									</div>
-									<div style="display:flex; justify-content:space-between; font-size:15px; border-top:1px solid var(--line); padding-top:6px; margin-top:2px;">
-										<b>Grand Total Quotation:</b>
-										<b id={ fmt.Sprintf("quote-grand-%s", lead.ID) } style="font-family:var(--display); color:var(--primary-2);">{ fmt.Sprintf("R %.2f", lead.EstimatedTotal + 185.00*1.15) }</b>
-									</div>
-								</div>
-							</div>
-
-							<div style="font-size:11.5px; color:var(--muted); display:flex; justify-content:space-between;">
-								<span>Validity: <b>14 Calendar Days</b></span>
-								<span>Payment: <b>Standard Bank Instant EFT</b></span>
-							</div>
-						</div>
-						<div class="modal-foot">
-							<a 
-								href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi%%20%s,%%20here%%20is%%20your%%20official%%20commercial%%20quotation%%20for%%20%s:%%20Total%%20R%.2f%%20incl%%20VAT.", lead.BuyerPhone, lead.BuyerName, lead.ItemRequested, lead.EstimatedTotal+212.75)) } 
-								target="_blank" 
-								class="btn ghost"
-							>
-								<span>💬</span> Send WhatsApp Quote
-							</a>
-							<form hx-post={ fmt.Sprintf("/rfqs/%s/convert", lead.ID) } hx-target="#tab-content" onsubmit={ templ.ComponentScript{Call: fmt.Sprintf("document.getElementById('quote-modal-%s').close();", lead.ID)} } style="display:inline;">
-								<button type="submit" class="btn solid">
-									⚡ Convert to Tax Proforma Invoice
-								</button>
-							</form>
-						</div>
-					</div>
-				</dialog>
-			}
+		<div class="actions">
+			<a class="btn ghost" href="/tab/discounts" hx-get="/tab/discounts" hx-target="#tab-content" hx-push-url="true">Volume price tiers</a>
 		</div>
 	</div>
-
-	<script>
-		function recalcQuote(id) {
-			var qtyEl = document.getElementById('quote-qty-' + id);
-			var tierEl = document.getElementById('quote-tier-' + id);
-			var freightEl = document.getElementById('quote-freight-' + id);
-			if (!qtyEl || !tierEl || !freightEl) return;
-
-			var qty = parseFloat(qtyEl.value) || 0;
-			var disc = parseFloat(tierEl.value) || 0;
-			var freight = parseFloat(freightEl.value) || 0;
-
-			var basePrice = 22.88;
-			var unitPrice = basePrice * (1 - disc);
-			var subtotal = qty * unitPrice;
-			var taxable = subtotal + freight;
-			var vat = taxable * 0.15;
-			var grand = taxable + vat;
-
-			document.getElementById('quote-subtotal-' + id).textContent = 'R ' + subtotal.toFixed(2);
-			document.getElementById('quote-freight-val-' + id).textContent = 'R ' + freight.toFixed(2);
-			document.getElementById('quote-vat-' + id).textContent = 'R ' + vat.toFixed(2);
-			document.getElementById('quote-grand-' + id).textContent = 'R ' + grand.toFixed(2);
+	if len(data.Leads) == 0 {
+		<div class="card empty">
+			<h3>No enquiries yet</h3>
+			<p>When buyers ask for a price on Shoppage or WhatsApp, the enquiry lands here.</p>
+		</div>
+	}
+	<div class="stack">
+		for _, l := range data.Leads {
+			{{ label, cls := leadStatus(l.Status) }}
+			{{ p := leadProduct(data.Catalog, l) }}
+			<article class="card panel">
+				<div class="panel-head" style="margin-bottom:8px;">
+					<div class="who">
+						<span class="av" aria-hidden="true">{ Initials(l.BuyerName) }</span>
+						<div>
+							<b>{ l.BuyerName }</b>
+							<span>{ l.BuyerCompany } · { l.BuyerCity } · { Ago(l.ReceivedAt, m.Now) }</span>
+						</div>
+					</div>
+					<div class="right"><span class={ cls }>{ label }</span></div>
+				</div>
+				<p style="margin-bottom:10px;">
+					<b>{ fmt.Sprintf("%s × ", Int(l.Quantity)) }{ l.ItemRequested }</b>
+					if l.Status == "quoted" && !l.ValidUntil.IsZero() {
+						<span class="muted"> · quoted { ZAR(l.EstimatedTotal) } incl. VAT, valid until { LocalDate(l.ValidUntil) }</span>
+					} else {
+						<span class="muted"> · about { ZAR(l.EstimatedTotal) }</span>
+					}
+				</p>
+				<div class="cluster">
+					if l.Status == "new" || l.Status == "quoted" {
+						<button type="button" class="btn solid small" onclick={ openDialog("quote-" + l.ID) }>
+							if l.Status == "new" {
+								Build quote
+							} else {
+								Revise quote
+							}
+						</button>
+					}
+					if l.BuyerPhone != "" {
+						<a class="btn ghost small" target="_blank" rel="noopener" href={ templ.SafeURL(waLink(l.BuyerPhone, quoteMessage(l, data.Store))) }>
+							if l.Status == "quoted" {
+								Send quote on WhatsApp
+							} else {
+								WhatsApp
+							}
+						</a>
+					}
+					if l.Status == "quoted" {
+						<button type="button" class="btn ghost small" hx-post={ "/rfqs/" + l.ID + "/convert" } hx-target="#tab-content" hx-confirm={ "Create an order for " + l.BuyerCompany + " at the quoted price?" }>Buyer accepted · create order</button>
+					}
+				</div>
+			</article>
+			if l.Status == "new" || l.Status == "quoted" {
+				@QuoteBuilder(data, l, p)
+			}
 		}
+	</div>
+}
+
+// QuoteBuilder prices a quote from the catalogue price and the merchant's
+// volume tiers; the merchant can override the unit price.
+templ QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.CatalogSKU) {
+	<dialog id={ "quote-" + l.ID } class="modal-dialog" aria-label={ "Quote for " + l.BuyerCompany }>
+		<div class="modal-card">
+			<div class="modal-head">
+				<h3>Quote for { l.BuyerCompany }</h3>
+				<button type="button" class="close-btn" aria-label="Close" onclick="this.closest('dialog').close()">×</button>
+			</div>
+			<form hx-post={ "/rfqs/" + l.ID + "/quote" } hx-target="#tab-content" hx-on::after-request="this.closest('dialog').close()" data-quote data-tiers={ tiersJSON(data.WholesaleTiers) }>
+				<div class="modal-body">
+					<div class="two-col">
+						<div class="form-group">
+							<label for={ "q-sku-" + l.ID }>Product</label>
+							<select id={ "q-sku-" + l.ID } name="skuId" class="select-full" data-q-sku>
+								for _, c := range data.Catalog {
+									<option value={ c.ID } data-price={ fmt.Sprintf("%.2f", c.WholesaleZar) } data-stock={ fmt.Sprint(c.StockQuantity) } selected?={ c.ID == p.ID }>{ c.Title } · { ZAR(c.WholesaleZar) }</option>
+								}
+							</select>
+						</div>
+						<div class="form-group">
+							<label for={ "q-qty-" + l.ID }>Quantity</label>
+							<input id={ "q-qty-" + l.ID } type="number" name="quantity" class="input" min="1" value={ fmt.Sprint(l.Quantity) } data-q-qty required/>
+							<p class="help" data-q-stock></p>
+						</div>
+					</div>
+					<div class="three-col">
+						<div class="form-group">
+							<label for={ "q-unit-" + l.ID }>Unit price (excl. VAT)</label>
+							<input id={ "q-unit-" + l.ID } type="number" name="unitPrice" class="input money" min="0.01" step="0.01" data-q-unit required/>
+							<p class="help" data-q-tier></p>
+						</div>
+						<div class="form-group">
+							<label for={ "q-del-" + l.ID }>Delivery (excl. VAT)</label>
+							<input id={ "q-del-" + l.ID } type="number" name="delivery" class="input money" min="0" step="0.01" value={ fmt.Sprintf("%.2f", l.DeliveryZar) } data-q-del/>
+						</div>
+						<div class="form-group">
+							<label for={ "q-days-" + l.ID }>Valid for</label>
+							<select id={ "q-days-" + l.ID } name="validDays" class="select-full">
+								<option value="3">3 days</option>
+								<option value="7" selected>7 days</option>
+								<option value="14">14 days</option>
+								<option value="30">30 days</option>
+							</select>
+						</div>
+					</div>
+					<div class="kv-list card" style="padding:12px; background:var(--surface-2);">
+						<div class="kv-row"><span>Goods</span><b class="num" data-q-goods></b></div>
+						<div class="kv-row"><span>Delivery</span><b class="num" data-q-delv></b></div>
+						<div class="kv-row"><span>VAT (15%)</span><b class="num" data-q-vat></b></div>
+						<div class="kv-row" style="font-size:var(--fs-18);"><span style="color:var(--ink); font-weight:700;">Total</span><b class="num" data-q-total></b></div>
+					</div>
+					<p class="help">The price is held until the quote expires and used as-is when the buyer accepts.</p>
+				</div>
+				<div class="modal-foot">
+					<button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button>
+					<button type="submit" class="btn solid">Save quote</button>
+				</div>
+			</form>
+		</div>
+	</dialog>
+	<script>
+		(function () {
+			var form = document.currentScript.previousElementSibling.querySelector('[data-quote]');
+			if (!form) return;
+			var tiers = JSON.parse(form.dataset.tiers || '[]');
+			var q = function (sel) { return form.querySelector(sel); };
+			var fmtR = function (v) { return 'R ' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); };
+			var touched = false;
+			function tierFor(n) { var best = null; tiers.forEach(function (t) { if (n >= t.min && (t.max === 0 || n <= t.max) && (!best || t.pct > best.pct)) best = t; }); return best; }
+			function recalc(fromUnit) {
+				var opt = q('[data-q-sku]').selectedOptions[0];
+				var list = parseFloat(opt.dataset.price), stock = parseInt(opt.dataset.stock, 10), n = parseInt(q('[data-q-qty]').value, 10) || 0;
+				var t = tierFor(n);
+				if (!fromUnit && !touched) q('[data-q-unit]').value = (list * (1 - (t ? t.pct : 0) / 100)).toFixed(2);
+				q('[data-q-tier]').textContent = t ? t.name + ': ' + t.pct + '% off ' + fmtR(list) : 'Your list price ' + fmtR(list);
+				q('[data-q-stock]').textContent = n > stock ? 'Only ' + stock + ' in stock' : stock + ' in stock';
+				var unit = parseFloat(q('[data-q-unit]').value) || 0, del = parseFloat(q('[data-q-del]').value) || 0;
+				var goods = unit * n, vat = (goods + del) * 0.15;
+				q('[data-q-goods]').textContent = fmtR(goods);
+				q('[data-q-delv]').textContent = fmtR(del);
+				q('[data-q-vat]').textContent = fmtR(vat);
+				q('[data-q-total]').textContent = fmtR(goods + del + vat);
+			}
+			q('[data-q-sku]').onchange = function () { touched = false; recalc(); };
+			q('[data-q-qty]').oninput = function () { recalc(); };
+			q('[data-q-unit]').oninput = function () { touched = true; recalc(true); };
+			q('[data-q-del]').oninput = function () { recalc(true); };
+			recalc();
+		})();
 	</script>
+}
+
+func tiersJSON(ts []models.WholesaleTier) string {
+	type t struct {
+		Min  int     `json:"min"`
+		Max  int     `json:"max"`
+		Pct  float64 `json:"pct"`
+		Name string  `json:"name"`
+	}
+	out := make([]t, 0, len(ts))
+	for _, x := range ts {
+		out = append(out, t{x.MinUnits, x.MaxUnits, x.DiscountPct, x.TierName})
+	}
+	b, _ := json.Marshal(out)
+	return string(b)
 }

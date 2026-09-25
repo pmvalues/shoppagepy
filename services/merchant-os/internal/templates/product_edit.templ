@@ -2,451 +2,283 @@ package templates
 
 import (
 	"fmt"
+	"sort"
+	"strings"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
-func joinTags(tags []string) string {
-	res := ""
-	for i, t := range tags {
-		if i > 0 {
-			res += ", "
+func joinTags(tags []string) string { return strings.Join(tags, ", ") }
+
+func categories(catalog []models.CatalogSKU) []string {
+	seen := map[string]bool{}
+	var out []string
+	for _, p := range catalog {
+		if p.Category != "" && !seen[p.Category] {
+			seen[p.Category] = true
+			out = append(out, p.Category)
 		}
-		res += t
 	}
-	return res
+	sort.Strings(out)
+	return out
 }
 
-templ ProductEditView(sku models.CatalogSKU, isNew bool) {
-	<section class="view active" data-view="edit" id="edit">
-		<form 
+func editAction(sku models.CatalogSKU, isNew bool) string {
+	if isNew {
+		return "/catalog/new"
+	}
+	return "/catalog/" + sku.ID + "/edit"
+}
+
+// ProductEditView is the single product record. Every field here feeds the
+// store, the listing feeds and search, so the checklist on the right updates
+// as the merchant types.
+templ ProductEditView(data models.DashboardViewData, sku models.CatalogSKU, isNew bool) {
+	{{ r := data.Readiness[sku.ID] }}
+	<form id="product-form" hx-post={ editAction(sku, isNew) } hx-target="#tab-content" data-product-form>
+		<nav class="breadcrumb" aria-label="Breadcrumb">
+			<a href="/tab/catalog" hx-get="/tab/catalog" hx-target="#tab-content" hx-push-url="true">Products</a>
+			@IconSized("chevron", 14)
 			if isNew {
-				hx-post="/catalog/new"
+				<span>New product</span>
 			} else {
-				hx-post={ fmt.Sprintf("/catalog/%s/edit", sku.ID) }
+				<a href={ templ.SafeURL("/catalog/" + sku.ID) } hx-get={ "/catalog/" + sku.ID } hx-target="#tab-content" hx-push-url="true">{ sku.Title }</a>
+				@IconSized("chevron", 14)
+				<span>Edit</span>
 			}
-			hx-target="#tab-content" 
-			hx-push-url="/tab/catalog"
-		>
-			<!-- Editor Bar -->
-			<div class="editor-bar">
-				<div class="head-copy">
-					<div class="breadcrumb" style="margin: 0 0 6px;">
-						<a href="javascript:void(0)" hx-get="/tab/catalog" hx-target="#tab-content" hx-push-url="/tab/catalog">Products</a>
-						<svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+		</nav>
+		<div class="detail-head">
+			<div class="head-copy">
+				if isNew {
+					<h2>New product</h2>
+					<p>Fill in what buyers need to know. You can save now and finish later.</p>
+				} else {
+					<h2>Edit product</h2>
+					<p><span class="mono">{ sku.SKU }</span> · changes are live as soon as you save</p>
+				}
+			</div>
+			<div class="detail-actions">
+				if isNew {
+					<a class="btn ghost" href="/tab/catalog" hx-get="/tab/catalog" hx-target="#tab-content" hx-push-url="true">Cancel</a>
+				} else {
+					<a class="btn ghost" href={ templ.SafeURL("/catalog/" + sku.ID) } hx-get={ "/catalog/" + sku.ID } hx-target="#tab-content" hx-push-url="true">Cancel</a>
+				}
+				<button type="submit" class="btn solid">
+					if isNew {
+						Save product
+					} else {
+						Save changes
+					}
+				</button>
+			</div>
+		</div>
+		<div class="editor-grid">
+			<div class="stack">
+				<article class="card form-card">
+					<h3 style="margin-bottom:12px;">What it is</h3>
+					<div class="form-group">
+						<div class="form-label"><label for="pe-title">Title</label><span data-count="pe-title">{ fmt.Sprintf("%d", len([]rune(sku.Title))) } / 150</span></div>
+						<input class="input" id="pe-title" name="title" value={ sku.Title } placeholder="Brand, product type, size and key feature" required maxlength="150"/>
+					</div>
+					<div class="form-group">
+						<div class="form-label"><label for="pe-desc">Description</label><span data-count="pe-desc">{ fmt.Sprintf("%d", len([]rune(sku.Spec.LongDesc))) } characters · aim for 150+</span></div>
+						<textarea class="textarea" id="pe-desc" name="description" rows="5" placeholder="Materials, size, pack quantity, what it's for and who buys it">{ sku.Spec.LongDesc }</textarea>
+					</div>
+					<div class="two-col">
+						<div class="form-group">
+							<label for="pe-cat">Category</label>
+							<input class="input" id="pe-cat" name="category" value={ sku.Category } list="pe-cats"/>
+							<datalist id="pe-cats">
+								for _, c := range categories(data.Catalog) {
+									<option value={ c }></option>
+								}
+							</datalist>
+						</div>
+						<div class="form-group">
+							<label for="pe-brand">Brand</label>
+							<input class="input" id="pe-brand" name="brand" value={ sku.Brand } placeholder="Or your store name for own-brand goods"/>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="pe-tags">Search keywords</label>
+						<input class="input" id="pe-tags" name="tags" value={ joinTags(sku.Spec.SEOTags) } placeholder="Words buyers type, separated by commas"/>
+					</div>
+				</article>
+				<article class="card form-card">
+					<h3 style="margin-bottom:12px;">Price</h3>
+					<div class="two-col">
+						<div class="form-group">
+							<label for="pe-price">Selling price (excl. VAT)</label>
+							<input class="input money" id="pe-price" name="wholesaleZar" type="number" min="0" step="0.01" inputmode="decimal" value={ priceValue(sku.WholesaleZar) } required/>
+						</div>
+						<div class="form-group">
+							<label for="pe-rrp">Recommended retail (optional)</label>
+							<input class="input money" id="pe-rrp" name="retailZar" type="number" min="0" step="0.01" inputmode="decimal" value={ priceValue(sku.RetailZar) }/>
+						</div>
+					</div>
+					<p class="help">Volume discounts come from your price tiers (Marketing → Promotions).</p>
+				</article>
+				<article class="card form-card">
+					<h3 style="margin-bottom:12px;">Codes &amp; stock</h3>
+					<div class="two-col">
+						<div class="form-group">
+							<label for="pe-sku">SKU</label>
+							<input class="input mono" id="pe-sku" name="sku" value={ sku.SKU } required/>
+						</div>
+						<div class="form-group">
+							<label for="pe-barcode">Barcode (EAN / GTIN)</label>
+							<input class="input mono" id="pe-barcode" name="barcode" value={ sku.Spec.Barcode } inputmode="numeric" data-gtin/>
+							<p class="help" data-gtin-help></p>
+						</div>
+					</div>
+					<div class="two-col">
 						if isNew {
-							<span style="color:var(--ink); font-weight:600;">Add product</span>
+							<div class="form-group">
+								<label for="pe-stock">Opening stock</label>
+								<input class="input" id="pe-stock" name="stockQuantity" type="number" min="0" inputmode="numeric" value="0"/>
+							</div>
 						} else {
-							<a href="javascript:void(0)" hx-get={ fmt.Sprintf("/catalog/%s", sku.ID) } hx-target="#tab-content" hx-push-url="true">{ sku.Title }</a>
-							<svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-							<span style="color:var(--ink); font-weight:600;">Edit</span>
+							<div class="form-group">
+								<label>On hand</label>
+								<p style="padding:9px 0;"><b>{ Int(sku.StockQuantity) }</b> <a class="link small-text" href="/tab/inventory" hx-get="/tab/inventory" hx-target="#tab-content" hx-push-url="true">Record a movement</a></p>
+							</div>
+						}
+						<div class="form-group">
+							<label for="pe-reorder">Reorder when stock reaches</label>
+							<input class="input" id="pe-reorder" name="lowStockAlert" type="number" min="0" inputmode="numeric" value={ fmt.Sprint(sku.LowStockAlert) }/>
+						</div>
+					</div>
+				</article>
+				<article class="card form-card">
+					<h3 style="margin-bottom:12px;">Shipping details</h3>
+					<div class="three-col">
+						<div class="form-group">
+							<label for="pe-weight">Packed weight (kg)</label>
+							<input class="input" id="pe-weight" name="weightKg" type="number" min="0" step="0.001" inputmode="decimal" value={ weightValue(sku.Spec.WeightKg) }/>
+						</div>
+						<div class="form-group">
+							<label for="pe-dims">Size</label>
+							<input class="input" id="pe-dims" name="dimensions" value={ sku.Spec.Dimensions } placeholder="e.g. 44 × 22 × 1.4 cm"/>
+						</div>
+						<div class="form-group">
+							<label for="pe-material">Material</label>
+							<input class="input" id="pe-material" name="material" value={ sku.Spec.Material }/>
+						</div>
+					</div>
+					<div class="form-group" style="max-width:240px;">
+						<label for="pe-hs">Customs (HS) code, for export</label>
+						<input class="input mono" id="pe-hs" name="hsCode" value={ sku.Spec.HSCode }/>
+					</div>
+				</article>
+			</div>
+			<aside class="side-form">
+				<article class="card">
+					<h3>Search preview</h3>
+					<p class="small-text muted" style="margin-bottom:10px;">Roughly how the listing appears in Google and Shoppage search.</p>
+					<div style="border:1px solid var(--line); border-radius:var(--r-lg); padding:12px;">
+						<div class="small-text muted mono" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{ strings.TrimRight(data.Nav.PublicBaseURL, "/") }/p/{ sku.ID }</div>
+						<div style="color:var(--info); font-size:var(--fs-16); font-weight:600; margin:2px 0;" data-preview-title>{ orText(sku.Title, "Product title") }</div>
+						<div class="small-text"><b data-preview-price>{ ZAR(sku.WholesaleZar) }</b> · { stockLabel(sku) }</div>
+						<div class="small-text muted" style="margin-top:4px;" data-preview-desc>{ previewDesc(sku.Spec.LongDesc) }</div>
+					</div>
+				</article>
+				<article class="card">
+					<h3>Listing checklist</h3>
+					<div class="check-list" style="margin-top:6px;">
+						for _, c := range models.ComputeReadiness(sku, r.HasPhoto).Checks {
+							<div class="check" data-check={ c.Label }>
+								if c.Passed {
+									<span class="ic ok" aria-label="Done">✓</span>
+								} else {
+									<span class="ic no" aria-label="To do">!</span>
+								}
+								<div><b>{ c.Label }</b></div>
+								<span class="pts">{ fmt.Sprintf("%d", c.Points) }</span>
+							</div>
 						}
 					</div>
-					if isNew {
-						<h1>Add product</h1>
-						<p class="micro" style="margin: 4px 0 0;">Create a new commercial SKU · Auto-syncs to Pemofy WMS &amp; Shoppage</p>
-					} else {
-						<h1>Edit: { sku.Title }</h1>
-						<p class="micro" style="margin: 4px 0 0;">Commercial Catalog SKU · { sku.SKU } · Sovereign Pod pod-za-01</p>
+					if !isNew && !r.HasPhoto {
+						<a class="btn ghost small block" style="margin-top:10px;" href="/tab/media" hx-get="/tab/media" hx-target="#tab-content" hx-push-url="true">Add a product photo</a>
 					}
-				</div>
-				<div class="view-actions">
-					<button type="button" class="btn ghost" hx-get="/tab/catalog" hx-target="#tab-content" hx-push-url="/tab/catalog">Discard changes</button>
-					<button type="submit" class="btn solid" id="saveBtn">
-						if isNew {
-							Save &amp; publish
-						} else {
-							Save changes
-						}
-					</button>
-				</div>
-			</div>
-
-			<!-- 5 Editor Tabs -->
-			<div class="editor-tabs">
-				<button type="button" class="active" onclick="switchEditTab('general', this)">General</button>
-				<button type="button" onclick="switchEditTab('inventory', this)">Inventory</button>
-				<button type="button" onclick="switchEditTab('variants', this)">Variants</button>
-				<button type="button" onclick="switchEditTab('seo', this)">SEO &amp; discovery</button>
-				<button type="button" onclick="switchEditTab('channels', this)">Channels</button>
-			</div>
-
-			<!-- 2-Column Editor Grid -->
-			<div class="editor-grid">
-				<!-- LEFT: Main Tabbed Content -->
-				<div>
-					<article class="card form-card">
-						<!-- 1. GENERAL TAB -->
-						<div id="tab-pane-general">
-							<div class="form-group">
-								<div class="form-label">
-									<label for="productTitle">Product title</label>
-									<span id="title-char-count">{ fmt.Sprintf("%d / 80", len(sku.Title)) }</span>
-								</div>
-								<input 
-									class="input" 
-									id="productTitle" 
-									name="title" 
-									value={ sku.Title } 
-									placeholder="e.g. Speckled Mug · Sand or Takeaway Burger Boxes (Pack of 250)"
-									oninput="document.getElementById('title-char-count').textContent = this.value.length + ' / 80';" 
-									required 
-								/>
-							</div>
-
-							<div class="form-group">
-								<div class="form-label">
-									<label for="description">Description &amp; Specifications</label>
-									<span>Rich text</span>
-								</div>
-								<div class="rich">
-									<div class="rich-tools">
-										<button type="button" onclick="formatDesc('bold')"><b>B</b></button>
-										<button type="button" onclick="formatDesc('italic')"><i>I</i></button>
-										<button type="button" onclick="formatDesc('h2')">H2</button>
-										<button type="button" onclick="formatDesc('list')">• List</button>
-										<button type="button" onclick="formatDesc('link')">Link</button>
-									</div>
-									<textarea class="textarea" id="description" name="description" rows="4" placeholder="Describe materials, compliance, pack count, and commercial applications...">{ sku.Spec.LongDesc }</textarea>
-								</div>
-								<div class="help">Use plain commercial specifications. Pemofy AI can also draft descriptions from product photos.</div>
-							</div>
-
-							<div class="form-group">
-								<div class="form-label">
-									<label>Product media</label>
-									<span>1 of 8 images</span>
-								</div>
-								<div class="media-drop" onclick="document.getElementById('product-media-file').click();">
-									<svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L8 8m4-4l4 4M5 12v6h14v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-									<b>Drop images here or choose files</b>
-									<span>WebP, JPG or PNG · up to 10 MB each</span>
-									<input type="file" id="product-media-file" style="display:none;" accept="image/*" onchange="alert('Image selected: ' + this.files[0]?.name);"/>
-								</div>
-								<div class="media-current">
-									<div style="width:48px; height:48px; border-radius:9px; background:linear-gradient(135deg, #dcefe4, #a7cfba); display:grid; place-items:center; font-size:22px; flex:none;">
-										📦
-									</div>
-									<div class="micro" style="padding:2px 0;">
-										<b>sku-{ sku.SKU }.webp</b><br/>
-										<span style="color:var(--primary);">Optimised CDN asset · 124 KB</span>
-									</div>
-								</div>
-							</div>
-
-							<div class="form-group">
-								<div class="form-label">
-									<label>Pricing</label>
-									<span>Currency: ZAR</span>
-								</div>
-								<div class="two-col">
-									<div>
-										<label class="help" for="wholesaleZar">Wholesale / Trade Price (excl. VAT)</label>
-										<input class="input" id="wholesaleZar" name="wholesaleZar" type="number" step="0.01" value={ fmt.Sprintf("%.2f", sku.WholesaleZar) } required />
-									</div>
-									<div>
-										<label class="help" for="retailZar">Compare-at Retail Price (incl. VAT)</label>
-										<input class="input" id="retailZar" name="retailZar" type="number" step="0.01" value={ fmt.Sprintf("%.2f", sku.RetailZar) } required />
-									</div>
-								</div>
-							</div>
-
-							<div class="form-group">
-								<div class="form-label">
-									<label>Organisation</label>
-									<span>Discovery &amp; Filters</span>
-								</div>
-								<div class="two-col">
-									<div>
-										<label class="help" for="category">Category</label>
-										<select class="select-full" id="category" name="category">
-											<option value="Hospitality &amp; Packaging" selected?={ sku.Category == "Hospitality & Packaging" }>Hospitality &amp; Packaging</option>
-											<option value="Commercial Cleaning &amp; Janitorial" selected?={ sku.Category == "Commercial Cleaning & Janitorial" }>Commercial Cleaning &amp; Janitorial</option>
-											<option value="Food &amp; Beverage Consumables" selected?={ sku.Category == "Food & Beverage Consumables" }>Food &amp; Beverage Consumables</option>
-											<option value="Industrial Safety &amp; PPE" selected?={ sku.Category == "Industrial Safety & PPE" }>Industrial Safety &amp; PPE</option>
-											<option value="Ceramics &amp; Homeware" selected?={ sku.Category == "Ceramics & Homeware" }>Ceramics &amp; Homeware</option>
-										</select>
-									</div>
-									<div>
-										<label class="help" for="brand">Brand / Vendor</label>
-										<input class="input" id="brand" name="brand" value={ sku.Brand } placeholder="e.g. Mitrend" />
-									</div>
-								</div>
-								<label class="help" style="display:block; margin-top:10px;" for="tags">Tags &amp; Search Keywords</label>
-								<input class="input" id="tags" name="tags" value={ joinTags(sku.Spec.SEOTags) } placeholder="e.g. boxes, eco-friendly, midrand, takeaway" />
-							</div>
-						</div>
-
-						<!-- 2. INVENTORY TAB -->
-						<div id="tab-pane-inventory" style="display:none;">
-							<div class="form-group">
-								<div class="two-col">
-									<div>
-										<label class="help" for="sku">SKU Code</label>
-										<input class="input" id="sku" name="sku" value={ sku.SKU } required />
-									</div>
-									<div>
-										<label class="help" for="barcode">Barcode (EAN-13 / GTIN)</label>
-										<input class="input" id="barcode" name="barcode" value={ sku.Spec.Barcode } />
-									</div>
-								</div>
-							</div>
-							<div class="form-group">
-								<div class="two-col">
-									<div>
-										<label class="help" for="stockQuantity">Stock Quantity on Hand</label>
-										<input class="input" id="stockQuantity" name="stockQuantity" type="number" value={ fmt.Sprintf("%d", sku.StockQuantity) } required />
-									</div>
-									<div>
-										<label class="help" for="lowStockAlert">Low Stock Alert Threshold</label>
-										<input class="input" id="lowStockAlert" name="lowStockAlert" type="number" value={ fmt.Sprintf("%d", sku.LowStockAlert) } required />
-									</div>
-								</div>
-							</div>
-							<div class="form-group">
-								<div class="two-col">
-									<div>
-										<label class="help" for="hsCode">Customs HS Code</label>
-										<input class="input" id="hsCode" name="hsCode" value={ sku.Spec.HSCode } />
-									</div>
-									<div>
-										<label class="help" for="material">Primary Material</label>
-										<input class="input" id="material" name="material" value={ sku.Spec.Material } />
-									</div>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="help" for="dimensions">Unit Dimensions &amp; Packaging Spec</label>
-								<input class="input" id="dimensions" name="dimensions" value={ sku.Spec.Dimensions } />
-							</div>
-						</div>
-
-						<!-- 3. VARIANTS TAB -->
-						<div id="tab-pane-variants" style="display:none;">
-							<div style="margin-bottom:14px;">
-								<h4 style="font-size:14px; margin-bottom:4px;">Product Options &amp; Variants</h4>
-								<p class="micro">Define sizing, pack sizes, colors or commercial volume tiers.</p>
-							</div>
-							<div class="variant-row">
-								<input class="input" value="Standard Pack (25 units)"/>
-								<input class="input" value={ fmt.Sprintf("R %.2f", sku.WholesaleZar) }/>
-								<input class="input" value={ fmt.Sprintf("%d in stock", sku.StockQuantity) }/>
-								<button type="button" class="remove" onclick="this.parentElement.remove()">&times;</button>
-							</div>
-							<div class="variant-row">
-								<input class="input" value="Bulk Master Case (250 units)"/>
-								<input class="input" value={ fmt.Sprintf("R %.2f", sku.WholesaleZar * 8.5) }/>
-								<input class="input" value="Available"/>
-								<button type="button" class="remove" onclick="this.parentElement.remove()">&times;</button>
-							</div>
-							<button type="button" class="add-link" onclick="addVariantRow(this)">+ Add another variant</button>
-						</div>
-
-						<!-- 4. SEO TAB -->
-						<div id="tab-pane-seo" style="display:none;">
-							<div class="form-group">
-								<div class="form-label">
-									<label for="metaTitle">SEO Page Title</label>
-									<span>Recommended 60 chars</span>
-								</div>
-								<input class="input" id="metaTitle" value={ sku.Title + " | Shoppage Wholesale" } />
-							</div>
-							<div class="form-group">
-								<div class="form-label">
-									<label for="metaDescription">Meta Description</label>
-									<span>Recommended 155 chars</span>
-								</div>
-								<textarea class="textarea" id="metaDescription" rows="3">{ sku.Spec.LongDesc }</textarea>
-							</div>
-							<div class="form-group">
-								<label>OpenGraph &amp; Social Search Preview</label>
-								<div style="background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:12px; margin-top:6px;">
-									<div style="font-weight:700; color:var(--primary-2); font-size:14px;">{ sku.Title } — B2B Wholesale</div>
-									<div style="font-size:11.5px; color:#1a7f37; font-family:var(--mono); margin:2px 0;">https://shoppage.co.za/p/{ sku.SKU }</div>
-									<div style="font-size:12px; color:var(--muted); line-height:1.4;">{ sku.Spec.LongDesc }</div>
-								</div>
-								<div class="micro" style="margin-top:8px; color:var(--primary-2);">✓ Generates valid Schema.org Product JSON-LD and OpenGraph tags for WhatsApp &amp; Google Merchant Center.</div>
-							</div>
-						</div>
-
-						<!-- 5. CHANNELS TAB -->
-						<div id="tab-pane-channels" style="display:none;">
-							<div class="form-group">
-								<div class="form-label">
-									<label>Omnichannel Channel Routing</label>
-									<span>Unified stock ledger</span>
-								</div>
-								<div class="switch-row">
-									<div>
-										<b>Direct Web Storefront</b>
-										<span>Visible on your online storefront</span>
-									</div>
-									<button type="button" class="toggle on" onclick="this.classList.toggle('on'); document.getElementById('chk-direct').checked = this.classList.contains('on');"></button>
-									<input type="checkbox" id="chk-direct" name="directStore" checked="checked" style="display:none;" />
-								</div>
-								<div class="switch-row">
-									<div>
-										<b>WhatsApp Commerce Desk</b>
-										<span>Available in quick quote search &amp; buyer chats</span>
-									</div>
-									<button type="button" class="toggle on" onclick="this.classList.toggle('on'); document.getElementById('chk-wa').checked = this.classList.contains('on');"></button>
-									<input type="checkbox" id="chk-wa" name="whatsappSync" checked="checked" style="display:none;" />
-								</div>
-								<div class="switch-row">
-									<div>
-										<b>Shoppage B2B Discovery Grid</b>
-										<span>National South African commercial buyer index</span>
-									</div>
-									<button type="button" class="toggle on" onclick="this.classList.toggle('on'); document.getElementById('chk-shop').checked = this.classList.contains('on');"></button>
-									<input type="checkbox" id="chk-shop" name="shoppagePublic" checked="checked" style="display:none;" />
-								</div>
-								<div class="switch-row">
-									<div>
-										<b>Google Merchant Center XML Feed</b>
-										<span>Automated daily XML export</span>
-									</div>
-									<button type="button" class="toggle on" onclick="this.classList.toggle('on')"></button>
-								</div>
-							</div>
-						</div>
-					</article>
-				</div>
-
-				<!-- RIGHT: Side Form & Publishing Controls -->
-				<aside class="side-form">
-					<!-- Publish Card -->
-					<article class="publish-card">
-						<h3>Ready to publish?</h3>
-						<p>Your product is visible on all active channels. Check inventory before you save.</p>
-						<button type="submit" class="btn light" id="publishBtn">
-							if isNew {
-								Save &amp; publish
-							} else {
-								Save changes
-							}
-						</button>
-						<button type="button" class="btn line" id="draftBtn" hx-get="/tab/catalog" hx-target="#tab-content" hx-push-url="/tab/catalog">Discard / Cancel</button>
-					</article>
-
-					<!-- Inventory Snapshot -->
-					<article class="card">
-						<h3>Inventory Snapshot</h3>
-						<div class="two-col" style="margin-top:10px;">
-							<div>
-								<label class="help">SKU</label>
-								<input class="input" value={ sku.SKU } readonly style="background:var(--surface-2);" />
-							</div>
-							<div>
-								<label class="help">Barcode</label>
-								<input class="input" value={ sku.Spec.Barcode } readonly style="background:var(--surface-2);" />
-							</div>
-						</div>
-						<div class="two-col" style="margin-top:10px;">
-							<div>
-								<label class="help">Stock on Hand</label>
-								<b style="display:block; font-size:15px; margin-top:4px;">{ fmt.Sprintf("%d units", sku.StockQuantity) }</b>
-							</div>
-							<div>
-								<label class="help">Reorder Buffer</label>
-								<b style="display:block; font-size:15px; margin-top:4px;">{ fmt.Sprintf("%d units", sku.LowStockAlert) }</b>
-							</div>
-						</div>
-						if sku.StockQuantity <= sku.LowStockAlert {
-							<div class="alert" style="margin-top:12px;">
-								<svg viewBox="0 0 24 24" fill="none"><path d="M12 3l9 17H3L12 3zM12 9v4m0 3v.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-								<span>Stock is at or below reorder threshold ({ fmt.Sprintf("%d", sku.StockQuantity) } &le; { fmt.Sprintf("%d", sku.LowStockAlert) }).</span>
-							</div>
-						}
-					</article>
-
-					<!-- Shipping & Logistics -->
-					<article class="card">
-						<h3>Shipping &amp; Logistics</h3>
-						<div class="switch-row">
-							<div>
-								<b>Physical product</b>
-								<span>Requires delivery or collection</span>
-							</div>
-							<button type="button" class="toggle on" onclick="this.classList.toggle('on')"></button>
-						</div>
-						<div class="two-col" style="margin-top:10px;">
-							<div>
-								<label class="help">Weight (kg)</label>
-								<input class="input" name="weightKg" type="number" step="0.001" value={ fmt.Sprintf("%.3f", sku.Spec.WeightKg) } />
-							</div>
-							<div>
-								<label class="help">HS Customs Code</label>
-								<input class="input" name="hsCode" value={ sku.Spec.HSCode } />
-							</div>
-						</div>
-					</article>
-
-					<!-- Store Visibility -->
-					<article class="card">
-						<h3>Store Visibility</h3>
-						<div class="switch-row">
-							<div>
-								<b>Online Storefront</b>
-								<span>Show on direct catalog</span>
-							</div>
-							<button type="button" class="toggle on" onclick="this.classList.toggle('on')"></button>
-						</div>
-						<div class="switch-row">
-							<div>
-								<b>WhatsApp Commerce</b>
-								<span>Auto-suggest in quotes</span>
-							</div>
-							<button type="button" class="toggle on" onclick="this.classList.toggle('on')"></button>
-						</div>
-						<div class="switch-row">
-							<div>
-								<b>Shoppage discovery</b>
-								<span>Public B2B marketplace index</span>
-							</div>
-							<button type="button" class="toggle on" onclick="this.classList.toggle('on')"></button>
-						</div>
-					</article>
-				</aside>
-			</div>
-		</form>
-
-		<script>
-			function switchEditTab(tabName, btn) {
-				document.querySelectorAll('.editor-tabs button').forEach(function(b) { b.classList.remove('active'); });
-				if (btn) btn.classList.add('active');
-				
-				var tabs = ['general', 'inventory', 'variants', 'seo', 'channels'];
-				tabs.forEach(function(t) {
-					var el = document.getElementById('tab-pane-' + t);
-					if (el) el.style.display = (t === tabName) ? 'block' : 'none';
-				});
+				</article>
+			</aside>
+		</div>
+	</form>
+	<script>
+		(function () {
+			var form = document.querySelector('[data-product-form]');
+			if (!form) return;
+			var $ = function (id) { return document.getElementById(id); };
+			function validGTIN(c) {
+				if (!/^(\d{8}|\d{12}|\d{13}|\d{14})$/.test(c)) return false;
+				var sum = 0, n = c.length;
+				for (var i = 0; i < n - 1; i++) { var d = +c[i]; if ((n - 1 - i) % 2 === 1) d *= 3; sum += d; }
+				return (10 - sum % 10) % 10 === +c[n - 1];
 			}
-
-			function formatDesc(cmd) {
-				var txt = document.getElementById('description');
-				if (!txt) return;
-				if (cmd === 'bold') txt.value += ' **bold**';
-				else if (cmd === 'italic') txt.value += ' *italic*';
-				else if (cmd === 'h2') txt.value += '\n\n## Section Title\n';
-				else if (cmd === 'list') txt.value += '\n- Item 1\n- Item 2\n';
-				else if (cmd === 'link') txt.value += ' [link text](https://)';
+			function mark(label, ok) {
+				var row = form.querySelector('[data-check="' + label + '"] .ic');
+				if (!row) return;
+				row.className = 'ic ' + (ok ? 'ok' : 'no'); row.textContent = ok ? '✓' : '!';
 			}
-
-			function addVariantRow(btn) {
-				var div = document.createElement('div');
-				div.className = 'variant-row';
-				div.innerHTML = '<input class="input" placeholder="e.g. Master Carton 5,000s"><input class="input" placeholder="SKU-EXT"><input class="input" placeholder="-20% Tier"><button type="button" class="remove" onclick="this.parentElement.remove()">&times;</button>';
-				btn.parentElement.insertBefore(div, btn);
+			function update() {
+				var t = $('pe-title').value.trim(), d = $('pe-desc').value.trim(), g = $('pe-barcode').value.trim(), p = parseFloat($('pe-price').value);
+				form.querySelector('[data-count="pe-title"]').textContent = t.length + ' / 150';
+				form.querySelector('[data-count="pe-desc"]').textContent = d.length + ' characters · aim for 150+';
+				form.querySelector('[data-preview-title]').textContent = t || 'Product title';
+				form.querySelector('[data-preview-desc]').textContent = d ? d.slice(0, 160) + (d.length > 160 ? '…' : '') : 'Add a description to show here.';
+				form.querySelector('[data-preview-price]').textContent = 'R ' + (isNaN(p) ? 0 : p).toFixed(2);
+				var help = form.querySelector('[data-gtin-help]');
+				help.textContent = !g ? 'Printed under the barcode on the pack.' : validGTIN(g) ? 'Valid barcode.' : g.replace(/\D/g, '').length !== g.length ? 'Digits only.' : 'This barcode doesn’t check out. Re-enter it from the pack.';
+				help.className = 'help' + (g && !validGTIN(g) ? ' field-error' : '');
+				mark('Product title', t.length >= 20 && t.length <= 150);
+				mark('Description', d.length >= 150);
+				mark('Barcode (GTIN)', validGTIN(g));
+				mark('Price', p > 0);
+				mark('Category', $('pe-cat').value.trim() !== '');
+				mark('Brand', $('pe-brand').value.trim() !== '');
+				mark('Search keywords', $('pe-tags').value.split(',').filter(function (x) { return x.trim(); }).length >= 3);
+				mark('Shipping weight', parseFloat($('pe-weight').value) > 0);
 			}
-		</script>
-	</section>
+			form.addEventListener('input', update);
+			update();
+		})();
+	</script>
 }
 
-templ ProductEditPage(store models.StoreProfile, sku models.CatalogSKU, isNew bool, nav models.NavContext) {
-	@Layout(store, "catalog", nav) {
-		@ProductEditView(sku, isNew)
+func priceValue(v float64) string {
+	if v <= 0 {
+		return ""
 	}
+	return fmt.Sprintf("%.2f", v)
 }
 
-templ ProductEditModal(sku models.CatalogSKU) {
-	@ProductEditView(sku, false)
+func weightValue(v float64) string {
+	if v <= 0 {
+		return ""
+	}
+	return fmt.Sprintf("%g", v)
+}
+
+func orText(s, fallback string) string {
+	if strings.TrimSpace(s) == "" {
+		return fallback
+	}
+	return s
+}
+
+func previewDesc(d string) string {
+	r := []rune(strings.TrimSpace(d))
+	if len(r) == 0 {
+		return "Add a description to show here."
+	}
+	if len(r) > 160 {
+		return string(r[:160]) + "…"
+	}
+	return string(r)
+}
+
+templ ProductEditPage(data models.DashboardViewData, sku models.CatalogSKU, isNew bool) {
+	@Layout(data.Store, "catalog", data.Nav) {
+		@ProductEditView(data, sku, isNew)
+	}
 }

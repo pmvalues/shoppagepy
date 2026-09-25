@@ -323,3 +323,21 @@ workspace shell — see `docs/PRODUCT_TRANSFORMATION_BLUEPRINT.md` §7.
 
 
 
+
+## 14. Merchant workspace implementation (2026-09-25)
+
+What the Merchant OS now ships, and where it lives:
+
+| Area | Implementation |
+|---|---|
+| Stylesheet | One cached file, `services/merchant-os/internal/assets/css/workspace.css`, served at `/merchant-static/css/workspace.css`. Tokens on `:root`, a full dark theme (system, light or dark from the account menu), type scale 12–38 px, 4 px spacing, status tokens (success, warning, danger, info). The ~1,000-line inline `<style>` block and its four duplicated "polish layers" are gone. |
+| Type | Outfit (display) + Plus Jakarta Sans (body) + JetBrains Mono, the same stack as the consumer site. Bricolage/Instrument Sans are retired. |
+| Shell | `layout.templ`: 7-section sidebar (`templates/nav.go` is the single map of sections → tabs), page title + breadcrumb, tab strip, account menu, demo banner. Tab swaps refresh the shell out-of-band so the active state can't go stale. |
+| Phone | Below 1024 px the sidebar is a drawer; below 768 px a bottom bar appears (Home, Sell, Products, Stock, More), tables become labelled cards (`workspace.js` labels cells from the header row), touch targets are 44 px. |
+| Behaviour | `assets/js/workspace.js`: toasts with Undo (server sends `HX-Trigger: {"toast": …}`), menus, copy buttons, keyboard shortcuts (Ctrl K search, Ctrl B sidebar, `g` then `o/p/s/i/c/m/a/h`), offline banner, service worker registration. |
+| Offline | `/merchant-sw.js` caches the app shell and serves an offline page; the counter-sale screen queues sales on the device with a client reference so a resend can't double-count. |
+| Money & numbers | `models.FormatZAR` / `FormatZARWhole` / `FormatInt` (R 12 499.00, non-breaking-space thousands), identical to the consumer site. No template formats money itself. |
+| Figures | Every number comes from `handlers.computeMetrics` (sales, allowance, fees, stock, quotes, attention list, setup checklist). Plans live in `models.Plans`. |
+| Listings | `models.ComputeReadiness` scores each product (0–100) against Shoppage, Google, Meta and WhatsApp rules, with a plain-language fix per failed check. Feeds include only products that pass. |
+
+Honesty rules enforced by tests (`internal/handlers/merchant_test.go`): no invented KPIs, infrastructure claims, signatures, waybills, barcodes or AI; stock per location always sums to the product total; figures agree across screens.

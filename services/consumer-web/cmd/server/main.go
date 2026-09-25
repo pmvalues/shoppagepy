@@ -287,12 +287,15 @@ func main() {
 	r.Mount("/desk", merchant.at("/desk"))
 	for _, p := range []string{"/login", "/auth", "/merchant", "/tab", "/orders", "/catalog", "/inventory",
 		"/rfqs", "/pos", "/scan", "/feeds", "/settings", "/channels", "/discounts", "/transfers",
-		"/manifests", "/media", "/editor", "/copilot", "/audit-logs", "/flow", "/rma"} {
+		"/manifests", "/media", "/editor", "/copilot", "/audit-logs", "/flow", "/rma",
+		"/customers", "/search", "/undo", "/merchant-static"} {
 		r.Mount(p, merchantAsIs)
 	}
 	r.Post("/chat/send", merchantAsIs.ServeHTTP)
 	r.Post("/chat/quote", merchantAsIs.ServeHTTP)
 	r.Get("/chat/thread/*", merchantAsIs.ServeHTTP)
+	r.Post("/chat/action", merchantAsIs.ServeHTTP)
+	r.Get("/merchant-sw.js", merchantAsIs.ServeHTTP)
 
 	// Chat gateway WebSockets and the search core API.
 	r.Mount("/ws", chat.at(""))

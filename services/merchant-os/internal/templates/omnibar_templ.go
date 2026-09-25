@@ -8,6 +8,19 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import "github.com/shoppage/merchant-os/internal/models"
+
+// OmniResult is one row in the command palette.
+type OmniResult struct {
+	Group string // "Actions", "Pages", "Products", "Orders", "Customers"
+	Label string
+	Hint  string
+	Href  string
+	HX    bool // load into the workspace instead of a full navigation
+}
+
+// OmnibarDialog is the Ctrl+K command palette. Results come from /search so
+// it scales with the catalogue; arrow keys move, Enter opens.
 func OmnibarDialog() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -29,12 +42,206 @@ func OmnibarDialog() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<dialog id=\"omnibar-dialog\" class=\"modal-dialog\" style=\"max-width:640px; top:12vh;\"><div class=\"modal-card\" style=\"box-shadow:0 25px 60px -15px rgba(0,0,0,.5); border:1px solid var(--line-strong);\"><div style=\"padding:14px 16px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:10px;\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M11 4a7 7 0 105 12l4 4\"></path></svg> <input type=\"text\" id=\"omnibar-search\" placeholder=\"Search products, orders, customers, or jump to tab... (ESC to exit)\" style=\"border:0; outline:0; width:100%; font-size:14.5px; background:transparent;\" onkeyup=\"filterOmnibar(this.value);\"> <span style=\"font-family:var(--mono); font-size:11px; color:var(--muted); background:var(--surface-2); padding:2px 6px; border-radius:4px; border:1px solid var(--line);\">ESC</span></div><div id=\"omnibar-results\" style=\"max-height:360px; overflow-y:auto; padding:8px;\"><div class=\"omni-section\" style=\"font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:700; padding:6px 10px;\">Quick Navigation</div><button type=\"button\" class=\"omni-item\" hx-get=\"/tab/overview\" hx-target=\"#tab-content\" hx-push-url=\"true\" onclick=\"document.getElementById('omnibar-dialog').close();\"><span>📊</span> Overview &amp; Velocity Desk</button> <button type=\"button\" class=\"omni-item\" hx-get=\"/tab/chat\" hx-target=\"#tab-content\" hx-push-url=\"true\" onclick=\"document.getElementById('omnibar-dialog').close();\"><span>💬</span> Direct Messages &amp; Chat Desk</button> <button type=\"button\" class=\"omni-item\" hx-get=\"/tab/catalog\" hx-target=\"#tab-content\" hx-push-url=\"true\" onclick=\"document.getElementById('omnibar-dialog').close();\"><span>📦</span> Catalog &amp; SKU Matrix</button> <button type=\"button\" class=\"omni-item\" hx-get=\"/tab/orders\" hx-target=\"#tab-content\" hx-push-url=\"true\" onclick=\"document.getElementById('omnibar-dialog').close();\"><span>📑</span> Proforma B2B Orders Ledger</button> <button type=\"button\" class=\"omni-item\" hx-get=\"/tab/pick-pack\" hx-target=\"#tab-content\" hx-push-url=\"true\" onclick=\"document.getElementById('omnibar-dialog').close();\"><span>🏷️</span> WMS Pick &amp; Pack Station</button> <button type=\"button\" class=\"omni-item\" hx-get=\"/tab/pos\" hx-target=\"#tab-content\" hx-push-url=\"true\" onclick=\"document.getElementById('omnibar-dialog').close();\"><span>💳</span> POS Trade Counter Register</button> <button type=\"button\" class=\"omni-item\" hx-get=\"/tab/inventory\" hx-target=\"#tab-content\" hx-push-url=\"true\" onclick=\"document.getElementById('omnibar-dialog').close();\"><span>🏢</span> Multi-Warehouse Hubs</button> <button type=\"button\" class=\"omni-item\" hx-get=\"/tab/transfers\" hx-target=\"#tab-content\" hx-push-url=\"true\" onclick=\"document.getElementById('omnibar-dialog').close();\"><span>🚚</span> Inter-Hub Stock Transfers</button> <button type=\"button\" class=\"omni-item\" hx-get=\"/tab/copilot\" hx-target=\"#tab-content\" hx-push-url=\"true\" onclick=\"document.getElementById('omnibar-dialog').close();\"><span>✨</span> Pemofy AI Copilot Studio</button><div class=\"omni-section\" style=\"font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:700; padding:10px 10px 6px;\">Quick Actions</div><button type=\"button\" class=\"omni-item\" onclick=\"document.getElementById('omnibar-dialog').close(); document.getElementById('new-sku-dialog')?.showModal();\"><span>+</span> Add New Product SKU</button> <button type=\"button\" class=\"omni-item\" onclick=\"document.getElementById('omnibar-dialog').close(); document.getElementById('new-order-dialog')?.showModal();\"><span>+</span> Issue B2B Proforma Invoice</button> <button type=\"button\" class=\"omni-item\" onclick=\"document.getElementById('omnibar-dialog').close(); document.getElementById('new-customer-dialog')?.showModal();\"><span>+</span> Add Wholesale Trade Account</button></div></div></dialog><style>\n\t\t.omni-item {\n\t\t\tdisplay: flex;\n\t\t\talign-items: center;\n\t\t\tgap: 10px;\n\t\t\tpadding: 8px 12px;\n\t\t\tborder-radius: 8px;\n\t\t\tborder: 0;\n\t\t\tbackground: transparent;\n\t\t\twidth: 100%;\n\t\t\ttext-align: left;\n\t\t\tfont-size: 13.5px;\n\t\t\tcolor: var(--ink);\n\t\t\tcursor: pointer;\n\t\t\ttransition: all .1s;\n\t\t}\n\t\t.omni-item:hover, .omni-item:focus {\n\t\t\tbackground: var(--surface-2);\n\t\t\tcolor: var(--primary-2);\n\t\t\tfont-weight: 600;\n\t\t}\n\t</style><script>\n\t\tfunction filterOmnibar(q) {\n\t\t\tvar query = q.toLowerCase();\n\t\t\tdocument.querySelectorAll('.omni-item').forEach(function(el) {\n\t\t\t\tvar match = el.textContent.toLowerCase().includes(query);\n\t\t\t\tel.style.display = match ? 'flex' : 'none';\n\t\t\t});\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<dialog id=\"omnibar-dialog\" class=\"modal-dialog omni-dialog\" aria-label=\"Search and commands\"><div class=\"omni-panel\"><div class=\"omni-input\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = IconSized("search", 18).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<input type=\"search\" id=\"omnibar-search\" name=\"q\" placeholder=\"Search products, orders, customers, or type a command\" autocomplete=\"off\" aria-controls=\"omni-results\" hx-get=\"/search\" hx-trigger=\"input changed delay:120ms, omni-open\" hx-target=\"#omni-results\"> <kbd>Esc</kbd></div><div id=\"omni-results\" class=\"omni-results\" role=\"listbox\"></div><div class=\"omni-foot\"><span><kbd>↑</kbd> <kbd>↓</kbd> move</span> <span><kbd>Enter</kbd> open</span> <span><kbd>g</kbd> then <kbd>o</kbd> goes to Orders</span></div></div></dialog><script>\n\t\twindow.openOmnibar = function () {\n\t\t\tvar d = document.getElementById('omnibar-dialog');\n\t\t\tvar input = document.getElementById('omnibar-search');\n\t\t\tif (!d || !input) return;\n\t\t\tif (d.open) { d.close(); return; }\n\t\t\td.showModal();\n\t\t\tinput.value = '';\n\t\t\tinput.focus();\n\t\t\tif (window.htmx) htmx.trigger(input, 'omni-open');\n\t\t};\n\t\t(function () {\n\t\t\tvar d = document.getElementById('omnibar-dialog');\n\t\t\tif (!d) return;\n\t\t\td.addEventListener('click', function (e) { if (e.target === d) d.close(); });\n\t\t\td.addEventListener('keydown', function (e) {\n\t\t\t\tvar items = Array.prototype.slice.call(d.querySelectorAll('.omni-item'));\n\t\t\t\tif (!items.length) return;\n\t\t\t\tvar i = items.findIndex(function (el) { return el.classList.contains('sel'); });\n\t\t\t\tif (e.key === 'ArrowDown' || e.key === 'ArrowUp') {\n\t\t\t\t\te.preventDefault();\n\t\t\t\t\tif (i >= 0) items[i].classList.remove('sel');\n\t\t\t\t\ti = e.key === 'ArrowDown' ? Math.min(items.length - 1, i + 1) : Math.max(0, i - 1);\n\t\t\t\t\titems[i].classList.add('sel');\n\t\t\t\t\titems[i].scrollIntoView({ block: 'nearest' });\n\t\t\t\t} else if (e.key === 'Enter') {\n\t\t\t\t\te.preventDefault();\n\t\t\t\t\t(items[i >= 0 ? i : 0]).click();\n\t\t\t\t}\n\t\t\t});\n\t\t\td.addEventListener('click', function (e) {\n\t\t\t\tvar it = e.target.closest('.omni-item');\n\t\t\t\tif (!it) return;\n\t\t\t\te.preventDefault();\n\t\t\t\td.close();\n\t\t\t\tvar href = it.getAttribute('href');\n\t\t\t\tif (it.hasAttribute('data-hx') && window.htmx) htmx.ajax('GET', href, { target: '#tab-content', pushUrl: it.getAttribute('data-push') || href });\n\t\t\t\telse window.location.href = href;\n\t\t\t});\n\t\t})();\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		return nil
 	})
+}
+
+func OmnibarResults(q string, results []OmniResult) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var2 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var2 == nil {
+			templ_7745c5c3_Var2 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		if len(results) == 0 {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"empty\" style=\"padding:24px;\"><p>Nothing matches \"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(q)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `omnibar.templ`, Line: 88, Col: 26}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\". Try a product name, SKU, order number or customer.</p></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		for i, r := range results {
+			if i == 0 || results[i-1].Group != r.Group {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"omni-section\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var4 string
+				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(r.Group)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `omnibar.templ`, Line: 93, Col: 38}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var5 = []any{"omni-item", templ.KV("sel", i == 0)}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<a class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var5).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `omnibar.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" href=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var7 templ.SafeURL
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(r.Href))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `omnibar.templ`, Line: 97, Col: 31}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" role=\"option\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if r.HX {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, " data-hx=\"true\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			if r.Href == "/tab/overview" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, " data-push=\"/desk\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, ">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(r.Label)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `omnibar.templ`, Line: 106, Col: 12}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if r.Hint != "" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<small>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var9 string
+				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(r.Hint)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `omnibar.templ`, Line: 108, Col: 19}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</small>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</a>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		return nil
+	})
+}
+
+// omniPages lists every workspace page for the palette.
+func omniPages() []OmniResult {
+	var out []OmniResult
+	for _, w := range append(Workspaces, settingsWorkspace) {
+		for _, t := range w.Tabs {
+			out = append(out, OmniResult{Group: "Pages", Label: t.Label, Hint: w.Label, Href: "/tab/" + t.Key, HX: true})
+		}
+	}
+	return out
+}
+
+// OmniActions are the quick commands offered before and while typing.
+func OmniActions() []OmniResult {
+	return []OmniResult{
+		{Group: "Actions", Label: "Add a product", Hint: "Products", Href: "/catalog/new", HX: false},
+		{Group: "Actions", Label: "Ring up a counter sale", Hint: "Sell", Href: "/tab/pos", HX: true},
+		{Group: "Actions", Label: "Record a stock delivery", Hint: "Stock", Href: "/tab/inventory", HX: true},
+		{Group: "Actions", Label: "Fix listing problems", Hint: "Marketing", Href: "/tab/feeds", HX: true},
+		{Group: "Actions", Label: "Export products (CSV)", Hint: "Products", Href: "/catalog/export.csv"},
+	}
+}
+
+// OmniPages is exported for the search handler.
+func OmniPages() []OmniResult { return omniPages() }
+
+// OmniProduct builds a palette row for a product.
+func OmniProduct(p models.CatalogSKU) OmniResult {
+	return OmniResult{Group: "Products", Label: p.Title, Hint: p.SKU + " · " + models.FormatZAR(p.WholesaleZar), Href: "/catalog/" + p.ID}
 }
 
 var _ = templruntime.GeneratedTemplate

@@ -2,202 +2,147 @@ package templates
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
+func ordersToPack(orders []models.ProformaOrder) []models.ProformaOrder {
+	var out []models.ProformaOrder
+	for _, o := range orders {
+		switch strings.ToLower(o.Status) {
+		case "confirmed", "paid", "packed":
+			out = append(out, o)
+		}
+	}
+	return out
+}
+
+func unitsToPick(orders []models.ProformaOrder) int {
+	n := 0
+	for _, o := range orders {
+		for _, ln := range o.LineItems {
+			n += ln.Quantity
+		}
+	}
+	return n
+}
+
+func catalogFor(catalog []models.CatalogSKU, sku string) models.CatalogSKU {
+	for _, p := range catalog {
+		if strings.EqualFold(p.SKU, sku) {
+			return p
+		}
+	}
+	return models.CatalogSKU{}
+}
+
+// PickPackTab lists paid orders to pick. Scanning a line's barcode ticks it;
+// when every line is ticked the order can be marked dispatched, which takes
+// the units out of stock.
 templ PickPackTab(data models.DashboardViewData) {
-	<div class="panel-head">
-		<div>
-			<h3>Pick &amp; Pack Warehouse Station</h3>
-			<div class="sub">WMS order fulfillment, barcode scanning verification, carton weigh-in &amp; thermal waybills</div>
+	{{ orders := ordersToPack(data.Orders) }}
+	<div class="page-head">
+		<div class="head-copy">
+			<p>{ fmt.Sprintf("%d %s to pack · %s units to pick · %d awaiting payment", len(orders), Plural(len(orders), "order", "orders"), Int(unitsToPick(orders)), data.Metrics.AwaitingPayment) }</p>
 		</div>
-		<div class="right">
-			<span class="chip up">● WMS Station: Midrand Hub Bay 4</span>
-		</div>
-	</div>
-
-	<!-- Top Metrics -->
-	<div class="grid-kpi" style="margin-bottom:18px;">
-		<div class="card kpi">
-			<div class="k-label"><span>Awaiting Pick</span><span class="chip warn">Priority</span></div>
-			<div class="k-val">2 <span class="sub">Orders</span></div>
-			<div class="k-foot"><span class="then">Hotels &amp; Commercial Trade</span></div>
-		</div>
-		<div class="card kpi">
-			<div class="k-label"><span>Packed Today</span><span class="chip up">+6 cartons</span></div>
-			<div class="k-val">14 <span class="sub">Cartons</span></div>
-			<div class="k-foot"><span class="then">Ready for Courier Guy collection</span></div>
-		</div>
-		<div class="card kpi">
-			<div class="k-label"><span>Pick Accuracy</span><span class="chip up">100% SABS</span></div>
-			<div class="k-val">99.8% <span class="sub">Rate</span></div>
-			<div class="k-foot"><span class="then">Zero mismatch errors logged</span></div>
-		</div>
-		<div class="card kpi">
-			<div class="k-label"><span>Carrier Cut-Off</span><span class="chip flat">Today</span></div>
-			<div class="k-val">15:30 <span class="sub">SAST</span></div>
-			<div class="k-foot"><span class="then">The Courier Guy collection window</span></div>
+		<div class="actions">
+			<button type="button" class="btn ghost" onclick="window.print()" disabled?={ len(orders) == 0 }>Print pick lists</button>
 		</div>
 	</div>
-
-	<!-- Active Packing Checklist -->
-	for _, order := range data.Orders {
-		<div class="card panel" style="margin-bottom:20px;">
-			<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
-				<div>
-					<div style="display:flex; align-items:center; gap:8px;">
-						<b style="font-family:var(--mono); font-size:16px; color:var(--primary-2);">{ order.OrderNumber }</b>
-						<span class="chip flat">{ order.Company }</span>
-						if order.Status == "paid" {
-							<span class="chip up">EFT Cleared · Ready to Pack</span>
-						} else {
-							<span class="chip warn">{ order.Status }</span>
-						}
+	if len(orders) == 0 {
+		<div class="card empty">
+			<div class="empty-icon">
+				@IconSized("check", 22)
+			</div>
+			<h3>Nothing to pack</h3>
+			<p>Paid orders appear here, ready to pick.</p>
+			<a class="btn ghost" href="/tab/orders?view=awaiting_payment" hx-get="/tab/orders?view=awaiting_payment" hx-target="#tab-content" hx-push-url="true">See orders awaiting payment</a>
+		</div>
+	}
+	for _, o := range orders {
+		<section class="card section" data-pick-order={ o.ID }>
+			<div class="panel" style="border-bottom:1px solid var(--line);">
+				<div class="panel-head" style="margin:0;">
+					<div>
+						<h3>{ o.OrderNumber } · { o.Company }</h3>
+						<div class="sub">
+							{ orDash(o.Customer) }
+							if o.Phone != "" {
+								· { o.Phone }
+							}
+							if o.Address != "" {
+								· { o.Address }
+							}
+						</div>
 					</div>
-					<div style="font-size:12.5px; color:var(--muted); margin-top:4px;">
-						Recipient: <b>{ order.Customer }</b> · Tel: { order.Phone } · Address: <b>{ order.Address }</b>
+					<div class="right">
+						<span class={ OrderStatusClass(o.Status) }>{ OrderStatusLabel(o.Status) }</span>
 					</div>
 				</div>
-
-				<div style="display:flex; gap:8px;">
-					<button type="button" class="btn ghost small" onclick="window.print();">
-						<span>🖨️</span> Pick List
-					</button>
-					<button type="button" class="btn ghost small" onclick={ templ.ComponentScript{Call: fmt.Sprintf("document.getElementById('waybill-preview-%s')?.showModal();", order.ID)} }>
-						<span>🏷️</span> Thermal Waybill
-					</button>
-					<form hx-post={ fmt.Sprintf("/orders/%s/advance-status", order.ID) } hx-target="#tab-content" style="display:inline;">
-						<button type="submit" class="btn solid small">
-							✓ Confirm Packed &amp; Sealed
-						</button>
-					</form>
+				<div class="cluster" style="margin-top:12px;">
+					<label class="sr-only" for={ "pick-scan-" + o.ID }>Scan to tick a line</label>
+					<input class="input mono" id={ "pick-scan-" + o.ID } data-pick-scan type="search" placeholder="Scan a barcode to tick it off" style="flex:1 1 240px;" autocomplete="off"/>
+					<span class="small-text muted" data-pick-progress>{ fmt.Sprintf("0 of %d lines picked", len(o.LineItems)) }</span>
 				</div>
 			</div>
-
-			<!-- Barcode Verification Station -->
-			<div style="background:var(--surface-2); padding:10px 14px; border-radius:9px; border:1px solid var(--line); margin-bottom:14px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-				<div style="font-weight:700; font-size:12.5px; display:flex; align-items:center; gap:6px;">
-					<span>📷</span> Scan Barcode to Verify:
-				</div>
-				<input 
-					type="text" 
-					placeholder="Point handheld scanner at item barcode (e.g. 60098824001)..." 
-					style="flex:1; min-width:240px; padding:6px 10px; font-family:var(--mono); font-size:12.5px; border:1px solid var(--line); border-radius:6px; background:var(--surface);"
-					onkeydown="if(event.key==='Enter'){event.preventDefault(); var v=this.value.trim()||'60098824001'; var f=document.getElementById('scan-verify-pill'); if(f){f.textContent='✓ ' + v + ' Scanned'; f.className='chip up';} this.value='';}"
-				/>
-				<span id="scan-verify-pill" class="chip flat" style="font-size:11px;">Scanner Ready</span>
-			</div>
-
-			<!-- Line Items to Pick -->
 			<div class="table-wrap">
 				<table class="table">
 					<thead>
 						<tr>
-							<th style="width:40px;">Pick</th>
-							<th>SKU &amp; Barcode</th>
-							<th>Description</th>
-							<th>Warehouse Bin</th>
-							<th style="text-align:right;">Required Qty</th>
-							<th style="text-align:right;">Verification</th>
+							<th>Picked</th>
+							<th>Product</th>
+							<th>Barcode</th>
+							<th class="r">Pick</th>
+							<th class="r">On hand</th>
 						</tr>
 					</thead>
 					<tbody>
-						for _, item := range order.LineItems {
-							<tr>
-								<td>
-									<input type="checkbox" checked="checked" style="width:18px; height:18px; accent-color:var(--primary);" />
+						for _, ln := range o.LineItems {
+							{{ p := catalogFor(data.Catalog, ln.SKU) }}
+							<tr data-pick-line data-sku={ strings.ToLower(ln.SKU) } data-barcode={ p.Spec.Barcode }>
+								<td><input type="checkbox" data-pick-check aria-label={ "Picked " + ln.SKU }/></td>
+								<td><span class="mono">{ ln.SKU }</span><div class="small-text muted">{ ln.Title }</div></td>
+								<td class="mono small-text">{ orDash(p.Spec.Barcode) }</td>
+								<td class="r num"><b>{ Int(ln.Quantity) }</b></td>
+								<td class="r num">
+									{ Int(p.StockQuantity) }
+									if p.StockQuantity < ln.Quantity {
+										<div><span class="chip bad">Short</span></div>
+									}
 								</td>
-								<td>
-									<b style="font-family:var(--mono);">{ item.SKU }</b>
-									<div style="font-size:11px; color:var(--muted); font-family:var(--mono);">60098824001</div>
-								</td>
-								<td><b>{ item.Title }</b></td>
-								<td><span class="chip flat">Bay 4 · Shelf B-02</span></td>
-								<td style="text-align:right; font-family:var(--mono); font-weight:700;">{ fmt.Sprintf("%d units", item.Quantity) }</td>
-								<td style="text-align:right;"><span class="chip up">Verified 100%</span></td>
 							</tr>
 						}
 					</tbody>
 				</table>
 			</div>
-
-			<!-- Parcel Weigh-In & Dimensions Form -->
-			<div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-				<div style="display:flex; gap:14px; align-items:center; font-size:12px;">
-					<div>
-						<span style="color:var(--muted);">Carton Weight:</span>
-						<b style="font-family:var(--mono); margin-left:4px;">18.4 kg</b>
-					</div>
-					<div>
-						<span style="color:var(--muted);">Carton Format:</span>
-						<b style="margin-left:4px;">Heavy-Duty Double Wall (60x40x35cm)</b>
-					</div>
-					<div>
-						<span style="color:var(--muted);">Freight Carrier:</span>
-						<b style="color:var(--primary-2); margin-left:4px;">The Courier Guy Road Freight</b>
-					</div>
-				</div>
-				<span class="chip up" style="font-size:11px;">Waybill Assigned: TCG-ZA-984210</span>
+			<div class="panel cluster" style="justify-content:flex-end; border-top:1px solid var(--line);">
+				<button type="button" class="btn ghost small" hx-get={ "/orders/" + o.ID + "/invoice" } hx-target="#modal-container">Invoice</button>
+				<button type="button" class="btn solid small" data-pick-done disabled hx-post={ "/orders/" + o.ID + "/advance-status" } hx-target="#tab-content">Packed · mark dispatched</button>
 			</div>
-
-			<!-- Thermal Waybill Modal -->
-			<dialog id={ fmt.Sprintf("waybill-preview-%s", order.ID) } class="modal-dialog" style="max-width:440px;">
-				<div class="modal-card">
-					<div class="modal-head">
-						<h4>Courier Guy Thermal Shipping Label</h4>
-						<button type="button" class="close-btn" onclick={ templ.ComponentScript{Call: fmt.Sprintf("document.getElementById('waybill-preview-%s')?.close();", order.ID)} }>&times;</button>
-					</div>
-					<div class="modal-body" style="background:#fff; color:#000; font-family:monospace; padding:20px; border:2px dashed #000; margin:16px;">
-						<div style="text-align:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:10px;">
-							<div style="font-size:18px; font-weight:900;">THE COURIER GUY</div>
-							<div style="font-size:11px;">STANDARD ROAD FREIGHT · JHB &rarr; CPT</div>
-						</div>
-						<div style="font-size:12px; margin-bottom:8px;">
-							<div><b>TO:</b> { order.Company }</div>
-							<div>{ order.Customer } ({ order.Phone })</div>
-							<div>{ order.Address }</div>
-						</div>
-						<div style="border-top:1px solid #000; border-bottom:1px solid #000; padding:6px 0; margin:8px 0; font-size:11px;">
-							<div>REF: { order.OrderNumber }</div>
-							<div>WEIGHT: 18.4 KG | PIECES: 1/1</div>
-						</div>
-						<div style="text-align:center; padding:12px 0;">
-							<!-- Barcode SVG -->
-							<svg width="240" height="60" viewBox="0 0 240 60">
-								<rect x="10" y="0" width="3" height="50" fill="#000"/>
-								<rect x="16" y="0" width="6" height="50" fill="#000"/>
-								<rect x="26" y="0" width="2" height="50" fill="#000"/>
-								<rect x="32" y="0" width="8" height="50" fill="#000"/>
-								<rect x="44" y="0" width="4" height="50" fill="#000"/>
-								<rect x="52" y="0" width="2" height="50" fill="#000"/>
-								<rect x="58" y="0" width="6" height="50" fill="#000"/>
-								<rect x="68" y="0" width="8" height="50" fill="#000"/>
-								<rect x="80" y="0" width="3" height="50" fill="#000"/>
-								<rect x="88" y="0" width="5" height="50" fill="#000"/>
-								<rect x="98" y="0" width="2" height="50" fill="#000"/>
-								<rect x="104" y="0" width="7" height="50" fill="#000"/>
-								<rect x="115" y="0" width="4" height="50" fill="#000"/>
-								<rect x="124" y="0" width="6" height="50" fill="#000"/>
-								<rect x="134" y="0" width="3" height="50" fill="#000"/>
-								<rect x="142" y="0" width="5" height="50" fill="#000"/>
-								<rect x="152" y="0" width="2" height="50" fill="#000"/>
-								<rect x="158" y="0" width="8" height="50" fill="#000"/>
-								<rect x="170" y="0" width="4" height="50" fill="#000"/>
-								<rect x="178" y="0" width="6" height="50" fill="#000"/>
-								<rect x="188" y="0" width="3" height="50" fill="#000"/>
-								<rect x="196" y="0" width="5" height="50" fill="#000"/>
-								<rect x="206" y="0" width="4" height="50" fill="#000"/>
-								<rect x="214" y="0" width="7" height="50" fill="#000"/>
-								<text x="120" y="58" font-size="10" text-anchor="middle" font-family="monospace">TCG-ZA-984210</text>
-							</svg>
-						</div>
-					</div>
-					<div class="modal-foot">
-						<button type="button" class="btn ghost" onclick={ templ.ComponentScript{Call: fmt.Sprintf("document.getElementById('waybill-preview-%s')?.close();", order.ID)} }>Close</button>
-						<button type="button" class="btn solid" onclick="window.print();">Print 4x6 Label</button>
-					</div>
-				</div>
-			</dialog>
-		</div>
+		</section>
 	}
+	<script>
+		document.querySelectorAll('[data-pick-order]').forEach(function (card) {
+			var lines = Array.prototype.slice.call(card.querySelectorAll('[data-pick-line]'));
+			var done = card.querySelector('[data-pick-done]');
+			var progress = card.querySelector('[data-pick-progress]');
+			function update() {
+				var n = lines.filter(function (l) { return l.querySelector('[data-pick-check]').checked; }).length;
+				progress.textContent = n + ' of ' + lines.length + ' lines picked';
+				done.disabled = n < lines.length;
+			}
+			lines.forEach(function (l) { l.querySelector('[data-pick-check]').addEventListener('change', update); });
+			card.querySelector('[data-pick-scan]').addEventListener('keydown', function (e) {
+				if (e.key !== 'Enter') return;
+				e.preventDefault();
+				var v = this.value.trim().toLowerCase();
+				var hit = lines.find(function (l) { return l.dataset.barcode === v || l.dataset.sku === v; });
+				if (hit) { hit.querySelector('[data-pick-check]').checked = true; update(); }
+				else if (window.showToast) showToast('"' + this.value + '" is not on this order.');
+				this.value = '';
+			});
+			update();
+		});
+	</script>
 }

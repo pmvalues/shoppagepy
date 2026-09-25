@@ -10,10 +10,41 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/shoppage/merchant-os/internal/models"
 	"strings"
+
+	"github.com/shoppage/merchant-os/internal/models"
 )
 
+func channelListed(data models.DashboardViewData, ch string) int {
+	n := 0
+	for _, p := range data.Catalog {
+		if data.Readiness[p.ID].ReadyOn(ch) {
+			n++
+		}
+	}
+	return n
+}
+
+func channelNote(ch string) string {
+	switch ch {
+	case models.ChannelShoppage:
+		return "Buyers searching Shoppage and asking AI assistants that use it."
+	case models.ChannelGoogle:
+		return "Free listings in Google Shopping and Search, from your product feed."
+	case models.ChannelMeta:
+		return "Shops on Facebook and Instagram, from your catalogue file."
+	case models.ChannelWhatsApp:
+		return "Your catalogue inside WhatsApp Business chats."
+	}
+	return ""
+}
+
+func feedURL(data models.DashboardViewData, path string) string {
+	return strings.TrimRight(data.Nav.PublicBaseURL, "/") + path
+}
+
+// FeedsTab is "Where you sell": one product record, checked against each
+// channel's rules, with the exact fix for anything blocked.
 func FeedsTab(data models.DashboardViewData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -35,188 +66,360 @@ func FeedsTab(data models.DashboardViewData) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"margin-bottom: 20px;\"><div class=\"panel-head\" style=\"margin-bottom: 16px;\"><div><h3 style=\"font-size: 1.3rem;\">Google Merchant Center &amp; Meta Feeds Vault</h3><div class=\"sub\">Automated South African commercial feed syndication, XML RSS 2.0 &amp; Meta Catalog feeds</div></div><div style=\"margin-left: auto; display:flex; gap:8px;\"><a href=\"/feeds/meta-catalog.csv\" target=\"_blank\" class=\"btn ghost small\"><span>📥</span> Meta Catalog CSV</a> <a href=\"/feeds/google-merchant-center.xml\" target=\"_blank\" class=\"btn solid small\"><span>↗</span> View Raw GMC XML Feed</a></div></div><!-- Feed Diagnostics & Metrics Overview --><div class=\"card panel\" style=\"margin-bottom:18px;\"><div style=\"display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;\"><div><div style=\"font-weight: 700; font-size: 15px; color: var(--ink);\">Automated GMC Syndication Status</div><div style=\"font-size: 12.5px; color: var(--muted); margin-top: 2px;\">Live endpoint: <code style=\"font-family: var(--mono); background: var(--surface-2); padding: 2px 6px; border-radius: 4px;\">/feeds/google-merchant-center.xml</code></div></div><div style=\"display:flex; gap:8px; align-items:center;\"><form hx-post=\"/feeds/validate\" hx-target=\"#tab-content\" style=\"display:inline;\"><button type=\"submit\" class=\"btn ghost small\"><span>🔍</span> Run Feed Diagnostics</button></form><span class=\"chip up\">● Active Sync (200 OK)</span></div></div><div style=\"display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;\"><div style=\"padding: 12px; background: var(--surface-2); border-radius: 9px; border: 1px solid var(--line);\"><div style=\"font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700;\">Feed Standard</div><div style=\"font-weight: 800; font-family: var(--display); font-size: 15px; margin-top: 4px;\">RSS 2.0 / GMC 1.0</div></div><div style=\"padding: 12px; background: var(--surface-2); border-radius: 9px; border: 1px solid var(--line);\"><div style=\"font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700;\">Currency &amp; VAT</div><div style=\"font-weight: 800; font-family: var(--display); font-size: 15px; margin-top: 4px;\">ZAR (15% SARS VAT)</div></div><div style=\"padding: 12px; background: var(--surface-2); border-radius: 9px; border: 1px solid var(--line);\"><div style=\"font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700;\">Active Items In Feed</div><div style=\"font-weight: 800; font-family: var(--display); font-size: 15px; margin-top: 4px; color: var(--primary);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-head\"><div class=\"head-copy\"><p>You edit each product once. Here's where it can be listed, and exactly what to fix where it can't.</p></div><div class=\"actions\"><button class=\"btn ghost\" type=\"button\" hx-post=\"/feeds/validate\" hx-target=\"#tab-content\">Re-check listings</button></div></div><section class=\"grid-kpi\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Catalog)))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 57, Col: 44}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " SKUs Approved</div></div><div style=\"padding: 12px; background: var(--surface-2); border-radius: 9px; border: 1px solid var(--line);\"><div style=\"font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700;\">Courier Shipping</div><div style=\"font-weight: 800; font-family: var(--display); font-size: 15px; margin-top: 4px; color: #16a34a;\">Courier Guy &amp; Pudo</div></div></div><!-- SKU-by-SKU Policy Compliance Diagnostics Table --><div style=\"margin-bottom: 20px;\"><div style=\"font-weight: 700; font-size: 13.5px; color: var(--ink); margin-bottom: 8px;\">GMC Catalog Item Policy Diagnostics (")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Catalog)))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 71, Col: 80}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " SKUs)</div><div class=\"table-wrap\" style=\"border: 1px solid var(--line); border-radius: 10px; overflow-x: auto;\"><table class=\"data-table\" style=\"width: 100%; border-collapse: collapse; font-size: 12px;\"><thead><tr style=\"background: var(--surface-2); text-align: left; border-bottom: 1px solid var(--line);\"><th style=\"padding: 10px 12px;\">SKU / Product</th><th style=\"padding: 10px 12px;\">GTIN / EAN-13</th><th style=\"padding: 10px 12px;\">Landing Link</th><th style=\"padding: 10px 12px;\">Image Asset</th><th style=\"padding: 10px 12px;\">Price (ZAR)</th><th style=\"padding: 10px 12px;\">Shipping Matrix</th><th style=\"padding: 10px 12px;\">Policy Status</th></tr></thead> <tbody>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		for i, item := range data.Catalog {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<tr style=\"border-bottom: 1px solid var(--line);\"><td style=\"padding: 10px 12px;\"><div style=\"font-weight: 700; color: var(--ink);\">")
+		for _, ch := range models.ListingChannels {
+			n := channelListed(data, ch)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<article class=\"card kpi\"><div class=\"k-label\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var2 string
+			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(ch)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 54, Col: 9}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if n == len(data.Catalog) && n > 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span class=\"chip ok\">All listed</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else if n < len(data.Catalog) {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span class=\"chip warn\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var3 string
+				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d blocked", len(data.Catalog)-n))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 58, Col: 78}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><div class=\"k-val\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(item.Title)
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", n))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 90, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 61, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div style=\"font-size: 10.5px; font-family: var(--mono); color: var(--muted);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " <span class=\"sub\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(item.SKU)
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("of %d", len(data.Catalog)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 91, Col: 99}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 61, Col: 107}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " · ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span></div><div class=\"k-foot\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(item.Brand)
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(channelNote(ch))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 91, Col: 117}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 62, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div></td><td style=\"padding: 10px 12px; font-family: var(--mono);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></article>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if item.Spec.Barcode != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span class=\"chip\" style=\"font-size: 11px;\">✓ ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var7 string
-				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(item.Spec.Barcode)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 95, Col: 78}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"chip\" style=\"font-size: 11px;\">✓ ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var8 string
-				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("60098824%04d", (i+1)*13%10000))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 97, Col: 104}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</td><td style=\"padding: 10px 12px;\"><a href=\"")
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</section><section class=\"card section\"><div class=\"panel-head panel\" style=\"margin:0; border-bottom:1px solid var(--line);\"><div><h3>Products by channel</h3><div class=\"sub\">Fix the top item on each product first. It unblocks the most channels.</div></div></div><div class=\"table-wrap\"><table class=\"table\"><thead><tr><th>Product</th><th class=\"r\">Score</th>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, ch := range models.ListingChannels {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<th>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var9 templ.SafeURL
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("%s/p/%s", strings.TrimRight(data.Nav.PublicBaseURL, "/"), item.ID)))
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(ch)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 101, Col: 114}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 80, Col: 15}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" target=\"_blank\" style=\"color: var(--primary); text-decoration: underline; font-family: var(--mono); font-size: 11px;\">/p/")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</th>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<th>Next fix</th></tr></thead> <tbody>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, p := range data.Catalog {
+			r := data.Readiness[p.ID]
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<tr><td><a class=\"link\" href=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var8 templ.SafeURL
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/catalog/" + p.ID))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 90, Col: 64}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" hx-get=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var9 string
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue("/catalog/" + p.ID)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 90, Col: 94}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" hx-target=\"#tab-content\" hx-push-url=\"true\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(item.ID)
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 102, Col: 23}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 90, Col: 150}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " ↗</a></td><td style=\"padding: 10px 12px;\"><span class=\"chip up\" style=\"font-size: 10.5px;\">✓ Synced (HD)</span></td><td style=\"padding: 10px 12px; font-family: var(--mono); font-weight: 700;\">R ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</a><div class=\"small-text muted mono\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.WholesaleZar))
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(p.SKU)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 109, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 91, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</td><td style=\"padding: 10px 12px; font-size: 11px; color: var(--muted);\">TCG R85 · Pudo R60</td><td style=\"padding: 10px 12px;\"><span class=\"chip up\" style=\"font-weight: 700;\">● Approved</span></td></tr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div></td><td class=\"r\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var12 = []any{listingChip(r)}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var12...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var13 string
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var12).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var14 string
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(r.Score))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 93, Col: 73}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</span></td>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			for _, ch := range models.ListingChannels {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<td>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if r.ReadyOn(ch) {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span class=\"status ok\">Listed</span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span class=\"status warn\" title=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var15 string
+					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue("Needs: " + strings.Join(r.Blocked[ch], ", "))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 99, Col: 89}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\">Blocked</span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</td>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<td style=\"min-width:220px;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if f := r.FailedChecks(); len(f) > 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<b class=\"small-text\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var16 string
+				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(f[0].Label)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 105, Col: 43}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</b><p class=\"small-text muted\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var17 string
+				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(f[0].Fix)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 106, Col: 47}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</p><a class=\"btn quiet small\" href=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var18 templ.SafeURL
+				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/catalog/" + p.ID + "/edit"))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 107, Col: 86}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" hx-get=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var19 string
+				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue("/catalog/" + p.ID + "/edit")
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 107, Col: 126}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" hx-target=\"#tab-content\" hx-push-url=\"true\">Fix now</a>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span class=\"muted small-text\">Nothing to fix</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</td></tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</tbody></table></div></div><!-- Live XML Code Preview Snippet --><div style=\"background: var(--sidebar); color: #dbe8e0; border-radius: 12px; padding: 16px; font-family: var(--mono); font-size: 11.5px; overflow-x: auto; margin-bottom:16px;\"><div style=\"color: #6f9384; margin-bottom: 6px;\">&lt;!-- Verified GMC XML Feed Item Output Sample --&gt;</div><div>&lt;item&gt;</div><div style=\"padding-left: 16px;\">&lt;g:id&gt;mit_3361&lt;/g:id&gt;</div><div style=\"padding-left: 16px;\">&lt;g:title&gt;Commercial Anti-Theft Wooden Male Hanger 44cm&lt;/g:title&gt;</div><div style=\"padding-left: 16px;\">&lt;g:link&gt;")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</tbody></table></div></section><details class=\"card panel\"><summary style=\"cursor:pointer; font-weight:600;\">Advanced: feed addresses for Google Merchant Center and Meta Commerce Manager</summary><p class=\"muted small-text\" style=\"margin:10px 0;\">Paste these into Google Merchant Center (scheduled fetch) and Meta Commerce Manager (data feed). They're generated from your products each time they're read, and only include products that pass that channel's rules.</p><div class=\"kv-list\"><div class=\"kv-row\"><span>Google product feed (XML)</span><a class=\"mono link\" href=\"/feeds/google-merchant-center.xml\" target=\"_blank\" rel=\"noopener\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var12 string
-		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s/p/mit_3361", strings.TrimRight(data.Nav.PublicBaseURL, "/")))
+		var templ_7745c5c3_Var20 string
+		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(feedURL(data, "/feeds/google-merchant-center.xml"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 130, Col: 129}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 122, Col: 206}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "&lt;/g:link&gt;</div><div style=\"padding-left: 16px;\">&lt;g:image_link&gt;")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var13 string
-		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s/static/catalog/mit_3361.jpg", strings.TrimRight(data.Nav.PublicBaseURL, "/")))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/feeds.templ`, Line: 131, Col: 152}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</a></div><div class=\"kv-row\"><span>Meta catalogue (CSV)</span><a class=\"mono link\" href=\"/feeds/meta-catalog.csv\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "&lt;/g:image_link&gt;</div><div style=\"padding-left: 16px;\">&lt;g:price&gt;22.88 ZAR&lt;/g:price&gt;</div><div style=\"padding-left: 16px;\">&lt;g:availability&gt;in stock&lt;/g:availability&gt;</div><div style=\"padding-left: 16px;\">&lt;g:condition&gt;new&lt;/g:condition&gt;</div><div style=\"padding-left: 16px;\">&lt;g:gtin&gt;60098824001&lt;/g:gtin&gt;</div><div style=\"padding-left: 16px;\">&lt;g:google_product_category&gt;Business &amp; Industrial &gt; Hospitality Supplies&lt;/g:google_product_category&gt;</div><div style=\"padding-left: 16px;\">&lt;g:shipping&gt;</div><div style=\"padding-left: 32px;\">&lt;g:country&gt;ZA&lt;/g:country&gt;&lt;g:service&gt;The Courier Guy Express&lt;/g:service&gt;&lt;g:price&gt;85.00 ZAR&lt;/g:price&gt;</div><div style=\"padding-left: 16px;\">&lt;/g:shipping&gt;</div><div>&lt;/item&gt;</div></div><!-- Specification Checklist --><div style=\"display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; font-size:12px;\"><div style=\"display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;\"><span style=\"color:var(--primary-2); font-weight:700;\">✓</span> <span>EAN-13 / GTIN Barcode Matched</span></div><div style=\"display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;\"><span style=\"color:var(--primary-2); font-weight:700;\">✓</span> <span>SARS 15% VAT In Pricing</span></div><div style=\"display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;\"><span style=\"color:var(--primary-2); font-weight:700;\">✓</span> <span>Canonical Product URL Live</span></div><div style=\"display:flex; align-items:center; gap:8px; padding:10px; background:var(--surface-2); border-radius:8px;\"><span style=\"color:var(--primary-2); font-weight:700;\">✓</span> <span>SA Courier Shipping Defined</span></div></div></div></div>")
+		var templ_7745c5c3_Var21 string
+		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(feedURL(data, "/feeds/meta-catalog.csv"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `feeds.templ`, Line: 123, Col: 150}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</a></div></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if strings.Contains(data.Nav.PublicBaseURL, "localhost") {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<div class=\"notice warn\" style=\"margin-top:10px;\">These addresses point at localhost, so Google and Meta can't reach them. Set SHOPPAGE_PUBLIC_URL to your public web address.</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</details>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

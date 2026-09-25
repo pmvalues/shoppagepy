@@ -1,11 +1,18 @@
 package templates
 
+import "fmt"
+
 // Icon renders a single-stroke SVG icon for the workspace navigation. The icon
 // set replaces emoji in chrome (emoji remain allowed only inside user-generated
 // content). All icons share one stroke width, cap and join so the shell reads
 // as a single family.
 templ Icon(name string) {
-	<svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+	@IconSized(name, 18)
+}
+
+// IconSized renders an icon at a given pixel size.
+templ IconSized(name string, size int) {
+	<svg class="nav-icon" width={ fmt.Sprint(size) } height={ fmt.Sprint(size) } viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 		switch name {
 			case "overview":
 				<rect x="3" y="3" width="7.5" height="7.5" rx="1.5"></rect>
@@ -94,6 +101,44 @@ templ Icon(name string) {
 				<path d="M15 3h6v6"></path>
 				<path d="M10 14 21 3"></path>
 				<path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"></path>
+			case "search":
+				<circle cx="11" cy="11" r="7"></circle>
+				<path d="m20 20-3.5-3.5"></path>
+			case "menu":
+				<path d="M4 6h16M4 12h16M4 18h16"></path>
+			case "more":
+				<circle cx="5" cy="12" r="1.2"></circle>
+				<circle cx="12" cy="12" r="1.2"></circle>
+				<circle cx="19" cy="12" r="1.2"></circle>
+			case "plus":
+				<path d="M12 5v14M5 12h14"></path>
+			case "logout":
+				<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+				<path d="m16 17 5-5-5-5M21 12H9"></path>
+			case "check":
+				<path d="m5 12.5 4.5 4.5L19 7.5"></path>
+			case "alert":
+				<path d="M12 3.5 2.5 20h19z"></path>
+				<path d="M12 10v4.5M12 17.5h.01"></path>
+			case "store":
+				<path d="M3.5 9.5 5 4h14l1.5 5.5"></path>
+				<path d="M3.5 9.5a2.8 2.8 0 0 0 5.6 0 2.8 2.8 0 0 0 5.8 0 2.8 2.8 0 0 0 5.6 0"></path>
+				<path d="M5 12.5V20h14v-7.5M10 20v-4.5h4V20"></path>
+			case "chevron":
+				<path d="m9 6 6 6-6 6"></path>
+			case "collapse":
+				<path d="m15 18-6-6 6-6"></path>
+			case "undo":
+				<path d="M9 14 4 9l5-5"></path>
+				<path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"></path>
+			case "image":
+				<rect x="3" y="3" width="18" height="18" rx="2"></rect>
+				<circle cx="9" cy="9" r="2"></circle>
+				<path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"></path>
+			case "barcode":
+				<path d="M4 5v14M8 5v14M11 5v14M15 5v14M18 5v14M20 5v14"></path>
+			case "offline":
+				<path d="M2 2l20 20M8.5 16.4a5 5 0 0 1 7 0M12 20h.01M5 12.6a10 10 0 0 1 5.2-2.4M2 8.8a15 15 0 0 1 4.2-2.6"></path>
 			default:
 				<circle cx="12" cy="12" r="8"></circle>
 		}

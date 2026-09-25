@@ -2,172 +2,141 @@ package templates
 
 import (
 	"fmt"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
+func inTransit(ts []models.StockTransfer) int {
+	n := 0
+	for _, t := range ts {
+		if t.Status != "Received" {
+			n++
+		}
+	}
+	return n
+}
+
+// TransfersTab moves stock between locations. Units stay counted at the
+// source until the transfer is received.
 templ TransfersTab(data models.DashboardViewData) {
-	<div class="panel-head">
-		<div>
-			<h3>Inter-Hub Stock Transfers &amp; Regional Logistics</h3>
-			<div class="sub">Depot replenishment, freight in-transit &amp; cross-provincial stock movements</div>
+	<div class="page-head">
+		<div class="head-copy">
+			<p>{ fmt.Sprintf("%d in transit. Stock stays counted at the sending location until you mark it received.", inTransit(data.Transfers)) }</p>
 		</div>
-		<div class="right">
-			<button class="btn solid small" onclick="document.getElementById('new-transfer-dialog')?.showModal();">
-				<span>+</span> New Stock Transfer
+		<div class="actions">
+			<button class="btn solid" type="button" onclick="document.getElementById('new-transfer-dialog').showModal()" disabled?={ len(data.Warehouses) < 2 }>
+				@IconSized("plus", 16)
+				New transfer
 			</button>
 		</div>
 	</div>
-
-	<!-- Trade Route Summary Cards -->
-	<div class="two-col" style="margin-bottom:18px;">
-		<div class="card panel" style="background:linear-gradient(135deg, var(--surface), var(--surface-2));">
-			<div style="display:flex; justify-content:space-between; align-items:flex-start;">
-				<div>
-					<span style="font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--primary); font-weight:700;">Freight Route #1</span>
-					<h4 style="font-size:16px; margin-top:2px;">Johannesburg (Midrand) &rarr; Cape Town Depot</h4>
-					<p style="font-size:12px; color:var(--muted); margin:4px 0 0;">N1 Highway Corridor · 48-hour scheduled road freight dispatch</p>
+	<section class="card">
+		if len(data.Transfers) == 0 {
+			<div class="empty">
+				<div class="empty-icon">
+					@IconSized("transfers", 22)
 				</div>
-				<span class="chip up">Active Daily Shuttle</span>
+				<h3>No transfers yet</h3>
+				if len(data.Warehouses) < 2 {
+					<p>Transfers move stock between locations. Add a second location to use them.</p>
+				} else {
+					<p>Move stock between your locations and keep counts right at both ends.</p>
+				}
 			</div>
-		</div>
-		<div class="card panel" style="background:linear-gradient(135deg, var(--surface), var(--surface-2));">
-			<div style="display:flex; justify-content:space-between; align-items:flex-start;">
-				<div>
-					<span style="font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--amber); font-weight:700;">Freight Route #2</span>
-					<h4 style="font-size:16px; margin-top:2px;">Johannesburg (Midrand) &rarr; Durban Port Logistics</h4>
-					<p style="font-size:12px; color:var(--muted); margin:4px 0 0;">N3 Freight Corridor · 24-hour port replenishment link</p>
-				</div>
-				<span class="chip up">Active Scheduled</span>
-			</div>
-		</div>
-	</div>
-
-	<!-- Active Transfers Table -->
-	<div class="card panel">
-		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-			<h4 style="font-size:15px; font-weight:700;">Regional In-Transit Transfers</h4>
-			<span style="font-size:12px; color:var(--muted);">{ fmt.Sprintf("%d Active Transfers", len(data.Transfers)) }</span>
-		</div>
-
-		<div class="table-wrap">
-			<table class="table">
-				<thead>
-					<tr>
-						<th>Transfer Ref</th>
-						<th>Source Hub &rarr; Destination Hub</th>
-						<th>SKU &amp; Product</th>
-						<th style="text-align:right;">Quantity</th>
-						<th>Carrier / Freight</th>
-						<th>Dispatched</th>
-						<th>ETA</th>
-						<th>Status</th>
-						<th style="text-align:right;">Action</th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, tr := range data.Transfers {
+		} else {
+			<div class="table-wrap">
+				<table class="table">
+					<thead>
 						<tr>
-							<td>
-								<b style="font-family:var(--mono); color:var(--primary-2);">{ tr.TransferRef }</b>
-							</td>
-							<td>
-								<div style="font-weight:600;">{ tr.SourceHub }</div>
-								<div style="font-size:12px; color:var(--muted);">&rarr; { tr.DestHub }</div>
-							</td>
-							<td>
-								<b style="font-family:var(--mono); font-size:12px;">{ tr.SKU }</b>
-								<div style="font-size:12px; color:var(--ink-2);">{ tr.ItemTitle }</div>
-							</td>
-							<td style="text-align:right; font-family:var(--mono); font-weight:700;">
-								{ fmt.Sprintf("%d units", tr.Quantity) }
-							</td>
-							<td>
-								<span class="chip flat">{ tr.Carrier }</span>
-							</td>
-							<td style="font-size:12px; color:var(--muted);">
-								{ tr.DispatchedAt.Format("02 Jan · 15:04") }
-							</td>
-							<td style="font-size:12px; color:var(--muted);">
-								{ tr.ExpectedAt.Format("02 Jan") }
-							</td>
-							<td>
-								if tr.Status == "In-Transit" {
-									<span class="chip warn">In Transit (Freight)</span>
-								} else {
-									<span class="chip up">Received</span>
-								}
-							</td>
-							<td style="text-align:right;">
-								if tr.Status == "In-Transit" {
-									<form hx-post={ fmt.Sprintf("/transfers/%s/receive", tr.ID) } hx-target="#tab-content" style="display:inline;">
-										<button type="submit" class="btn solid small" style="font-size:11px; padding:3px 8px;">
-											✓ Receive Stock
-										</button>
-									</form>
-								} else {
-									<span style="font-size:11.5px; color:var(--muted); font-weight:600;">Inward Complete</span>
-								}
-							</td>
+							<th>Transfer</th>
+							<th>Route</th>
+							<th>Product</th>
+							<th class="r">Units</th>
+							<th>Sent</th>
+							<th>Status</th>
+							<th><span class="sr-only">Actions</span></th>
 						</tr>
-					}
-				</tbody>
-			</table>
-		</div>
-	</div>
-
-	<!-- New Transfer Dialog -->
-	<dialog id="new-transfer-dialog" class="modal-dialog">
+					</thead>
+					<tbody>
+						for _, tr := range data.Transfers {
+							<tr>
+								<td class="mono"><b>{ tr.TransferRef }</b></td>
+								<td>{ tr.SourceHub } → { tr.DestHub }<div class="small-text muted">{ tr.Carrier }</div></td>
+								<td><span class="mono">{ tr.SKU }</span><div class="small-text muted">{ tr.ItemTitle }</div></td>
+								<td class="r num">{ Int(tr.Quantity) }</td>
+								<td class="small-text muted" title={ LocalDateTime(tr.DispatchedAt) }>
+									{ Ago(tr.DispatchedAt, data.Metrics.Now) }
+									if tr.Status != "Received" {
+										<div>expected { LocalDate(tr.ExpectedAt) }</div>
+									}
+								</td>
+								<td>
+									if tr.Status == "Received" {
+										<span class="status ok">Received</span>
+									} else {
+										<span class="status warn">In transit</span>
+									}
+								</td>
+								<td class="r">
+									if tr.Status != "Received" {
+										<button class="btn solid small" type="button" hx-post={ "/transfers/" + tr.ID + "/receive" } hx-target="#tab-content" hx-confirm={ fmt.Sprintf("Mark %d × %s as received at %s?", tr.Quantity, tr.SKU, tr.DestHub) }>Mark received</button>
+									}
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</section>
+	<dialog id="new-transfer-dialog" class="modal-dialog" aria-labelledby="tr-title">
 		<div class="modal-card">
 			<div class="modal-head">
-				<h4>Create Inter-Hub Stock Transfer</h4>
-				<button type="button" class="close-btn" onclick="document.getElementById('new-transfer-dialog').close();">&times;</button>
+				<h3 id="tr-title">New transfer</h3>
+				<button type="button" class="close-btn" aria-label="Close" onclick="this.closest('dialog').close()">×</button>
 			</div>
-			<form hx-post="/transfers/new" hx-target="#tab-content" onsubmit="document.getElementById('new-transfer-dialog').close();">
+			<form hx-post="/transfers/new" hx-target="#tab-content" hx-on::after-request="this.closest('dialog').close()">
 				<div class="modal-body">
 					<div class="two-col">
 						<div class="form-group">
-							<label>Originating Hub</label>
-							<select name="sourceHub" class="select-full">
-								<option value="Midrand Central Hub">Midrand Central Hub (Gauteng)</option>
-								<option value="Cape Town Depot">Cape Town Depot (Western Cape)</option>
-								<option value="Durban Port Transit">Durban Port Transit (KZN)</option>
+							<label for="tr-from">From</label>
+							<select id="tr-from" name="sourceHub" class="select-full">
+								for _, h := range data.Warehouses {
+									<option value={ h.ID }>{ h.Name }</option>
+								}
 							</select>
 						</div>
 						<div class="form-group">
-							<label>Destination Hub</label>
-							<select name="destHub" class="select-full">
-								<option value="Cape Town Depot">Cape Town Depot (Western Cape)</option>
-								<option value="Midrand Central Hub">Midrand Central Hub (Gauteng)</option>
-								<option value="Durban Port Transit">Durban Port Transit (KZN)</option>
+							<label for="tr-to">To</label>
+							<select id="tr-to" name="destHub" class="select-full">
+								for i, h := range data.Warehouses {
+									<option value={ h.ID } selected?={ i == 1 }>{ h.Name }</option>
+								}
 							</select>
 						</div>
 					</div>
 					<div class="two-col">
 						<div class="form-group">
-							<label>Select Product Item</label>
-							<select name="skuId" class="select-full">
-								for _, item := range data.Catalog {
-									<option value={ item.ID }>{ item.SKU } — { item.Title }</option>
+							<label for="tr-sku">Product</label>
+							<select id="tr-sku" name="skuId" class="select-full">
+								for _, p := range data.Catalog {
+									<option value={ p.ID }>{ p.SKU } · { p.Title }</option>
 								}
 							</select>
 						</div>
 						<div class="form-group">
-							<label>Transfer Quantity</label>
-							<input type="number" name="quantity" class="input" value="50" min="1" required />
+							<label for="tr-qty">Units</label>
+							<input id="tr-qty" type="number" name="quantity" class="input" min="1" required inputmode="numeric"/>
 						</div>
 					</div>
 					<div class="form-group">
-						<label>Freight Service</label>
-						<select name="carrier" class="select-full">
-							<option value="Road Freight Express">Road Freight Express (JHB-CPT 48h)</option>
-							<option value="Internal Depot Shuttle">Internal Depot Shuttle</option>
-							<option value="The Courier Guy Bulk">The Courier Guy Bulk</option>
-						</select>
+						<label for="tr-carrier">Carrier (optional)</label>
+						<input id="tr-carrier" type="text" name="carrier" class="input" placeholder="e.g. own vehicle, courier name"/>
 					</div>
 				</div>
 				<div class="modal-foot">
-					<button type="button" class="btn ghost" onclick="document.getElementById('new-transfer-dialog').close();">Cancel</button>
-					<button type="submit" class="btn solid">Dispatch Transfer</button>
+					<button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button>
+					<button type="submit" class="btn solid">Send transfer</button>
 				</div>
 			</form>
 		</div>

@@ -1,96 +1,142 @@
 package templates
 
+import "github.com/shoppage/merchant-os/internal/models"
+
+// OmniResult is one row in the command palette.
+type OmniResult struct {
+	Group string // "Actions", "Pages", "Products", "Orders", "Customers"
+	Label string
+	Hint  string
+	Href  string
+	HX    bool // load into the workspace instead of a full navigation
+}
+
+// OmnibarDialog is the Ctrl+K command palette. Results come from /search so
+// it scales with the catalogue; arrow keys move, Enter opens.
 templ OmnibarDialog() {
-	<dialog id="omnibar-dialog" class="modal-dialog" style="max-width:640px; top:12vh;">
-		<div class="modal-card" style="box-shadow:0 25px 60px -15px rgba(0,0,0,.5); border:1px solid var(--line-strong);">
-			<div style="padding:14px 16px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:10px;">
-				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4a7 7 0 105 12l4 4"></path></svg>
-				<input 
-					type="text" 
-					id="omnibar-search" 
-					placeholder="Search products, orders, customers, or jump to tab... (ESC to exit)" 
-					style="border:0; outline:0; width:100%; font-size:14.5px; background:transparent;"
-					onkeyup="filterOmnibar(this.value);"
+	<dialog id="omnibar-dialog" class="modal-dialog omni-dialog" aria-label="Search and commands">
+		<div class="omni-panel">
+			<div class="omni-input">
+				@IconSized("search", 18)
+				<input
+					type="search"
+					id="omnibar-search"
+					name="q"
+					placeholder="Search products, orders, customers, or type a command"
+					autocomplete="off"
+					aria-controls="omni-results"
+					hx-get="/search"
+					hx-trigger="input changed delay:120ms, omni-open"
+					hx-target="#omni-results"
 				/>
-				<span style="font-family:var(--mono); font-size:11px; color:var(--muted); background:var(--surface-2); padding:2px 6px; border-radius:4px; border:1px solid var(--line);">ESC</span>
+				<kbd>Esc</kbd>
 			</div>
-
-			<div id="omnibar-results" style="max-height:360px; overflow-y:auto; padding:8px;">
-				<div class="omni-section" style="font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:700; padding:6px 10px;">Quick Navigation</div>
-				
-				<button type="button" class="omni-item" hx-get="/tab/overview" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
-					<span>📊</span> Overview &amp; Velocity Desk
-				</button>
-				<button type="button" class="omni-item" hx-get="/tab/chat" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
-					<span>💬</span> Direct Messages &amp; Chat Desk
-				</button>
-				<button type="button" class="omni-item" hx-get="/tab/catalog" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
-					<span>📦</span> Catalog &amp; SKU Matrix
-				</button>
-				<button type="button" class="omni-item" hx-get="/tab/orders" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
-					<span>📑</span> Proforma B2B Orders Ledger
-				</button>
-				<button type="button" class="omni-item" hx-get="/tab/pick-pack" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
-					<span>🏷️</span> WMS Pick &amp; Pack Station
-				</button>
-				<button type="button" class="omni-item" hx-get="/tab/pos" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
-					<span>💳</span> POS Trade Counter Register
-				</button>
-				<button type="button" class="omni-item" hx-get="/tab/inventory" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
-					<span>🏢</span> Multi-Warehouse Hubs
-				</button>
-				<button type="button" class="omni-item" hx-get="/tab/transfers" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
-					<span>🚚</span> Inter-Hub Stock Transfers
-				</button>
-				<button type="button" class="omni-item" hx-get="/tab/copilot" hx-target="#tab-content" hx-push-url="true" onclick="document.getElementById('omnibar-dialog').close();">
-					<span>✨</span> Pemofy AI Copilot Studio
-				</button>
-
-				<div class="omni-section" style="font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:700; padding:10px 10px 6px;">Quick Actions</div>
-
-				<button type="button" class="omni-item" onclick="document.getElementById('omnibar-dialog').close(); document.getElementById('new-sku-dialog')?.showModal();">
-					<span>+</span> Add New Product SKU
-				</button>
-				<button type="button" class="omni-item" onclick="document.getElementById('omnibar-dialog').close(); document.getElementById('new-order-dialog')?.showModal();">
-					<span>+</span> Issue B2B Proforma Invoice
-				</button>
-				<button type="button" class="omni-item" onclick="document.getElementById('omnibar-dialog').close(); document.getElementById('new-customer-dialog')?.showModal();">
-					<span>+</span> Add Wholesale Trade Account
-				</button>
+			<div id="omni-results" class="omni-results" role="listbox"></div>
+			<div class="omni-foot">
+				<span><kbd>↑</kbd> <kbd>↓</kbd> move</span>
+				<span><kbd>Enter</kbd> open</span>
+				<span><kbd>g</kbd> then <kbd>o</kbd> goes to Orders</span>
 			</div>
 		</div>
 	</dialog>
-
-	<style>
-		.omni-item {
-			display: flex;
-			align-items: center;
-			gap: 10px;
-			padding: 8px 12px;
-			border-radius: 8px;
-			border: 0;
-			background: transparent;
-			width: 100%;
-			text-align: left;
-			font-size: 13.5px;
-			color: var(--ink);
-			cursor: pointer;
-			transition: all .1s;
-		}
-		.omni-item:hover, .omni-item:focus {
-			background: var(--surface-2);
-			color: var(--primary-2);
-			font-weight: 600;
-		}
-	</style>
-
 	<script>
-		function filterOmnibar(q) {
-			var query = q.toLowerCase();
-			document.querySelectorAll('.omni-item').forEach(function(el) {
-				var match = el.textContent.toLowerCase().includes(query);
-				el.style.display = match ? 'flex' : 'none';
+		window.openOmnibar = function () {
+			var d = document.getElementById('omnibar-dialog');
+			var input = document.getElementById('omnibar-search');
+			if (!d || !input) return;
+			if (d.open) { d.close(); return; }
+			d.showModal();
+			input.value = '';
+			input.focus();
+			if (window.htmx) htmx.trigger(input, 'omni-open');
+		};
+		(function () {
+			var d = document.getElementById('omnibar-dialog');
+			if (!d) return;
+			d.addEventListener('click', function (e) { if (e.target === d) d.close(); });
+			d.addEventListener('keydown', function (e) {
+				var items = Array.prototype.slice.call(d.querySelectorAll('.omni-item'));
+				if (!items.length) return;
+				var i = items.findIndex(function (el) { return el.classList.contains('sel'); });
+				if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+					e.preventDefault();
+					if (i >= 0) items[i].classList.remove('sel');
+					i = e.key === 'ArrowDown' ? Math.min(items.length - 1, i + 1) : Math.max(0, i - 1);
+					items[i].classList.add('sel');
+					items[i].scrollIntoView({ block: 'nearest' });
+				} else if (e.key === 'Enter') {
+					e.preventDefault();
+					(items[i >= 0 ? i : 0]).click();
+				}
 			});
-		}
+			d.addEventListener('click', function (e) {
+				var it = e.target.closest('.omni-item');
+				if (!it) return;
+				e.preventDefault();
+				d.close();
+				var href = it.getAttribute('href');
+				if (it.hasAttribute('data-hx') && window.htmx) htmx.ajax('GET', href, { target: '#tab-content', pushUrl: it.getAttribute('data-push') || href });
+				else window.location.href = href;
+			});
+		})();
 	</script>
+}
+
+templ OmnibarResults(q string, results []OmniResult) {
+	if len(results) == 0 {
+		<div class="empty" style="padding:24px;">
+			<p>Nothing matches "{ q }". Try a product name, SKU, order number or customer.</p>
+		</div>
+	}
+	for i, r := range results {
+		if i == 0 || results[i-1].Group != r.Group {
+			<div class="omni-section">{ r.Group }</div>
+		}
+		<a
+			class={ "omni-item", templ.KV("sel", i == 0) }
+			href={ templ.SafeURL(r.Href) }
+			role="option"
+			if r.HX {
+				data-hx="true"
+			}
+			if r.Href == "/tab/overview" {
+				data-push="/desk"
+			}
+		>
+			{ r.Label }
+			if r.Hint != "" {
+				<small>{ r.Hint }</small>
+			}
+		</a>
+	}
+}
+
+// omniPages lists every workspace page for the palette.
+func omniPages() []OmniResult {
+	var out []OmniResult
+	for _, w := range append(Workspaces, settingsWorkspace) {
+		for _, t := range w.Tabs {
+			out = append(out, OmniResult{Group: "Pages", Label: t.Label, Hint: w.Label, Href: "/tab/" + t.Key, HX: true})
+		}
+	}
+	return out
+}
+
+// OmniActions are the quick commands offered before and while typing.
+func OmniActions() []OmniResult {
+	return []OmniResult{
+		{Group: "Actions", Label: "Add a product", Hint: "Products", Href: "/catalog/new", HX: false},
+		{Group: "Actions", Label: "Ring up a counter sale", Hint: "Sell", Href: "/tab/pos", HX: true},
+		{Group: "Actions", Label: "Record a stock delivery", Hint: "Stock", Href: "/tab/inventory", HX: true},
+		{Group: "Actions", Label: "Fix listing problems", Hint: "Marketing", Href: "/tab/feeds", HX: true},
+		{Group: "Actions", Label: "Export products (CSV)", Hint: "Products", Href: "/catalog/export.csv"},
+	}
+}
+
+// OmniPages is exported for the search handler.
+func OmniPages() []OmniResult { return omniPages() }
+
+// OmniProduct builds a palette row for a product.
+func OmniProduct(p models.CatalogSKU) OmniResult {
+	return OmniResult{Group: "Products", Label: p.Title, Hint: p.SKU + " · " + models.FormatZAR(p.WholesaleZar), Href: "/catalog/" + p.ID}
 }

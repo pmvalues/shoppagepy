@@ -51,6 +51,21 @@ Design consequences that follow from that sentence:
 
 Everything below is the correction.
 
+### 2.1 Status after the 2026-09-25 overhaul
+
+| Area | Now |
+|---|---|
+| Navigation | 7 sections (Home, Sell, Products, Stock, Fulfilment, Customers, Marketing) with a tab strip per section; Settings and Activity log in the account menu. Badges are live counts that hide at zero. |
+| Home | "Needs you" list (messages, payments, packing, quotes, low stock, returns, listing problems), each linking to where it's resolved; setup checklist computed from store state; KPIs link to filtered lists. |
+| Data | All figures computed from records; demo data is internally consistent (per-location stock, valid GS1 barcodes, a month of order history) and labelled as demo on every screen. |
+| Listings | "Where you sell" shows each product against each channel with the exact fix; feeds publish only compliant products. |
+| Assistant | Rules-based and labelled as such; suggestions show their data and need approval; applied changes can be undone. |
+| Quotes | Priced from the catalogue and volume tiers, price held until expiry, one click to an order at the quoted price. |
+| Stock | Per-location stock, reason-coded movements, counts, transfers that move stock on receipt, dispatch deducts stock. |
+| Mobile | Drawer + bottom bar, card tables, offline counter sales. |
+| Import | Spreadsheet (CSV) catalogue import with loose column matching. |
+| Still open | Roles & permissions, persistence per tenant beyond the snapshot store, a real language model behind the assistant, courier and WhatsApp API integrations, photo → product. |
+
 ---
 
 ## 3. Target information architecture

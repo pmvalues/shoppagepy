@@ -1,101 +1,65 @@
 package templates
 
 import (
+	"strings"
+
 	"github.com/shoppage/merchant-os/internal/models"
 )
 
-templ AuditLogsTab(data models.DashboardViewData) {
-	<div class="panel-head">
-		<div>
-			<h3>Compliance &amp; Operational Audit Trail</h3>
-			<div class="sub">Immutable chronological record of inventory adjustments, price revisions, inter-hub movements &amp; order lifecycle events</div>
-		</div>
-		<div class="right">
-			<span class="chip up">🔒 Tamper-Evident Ledger · pod-za-01</span>
-		</div>
-	</div>
-
-	<!-- Cryptographic Security Banner -->
-	<div class="card panel" style="background:var(--sidebar); color:#dbe8e0; margin-bottom:18px; padding:14px 18px;">
-		<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-			<div style="display:flex; align-items:center; gap:12px;">
-				<div style="width:36px; height:36px; border-radius:10px; background:rgba(79,224,164,.15); color:#4fe0a4; display:grid; place-items:center; font-size:18px; flex:none;">
-					🛡️
-				</div>
-				<div>
-					<b style="color:#fff; font-size:14px;">Cryptographic Proof-of-Action Enforced</b>
-					<div style="font-size:12px; color:#8fb3a3; font-family:var(--mono); margin-top:2px;">
-						Current Merkle Root: 9e4b71a288c49bf302d91... (SHA-256 Verified)
-					</div>
-				</div>
-			</div>
-			<a href="/audit-logs/export.csv" class="btn ghost small" style="background:rgba(255,255,255,.08); color:#fff; border-color:rgba(255,255,255,.15);">
-				<span>📥</span> Export Audit Log (CSV)
-			</a>
-		</div>
-	</div>
-
-	<!-- Filter & Search Toolbar -->
-	<div class="card panel" style="padding:10px 14px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-		<div style="display:flex; gap:10px; flex:1; max-width:420px;">
-			<div class="search" style="flex:1;">
-				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4a7 7 0 105 12l4 4"></path></svg>
-				<input 
-					type="text" 
-					placeholder="Search operator, entity, or event details..." 
-					style="border:0; outline:0; background:transparent; width:100%; font-size:13px;"
-					onkeyup="const val=this.value.toLowerCase(); document.querySelectorAll('.audit-row').forEach(r => { r.style.display = r.textContent.toLowerCase().includes(val) ? '' : 'none'; });"
-				/>
-			</div>
-		</div>
-		<div style="display:flex; gap:8px;">
-			<button type="button" class="chip flat" onclick="filterAudit('all');">All Events</button>
-			<button type="button" class="chip flat" onclick="filterAudit('stock');">Inventory &amp; Hubs</button>
-			<button type="button" class="chip flat" onclick="filterAudit('order');">Orders &amp; POS</button>
-		</div>
-	</div>
-
-	<div class="card panel" style="padding:0; overflow:hidden;">
-		<table class="table">
-			<thead>
-				<tr>
-					<th style="padding-left:20px;">Timestamp</th>
-					<th>Actor / Operator</th>
-					<th>Action Event</th>
-					<th>Target Entity</th>
-					<th>Entity ID</th>
-					<th style="padding-right:20px;">Operational Context</th>
-				</tr>
-			</thead>
-			<tbody>
-				for _, log := range data.AuditLogs {
-					<tr class="audit-row" data-action={ log.Action }>
-						<td style="padding-left:20px; font-size:12px; color:var(--muted); font-family:var(--mono);">
-							{ log.Timestamp.Format("02 Jan 15:04:05") }
-						</td>
-						<td><b>{ log.Actor }</b></td>
-						<td><span class="chip flat">{ log.Action }</span></td>
-						<td><b>{ log.Entity }</b></td>
-						<td><span style="font-family:var(--mono); font-size:11.5px; color:var(--muted);">{ log.EntityID }</span></td>
-						<td style="padding-right:20px; font-size:12.5px; color:var(--ink-2);">{ log.Details }</td>
-					</tr>
-				}
-			</tbody>
-		</table>
-	</div>
-
-	<script>
-		function filterAudit(cat) {
-			var rows = document.querySelectorAll('.audit-row');
-			rows.forEach(function(r) {
-				if (cat === 'all') {
-					r.style.display = '';
-				} else if (cat === 'stock') {
-					r.style.display = (r.dataset.action.includes('Stock') || r.dataset.action.includes('Count')) ? '' : 'none';
-				} else if (cat === 'order') {
-					r.style.display = (r.dataset.action.includes('Order') || r.dataset.action.includes('POS')) ? '' : 'none';
-				}
-			});
+func auditRows(data models.DashboardViewData) []models.AuditLogEntry {
+	q := strings.ToLower(strings.TrimSpace(data.Query["q"]))
+	if q == "" {
+		return data.AuditLogs
+	}
+	var out []models.AuditLogEntry
+	for _, e := range data.AuditLogs {
+		if strings.Contains(strings.ToLower(e.Actor+" "+e.Action+" "+e.EntityID+" "+e.Details), q) {
+			out = append(out, e)
 		}
-	</script>
+	}
+	return out
+}
+
+// AuditLogsTab is the activity log: who changed what, and when. Entries are
+// appended by every action in the workspace and can be exported.
+templ AuditLogsTab(data models.DashboardViewData) {
+	{{ rows := auditRows(data) }}
+	<div class="page-head">
+		<div class="head-copy">
+			<p>Every change made in your workspace: who made it, what changed and when.</p>
+		</div>
+		<div class="actions">
+			<a class="btn ghost" href="/audit-logs/export.csv">Export CSV</a>
+		</div>
+	</div>
+	<section class="card">
+		<div class="panel" style="border-bottom:1px solid var(--line);">
+			<form hx-get="/tab/audit-logs" hx-target="#tab-content" hx-push-url="true">
+				<label class="sr-only" for="log-q">Search the activity log</label>
+				<input class="input" id="log-q" type="search" name="q" value={ data.Query["q"] } placeholder="Search by person, action, SKU or order" hx-get="/tab/audit-logs" hx-trigger="input changed delay:350ms, search" hx-target="#tab-content" hx-push-url="true"/>
+			</form>
+		</div>
+		if len(rows) == 0 {
+			<div class="empty"><p>No activity matches.</p></div>
+		} else {
+			<div class="table-wrap">
+				<table class="table">
+					<thead>
+						<tr><th>When</th><th>Who</th><th>What</th><th>Record</th><th>Details</th></tr>
+					</thead>
+					<tbody>
+						for _, e := range rows {
+							<tr>
+								<td class="small-text muted" title={ LocalDateTime(e.Timestamp) }>{ Ago(e.Timestamp, data.Metrics.Now) }</td>
+								<td>{ e.Actor }</td>
+								<td><b style="font-weight:600;">{ e.Action }</b></td>
+								<td class="mono small-text">{ e.EntityID }</td>
+								<td class="small-text">{ e.Details }</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</section>
 }
