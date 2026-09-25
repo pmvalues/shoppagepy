@@ -30,7 +30,7 @@ func newTestApp() (http.Handler, *handlers.MerchantStoreState) {
 	r.Get("/", h.ServeDashboard)
 	r.Get("/desk", h.ServeDashboard)
 	r.Get("/tab/{tab}", h.ServeTab)
-	r.Get("/search", h.Search)
+	r.Get("/merchant/search", h.Search)
 	r.Post("/undo/{id}", h.Undo)
 	r.Get("/catalog/export.csv", h.ExportCatalogCSV)
 	r.Get("/catalog/new", h.ServeProductNew)
@@ -608,14 +608,14 @@ func TestAssistantProposalNeedsApprovalAndCanBeUndone(t *testing.T) {
 
 func TestSearchFindsProductsOrdersAndPages(t *testing.T) {
 	app := setupTestRouter()
-	body := get(t, app, "/search?q=hanger", true).Body.String()
+	body := get(t, app, "/merchant/search?q=hanger", true).Body.String()
 	if !strings.Contains(body, "MIT-3361") {
 		t.Errorf("search for hanger should find MIT-3361")
 	}
-	if body := get(t, app, "/search?q=9824", true).Body.String(); !strings.Contains(body, "#ORD-9824") {
+	if body := get(t, app, "/merchant/search?q=9824", true).Body.String(); !strings.Contains(body, "#ORD-9824") {
 		t.Errorf("search should find order 9824")
 	}
-	if body := get(t, app, "/search", true).Body.String(); !strings.Contains(body, "Counter sale") {
+	if body := get(t, app, "/merchant/search", true).Body.String(); !strings.Contains(body, "Counter sale") {
 		t.Errorf("empty search should list pages and actions")
 	}
 }

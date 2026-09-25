@@ -132,7 +132,7 @@ func New(ctx context.Context, opts Options) (http.Handler, error) {
 	protected.Get("/", h.ServeDashboard)
 	protected.Get("/desk", h.ServeDashboard)
 	protected.Get("/tab/{tab}", h.ServeTab)
-	protected.Get("/search", h.Search)
+	protected.Get("/merchant/search", h.Search)
 	protected.Post("/undo/{id}", h.Undo)
 	protected.NotFound(h.ServeNotFound)
 

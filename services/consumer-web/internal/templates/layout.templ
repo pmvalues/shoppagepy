@@ -2,707 +2,440 @@ package templates
 
 import (
 	"fmt"
+	"net/url"
+
 	"github.com/shoppage/consumer-web/internal/models"
 	"github.com/shoppage/consumer-web/internal/site"
 )
 
+const fontsHref = "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+
+func hasRail(trends []models.TradeTrend, drops []models.RetailerDeal, guilds []models.CommunityGuild) bool {
+	return len(trends)+len(drops)+len(guilds) > 0
+}
+
+func isHome(tab string) bool { return tab == "" || tab == "foryou" }
+
+func current(on bool) templ.Attributes {
+	if on {
+		return templ.Attributes{"aria-current": "page"}
+	}
+	return templ.Attributes{}
+}
+
+// Layout is the site shell: X-style left navigation, a sticky top bar with a
+// Google-style search box, the page, and (when there is something to show) a
+// right rail. Phones get a bottom tab bar instead of the left navigation.
 templ Layout(title, description, currentTab string, trends []models.TradeTrend, topDrops []models.RetailerDeal, guilds []models.CommunityGuild) {
 	<!DOCTYPE html>
-	<html lang="en" data-theme="light" class="h-full bg-slate-100 text-slate-900">
+	<html lang="en-ZA">
 		<head>
 			<meta charset="UTF-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
-			<title>{ title } — Shoppage South Africa</title>
+			<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+			<title>{ title } · Shoppage</title>
 			<meta name="description" content={ description }/>
+			<meta property="og:title" content={ title }/>
+			<meta property="og:description" content={ description }/>
+			<meta property="og:site_name" content="Shoppage"/>
+			<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)"/>
+			<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)"/>
 			<link rel="manifest" href="/manifest.json"/>
-			<meta name="theme-color" content="#059669"/>
-			<!-- Browser Address Bar & Tab Favicon (Shoppage Brand) -->
 			<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
-			<link rel="alternate icon" type="image/png" href="/favicon.svg"/>
 			<link rel="apple-touch-icon" href="/favicon.svg"/>
-			<!-- Fonts: Plus Jakarta Sans & Outfit (Optimized Async Preload) -->
+			<link rel="search" type="application/opensearchdescription+xml" title="Shoppage" href="/opensearch.xml"/>
 			<link rel="preconnect" href="https://fonts.googleapis.com"/>
 			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-			<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"/>
-			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'"/>
-			<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"/></noscript>
-			<!-- Local Pre-Compiled Tailwind CSS (Zero external network chains, zero FOUC, instant paint) -->
-			<link rel="stylesheet" href="/static/css/tailwind.min.css?v=20260924b"/>
-			<!-- Local Self-Hosted HTMX 2.0.2 (Instant execution from memory cache) -->
-			<script src="/static/js/htmx.min.js"></script>
-			<style>
-				:root {
-					--font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-					--font-display: 'Outfit', system-ui, sans-serif;
-					--font-mono: 'JetBrains Mono', monospace;
-					--brand: #059669;
-					--brand-fill: #10b981;
-					--brand-strong: #047857;
-					--gold: #d97706;
-					--red: #e11d48;
-				}
-				*, ::before, ::after {
-					box-sizing: border-box;
-				}
-				body {
-					font-family: var(--font-sans);
-					background-color: #f1f5f9;
-					color: #1e293b;
-					margin: 0;
-				}
-				h1, h2, h3, .font-display {
-					font-family: var(--font-display);
-				}
-				.font-mono {
-					font-family: var(--font-mono);
-				}
-				.htmx-indicator { display: none; }
-				.htmx-request .htmx-indicator { display: inline-block; }
-				
-				@keyframes slideInRight {
-					from { transform: translateX(100%); }
-					to { transform: translateX(0); }
-				}
-				.animate-slide-in-right {
-					animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-				}
-
-				/* Scrollbar cleanup */
-				.scrollbar-none::-webkit-scrollbar { display: none; }
-				.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
-
-				/* Collapsed Left Sidebar Styles */
-				#left-sidebar.is-collapsed {
-					width: 4.75rem !important; /* 76px */
-					padding-left: 0.5rem !important;
-					padding-right: 0.5rem !important;
-				}
-				#left-sidebar.is-collapsed .sidebar-wordmark,
-				#left-sidebar.is-collapsed .sidebar-label,
-				#left-sidebar.is-collapsed .sidebar-rfq-text,
-				#left-sidebar.is-collapsed .sidebar-user-meta,
-				#left-sidebar.is-collapsed .sidebar-deals-badge {
-					display: none !important;
-				}
-				#left-sidebar.is-collapsed .sidebar-nav-item {
-					justify-content: center !important;
-					padding-left: 0.5rem !important;
-					padding-right: 0.5rem !important;
-				}
-				#left-sidebar.is-collapsed .sidebar-rfq-btn {
-					width: 2.75rem !important;
-					height: 2.75rem !important;
-					padding: 0 !important;
-					border-radius: 9999px !important;
-					margin-left: auto !important;
-					margin-right: auto !important;
-				}
-				#left-sidebar.is-collapsed #sidebar-toggle-icon {
-					transform: rotate(180deg);
-				}
-				#left-sidebar.is-collapsed .sidebar-head {
-					justify-content: center !important;
-					flex-direction: column !important;
-					gap: 0.5rem !important;
-				}
-				#left-sidebar.is-collapsed .sidebar-user-row {
-					justify-content: center !important;
-				}
-			</style>
+			<link rel="stylesheet" href={ fontsHref } media="print" onload="this.media='all'"/>
+			<noscript><link rel="stylesheet" href={ fontsHref }/></noscript>
+			<link rel="stylesheet" href="/static/css/tailwind.min.css?v=20260925"/>
+			<link rel="stylesheet" href="/static/css/site.css?v=20260925"/>
+			<script>
+				try { var t = localStorage.getItem('shoppage_theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+			</script>
+			<script src="/static/js/htmx.min.js" defer></script>
+			<script src="/static/js/site.js?v=20260925" defer></script>
 		</head>
-		<body class="min-h-full flex flex-col antialiased bg-slate-100 text-slate-800 pb-16 lg:pb-0" hx-boost="true">
-			<!-- Provenance disclosure. The bundled catalogue is demonstration
-			     content, so it is labelled as such everywhere rather than being
-			     presented as live marketplace data. -->
+		<body class="site" hx-boost="true">
+			<a class="skip" href="#content">Skip to content</a>
 			if Stats().SampleData {
-				<div class="bg-slate-900 text-slate-300 text-[11px] px-4 py-1.5 flex items-center justify-center gap-2 border-b border-slate-800">
-					<span class="px-1.5 py-0.5 rounded bg-amber-400/15 text-amber-300 font-bold text-[9px] uppercase tracking-wider shrink-0">Demo data</span>
-					<span class="truncate">{ Stats().DataNotice }</span>
-				</div>
+				<div class="demo-bar" role="note"><b>Demo data</b><span>{ Stats().DataNotice }</span></div>
 			}
-			<!-- Location Sub-Bar (Shoppage GoogleHeader Style) -->
-			<div class="bg-white/90 backdrop-blur-md border-b border-slate-200/80 py-2 text-xs text-slate-600 sticky top-0 z-40 transition shadow-2xs">
-				<div class="max-w-[1440px] mx-auto px-4 sm:px-6 flex items-center justify-between">
-					<div class="flex items-center gap-2.5">
-						<span class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200/60">
-							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-								<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-								<circle cx="12" cy="10" r="3"></circle>
-							</svg>
-						</span>
-						<span id="location-label" class="font-bold text-slate-900">President Park AH, Midrand</span>
-						<span class="text-slate-300">·</span>
-						<button 
-							type="button"
-							hx-get="/location-modal" 
-							hx-target="#modal-container"
-							class="text-emerald-700 hover:text-emerald-800 font-bold underline decoration-emerald-300 cursor-pointer text-xs"
-						>
-							Use my location
-						</button>
-						<span class="text-slate-300">·</span>
-						<a href="/malls" class="text-slate-600 hover:text-emerald-700 font-semibold">Markets near you</a>
-					</div>
-					<div class="hidden sm:flex items-center gap-3 text-[11px] text-slate-500 font-medium">
-						<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">Shoppage SA</span>
-					</div>
-				</div>
-			</div>
-
-			<!-- Main 3-Column Shell -->
-			<div class="flex-1 max-w-[1440px] w-full mx-auto flex">
-				<!-- LEFT NAVIGATION RAIL -->
+			<div class={ "shell", templ.KV("with-rail", hasRail(trends, topDrops, guilds)) }>
 				@LeftRail(currentTab)
-
-				<!-- CENTER DISCOVERY COLUMN (CHILD CONTENT) -->
-				{ children... }
-
-				<!-- RIGHT COMMERCE RAIL -->
-				@CommerceRail(trends, topDrops, guilds)
-			</div>
-
-			<!-- CORPORATE ENTERPRISE FOOTER -->
-			@CorporateFooter()
-
-			<!-- MODAL CONTAINER (Location Switcher, Video Preview) -->
-			<div id="modal-container"></div>
-
-			<!-- SLIDE-OUT BUYBOX DRAWER CONTAINER -->
-			<div id="buybox-drawer"></div>
-
-			<!-- MOBILE BOTTOM PWA NAVIGATION BAR -->
-			<nav class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-4 flex items-center justify-between text-[10.5px] font-semibold text-slate-600 shadow-lg">
-				<a href="/?tab=foryou" class={ "flex flex-col items-center gap-0.5", templ.KV("text-emerald-600 font-bold", currentTab == "" || currentTab == "foryou"), templ.KV("text-slate-600", currentTab != "" && currentTab != "foryou") }>
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-					<span>Home</span>
-				</a>
-				<a href="/?tab=deals" class={ "flex flex-col items-center gap-0.5", templ.KV("text-emerald-600 font-bold", currentTab == "deals"), templ.KV("text-rose-600 font-bold", currentTab != "deals") }>
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
-					<span>Deals</span>
-				</a>
-				<a href="/?tab=products" class={ "flex flex-col items-center gap-0.5", templ.KV("text-emerald-600 font-bold", currentTab == "products"), templ.KV("text-slate-600", currentTab != "products") }>
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-					<span>Products</span>
-				</a>
-				<a href="/track" class={ "flex flex-col items-center gap-0.5", templ.KV("text-emerald-600 font-bold", currentTab == "track"), templ.KV("text-slate-600", currentTab != "track") }>
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-					<span>Track</span>
-				</a>
-				<a href="/sell" class={ "flex flex-col items-center gap-0.5", templ.KV("text-emerald-600 font-bold", currentTab == "sell"), templ.KV("text-slate-600", currentTab != "sell") }>
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M3 3h18v18H3zM8 12h8M12 8v8"></path></svg>
-					<span>Sell</span>
-				</a>
-				<a href="/chat" class={ "flex flex-col items-center gap-0.5", templ.KV("text-emerald-600 font-bold", currentTab == "chat"), templ.KV("text-slate-600", currentTab != "chat") }>
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-					<span>Chat</span>
-				</a>
-				<a href="/desk" target="_blank" class="flex flex-col items-center gap-0.5 text-slate-600">
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>
-					<span>Desk</span>
-				</a>
-			</nav>
-
-			<!-- FLOATING SHOPPAGE AI ASSISTANT CHAT WIDGET -->
-			<div id="ai-chat-root" class="fixed right-4 bottom-20 lg:right-6 lg:bottom-6 z-50 flex flex-col items-end">
-				<!-- Chat Floating Launcher Button -->
-				<button 
-					type="button" 
-					onclick="toggleAiChat();" 
-					id="ai-launcher-btn"
-					class="flex items-center gap-2.5 px-4 py-3 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xl shadow-slate-950/20 border border-slate-700/80 transition transform hover:scale-105 cursor-pointer"
-				>
-					<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-					<span>⚡ Ask Shoppage AI</span>
-				</button>
-
-				<!-- Chat Collapsible Panel Drawer -->
-				<div 
-					id="ai-chat-panel" 
-					class="hidden w-[380px] sm:w-[420px] max-w-[calc(100vw-32px)] h-[560px] max-h-[calc(100vh-100px)] bg-slate-900 text-white rounded-2xl shadow-2xl border border-slate-700/90 flex-col overflow-hidden mb-3 animate-fade-in"
-				>
-					<!-- Header -->
-					<div class="p-3.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
-						<div class="flex items-center gap-2.5">
-							<div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm border border-emerald-500/30">
-								⚡
-							</div>
-							<div>
-								<div class="flex items-center gap-2">
-									<h4 class="font-bold text-xs text-white">Shoppage AI Assistant</h4>
-									if site.GeminiConfigured() {
-										<span class="px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-400 text-[9px] font-mono font-bold border border-emerald-800">{ site.GeminiModel() }</span>
-									} else {
-										<span class="px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 text-[9px] font-mono font-bold border border-slate-700">offline rules</span>
-									}
-								</div>
-								if site.GeminiConfigured() {
-									<p class="text-[10px] text-slate-400">Live catalogue search, solar backup runtime maths, mall &amp; supplier lookup</p>
-								} else {
-									<p class="text-[10px] text-slate-400">Basic catalogue search — connect an AI key for full assistant</p>
-								}
-							</div>
+				<div class="main">
+					<header class="topbar">
+						<a href="/" class="logo-sm" aria-label="Shoppage home">
+							@Logo(30)
+						</a>
+						if !isHome(currentTab) {
+							@SearchBox("", false)
+						}
+						<button type="button" class="loc" hx-get="/location-modal" hx-target="#modal-container" aria-label="Choose your location">
+							@Ico("pin", 18)
+							<span class="label" data-location-label>Set location</span>
+						</button>
+						<div class="actions">
+							<a class="btn btn-outline btn-sm hide-sm" href="/sell">Sell on Shoppage</a>
 						</div>
-						<button type="button" onclick="toggleAiChat();" class="text-slate-400 hover:text-white text-lg p-1">&times;</button>
-					</div>
-
-					<!-- Prompt Suggestions -->
-					<div class="p-2.5 bg-slate-950/50 border-b border-slate-800/80 flex gap-1.5 overflow-x-auto text-[10.5px]">
-						<button type="button" onclick="askPreset('How long does a 5.12kWh battery last on 450W load?');" class="shrink-0 px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
-							⚡ 5.12kWh @ 450W?
-						</button>
-						<button type="button" onclick="askPreset('5kW hybrid inverter under R20000');" class="shrink-0 px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
-							☀️ 5kW Inverter
-						</button>
-						<button type="button" onclick="askPreset('Mitrend commercial hangers wholesale');" class="shrink-0 px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
-							📦 Mitrend Hangers
-						</button>
-					</div>
-
-					<!-- Messages Stream -->
-					<div id="ai-messages-list" class="flex-1 p-3.5 overflow-y-auto space-y-3 text-xs">
-						<div class="flex items-start gap-2">
-							<div class="w-6 h-6 rounded-md bg-emerald-600 text-white flex items-center justify-center text-xs shrink-0 font-bold">SP</div>
-							<div class="bg-slate-800 p-3 rounded-2xl rounded-tl-sm text-slate-200 leading-relaxed text-xs">
-								Sawubona! I am your Shoppage AI Assistant. Ask me to calculate Stage 6 load-shedding battery runtimes, find verified products across local merchants, or locate shopping malls.
-							</div>
-						</div>
-					</div>
-
-					<!-- Input Bar -->
-					<div class="p-3 bg-slate-950 border-t border-slate-800">
-						<form id="ai-chat-form" onsubmit="submitAiChat(event);" class="flex items-center gap-2">
-							<input 
-								type="text" 
-								id="ai-chat-input" 
-								placeholder="Ask anything (e.g. 5kW solar inverter)..." 
-								class="flex-1 px-3 py-2 text-xs rounded-xl bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 placeholder-slate-500"
-								autocomplete="off"
-							/>
-							<button 
-								type="submit" 
-								id="ai-send-btn"
-								class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition"
-							>
-								Ask
-							</button>
-						</form>
+					</header>
+					<div id="content">
+						{ children... }
 					</div>
 				</div>
+				if hasRail(trends, topDrops, guilds) {
+					@CommerceRail(trends, topDrops, guilds)
+				}
 			</div>
-
-			<!-- AI Chat JavaScript Client -->
-			<script>
-				function toggleAiChat() {
-					const panel = document.getElementById('ai-chat-panel');
-					if (panel.classList.contains('hidden')) {
-						panel.classList.remove('hidden');
-						panel.classList.add('flex');
-						document.getElementById('ai-chat-input').focus();
-					} else {
-						panel.classList.add('hidden');
-						panel.classList.remove('flex');
-					}
-				}
-
-				function askPreset(text) {
-					document.getElementById('ai-chat-input').value = text;
-					submitAiChat(new Event('submit'));
-				}
-
-				async function submitAiChat(e) {
-					if (e) e.preventDefault();
-					const input = document.getElementById('ai-chat-input');
-					const msg = input.value.trim();
-					if (!msg) return;
-
-					const list = document.getElementById('ai-messages-list');
-					
-					// Append user message
-					const userBubble = document.createElement('div');
-					userBubble.className = 'flex justify-end';
-					userBubble.innerHTML = `<div class="bg-emerald-600 text-white p-2.5 rounded-2xl rounded-tr-sm max-w-[85%] text-xs">${escapeHtml(msg)}</div>`;
-					list.appendChild(userBubble);
-					input.value = '';
-
-					// Append loading indicator
-					const loadingBubble = document.createElement('div');
-					loadingBubble.className = 'flex items-start gap-2';
-					loadingBubble.id = 'ai-loading';
-					loadingBubble.innerHTML = `
-						<div class="w-6 h-6 rounded-md bg-emerald-600 text-white flex items-center justify-center text-xs shrink-0 font-bold">SP</div>
-						<div class="bg-slate-800 p-2.5 rounded-2xl rounded-tl-sm text-slate-400 text-xs flex items-center gap-1.5">
-							<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Thinking...
-						</div>
-					`;
-					list.appendChild(loadingBubble);
-					list.scrollTop = list.scrollHeight;
-
-					try {
-						const res = await fetch('/api/assistant', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({ message: msg })
-						});
-						const data = await res.json();
-						
-						const loading = document.getElementById('ai-loading');
-						if (loading) loading.remove();
-
-						const replyBubble = document.createElement('div');
-						replyBubble.className = 'flex items-start gap-2';
-						
-						let productsHtml = '';
-						if (data.products && data.products.length > 0) {
-							productsHtml = '<div class="grid grid-cols-1 gap-1.5 mt-2 pt-2 border-t border-slate-700">';
-							data.products.forEach(p => {
-								productsHtml += `
-									<a href="/p/${p.id}" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-700 transition flex items-center gap-2.5 text-left text-xs">
-										${p.imageUrl ? `<img src="${p.imageUrl}" class="w-10 h-10 object-cover rounded shrink-0" />` : ''}
-										<div class="min-w-0 flex-1">
-											<div class="font-bold text-white truncate text-[11px]">${escapeHtml(p.title)}</div>
-											<div class="text-emerald-400 font-bold text-[11px]">R ${p.priceZar.toFixed(2)}</div>
-										</div>
-									</a>
-								`;
-							});
-							productsHtml += '</div>';
-						}
-
-						replyBubble.innerHTML = `
-							<div class="w-6 h-6 rounded-md bg-emerald-600 text-white flex items-center justify-center text-xs shrink-0 font-bold">SP</div>
-							<div class="bg-slate-800 p-3 rounded-2xl rounded-tl-sm text-slate-200 leading-relaxed max-w-[85%] text-xs space-y-1.5">
-								<div>${formatMarkdown(data.reply)}</div>
-								${productsHtml}
-								<div class="text-[9px] text-slate-500 pt-1 text-right">${data.latencyMs ? data.latencyMs.toFixed(1) + 'ms' : ''}</div>
-							</div>
-						`;
-						list.appendChild(replyBubble);
-						list.scrollTop = list.scrollHeight;
-					} catch (err) {
-						const loading = document.getElementById('ai-loading');
-						if (loading) loading.remove();
-						const errorBubble = document.createElement('div');
-						errorBubble.className = 'flex justify-start';
-						errorBubble.innerHTML = `<div class="bg-rose-900/80 text-rose-200 p-2.5 rounded-2xl text-xs">Could not reach assistant. Please try again.</div>`;
-						list.appendChild(errorBubble);
-					}
-				}
-
-				function formatMarkdown(txt) {
-					if (!txt) return '';
-					return txt.replace(/\*\*(.*?)\*\*/g, '<b class="text-emerald-400 font-bold">$1</b>');
-				}
-
-				function toggleLeftSidebar() {
-					const sb = document.getElementById('left-sidebar');
-					if (!sb) return;
-					const isCollapsed = sb.classList.toggle('is-collapsed');
-					const btn = document.getElementById('sidebar-toggle-btn');
-					if (btn) btn.title = isCollapsed ? 'Expand sidebar' : 'Minimise sidebar';
-					try { localStorage.setItem('shoppage_sidebar_collapsed', isCollapsed ? '1' : '0'); } catch(e){}
-				}
-
-				(function() {
-					try {
-						if (localStorage.getItem('shoppage_sidebar_collapsed') === '1') {
-							document.getElementById('left-sidebar')?.classList.add('is-collapsed');
-							const btn = document.getElementById('sidebar-toggle-btn');
-							if (btn) btn.title = 'Expand sidebar';
-						}
-					} catch(e){}
-				})();
-			</script>
-
-			<!-- PWA Service Worker Registration -->
-			<script>
-				if ('serviceWorker' in navigator) {
-					window.addEventListener('load', () => {
-						navigator.serviceWorker.register('/sw.js').catch(console.error);
-					});
-				}
-			</script>
+			@CorporateFooter()
+			@BottomBar(currentTab)
+			<div id="modal-container"></div>
+			<div id="buybox-drawer"></div>
+			@AskWidget()
 		</body>
 	</html>
+}
 
+// SearchBox is the Google-style pill search with live suggestions.
+templ SearchBox(q string, autofocus bool) {
+	<div class="searchbox" data-searchbox>
+		<form action="/search" method="get" role="search">
+			<span class="faint" aria-hidden="true">
+				@Ico("search", 20)
+			</span>
+			<label class="sr" for={ "q-" + fmt.Sprint(autofocus) }>Search Shoppage</label>
+			<input
+				id={ "q-" + fmt.Sprint(autofocus) }
+				type="search"
+				name="q"
+				value={ q }
+				placeholder="Search products, brands and stores"
+				autocomplete="off"
+				enterkeyhint="search"
+				aria-autocomplete="list"
+				aria-controls={ "sug-" + fmt.Sprint(autofocus) }
+				if autofocus {
+					autofocus
+				}
+			/>
+			<button type="button" class="clear" aria-label="Clear search" data-clear>
+				@Ico("x", 18)
+			</button>
+			<button type="submit" class="go" aria-label="Search">
+				@Ico("search", 18)
+			</button>
+		</form>
+		<div class="suggest" id={ "sug-" + fmt.Sprint(autofocus) } role="listbox"></div>
+	</div>
 }
 
 templ LeftRail(currentTab string) {
-	<aside id="left-sidebar" class="hidden lg:flex flex-col w-64 shrink-0 p-4 sticky top-7 h-[calc(100vh-2rem)] border-r border-slate-200/80 bg-white select-none transition-all duration-200 ease-in-out">
-		<!-- Shoppage Brand Logo & Minimize Toggle -->
-		<div class="sidebar-head flex items-center justify-between gap-2 mb-4">
-			<a href="/" class="flex items-center gap-3 px-1 py-1 rounded-2xl hover:bg-slate-50 transition group min-w-0" title="Shoppage South Africa">
-				<svg viewBox="0 0 32 32" width="34" height="34" class="shrink-0 rounded-xl shadow-md shadow-emerald-600/20 group-hover:scale-105 transition">
-					<defs>
-						<linearGradient id="sp-brand-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-							<stop offset="0%" stopColor="#10B981"></stop>
-							<stop offset="100%" stopColor="#059669"></stop>
-						</linearGradient>
-						<linearGradient id="sp-bolt-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-							<stop offset="0%" stopColor="#FCD34D"></stop>
-							<stop offset="100%" stopColor="#F59E0B"></stop>
-						</linearGradient>
-					</defs>
-					<rect width="32" height="32" rx="8" fill="url(#sp-brand-grad)"></rect>
-					<path d="M8.5 12C8.5 10.8954 9.39543 10 10.5 10H21.5C22.6046 10 23.5 10.8954 23.5 12L24.5 24C24.5 25.1046 23.6046 26 22.5 26H9.5C8.39543 26 7.5 25.1046 7.5 24L8.5 12Z" fill="#FFFFFF"></path>
-					<path d="M12 10V7.5C12 5.567 13.567 4 15.5 4H16.5C18.433 4 20 5.567 20 7.5V10" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"></path>
-					<path d="M17 12L12 18H16L15 24L20 17H16.2L17 12Z" fill="url(#sp-bolt-grad)"></path>
-				</svg>
-				<span class="sidebar-wordmark font-display font-extrabold text-2xl tracking-tight text-slate-900">Shoppage</span>
-			</a>
-			<button 
-				id="sidebar-toggle-btn" 
-				type="button" 
-				onclick="toggleLeftSidebar();" 
-				class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition cursor-pointer shrink-0" 
-				title="Minimise sidebar"
-				aria-label="Minimise sidebar"
-			>
-				<svg id="sidebar-toggle-icon" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
-				</svg>
-			</button>
-		</div>
-
-		<!-- Primary Navigation Links -->
-		<nav class="space-y-1 text-sm font-semibold text-slate-700 flex-1">
-			<a href="/?tab=foryou" title="Commerce Discovery" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "" || currentTab == "foryou"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "" && currentTab != "foryou") }>
-				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-				<span class="sidebar-label">Discovery</span>
-			</a>
-			<a href="/?tab=deals" title="Deals & Circulars" class={ "sidebar-nav-item flex items-center justify-between px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "deals"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "deals") }>
-				<div class="flex items-center gap-3 min-w-0">
-					<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
-					<span class="sidebar-label truncate">Deals &amp; Circulars</span>
-				</div>
-				<span class="sidebar-deals-badge px-1.5 py-0.5 rounded-md bg-rose-500 text-white text-[10px] font-black tracking-wider shrink-0">HOT</span>
-			</a>
-			<a href="/?tab=products" title="Product Catalogue" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "products"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "products") }>
-				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-				<span class="sidebar-label">
-					if Stats().Products > 0 {
-						{ FormatCount(Stats().Products) } Products
-					} else {
-						Products
-					}
-				</span>
-			</a>
-			<a href="/track" title="Track Order & Waybill" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "track"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "track") }>
-				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-				<span class="sidebar-label">Track Order</span>
-			</a>
-			<a href="/sell" title="Sell Wholesale on Shoppage" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "sell"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "sell") }>
-				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M3 3h18v18H3zM8 12h8M12 8v8"></path></svg>
-				<span class="sidebar-label text-emerald-700 font-bold">Sell on Shoppage</span>
-			</a>
-			<a href="/?tab=tradewire" title="Live Trade Wire" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "tradewire"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "tradewire") }>
-				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-				<span class="sidebar-label">Trade Wire</span>
-			</a>
-			<a href="/?tab=shorts" title="Trade Shorts & Demos" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "shorts"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "shorts") }>
-				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-				<span class="sidebar-label">Trade Shorts</span>
-			</a>
-			<a href="/chat" title="Live Direct Chat" class={ "sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition", templ.KV("bg-emerald-50 text-emerald-700 font-bold", currentTab == "chat"), templ.KV("hover:bg-slate-50 text-slate-700", currentTab != "chat") }>
-				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-				<span class="sidebar-label">Live Buyer Chat</span>
-			</a>
-			<a href="/desk" target="_blank" title="Merchant OS (Desk)" class="sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-50 text-slate-700 transition">
-				<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>
-				<span class="sidebar-label">Merchant Desk</span>
-			</a>
-		</nav>
-
-		<!-- Broadcast RFQ CTA Button -->
-		<a 
-			href="/?tab=tradewire"
-			class="sidebar-rfq-btn mt-4 w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-xs shadow-md shadow-emerald-700/20 transition flex items-center justify-center gap-2 cursor-pointer text-center"
-			title="Create Trade RFQ"
-		>
-			<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m-7-7h14"></path></svg>
-			<span class="sidebar-rfq-text">Post Trade RFQ</span>
+	<nav class="nav" aria-label="Main">
+		<a href="/" class="logo" aria-label="Shoppage home">
+			@Logo(34)
+			<b>Shoppage</b>
 		</a>
-
-		<!-- User Profile Badge & Theme -->
-		<div class="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
-			<div class="sidebar-user-row flex items-center gap-2.5 min-w-0">
-				<div class="w-9 h-9 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold flex items-center justify-center text-sm shadow-sm shrink-0">
-					Y
-				</div>
-				<div class="sidebar-user-meta min-w-0">
-					<div class="text-xs font-bold text-slate-900 flex items-center gap-1 truncate">
-						<span>You (Verified)</span>
-						<span class="text-emerald-600 text-[10px]">✓</span>
-					</div>
-					<div class="text-[11px] text-slate-400 truncate">&#64;you_za</div>
-				</div>
-			</div>
-			<button 
-				type="button"
-				onclick="const cur = document.documentElement.getAttribute('data-theme'); const next = cur === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', next);"
-				class="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition shrink-0"
-				title="Toggle Dark / Light Theme"
-			>
-				🌓
+		<a class="navlink" href="/" { current(isHome(currentTab))... }>
+			@Ico("home", 24)
+			<span class="label">Home</span>
+		</a>
+		<a class="navlink" href="/?tab=deals" { current(currentTab == "deals")... }>
+			@Ico("tag", 24)
+			<span class="label">Deals</span>
+		</a>
+		<a class="navlink" href="/?tab=products" { current(currentTab == "products" || currentTab == "all")... }>
+			@Ico("bag", 24)
+			<span class="label">Products</span>
+			if Stats().Products > 0 {
+				<span class="pill-count label">{ FormatCount(Stats().Products) }</span>
+			}
+		</a>
+		<a class="navlink" href="/malls" { current(currentTab == "malls")... }>
+			@Ico("store", 24)
+			<span class="label">Stores &amp; markets</span>
+		</a>
+		<a class="navlink" href="/?tab=tradewire" { current(currentTab == "tradewire")... }>
+			@Ico("feed", 24)
+			<span class="label">Trade Wire</span>
+		</a>
+		<a class="navlink" href="/shorts" { current(currentTab == "shorts")... }>
+			@Ico("play", 24)
+			<span class="label">Shorts</span>
+		</a>
+		<a class="navlink" href="/chat" { current(currentTab == "chat")... }>
+			@Ico("chat", 24)
+			<span class="label">Messages</span>
+		</a>
+		<a class="navlink" href="/track" { current(currentTab == "track")... }>
+			@Ico("box", 24)
+			<span class="label">Orders</span>
+		</a>
+		<a class="btn btn-brand btn-lg cta" href="/?tab=tradewire#compose" aria-label="Post a request">
+			@Ico("plus", 22)
+			<span class="label">Post a request</span>
+		</a>
+		<div class="foot">
+			<a class="navlink" href="/sell" { current(currentTab == "sell")... }>
+				@Ico("sell", 24)
+				<span class="label">Sell on Shoppage</span>
+			</a>
+			<a class="navlink" href="/desk" target="_blank" rel="noopener">
+				@Ico("desk", 24)
+				<span class="label">Merchant desk</span>
+			</a>
+			<button type="button" class="navlink" data-theme-toggle aria-label="Change theme" style="border:0;background:none;cursor:pointer;font:inherit;">
+				@Ico("moon", 24)
+				<span class="label" data-theme-label>Theme: system</span>
 			</button>
 		</div>
+	</nav>
+}
+
+// CommerceRail is the right column ("what's happening"): price drops,
+// trending searches and markets. Only real catalogue data is shown.
+templ CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, guilds []models.CommunityGuild) {
+	<aside class="rail" aria-label="Highlights">
+		if Stats().Products > 0 || Stats().Merchants > 0 {
+			<p class="muted" style="font-size:14px;margin:6px 4px 0;">
+				{ fmt.Sprintf("Comparing %s products from %s stores", FormatCount(Stats().Products), FormatCount(Stats().Merchants)) }
+			</p>
+		}
+		if len(topDrops) > 0 {
+			<section class="box">
+				<h2>Price drops</h2>
+				for _, d := range topDrops {
+					<a class="row" href={ templ.SafeURL("/buybox/" + d.ID) } hx-get={ "/buybox/" + d.ID } hx-target="#buybox-drawer" hx-push-url="false">
+						<img src={ d.ImageURL } alt="" loading="lazy" width="48" height="48"/>
+						<div class="txt">
+							<small>{ d.MerchantName }</small>
+							<b>{ d.Title }</b>
+							<span>
+								<strong style="color:var(--ink)">R { FormatZAR(d.PriceZar) }</strong>
+								if d.DiscountPct > 0 {
+									<span style="color:var(--sale);display:inline"> { fmt.Sprintf("−%d%%", d.DiscountPct) }</span>
+								}
+							</span>
+						</div>
+					</a>
+				}
+				<a class="foot" href="/?tab=deals">Show more</a>
+			</section>
+		}
+		if len(trends) > 0 {
+			<section class="box">
+				<h2>Trending searches</h2>
+				for _, tr := range trends {
+					<a class="row" href={ templ.SafeURL("/search?q=" + url.QueryEscape(SplitTag(tr.Tag))) }>
+						<div class="txt">
+							<small>{ tr.Category }</small>
+							<b>{ SplitTag(tr.Tag) }</b>
+						</div>
+					</a>
+				}
+			</section>
+		}
+		if len(guilds) > 0 {
+			<section class="box">
+				<h2>Markets to follow</h2>
+				for _, g := range guilds {
+					<a class="row" href={ templ.SafeURL("/search?q=" + url.QueryEscape(guildQuery(g))) }>
+						<span class="avatar" aria-hidden="true">{ g.Initials }</span>
+						<div class="txt">
+							<b>{ g.Name }</b>
+							<small>{ g.Location }</small>
+						</div>
+					</a>
+				}
+			</section>
+		}
+		<nav class="legal" aria-label="Legal">
+			<a href="/sell">Sell</a>
+			<a href="/track">Track an order</a>
+			<a href="/buyer-protection">Buyer protection</a>
+			<a href="/desk">Merchant desk</a>
+			<span>© 2026 Shoppage</span>
+		</nav>
 	</aside>
 }
 
-templ CommerceRail(trends []models.TradeTrend, topDrops []models.RetailerDeal, guilds []models.CommunityGuild) {
-	<aside class="hidden xl:flex flex-col w-80 shrink-0 p-4 sticky top-7 h-[calc(100vh-2rem)] border-l border-slate-200/80 bg-white overflow-y-auto scrollbar-none select-none">
-		<!-- Catalogue summary: counts come from the live store, never hardcoded -->
-		<div class="p-3 bg-emerald-50/80 rounded-2xl border border-emerald-200/60 mb-5">
-			<div class="flex items-center justify-between text-xs font-bold text-emerald-900 mb-1">
-				<span class="flex items-center gap-1.5">
-					<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-					<span>Live catalogue</span>
-				</span>
-			</div>
-			if Stats().Products > 0 || Stats().Merchants > 0 {
-				<p class="text-[11px] text-emerald-800/80">
-					{ FormatCount(Stats().Merchants) } merchants · { FormatCount(Stats().Products) } trade listings · { FormatCount(Stats().Malls) } markets &amp; trade hubs
-				</p>
-			} else {
-				<p class="text-[11px] text-emerald-800/80">
-					Catalogue loading — check back soon.
-				</p>
-			}
-		</div>
+func trimHash(s string) string {
+	if len(s) > 0 && s[0] == '#' {
+		return s[1:]
+	}
+	return s
+}
 
-		<!-- Quick Savings Shortcuts -->
-		<div class="mb-6">
-			<div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">
-				Quick Filters &amp; Savings
-			</div>
-			<div class="flex flex-wrap gap-1.5 text-xs font-semibold">
-				<a href="/?tab=deals" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-rose-50 hover:text-rose-700 transition">🔥 40%+ Off</a>
-				<a href="/?category=solar" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 transition">⚡ Solar &amp; Power</a>
-				<a href="/?category=hardware" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 transition">🧱 Building &amp; Tools</a>
-				<a href="/?category=packaging" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 transition">📦 Packaging</a>
-				<a href="/?category=electronics" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 transition">📱 Tech Deals</a>
-			</div>
-		</div>
+func guildQuery(g models.CommunityGuild) string {
+	if g.Query != "" {
+		return g.Query
+	}
+	return g.Name
+}
 
-		<!-- Trending in South Africa Commercial Grid -->
-		<div class="mb-6">
-			<div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">
-				🔥 Trending in SA Trade
-			</div>
-			<div class="space-y-3">
-				for _, trend := range trends {
-					<a href={ templ.SafeURL(fmt.Sprintf("/search?q=%s", trend.Tag)) } class="block group">
-						<div class="flex items-center justify-between text-xs">
-							<span class="font-bold text-slate-800 group-hover:text-emerald-600 transition">{ trend.Tag }</span>
-							<span class="text-[11px] text-slate-400">{ trend.Count }</span>
-						</div>
-						<div class="text-[10px] text-slate-400 font-medium">{ trend.Category } · Highveld Trade Demand</div>
-					</a>
-				}
-			</div>
-		</div>
-
-		<!-- Top Price Drops Carousel -->
-		if len(topDrops) > 0 {
-			<div class="mb-6">
-				<div class="flex items-center justify-between mb-2.5">
-					<div class="text-xs font-bold text-slate-400 uppercase tracking-wider">
-						📉 Top Price Drops
-					</div>
-					<a href="/?tab=deals" class="text-[11px] font-bold text-emerald-600 hover:underline">All &rarr;</a>
-				</div>
-				<div class="space-y-2.5">
-					for _, drop := range topDrops {
-						<div 
-							hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", drop.ID))) } 
-							hx-target="#buybox-drawer"
-							class="p-2.5 rounded-xl border border-slate-200/80 hover:border-emerald-500 hover:shadow-xs transition bg-white flex items-center gap-3 cursor-pointer group"
-						>
-							<img src={ drop.ImageURL } alt={ drop.Title } class="w-12 h-12 rounded-lg object-cover bg-slate-50 shrink-0" loading="lazy" decoding="async" width="48" height="48"/>
-							<div class="flex-1 min-w-0">
-								<div class="flex items-center gap-1.5">
-									<span class="text-[10px] font-bold text-emerald-700 uppercase truncate">{ drop.MerchantName }</span>
-									if drop.DiscountPct > 0 {
-										<span class="px-1 py-0.2 rounded bg-rose-100 text-rose-700 text-[9px] font-black">-{ fmt.Sprintf("%d", drop.DiscountPct) }%</span>
-									}
-								</div>
-								<div class="text-xs font-bold text-slate-900 truncate group-hover:text-emerald-600 transition">{ drop.Title }</div>
-								<div class="text-xs font-black text-slate-900 mt-0.5">R { FormatZAR(drop.PriceZar) }</div>
-							</div>
-						</div>
-					}
-				</div>
-			</div>
-		}
-
-		<!-- Featured Virtual Markets (group-style communities) -->
-		<div id="guilds">
-			<div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">
-				👥 Virtual Markets
-			</div>
-			<div class="space-y-2.5">
-				for _, guild := range guilds {
-					<div class="p-3 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-between gap-2">
-						<div class="flex items-center gap-2.5 min-w-0">
-							<div class="w-8 h-8 rounded-lg bg-slate-900 text-white font-black text-xs flex items-center justify-center shrink-0">
-								{ guild.Initials }
-							</div>
-							<div class="min-w-0">
-								<div class="text-xs font-bold text-slate-900 truncate">{ guild.Name }</div>
-								<div class="text-[10px] text-slate-400 truncate">{ guild.Members } · { guild.DailyPosts }</div>
-							</div>
-						</div>
-						<button 
-							type="button"
-							onclick="this.textContent = this.textContent === 'Join' ? '✓ Joined' : 'Join'; this.classList.toggle('bg-emerald-600'); this.classList.toggle('text-white');"
-							class="px-2.5 py-1 rounded-lg border border-slate-300 text-slate-700 text-xs font-bold hover:border-emerald-600 transition shrink-0"
-						>
-							Join
-						</button>
-					</div>
-				}
-			</div>
-		</div>
-	</aside>
+templ BottomBar(currentTab string) {
+	<nav class="bottombar" aria-label="Quick navigation">
+		<a href="/" { current(isHome(currentTab))... }>
+			@Ico("home", 24)
+			Home
+		</a>
+		<a href="/?tab=deals" { current(currentTab == "deals")... }>
+			@Ico("tag", 24)
+			Deals
+		</a>
+		<a href="/search" { current(currentTab == "all")... }>
+			@Ico("search", 24)
+			Search
+		</a>
+		<a href="/chat" { current(currentTab == "chat")... }>
+			@Ico("chat", 24)
+			Messages
+		</a>
+		<a href="/track" { current(currentTab == "track")... }>
+			@Ico("box", 24)
+			Orders
+		</a>
+	</nav>
 }
 
 templ CorporateFooter() {
-	<footer class="w-full bg-[#f2f2f2] text-slate-500 border-t border-slate-200 mt-auto select-none text-[12px] sm:text-[13px] pb-16 lg:pb-0">
-		<!-- Google-Style Top Bar: Country / Region -->
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 border-b border-slate-300/60 flex items-center justify-between text-slate-500">
-			<div class="flex items-center gap-2">
-				<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-				<span class="font-medium text-slate-700">South Africa</span>
-				<span class="text-slate-300">•</span>
-				<span class="text-slate-500 text-[11px] sm:text-xs">Commercial Trade Grid</span>
-			</div>
-			<!-- Registered entity particulars come from configuration. A CIPC or VAT
-			     number is never rendered unless it has actually been issued to the
-			     operating entity. -->
+	<footer class="site-foot">
+		<div class="in">
+			<span>South Africa</span>
 			if site.CompanyLegalName() != "" {
-				<div class="hidden sm:flex items-center gap-3 text-slate-400 text-[11px]">
-					<span>{ site.CompanyLegalName() }</span>
-					if site.CompanyCIPC() != "" {
-						<span>•</span>
-						<span>CIPC: { site.CompanyCIPC() }</span>
-					}
-				</div>
-			}
-		</div>
-
-		<!-- Google-Style Bottom Bar: Two Balanced Link Groups -->
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-600">
-			<div class="flex items-center gap-5 sm:gap-7 flex-wrap justify-center font-normal">
-				<a href="/sell" class="hover:text-slate-900 hover:underline transition">Sell on Shoppage</a>
-				<a href="/track" class="hover:text-slate-900 hover:underline transition">Track Order</a>
-				<a href="/desk" target="_blank" class="hover:text-slate-900 hover:underline transition">Merchant OS</a>
-			</div>
-			<div class="flex items-center gap-5 sm:gap-7 flex-wrap justify-center text-slate-500 font-normal">
-				if site.CompanyVATNumber() != "" {
-					<span>SARS VAT: { site.CompanyVATNumber() }</span>
+				<span>{ site.CompanyLegalName() }</span>
+				if site.CompanyCIPC() != "" {
+					<span>Reg. { site.CompanyCIPC() }</span>
 				}
-				<span>Privacy</span>
-				<span>Terms</span>
-			</div>
+			}
+			<span class="sep"></span>
+			<a href="/sell">Sell on Shoppage</a>
+			<a href="/track">Track an order</a>
+			<a href="/buyer-protection">Buyer protection</a>
+			<a href="/desk">Merchant desk</a>
 		</div>
 	</footer>
+}
+
+// AskWidget is the floating shopping assistant. It says plainly whether an AI
+// model is connected.
+templ AskWidget() {
+	<div class="ask" data-ask>
+		<div class="ask-panel" id="ask-panel" role="dialog" aria-label="Shopping assistant">
+			<header>
+				<span class="avatar" aria-hidden="true" style="background:var(--brand-soft);color:var(--brand-ink);">
+					@Ico("spark", 20)
+				</span>
+				<div style="flex:1;min-width:0;">
+					<b>Ask Shoppage</b>
+					if site.GeminiConfigured() {
+						<small>Answers from the live catalogue · { site.GeminiModel() }</small>
+					} else {
+						<small>Catalogue search only · no AI model connected</small>
+					}
+				</div>
+				<button type="button" class="icon-btn" data-ask-close aria-label="Close">
+					@Ico("x", 20)
+				</button>
+			</header>
+			<div class="ask-sugs">
+				<button type="button" class="chip" data-ask-q="5kW hybrid inverter under R20 000">5kW inverter under R20 000</button>
+				<button type="button" class="chip" data-ask-q="How long does a 5.12kWh battery last at 450W?">Battery runtime</button>
+				<button type="button" class="chip" data-ask-q="Cheapest cement near me">Cheapest cement</button>
+			</div>
+			<div class="ask-msgs" id="ask-msgs" aria-live="polite">
+				<div class="bubble it">Tell me what you're looking for and I'll find it across South African stores.</div>
+			</div>
+			<form data-ask-form>
+				<label class="sr" for="ask-input">Message</label>
+				<input id="ask-input" type="text" placeholder="Ask about a product…" autocomplete="off"/>
+				<button type="submit" class="btn btn-brand btn-sm">Ask</button>
+			</form>
+		</div>
+		<button type="button" class="ask-btn" data-ask-open aria-controls="ask-panel" aria-expanded="false">
+			<span class="spark">
+				@Ico("spark", 20)
+			</span>
+			<span class="label">Ask Shoppage</span>
+		</button>
+	</div>
+}
+
+templ Logo(size int) {
+	<svg viewBox="0 0 32 32" width={ fmt.Sprint(size) } height={ fmt.Sprint(size) } aria-hidden="true">
+		<rect width="32" height="32" rx="9" fill="#0b8a5a"></rect>
+		<path d="M8.5 12a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2l1 12a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" fill="#fff"></path>
+		<path d="M12 10V7.5A3.5 3.5 0 0 1 15.5 4h1A3.5 3.5 0 0 1 20 7.5V10" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"></path>
+		<path d="M17 12l-5 6h4l-1 6 5-7h-3.8z" fill="#f59e0b"></path>
+	</svg>
+}
+
+// Ico renders one icon from a single 2px-stroke set.
+templ Ico(name string, size int) {
+	<svg width={ fmt.Sprint(size) } height={ fmt.Sprint(size) } viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+		switch name {
+			case "home":
+				<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path>
+			case "tag":
+				<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"></path>
+				<circle cx="7.5" cy="7.5" r="1.5"></circle>
+			case "bag":
+				<path d="M5 7h14l-1 13H6z"></path>
+				<path d="M9 7V6a3 3 0 0 1 6 0v1"></path>
+			case "store":
+				<path d="M4 9 5.5 4h13L20 9"></path>
+				<path d="M4 9a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"></path>
+				<path d="M5.5 12v8h13v-8M10 20v-4.5h4V20"></path>
+			case "feed":
+				<path d="M4 5h16M4 10h16M4 15h10M4 20h7"></path>
+			case "play":
+				<rect x="3" y="3" width="18" height="18" rx="4"></rect>
+				<path d="m10 8.5 5 3.5-5 3.5z"></path>
+			case "chat":
+				<path d="M21 12a8.5 8.5 0 0 1-12.4 7.6L3 21l1.5-5.2A8.5 8.5 0 1 1 21 12z"></path>
+			case "box":
+				<path d="M21 8 12 3 3 8v8l9 5 9-5z"></path>
+				<path d="M3 8l9 5 9-5M12 13v8"></path>
+			case "plus":
+				<path d="M12 5v14M5 12h14"></path>
+			case "sell":
+				<path d="M12 2v20M17 6.5C17 4.6 14.8 3.5 12 3.5S7 4.8 7 6.8c0 4.7 10 2.4 10 7.4 0 2-2.2 3.3-5 3.3s-5-1.2-5-3.1"></path>
+			case "desk":
+				<rect x="3" y="4" width="18" height="12" rx="2"></rect>
+				<path d="M8 20h8M12 16v4"></path>
+			case "moon":
+				<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"></path>
+			case "search":
+				<circle cx="11" cy="11" r="7"></circle>
+				<path d="m20 20-3.5-3.5"></path>
+			case "x":
+				<path d="M6 6l12 12M18 6 6 18"></path>
+			case "pin":
+				<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path>
+				<circle cx="12" cy="10" r="3"></circle>
+			case "spark":
+				<path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path>
+				<path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"></path>
+			case "truck":
+				<path d="M3 6h11v10H3zM14 9h4l3 3v4h-7"></path>
+				<circle cx="7" cy="18" r="2"></circle>
+				<circle cx="17" cy="18" r="2"></circle>
+			case "check":
+				<path d="m5 12.5 4.5 4.5L19 7.5"></path>
+			case "wa":
+				<path d="M20.5 12a8.5 8.5 0 0 1-12.6 7.4L3.5 20.5l1.1-4.2A8.5 8.5 0 1 1 20.5 12z"></path>
+				<path d="M9 9.5c.3 2.4 2.1 4.2 4.5 4.5l1-1.2 2 .8-.4 1.6c-3.9.2-7.6-3.5-7.4-7.4l1.6-.4.8 2z"></path>
+			case "shield":
+				<path d="M12 3 4 6v6c0 5 3.4 8.3 8 9 4.6-.7 8-4 8-9V6z"></path>
+				<path d="m8.5 12 2.5 2.5 4.5-5"></path>
+			case "chev":
+				<path d="m9 6 6 6-6 6"></path>
+			case "filter":
+				<path d="M4 6h16M7 12h10M10 18h4"></path>
+			case "heart":
+				<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"></path>
+			case "share":
+				<path d="M12 3v12M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"></path>
+			default:
+				<circle cx="12" cy="12" r="8"></circle>
+		}
+	</svg>
 }

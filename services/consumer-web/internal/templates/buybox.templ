@@ -2,255 +2,92 @@ package templates
 
 import (
 	"fmt"
+	"net/url"
 )
 
+// BuyBoxDrawerComponent is the "where to buy" side sheet: the product, then
+// every store's price, cheapest first, with a way to contact each one.
 templ BuyBoxDrawerComponent(data BuyBoxViewData) {
-	<div 
-		class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex justify-end transition-opacity"
-		onclick="document.getElementById('buybox-drawer').innerHTML = '';"
-	>
-		<div 
-			class="w-full max-w-xl bg-white h-full shadow-2xl flex flex-col animate-slide-in-right relative"
-			onclick="event.stopPropagation();"
-		>
-			<!-- Drawer Header -->
-			<div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-900 text-white">
-				<div>
-					<div class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-						<span>🇿🇦 South African Trade Supply</span>
-						<span>·</span>
-						<span>Multi-Store BuyBox</span>
-					</div>
-					<h2 class="text-lg font-display font-black text-white mt-0.5">
-						Where to Buy in South Africa
-					</h2>
-				</div>
-				<button 
-					type="button" 
-					onclick="document.getElementById('buybox-drawer').innerHTML = '';"
-					class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold flex items-center justify-center transition cursor-pointer text-sm"
-				>
-					✕
-				</button>
-			</div>
-
-			<!-- Product Summary Card -->
-			<div class="p-4 bg-slate-50 border-b border-slate-200 flex items-center gap-4">
-				<div class="w-16 h-16 rounded-xl bg-white border border-slate-200 p-1 shrink-0 overflow-hidden flex items-center justify-center">
+	{{ offers := sortedOffers(data.Product) }}
+	<div class="drawer-scrim" aria-hidden="true"></div>
+	<aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+		<header>
+			<h2 id="drawer-title">Where to buy</h2>
+			<button type="button" class="icon-btn" data-drawer-close aria-label="Close">
+				@Ico("x", 20)
+			</button>
+		</header>
+		<div class="body">
+			<div style="display:flex;gap:14px;align-items:center;padding:16px;border-bottom:1px solid var(--line);">
+				<div class="t-img" style="width:88px;flex:none;">
 					if data.Product.ImageURL != "" {
-						<img src={ data.Product.ImageURL } alt={ data.Product.Title } class="w-full h-full object-contain" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>
-						<span class="hidden w-full h-full items-center justify-center text-2xl">📦</span>
-					} else {
-						<span class="text-2xl">📦</span>
+						<img src={ data.Product.ImageURL } alt=""/>
 					}
 				</div>
-				<div class="min-w-0 flex-1">
-					<div class="text-xs text-slate-500 font-bold truncate">{ data.Product.Brand } · { data.Product.Model }</div>
-					<h3 class="text-sm font-bold text-slate-900 truncate mt-0.5">{ data.Product.Title }</h3>
-					<div class="flex items-baseline gap-2 mt-1 flex-wrap">
+				<div style="min-width:0;">
+					if data.Product.Brand != "" {
+						<div class="muted" style="font-size:13px;">{ data.Product.Brand }</div>
+					}
+					<div style="font-weight:600;">{ data.Product.Title }</div>
+					<div class="num" style="font-weight:700;font-size:18px;margin-top:2px;">
 						if data.LowestPrice > 0 {
-							<span class="text-lg font-black text-emerald-950">From R { FormatZAR(data.LowestPrice) }</span>
+							From R { FormatZAR(data.LowestPrice) }
 						} else {
-							<span class="text-base font-black text-slate-700">Price on request</span>
+							Price on request
 						}
-						<span class="text-xs text-slate-500">
-							· { fmt.Sprintf("%d", len(data.Offers)) } supplier offer{ func() string { if len(data.Offers) != 1 { return "s" }; return "" }() }
+					</div>
+				</div>
+			</div>
+			if len(data.Product.DeliveryOptions) > 0 {
+				<div class="facts" style="padding:0 16px;">
+					for _, d := range data.Product.DeliveryOptions {
+						<span class="fact">
+							@Ico("truck", 14)
+							{ d.Label }
+							if d.CostDisplay != "" {
+								· { d.CostDisplay }
+							}
 						</span>
-					</div>
-				</div>
-			</div>
-
-			<!-- Delivery options: rendered only from the product's own data. Rates are
-			     never invented here — a supplier that has not published a rate is shown
-			     as quoted-on-request. -->
-			<div class="px-5 py-3.5 bg-emerald-50/50 border-b border-emerald-100/80">
-				<div class="text-[11px] font-black text-emerald-950 uppercase tracking-wider flex items-center justify-between mb-2 gap-2">
-					<span>📦 Delivery &amp; Collection</span>
-					if data.UserLocation != "" {
-						<span class="text-[10px] text-emerald-700 font-semibold truncate">To: { data.UserLocation }</span>
 					}
-				</div>
-				if len(data.Product.DeliveryOptions) > 0 {
-					<div class={ "grid gap-2 text-center text-xs", templ.KV("grid-cols-3", len(data.Product.DeliveryOptions) >= 3), templ.KV("grid-cols-2", len(data.Product.DeliveryOptions) == 2), templ.KV("grid-cols-1", len(data.Product.DeliveryOptions) == 1) }>
-						for _, opt := range data.Product.DeliveryOptions {
-							<div class="p-2 rounded-xl bg-white border border-emerald-200/60 shadow-2xs">
-								<div class="text-base">
-									if opt.Icon != "" {
-										{ opt.Icon }
-									} else {
-										📦
-									}
-								</div>
-								<div class="font-bold text-slate-900 text-[11px]">{ opt.Label }</div>
-								if opt.CostDisplay != "" {
-									<div class="text-emerald-700 font-black text-xs">{ opt.CostDisplay }</div>
-								} else if opt.CostZar > 0 {
-									<div class="text-slate-900 font-black text-xs">R { FormatZAR(opt.CostZar) }</div>
-								} else {
-									<div class="text-slate-500 font-bold text-[10px]">Quoted by supplier</div>
-								}
-								if opt.Eta != "" {
-									<div class="text-[9px] text-slate-400">{ opt.Eta }</div>
-								} else if opt.Description != "" {
-									<div class="text-[9px] text-slate-400">{ opt.Description }</div>
-								}
-							</div>
-						}
-					</div>
-				} else {
-					<p class="text-[11px] text-emerald-900/80">
-						This supplier has not published delivery rates for this listing. Collection or courier cost is confirmed on the quote.
-					</p>
-				}
-			</div>
-
-			<!-- Wholesale & Tiered Volume Pricing Banner -->
-			if len(data.Product.VolumeTiers) > 0 {
-				<div class="px-5 py-2.5 bg-slate-100/70 border-b border-slate-200/80">
-					<div class="flex items-center justify-between mb-1.5">
-						<span class="text-[11px] font-black text-slate-900 uppercase tracking-wider">📊 Buy More, Pay Less (Wholesale Tiers)</span>
-						<span class="text-[10px] text-slate-500 font-bold">Supplier Rates</span>
-					</div>
-					<div class="grid grid-cols-3 gap-2 text-center text-xs">
-						for _, tier := range data.Product.VolumeTiers {
-							<div class="py-1.5 px-2 rounded-lg bg-white border border-slate-200/80">
-								<div class="text-[10px] text-slate-500 font-bold">{ tier.Label }</div>
-								<div class="text-xs font-black text-slate-900">R { FormatZAR(tier.PriceZar) }</div>
-								if tier.DiscountPct > 0 {
-									<div class="text-[9px] font-extrabold text-emerald-600">Save { fmt.Sprintf("%d", tier.DiscountPct) }%</div>
-								} else {
-									<div class="text-[9px] font-semibold text-slate-400">Standard</div>
-								}
-							</div>
-						}
-					</div>
 				</div>
 			}
-
-			<!-- Offer summary row. The old "Sort Offers" pills had no handler and
-			     "Closest" needs a buyer location this app does not collect. -->
-			<div class="px-5 py-2.5 border-b border-slate-100 flex items-center justify-between text-xs text-slate-500 bg-white">
-				<span class="font-semibold">
-					{ fmt.Sprintf("%d", len(data.Offers)) } supplier offer{ func() string { if len(data.Offers) != 1 { return "s" }; return "" }() } on this listing
-				</span>
-				<span class="text-[11px] text-slate-400">Ordered by published trade price</span>
-			</div>
-
-			<!-- Merchant Offers Comparison List -->
-			<div class="flex-1 overflow-y-auto p-5 space-y-3.5">
-				if len(data.Offers) == 0 {
-					<div class="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center">
-						<div class="text-2xl mb-2">📦</div>
-						<div class="text-sm font-bold text-slate-800">No live trade offer on this listing</div>
-						<p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-							The catalogue record exists, but no supplier has published stock and price for it yet. Post a buy request and suppliers will quote you directly.
-						</p>
-						<a href="/requests" class="inline-flex mt-3 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition">Post a buy request</a>
-					</div>
+			<div class="compare" style="margin:16px;">
+				<h2>
+					Stores
+					<small>{ fmt.Sprintf("%d", len(offers)) }</small>
+				</h2>
+				if len(offers) == 0 {
+					<p class="muted" style="padding:14px 16px;margin:0;">No store prices yet.</p>
 				}
-				for _, offer := range data.Offers {
-					<div class={ "p-4 rounded-2xl border hover:shadow-xs transition flex flex-col gap-3", templ.KV("border-emerald-500 bg-emerald-50/20 shadow-2xs", offer.IsBuyBoxWinner), templ.KV("border-slate-200 bg-white", !offer.IsBuyBoxWinner) }>
-						<div class="flex items-start justify-between gap-3">
-							<div class="min-w-0">
-								<div class="flex items-center gap-2 flex-wrap">
-									<span class="font-bold text-sm text-slate-900">{ offer.MerchantName }</span>
-									if offer.IsBuyBoxWinner {
-										<span class="px-1.5 py-0.2 rounded bg-emerald-600 text-white text-[9px] font-black">BEST OFFER</span>
-									}
-								</div>
-								<!-- Location and responsiveness: only what the record carries -->
-								<div class="text-xs text-slate-500 mt-1 flex items-center gap-1.5 flex-wrap">
-									if offer.City != "" {
-										<span>📍 { offer.City }</span>
-									}
-									if offer.Province != "" && offer.Province != offer.City {
-										if offer.City != "" {
-											<span>·</span>
-										}
-										<span>{ offer.Province }</span>
-									}
-									if offer.Trust != nil && offer.Trust.ResponseTime != "" {
-										<span>·</span>
-										<span class="text-emerald-700 font-bold">⚡ Replies { offer.Trust.ResponseTime }</span>
-									}
-								</div>
-								<!-- Stock origin and recorded trading history -->
-								<div class="mt-1 flex items-center gap-2 text-[10px] flex-wrap">
-									if offer.IsLocalSAStock {
-										<span class="px-1.5 py-0.5 rounded bg-slate-900 text-white font-bold flex items-center gap-1">
-											<span>🇿🇦</span>
-											if offer.LeadTimeDays > 0 {
-												<span>Local SA stock · dispatch in { fmt.Sprintf("%d", offer.LeadTimeDays) } day(s)</span>
-											} else {
-												<span>Local SA stock</span>
-											}
-										</span>
-									}
-									if offer.Rating > 0 {
-										<span class="text-slate-500">
-											⭐ { fmt.Sprintf("%.1f", offer.Rating) }
-											if offer.Trust != nil && offer.Trust.TradesCount > 0 {
-												· { fmt.Sprintf("%d", offer.Trust.TradesCount) } recorded trades
-											}
-										</span>
-									}
-								</div>
-							</div>
-							<div class="text-right shrink-0">
-								if offer.PriceZar > 0 {
-									<div class="text-base font-black text-slate-900">R { FormatZAR(offer.PriceZar) }</div>
-								} else {
-									<div class="text-sm font-black text-slate-700">Price on request</div>
-								}
-								if offer.InStock {
-									<div class="text-[10px] text-emerald-700 font-bold">🟢 In stock</div>
-								} else {
-									<div class="text-[10px] text-slate-500 font-bold">Stock on request</div>
-								}
-								if offer.PickupAvailable {
-									<div class="text-[10px] text-slate-500">
-										🏬 Collection
-										if offer.PickupTime != "" {
-											· { offer.PickupTime }
-										}
-									</div>
-								}
-							</div>
-						</div>
-
-						<!-- Action Buttons: WhatsApp Quote + Make an Offer -->
-						<div class="pt-2.5 border-t border-slate-100 flex items-center gap-2">
-							if offer.WhatsApp != "" {
-								<a 
-									href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi,%%20I'm%%20inquiring%%20about%%20%s%%20listed%%20on%%20Shoppage%%20for%%20R%.2f", offer.WhatsApp, data.Product.Title, offer.PriceZar)) } 
-									target="_blank"
-									rel="noopener noreferrer"
-									class="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs text-center transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
-								>
-									<span>💬 WhatsApp Quote</span>
-								</a>
-							} else {
-								<span class="flex-1 py-2 px-3 rounded-xl bg-slate-100 text-slate-500 font-bold text-xs text-center">No WhatsApp line published</span>
+				for i, o := range offers {
+					<div class="offer">
+						<div class="who">
+							{ o.MerchantName }
+							if i == 0 && len(offers) > 1 && o.PriceZar > 0 {
+								<span class="best">Lowest</span>
 							}
-							<button 
-								type="button"
-								hx-get={ string(templ.SafeURL(fmt.Sprintf("/offer/modal/%s?price=%.2f&merchant=%s", data.Product.CanonicalID, offer.PriceZar, offer.MerchantID))) }
-								hx-target="#modal-container"
-								class="py-2 px-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition flex items-center gap-1 cursor-pointer"
-								title="Make a counter-offer on this item"
-							>
-								<span>🤝 Make an Offer</span>
-							</button>
+						</div>
+						<div class="p num">
+							if o.PriceZar > 0 {
+								R { FormatZAR(o.PriceZar) }
+							} else {
+								On request
+							}
+						</div>
+						<div class="det">{ offerDetail(o) }</div>
+						<div class="go">
+							if o.WhatsApp != "" {
+								<a class="btn btn-outline btn-sm" target="_blank" rel="noopener" href={ templ.SafeURL("https://wa.me/" + o.WhatsApp + "?text=" + url.QueryEscape(offerMessage(data.Product, o))) }>Contact</a>
+							}
 						</div>
 					</div>
 				}
 			</div>
-
-			<!-- Footer: what Shoppage actually does on this flow. No escrow, guarantee or
-			     commission claim is made here because none of them exist in this runtime. -->
-			<div class="p-3 bg-slate-50 border-t border-slate-200 text-center text-xs text-slate-500">
-				Negotiation goes directly to the supplier · Shoppage does not hold funds or process payment on this flow
-			</div>
+			if data.Product.CanonicalID != "" {
+				<div style="padding:0 16px 20px;">
+					<a class="btn btn-primary btn-block" href={ templ.SafeURL("/p/" + data.Product.CanonicalID) }>View product</a>
+				</div>
+			}
 		</div>
-	</div>
+	</aside>
 }

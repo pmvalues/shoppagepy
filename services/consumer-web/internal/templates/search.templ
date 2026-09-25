@@ -2,395 +2,278 @@ package templates
 
 import (
 	"fmt"
+	"net/url"
+	"sort"
+
 	"github.com/shoppage/consumer-web/internal/models"
 )
 
+// searchSummary is a computed overview of the results (price range, where
+// it's cheapest). It never states anything the result rows don't show.
+type searchSummary struct {
+	Count       int
+	Low, High   float64
+	LowTitle    string
+	LowID       string
+	Stores      int
+	InStock     int
+	Median      float64
+}
+
+func summarise(items []models.SearchItem) searchSummary {
+	s := searchSummary{Count: len(items)}
+	var prices []float64
+	for _, it := range items {
+		if it.PriceZar <= 0 {
+			continue
+		}
+		prices = append(prices, it.PriceZar)
+		if s.Low == 0 || it.PriceZar < s.Low {
+			s.Low, s.LowTitle, s.LowID = it.PriceZar, it.Title, it.ID
+		}
+		if it.PriceZar > s.High {
+			s.High = it.PriceZar
+		}
+		s.Stores += it.OffersCount
+		if it.InStock {
+			s.InStock++
+		}
+	}
+	if len(prices) > 0 {
+		sort.Float64s(prices)
+		s.Median = prices[len(prices)/2]
+	}
+	return s
+}
+
+func searchHref(d SearchViewData, key, val string) string {
+	v := url.Values{}
+	set := func(k, x string) {
+		if x != "" && x != "all" {
+			v.Set(k, x)
+		}
+	}
+	set("q", d.Query)
+	set("tab", d.CurrentTab)
+	set("category", d.Category)
+	set("province", d.Province)
+	set("sort", d.Sort)
+	if d.InStockOnly {
+		v.Set("in_stock", "true")
+	}
+	if val == "" {
+		v.Del(key)
+	} else {
+		v.Set(key, val)
+	}
+	return "/search?" + v.Encode()
+}
+
+var provinces = []string{"Gauteng", "Western Cape", "KwaZulu-Natal", "Eastern Cape", "Free State", "Limpopo", "Mpumalanga", "North West", "Northern Cape"}
+
+// SearchPageComponent is the full results page.
+templ SearchPageComponent(data SearchViewData) {
+	@Layout(searchTitle(data), data.Description, "all", []models.TradeTrend{}, []models.RetailerDeal{}, []models.CommunityGuild{}) {
+		<nav class="tabs" aria-label="Result types">
+			<a href={ templ.SafeURL(searchHref(data, "tab", "")) } { current(data.CurrentTab != "deals")... }>All</a>
+			<a href={ templ.SafeURL(searchHref(data, "tab", "deals")) } { current(data.CurrentTab == "deals")... }>Deals</a>
+			<a href={ templ.SafeURL("/malls?q=" + url.QueryEscape(data.Query)) }>Stores &amp; markets</a>
+		</nav>
+		<div id="results">
+			@SearchResultsGridComponent(data)
+		</div>
+	}
+}
+
+func searchTitle(d SearchViewData) string {
+	if d.Query != "" {
+		return d.Query
+	}
+	if d.Category != "" {
+		return d.Category
+	}
+	return "Search"
+}
+
+// SearchResultsGridComponent is the results body (also returned for HTMX).
 templ SearchResultsGridComponent(data SearchViewData) {
-	<div id="results-grid">
-		<div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200">
-			<div class="text-xs font-semibold text-slate-500">
-				Found <span class="font-bold text-slate-900">{ fmt.Sprintf("%d", len(data.Products)) }</span> matching items
-				if data.Query != "" {
-					<span>{ fmt.Sprintf(" for \"%s\"", data.Query) }</span>
+	{{ sum := summarise(data.Products) }}
+	<div class="results" id="results-grid">
+		<form class="filters" action="/search" method="get" aria-label="Filters" data-autosubmit>
+			<input type="hidden" name="q" value={ data.Query }/>
+			if data.CurrentTab == "deals" {
+				<input type="hidden" name="tab" value="deals"/>
+			}
+			<div class="fgroup">
+				<h3>Sort by</h3>
+				for _, s := range [][2]string{{"", "Relevance"}, {"price_asc", "Price: low to high"}, {"price_desc", "Price: high to low"}} {
+					<label><input type="radio" name="sort" value={ s[0] } checked?={ data.Sort == s[0] } onchange="this.form.requestSubmit()"/>{ s[1] }</label>
 				}
 			</div>
-		</div>
-
-		<!-- MATCHING MERCHANTS & BUSINESSES -->
-		if len(data.MatchingMerchants) > 0 {
-			<div class="mb-6">
-				<div class="flex items-center gap-2 mb-3">
-					<h3 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Matching Businesses &amp; Suppliers</h3>
-					<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">{ fmt.Sprintf("%d Found", len(data.MatchingMerchants)) }</span>
-				</div>
-				<div class="grid grid-cols-1 @sm:grid-cols-2 @3xl:grid-cols-3 gap-3.5">
-					for _, m := range data.MatchingMerchants {
-						<div class="bg-white rounded-2xl border border-slate-200/90 p-4 hover:shadow-md hover:border-emerald-500/50 transition flex flex-col justify-between group">
-							<div>
-								<div class="flex items-start gap-3 mb-2.5">
-									<div class="w-10 h-10 rounded-xl bg-slate-900 text-white font-black text-lg flex items-center justify-center shrink-0 shadow-xs">
-										{ FirstRune(m.Name) }
-									</div>
-									<div class="min-w-0 flex-1">
-										<div class="flex items-center gap-1.5 flex-wrap">
-											<h4 class="font-bold text-slate-900 text-sm truncate flex-1 min-w-0">
-												<a href={ templ.SafeURL(fmt.Sprintf("/m/%s", m.ID)) } class="block truncate hover:text-emerald-600 transition">{ m.Name }</a>
-											</h4>
-										</div>
-										<p class="text-[11px] text-slate-500 truncate">{ m.Address }</p>
-										<div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
-											if m.Rating > 0 && m.ReviewsCount > 0 {
-												<span class="text-amber-500 font-bold">★ { fmt.Sprintf("%.1f", m.Rating) }</span>
-												<span>({ fmt.Sprintf("%d", m.ReviewsCount) })</span>
-											} else {
-												<span class="text-slate-400 font-semibold">New</span>
-											}
-											<span>•</span>
-											<span class="text-emerald-700 font-semibold truncate">{ m.Category }</span>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
-								<a href={ templ.SafeURL(fmt.Sprintf("/m/%s", m.ID)) } class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1">
-									<span>Open Storefront</span>
-									<span>&rarr;</span>
-								</a>
-								if m.WhatsApp != "" {
-									<a href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi%%20%s,%%20I%%20found%%20your%%20business%%20on%%20Shoppage", m.WhatsApp, m.Name)) } target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-bold transition flex items-center gap-1">
-										<span>WhatsApp</span>
-									</a>
-								}
-							</div>
-						</div>
+			<div class="fgroup">
+				<h3>Availability</h3>
+				<label><input type="checkbox" name="in_stock" value="true" checked?={ data.InStockOnly } onchange="this.form.requestSubmit()"/>In stock</label>
+			</div>
+			if len(data.Categories) > 0 {
+				<div class="fgroup">
+					<h3>Category</h3>
+					<label><input type="radio" name="category" value="" checked?={ data.Category == "" } onchange="this.form.requestSubmit()"/>All</label>
+					for _, c := range data.Categories {
+						<label><input type="radio" name="category" value={ c } checked?={ data.Category == c } onchange="this.form.requestSubmit()"/>{ Humanize(c) }</label>
 					}
-				</div>
-			</div>
-		}
-
-		<!-- MATCHING PLACES & SHOPPING CENTRES -->
-		if len(data.MatchingMalls) > 0 {
-			<div class="mb-6">
-				<div class="flex items-center gap-2 mb-3">
-					<h3 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Matching Places &amp; Shopping Centres</h3>
-					<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[10px] font-bold">{ fmt.Sprintf("%d Places", len(data.MatchingMalls)) }</span>
-				</div>
-				<div class="grid grid-cols-1 @sm:grid-cols-2 @3xl:grid-cols-3 gap-3.5">
-					for _, mall := range data.MatchingMalls {
-						<div class="bg-white rounded-2xl border border-slate-200/90 p-4 hover:shadow-md transition flex flex-col justify-between group">
-							<div>
-								<div class="flex items-start gap-3 mb-2.5">
-									<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 text-emerald-400 font-bold text-base flex items-center justify-center shrink-0 shadow-xs">
-										🏬
-									</div>
-									<div class="min-w-0 flex-1">
-										<h4 class="font-bold text-slate-900 text-sm truncate flex-1 min-w-0">
-											<a href={ templ.SafeURL(fmt.Sprintf("/malls/%s", mall.ID)) } class="block truncate hover:text-emerald-600 transition">{ mall.Name }</a>
-										</h4>
-										<p class="text-[11px] text-slate-500 truncate">{ mall.StreetAddress }, { mall.Suburb }</p>
-										<div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
-											if mall.StoreCount > 0 {
-												<span class="font-semibold text-slate-700">{ fmt.Sprintf("%d Stores", mall.StoreCount) }</span>
-												<span>•</span>
-											}
-											<span>{ mall.Metro }, { mall.Province }</span>
-										</div>
-									</div>
-								</div>
-								if len(mall.AnchorTenants) > 0 {
-									<div class="flex items-center gap-1.5 flex-wrap my-2">
-										for _, tenant := range mall.AnchorTenants {
-											<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-medium">{ tenant }</span>
-										}
-									</div>
-								}
-							</div>
-							<div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-								<span class="text-[11px] text-slate-400 font-medium truncate min-w-0">{ mall.MarketType }</span>
-								<a href={ templ.SafeURL(fmt.Sprintf("/malls/%s", mall.ID)) } class="shrink-0 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1">
-									<span>Directory</span>
-									<span>&rarr;</span>
-								</a>
-							</div>
-						</div>
-					}
-				</div>
-			</div>
-		}
-
-		if len(data.Products) == 0 && len(data.MatchingMerchants) == 0 && len(data.MatchingMalls) == 0 {
-			<div class="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center">
-				<div class="text-3xl mb-2">🔍</div>
-				<h3 class="text-base font-bold text-slate-900 mb-1">No products or businesses found</h3>
-				<p class="text-xs text-slate-500 max-w-md mx-auto">
-					Try searching for "Sunsynk", "Deye", "Cement", "Carton", "Mall of Africa", or browsing the Specials tab.
-				</p>
-			</div>
-		} else if len(data.Products) > 0 {
-			if len(data.MatchingMerchants) > 0 || len(data.MatchingMalls) > 0 {
-				<div class="flex items-center gap-2 mb-3 mt-6">
-					<h3 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Matching Products &amp; Catalog Inventory</h3>
-					<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">{ fmt.Sprintf("%d Products", len(data.Products)) }</span>
 				</div>
 			}
-			<div class="grid grid-cols-1 @sm:grid-cols-2 @3xl:grid-cols-3 gap-5">
-				for _, prod := range data.Products {
-					<div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-card hover:shadow-raised hover:-translate-y-0.5 hover:border-emerald-300/70 transition-all duration-300 flex flex-col group relative">
-						<div class="relative w-full h-44 rounded-xl overflow-hidden bg-slate-100 mb-3">
-							<img src={ prod.ImageURL } alt={ prod.Title } class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy" decoding="async" width="320" height="176"/>
-							<div class="absolute top-2 left-2 flex flex-col gap-1">
-								<span class="px-2 py-0.5 rounded-md bg-slate-900/90 text-emerald-400 text-[10px] font-black backdrop-blur-xs flex items-center gap-1 shadow-2xs">
-									<span>🇿🇦</span> <span>Local SA Stock</span>
-								</span>
-								if prod.Verified {
-									<span class="px-2 py-0.5 rounded-md bg-emerald-700 text-white text-[9px] font-bold shadow-2xs">
-										✓ Verified
-									</span>
-								}
-							</div>
-							<span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-bold shadow-2xs">
-								Dispatches 24h
-							</span>
-						</div>
-						<div class="text-[11px] text-emerald-600 font-bold uppercase tracking-wider mb-0.5">{ prod.Brand } · { prod.Category }</div>
-						<h3 class="font-bold text-slate-900 text-sm leading-snug line-clamp-2 mb-2">
-							<a href={ templ.SafeURL(fmt.Sprintf("/p/%s", prod.ID)) } class="hover:text-emerald-600 transition">{ prod.Title }</a>
-						</h3>
-						
-						<!-- Delivery & Collection Pill -->
-						<div class="mb-3 p-2 rounded-xl bg-slate-50 border border-slate-100 text-[11px] text-slate-600 flex items-center justify-between">
-							<span class="flex items-center gap-1 truncate">
-								<span>🏬</span> <span>{ prod.City }</span>
-							</span>
-							<span class="text-emerald-700 font-bold shrink-0">Free Pickup</span>
-						</div>
-
-						<div class="mt-auto pt-3 border-t border-slate-100 space-y-2.5">
-							<div>
-								<div class="text-[10px] text-slate-400">Lowest landed price</div>
-								<div class="text-lg font-black text-slate-900 leading-none whitespace-nowrap">R { FormatZAR(prod.PriceZar) }</div>
-							</div>
-							<div class="flex flex-wrap items-center gap-1.5">
-								<button 
-									type="button"
-									hx-get={ string(templ.SafeURL(fmt.Sprintf("/offer/modal/%s?price=%.2f", prod.ID, prod.PriceZar))) }
-									hx-target="#modal-container"
-									class="shrink-0 px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition cursor-pointer"
-									title="Make a counter-offer"
-								>
-									🤝 Offer
-								</button>
-								<button 
-									type="button"
-									hx-get={ string(templ.SafeURL(fmt.Sprintf("/buybox/%s", prod.ID))) } 
-									hx-target="#buybox-drawer"
-									class="flex-1 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs cursor-pointer whitespace-nowrap"
-								>
-									BuyBox
-								</button>
-							</div>
-						</div>
-					</div>
+			<div class="fgroup">
+				<h3>Province</h3>
+				<label><input type="radio" name="province" value="" checked?={ data.Province == "" } onchange="this.form.requestSubmit()"/>All of South Africa</label>
+				for _, p := range provinces {
+					<label><input type="radio" name="province" value={ p } checked?={ data.Province == p } onchange="this.form.requestSubmit()"/>{ p }</label>
 				}
 			</div>
-		}
+			<noscript><button class="btn btn-outline btn-sm" type="submit">Apply</button></noscript>
+			<!-- Compact chips for narrow screens (filter groups are hidden there) -->
+			<a class="chip narrow" href={ templ.SafeURL(searchHref(data, "sort", "price_asc")) } aria-pressed={ pressed(data.Sort == "price_asc") }>Lowest price</a>
+			<a class="chip narrow" href={ templ.SafeURL(searchHref(data, "in_stock", boolParam(!data.InStockOnly))) } aria-pressed={ pressed(data.InStockOnly) }>In stock</a>
+			for _, c := range firstN(data.Categories, 5) {
+				<a class="chip narrow" href={ templ.SafeURL(searchHref(data, "category", toggle(data.Category, c))) } aria-pressed={ pressed(data.Category == c) }>{ Humanize(c) }</a>
+			}
+		</form>
+		<div style="min-width:0;">
+			<p class="res-meta">
+				if sum.Count > 0 {
+					{ fmt.Sprintf("%d %s", sum.Count, plural(sum.Count, "result", "results")) }
+				} else {
+					No products found
+				}
+				if data.LatencyMs > 0 {
+					<span class="faint">{ fmt.Sprintf("(%.2f seconds)", data.LatencyMs/1000) }</span>
+				}
+			</p>
+			if sum.Count >= 2 && sum.Low > 0 {
+				<section class="overview" aria-label="Summary">
+					<h2>
+						@Ico("spark", 16)
+						Summary
+					</h2>
+					<p>{ summarySentence(sum) }</p>
+					<ul>
+						<li>Lowest price: <a href={ templ.SafeURL("/p/" + sum.LowID) } style="color:var(--link)">{ sum.LowTitle }</a> at R { FormatZAR(sum.Low) }.</li>
+						if sum.InStock > 0 {
+							<li>{ fmt.Sprintf("%d of %d are shown as in stock.", sum.InStock, sum.Count) }</li>
+						}
+					</ul>
+				</section>
+			}
+			if sum.Count > 0 {
+				<div class="tiles">
+					for _, p := range data.Products {
+						@ProductTile(p)
+					}
+				</div>
+			} else if len(data.MatchingMerchants) == 0 && len(data.MatchingMalls) == 0 {
+				<div class="empty">
+					@Ico("search", 40)
+					if data.Query != "" {
+						<h2>No results for "{ data.Query }"</h2>
+					} else {
+						<h2>Search for a product</h2>
+					}
+					<p>Check the spelling, try a more general word, or ask stores directly.</p>
+					<a class="btn btn-brand" href="/?tab=tradewire#compose">Post a request</a>
+				</div>
+			}
+			if len(data.MatchingMerchants) > 0 || len(data.MatchingMalls) > 0 {
+				<h2 style="font-size:20px;margin:28px 0 4px;">Stores and markets</h2>
+				<div class="webres">
+					for _, m := range data.MatchingMerchants {
+						<div>
+							<div class="site-line">
+								<span class="fav" aria-hidden="true">{ FirstRune(m.Name) }</span>
+								<div>
+									{ m.Name }
+									<small>shoppage.co.za › m › { m.ID }</small>
+								</div>
+							</div>
+							<h3><a href={ templ.SafeURL("/m/" + m.ID) }>{ m.Name }{ storeSuffix(m) }</a></h3>
+							<p>{ storeSnippet(m) }</p>
+						</div>
+					}
+					for _, mall := range data.MatchingMalls {
+						<div>
+							<div class="site-line">
+								<span class="fav" aria-hidden="true">
+									@Ico("store", 16)
+								</span>
+								<div>
+									{ mall.Name }
+									<small>{ placeLabel(mall.Suburb, mall.Metro) }</small>
+								</div>
+							</div>
+							<h3><a href={ templ.SafeURL("/malls/" + mall.ID) }>{ mall.Name }</a></h3>
+							<p>
+								{ mall.StreetAddress }
+								if mall.StoreCount > 0 {
+									{ fmt.Sprintf(" · %d stores", mall.StoreCount) }
+								}
+							</p>
+						</div>
+					}
+				</div>
+			}
+		</div>
 	</div>
 }
 
-templ SearchPageComponent(data SearchViewData) {
-	@Layout(data.Title, data.Description, data.CurrentTab, []models.TradeTrend{}, []models.RetailerDeal{}, []models.CommunityGuild{}) {
-		<main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-			<!-- Top Search Bar -->
-			<div class="mb-6 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs">
-				<form action="/search" method="GET" class="relative flex items-center w-full group">
-					<!-- Magnifying Glass Icon (Explicit inline positioning to guarantee rendering) -->
-					<div style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; pointer-events: none; z-index: 10; color: #059669;">
-						<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
-							<circle cx="11" cy="11" r="7"></circle>
-							<path stroke-linecap="round" d="M21 21l-4.35-4.35"></path>
-						</svg>
-					</div>
-
-					<input 
-						type="text" 
-						name="q" 
-						value={ data.Query }
-						placeholder="Search 1,000,000+ products, inverters, boxes, cement, specials..."
-						style="padding-left: 44px; padding-right: 96px;"
-						class="w-full bg-slate-100 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-500 rounded-full py-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 outline-none transition shadow-xs"
-						autocomplete="off"
-					/>
-
-					<!-- Right Search Button -->
-					<div style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 6px; z-index: 10;">
-						<button 
-							type="submit" 
-							class="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5 cursor-pointer"
-							title="Search Shoppage"
-						>
-							<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
-								<circle cx="11" cy="11" r="7"></circle>
-								<path stroke-linecap="round" d="M21 21l-4.35-4.35"></path>
-							</svg>
-							<span>Search</span>
-						</button>
-					</div>
-				</form>
-			</div>
-
-			<div class="flex flex-col md:flex-row gap-6">
-				<!-- Left Filter Facets Sidebar -->
-				<aside class="w-full md:w-64 shrink-0 space-y-6">
-					<div class="bg-white rounded-2xl border border-slate-200 p-5 sticky top-28">
-						<h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-3">Search Mode</h3>
-						<div class="space-y-2 text-xs font-medium">
-							<label class="flex items-center gap-2 cursor-pointer">
-								<input 
-									type="radio" 
-									name="tab" 
-									value="all" 
-									checked?={ data.CurrentTab == "" || data.CurrentTab == "all" }
-									hx-get="/search" 
-									hx-target="#results-grid" 
-									hx-include="[name='q']" 
-									class="text-emerald-600"
-								/>
-								<span>All Products</span>
-							</label>
-							<label class="flex items-center gap-2 cursor-pointer">
-								<input 
-									type="radio" 
-									name="tab" 
-									value="deals" 
-									checked?={ data.CurrentTab == "deals" }
-									hx-get="/search" 
-									hx-target="#results-grid" 
-									hx-include="[name='q']" 
-									class="text-emerald-600"
-								/>
-								<span class="text-rose-600 font-bold">🔥 Retailer Specials</span>
-							</label>
-						</div>
-
-						<h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mt-6 mb-3">Categories</h3>
-						<div class="space-y-2 text-xs font-medium">
-							<label class="flex items-center gap-2 cursor-pointer">
-								<input 
-									type="radio" 
-									name="category" 
-									value="" 
-									checked?={ data.Category == "" }
-									hx-get="/search" 
-									hx-target="#results-grid" 
-									hx-include="[name='q']" 
-									class="text-emerald-600"
-								/>
-								<span>All Categories</span>
-							</label>
-							<label class="flex items-center gap-2 cursor-pointer">
-								<input 
-									type="radio" 
-									name="category" 
-									value="solar" 
-									checked?={ data.Category == "solar" }
-									hx-get="/search" 
-									hx-target="#results-grid" 
-									hx-include="[name='q']" 
-									class="text-emerald-600"
-								/>
-								<span>Solar &amp; Power</span>
-							</label>
-							<label class="flex items-center gap-2 cursor-pointer">
-								<input 
-									type="radio" 
-									name="category" 
-									value="packaging" 
-									checked?={ data.Category == "packaging" }
-									hx-get="/search" 
-									hx-target="#results-grid" 
-									hx-include="[name='q']" 
-									class="text-emerald-600"
-								/>
-								<span>Packaging &amp; Cartons</span>
-							</label>
-							<label class="flex items-center gap-2 cursor-pointer">
-								<input 
-									type="radio" 
-									name="category" 
-									value="hardware" 
-									checked?={ data.Category == "hardware" }
-									hx-get="/search" 
-									hx-target="#results-grid" 
-									hx-include="[name='q']" 
-									class="text-emerald-600"
-								/>
-								<span>Building &amp; Hardware</span>
-							</label>
-						</div>
-
-						<h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mt-6 mb-3">Province</h3>
-						<div class="space-y-2 text-xs font-medium">
-							<label class="flex items-center gap-2 cursor-pointer">
-								<input 
-									type="radio" 
-									name="province" 
-									value="" 
-									checked?={ data.Province == "" }
-									hx-get="/search" 
-									hx-target="#results-grid" 
-									hx-include="[name='q']" 
-									class="text-emerald-600"
-								/>
-								<span>Nationwide (All SA)</span>
-							</label>
-							<label class="flex items-center gap-2 cursor-pointer">
-								<input 
-									type="radio" 
-									name="province" 
-									value="Gauteng" 
-									checked?={ data.Province == "Gauteng" }
-									hx-get="/search" 
-									hx-target="#results-grid" 
-									hx-include="[name='q']" 
-									class="text-emerald-600"
-								/>
-								<span>Gauteng</span>
-							</label>
-							<label class="flex items-center gap-2 cursor-pointer">
-								<input 
-									type="radio" 
-									name="province" 
-									value="Western Cape" 
-									checked?={ data.Province == "Western Cape" }
-									hx-get="/search" 
-									hx-target="#results-grid" 
-									hx-include="[name='q']" 
-									class="text-emerald-600"
-								/>
-								<span>Western Cape</span>
-							</label>
-							<label class="flex items-center gap-2 cursor-pointer">
-								<input 
-									type="radio" 
-									name="province" 
-									value="KwaZulu-Natal" 
-									checked?={ data.Province == "KwaZulu-Natal" }
-									hx-get="/search" 
-									hx-target="#results-grid" 
-									hx-include="[name='q']" 
-									class="text-emerald-600"
-								/>
-								<span>KwaZulu-Natal</span>
-							</label>
-						</div>
-					</div>
-				</aside>
-
-				<!-- Main Results Grid Area -->
-				<div class="flex-1 min-w-0 @container">
-					@SearchResultsGridComponent(data)
-				</div>
-			</div>
-		</main>
+func boolParam(b bool) string {
+	if b {
+		return "true"
 	}
+	return ""
+}
+
+func toggle(cur, v string) string {
+	if cur == v {
+		return ""
+	}
+	return v
+}
+
+func plural(n int, one, many string) string {
+	if n == 1 {
+		return one
+	}
+	return many
+}
+
+func storeSuffix(m models.MerchantStorefront) string {
+	if m.City != "" {
+		return " — " + m.City
+	}
+	return ""
+}
+
+func storeSnippet(m models.MerchantStorefront) string {
+	if m.AboutText != "" {
+		r := []rune(m.AboutText)
+		if len(r) > 180 {
+			return string(r[:180]) + "…"
+		}
+		return m.AboutText
+	}
+	s := m.Category
+	if m.Address != "" {
+		s += " · " + m.Address
+	}
+	if n := len(m.Catalog); n > 0 {
+		s += fmt.Sprintf(" · %d products", n)
+	}
+	return s
+}
+
+func summarySentence(s searchSummary) string {
+	out := fmt.Sprintf("Prices range from R %s to R %s", FormatZAR(s.Low), FormatZAR(s.High))
+	if s.Median > 0 && s.Median != s.Low && s.Median != s.High {
+		out += fmt.Sprintf(", with most around R %s", FormatZARWhole(s.Median))
+	}
+	return out + "."
 }

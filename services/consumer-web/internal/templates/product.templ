@@ -1,275 +1,331 @@
 package templates
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/url"
+	"sort"
+	"strings"
+
 	"github.com/shoppage/consumer-web/internal/models"
 )
 
+// productJSONLD builds schema.org Product data from the record, so search
+// engines and AI assistants read real values (the old template emitted the
+// literal text "{ data.Product.Title }").
+func productJSONLD(p models.ProductDetail) string {
+	offers := map[string]any{
+		"@type":         "AggregateOffer",
+		"priceCurrency": "ZAR",
+		"offerCount":    len(p.Offers),
+	}
+	low, high := 0.0, 0.0
+	inStock := false
+	for _, o := range p.Offers {
+		if o.PriceZar > 0 && (low == 0 || o.PriceZar < low) {
+			low = o.PriceZar
+		}
+		if o.PriceZar > high {
+			high = o.PriceZar
+		}
+		inStock = inStock || o.InStock
+	}
+	if low == 0 {
+		low = p.LowestOfferPrice
+	}
+	if low > 0 {
+		offers["lowPrice"] = fmt.Sprintf("%.2f", low)
+	}
+	if high > 0 {
+		offers["highPrice"] = fmt.Sprintf("%.2f", high)
+	}
+	if len(p.Offers) > 0 {
+		if inStock {
+			offers["availability"] = "https://schema.org/InStock"
+		} else {
+			offers["availability"] = "https://schema.org/OutOfStock"
+		}
+	}
+	doc := map[string]any{
+		"@context":    "https://schema.org/",
+		"@type":       "Product",
+		"name":        p.Title,
+		"description": p.Description,
+		"sku":         p.Model,
+		"offers":      offers,
+	}
+	if p.ImageURL != "" {
+		doc["image"] = append([]string{p.ImageURL}, p.Gallery...)
+	}
+	if p.Brand != "" {
+		doc["brand"] = map[string]string{"@type": "Brand", "name": p.Brand}
+	}
+	if p.Category != "" {
+		doc["category"] = p.Category
+	}
+	b, _ := json.Marshal(doc)
+	// Keep "</script>" from ever closing the tag early.
+	return strings.ReplaceAll(string(b), "</", "<\\/")
+}
+
+// sortedOffers orders offers cheapest first.
+func sortedOffers(p models.ProductDetail) []models.MerchantOffer {
+	out := append([]models.MerchantOffer(nil), p.Offers...)
+	sort.SliceStable(out, func(a, b int) bool {
+		if out[a].PriceZar <= 0 {
+			return false
+		}
+		if out[b].PriceZar <= 0 {
+			return true
+		}
+		return out[a].PriceZar < out[b].PriceZar
+	})
+	return out
+}
+
+func lowestPrice(p models.ProductDetail) float64 {
+	if o := sortedOffers(p); len(o) > 0 && o[0].PriceZar > 0 {
+		return o[0].PriceZar
+	}
+	return p.LowestOfferPrice
+}
+
+func sortedSpecs(m map[string]string) [][2]string {
+	var out [][2]string
+	for k, v := range m {
+		if strings.TrimSpace(v) != "" {
+			out = append(out, [2]string{k, v})
+		}
+	}
+	sort.Slice(out, func(a, b int) bool { return out[a][0] < out[b][0] })
+	return out
+}
+
+func offerMessage(p models.ProductDetail, o models.MerchantOffer) string {
+	return fmt.Sprintf("Hi %s, I found %s on Shoppage for R %s. Is it available?", o.MerchantName, p.Title, FormatZAR(o.PriceZar))
+}
+
+func offerPlace(o models.MerchantOffer) string {
+	return placeLabel(o.City, o.Province)
+}
+
 templ ProductDetailComponent(data ProductViewData) {
 	@Layout(data.Title, data.Description, data.CurrentTab, []models.TradeTrend{}, []models.RetailerDeal{}, []models.CommunityGuild{}) {
-		<!-- Schema.org JSON-LD Structured Data for Googlebot & Rich Snippets -->
 		<script type="application/ld+json">
-		{
-			"@context": "https://schema.org/",
-			"@type": "Product",
-			"name": "{ data.Product.Title }",
-			"image": "{ data.Product.ImageURL }",
-			"description": "{ data.Product.Description }",
-			"brand": {
-				"@type": "Brand",
-				"name": "{ data.Product.Brand }"
-			},
-			"offers": {
-				"@type": "AggregateOffer",
-				"priceCurrency": "ZAR",
-				"lowPrice": "{ fmt.Sprintf("%.2f", data.Product.LowestOfferPrice) }",
-				"offerCount": "{ fmt.Sprintf("%d", len(data.Product.Offers)) }",
-				"availability": "https://schema.org/InStock",
-				"itemCondition": "https://schema.org/NewCondition"
-			}
-		}
+			@templ.Raw(productJSONLD(data.Product))
 		</script>
-
-		<main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<div class="text-xs font-medium text-slate-500 mb-6 flex items-center gap-2">
-				<a href="/" class="hover:text-emerald-600">Home</a> <span>/</span>
-				<a href={ templ.SafeURL(fmt.Sprintf("/search?category=%s", data.Product.Category)) } class="hover:text-emerald-600">{ data.Product.Category }</a> <span>/</span>
-				<span class="text-slate-900 font-bold truncate">{ data.Product.Title }</span>
-			</div>
-
-			<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
-				<!-- Left Column: Product Gallery & Overview -->
-				<div class="lg:col-span-7 space-y-6">
-					<div class="bg-white rounded-3xl border border-slate-200 p-6 flex items-center justify-center overflow-hidden relative">
-						<img src={ data.Product.ImageURL } alt={ data.Product.Title } class="max-h-96 w-full object-contain"/>
-						<div class="absolute top-4 left-4 flex flex-col gap-1.5">
-							<span class="px-2.5 py-1 rounded-lg bg-slate-900 text-emerald-400 text-xs font-black flex items-center gap-1 shadow-sm">
-								<span>🇿🇦</span> <span>In Stock in South Africa</span>
-							</span>
-							<span class="px-2.5 py-0.5 rounded-lg bg-emerald-700 text-white text-[10px] font-bold shadow-xs">
-								Registered Wholesaler
-							</span>
-						</div>
-						<span class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-emerald-500 text-white text-xs font-bold shadow-xs">
-							Dispatches in 24h
+		{{ p := data.Product }}
+		{{ offers := sortedOffers(p) }}
+		<nav class="crumbs" aria-label="Breadcrumb">
+			<a href="/">Home</a>
+			if p.Category != "" {
+				@Ico("chev", 14)
+				<a href={ templ.SafeURL("/search?category=" + url.QueryEscape(p.Category)) }>{ Humanize(p.Category) }</a>
+			}
+		</nav>
+		<div class="pdp">
+			<div class="gallery">
+				<div class="main-img">
+					if p.ImageURL != "" {
+						<img data-main-img src={ p.ImageURL } alt={ p.Title } width="600" height="600"/>
+					} else {
+						<span class="faint">
+							@Ico("bag", 64)
 						</span>
-					</div>
-
-					<!-- Delivery Options Estimator -->
-					<div class="bg-white rounded-3xl border border-slate-200 p-6">
-						<h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2">
-							<span>📦</span> <span>Transparent Delivery &amp; Pickup Options</span>
-						</h3>
-						<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-							<div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between">
-								<div>
-									<div class="text-lg mb-1">🏬</div>
-									<div class="font-bold text-slate-900">Mall Collection</div>
-									<div class="text-[11px] text-slate-500 mt-0.5">Collect at nearest trade counter</div>
-								</div>
-								<div class="mt-2 text-emerald-700 font-black text-sm">FREE</div>
-							</div>
-							<div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between">
-								<div>
-									<div class="text-lg mb-1">📦</div>
-									<div class="font-bold text-slate-900">Pudo Smart Locker</div>
-									<div class="text-[11px] text-slate-500 mt-0.5">Engen &amp; mall lockers nationwide</div>
-								</div>
-								<div class="mt-2 text-slate-900 font-black text-sm">R 60.00</div>
-							</div>
-							<div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between">
-								<div>
-									<div class="text-lg mb-1">🚚</div>
-									<div class="font-bold text-slate-900">Door Courier</div>
-									<div class="text-[11px] text-slate-500 mt-0.5">The Courier Guy (1–2 days)</div>
-								</div>
-								<div class="mt-2 text-slate-900 font-black text-sm">R 85.00</div>
-							</div>
-						</div>
-					</div>
-
-					<!-- Product Overview & Specs -->
-					<div class="bg-white rounded-3xl border border-slate-200 p-6">
-						<h2 class="text-lg font-black text-slate-900 mb-3">Product Overview</h2>
-						<p class="text-sm text-slate-600 leading-relaxed">{ data.Product.Description }</p>
-						<h3 class="text-sm font-black text-slate-900 mt-6 mb-3 uppercase tracking-wider">Specifications</h3>
-						<div class="grid grid-cols-2 gap-3 text-xs">
-							for key, val := range data.Product.Specs {
-								<div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
-									<span class="text-slate-400 block">{ key }</span>
-									<span class="font-bold text-slate-800">{ val }</span>
-								</div>
-							}
-						</div>
-					</div>
+					}
 				</div>
-
-				<!-- Right Column: BuyBox, Offers, Wholesale Tiers -->
-				<div class="lg:col-span-5 space-y-6">
-					<div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm sticky top-28">
-						<div class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">{ data.Product.Brand } · { data.Product.Model }</div>
-						<h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug mb-3">
-							{ data.Product.Title }
-						</h1>
-						
-						<div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200/80 mb-3">
-							<div class="text-xs text-emerald-800 font-medium">Lowest Landed Price in South Africa</div>
-							<div class="text-3xl font-black text-emerald-950 mt-1">R { FormatZAR(data.Product.LowestOfferPrice) }</div>
-						</div>
-
-						<!-- Amazon-Style Instant Checkout CTA -->
-						<button 
-							type="button" 
-							onclick="document.getElementById('instant-checkout-modal')?.showModal();"
-							class="w-full mb-5 py-3 px-4 rounded-2xl bg-slate-900 hover:bg-black text-white font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-sm cursor-pointer"
-						>
-							<span>⚡ Instant Checkout</span>
-							<span class="text-emerald-400 font-normal">· Ozow / Capitec Pay / Card</span>
-						</button>
-
-						<!-- Wholesale Volume Tiers Table -->
-						if len(data.Product.VolumeTiers) > 0 {
-							<div class="mb-5 p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80">
-								<div class="text-xs font-black text-slate-900 uppercase tracking-wider mb-2 flex items-center justify-between">
-									<span>📊 Wholesale Volume Pricing</span>
-									<span class="text-[10px] text-emerald-700 font-bold">Buy in Bulk &amp; Save</span>
-								</div>
-								<div class="space-y-1.5 text-xs">
-									for _, tier := range data.Product.VolumeTiers {
-										<div class="flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200/60 font-semibold">
-											<span class="text-slate-700">{ tier.Label }</span>
-											<div class="text-right">
-												<span class="font-black text-slate-900">R { FormatZAR(tier.PriceZar) }</span>
-												if tier.DiscountPct > 0 {
-													<span class="ml-1 text-[10px] text-emerald-700 font-bold">(-{ fmt.Sprintf("%d", tier.DiscountPct) }%)</span>
-												}
-											</div>
-										</div>
-									}
-								</div>
-							</div>
+				if len(p.Gallery) > 0 {
+					<div class="thumbs" role="group" aria-label="Photos">
+						<button type="button" data-thumb={ p.ImageURL } aria-pressed="true"><img src={ p.ImageURL } alt="Photo 1"/></button>
+						for i, g := range p.Gallery {
+							<button type="button" data-thumb={ g } aria-pressed="false"><img src={ g } alt={ fmt.Sprintf("Photo %d", i+2) } loading="lazy"/></button>
 						}
-
-						<h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-3">
-							Verified Merchant Offers ({ fmt.Sprintf("%d", len(data.Product.Offers)) })
-						</h3>
-						<div class="space-y-3">
-							for _, offer := range data.Product.Offers {
-								<div class={ "p-3.5 rounded-2xl border transition flex flex-col gap-2", templ.KV("border-emerald-500 bg-emerald-50/20 shadow-xs", offer.IsBuyBoxWinner), templ.KV("border-slate-200 hover:border-emerald-400", !offer.IsBuyBoxWinner) }>
-									if offer.IsBuyBoxWinner {
-										<div class="px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-900 text-[10.5px] font-extrabold flex items-center justify-between">
-											<span class="flex items-center gap-1">
-												<span>🏆</span> <span>Buy Box Winner · Best Value Supplier</span>
-											</span>
-											<span class="font-mono text-[10px]">Ranked #1</span>
-										</div>
-									}
-									<div class="flex items-start justify-between gap-3">
-										<div>
-											<div class="font-bold text-sm text-slate-900 flex items-center gap-1.5 flex-wrap">
-												{ offer.MerchantName }
-											</div>
-											<div class="text-xs text-slate-500 mt-0.5">
-												<span>📍 { offer.City }</span>
-												if offer.Trust != nil {
-													<span class="text-emerald-700 font-semibold ml-1">· Replies { offer.Trust.ResponseTime }</span>
-												}
-											</div>
-										</div>
-										<div class="text-right shrink-0">
-											<div class="text-base font-black text-slate-900">R { FormatZAR(offer.PriceZar) }</div>
-											<div class="text-[10px] text-emerald-700 font-bold">🟢 Floor Stock Ready</div>
-										</div>
-									</div>
-
-									<!-- Action Buttons: WhatsApp + Make an Offer -->
-									<div class="pt-2 border-t border-slate-100 flex items-center gap-2">
-										<a 
-											href={ templ.SafeURL(fmt.Sprintf("https://wa.me/%s?text=Hi,%%20I'm%%20inquiring%%20about%%20%s%%20listed%%20on%%20Shoppage%%20for%%20R%.2f", offer.WhatsApp, data.Product.Title, offer.PriceZar)) } 
-											target="_blank"
-											class="flex-1 inline-flex items-center justify-center gap-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-2xs cursor-pointer"
-										>
-											<span>💬 WhatsApp Quote</span>
-										</a>
-										<!-- Make an Offer -->
-										<button 
-											type="button"
-											hx-get={ string(templ.SafeURL(fmt.Sprintf("/offer/modal/%s?price=%.2f&merchant=%s", data.Product.CanonicalID, offer.PriceZar, offer.MerchantID))) }
-											hx-target="#modal-container"
-											class="py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition cursor-pointer"
-										>
-											🤝 Make Offer
-										</button>
-									</div>
+					</div>
+				}
+			</div>
+			<div>
+				if p.Brand != "" {
+					<div class="brand-line">{ p.Brand }</div>
+				}
+				<h1>{ p.Title }</h1>
+				<div class="price-big num">
+					if lowestPrice(p) > 0 {
+						R { FormatZAR(lowestPrice(p)) }
+					} else {
+						Price on request
+					}
+				</div>
+				<div class="price-sub">
+					if len(offers) > 1 {
+						{ fmt.Sprintf("Lowest of %d stores", len(offers)) }
+					} else if len(offers) == 1 {
+						From { offers[0].MerchantName }
+					}
+				</div>
+				<div class="facts">
+					if p.IsLocalSAStock {
+						<span class="fact ok">
+							@Ico("check", 14)
+							Stocked in South Africa
+						</span>
+					}
+					for _, d := range p.DeliveryOptions {
+						<span class="fact">
+							@Ico("truck", 14)
+							{ d.Label }
+							if d.CostDisplay != "" {
+								· { d.CostDisplay }
+							}
+						</span>
+					}
+				</div>
+				<div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px;">
+					if len(offers) > 0 && offers[0].WhatsApp != "" {
+						<a class="btn btn-brand" target="_blank" rel="noopener" href={ templ.SafeURL("https://wa.me/" + offers[0].WhatsApp + "?text=" + url.QueryEscape(offerMessage(p, offers[0]))) }>
+							@Ico("wa", 18)
+							Ask { offers[0].MerchantName }
+						</a>
+					}
+					<button type="button" class="btn btn-outline" onclick="document.getElementById('reserve-modal').showModal()">Reserve</button>
+					<button type="button" class="icon-btn" aria-label="Share" onclick="navigator.share ? navigator.share({title: document.title, url: location.href}) : navigator.clipboard.writeText(location.href)">
+						@Ico("share", 20)
+					</button>
+				</div>
+				<section class="compare" aria-labelledby="compare-h">
+					<h2 id="compare-h">
+						Compare prices
+						<small>{ fmt.Sprintf("%d %s", len(offers), plural(len(offers), "store", "stores")) }</small>
+					</h2>
+					if len(offers) == 0 {
+						<p class="muted" style="padding:14px 16px;margin:0;">No store has listed a price yet. Post a request and stores can quote you.</p>
+					}
+					for i, o := range offers {
+						<div class="offer">
+							<div class="who">
+								{ o.MerchantName }
+								if i == 0 && len(offers) > 1 && o.PriceZar > 0 {
+									<span class="best">Lowest price</span>
+								}
+							</div>
+							<div class="p num">
+								if o.PriceZar > 0 {
+									R { FormatZAR(o.PriceZar) }
+								} else {
+									On request
+								}
+							</div>
+							<div class="det">{ offerDetail(o) }</div>
+							<div class="go">
+								if o.WhatsApp != "" {
+									<a class="btn btn-outline btn-sm" target="_blank" rel="noopener" href={ templ.SafeURL("https://wa.me/" + o.WhatsApp + "?text=" + url.QueryEscape(offerMessage(p, o))) }>Contact</a>
+								}
+								<button class="btn btn-ghost btn-sm" type="button" hx-get={ fmt.Sprintf("/offer/modal/%s?price=%.2f&merchant=%s", url.PathEscape(p.CanonicalID), o.PriceZar, url.QueryEscape(o.MerchantID)) } hx-target="#modal-container">Make an offer</button>
+							</div>
+						</div>
+					}
+				</section>
+				if len(p.VolumeTiers) > 0 {
+					<section style="margin-top:20px;">
+						<h2 style="font-size:16px;font-family:var(--font);margin:0 0 8px;">Buy in bulk</h2>
+						<div class="tiers">
+							for _, t := range p.VolumeTiers {
+								<div>
+									<span>{ t.Label }</span>
+									<b class="num">
+										R { FormatZAR(t.PriceZar) }
+										if t.DiscountPct > 0 {
+											<span style="color:var(--brand-ink);font-weight:600;">{ fmt.Sprintf(" −%d%%", t.DiscountPct) }</span>
+										}
+									</b>
 								</div>
 							}
 						</div>
-					</div>
-				</div>
+					</section>
+				}
 			</div>
-		</main>
-
-		<!-- Instant Automated Checkout Modal (Amazon / Ozow Parity) -->
-		<dialog id="instant-checkout-modal" class="p-0 rounded-3xl backdrop:bg-slate-900/60 border border-slate-200 shadow-2xl max-w-lg w-full">
-			<div class="p-6 bg-white">
-				<div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
-					<div>
-						<h3 class="text-base font-black text-slate-900">Instant Automated Settlement</h3>
-						<div class="text-xs text-slate-500">Fast B2B payment via Ozow Instant EFT or Card</div>
-					</div>
-					<button type="button" onclick="document.getElementById('instant-checkout-modal')?.close();" class="text-slate-400 hover:text-slate-700 text-lg font-bold cursor-pointer">&times;</button>
-				</div>
-
-				<div id="checkout-result-stage">
-					<form hx-post="/checkout/instant" hx-target="#checkout-result-stage">
-						<input type="hidden" name="product_title" value={ data.Product.Title } />
-						<input type="hidden" name="sku" value={ data.Product.Model } />
-						<input type="hidden" name="unit_price" value={ fmt.Sprintf("%.2f", data.Product.LowestOfferPrice) } />
-
-						<div class="space-y-4 text-xs">
-							<div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
-								<div>
-									<div class="font-bold text-slate-900">{ data.Product.Title }</div>
-									<div class="text-slate-500 text-[11px]">R { FormatZAR(data.Product.LowestOfferPrice) } / unit</div>
-								</div>
-								<div class="flex items-center gap-2">
-									<label class="text-slate-500 font-semibold">Qty:</label>
-									<input type="number" name="quantity" value="1" min="1" class="w-14 px-2 py-1 border border-slate-300 rounded-lg text-center font-bold" />
-								</div>
-							</div>
-
-							<div>
-								<label class="block font-bold text-slate-700 mb-1">Select Payment Gateway</label>
-								<select name="payment_method" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-medium">
-									<option value="Ozow Instant EFT">Ozow Instant EFT (Standard Bank / Capitec / FNB / Absa / Nedbank)</option>
-									<option value="Capitec Pay">Capitec Pay (Instant Phone Push Authorisation)</option>
-									<option value="Visa / Mastercard">Credit / Debit Card (3D Secure 2.0)</option>
-								</select>
-							</div>
-
-							<div class="grid grid-cols-2 gap-3">
-								<div>
-									<label class="block font-bold text-slate-700 mb-1">Buyer Full Name</label>
-									<input type="text" name="buyer_name" value="Sipho Dlamini" class="w-full px-3 py-2 rounded-xl border border-slate-200" required />
-								</div>
-								<div>
-									<label class="block font-bold text-slate-700 mb-1">Contact Phone</label>
-									<input type="text" name="buyer_phone" value="082 901 2345" class="w-full px-3 py-2 rounded-xl border border-slate-200" required />
-								</div>
-							</div>
-
-							<div>
-								<label class="block font-bold text-slate-700 mb-1">Delivery Address</label>
-								<input type="text" name="delivery_address" value="Sandton Central, Johannesburg, 2196" class="w-full px-3 py-2 rounded-xl border border-slate-200" required />
-							</div>
-
-							<button type="submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-md transition cursor-pointer">
-								Pay &amp; Authorize Instant Settlement (ZAR)
-							</button>
+		</div>
+		if p.Description != "" || len(p.Specs) > 0 {
+			<section class="section" style="border-top:1px solid var(--line);">
+				<div class="pdp" style="padding:0;">
+					if p.Description != "" {
+						<div>
+							<h2 style="font-size:20px;margin:0 0 8px;">About this product</h2>
+							<p style="margin:0;color:var(--ink-2);">{ p.Description }</p>
 						</div>
-					</form>
+					}
+					if len(p.Specs) > 0 {
+						<div>
+							<h2 style="font-size:20px;margin:0 0 8px;">Specifications</h2>
+							<dl class="kv">
+								for _, kv := range sortedSpecs(p.Specs) {
+									<dt>{ kv[0] }</dt>
+									<dd>
+										if kv[0] == "Category" {
+											{ Humanize(kv[1]) }
+										} else if strings.HasPrefix(kv[1], "http") {
+											<a href={ templ.SafeURL(kv[1]) } target="_blank" rel="noopener nofollow" style="color:var(--link)">Retailer page</a>
+										} else {
+											{ kv[1] }
+										}
+									</dd>
+								}
+							</dl>
+						</div>
+					}
 				</div>
-			</div>
-		</dialog>
+			</section>
+		}
+		@ReserveDialog(p)
 	}
+}
+
+// ReserveDialog asks the store to hold the item. It is a reservation: no
+// payment is taken on Shoppage, and the page says so.
+templ ReserveDialog(p models.ProductDetail) {
+	<dialog id="reserve-modal" style="border:0;border-radius:var(--r-xl);padding:0;max-width:480px;width:calc(100% - 32px);background:var(--bg);color:var(--ink);box-shadow:var(--shadow-pop);">
+		<div id="checkout-result-stage" style="padding:20px;">
+			<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+				<h2 style="font-size:20px;margin:0;flex:1;">Reserve this item</h2>
+				<button type="button" class="icon-btn" aria-label="Close" onclick="this.closest('dialog').close()">
+					@Ico("x", 20)
+				</button>
+			</div>
+			<p class="muted" style="margin:0 0 14px;font-size:14px;">The store confirms availability and how you'd like to pay and receive it. Nothing is charged on Shoppage.</p>
+			<form hx-post="/checkout/instant" hx-target="#checkout-result-stage" style="display:grid;gap:12px;">
+				<input type="hidden" name="product_title" value={ p.Title }/>
+				<input type="hidden" name="sku" value={ p.Model }/>
+				<input type="hidden" name="unit_price" value={ fmt.Sprintf("%.2f", lowestPrice(p)) }/>
+				<label style="display:grid;gap:4px;font-size:14px;font-weight:600;">
+					Quantity
+					<input class="chip" style="height:42px;width:100%;" type="number" name="quantity" value="1" min="1" required/>
+				</label>
+				<label style="display:grid;gap:4px;font-size:14px;font-weight:600;">
+					Your name
+					<input class="chip" style="height:42px;width:100%;" type="text" name="buyer_name" autocomplete="name" required/>
+				</label>
+				<label style="display:grid;gap:4px;font-size:14px;font-weight:600;">
+					Phone or WhatsApp
+					<input class="chip" style="height:42px;width:100%;" type="tel" name="phone" autocomplete="tel" required/>
+				</label>
+				<label style="display:grid;gap:4px;font-size:14px;font-weight:600;">
+					Delivery address (optional)
+					<input class="chip" style="height:42px;width:100%;" type="text" name="delivery_address" autocomplete="street-address"/>
+				</label>
+				<button type="submit" class="btn btn-brand btn-lg">Send reservation</button>
+			</form>
+		</div>
+	</dialog>
+}
+
+func offerDetail(o models.MerchantOffer) string {
+	stock, when := "", ""
+	if o.InStock {
+		stock = "In stock"
+	}
+	if o.PickupAvailable && o.PickupTime != "" {
+		when = "Collect: " + o.PickupTime
+	} else if o.LeadTimeDays > 0 {
+		when = fmt.Sprintf("Ready in %d %s", o.LeadTimeDays, plural(o.LeadTimeDays, "day", "days"))
+	}
+	return joinDot(offerPlace(o), stock, when)
 }

@@ -254,6 +254,8 @@ func main() {
 	// PWA Manifest, Favicon and Service Worker
 	r.Get("/manifest.json", h.HandleManifest)
 	r.Get("/sw.js", h.HandleServiceWorker)
+	r.Get("/opensearch.xml", h.HandleOpenSearch)
+	r.Get("/buyer-protection", h.HandleBuyerProtection)
 	r.Get("/favicon.ico", h.HandleFavicon)
 	r.Get("/favicon.svg", h.HandleFavicon)
 	r.Get("/favicon.png", h.HandleFavicon)
@@ -288,7 +290,7 @@ func main() {
 	for _, p := range []string{"/login", "/auth", "/merchant", "/tab", "/orders", "/catalog", "/inventory",
 		"/rfqs", "/pos", "/scan", "/feeds", "/settings", "/channels", "/discounts", "/transfers",
 		"/manifests", "/media", "/editor", "/copilot", "/audit-logs", "/flow", "/rma",
-		"/customers", "/search", "/undo", "/merchant-static"} {
+		"/customers", "/undo", "/merchant-static"} {
 		r.Mount(p, merchantAsIs)
 	}
 	r.Post("/chat/send", merchantAsIs.ServeHTTP)
