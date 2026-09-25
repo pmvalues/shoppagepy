@@ -61,7 +61,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("Today: %d %s, %s", n, Plural(n, "sale", "sales"), ZAR(total)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 31, Col: 82}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 31, Col: 82}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -79,7 +79,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.SKU)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 53, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 53, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -92,7 +92,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 54, Col: 29}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 54, Col: 29}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
@@ -105,7 +105,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.2f", item.WholesaleZar))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 55, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 55, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
@@ -118,7 +118,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(item.StockQuantity))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 56, Col: 49}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 56, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -131,7 +131,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Spec.Barcode)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 57, Col: 38}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 57, Col: 38}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
@@ -154,7 +154,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(item.SKU)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 60, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 60, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -167,7 +167,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(item.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 61, Col: 70}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 61, Col: 70}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -180,7 +180,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(ZAR(item.WholesaleZar))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 63, Col: 78}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 63, Col: 78}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -203,7 +203,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(Int(item.StockQuantity))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 67, Col: 64}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 67, Col: 64}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -236,7 +236,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.2f", c.DiscountPct))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 98, Col: 58}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 98, Col: 58}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 				if templ_7745c5c3_Err != nil {
@@ -249,7 +249,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(c.Code)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 98, Col: 69}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 98, Col: 69}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -262,7 +262,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%% off", c.DiscountPct))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 98, Col: 117}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 98, Col: 117}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -290,7 +290,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(c.Company)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 109, Col: 33}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 109, Col: 33}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 			if templ_7745c5c3_Err != nil {
@@ -323,7 +323,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(t.ReceiptNumber)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 148, Col: 42}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 148, Col: 42}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
@@ -336,7 +336,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(LocalDateTime(t.Timestamp))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 149, Col: 71}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 149, Col: 71}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 				if templ_7745c5c3_Err != nil {
@@ -349,7 +349,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(Ago(t.Timestamp, data.Metrics.Now))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 149, Col: 110}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 149, Col: 110}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -362,7 +362,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var19 string
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(t.Customer)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 150, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 150, Col: 24}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 				if templ_7745c5c3_Err != nil {
@@ -375,7 +375,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var20 string
 				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(t.PaymentMethod)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 151, Col: 29}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 151, Col: 29}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {
@@ -388,7 +388,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var21 string
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(len(t.Items)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 152, Col: 52}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 152, Col: 52}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 				if templ_7745c5c3_Err != nil {
@@ -401,7 +401,7 @@ func POSTerminalTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var22 string
 				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(ZAR(t.TotalZar))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pos.templ`, Line: 153, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pos.templ`, Line: 153, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 				if templ_7745c5c3_Err != nil {

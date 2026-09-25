@@ -79,7 +79,7 @@ func AnalyticsTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("Month to date, %s. Includes trade orders and counter sales; cancelled and refunded orders are excluded.", m.Now.In(sast).Format("January 2006")))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 49, Col: 165}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/analytics.templ`, Line: 49, Col: 165}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -102,7 +102,7 @@ func AnalyticsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var3).String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 1, Col: 0}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/analytics.templ`, Line: 1, Col: 0}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
@@ -115,7 +115,7 @@ func AnalyticsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(Signed(pct))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 60, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/analytics.templ`, Line: 60, Col: 94}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -133,7 +133,7 @@ func AnalyticsTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(ZARWhole(m.MonthSalesZar))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 63, Col: 49}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/analytics.templ`, Line: 63, Col: 49}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -146,7 +146,7 @@ func AnalyticsTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(ZARWhole(m.PrevMonthSalesZar))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 64, Col: 75}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/analytics.templ`, Line: 64, Col: 75}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -159,7 +159,7 @@ func AnalyticsTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(ZARWhole(m.AvgOrderValueZar))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 68, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/analytics.templ`, Line: 68, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -172,7 +172,7 @@ func AnalyticsTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("across %d %s", m.MonthOrders, Plural(m.MonthOrders, "sale", "sales")))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 69, Col: 107}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/analytics.templ`, Line: 69, Col: 107}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -185,7 +185,7 @@ func AnalyticsTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d of %d", m.QuotesWon, m.QuotesTotal))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 73, Col: 75}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/analytics.templ`, Line: 73, Col: 75}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -198,7 +198,7 @@ func AnalyticsTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d open", m.OpenQuotes))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 74, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/analytics.templ`, Line: 74, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -211,7 +211,7 @@ func AnalyticsTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(ZARWhole(m.QuotePipelineZar))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 78, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/analytics.templ`, Line: 78, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
@@ -234,7 +234,7 @@ func AnalyticsTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(line)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 87, Col: 15}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/analytics.templ`, Line: 87, Col: 15}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -257,7 +257,7 @@ func AnalyticsTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(ZARWhole(m.Last14Sales))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `analytics.templ`, Line: 97, Col: 63}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/analytics.templ`, Line: 97, Col: 63}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {

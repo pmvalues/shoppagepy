@@ -90,7 +90,7 @@ func RFQsTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d open, worth about %s. %d of %d won.", m.OpenQuotes, ZARWhole(m.QuotePipelineZar), m.QuotesWon, m.QuotesTotal))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 60, Col: 133}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 60, Col: 133}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -120,7 +120,7 @@ func RFQsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(Initials(l.BuyerName))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 79, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 79, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -133,7 +133,7 @@ func RFQsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(l.BuyerName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 81, Col: 23}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 81, Col: 23}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -146,7 +146,7 @@ func RFQsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(l.BuyerCompany)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 82, Col: 29}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 82, Col: 29}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -159,7 +159,7 @@ func RFQsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(l.BuyerCity)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 82, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 82, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -172,7 +172,7 @@ func RFQsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(Ago(l.ReceivedAt, m.Now))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 82, Col: 80}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 82, Col: 80}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -194,7 +194,7 @@ func RFQsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var8).String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 1, Col: 0}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 1, Col: 0}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 			if templ_7745c5c3_Err != nil {
@@ -207,7 +207,7 @@ func RFQsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 85, Col: 51}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 85, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -220,7 +220,7 @@ func RFQsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s × ", Int(l.Quantity)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 88, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 88, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -229,7 +229,7 @@ func RFQsTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(l.ItemRequested)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 88, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 88, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -247,7 +247,7 @@ func RFQsTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(ZAR(l.EstimatedTotal))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 90, Col: 60}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 90, Col: 60}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -260,7 +260,7 @@ func RFQsTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(LocalDate(l.ValidUntil))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 90, Col: 111}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 90, Col: 111}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -278,7 +278,7 @@ func RFQsTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(ZAR(l.EstimatedTotal))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 92, Col: 59}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 92, Col: 59}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
@@ -335,7 +335,7 @@ func RFQsTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var17 templ.SafeURL
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(waLink(l.BuyerPhone, quoteMessage(l, data.Store))))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 106, Col: 135}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 106, Col: 135}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 				if templ_7745c5c3_Err != nil {
@@ -369,7 +369,7 @@ func RFQsTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue("/rfqs/" + l.ID + "/convert")
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 115, Col: 90}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 115, Col: 90}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 				if templ_7745c5c3_Err != nil {
@@ -382,7 +382,7 @@ func RFQsTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var19 string
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue("Create an order for " + l.BuyerCompany + " at the quoted price?")
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 115, Col: 196}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 115, Col: 196}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 				if templ_7745c5c3_Err != nil {
@@ -442,7 +442,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var21 string
 		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue("quote-" + l.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 129, Col: 29}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 129, Col: 29}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 		if templ_7745c5c3_Err != nil {
@@ -455,7 +455,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var22 string
 		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue("Quote for " + l.BuyerCompany)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 129, Col: 95}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 129, Col: 95}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 		if templ_7745c5c3_Err != nil {
@@ -468,7 +468,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var23 string
 		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(l.BuyerCompany)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 132, Col: 34}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 132, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
@@ -481,7 +481,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue("/rfqs/" + l.ID + "/quote")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 135, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 135, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 		if templ_7745c5c3_Err != nil {
@@ -494,7 +494,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var25 string
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(tiersJSON(data.WholesaleTiers))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 135, Col: 181}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 135, Col: 181}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 		if templ_7745c5c3_Err != nil {
@@ -507,7 +507,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var26 string
 		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue("q-sku-" + l.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 139, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 139, Col: 35}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
 		if templ_7745c5c3_Err != nil {
@@ -520,7 +520,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var27 string
 		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue("q-sku-" + l.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 140, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 140, Col: 35}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 		if templ_7745c5c3_Err != nil {
@@ -538,7 +538,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 			var templ_7745c5c3_Var28 string
 			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(c.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 142, Col: 29}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 142, Col: 29}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
 			if templ_7745c5c3_Err != nil {
@@ -551,7 +551,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 			var templ_7745c5c3_Var29 string
 			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.2f", c.WholesaleZar))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 142, Col: 80}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 142, Col: 80}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
 			if templ_7745c5c3_Err != nil {
@@ -564,7 +564,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 			var templ_7745c5c3_Var30 string
 			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(c.StockQuantity))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 142, Col: 123}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 142, Col: 123}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30)
 			if templ_7745c5c3_Err != nil {
@@ -587,7 +587,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 			var templ_7745c5c3_Var31 string
 			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(c.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 142, Col: 162}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 142, Col: 162}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 			if templ_7745c5c3_Err != nil {
@@ -600,7 +600,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 			var templ_7745c5c3_Var32 string
 			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(ZAR(c.WholesaleZar))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 142, Col: 189}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 142, Col: 189}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 			if templ_7745c5c3_Err != nil {
@@ -618,7 +618,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var33 string
 		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue("q-qty-" + l.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 147, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 147, Col: 35}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 		if templ_7745c5c3_Err != nil {
@@ -631,7 +631,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var34 string
 		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue("q-qty-" + l.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 148, Col: 34}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 148, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 		if templ_7745c5c3_Err != nil {
@@ -644,7 +644,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var35 string
 		templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(l.Quantity))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 148, Col: 119}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 148, Col: 119}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
 		if templ_7745c5c3_Err != nil {
@@ -657,7 +657,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var36 string
 		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.ResolveAttributeValue("q-unit-" + l.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 154, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 154, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
 		if templ_7745c5c3_Err != nil {
@@ -670,7 +670,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var37 string
 		templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.ResolveAttributeValue("q-unit-" + l.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 155, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 155, Col: 35}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var37)
 		if templ_7745c5c3_Err != nil {
@@ -683,7 +683,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var38 string
 		templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.ResolveAttributeValue("q-del-" + l.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 159, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 159, Col: 35}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var38)
 		if templ_7745c5c3_Err != nil {
@@ -696,7 +696,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var39 string
 		templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.ResolveAttributeValue("q-del-" + l.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 160, Col: 34}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 160, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var39)
 		if templ_7745c5c3_Err != nil {
@@ -709,7 +709,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var40 string
 		templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.2f", l.DeliveryZar))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 160, Col: 149}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 160, Col: 149}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var40)
 		if templ_7745c5c3_Err != nil {
@@ -722,7 +722,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var41 string
 		templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.ResolveAttributeValue("q-days-" + l.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 163, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 163, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var41)
 		if templ_7745c5c3_Err != nil {
@@ -735,7 +735,7 @@ func QuoteBuilder(data models.DashboardViewData, l models.RFQLead, p models.Cata
 		var templ_7745c5c3_Var42 string
 		templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.ResolveAttributeValue("q-days-" + l.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `rfqs.templ`, Line: 164, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/rfqs.templ`, Line: 164, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var42)
 		if templ_7745c5c3_Err != nil {

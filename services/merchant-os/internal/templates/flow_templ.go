@@ -74,7 +74,7 @@ func FlowTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(rule.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 38, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 38, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -88,7 +88,7 @@ func FlowTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("Ran %d times · last %s", rule.ExecutionsCount, Ago(rule.LastTriggeredAt, data.Metrics.Now)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 41, Col: 115}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 41, Col: 115}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -116,7 +116,7 @@ func FlowTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var4).String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 1, Col: 0}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 1, Col: 0}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
@@ -129,7 +129,7 @@ func FlowTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(rule.Active))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 52, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 52, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -142,7 +142,7 @@ func FlowTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue("Automation " + rule.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 53, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 53, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
@@ -155,7 +155,7 @@ func FlowTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue("/flow/" + rule.ID + "/toggle")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 54, Col: 47}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 54, Col: 47}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {
@@ -168,7 +168,7 @@ func FlowTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(rule.Trigger)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 60, Col: 54}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 60, Col: 54}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -181,7 +181,7 @@ func FlowTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(rule.Condition)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 61, Col: 49}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 61, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -194,7 +194,7 @@ func FlowTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(rule.Action)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `flow.templ`, Line: 62, Col: 51}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/flow.templ`, Line: 62, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {

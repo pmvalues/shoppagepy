@@ -77,7 +77,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d %s to pack · %s units to pick · %d awaiting payment", len(orders), Plural(len(orders), "order", "orders"), Int(unitsToPick(orders)), data.Metrics.AwaitingPayment))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 47, Col: 188}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 47, Col: 188}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -119,7 +119,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(o.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 64, Col: 54}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 64, Col: 54}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -132,7 +132,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(o.OrderNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 68, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 68, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -145,7 +145,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(o.Company)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 68, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 68, Col: 42}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -158,7 +158,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(orDash(o.Customer))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 70, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 70, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -176,7 +176,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(o.Phone)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 72, Col: 20}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 72, Col: 20}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -195,7 +195,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(o.Address)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 75, Col: 22}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 75, Col: 22}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -218,7 +218,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var9).String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 1, Col: 0}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 1, Col: 0}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
@@ -231,7 +231,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(OrderStatusLabel(o.Status))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 80, Col: 77}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 80, Col: 77}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -244,7 +244,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue("pick-scan-" + o.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 84, Col: 53}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 84, Col: 53}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 			if templ_7745c5c3_Err != nil {
@@ -257,7 +257,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue("pick-scan-" + o.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 85, Col: 55}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 85, Col: 55}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 			if templ_7745c5c3_Err != nil {
@@ -270,7 +270,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("0 of %d lines picked", len(o.LineItems)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 86, Col: 110}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 86, Col: 110}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -289,7 +289,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(strings.ToLower(ln.SKU))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 103, Col: 60}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 103, Col: 60}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 				if templ_7745c5c3_Err != nil {
@@ -302,7 +302,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Spec.Barcode)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 103, Col: 92}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 103, Col: 92}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 				if templ_7745c5c3_Err != nil {
@@ -315,7 +315,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue("Picked " + ln.SKU)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 104, Col: 82}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 104, Col: 82}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 				if templ_7745c5c3_Err != nil {
@@ -328,7 +328,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(ln.SKU)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 105, Col: 39}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 105, Col: 39}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -341,7 +341,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var19 string
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(ln.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 105, Col: 88}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 105, Col: 88}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 				if templ_7745c5c3_Err != nil {
@@ -354,7 +354,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var20 string
 				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(orDash(p.Spec.Barcode))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 106, Col: 60}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 106, Col: 60}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {
@@ -367,7 +367,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var21 string
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(Int(ln.Quantity))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 107, Col: 47}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 107, Col: 47}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 				if templ_7745c5c3_Err != nil {
@@ -380,7 +380,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var22 string
 				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(Int(p.StockQuantity))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 109, Col: 31}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 109, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 				if templ_7745c5c3_Err != nil {
@@ -408,7 +408,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var23 string
 			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue("/orders/" + o.ID + "/invoice")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 120, Col: 89}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 120, Col: 89}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 			if templ_7745c5c3_Err != nil {
@@ -421,7 +421,7 @@ func PickPackTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var24 string
 			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue("/orders/" + o.ID + "/advance-status")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pick_pack.templ`, Line: 121, Col: 121}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pick_pack.templ`, Line: 121, Col: 121}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 			if templ_7745c5c3_Err != nil {

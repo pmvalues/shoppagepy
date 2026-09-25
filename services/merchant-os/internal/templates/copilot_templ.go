@@ -98,7 +98,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var2 string
 				templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(Initials(accountName(data.Nav)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 62, Col: 76}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 62, Col: 76}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 				if templ_7745c5c3_Err != nil {
@@ -111,7 +111,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Content)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 63, Col: 39}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 63, Col: 39}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -129,7 +129,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(msg.Content)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 69, Col: 20}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 69, Col: 20}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -142,7 +142,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(LocalDateTime(msg.Timestamp))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 70, Col: 91}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 70, Col: 91}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -174,7 +174,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf(`{"prompt": %q}`, q))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 84, Col: 92}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 84, Col: 92}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -187,7 +187,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(q)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 84, Col: 123}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 84, Col: 123}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -226,7 +226,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var8).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 				if templ_7745c5c3_Err != nil {
@@ -239,7 +239,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 106, Col: 20}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 106, Col: 20}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -257,7 +257,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(proposalStatus(p.Status))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 108, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 108, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
@@ -275,7 +275,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(p.Reason)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 111, Col: 35}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 111, Col: 35}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -288,7 +288,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(p.Change)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 112, Col: 38}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 112, Col: 38}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -308,7 +308,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 						var templ_7745c5c3_Var14 string
 						templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf(`{"proposal": %q, "op": "approve"}`, p.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 117, Col: 133}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 117, Col: 133}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 						if templ_7745c5c3_Err != nil {
@@ -331,7 +331,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 						var templ_7745c5c3_Var15 string
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf(`{"proposal": %q, "op": "undo"}`, p.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 120, Col: 130}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 120, Col: 130}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 						if templ_7745c5c3_Err != nil {
@@ -359,7 +359,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 						var templ_7745c5c3_Var16 templ.SafeURL
 						templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(href))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 127, Col: 64}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 127, Col: 64}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 						if templ_7745c5c3_Err != nil {
@@ -378,7 +378,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 					var templ_7745c5c3_Var17 templ.SafeURL
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/catalog/" + p.TargetID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 130, Col: 83}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 130, Col: 83}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -391,7 +391,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue("/catalog/" + p.TargetID)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 130, Col: 119}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 130, Col: 119}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 					if templ_7745c5c3_Err != nil {
@@ -410,7 +410,7 @@ func CopilotTab(data models.DashboardViewData) templ.Component {
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf(`{"proposal": %q, "op": "dismiss"}`, p.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `copilot.templ`, Line: 133, Col: 131}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/copilot.templ`, Line: 133, Col: 131}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 					if templ_7745c5c3_Err != nil {

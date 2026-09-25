@@ -67,7 +67,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var2 templ.SafeURL
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(storeLink(data)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 40, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 40, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -90,7 +90,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sf.Headline)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 52, Col: 94}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 52, Col: 94}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
@@ -103,7 +103,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sf.About)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 56, Col: 168}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 56, Col: 168}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -116,7 +116,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(sf.TradingHours)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 61, Col: 96}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 61, Col: 96}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 		if templ_7745c5c3_Err != nil {
@@ -129,7 +129,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(sf.Ribbon)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 65, Col: 89}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 65, Col: 89}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 		if templ_7745c5c3_Err != nil {
@@ -162,7 +162,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d / 60", len([]rune(sf.SEOTitle))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 78, Col: 154}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 78, Col: 154}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -175,7 +175,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(sf.SEOTitle)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 79, Col: 91}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 79, Col: 91}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 		if templ_7745c5c3_Err != nil {
@@ -188,7 +188,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(seoTitle(data))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 79, Col: 137}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 79, Col: 137}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 		if templ_7745c5c3_Err != nil {
@@ -201,7 +201,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d / 155", len([]rune(sf.SEODescription))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 82, Col: 165}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 82, Col: 165}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -214,7 +214,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(sf.SEODescription)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 83, Col: 164}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 83, Col: 164}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -232,7 +232,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(sf.Ribbon)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 93, Col: 147}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 93, Col: 147}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -250,7 +250,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(Initials(data.Store.Name))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 97, Col: 70}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 97, Col: 70}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -263,7 +263,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 98, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 98, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
@@ -276,7 +276,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var15 string
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(data.Store.City)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 98, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 98, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
@@ -289,7 +289,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(orText(sf.Headline, "Your headline"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 100, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 100, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
@@ -302,7 +302,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(orText(sf.About, "Tell buyers about your business."))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 101, Col: 128}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 101, Col: 128}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
@@ -315,7 +315,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var18 string
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d products", len(data.Catalog)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 102, Col: 99}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 102, Col: 99}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {
@@ -333,7 +333,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(sf.TradingHours)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 104, Col: 28}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 104, Col: 28}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -347,7 +347,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var20 string
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(storeLink(data))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 113, Col: 57}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 113, Col: 57}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
@@ -360,7 +360,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var21 string
 		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(seoTitle(data))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 114, Col: 114}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 114, Col: 114}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 		if templ_7745c5c3_Err != nil {
@@ -373,7 +373,7 @@ func EditorTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var22 string
 		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(seoDesc(data))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor.templ`, Line: 115, Col: 69}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/editor.templ`, Line: 115, Col: 69}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {

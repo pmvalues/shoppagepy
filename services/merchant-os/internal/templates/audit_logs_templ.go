@@ -59,7 +59,7 @@ func AuditLogsTab(data models.DashboardViewData) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query["q"])
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `audit_logs.templ`, Line: 39, Col: 82}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/audit_logs.templ`, Line: 39, Col: 82}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -87,7 +87,7 @@ func AuditLogsTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(LocalDateTime(e.Timestamp))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `audit_logs.templ`, Line: 53, Col: 71}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/audit_logs.templ`, Line: 53, Col: 71}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 				if templ_7745c5c3_Err != nil {
@@ -100,7 +100,7 @@ func AuditLogsTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(Ago(e.Timestamp, data.Metrics.Now))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `audit_logs.templ`, Line: 53, Col: 110}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/audit_logs.templ`, Line: 53, Col: 110}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -113,7 +113,7 @@ func AuditLogsTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(e.Actor)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `audit_logs.templ`, Line: 54, Col: 21}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/audit_logs.templ`, Line: 54, Col: 21}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -126,7 +126,7 @@ func AuditLogsTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(e.Action)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `audit_logs.templ`, Line: 55, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/audit_logs.templ`, Line: 55, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -139,7 +139,7 @@ func AuditLogsTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(e.EntityID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `audit_logs.templ`, Line: 56, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/audit_logs.templ`, Line: 56, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -152,7 +152,7 @@ func AuditLogsTab(data models.DashboardViewData) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(e.Details)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `audit_logs.templ`, Line: 57, Col: 42}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/audit_logs.templ`, Line: 57, Col: 42}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {

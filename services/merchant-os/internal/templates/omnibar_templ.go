@@ -87,7 +87,7 @@ func OmnibarResults(q string, results []OmniResult) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(q)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `omnibar.templ`, Line: 88, Col: 26}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/omnibar.templ`, Line: 88, Col: 26}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -107,7 +107,7 @@ func OmnibarResults(q string, results []OmniResult) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(r.Group)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `omnibar.templ`, Line: 93, Col: 38}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/omnibar.templ`, Line: 93, Col: 38}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -134,7 +134,7 @@ func OmnibarResults(q string, results []OmniResult) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var5).String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `omnibar.templ`, Line: 1, Col: 0}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/omnibar.templ`, Line: 1, Col: 0}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -147,7 +147,7 @@ func OmnibarResults(q string, results []OmniResult) templ.Component {
 			var templ_7745c5c3_Var7 templ.SafeURL
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(r.Href))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `omnibar.templ`, Line: 97, Col: 31}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/omnibar.templ`, Line: 97, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -176,7 +176,7 @@ func OmnibarResults(q string, results []OmniResult) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(r.Label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `omnibar.templ`, Line: 106, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/omnibar.templ`, Line: 106, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -194,7 +194,7 @@ func OmnibarResults(q string, results []OmniResult) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(r.Hint)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `omnibar.templ`, Line: 108, Col: 19}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/omnibar.templ`, Line: 108, Col: 19}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
