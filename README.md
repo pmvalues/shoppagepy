@@ -103,8 +103,9 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000). The Merchant OS sign-in for local development is
 printed to the log on first start.
 
-> An unset `SHOPPAGE_ENV` means **production**: the binary then requires `DATABASE_URL`,
-> `SHOPPAGE_AUTH_SECRET` and non-default admin credentials, and refuses to start without them.
+> An unset `SHOPPAGE_ENV` means **production**: the binary then requires `DATABASE_URL`
+> and refuses to start without it. Missing `SHOPPAGE_AUTH_SECRET` / `SHOPPAGE_ADMIN_*`
+> are bootstrapped at startup (operator-set values win).
 
 ### 2. Checks
 

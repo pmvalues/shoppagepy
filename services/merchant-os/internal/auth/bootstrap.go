@@ -29,19 +29,14 @@ func IsProduction() bool {
 	return env.IsProduction()
 }
 
-// EnsureLocalAuth bootstraps development credentials when the desk has no
-// SHOPPAGE_AUTH_SECRET / SHOPPAGE_ADMIN_* configured.
-//
-// Production (any SHOPPAGE_ENV other than development|dev|local|test,
-// including unset) never bootstraps: those instances must fail closed until an operator sets
-// real secrets. Development persists a generated HMAC secret under data/ so
-// sessions survive restarts, and fills demo admin credentials when unset.
+// EnsureLocalAuth bootstraps credentials when the desk has no
+// SHOPPAGE_AUTH_SECRET / SHOPPAGE_ADMIN_* configured. Operator-provided values
+// are never overwritten; only missing or too-short values are filled, so an
+// unconfigured instance still boots and the desk stays usable — matching
+// pre-hardening behaviour. The generated HMAC secret persists under data/ so
+// sessions survive restarts.
 // Returns true when a missing secret was bootstrapped (caller may log it).
 func EnsureLocalAuth() (bootstrapped bool) {
-	if IsProduction() {
-		return false
-	}
-
 	if len(os.Getenv("SHOPPAGE_AUTH_SECRET")) < 32 {
 		secret, created := loadOrCreateSecret()
 		if secret == "" {

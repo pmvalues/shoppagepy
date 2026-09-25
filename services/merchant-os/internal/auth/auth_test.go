@@ -57,15 +57,17 @@ func TestVerifyPasswordFailsClosed(t *testing.T) {
 	}
 }
 
-func TestNoBootstrapInProduction(t *testing.T) {
+func TestBootstrapFillsMissingAuthWhenUnconfigured(t *testing.T) {
 	t.Setenv("SHOPPAGE_ENV", "")
 	t.Setenv("SHOPPAGE_AUTH_SECRET", "")
+	t.Setenv("SHOPPAGE_ADMIN_EMAIL", "")
 	t.Setenv("SHOPPAGE_ADMIN_PASSWORD", "")
-	if EnsureLocalAuth() {
-		t.Fatal("bootstrap ran with SHOPPAGE_ENV unset")
+	EnsureLocalAuth()
+	if len(os.Getenv("SHOPPAGE_AUTH_SECRET")) < 32 {
+		t.Fatal("auth secret not bootstrapped on an unconfigured instance")
 	}
-	if pw := getenv("SHOPPAGE_ADMIN_PASSWORD"); pw != "" {
-		t.Fatalf("default password installed in production: %q", pw)
+	if pw := getenv("SHOPPAGE_ADMIN_PASSWORD"); pw == "" {
+		t.Fatal("default password not installed on an unconfigured instance")
 	}
 }
 

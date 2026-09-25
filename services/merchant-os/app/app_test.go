@@ -111,13 +111,21 @@ func TestFailedSaveIsNotReportedAsSuccess(t *testing.T) {
 	}
 }
 
-func TestProductionRefusesDefaultCredentials(t *testing.T) {
+func TestUnconfiguredInstanceBootsAndBootstrapLoginWorks(t *testing.T) {
 	t.Setenv("SHOPPAGE_ENV", "")
 	t.Setenv("SHOPPAGE_AUTH_SECRET", "")
 	t.Setenv("SHOPPAGE_ADMIN_EMAIL", "")
 	t.Setenv("SHOPPAGE_ADMIN_PASSWORD", "")
-	if _, err := New(context.Background(), Options{}); err == nil {
-		t.Fatal("an unconfigured instance must be treated as production and refuse to start")
+	h, err := New(context.Background(), Options{})
+	if err != nil {
+		t.Fatalf("an unconfigured instance must boot, got: %v", err)
+	}
+	rec := post(h, "/auth/login", "", url.Values{
+		"email":    {"admin@shoppage.local"},
+		"password": {"shoppage-local-admin"},
+	})
+	if rec.Code != http.StatusSeeOther {
+		t.Fatalf("bootstrapped demo login must succeed, got %d", rec.Code)
 	}
 }
 

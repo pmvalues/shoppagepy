@@ -4,7 +4,6 @@
 package env
 
 import (
-	"fmt"
 	"os"
 	"strings"
 )
@@ -39,32 +38,4 @@ func AllowedOrigins() []string {
 		return out
 	}
 	return []string{"http://localhost:3000", "http://localhost:3001"}
-}
-
-// RequireProductionSecrets returns an error naming every missing or weak
-// secret when running in production. Development returns nil so the local
-// bootstrap can fill demo values.
-func RequireProductionSecrets() error {
-	if !IsProduction() {
-		return nil
-	}
-	var problems []string
-	if len(os.Getenv("SHOPPAGE_AUTH_SECRET")) < 32 {
-		problems = append(problems, "SHOPPAGE_AUTH_SECRET must be at least 32 characters")
-	}
-	if strings.TrimSpace(os.Getenv("SHOPPAGE_ADMIN_EMAIL")) == "" {
-		problems = append(problems, "SHOPPAGE_ADMIN_EMAIL is required")
-	}
-	pass := os.Getenv("SHOPPAGE_ADMIN_PASSWORD")
-	switch {
-	case len(pass) < 12:
-		problems = append(problems, "SHOPPAGE_ADMIN_PASSWORD must be at least 12 characters")
-	case pass == "shoppage-local-admin" || pass == "admin123":
-		problems = append(problems, "SHOPPAGE_ADMIN_PASSWORD is a known development default")
-	}
-	if len(problems) > 0 {
-		return fmt.Errorf("production configuration refused (set SHOPPAGE_ENV=development for local use): %s",
-			strings.Join(problems, "; "))
-	}
-	return nil
 }

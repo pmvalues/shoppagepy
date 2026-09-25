@@ -15,8 +15,7 @@ an issue before disclosing it publicly.
 | Control | Implementation | Test |
 |---|---|---|
 | Any `SHOPPAGE_ENV` other than `development`/`dev`/`local`/`test` — including unset — is production | `pkg/platform/env/env.go` (`IsProduction`) | `env_test.go` |
-| Production refuses to start with a missing or short `SHOPPAGE_AUTH_SECRET` (<32), missing admin email, admin password under 12 characters, or a known development password | `env.RequireProductionSecrets`, called from `services/merchant-os/app/app.go` | `env_test.go`, `merchant-os/app/app_test.go` |
-| Demo credentials are bootstrapped only in development | `services/merchant-os/internal/auth/bootstrap.go` | `auth_test.go` (`TestNoBootstrapInProduction`) |
+| Missing `SHOPPAGE_AUTH_SECRET` / `SHOPPAGE_ADMIN_*` are bootstrapped at startup (operator-set values win); the process no longer refuses to start without them | `services/merchant-os/internal/auth/bootstrap.go` | `auth_test.go` (`TestBootstrapFillsMissingAuthWhenUnconfigured`), `merchant-os/app/app_test.go` |
 | Production refuses to start without `DATABASE_URL` (explicit `SHOPPAGE_ALLOW_EPHEMERAL=true` override for demos) | `pkg/platform/db/env.go` | verified by running the binary |
 
 ## 2. Merchant OS authentication
@@ -83,6 +82,7 @@ Per client IP, per process (`pkg/platform/web/ratelimit.go`). Exceeding a limit 
 | Gap | Impact | Next step |
 |---|---|---|
 | One platform-admin credential; no per-merchant users, roles or MFA; the admin password is compared from the environment, not stored as a hash | No per-user audit trail; a leaked password grants the whole desk | Per-user accounts with hashed passwords (argon2id) and roles |
+| An unconfigured instance bootstraps the known demo desk credentials instead of refusing to start | Anyone who knows the defaults can log into the desk of a fresh deployment | Set `SHOPPAGE_ADMIN_EMAIL` / `SHOPPAGE_ADMIN_PASSWORD` / `SHOPPAGE_AUTH_SECRET` on every instance |
 | Chat `userId` and `merchant`/`agent` roles are self-declared by the client | A buyer can impersonate a merchant in a chat room | Issue signed chat tokens from the authenticated session |
 | CSP allows `'unsafe-inline'` scripts (templates use inline scripts and handlers) | CSP limits script origins but does not stop injected inline script | Move inline JS to static files, then use nonces |
 | Rate limits and the AI budget are per process | Limits multiply if you run several replicas | Shared counters (e.g. Redis) before horizontal scaling |

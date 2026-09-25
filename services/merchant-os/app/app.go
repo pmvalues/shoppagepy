@@ -111,11 +111,9 @@ func New(ctx context.Context, opts Options) (http.Handler, error) {
 
 	// Authentication: login page + session endpoints are public; everything else
 	// under the merchant workspace requires a valid SHOPPAGE_AUTH_SECRET session.
-	// Development bootstraps a local secret + demo admin when unset; production
-	// refuses to start without real SHOPPAGE_AUTH_SECRET / SHOPPAGE_ADMIN_*.
-	if err := env.RequireProductionSecrets(); err != nil {
-		return nil, err
-	}
+	// Missing SHOPPAGE_AUTH_SECRET / SHOPPAGE_ADMIN_* are bootstrapped at startup
+	// (operator-provided values always win) so an unconfigured instance boots
+	// instead of refusing to start, matching pre-hardening behaviour.
 	if auth.EnsureLocalAuth() {
 		slog.Info("Bootstrapped local Merchant OS auth secret (development only)")
 	}
