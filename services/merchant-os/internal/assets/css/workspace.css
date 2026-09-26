@@ -360,7 +360,7 @@ a.li:hover .txt b { color: var(--primary-2); }
 .btn.large { min-height: var(--control-lg); padding: 10px 20px; font-size: var(--fs-16); }
 .btn.block { width: 100%; }
 .seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); padding: 2px; gap: 2px; }
-.seg > * { border: 0; background: transparent; font-size: var(--fs-12); font-weight: 600; color: var(--muted); padding: 4px 10px; border-radius: var(--r-sm); cursor: pointer; }
+.seg > * { border: 0; background: transparent; font-size: var(--fs-12); font-weight: 600; color: var(--muted); padding: 4px 10px; border-radius: var(--r-sm); cursor: pointer; text-decoration: none; }
 .seg > .on, .seg > [aria-pressed="true"], .seg > .active { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-card); }
 .view-switch { display: inline-flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); padding: 2px; }
 .view-switch button { border: 0; background: transparent; color: var(--muted); height: 28px; padding: 0 10px; border-radius: var(--r-sm); font-weight: 600; font-size: var(--fs-12); }
@@ -553,6 +553,7 @@ dialog::backdrop { background: rgba(6, 20, 14, .55); backdrop-filter: blur(3px);
 
 /* charts */
 svg.chart { width: 100%; height: 200px; display: block; overflow: visible; }
+.chart-wrap { margin-top: 4px; }
 .chart-legend { display: flex; gap: var(--s-4); font-size: var(--fs-12); color: var(--muted); margin-bottom: 6px; flex-wrap: wrap; }
 .chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
 .lg-line { width: 16px; height: 3px; border-radius: 2px; background: var(--primary); display: inline-block; }
